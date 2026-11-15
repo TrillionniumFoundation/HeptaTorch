@@ -1,0 +1,1980 @@
+{
+  "schema": "heptatorch.native-extension-validation.v1",
+  "status": "PASS",
+  "baseline_commit": "fed7c077e62f4c8447099927c00da178b691424b",
+  "source": "src/heptatorch.hepta",
+  "source_sha256": "97a0aaf26578baee63e029d2aed7b86c9648131181193a04fd383a39cdb493ac",
+  "executable_sha256": "b2a37da2daa2c8d1eba5b2198a679d49e9a49e1ca4eeefff77905d273085c9df",
+  "build": {
+    "compiler_sha256": "87c247e4d1c3c9a449d2947fd4227fdc186d519bffd203a04cafce7861a4ed54",
+    "source_bytes": 365591,
+    "executable_bytes": 546304,
+    "functions": 117,
+    "blocks": 1364,
+    "instructions": 5486
+  },
+  "native_regression": {
+    "status": "PASS",
+    "fixture_pairs": 221,
+    "original_baseline_pairs": 76,
+    "new_pairs": 145,
+    "command": "make HEPTA_COMPILER=<pinned-native-compiler> test",
+    "environment": {
+      "PATH": ""
+    },
+    "fixture_manifest": "validation/fixture-manifest.json"
+  },
+  "integrated_matmul_linear": {
+    "schema": "heptatorch.matmul-extension-tests.v1",
+    "status": "PASS",
+    "seed": 20261115,
+    "cases": 63,
+    "compared_values": 4593,
+    "oracle": "NumPy matmul, independently broadcast-reduced analytic VJPs; eight float64 central finite-difference cases; explicit invalid-input and capacity contracts",
+    "rtol": 5e-05,
+    "atol": 8e-06,
+    "numpy_version": "2.3.5",
+    "source_sha256": "97a0aaf26578baee63e029d2aed7b86c9648131181193a04fd383a39cdb493ac",
+    "executable_sha256": "b2a37da2daa2c8d1eba5b2198a679d49e9a49e1ca4eeefff77905d273085c9df",
+    "rows": [
+      {
+        "case": "matmul-00-transpose-0",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 13,
+        "max_absolute_error": 2.9513529398172977e-08,
+        "fixture": true
+      },
+      {
+        "case": "matmul-00-transpose-1",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 13,
+        "max_absolute_error": 9.2287102404498e-09,
+        "fixture": false
+      },
+      {
+        "case": "matmul-01-transpose-0",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 20,
+        "max_absolute_error": 7.412955937979859e-08,
+        "fixture": true
+      },
+      {
+        "case": "matmul-01-transpose-1",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 20,
+        "max_absolute_error": 1.7196612578374015e-08,
+        "fixture": false
+      },
+      {
+        "case": "matmul-02-transpose-0",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 34,
+        "max_absolute_error": 2.527234457261329e-07,
+        "fixture": true
+      },
+      {
+        "case": "matmul-02-transpose-1",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 34,
+        "max_absolute_error": 1.9704904374862053e-07,
+        "fixture": false
+      },
+      {
+        "case": "matmul-03-transpose-0",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 44,
+        "max_absolute_error": 5.050741478385135e-07,
+        "fixture": true
+      },
+      {
+        "case": "matmul-03-transpose-1",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 44,
+        "max_absolute_error": 1.9686727625867206e-07,
+        "fixture": true
+      },
+      {
+        "case": "matmul-04-transpose-0",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 118,
+        "max_absolute_error": 6.226308784107459e-07,
+        "fixture": true
+      },
+      {
+        "case": "matmul-04-transpose-1",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 118,
+        "max_absolute_error": 4.76837158203125e-07,
+        "fixture": false
+      },
+      {
+        "case": "matmul-05-transpose-0",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 278,
+        "max_absolute_error": 2.2130398065201007e-06,
+        "fixture": true
+      },
+      {
+        "case": "matmul-05-transpose-1",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 278,
+        "max_absolute_error": 4.753909532695388e-06,
+        "fixture": false
+      },
+      {
+        "case": "matmul-06-transpose-0",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 468,
+        "max_absolute_error": 1.8337434344317671e-06,
+        "fixture": true
+      },
+      {
+        "case": "matmul-06-transpose-1",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 468,
+        "max_absolute_error": 4.0596385346702846e-06,
+        "fixture": true
+      },
+      {
+        "case": "matmul-07-transpose-0",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 188,
+        "max_absolute_error": 9.869953672136944e-07,
+        "fixture": true
+      },
+      {
+        "case": "matmul-07-transpose-1",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 188,
+        "max_absolute_error": 1.524839465361083e-06,
+        "fixture": true
+      },
+      {
+        "case": "matmul-08-transpose-0",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 274,
+        "max_absolute_error": 1.9142108698133597e-06,
+        "fixture": true
+      },
+      {
+        "case": "matmul-08-transpose-1",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 274,
+        "max_absolute_error": 1.5175333931694013e-06,
+        "fixture": false
+      },
+      {
+        "case": "matmul-09-transpose-0",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 118,
+        "max_absolute_error": 6.441925108902069e-07,
+        "fixture": true
+      },
+      {
+        "case": "matmul-09-transpose-1",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 118,
+        "max_absolute_error": 6.523448217166106e-07,
+        "fixture": false
+      },
+      {
+        "case": "matmul-10-transpose-0",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 1,
+        "max_absolute_error": 0.0,
+        "fixture": true
+      },
+      {
+        "case": "matmul-10-transpose-1",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 1,
+        "max_absolute_error": 0.0,
+        "fixture": false
+      },
+      {
+        "case": "matmul-11-transpose-0",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 6,
+        "max_absolute_error": 0.0,
+        "fixture": true
+      },
+      {
+        "case": "matmul-11-transpose-1",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 6,
+        "max_absolute_error": 0.0,
+        "fixture": false
+      },
+      {
+        "case": "matmul-12-transpose-0",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 24,
+        "max_absolute_error": 0.0,
+        "fixture": true
+      },
+      {
+        "case": "matmul-12-transpose-1",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 24,
+        "max_absolute_error": 0.0,
+        "fixture": false
+      },
+      {
+        "case": "matmul-13-transpose-0",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 120,
+        "max_absolute_error": 0.0,
+        "fixture": true
+      },
+      {
+        "case": "matmul-13-transpose-1",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 120,
+        "max_absolute_error": 0.0,
+        "fixture": false
+      },
+      {
+        "case": "matmul-14-transpose-0",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 12,
+        "max_absolute_error": 0.0,
+        "fixture": true
+      },
+      {
+        "case": "matmul-14-transpose-1",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 12,
+        "max_absolute_error": 0.0,
+        "fixture": false
+      },
+      {
+        "case": "matmul-15-transpose-0",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 12,
+        "max_absolute_error": 0.0,
+        "fixture": true
+      },
+      {
+        "case": "matmul-15-transpose-1",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 12,
+        "max_absolute_error": 0.0,
+        "fixture": false
+      },
+      {
+        "case": "matmul-shared-rank-1",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 4,
+        "max_absolute_error": 1.1630092444647744e-07,
+        "fixture": true
+      },
+      {
+        "case": "matmul-shared-rank-2",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 18,
+        "max_absolute_error": 1.1907298147484369e-07,
+        "fixture": true
+      },
+      {
+        "case": "matmul-shared-rank-3",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 36,
+        "max_absolute_error": 2.0016558455182576e-07,
+        "fixture": true
+      },
+      {
+        "case": "matmul-shared-rank-4",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 72,
+        "max_absolute_error": 4.115020066919328e-07,
+        "fixture": true
+      },
+      {
+        "case": "matmul-one-grad-1",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 44,
+        "max_absolute_error": 4.76837158203125e-07,
+        "fixture": true
+      },
+      {
+        "case": "matmul-one-grad-0",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 56,
+        "max_absolute_error": 2.384185791015625e-07,
+        "fixture": true
+      },
+      {
+        "case": "linear-rank-1-empty-0-bias-0",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 23,
+        "max_absolute_error": 1.4423973437871496e-07,
+        "fixture": true
+      },
+      {
+        "case": "linear-rank-1-empty-0-bias-1",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 28,
+        "max_absolute_error": 1.1920928955078125e-07,
+        "fixture": true
+      },
+      {
+        "case": "linear-rank-2-empty-0-bias-0",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 31,
+        "max_absolute_error": 4.76837158203125e-07,
+        "fixture": true
+      },
+      {
+        "case": "linear-rank-2-empty-0-bias-1",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 36,
+        "max_absolute_error": 1.8788422551097028e-07,
+        "fixture": true
+      },
+      {
+        "case": "linear-rank-3-empty-0-bias-0",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 79,
+        "max_absolute_error": 4.76837158203125e-07,
+        "fixture": true
+      },
+      {
+        "case": "linear-rank-3-empty-0-bias-1",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 84,
+        "max_absolute_error": 4.76837158203125e-07,
+        "fixture": true
+      },
+      {
+        "case": "linear-rank-4-empty-0-bias-0",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 79,
+        "max_absolute_error": 2.396460523357291e-07,
+        "fixture": true
+      },
+      {
+        "case": "linear-rank-4-empty-0-bias-1",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 84,
+        "max_absolute_error": 4.76837158203125e-07,
+        "fixture": true
+      },
+      {
+        "case": "linear-rank-3-empty-1-bias-0",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 15,
+        "max_absolute_error": 0.0,
+        "fixture": true
+      },
+      {
+        "case": "linear-rank-3-empty-1-bias-1",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 20,
+        "max_absolute_error": 0.0,
+        "fixture": true
+      },
+      {
+        "case": "matmul-central-fd-0",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 6,
+        "max_absolute_error": 1.2204841637331043e-08,
+        "fixture": false
+      },
+      {
+        "case": "matmul-central-fd-1",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 9,
+        "max_absolute_error": 3.427309769321596e-08,
+        "fixture": false
+      },
+      {
+        "case": "matmul-central-fd-2",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 15,
+        "max_absolute_error": 9.811622669886333e-08,
+        "fixture": false
+      },
+      {
+        "case": "matmul-central-fd-3",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 18,
+        "max_absolute_error": 1.054328979677166e-07,
+        "fixture": false
+      },
+      {
+        "case": "matmul-central-fd-4",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 44,
+        "max_absolute_error": 4.5441444118665686e-07,
+        "fixture": false
+      },
+      {
+        "case": "matmul-central-fd-5",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 124,
+        "max_absolute_error": 3.417981860320829e-07,
+        "fixture": false
+      },
+      {
+        "case": "matmul-central-fd-6",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 144,
+        "max_absolute_error": 2.9001387056304395e-06,
+        "fixture": false
+      },
+      {
+        "case": "matmul-central-fd-7",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 64,
+        "max_absolute_error": 4.934605115636259e-07,
+        "fixture": false
+      },
+      {
+        "case": "matmul-invalid-scalar-left",
+        "status": "PASS",
+        "expected_protocol_status": 2,
+        "compared_values": 0,
+        "max_absolute_error": 0.0,
+        "fixture": true
+      },
+      {
+        "case": "matmul-invalid-scalar-right",
+        "status": "PASS",
+        "expected_protocol_status": 2,
+        "compared_values": 0,
+        "max_absolute_error": 0.0,
+        "fixture": true
+      },
+      {
+        "case": "matmul-invalid-inner-mismatch",
+        "status": "PASS",
+        "expected_protocol_status": 2,
+        "compared_values": 0,
+        "max_absolute_error": 0.0,
+        "fixture": true
+      },
+      {
+        "case": "matmul-invalid-batch-mismatch",
+        "status": "PASS",
+        "expected_protocol_status": 2,
+        "compared_values": 0,
+        "max_absolute_error": 0.0,
+        "fixture": true
+      },
+      {
+        "case": "matmul-invalid-legacy-mm-vector",
+        "status": "PASS",
+        "expected_protocol_status": 2,
+        "compared_values": 0,
+        "max_absolute_error": 0.0,
+        "fixture": true
+      },
+      {
+        "case": "matmul-work-budget-5",
+        "status": "PASS",
+        "expected_protocol_status": 3,
+        "compared_values": 0,
+        "max_absolute_error": 0.0,
+        "fixture": false
+      },
+      {
+        "case": "matmul-work-budget-32",
+        "status": "PASS",
+        "expected_protocol_status": 3,
+        "compared_values": 0,
+        "max_absolute_error": 0.0,
+        "fixture": false
+      }
+    ]
+  },
+  "integrated_matrix_peer_review": {
+    "status": "PASS",
+    "counts": {
+      "valid_matmul": 529,
+      "shape_refusals": 1263,
+      "linear": 720,
+      "bound_refusals": 2
+    },
+    "matmul_compared_values": 2155,
+    "source_sha256": "97a0aaf26578baee63e029d2aed7b86c9648131181193a04fd383a39cdb493ac",
+    "executable_sha256": "b2a37da2daa2c8d1eba5b2198a679d49e9a49e1ca4eeefff77905d273085c9df",
+    "oracle": "NumPy matmul and independently lifted/broadcast-reduced matrix derivative for sum(output); exact dyadic operands; Linear against NumPy matmul plus affine derivative",
+    "coverage": "exhaustive dimensions0,1,2 ranks0..3 pairs plus explicit rank4 broadcast/empty pairs; Linear dimensions0,1,2 ranks1..4 with/without bias; valid resource-capacity work refusal",
+    "rows": [
+      {
+        "case": "work-limit",
+        "status": "PASS",
+        "expected_status": 3
+      },
+      {
+        "case": "result-numel-limit",
+        "status": "PASS",
+        "expected_status": 3
+      }
+    ],
+    "seconds": 2.7482795089999854
+  },
+  "integrated_cross_feature_review": {
+    "status": "PASS",
+    "source_sha256": "97a0aaf26578baee63e029d2aed7b86c9648131181193a04fd383a39cdb493ac",
+    "binary_sha256": "b2a37da2daa2c8d1eba5b2198a679d49e9a49e1ca4eeefff77905d273085c9df",
+    "cases": 11,
+    "compared_values": 529,
+    "fixture_pairs": 11,
+    "rng_seed": 839102,
+    "oracle": "Independent NumPy matmul/take/take_along_axis forward; explicit coordinate-scatter reverse, matrix derivative and unbroadcast; exactly representable dyadic operands/seeds; no local live PyTorch execution",
+    "scope": "Cross-feature integration of commands29/30/31/32, transpose, branch addition, repeated leaf accumulation, zero_grad and mutation rejection; not whole PyTorch qualification",
+    "rows": [
+      {
+        "name": "cross-broadcast-matmul-transpose-select-gather-vjp",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 288,
+        "request_sha256": "514a0de3fcadbd33ded7c7bdc6d7261a8c4b604eb59b05c2df3995ddec3b85a7",
+        "response_sha256": "182ba47e4265c692b13c5b3c70966266c812275904f565b233d53fe3de92b7c1"
+      },
+      {
+        "name": "cross-zero-k-matmul-transpose-select-gather-vjp",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 96,
+        "request_sha256": "295388f6a69a6dc7311618728e134b8db55c55dd7e0179d5ec3c86fc20576af0",
+        "response_sha256": "882bd5a91704b799032805cfd72715d332f276d7212b00c4eeb7ba4518d0c9cb"
+      },
+      {
+        "name": "cross-zero-batch-matmul-transpose-select-gather-vjp",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 120,
+        "request_sha256": "c669bcc0469f633b20b86486ce90f08fbefdc24c563fe3833b14d8a8fdb39f1d",
+        "response_sha256": "2cf278fe7567bee84434498c7bea97401ecbf33e0781e18f7e7221eaf0c55487"
+      },
+      {
+        "name": "cross-shared-matmul-input",
+        "status": "PASS",
+        "expected_protocol_status": 0,
+        "compared_values": 25,
+        "request_sha256": "e07acd26be250f77e736ddbd7ded1b8fc7d6c86731aece9830017047cef5c7f7",
+        "response_sha256": "e809aa5cb3ce91dc3526b9cb62b9310aa6b7535461d8a664547df048ec8f10ac"
+      },
+      {
+        "name": "cross-stale-left",
+        "status": "PASS",
+        "expected_protocol_status": 6,
+        "compared_values": 0,
+        "request_sha256": "bccf7dd246311c7a02e8ba2eacbecb8d454f7b462a14d646dfe6b4f454213178",
+        "response_sha256": "5243c25d9582792570e1d9e794b61569c3977947886339d1ab2576b630ff6082"
+      },
+      {
+        "name": "cross-stale-right",
+        "status": "PASS",
+        "expected_protocol_status": 6,
+        "compared_values": 0,
+        "request_sha256": "18c46d4ff490316547a130d9ed5c4a12933c008d5a5d8dd6bb911777af2ae6a1",
+        "response_sha256": "5243c25d9582792570e1d9e794b61569c3977947886339d1ab2576b630ff6082"
+      },
+      {
+        "name": "cross-stale-matmul",
+        "status": "PASS",
+        "expected_protocol_status": 6,
+        "compared_values": 0,
+        "request_sha256": "c1949b2b517fa285e795716311864f2ebf0818dc9c4cd1858d4d76aa1d1128a7",
+        "response_sha256": "87c09c7ac6c6db0e82b4d9bac701bc8ef67bb765872619a8d2a0a3847d5771da"
+      },
+      {
+        "name": "cross-stale-transpose",
+        "status": "PASS",
+        "expected_protocol_status": 6,
+        "compared_values": 0,
+        "request_sha256": "2650894d286ceb9a7c9dcebf0c0e3128cc7ab91c7919c46b0b75d3a0e994a9e8",
+        "response_sha256": "87c09c7ac6c6db0e82b4d9bac701bc8ef67bb765872619a8d2a0a3847d5771da"
+      },
+      {
+        "name": "cross-stale-select",
+        "status": "PASS",
+        "expected_protocol_status": 6,
+        "compared_values": 0,
+        "request_sha256": "49c3640c508fd98be539946a56dbfb6b965ffa97c9b4aa831b3284f9f61f6c56",
+        "response_sha256": "87c09c7ac6c6db0e82b4d9bac701bc8ef67bb765872619a8d2a0a3847d5771da"
+      },
+      {
+        "name": "cross-stale-gather",
+        "status": "PASS",
+        "expected_protocol_status": 6,
+        "compared_values": 0,
+        "request_sha256": "f7544069572e29de4179f516bdc6e78b2c2f03111423ef06a13b0d9598f8942c",
+        "response_sha256": "87c09c7ac6c6db0e82b4d9bac701bc8ef67bb765872619a8d2a0a3847d5771da"
+      },
+      {
+        "name": "cross-wrong-seed-shape",
+        "status": "PASS",
+        "expected_protocol_status": 2,
+        "compared_values": 0,
+        "request_sha256": "90e5649260d82490f35ac894ef312af589c154d22bd02c4073daba65b6898808",
+        "response_sha256": "2f4b964d218b8515ce4a9d401e4bbf8036cd23afe1eeb78f3c8437ca67c565c5"
+      }
+    ]
+  },
+  "isolated_component_evidence": {
+    "scope": "Each component below retains its own tested source/binary identity; production fixture pairs were replayed on the integrated binary above. Counts are distinct test units and are not summed into an upstream parity percentage.",
+    "seeded_backward": {
+      "status": "PASS",
+      "binary_sha256": "951e41a6f70045ed1d79b6a18f3f4395025a8092a93bd7d9c629fc8d9acefa03",
+      "independent_reference": "analytical NumPy binary32 formulas and float64 central finite differences; no PyTorch oracle available locally",
+      "regression_fixtures_passed": 76,
+      "new_checks": 44,
+      "numerical_values": 201,
+      "cases": [
+        {
+          "case": "vjp-vector-repeated-zero",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 9,
+          "request_sha256": "8f5e9054959deddad4293c265a4ce0b20a8e91b9f5553312fa697587868706fb",
+          "response_sha256": "188e0f16f6181a897f07cb15a5183765df29a5981c8a76ab4dd33a6b17523ff9"
+        },
+        {
+          "case": "vjp-matmul-strided-seed",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 10,
+          "request_sha256": "e20e7f64e96820d7a7a163378abc0d4248f352dcb11fb7ecffb7da99a3aebb9f",
+          "response_sha256": "729b216a38ac0d0d6e99a4ca07383c99faba20c4f665c41bf1e1d8f8e39c7390"
+        },
+        {
+          "case": "vjp-broadcast-reduction",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 5,
+          "request_sha256": "5fae2e7491a754f5e79d213984a9720b31f148b600e4cc64ba312ce2bdbd69b6",
+          "response_sha256": "7d98bb0412f28a4a0ba0dd8cede748f66135619e4115b0baf9d14d5c263cebd7"
+        },
+        {
+          "case": "vjp-branch-seed-no-grad-connection",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 8,
+          "request_sha256": "889fbfb683f75fb5d2e73ca740e8df7edb6c1cd3a51466b4458f3ef69fd38432",
+          "response_sha256": "f6a021b58ecf3ae95919467f8a2a45b139654aa7e384c16317a67b9d917b779d"
+        },
+        {
+          "case": "vjp-transpose-output",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 6,
+          "request_sha256": "11ff42027ca3b93276b10fba10a8598a97a51a88b45f5d513631211252b9c929",
+          "response_sha256": "5ae270311f4e3214ba082bbc2659378442bb69120512465d2cb5306e7b05c04a"
+        },
+        {
+          "case": "vjp-output-is-own-seed",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 2,
+          "request_sha256": "7f46418fc94e9a8376a2c5ec75a0fa560a5f9b619ca5e0c1ed4a0f25d3a07342",
+          "response_sha256": "8290585271d08d3c69a31136aab62d261b76e30e7df5d8bfb6fb6547b92afb1d"
+        },
+        {
+          "case": "vjp-leaf-output",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 4,
+          "request_sha256": "e34eb67cab45c5c46bb6080bb5101cc53cbc5cd801128a09d76b159dc43e006f",
+          "response_sha256": "c1095c9f2c4f0907f60d425c9fbadfac3d5bb36d8be56df342c85947aa7a10d9"
+        },
+        {
+          "case": "vjp-empty-output-seed",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 0,
+          "request_sha256": "7e61be9eecd4e0e0e979e5f61e24045d4a5875a7265e106b30a37c88bb18571b",
+          "response_sha256": "0d2559bb808990340ac3e4f698cf1704bb71071a4a083f6621c504e69c1063e8"
+        },
+        {
+          "case": "vjp-scalar-nonunit",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 1,
+          "request_sha256": "2e4871d9c104fa4a11d400e416c9c350d41c29627cd17d0bebece8e637b328bd",
+          "response_sha256": "e77eca51ca090d41120f50dfd66a556528914d5eabc4568c75870afd8fa2549a"
+        },
+        {
+          "case": "vjp-rank-mismatch",
+          "status": "PASS",
+          "expected_status": 2,
+          "numerical_values": 0,
+          "request_sha256": "9bd634640e8c2a753292a22b77487593603108d8956fb9190e6496d072154918",
+          "response_sha256": "cf55f6f94c9fc6563c834811cb7c38c63e83a0c35c6c47314ff9a26afd3aa1da"
+        },
+        {
+          "case": "vjp-dimension-mismatch",
+          "status": "PASS",
+          "expected_status": 2,
+          "numerical_values": 0,
+          "request_sha256": "11466ecf160044202b3bba4aea24d0341a39ec678391d14726db5817261e70d4",
+          "response_sha256": "cf55f6f94c9fc6563c834811cb7c38c63e83a0c35c6c47314ff9a26afd3aa1da"
+        },
+        {
+          "case": "vjp-scalar-vector-mismatch",
+          "status": "PASS",
+          "expected_status": 2,
+          "numerical_values": 0,
+          "request_sha256": "d3ef87443f9831ed80969f34238004a8c5783c579133c82da683e9bef49cafef",
+          "response_sha256": "cf55f6f94c9fc6563c834811cb7c38c63e83a0c35c6c47314ff9a26afd3aa1da"
+        },
+        {
+          "case": "vjp-empty-shape-mismatch",
+          "status": "PASS",
+          "expected_status": 2,
+          "numerical_values": 0,
+          "request_sha256": "016e9787d69a42bc382dafbcb912059c6f8e7b1af42af069c244705efcefaea2",
+          "response_sha256": "cf55f6f94c9fc6563c834811cb7c38c63e83a0c35c6c47314ff9a26afd3aa1da"
+        },
+        {
+          "case": "vjp-invalid-seed-id",
+          "status": "PASS",
+          "expected_status": 1,
+          "numerical_values": 0,
+          "request_sha256": "66af9522c5e18ac42c3a9a9f86faa915ddb7f2c79a7f488a8bf2f78beb4a1fcc",
+          "response_sha256": "e9ff6dc4b6c0a58005ce4d520ec09202d144681dee23b93cdf6e151fdb99a822"
+        },
+        {
+          "case": "vjp-untracked-output",
+          "status": "PASS",
+          "expected_status": 5,
+          "numerical_values": 0,
+          "request_sha256": "8e0deb9322f9102e0d379b776721e98549e1fd09f0dea981fc6d3daf4438606b",
+          "response_sha256": "3a54308edd37c06c9b70c08aa716e274073de517481b11d0b74be48e5722a438"
+        },
+        {
+          "case": "vjp-omitted-seed-nonscalar",
+          "status": "PASS",
+          "expected_status": 5,
+          "numerical_values": 0,
+          "request_sha256": "7b4d9539497b50794b3f724d5265d356e709c307110538e3f47a4f742eb1ff90",
+          "response_sha256": "943ea9948f677eb98af27c6b2f23a370c06747da5b7cdba273db67773f06d5be"
+        },
+        {
+          "case": "vjp-stale-parent",
+          "status": "PASS",
+          "expected_status": 6,
+          "numerical_values": 0,
+          "request_sha256": "ca74046be20130552b796c6ff406d58768753b4b6a129d246233fb46812019a7",
+          "response_sha256": "7e5c41448c944093af2eb0d93f528814463bb34648b9d63cc85291990129f343"
+        },
+        {
+          "case": "vjp-finite-difference-0",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 6,
+          "request_sha256": "68ee997e2e4bd11517401d381ec50209ee8f42c35e0ade430b7577e672c2e0d1",
+          "response_sha256": "4cd8dbf8d15a802309107a2b779d1ef3d23cca2d04d816fb96f6d189ce022b8a"
+        },
+        {
+          "case": "vjp-finite-difference-1",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 6,
+          "request_sha256": "3c8abcec9e2d4ea155aa56df8e7e88a683fdb6df879c16a5b76a09758d75ca27",
+          "response_sha256": "6bcf76fa308a9b23d2f5986529aa79e2872a2a26ab285257b43a8d9cbdfa0818"
+        },
+        {
+          "case": "vjp-finite-difference-2",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 6,
+          "request_sha256": "3fe987b9d3d0c3e0bffed7e980514cd019a14b3876925f3bdefcac4a20c15e7d",
+          "response_sha256": "3b15e4552cbb273af022657fd510e32f34b53a5bb18dbb3bde59700494e39090"
+        },
+        {
+          "case": "vjp-finite-difference-3",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 6,
+          "request_sha256": "a76b557fb418a58fd3ebf25cd49f2e317b7ac46f3f0699ee484ecf0eb24c5431",
+          "response_sha256": "85d61611827807f503c4753fc2d832073bf679b41501fa80574ab79c312f693a"
+        },
+        {
+          "case": "vjp-finite-difference-4",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 6,
+          "request_sha256": "5d10bc7cbae5d8e10ee837def765e9b6410127fc3414eb2c1f834cd18f785f10",
+          "response_sha256": "b6d2d8cdc94c432b1eca540604c3c7445df262da441d970175b6ce256782aa62"
+        },
+        {
+          "case": "vjp-finite-difference-5",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 6,
+          "request_sha256": "a7795339e49dfcc8f6bbb95e0d56fc923200782bf56697c7ebee53348e8174ea",
+          "response_sha256": "219c7f214478e102ba70bc7c759843669721c03fbcbd05469a35e046880caedc"
+        },
+        {
+          "case": "vjp-finite-difference-6",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 6,
+          "request_sha256": "47eef573087968c0c353bf1f479f036562ad98ed88880eac16c7dad3852112cf",
+          "response_sha256": "894d523aa571f984e1e02c980960123bc2fef6430cdab3cf196744fd14fbf863"
+        },
+        {
+          "case": "vjp-finite-difference-7",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 6,
+          "request_sha256": "c96e4c2b1acb456d78a359a40ad06e4ba0950f1af689ae4fa8f8075d7dc3d364",
+          "response_sha256": "a1db7ce136a3e8ec113e71b5ba35009ba8dd471796041031e04061962c678c3f"
+        },
+        {
+          "case": "vjp-finite-difference-8",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 6,
+          "request_sha256": "ad86fd5f92b01cf1be1aa73f6130459c9b8ef9acd2456b9096487a002f9d0af7",
+          "response_sha256": "60eda477be516c3816854773db24e16f359428911ff62934b438b0964b73914f"
+        },
+        {
+          "case": "vjp-finite-difference-9",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 6,
+          "request_sha256": "80a94762c7f580e200a6df2f58a517eba5149839a7281ba9241d710f3f687b17",
+          "response_sha256": "feeebfacd5104e74186b66ddf4b81bdfeca7cc5814cac4da640d75d8b84fd136"
+        },
+        {
+          "case": "vjp-finite-difference-10",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 6,
+          "request_sha256": "0a3d077fc1eb1dbf562ccabc0ab4f9db5fe0ec01e04540e18119c63bc2487f51",
+          "response_sha256": "89d18183362165f481dbc14f010e7863913fafbbb13e632feb68ff6d2d922581"
+        },
+        {
+          "case": "vjp-finite-difference-11",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 6,
+          "request_sha256": "63290bb92ce4f7d97619162c067f80f3a4b0049ce14486a7cff8412679a7e173",
+          "response_sha256": "92e4492bc5ada2baa2c1c87727fb4d5750049245064c7c9b9cd313fbcfa7bb2b"
+        },
+        {
+          "case": "vjp-finite-difference-12",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 6,
+          "request_sha256": "415114f7c522bfdb2e8b40779c623b5d11e9f3beb001d7bc6bf50b242792485c",
+          "response_sha256": "eaf10f3272e9a51bc94f7d2eca5374a0e7503dbf2077a35085967c8b6b634b3b"
+        },
+        {
+          "case": "vjp-finite-difference-13",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 6,
+          "request_sha256": "f6cb1557695e0026c4dffea3c939abcaea864a614d53524f0bf5d7536c7c0068",
+          "response_sha256": "fb52531da8847d566e9ce6f4df2957c51943ed5d3f4ae407f6ae01138adb623d"
+        },
+        {
+          "case": "vjp-finite-difference-14",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 6,
+          "request_sha256": "c4461e097350e376982e88dec61c9cd0dde2584db584c44d5f06cce68232b6b7",
+          "response_sha256": "89849a7eebe75bf555f2504c7306dc7047cea470641b3ae793c4932dd956e885"
+        },
+        {
+          "case": "vjp-finite-difference-15",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 6,
+          "request_sha256": "c8d86574c6e15dbe526f0133d4a873c2d6ad51c567792d73f65b1ae6bfe65747",
+          "response_sha256": "b1f73c771ca45c2bcb927f0f9bc42960c6af84a11d414aaab94fdbf9e734ce31"
+        },
+        {
+          "case": "vjp-finite-difference-16",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 6,
+          "request_sha256": "2e10d3df10e1d00c69faeb76d04711b29afd87b72695fa9a0f49583ba666aa78",
+          "response_sha256": "bab3e25adbc8d015fa6502cca1cd3c8e81191395b8d831479fa35a0438b9e8f4"
+        },
+        {
+          "case": "vjp-finite-difference-17",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 6,
+          "request_sha256": "1784257844fb97532c662da39469f6b5ec9c4bd207e58004e2eb437191c81805",
+          "response_sha256": "d53ee13e4baf0dd32bb72942798394f07e10e7f9fa2cf93f1c8b840e59b59436"
+        },
+        {
+          "case": "vjp-finite-difference-18",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 6,
+          "request_sha256": "429bb7f620fdfbb514c4c764459ebd381168ab4259443c7636997d990fb0746f",
+          "response_sha256": "dd01a58f8ce207a4b8de13df468fb186f0be094d85d62f1e640e2ad859258244"
+        },
+        {
+          "case": "vjp-finite-difference-19",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 6,
+          "request_sha256": "4e6b24bb78e03ef890d053a80345ea7cb497d9f23ddf3ca0cb0c7d5c5f333def",
+          "response_sha256": "91fa84fa1ff793855b198196e7f5460cbb50fc586b9ba8d2b08bb484d06b72f8"
+        },
+        {
+          "case": "vjp-finite-difference-20",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 6,
+          "request_sha256": "36fb8cb6d1d2566168ce9839ef765b08ec459144f65f99dc3cad256e1bcd7b1d",
+          "response_sha256": "ed0b0ba810d7b35c6c4172e66ca39fc0cf817a67c7e2984d4433c9e8697a59e9"
+        },
+        {
+          "case": "vjp-finite-difference-21",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 6,
+          "request_sha256": "6a3b4c4188fe69be13d1c58669854fb108814c0bf5b7484400a012e2393e8f7c",
+          "response_sha256": "ee9735503c02621dc364cc9affe8bccee3f7fe6029fcb27f2580e9fc98f1d1fd"
+        },
+        {
+          "case": "vjp-finite-difference-22",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 6,
+          "request_sha256": "2e25ef4766a39c7a1e2dd9ee8447c38d9f766ac48bcf72af882da80961d2a387",
+          "response_sha256": "ff0fd6fa504b91071846925b46ee239a8d1ff1527a33114a4e40625e5dd42830"
+        },
+        {
+          "case": "vjp-finite-difference-23",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 6,
+          "request_sha256": "3101587396708f2ea889c8df77c17508bde6e52626ad93bda3cd8e2c71c6a468",
+          "response_sha256": "b259f47be0f4d994f7a0ff5f35b6a09727e6457bd5281b904819da808fc94bfa"
+        },
+        {
+          "case": "vjp-atomic-shape",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 4,
+          "request_sha256": "d62ef95ed61dba4bdd76f62dfbeadf899caa2ac09fa29b92753bab3260b8e0e2",
+          "response_sha256": "462a1ca339d1eec678f67e5b91b5cd9e220cddc3ec092de14dc4057c15433d82"
+        },
+        {
+          "case": "vjp-atomic-stale",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 4,
+          "request_sha256": "4eca1bef478ac49b17bf1b27e9bcc8317982889c3b2e674d1f41ee479d5c5995",
+          "response_sha256": "6139a37002585ca0a24bdbb5e199f869fd716871b7883c3a9de5f404e05dd12a"
+        },
+        {
+          "case": "vjp-atomic-invalid",
+          "status": "PASS",
+          "expected_status": 0,
+          "numerical_values": 4,
+          "request_sha256": "f2b5f86202689430fb6f055b734eda53a7b9a9af084f43d57ee63b48537bab3e",
+          "response_sha256": "f33a7f9a694297f499825e5ba7dcc290fddec5685ea687e5463710e694d3007e"
+        }
+      ]
+    },
+    "index_select": {
+      "status": "PASS",
+      "cases": 67,
+      "compared_values": 1231,
+      "fixture_pairs": 31,
+      "oracle": "NumPy take forward; independent coordinate scatter-add reverse, exactly representable dyadic weights; protocol refusals independently specified",
+      "compiler_sha256": "87c247e4d1c3c9a449d2947fd4227fdc186d519bffd203a04cafce7861a4ed54",
+      "source_sha256": "9bef2228c616f261ddc67bedff1dbb8ad53aa0a5477333a345c0a030dcd055ef",
+      "executable_sha256": "a8dc6e5fbb5ca21ce14d86dce5c4b422de6130293c64061414d13f267c553937",
+      "fragment_sha256": "4ab7eb46e0c89102ccbdbfa9cd582de8d7a9fd83dc6ea5b7eaa2a330066bccbd",
+      "rows": [
+        {
+          "case": "index-select-1d-4-a0-transpose0-empty0",
+          "status": "PASS",
+          "values": 7,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-1d-4-a0-transpose0-empty1",
+          "status": "PASS",
+          "values": 4,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-1d-4-a0-transpose1-empty0",
+          "status": "PASS",
+          "values": 7,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-1d-4-a0-transpose1-empty1",
+          "status": "PASS",
+          "values": 4,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-2d-2x3-a0-transpose0-empty0",
+          "status": "PASS",
+          "values": 15,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-2d-2x3-a0-transpose0-empty1",
+          "status": "PASS",
+          "values": 6,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-2d-2x3-a1-transpose0-empty0",
+          "status": "PASS",
+          "values": 12,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-2d-2x3-a1-transpose0-empty1",
+          "status": "PASS",
+          "values": 6,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-2d-2x3-a0-transpose1-empty0",
+          "status": "PASS",
+          "values": 12,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-2d-2x3-a0-transpose1-empty1",
+          "status": "PASS",
+          "values": 6,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-2d-2x3-a1-transpose1-empty0",
+          "status": "PASS",
+          "values": 15,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-2d-2x3-a1-transpose1-empty1",
+          "status": "PASS",
+          "values": 6,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-3d-2x3x4-a0-transpose0-empty0",
+          "status": "PASS",
+          "values": 60,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-3d-2x3x4-a0-transpose0-empty1",
+          "status": "PASS",
+          "values": 24,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-3d-2x3x4-a1-transpose0-empty0",
+          "status": "PASS",
+          "values": 48,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-3d-2x3x4-a1-transpose0-empty1",
+          "status": "PASS",
+          "values": 24,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-3d-2x3x4-a2-transpose0-empty0",
+          "status": "PASS",
+          "values": 42,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-3d-2x3x4-a2-transpose0-empty1",
+          "status": "PASS",
+          "values": 24,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-3d-2x3x4-a0-transpose1-empty0",
+          "status": "PASS",
+          "values": 42,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-3d-2x3x4-a0-transpose1-empty1",
+          "status": "PASS",
+          "values": 24,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-3d-2x3x4-a1-transpose1-empty0",
+          "status": "PASS",
+          "values": 48,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-3d-2x3x4-a1-transpose1-empty1",
+          "status": "PASS",
+          "values": 24,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-3d-2x3x4-a2-transpose1-empty0",
+          "status": "PASS",
+          "values": 60,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-3d-2x3x4-a2-transpose1-empty1",
+          "status": "PASS",
+          "values": 24,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-4d-2x1x3x4-a0-transpose0-empty0",
+          "status": "PASS",
+          "values": 60,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-4d-2x1x3x4-a0-transpose0-empty1",
+          "status": "PASS",
+          "values": 24,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-4d-2x1x3x4-a1-transpose0-empty0",
+          "status": "PASS",
+          "values": 96,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-4d-2x1x3x4-a1-transpose0-empty1",
+          "status": "PASS",
+          "values": 24,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-4d-2x1x3x4-a2-transpose0-empty0",
+          "status": "PASS",
+          "values": 48,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-4d-2x1x3x4-a2-transpose0-empty1",
+          "status": "PASS",
+          "values": 24,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-4d-2x1x3x4-a3-transpose0-empty0",
+          "status": "PASS",
+          "values": 42,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-4d-2x1x3x4-a3-transpose0-empty1",
+          "status": "PASS",
+          "values": 24,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-4d-2x1x3x4-a0-transpose1-empty0",
+          "status": "PASS",
+          "values": 42,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-4d-2x1x3x4-a0-transpose1-empty1",
+          "status": "PASS",
+          "values": 24,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-4d-2x1x3x4-a1-transpose1-empty0",
+          "status": "PASS",
+          "values": 96,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-4d-2x1x3x4-a1-transpose1-empty1",
+          "status": "PASS",
+          "values": 24,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-4d-2x1x3x4-a2-transpose1-empty0",
+          "status": "PASS",
+          "values": 48,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-4d-2x1x3x4-a2-transpose1-empty1",
+          "status": "PASS",
+          "values": 24,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-4d-2x1x3x4-a3-transpose1-empty0",
+          "status": "PASS",
+          "values": 60,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-4d-2x1x3x4-a3-transpose1-empty1",
+          "status": "PASS",
+          "values": 24,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-3d-2x0x3-a0-transpose0-empty0",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-3d-2x0x3-a0-transpose0-empty1",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-3d-2x0x3-a1-transpose0-empty0",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-3d-2x0x3-a1-transpose0-empty1",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-3d-2x0x3-a2-transpose0-empty0",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-3d-2x0x3-a2-transpose0-empty1",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-3d-2x0x3-a0-transpose1-empty0",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-3d-2x0x3-a0-transpose1-empty1",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-3d-2x0x3-a1-transpose1-empty0",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-3d-2x0x3-a1-transpose1-empty1",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-3d-2x0x3-a2-transpose1-empty0",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-3d-2x0x3-a2-transpose1-empty1",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-repeat-backward",
+          "status": "PASS",
+          "values": 3,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "index-select-stale-parent",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 6
+        },
+        {
+          "case": "index-select-stale-output",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 6
+        },
+        {
+          "case": "index-select-negative-index",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 7
+        },
+        {
+          "case": "index-select-large-index",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 7
+        },
+        {
+          "case": "index-select-i64-max",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 7
+        },
+        {
+          "case": "index-select-axis-high",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 2
+        },
+        {
+          "case": "index-select-axis-low",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 2
+        },
+        {
+          "case": "index-select-invalid-id",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 1
+        },
+        {
+          "case": "index-select-scalar-refused",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 2
+        },
+        {
+          "case": "index-select-offset-command",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 100
+        },
+        {
+          "case": "index-select-offset-misaligned",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 100
+        },
+        {
+          "case": "index-select-offset-past-end",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 100
+        },
+        {
+          "case": "index-select-count-overflow",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 3
+        },
+        {
+          "case": "index-select-truncated-indices",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 100
+        }
+      ]
+    },
+    "gather": {
+      "status": "PASS",
+      "cases": 72,
+      "compared_values": 1147,
+      "fixture_pairs": 36,
+      "oracle": "NumPy take_along_axis forward on exact nonaxis subranges; independent NumPy add.at scatter-add reverse, exactly representable dyadic weights; protocol refusals independently specified",
+      "compiler_sha256": "87c247e4d1c3c9a449d2947fd4227fdc186d519bffd203a04cafce7861a4ed54",
+      "source_sha256": "9bef2228c616f261ddc67bedff1dbb8ad53aa0a5477333a345c0a030dcd055ef",
+      "executable_sha256": "a8dc6e5fbb5ca21ce14d86dce5c4b422de6130293c64061414d13f267c553937",
+      "fragment_sha256": "5dd6f9bb1d1cc4c0e09e06e07b331ff0c9c6ba97c5f11d7bc57351f62143dcb0",
+      "rows": [
+        {
+          "case": "gather-1d-4-a0-transpose0-empty0",
+          "status": "PASS",
+          "values": 10,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-1d-4-a0-transpose0-empty1",
+          "status": "PASS",
+          "values": 4,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-1d-4-a0-transpose1-empty0",
+          "status": "PASS",
+          "values": 10,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-1d-4-a0-transpose1-empty1",
+          "status": "PASS",
+          "values": 4,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-2d-2x3-a0-transpose0-empty0",
+          "status": "PASS",
+          "values": 14,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-2d-2x3-a0-transpose0-empty1",
+          "status": "PASS",
+          "values": 6,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-2d-2x3-a1-transpose0-empty0",
+          "status": "PASS",
+          "values": 11,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-2d-2x3-a1-transpose0-empty1",
+          "status": "PASS",
+          "values": 6,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-2d-2x3-a0-transpose1-empty0",
+          "status": "PASS",
+          "values": 11,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-2d-2x3-a0-transpose1-empty1",
+          "status": "PASS",
+          "values": 6,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-2d-2x3-a1-transpose1-empty0",
+          "status": "PASS",
+          "values": 14,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-2d-2x3-a1-transpose1-empty1",
+          "status": "PASS",
+          "values": 6,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-3d-2x3x4-a0-transpose0-empty0",
+          "status": "PASS",
+          "values": 56,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-3d-2x3x4-a0-transpose0-empty1",
+          "status": "PASS",
+          "values": 24,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-3d-2x3x4-a1-transpose0-empty0",
+          "status": "PASS",
+          "values": 54,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-3d-2x3x4-a1-transpose0-empty1",
+          "status": "PASS",
+          "values": 24,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-3d-2x3x4-a2-transpose0-empty0",
+          "status": "PASS",
+          "values": 42,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-3d-2x3x4-a2-transpose0-empty1",
+          "status": "PASS",
+          "values": 24,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-3d-2x3x4-a0-transpose1-empty0",
+          "status": "PASS",
+          "values": 48,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-3d-2x3x4-a0-transpose1-empty1",
+          "status": "PASS",
+          "values": 24,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-3d-2x3x4-a1-transpose1-empty0",
+          "status": "PASS",
+          "values": 44,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-3d-2x3x4-a1-transpose1-empty1",
+          "status": "PASS",
+          "values": 24,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-3d-2x3x4-a2-transpose1-empty0",
+          "status": "PASS",
+          "values": 60,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-3d-2x3x4-a2-transpose1-empty1",
+          "status": "PASS",
+          "values": 24,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-4d-2x1x3x4-a0-transpose0-empty0",
+          "status": "PASS",
+          "values": 24,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-4d-2x1x3x4-a0-transpose0-empty1",
+          "status": "PASS",
+          "values": 24,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-4d-2x1x3x4-a1-transpose0-empty0",
+          "status": "PASS",
+          "values": 72,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-4d-2x1x3x4-a1-transpose0-empty1",
+          "status": "PASS",
+          "values": 24,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-4d-2x1x3x4-a2-transpose0-empty0",
+          "status": "PASS",
+          "values": 54,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-4d-2x1x3x4-a2-transpose0-empty1",
+          "status": "PASS",
+          "values": 24,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-4d-2x1x3x4-a3-transpose0-empty0",
+          "status": "PASS",
+          "values": 42,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-4d-2x1x3x4-a3-transpose0-empty1",
+          "status": "PASS",
+          "values": 24,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-4d-2x1x3x4-a0-transpose1-empty0",
+          "status": "PASS",
+          "values": 24,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-4d-2x1x3x4-a0-transpose1-empty1",
+          "status": "PASS",
+          "values": 24,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-4d-2x1x3x4-a1-transpose1-empty0",
+          "status": "PASS",
+          "values": 72,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-4d-2x1x3x4-a1-transpose1-empty1",
+          "status": "PASS",
+          "values": 24,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-4d-2x1x3x4-a2-transpose1-empty0",
+          "status": "PASS",
+          "values": 44,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-4d-2x1x3x4-a2-transpose1-empty1",
+          "status": "PASS",
+          "values": 24,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-4d-2x1x3x4-a3-transpose1-empty0",
+          "status": "PASS",
+          "values": 60,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-4d-2x1x3x4-a3-transpose1-empty1",
+          "status": "PASS",
+          "values": 24,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-3d-2x0x3-a0-transpose0-empty0",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-3d-2x0x3-a0-transpose0-empty1",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-3d-2x0x3-a1-transpose0-empty0",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-3d-2x0x3-a1-transpose0-empty1",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-3d-2x0x3-a2-transpose0-empty0",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-3d-2x0x3-a2-transpose0-empty1",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-3d-2x0x3-a0-transpose1-empty0",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-3d-2x0x3-a0-transpose1-empty1",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-3d-2x0x3-a1-transpose1-empty0",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-3d-2x0x3-a1-transpose1-empty1",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-3d-2x0x3-a2-transpose1-empty0",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-3d-2x0x3-a2-transpose1-empty1",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-scalar-axis0",
+          "status": "PASS",
+          "values": 2,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-scalar-axis-1",
+          "status": "PASS",
+          "values": 2,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-repeat-backward",
+          "status": "PASS",
+          "values": 3,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-stale-parent",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 6
+        },
+        {
+          "case": "gather-stale-output",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 6
+        },
+        {
+          "case": "gather-negative-index",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 7
+        },
+        {
+          "case": "gather-large-index",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 7
+        },
+        {
+          "case": "gather-i64-max",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 7
+        },
+        {
+          "case": "gather-axis-high",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 2
+        },
+        {
+          "case": "gather-axis-low",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 2
+        },
+        {
+          "case": "gather-wrong-rank",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 2
+        },
+        {
+          "case": "gather-invalid-id",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 1
+        },
+        {
+          "case": "gather-no-broadcast",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 2
+        },
+        {
+          "case": "gather-empty-shape-fastpath",
+          "status": "PASS",
+          "values": 6,
+          "expected_protocol_status": 0
+        },
+        {
+          "case": "gather-offset-command",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 100
+        },
+        {
+          "case": "gather-offset-misaligned",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 100
+        },
+        {
+          "case": "gather-offset-past-end",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 100
+        },
+        {
+          "case": "gather-rank-overflow",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 2
+        },
+        {
+          "case": "gather-shape-overflow",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 3
+        },
+        {
+          "case": "gather-indices-truncated",
+          "status": "PASS",
+          "values": 0,
+          "expected_protocol_status": 100
+        }
+      ]
+    },
+    "pool_budget": {
+      "source_sha256": "740b0a4e7d82a8e319a788f22fbee034b1be42dd0c642cb38e0b2293de3882fc",
+      "binary_sha256": "9915ddfb2f178b1a6dac6065c78c61c5bc92f4b7829590ccbeeae302eee2adbc",
+      "baseline_native_fixture_pairs": 76,
+      "cases": [
+        {
+          "name": "pool-budget-exact-avg",
+          "status": 0,
+          "checks": 2,
+          "seconds": 0.0044174199992994545
+        },
+        {
+          "name": "pool-budget-over-avg",
+          "status": 3,
+          "checks": 0,
+          "seconds": 0.0010773220001283335
+        },
+        {
+          "name": "pool-budget-empty-avg",
+          "status": 0,
+          "checks": 1,
+          "seconds": 0.0016983010009425925
+        },
+        {
+          "name": "pool-budget-exact-max",
+          "status": 0,
+          "checks": 2,
+          "seconds": 0.008719048999410006
+        },
+        {
+          "name": "pool-budget-over-max",
+          "status": 3,
+          "checks": 0,
+          "seconds": 0.0038575630005652783
+        },
+        {
+          "name": "pool-budget-empty-max",
+          "status": 0,
+          "checks": 1,
+          "seconds": 0.003965212001276086
+        },
+        {
+          "name": "original-pool-work-41990400",
+          "status": 3,
+          "seconds": 0.030064282998864655
+        },
+        {
+          "name": "pool-selection-ties",
+          "status": 0,
+          "checks": 2,
+          "seconds": 0.0014718759994138964
+        },
+        {
+          "name": "pool-selection-infinities",
+          "status": 0,
+          "checks": 2,
+          "seconds": 0.0011235609999857843
+        },
+        {
+          "name": "pool-selection-nan-last",
+          "status": 0,
+          "checks": 2,
+          "seconds": 0.0015847630002099322
+        },
+        {
+          "name": "pool-selection-signed-zero",
+          "status": 0,
+          "checks": 2,
+          "seconds": 0.0018983170011779293
+        }
+      ],
+      "reference": "Independent exact binary32 values/analytic gradients; pinned upstream MaxPoolKernel.cpp scalar strict > or isnan selection; no local live torch import."
+    }
+  },
+  "live_pytorch_differential": {
+    "local_status": "NOT_RUN",
+    "reason": "PyTorch is not installed in the local analysis environment. The hosted pinned-wheel workflow executes the separate 153-case gate.",
+    "expected_hosted_cases": 153,
+    "record": "validation/hosted-extension.json"
+  },
+  "whole_pytorch_rewrite_complete": false,
+  "full_upstream_schema_parity_count": 0
+}

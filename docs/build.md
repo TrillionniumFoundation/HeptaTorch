@@ -22,6 +22,14 @@ stdin/stdout: `hia-native-compiler < source.hepta > executable`. The compiler
 emits the ELF header, machine code, and syscall entry wrapper. The resulting
 program has no `PT_INTERP`, dynamic loader, libc, Python, or tensor-library calls.
 
+The pinned compiler accepts at most 128 functions, 1,536 basic blocks and 8,192
+SSA instructions in one compilation unit, with 1 MiB assembly and generated-image
+limits. The current runtime uses 117 functions, 1,364 blocks and 5,486
+instructions; its source is 365,591 bytes and its executable is 546,304 bytes.
+These are measured against the retained toolchain, not new language limits.
+See [the upstream support profile](https://github.com/TrillionniumFoundation/Hepta/blob/f33d8da316de8fdf27b504371f1a5310997ff548/docs/HIA_SELFHOST_CORE_SUPPORT.json)
+and the [architecture findings](upstream-audit.md#native-extension-audit).
+
 ## Starting with an existing native compiler
 
 ```sh

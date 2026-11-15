@@ -10,9 +10,10 @@ HIA 原生张量、自动微分和神经网络训练运行时。核心实现由 
 | --- | --- |
 | 数值 | IEEE binary32 四则运算、平方根、整数转换；原生 exp、log、sigmoid、tanh |
 | 张量 | rank 0–4、形状、步长、共享存储、广播、空维度、transpose、连续 view、clone、detach |
-| 自动微分 | 动态反向图、分支梯度累加、广播梯度归约、重复 backward 累积、zero_grad、保存值版本检查 |
-| 基本算子 | 加减乘除、ReLU、neg、sqrt、exp、log、sigmoid、tanh、二维矩阵乘法、全维和单轴 sum/mean |
-| 神经网络 | Linear、MSE、softmax/log-softmax、最后一维 LayerNorm、冻结统计量的 BatchNorm、概率目标交叉熵 |
+| 自动微分 | 动态反向图、显式梯度种子／向量雅可比积、分支和广播梯度累加、重复 backward、zero_grad、保存值版本检查 |
+| 基本算子 | 加减乘除、ReLU、neg、sqrt、exp、log、sigmoid、tanh、向量和广播批量矩阵乘法、全维和单轴 sum/mean |
+| 索引 | index_select、gather；精确 i64 索引载荷、重复索引梯度累加、非连续输入和空索引 |
+| 神经网络 | rank 1–4 输入的 Linear、MSE、softmax/log-softmax、最后一维 LayerNorm、冻结统计量的 BatchNorm、概率目标交叉熵 |
 | 空间算子 | NCHW/OIHW conv2d、分组与 depthwise 卷积、逐轴 stride/dilation/padding、平均池化和最大池化，以及对应反向传播 |
 | 优化器 | SGD、momentum、Nesterov、Adam、AdamW；显式状态张量与版本失效检查 |
 | 执行接口 | 有边界检查的二进制命令协议、明确错误状态、原生 HIA 十六进制解码工具 |
@@ -44,7 +45,8 @@ cmp build/train.response build/train.expected
 - 基础数值层：**2,314,020** 次原生运算与独立 NumPy binary32 参考逐位一致，算术 NaN 统一为规范 quiet NaN。
 - exp/log/sigmoid/tanh：**3,424,359** 次测量；另用 90 位精度参考检查 **20,025** 个输入。测量误差及适用解释见 [数值说明](docs/numerics.md)。
 - 集成：广播、视图、梯度、空间算子、模块、优化器、异常输入和容量边界，均有独立参考或明确拒绝结果。
-- 托管 CI：编译器自重建、**76 对原生回归夹具**、真实 PyTorch 的 **76 项／2,754 个数值对照**及精确安装包来源检查全部通过。[成功运行](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43738165041)与[完整回执](validation/hosted.json)记录了实际测试提交和二进制身份。
+- 当前集成版本：**221 对原生回归夹具**通过；新增矩阵与 Linear 的 **63 项／4,593 个值**检查、**2,514 项**独立矩阵形状／梯度／拒绝检查，以及 **11 项／529 个值**跨算子集成检查通过。各项的单位、独立参考和源码身份见 [本次原生验证](validation/native-extension.json)。
+- 托管 CI：原基线的 **76 项／2,754 个真实 PyTorch 数值对照**已通过，保留其[成功运行](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43738165041)和[历史回执](validation/hosted.json)。当前源码的独立 PyTorch 门扩展为 **153 项**，包括三种无掩码、无 dropout 的注意力组合；实际运行状态单独记录在 [本次托管回执](validation/hosted-extension.json)。
 - 线性回归：**30 次 SGD 更新**，更新前损失从 **5.1570835** 降至 **0.0342863**。
 - 两层 ReLU 分类器：**18 次 Adam 更新**，更新前交叉熵从 **0.6822657** 降至 **0.0017283**；该固定 8 样本任务更新后分类正确率 **100%**。
 
@@ -52,7 +54,9 @@ cmp build/train.response build/train.expected
 
 ## 当前边界与完整目标
 
-当前设备为 CPU，dtype 为 binary32，张量 rank 不超过 4；一次请求最多 255 个张量描述符，输入、输出和工作区各为 1 MiB。卷积另有每次 16,777,216 项的计算预算。空间、优化器和自动微分的具体限制见 [接口协议](docs/protocol.md)及 [能力清单](compatibility/capabilities.json)。
+当前设备为 CPU，dtype 为 binary32，张量 rank 不超过 4；一次请求最多 255 个张量描述符，输入、输出和工作区各为 1 MiB。卷积、矩阵乘法和池化各有每次 16,777,216 项的计算预算。整数索引载荷不等于完整整数张量 dtype 支持。空间、优化器和自动微分的具体限制见 [接口协议](docs/protocol.md)及 [能力清单](compatibility/capabilities.json)。
+
+本次审计修复了池化缺少计算预算的问题，并统一了二维与批量矩阵乘法的原生实现。后续的架构重点是 HIA 原生模块链接与张量 ABI、可回收的训练图及持久参数状态：当前编译单元已使用固定编译器的 117／128 个函数名额和 1,364／1,536 个基本块。具体证据及完整目标见 [审计更新](docs/upstream-audit.md#native-extension-audit)。
 
 完整目标尚包括：完整 dtype/layout/promotion 语义、其余算子及重载、高阶和前向自动微分、CUDA/ROCm/MPS/XPU、分布式、图捕获与编译优化、数据加载、RNG、完整 checkpoint/serialization、Python/C++ 前端兼容和跨平台构建。[上游审计](docs/upstream-audit.md)列出这些目标的验收条件。
 

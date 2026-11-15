@@ -233,3 +233,54 @@ Retain source, reproducible build and test entry points, required notices,
 the pinned compatibility inventory, and evidence necessary to reproduce the
 reported results. Missing features stay visible in the inventory rather than
 being removed from the target during cleanup.
+
+## Native extension audit
+
+The follow-up started from HeptaTorch commit
+`fed7c077e62f4c8447099927c00da178b691424b`. The complete tracked tree, single
+branch and four-commit history were inventoried, the pinned HIA compiler was
+checked, and all 76 original packet fixtures were reproduced before editing.
+The runtime, protocol, build recipe, oracle provenance and compatibility inventory
+were reviewed with targeted independent adversarial execution of the numerical,
+storage, differentiation and spatial paths. This is not a formal verification of
+all native machine instructions or an execution of the upstream PyTorch suite.
+
+The implemented expansion adds broadcasted rank 1–4 matmul, Linear over arbitrary
+supported batch dimensions, explicit vector-Jacobian seeds, index_select and
+gather with exact integer index payloads. Matrix backward reduces broadcast
+axes and accumulates both paths when operands share a leaf. Index backward
+scatter-adds repeated indices. The final source and all new evidence identities
+are recorded in `validation/native-extension.json`.
+
+| Finding | Resolution or remaining dependency |
+| --- | --- |
+| Legal pooling requests had no computation bound | Fixed: reject more than 16,777,216 conservative kernel terms before computation; exactly-at-limit and empty-output cases retained |
+| Separate rank-two matrix kernels duplicated the generalized path | Replaced by a rank-two admission wrapper; three superseded forward/reverse helpers removed |
+| Non-scalar outputs lacked a direct cotangent interface | Implemented exact-shape seeded backward, strided seeds, repeated accumulation and error preflight |
+| General matrix shapes and integer selection were absent | Implemented scoped native matmul, index_select and gather; remaining dtype/overload coverage stays open |
+| One native compilation unit is approaching fixed compiler limits | Open: 117/128 functions and 1,364/1,536 blocks; general module linking and resource-bearing public ABI are not implemented in the pinned native profile |
+| Graph/data arena grows for the duration of one request | Open: 255 descriptors and 1 MiB workspace; no graph reclamation preserving parameter/state handles, no persistent training session |
+| Only software binary32 and one CPU target exist | Open: other dtypes, SIMD/device code generation, device memory/stream services and independent backend qualification |
+| The wire protocol is separate from upstream frontends | Open: Python/C++ object, dispatch, module/state, override and extension interfaces |
+
+The original pooling reproducer used only 25,824 request bytes yet admitted
+41,990,400 window terms (`[1,1,80,80]`, kernel 80, stride 1, padding 40). It
+exceeded a one-second audit deadline. The same request now returns capacity
+status 3. The new matrix kernel has the same term limit, including the legacy
+rank-two command. Whole-request CPU deadlines and scalable allocation remain
+separate service concerns; per-operation bounds do not imply those facilities.
+
+The native compiler's limits are specified in the pinned
+[support profile](https://github.com/TrillionniumFoundation/Hepta/blob/f33d8da316de8fdf27b504371f1a5310997ff548/docs/HIA_SELFHOST_CORE_SUPPORT.json).
+Its [object-build contract](https://github.com/TrillionniumFoundation/Hepta/blob/f33d8da316de8fdf27b504371f1a5310997ff548/docs/HIA_PROGRAM_SELFHOST_BUILD.md)
+admits scalar public exports, not a general resource-bearing tensor library
+interface. Scaling the full rewrite therefore requires language/runtime module
+work alongside operator implementation. The full target and all 2,590 original
+schema records remain intact.
+
+The oracle expands to 153 actual PyTorch cases, including the new operators and
+three composed attention paths without masking or dropout. Those attention tests
+qualify composition of the implemented primitives, not the complete attention
+API. The current fixture manifest contains 221 native packet pairs. Historical
+baseline, isolated component, final integrated and hosted results retain their
+own source and executable hashes in the validation records.
