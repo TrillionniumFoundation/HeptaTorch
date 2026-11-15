@@ -119,18 +119,41 @@ jobs:
       - name: Install the independent pinned PyTorch CPU oracle
         shell: bash
         run: |
-          python3 -m pip install --disable-pip-version-check 'torch==2.15.0' --index-url https://download.pytorch.org/whl/cpu
+          python3 - <<'PYTORCH_INSTALL'
+          from pathlib import Path
+          import json
+          import platform
+          import subprocess
+          import sys
+
+          lock = json.loads(Path('compatibility/pytorch-oracle-lock.json').read_text())
+          expected = lock['oracle']
+          if (sys.implementation.name != expected['python']['implementation']
+                  or list(sys.version_info[:2]) != expected['python']['version']
+                  or sys.platform != expected['platform']['sys_platform']
+                  or platform.machine() != expected['platform']['machine']):
+              raise RuntimeError('Pinned PyTorch oracle requires CPython 3.12 on Linux x86_64')
+          report = Path(expected['install_report'])
+          report.parent.mkdir(parents=True, exist_ok=True)
+          wheel = expected['wheel']['url'] + '#sha256=' + expected['wheel']['sha256']
+          subprocess.run([sys.executable, '-m', 'pip', 'install',
+                          '--disable-pip-version-check', '--force-reinstall',
+                          '--index-url', 'https://download.pytorch.org/whl/cpu',
+                          '--report', str(report), wheel], check=True)
+          PYTORCH_INSTALL
 
       - name: Compare native HIA with real PyTorch forward, autograd and optimizers
         shell: bash
         run: |
           python3 - build/heptatorch build/pytorch-differential.json <<'PYTORCH_ORACLE'
           """Standalone CI oracle. PyTorch is a test dependency, never the native runtime.
-          
+
           Usage: python pytorch_oracle.py build/heptatorch build/pytorch-differential.json
           This file can be embedded verbatim in an isolated CI Python step.
           """
           import hashlib
+          import importlib.metadata
+          import platform
           import json
           import math
           import struct
@@ -138,60 +161,133 @@ jobs:
           import sys
           import time
           from pathlib import Path
-          
+
           EXE = Path(sys.argv[1] if len(sys.argv) > 1 else 'build/heptatorch').resolve()
           REPORT = Path(sys.argv[2] if len(sys.argv) > 2 else 'build/pytorch-differential.json')
           PIN = '31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457'
+          LOCK_PATH = Path(sys.argv[3] if len(sys.argv) > 3 else 'compatibility/pytorch-oracle-lock.json')
           ROWS = []
-          
-          
+
+
           def emit(report):
               REPORT.parent.mkdir(parents=True, exist_ok=True)
               REPORT.write_text(json.dumps(report, indent=2, allow_nan=False) + '\n')
               print(json.dumps(report, allow_nan=False))
-          
-          
+
+
+          try:
+              lock_bytes = LOCK_PATH.read_bytes()
+              LOCK = json.loads(lock_bytes)
+              EXPECTED = LOCK['oracle']
+              inventory = json.loads(Path('compatibility/upstream-lock.json').read_text())
+              if (LOCK['format'] != 'heptatorch.pytorch-oracle-lock.v1'
+                      or LOCK['inventory_commit'] != PIN or inventory['commit'] != PIN
+                      or LOCK['inventory_tag'] != 'v2.15.0'
+                      or LOCK['release_source_equivalence']['inventory_commit'] != PIN
+                      or LOCK['release_source_equivalence']['wheel_build_commit'] != EXPECTED['git_commit']):
+                  raise ValueError('Oracle lock does not bind the recorded inventory/build pair')
+          except (OSError, ValueError, KeyError, TypeError) as exc:
+              emit({'status': 'NOT_RUN', 'reason': 'Invalid oracle lock: ' + str(exc),
+                    'upstream_commit': PIN, 'oracle_lock': str(LOCK_PATH)})
+              raise SystemExit(2)
+
+          OBSERVED = {'python': {'implementation': sys.implementation.name,
+                                 'version': list(sys.version_info[:2]), 'full_version': sys.version},
+                      'platform': {'sys_platform': sys.platform, 'machine': platform.machine()}}
           try:
               import torch
               import torch.nn.functional as F
           except ImportError as exc:
-              emit({'status': 'NOT_RUN', 'reason': str(exc), 'required_oracle': 'torch==2.15.0 CPU'})
+              emit({'status': 'NOT_RUN', 'reason': str(exc), 'required_oracle': EXPECTED,
+                    'observed_oracle': OBSERVED, 'upstream_commit': PIN})
               raise SystemExit(2)
-          if torch.__version__.split('+')[0] != '2.15.0' or torch.version.cuda is not None:
-              emit({'status': 'NOT_RUN', 'reason': 'Oracle version/backend mismatch',
-                    'actual_version': torch.__version__, 'cuda': torch.version.cuda,
-                    'required_oracle': 'torch==2.15.0 CPU'})
+
+          OBSERVED.update(version=str(torch.__version__), git_commit=torch.version.git_version,
+                          backend_versions={key: getattr(torch.version, key, 'MISSING')
+                                            for key in EXPECTED['backend_versions']})
+          metadata_error = None
+          try:
+              distribution = importlib.metadata.distribution(EXPECTED['distribution'])
+              direct_url_text = distribution.read_text('direct_url.json')
+              if direct_url_text is None:
+                  raise ValueError('Installed torch lacks PEP610 direct_url.json')
+              direct_url = json.loads(direct_url_text)
+              install_report = json.loads(Path(EXPECTED['install_report']).read_text())
+              torch_records = [item for item in install_report['install']
+                               if item.get('metadata', {}).get('name', '').lower() == 'torch']
+              if len(torch_records) != 1:
+                  raise ValueError('pip report must contain exactly one requested torch distribution')
+              installed_record = torch_records[0]
+              OBSERVED.update(distribution_version=distribution.version,
+                              direct_url=direct_url,
+                              install_report={
+                                  'path': EXPECTED['install_report'],
+                                  'pip_version': install_report.get('pip_version'),
+                                  'download_info': installed_record['download_info'],
+                                  'metadata_name': installed_record['metadata']['name'],
+                                  'metadata_version': installed_record['metadata']['version'],
+                                  'requested': installed_record.get('requested')})
+          except (OSError, ValueError, KeyError, TypeError, importlib.metadata.PackageNotFoundError) as exc:
+              metadata_error = type(exc).__name__ + ': ' + str(exc)
+
+          DIRECT = OBSERVED.get('direct_url', {})
+          DOWNLOAD = OBSERVED.get('install_report', {}).get('download_info', {})
+          CHECKS = {
+              'python_matches': (OBSERVED['python']['implementation'] == EXPECTED['python']['implementation']
+                                 and OBSERVED['python']['version'] == EXPECTED['python']['version']),
+              'platform_matches': OBSERVED['platform'] == EXPECTED['platform'],
+              'version_backend_matches': (OBSERVED['version'] == EXPECTED['version']
+                                          and OBSERVED['backend_versions'] == EXPECTED['backend_versions']),
+              'git_matches_oracle_build_pin': OBSERVED['git_commit'] == EXPECTED['git_commit'],
+              'distribution_version_matches': OBSERVED.get('distribution_version') == EXPECTED['version'],
+              'direct_url_matches': DIRECT.get('url') == EXPECTED['wheel']['url'],
+              'direct_url_archive_sha256_matches': DIRECT.get('archive_info', {}).get('hashes', {}).get('sha256') == EXPECTED['wheel']['sha256'],
+              'pip_report_url_matches': DOWNLOAD.get('url') == EXPECTED['wheel']['url'],
+              'pip_report_archive_sha256_matches': DOWNLOAD.get('archive_info', {}).get('hashes', {}).get('sha256') == EXPECTED['wheel']['sha256'],
+              'pip_report_version_matches': OBSERVED.get('install_report', {}).get('metadata_version') == EXPECTED['version'],
+              'pip_report_requested': OBSERVED.get('install_report', {}).get('requested') is True,
+          }
+          PROVENANCE = {'status': 'PASS' if metadata_error is None and all(CHECKS.values()) else 'FAIL',
+                        'lock_path': str(LOCK_PATH), 'lock_sha256': hashlib.sha256(lock_bytes).hexdigest(),
+                        'expected': EXPECTED, 'observed': OBSERVED, 'checks': CHECKS,
+                        'metadata_error': metadata_error,
+                        'release_source_equivalence': LOCK['release_source_equivalence']}
+          if PROVENANCE['status'] != 'PASS':
+              emit({'status': 'NOT_RUN', 'reason': 'Pinned oracle provenance mismatch',
+                    'upstream_commit': PIN, 'torch_git_version': torch.version.git_version,
+                    'torch_git_matches_upstream_pin': torch.version.git_version == PIN,
+                    'oracle_provenance': PROVENANCE})
               raise SystemExit(2)
           torch.set_num_threads(1)
           torch.manual_seed(1729)
           torch.backends.mkldnn.enabled = False
           torch.use_deterministic_algorithms(True)
-          
-          
+
+
           def bits(value):
               return struct.unpack('<I', struct.pack('<f', float(value)))[0]
-          
-          
+
+
           def f32(value):
               return struct.unpack('<f', struct.pack('<f', float(value)))[0]
-          
-          
+
+
           class Program:
               """Only wire serialization and tensor-ID bookkeeping; no numerical kernels."""
               def __init__(self):
                   self.commands, self.blobs, self.configs, self.next_id = [], {}, {}, 1
-          
+
               def command(self, code, *args):
                   assert len(args) <= 7
                   at = len(self.commands)
                   self.commands.append([code] + [int(a) & ((1 << 64) - 1) for a in args] + [0] * (7 - len(args)))
                   return at
-          
+
               def make(self, code, *args, count=1):
                   self.command(code, *args)
                   self.next_id += count
                   return self.next_id - 1
-          
+
               def tensor(self, value, requires=False):
                   value = torch.as_tensor(value, dtype=torch.float32, device='cpu').detach().contiguous()
                   assert value.ndim <= 4
@@ -200,7 +296,7 @@ jobs:
                   result = self.next_id
                   self.next_id += 1
                   return result
-          
+
               def binary(self, op, a, b): return self.make(2, op, a, b)
               def unary(self, op, a): return self.make(3, op, a)
               def reduce(self, op, a): return self.make(4, op, a)
@@ -232,7 +328,7 @@ jobs:
               def layernorm(self, x, w, b, eps): return self.make(26, x, w, b, bits(eps), count=10)
               def cross_entropy(self, x, target): return self.make(27, x, target, count=5)
               def batchnorm(self, x, m, v, w, b, eps): return self.make(28, x, m, v, w, b, bits(eps), count=11)
-          
+
               def encode(self):
                   offset = 32 + 64 * len(self.commands)
                   payload, commands = bytearray(), [row.copy() for row in self.commands]
@@ -244,8 +340,8 @@ jobs:
                       commands[at][5] = offset + len(payload)
                       payload.extend(data)
                   return struct.pack('<8sQQQ', b'HTORCH01', len(commands), offset + len(payload), 0) + b''.join(struct.pack('<8Q', *row) for row in commands) + payload
-          
-          
+
+
           def compare(name, program, expected, rtol=4e-5, atol=5e-6):
               row = {'case': name, 'status': 'PASS', 'rtol': rtol, 'atol': atol, 'compared_values': 0,
                      'max_absolute_error': 0., 'max_relative_error_scaled_by_atol': 0., 'mismatches': 0}
@@ -286,8 +382,8 @@ jobs:
               except Exception as exc:
                   row.update(status='FAIL', error=str(exc)[:2000])
               ROWS.append(row)
-          
-          
+
+
           def function_case(name, data, reference_fn, native_fn, requires=None, rtol=4e-5, atol=5e-6):
               requires = requires or [True] * len(data)
               leaves = [a.detach().clone().requires_grad_(req) for a, req in zip(data, requires)]
@@ -304,8 +400,8 @@ jobs:
                       assert leaf.grad is not None, name
                       expected[p.read(tid, True)] = leaf.grad.clone()
               compare(name, p, expected, rtol, atol)
-          
-          
+
+
           def operators():
               shapes = [((), ()), ((2, 3), (3,)), ((2, 1, 3), (1, 4, 1)), ((2, 0, 3), (1, 1, 3)), ((2, 1, 2, 3), (1, 3, 1, 3))]
               for op, fn in [(1, torch.add), (2, torch.sub), (3, torch.mul), (4, torch.div)]:
@@ -330,8 +426,8 @@ jobs:
                       function_case(f'softmax-{axis}-{log}', [torch.randn(2, 3, 4) * 3],
                                     lambda x: F.log_softmax(x, axis) if log else F.softmax(x, axis),
                                     lambda p, a: p.softmax(a, axis, log), rtol=1e-4)
-          
-          
+
+
           def spatial_modules():
               specs = [((1, 2, 5, 5), (3, 2, 3, 2), (1, 1), (1, 0), (1, 1), 1),
                        ((1, 4, 5, 6), (4, 2, 2, 3), (2, 1), (1, 1), (1, 1), 2),
@@ -364,8 +460,8 @@ jobs:
                                 F.cross_entropy, lambda p, x, t: p.cross_entropy(x, t), rtol=1e-4)
               function_case('view-clone', [torch.randn(2, 3)], lambda x: x.view(3, 2).clone(),
                             lambda p, x: p.clone(p.view(x, (3, 2))))
-          
-          
+
+
           def optimizers():
               for decoupled in [False, True]:
                   for wd in [0., f32(.07)]:
@@ -415,8 +511,8 @@ jobs:
               parameter.grad = grad
               optimizer.step()
               compare('optim-Adam-large-gradient', p, {p.read(x): parameter.detach().clone(), p.read(v): optimizer.state[parameter]['exp_avg_sq'].clone()}, rtol=1e-4)
-          
-          
+
+
           def training():
               p = Program()
               data = torch.tensor([[-2., -1.], [-1., 1.], [0., -1.], [1., 1.], [2., 0.], [3., 1.]])
@@ -444,8 +540,8 @@ jobs:
               compare('MLP-real-autograd-SGD-18-steps', p, expected, rtol=6e-4, atol=4e-5)
               return {'steps': 18, 'torch_initial_loss': losses[0], 'torch_last_pre_update_loss': losses[-1],
                       'torch_loss_decreased': losses[-1] < losses[0]}
-          
-          
+
+
           def main():
               started = time.monotonic()
               sha = hashlib.sha256(EXE.read_bytes()).hexdigest()
@@ -460,19 +556,22 @@ jobs:
                   setup_error = type(exc).__name__ + ': ' + str(exc)
               changed = sha != hashlib.sha256(EXE.read_bytes()).hexdigest()
               failed = sum(row['status'] == 'FAIL' for row in ROWS)
-              passed = setup_error is None and not changed and failed == 0 and len(ROWS) == 76 and torch.version.git_version == PIN
+              passed = setup_error is None and not changed and failed == 0 and len(ROWS) == 76 and PROVENANCE['status'] == 'PASS'
               report = {'schema': 'heptatorch.live-pytorch-differential.v1', 'status': 'PASS' if passed else 'FAIL',
                         'oracle': 'real pinned CPU PyTorch forward, autograd and torch.optim; no copied derivative formulas',
                         'torch_version': torch.__version__, 'torch_git_version': torch.version.git_version,
                         'upstream_commit': PIN, 'torch_git_matches_upstream_pin': torch.version.git_version == PIN,
+                        'oracle_build_commit': EXPECTED['git_commit'],
+                        'torch_git_matches_oracle_build_pin': torch.version.git_version == EXPECTED['git_commit'],
+                        'oracle_provenance': PROVENANCE,
                         'native_executable_sha256': sha, 'native_unchanged_during_run': not changed,
                         'seed': 1729, 'cases': len(ROWS), 'failed_cases': failed, 'setup_error': setup_error,
                         'compared_values': sum(row['compared_values'] for row in ROWS), 'rows': ROWS,
                         'training': training_result, 'wall_seconds': time.monotonic() - started}
               emit(report)
               if not passed: raise SystemExit(1)
-          
-          
+
+
           if __name__ == '__main__':
               main()
           PYTORCH_ORACLE

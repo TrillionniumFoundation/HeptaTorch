@@ -1,0 +1,169 @@
+{
+  "schema": "heptatorch.hosted-validation.v1",
+  "status": "PROVENANCE_FIX_PENDING_CI",
+  "scope": "Native CPU binary32 behavior in the 76 enumerated differential cases; not full PyTorch API/schema/backend compatibility.",
+  "source_sha256": "88cd5a93fd473e3195fb13dd45fadea1d9ad8eacb44894d4ed536e6399ba3fd5",
+  "executable_sha256": "3e3914abb451bc22dcdbf1bccdece2291a165bb26f27773977ab9f928dac7076",
+  "source_equivalence": {
+    "release_commit": "31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
+    "wheel_build_commit": "d0f2af8b66b20da4baa50644c0cd3f887a2eae2e",
+    "release_root_tree": "156b7013e253ac50abaa4de8a4d2e6dd7acbbb56",
+    "wheel_build_root_tree": "408badfd8e01265470f4efedfe22fa547b128351",
+    "relationship": "The release commit's sole parent is the wheel build commit.",
+    "comparison": {
+      "ahead_by": 1,
+      "behind_by": 0,
+      "total_commits": 1
+    },
+    "root_entry_count": 74,
+    "root_trees_truncated": false,
+    "identical_root_entry_count": 73,
+    "sole_changed_file": {
+      "sha": "e7648b0fcb198697832a6aab3469719a9992a8ec",
+      "filename": "pyproject.toml",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "blob_url": "https://github.com/pytorch/pytorch/blob/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/pyproject.toml",
+      "raw_url": "https://github.com/pytorch/pytorch/raw/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/pyproject.toml",
+      "contents_url": "https://api.github.com/repos/pytorch/pytorch/contents/pyproject.toml?ref=31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
+      "patch": "@@ -495,6 +495,11 @@ first_party = [\"caffe2\", \"torch\", \"torchgen\", \"functorch\", \"test\"]\n standard_library = [\"typing_extensions\"]\n \n [tool.ruff]\n+# Ruff takes its target version from requires-python, which is now >=3.11. That\n+# turns on UP035/UP036/UP044/UP017 and flags ~160 files that still carry the\n+# Python 3.10 compatibility code. Keep linting for 3.10 until that code is\n+# removed, then delete this.\n+target-version = \"py310\"\n line-length = 88\n src = [\"caffe2\", \"torch\", \"torchgen\", \"functorch\", \"test\"]\n extend-exclude = [\"third_party\", \"test/cpython\"]"
+    },
+    "identical_subtrees": [
+      {
+        "path": ".ci",
+        "git_tree_sha1": "40279ceebccac57277fdaabf1fb8cb70b60850d6"
+      },
+      {
+        "path": ".claude",
+        "git_tree_sha1": "0075de12edc4d9bdbf28e567c5f54f3ac5e78201"
+      },
+      {
+        "path": ".ctags.d",
+        "git_tree_sha1": "3c8ba0dccbb55f2da51365a465144aa69c6025d0"
+      },
+      {
+        "path": ".devcontainer",
+        "git_tree_sha1": "6abd271cefad60b09bbfacb63e53325198cd5521"
+      },
+      {
+        "path": ".github",
+        "git_tree_sha1": "8ae0eeb95729b758872993f4a7fed6ffcefb286c"
+      },
+      {
+        "path": ".spin",
+        "git_tree_sha1": "ef791f9c9264cb8a8e13acce7ee418e0f9c956ac"
+      },
+      {
+        "path": ".vscode",
+        "git_tree_sha1": "ea91f344ac83b434b498fa28b4b8b555e68a9126"
+      },
+      {
+        "path": "android",
+        "git_tree_sha1": "d2ff3db5f9fac06b8ddce4b796409a09e8e5e8a8"
+      },
+      {
+        "path": "aten",
+        "git_tree_sha1": "742dba1bfe6135f3573e4eaac689742744628174"
+      },
+      {
+        "path": "benchmarks",
+        "git_tree_sha1": "ec19294aeabfaae61be43f8ea98c7bfe5e507b56"
+      },
+      {
+        "path": "binaries",
+        "git_tree_sha1": "f5249d171f1af6f07384c91418892a45d05fee22"
+      },
+      {
+        "path": "c10",
+        "git_tree_sha1": "bcd92827e525817818af6e44b77f64460823bef1"
+      },
+      {
+        "path": "caffe2",
+        "git_tree_sha1": "73f5fcafe72932ee5cbaab1b2bd879f8a634344e"
+      },
+      {
+        "path": "cmake",
+        "git_tree_sha1": "b622eeb5fe4620c3f58529c34cc52b4466af8519"
+      },
+      {
+        "path": "docs",
+        "git_tree_sha1": "5b3f3b84bd0c6597c7c926d221739ab4c9d4fc9f"
+      },
+      {
+        "path": "functorch",
+        "git_tree_sha1": "c559f838225b0971bc22fcb2672589c27ef01456"
+      },
+      {
+        "path": "mypy_plugins",
+        "git_tree_sha1": "f2f6231e180a450273107602eef43bd9433a51c0"
+      },
+      {
+        "path": "scripts",
+        "git_tree_sha1": "940b5e644e48b7eedc65292e19e56e4c7a9abb98"
+      },
+      {
+        "path": "test",
+        "git_tree_sha1": "9dcb79311a6209012b019fc6f20209d2804cca98"
+      },
+      {
+        "path": "third_party",
+        "git_tree_sha1": "60ad164358c335341c6a7840bb80256079e6dd8e"
+      },
+      {
+        "path": "tools",
+        "git_tree_sha1": "f35164cd2daf3f11baadcccc5551800e38392432"
+      },
+      {
+        "path": "torch",
+        "git_tree_sha1": "2877dbcda5441192b89ab6272c24bed424e53bd4"
+      },
+      {
+        "path": "torchgen",
+        "git_tree_sha1": "f5fb760a18c6d4c81a4b665ad7adef7348dba6a3"
+      }
+    ],
+    "interpretation": "The sole change is Ruff lint target-version configuration and comments. Every source-code, generator, test and third-party subtree has the same Git object identity; the release inventory pin and wheel build pin remain distinct.",
+    "evidence_urls": [
+      "https://api.github.com/repos/pytorch/pytorch/compare/d0f2af8b66b20da4baa50644c0cd3f887a2eae2e...31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
+      "https://api.github.com/repos/pytorch/pytorch/git/trees/408badfd8e01265470f4efedfe22fa547b128351",
+      "https://api.github.com/repos/pytorch/pytorch/git/trees/156b7013e253ac50abaa4de8a4d2e6dd7acbbb56"
+    ]
+  },
+  "first_run": {
+    "commit": "63e9fb938e96939fa2ef68d84a1d159d3db8d009",
+    "run_id": 43737347959,
+    "job_id": 132882761482,
+    "run_url": "https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43737347959",
+    "workflow_conclusion": "failure",
+    "bootstrap": "PASS",
+    "native_fixture_pairs": 76,
+    "native_fixtures": "PASS",
+    "oracle": {
+      "schema": "heptatorch.live-pytorch-differential.v1",
+      "status": "FAIL",
+      "oracle": "real pinned CPU PyTorch forward, autograd and torch.optim; no copied derivative formulas",
+      "torch_version": "2.15.0+cpu",
+      "torch_git_version": "d0f2af8b66b20da4baa50644c0cd3f887a2eae2e",
+      "upstream_commit": "31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
+      "torch_git_matches_upstream_pin": false,
+      "native_executable_sha256": "3e3914abb451bc22dcdbf1bccdece2291a165bb26f27773977ab9f928dac7076",
+      "native_unchanged_during_run": true,
+      "seed": 1729,
+      "cases": 76,
+      "failed_cases": 0,
+      "setup_error": null,
+      "compared_values": 2754,
+      "training": {
+        "steps": 18,
+        "torch_initial_loss": 6.106357574462891,
+        "torch_last_pre_update_loss": 0.3927442133426666,
+        "torch_loss_decreased": true
+      },
+      "wall_seconds": 0.26369677800001057
+    },
+    "failure_reason": "The original gate incorrectly required the official wheel build Git SHA to equal the release tag Git SHA. All 76 numerical cases passed, but this provenance comparison failed. The original failed result is retained, not relabeled PASS."
+  },
+  "verified_run": null
+}

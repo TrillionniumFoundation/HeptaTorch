@@ -42,13 +42,34 @@ passed against unchanged source and executable hashes.
 
 ## Hosted PyTorch differential gate
 
-The CI workflow installs the pinned **CPU PyTorch 2.15.0** only as an independent
-test oracle. Its inline test program serializes inputs and invokes real PyTorch
-forward operations, autograd, and optimizers. It never implements HeptaTorch's
-runtime operations. The gate requires exactly 76 cases, zero failures, the
-expected Torch source revision, and an unchanged native executable.
+The CI workflow installs the pinned **CPU PyTorch 2.15.0+cpu** only as an
+independent test oracle. Its inline test program serializes inputs and invokes
+real PyTorch forward operations, autograd, and optimizers. It never implements
+HeptaTorch's runtime operations. The gate requires exactly 76 cases, zero
+failures, the exact wheel version, source revision and artifact hash, and an
+unchanged native executable. Numerical tolerances are recorded per case.
 
-Local execution lacked PyTorch and was correctly recorded as NOT_RUN for that
-oracle. A hosted PASS is claimed only after reading the corresponding Actions
-result and logs. Its result, when available, is recorded with the tested GitHub
-commit and run URL; it does not establish whole-schema or whole-project parity.
+`compatibility/pytorch-oracle-lock.json` fixes the official Python 3.12 Linux
+x86-64 wheel URL and SHA-256. Pip verifies the downloaded wheel against that
+hash. The installed distribution's source URL and archive hash, exact package
+version, CPU backend and build Git SHA are checked independently of numerical
+comparisons.
+
+The inventory release commit is `31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457`.
+The official wheel was built at its sole parent,
+`d0f2af8b66b20da4baa50644c0cd3f887a2eae2e`. The release adds only five lines of
+Ruff lint configuration and comments to `pyproject.toml`. Comparing the complete
+74-entry root trees established identical Git objects for every other entry,
+including every source, generator, test and third-party subtree. Both pins and
+the exact source-equivalence evidence are retained in `hosted.json`.
+
+The [first hosted run](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43737347959)
+passed compiler bootstrap, 76 native packet pairs and all 76 real-PyTorch
+numerical cases (2,754 values). Its overall result remains **FAIL** because the
+original gate incorrectly required the wheel build SHA to equal the release tag
+SHA. That failed result is retained in `hosted.json`; the provenance correction
+must pass a fresh hosted run before a hosted PASS is recorded.
+
+Local execution lacked PyTorch and remains recorded as NOT_RUN for that oracle.
+A hosted result is tied to its tested GitHub commit and run URL; none of these
+scoped checks establish whole-schema or whole-project parity.

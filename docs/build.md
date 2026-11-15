@@ -72,3 +72,19 @@ substitute for the full upstream compatibility matrix.
 The decoder's own input is also bounded by the 1 MiB native input wrapper;
 therefore one text fixture can encode at most roughly 512 KiB of binary data.
 The tensor executable itself accepts binary requests up to 1 MiB.
+
+## Independent hosted oracle
+
+After native bootstrap and regression execution, CI uses Python 3.12 to install
+one official CPU PyTorch wheel by its exact URL and SHA-256. This test dependency
+is pinned separately from the source inventory because the release tag adds a
+Ruff configuration change after the otherwise identical wheel source revision.
+`compatibility/pytorch-oracle-lock.json` and `validation/hosted.json` preserve the
+two pins and their relationship.
+
+The oracle checks real PyTorch forward results, autograd gradients and optimizer
+updates against the already-built HIA executable. It records the wheel's source
+URL, archive hash and Git revision, and verifies that the native executable is
+unchanged by the test. Python and PyTorch are needed only for this independent
+comparison and the initial external compiler bootstrap described above; neither
+is a dependency of the native build products or `make test`.
