@@ -72,6 +72,7 @@ before appending another command response, with final status 3.
 | 30 | Index select | input, axis, index_count, index_payload_offset | Tensor ID |
 | 31 | Gather | input, axis, index_config_offset | Tensor ID |
 | 32 | General matrix multiply | left, right | Tensor ID |
+| 33 | Reclaim training graph | retained_prefix_count | 1 |
 
 Binary operation IDs are 1 add, 2 sub, 3 mul, 4 div. Unary IDs are 5 ReLU,
 6 neg, 11 sqrt, 12 exp, 13 log, 14 sigmoid, 15 tanh. Full reductions are 7 sum
@@ -95,8 +96,10 @@ pooling as selected. It does not return argmax indices to the caller.
 
 ## Tensor identity and graph composition
 
-IDs begin at 1 and follow allocation order. Zero is an optional-affine sentinel
-only in commands documenting it. All other uses of zero as a tensor ID fail.
+Before the first graph reset, IDs begin at 1 and follow allocation order.
+After a reset, retained-prefix IDs stay unchanged and transient IDs carry a
+generation, as specified below. Zero is an optional sentinel only in commands
+documenting it. All other uses of zero as a tensor ID fail.
 Most tensor-producing commands allocate one descriptor. Composite commands
 also allocate their internal graph nodes:
 
@@ -109,7 +112,7 @@ also allocate their internal graph nodes:
 | BatchNorm evaluation | 7, plus 2 for weight and 2 for bias |
 
 The returned ID is the last allocated tensor. A command-stream producer must
-account for these allocations when referring to later tensors. The HIA library
+account for these allocations and reset generations when referring to later tensors. The HIA library
 functions in the source return IDs directly and can be called from an edited
 native entry program. The fixture packets document concrete examples.
 
@@ -140,6 +143,42 @@ values into new storage while preserving a differentiable connection. A leaf
 write or optimizer update increments the shared owner's version. Backward
 preflights the reachable graph, checking saved parent versions and newly owned
 output versions before altering gradients. This validation is conservative.
+
+## Training graph reclamation
+
+Command 33 preserves the initial `keep` descriptors and reclaims every later
+descriptor and its arena storage. The first successful reset fixes this retained
+prefix for the remainder of the request; later resets must use exactly the same
+`keep`, including when it is zero. Allocate parameters, optimizer states and any
+retained inputs before creating transient graph nodes. Each retained descriptor
+must be an owned leaf: its graph operation is zero and its storage-owner ID is
+itself. A detached alias, view or operation output cannot be retained in this
+prefix. The legal range is `0 <= keep < next_slot`, at most 255.
+
+Retained values, leaf gradients, work buffers, versions and optimizer states are
+preserved. Reset does not clear gradients. A typical iteration explicitly zeros
+parameter gradients, builds the forward graph, runs backward, updates parameters,
+and then resets to the same retained prefix. Read any transient output before
+resetting. Once discarded, its ID is invalid even if a later tensor reuses the
+same slot.
+
+The workspace generation starts at zero and increments after every successful
+reset. Slots are in 1..255. Retained slots use their original IDs, while a
+transient slot uses `(generation << 8) | slot`. Consumers must preserve the full
+64-bit ID. A slot with the wrong generation, a generated ID for a retained slot,
+or slot zero returns status 1. The maximum generation is `2^56 - 1`; a further
+reset returns status 3 before modifying any graph state. Resetting with all 255
+slots retained is legal, but leaves no slot available for new tensors.
+
+Invalid prefix ranges or changes return status 7. Retaining a nonleaf or shared
+owner returns status 6. These preflight checks precede reclamation; on refusal,
+the workspace is unchanged except for its sticky error status. The production
+protocol still stops at the first failed command.
+
+The 255-descriptor limit now applies to tensors live between resets. Input,
+output and workspace limits remain 1 MiB each, and a request can still exhaust
+command or response capacity. This mechanism reuses memory within one request;
+the executable still initializes a fresh workspace for each invocation.
 
 ## Modules and optimizers
 

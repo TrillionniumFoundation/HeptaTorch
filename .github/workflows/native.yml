@@ -122,16 +122,16 @@ jobs:
 
           digest = lambda p: hashlib.sha256(Path(p).read_bytes()).hexdigest()
           manifest = json.loads(Path('validation/fixture-manifest.json').read_text())
-          evidence = json.loads(Path('validation/native-extension.json').read_text())
+          evidence = json.loads(Path('validation/session-native.json').read_text())
           assert manifest['source_sha256'] == digest('src/heptatorch.hepta') == evidence['source_sha256']
           assert evidence['executable_sha256'] == digest('build/heptatorch')
           paths = {entry['path'] for entry in manifest['files']}
           assert paths == {str(p) for p in Path('tests/fixtures').glob('*.hex')}
-          assert manifest['fixture_pairs'] == len(paths) // 2 == 221
+          assert manifest['fixture_pairs'] == len(paths) // 2 == 275
           for entry in manifest['files']:
               assert Path(entry['path']).stat().st_size == entry['bytes']
               assert digest(entry['path']) == entry['sha256']
-          print('PASS: exact native source, image and 221 fixture-pair manifest')
+          print('PASS: exact native source, image and 275 fixture-pair manifest')
           MANIFEST
 
       - name: Install the independent pinned PyTorch CPU oracle
@@ -294,6 +294,7 @@ jobs:
               """Only wire serialization and tensor-ID bookkeeping; no numerical kernels."""
               def __init__(self):
                   self.commands, self.blobs, self.configs, self.extra, self.next_id = [], {}, {}, [], 1
+                  self.generation, self.keep = 0, 0
 
               def command(self, code, *args):
                   assert len(args) <= 7
@@ -304,7 +305,7 @@ jobs:
               def make(self, code, *args, count=1):
                   self.command(code, *args)
                   self.next_id += count
-                  return self.next_id - 1
+                  return self.handle(self.next_id - 1)
 
               def tensor(self, value, requires=False):
                   value = torch.as_tensor(value, dtype=torch.float32, device='cpu').detach().contiguous()
@@ -313,7 +314,7 @@ jobs:
                   self.blobs[at] = struct.pack('<' + str(value.numel()) + 'f', *value.reshape(-1).tolist())
                   result = self.next_id
                   self.next_id += 1
-                  return result
+                  return self.handle(result)
 
               def binary(self, op, a, b): return self.make(2, op, a, b)
               def unary(self, op, a): return self.make(3, op, a)
@@ -347,6 +348,14 @@ jobs:
               def cross_entropy(self, x, target): return self.make(27, x, target, count=5)
               def batchnorm(self, x, m, v, w, b, eps): return self.make(28, x, m, v, w, b, bits(eps), count=11)
 
+              def handle(self, slot):
+                  return slot if slot <= self.keep else (self.generation << 8) | slot
+
+              def reset_graph(self, keep):
+                  self.command(33, keep)
+                  self.keep, self.next_id = keep, keep + 1
+                  self.generation += 1
+
               def seeded(self, output, seed): return self.command(29, output, seed)
               def matmul(self, left, right): return self.make(32, left, right)
 
@@ -356,7 +365,7 @@ jobs:
                   self.extra.append((at, 4, struct.pack('<' + str(index.numel()) + 'q', *index.tolist())))
                   result = self.next_id
                   self.next_id += 1
-                  return result
+                  return self.handle(result)
 
               def gather(self, value, axis, index):
                   index = torch.as_tensor(index, dtype=torch.int64)
@@ -366,7 +375,7 @@ jobs:
                   self.extra.append((at, 3, body))
                   result = self.next_id
                   self.next_id += 1
-                  return result
+                  return self.handle(result)
 
               def encode(self):
                   offset = 32 + 64 * len(self.commands)
@@ -673,6 +682,86 @@ jobs:
                               native_attention, rtol=2e-4, atol=2e-5)
 
 
+
+          def training_sessions():
+              for mode, steps in [('SGD', 1024), ('Adam', 512), ('AdamW', 512)]:
+                  p = Program()
+                  parameter = torch.nn.Parameter(torch.tensor([-.75, .25, 1.5, -1.]))
+                  target = torch.tensor([.5, -.5, .25, .75])
+                  x = p.tensor(parameter, True)
+                  m = p.tensor(torch.zeros(4)) if mode != 'SGD' else 0
+                  v = p.tensor(torch.zeros(4)) if mode != 'SGD' else 0
+                  target_id = p.tensor(target)
+                  keep = p.next_id - 1
+                  lr, b1, b2, eps, wd = map(f32, [2**-8, .5, .75, 2**-14, 2**-6])
+                  if mode == 'SGD':
+                      optimizer = torch.optim.SGD([parameter], lr=lr, foreach=False, fused=False)
+                  else:
+                      cls = torch.optim.Adam if mode == 'Adam' else torch.optim.AdamW
+                      optimizer = cls([parameter], lr=lr, betas=(b1, b2), eps=eps, weight_decay=wd, foreach=False, fused=False)
+                  expected = {}
+                  for iteration in range(1, steps + 1):
+                      p.zero(x)
+                      loss = p.mse(x, target_id)
+                      p.backward(loss)
+                      optimizer.zero_grad(set_to_none=False)
+                      reference = F.mse_loss(parameter, target)
+                      reference.backward()
+                      if iteration == 1 or iteration % 128 == 0:
+                          expected[p.read(loss)] = reference.detach().clone()
+                          expected[p.read(x, True)] = parameter.grad.detach().clone()
+                      if mode == 'SGD':
+                          p.sgd(x, lr)
+                      else:
+                          p.adam(x, m, v, iteration, lr, b1, b2, eps, wd, mode == 'AdamW')
+                      optimizer.step()
+                      p.reset_graph(keep)
+                      if iteration == 1 or iteration % 128 == 0:
+                          expected[p.read(x)] = parameter.detach().clone()
+                  if mode != 'SGD':
+                      expected[p.read(m)] = optimizer.state[parameter]['exp_avg'].clone()
+                      expected[p.read(v)] = optimizer.state[parameter]['exp_avg_sq'].clone()
+                  compare(f'session-{mode}-{steps}-steps', p, expected, rtol=2e-4, atol=2e-5)
+
+              p = Program()
+              leaf = torch.tensor([.5, -.25, 1.], requires_grad=True)
+              x = p.tensor(leaf, True)
+              expected = {}
+              for iteration in range(4):
+                  p.backward(p.reduce(7, p.binary(3, x, x)))
+                  (leaf * leaf).sum().backward()
+                  p.reset_graph(1)
+                  expected[p.read(x, True)] = leaf.grad.clone()
+                  expected[p.read(x)] = leaf.detach().clone()
+              compare('session-reset-preserves-accumulated-gradients', p, expected)
+
+              p = Program()
+              expected = {}
+              for iteration in range(4):
+                  leaf = torch.tensor([iteration + .5, -.25], requires_grad=True)
+                  x = p.tensor(leaf, True)
+                  p.backward(p.reduce(7, p.binary(3, x, x)))
+                  (leaf * leaf).sum().backward()
+                  expected[p.read(x, True)] = leaf.grad.clone()
+                  p.reset_graph(0)
+              compare('session-empty-preserved-prefix', p, expected)
+
+              p = Program()
+              empty = torch.empty(0, 3, requires_grad=True)
+              value = torch.tensor([.25, -.5], requires_grad=True)
+              a, x = p.tensor(empty, True), p.tensor(value, True)
+              expected = {}
+              for iteration in range(4):
+                  p.seeded(a, p.tensor(torch.empty(0, 3)))
+                  empty.backward(torch.empty_like(empty))
+                  p.backward(p.reduce(7, p.binary(3, x, x)))
+                  (value * value).sum().backward()
+                  p.reset_graph(2)
+                  expected[p.read(a, True)] = empty.grad.clone()
+                  expected[p.read(x, True)] = value.grad.clone()
+              compare('session-empty-kept-tensor', p, expected)
+
+
           def main():
               started = time.monotonic()
               sha = hashlib.sha256(EXE.read_bytes()).hexdigest()
@@ -684,11 +773,12 @@ jobs:
                   optimizers()
                   training_result = training()
                   extensions()
+                  training_sessions()
               except Exception as exc:
                   setup_error = type(exc).__name__ + ': ' + str(exc)
               changed = sha != hashlib.sha256(EXE.read_bytes()).hexdigest()
               failed = sum(row['status'] == 'FAIL' for row in ROWS)
-              passed = setup_error is None and not changed and failed == 0 and len(ROWS) == 153 and len({row["case"] for row in ROWS}) == 153 and PROVENANCE['status'] == 'PASS'
+              passed = setup_error is None and not changed and failed == 0 and len(ROWS) == 159 and len({row["case"] for row in ROWS}) == 159 and PROVENANCE['status'] == 'PASS'
               report = {'schema': 'heptatorch.live-pytorch-differential.v1', 'status': 'PASS' if passed else 'FAIL',
                         'oracle': 'real pinned CPU PyTorch forward, autograd and torch.optim; no copied derivative formulas',
                         'torch_version': torch.__version__, 'torch_git_version': torch.version.git_version,
@@ -697,7 +787,7 @@ jobs:
                         'torch_git_matches_oracle_build_pin': torch.version.git_version == EXPECTED['git_commit'],
                         'oracle_provenance': PROVENANCE,
                         'native_executable_sha256': sha, 'native_unchanged_during_run': not changed,
-                        'seed': 1729, 'expected_cases': 153, 'cases': len(ROWS), 'failed_cases': failed, 'setup_error': setup_error,
+                        'seed': 1729, 'expected_cases': 159, 'cases': len(ROWS), 'failed_cases': failed, 'setup_error': setup_error,
                         'compared_values': sum(row['compared_values'] for row in ROWS), 'rows': ROWS,
                         'training': training_result, 'wall_seconds': time.monotonic() - started}
               emit(report)
