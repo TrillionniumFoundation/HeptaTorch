@@ -327,3 +327,9 @@ for the second moment. Independent FMA qualification passed 485,163 exact bit
 comparisons. Six expected-response files were updated only after the original
 independent optimizer/training references passed; two new 512-step regression
 pairs make 275 total. The oracle inputs and thresholds remain unchanged.
+
+The corrected [hosted run](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43742636363)
+passed all 159 cases and 8,471 numerical comparisons on commit
+`6d21e076f15fdd097a5715f9e58306e93b257ce1`, with 275 native packet pairs and all
+oracle provenance checks. `validation/hosted-session.json` retains the full
+passing report without replacing the failed record.

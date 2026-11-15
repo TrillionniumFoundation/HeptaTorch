@@ -185,3 +185,16 @@ and one added 1,000-step Adam response. Every earlier request input is preserved
 Two 512-step native regression pairs bring the corpus to 275 pairs. The real
 PyTorch oracle's 159 cases, hyperparameters, random sequence and tolerances are
 unchanged. A fresh hosted run must qualify the corrected source.
+
+### Corrected hosted result
+
+**PASS:** [Run 43742636363](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43742636363)
+tested commit `6d21e076f15fdd097a5715f9e58306e93b257ce1`. All 275 native packet
+pairs, the source/image/fixture manifest, compiler reproduction, 11 provenance
+checks and 159 real-PyTorch cases (8,471 values) passed. The 1,024-step SGD case
+agreed exactly; maximum Adam and AdamW absolute discrepancies were
+1.4901161193847656e-8 and 5.960464477539063e-8. The binary was unchanged during
+comparison. `hosted-session.json` retains the complete result and connects it
+to the original failed run. This evidence update changes receipts and prose;
+it leaves the runtime, compiler recipe, numerical oracle and fixture bytes
+unchanged.
