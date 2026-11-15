@@ -46,7 +46,7 @@ cmp build/train.response build/train.expected
 - exp/log/sigmoid/tanh：**3,424,359** 次测量；另用 90 位精度参考检查 **20,025** 个输入。测量误差及适用解释见 [数值说明](docs/numerics.md)。
 - 集成：广播、视图、梯度、空间算子、模块、优化器、异常输入和容量边界，均有独立参考或明确拒绝结果。
 - 当前集成版本：**221 对原生回归夹具**通过；新增矩阵与 Linear 的 **63 项／4,593 个值**检查、**2,514 项**独立矩阵形状／梯度／拒绝检查，以及 **11 项／529 个值**跨算子集成检查通过。各项的单位、独立参考和源码身份见 [本次原生验证](validation/native-extension.json)。
-- 托管 CI：原基线的 **76 项／2,754 个真实 PyTorch 数值对照**已通过，保留其[成功运行](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43738165041)和[历史回执](validation/hosted.json)。当前源码的独立 PyTorch 门扩展为 **153 项**，包括三种无掩码、无 dropout 的注意力组合；实际运行状态单独记录在 [本次托管回执](validation/hosted-extension.json)。
+- 托管 CI：当前源码的 **153 项／8,244 个真实 PyTorch 数值对照**全部通过，包括三种无掩码、无 dropout 注意力组合的前向与 Q/K/V 梯度。[成功运行](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43740237504)同时通过编译器自重建、221 对原生夹具、源码／二进制／夹具精确绑定，以及 11 项安装包来源检查。[本次完整回执](validation/hosted-extension.json)与[原基线历史回执](validation/hosted.json)分别保存。
 - 线性回归：**30 次 SGD 更新**，更新前损失从 **5.1570835** 降至 **0.0342863**。
 - 两层 ReLU 分类器：**18 次 Adam 更新**，更新前交叉熵从 **0.6822657** 降至 **0.0017283**；该固定 8 样本任务更新后分类正确率 **100%**。
 

@@ -116,3 +116,16 @@ explicit tolerances for the new cases. `hosted-extension.json` records its actua
 execution status and exact commit; the historical passing run above does not
 qualify the changed source. The source/image and complete fixture manifest are
 also checked during hosted build.
+
+Observed current hosted result: **PASS**.
+[Run 43740237504](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43740237504)
+tested commit `2bfb4bac21361a5057da1eeee9349fbcb8b3cba7`. Compiler reproduction,
+221 native packet pairs, the exact source/image/fixture manifest and all
+153 real-PyTorch cases (8,244 values, zero failures) passed. All 11 oracle
+provenance checks passed. The native executable hash equals the locally tested
+image and remained unchanged during the comparison. All three attention
+compositions passed their forward and Q/K/V-gradient comparisons.
+
+The full report and per-case tolerances are retained in `hosted-extension.json`.
+This evidence update changes documentation and receipts only; it leaves the
+runtime, test workflow, compiler recipe and fixture bytes unchanged.
