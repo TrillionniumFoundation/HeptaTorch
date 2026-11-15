@@ -258,7 +258,7 @@ are recorded in `validation/native-extension.json`.
 | Separate rank-two matrix kernels duplicated the generalized path | Replaced by a rank-two admission wrapper; three superseded forward/reverse helpers removed |
 | Non-scalar outputs lacked a direct cotangent interface | Implemented exact-shape seeded backward, strided seeds, repeated accumulation and error preflight |
 | General matrix shapes and integer selection were absent | Implemented scoped native matmul, index_select and gather; remaining dtype/overload coverage stays open |
-| One native compilation unit is approaching fixed compiler limits | Open: 117/128 functions and 1,364/1,536 blocks; general module linking and resource-bearing public ABI are not implemented in the pinned native profile |
+| One native compilation unit is approaching fixed compiler limits | Capacity expanded by the separate profile below to 256 functions and 2,560 blocks; general module imports and resource-bearing public ABI remain open |
 | Graph/data arena grows for the duration of one request | Resolved within one request by the subsequent graph-lifetime change below; cross-request persistence and scalable allocation remain open |
 | Only software binary32 and one CPU target exist | Open: other dtypes, SIMD/device code generation, device memory/stream services and independent backend qualification |
 | The wire protocol is separate from upstream frontends | Open: Python/C++ object, dispatch, module/state, override and extension interfaces |
@@ -333,3 +333,60 @@ passed all 159 cases and 8,471 numerical comparisons on commit
 `6d21e076f15fdd097a5715f9e58306e93b257ce1`, with 275 native packet pairs and all
 oracle provenance checks. `validation/hosted-session.json` retains the full
 passing report without replacing the failed record.
+
+## Compiler capacity profile
+
+The current runtime fits the original profile, but leaves only seven of its 128
+function slots and 97 of its 1,536 basic blocks unused. To continue adding HIA
+implementation, the repository now supplies a separately identified compiler
+configuration, `heptatorch.hia.compiler.f256-b2560-w2m.v1`. It preserves the
+upstream source identity and does not relabel its original limits.
+
+| Resource | Original profile | Expanded profile |
+| --- | ---: | ---: |
+| Functions | 128 | 256 |
+| Total blocks | 1,536 | 2,560 |
+| Compiler workspace | 1 MiB | 2 MiB |
+| Relative relocation entries | 12,000 | 14,336 |
+| Instructions | 8,192 | 8,192 |
+| Blocks per function | 256 | 256 |
+| SSA names per function | 2,048 | 2,048 |
+| Source and generated image | 1 MiB each | 1 MiB each |
+
+The source adapter verifies its upstream import closure before executing it,
+requires exact reproduction of the original HIA source, and applies counted
+changes to private capacity/layout sites. The internal function count and
+ordinal use existing 32-bit header accessors so that the exact count 256 cannot
+wrap at a byte boundary. The new tables occupy bytes 4,096 through 1,515,023,
+leaving 582,128 bytes at the end of the 2 MiB compiler workspace. All table
+intervals, call-graph strides, dirty-workspace clear spans and relocation writers
+were independently checked. The conservative relocation bound is 13,826, below
+14,336; the canonical Core byte bound remains below its unchanged 8 MiB gate.
+
+The adapted compiler remains small enough for the original pinned native
+compiler to build it. A separately generated HIA packer gives only the compiler
+a larger workspace. Four successive native images and executables agree byte
+for byte, and a deliberately changed source propagates into a different stable
+successor. The packer also reproduces identically through old and new compilers.
+HeptaTorch and unhex retain their exact original executable bytes and ordinary
+1 MiB application buffers. No upstream compiler or generated packer source is
+vendored; source adaptation and HIA generation occur in build scratch.
+
+The durable 16-case gate executes programs beyond the old boundaries and at the
+new limits, and rejects count overflows, excessive per-function blocks or SSA
+names and high-index call cycles. Separate native checks exercise all 256
+explicit scalar exports, guarded buffers and a high-index 256-function graph
+with a non-first entry block under both clean and dirty workspaces. The full
+per-edit, fixed-point and independent records are in
+`validation/compiler-profile.json`. These finite checks are not the separate
+upstream full cold-qualification campaign or a formal compiler proof.
+
+This expands one compilation unit. The upstream project already contains a
+[native static ELF linker](https://github.com/TrillionniumFoundation/Hepta/blob/f33d8da316de8fdf27b504371f1a5310997ff548/docs/HIA_NATIVE_ELF_LINKER.md),
+but the pinned compiler does not admit general external function imports or
+resource-bearing public tensor interfaces. Its
+[Core module route](https://github.com/TrillionniumFoundation/Hepta/blob/f33d8da316de8fdf27b504371f1a5310997ff548/docs/HIA_CORE_MODULE_GRAPH.md)
+combines modules into one limited Core program. Scaling the full PyTorch rewrite
+therefore still requires cross-unit signatures, effects, ownership/borrowing
+contracts and linking, together with the remaining operator, dtype, frontend
+and device work already listed in the completion matrix.

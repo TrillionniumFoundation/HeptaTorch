@@ -198,3 +198,31 @@ comparison. `hosted-session.json` retains the complete result and connects it
 to the original failed run. This evidence update changes receipts and prose;
 it leaves the runtime, compiler recipe, numerical oracle and fixture bytes
 unchanged.
+
+## Expanded compiler profile
+
+`compiler-profile.json` records the distinct local compiler configuration with
+256 functions, 2,560 total blocks and a 2 MiB compiler workspace. It retains the
+upstream compiler/source pins, exact counted adaptation, verified import closure,
+complete relocated table map, independent review and native reproduction.
+The original compiler evidence remains historical and is also the explicit
+predecessor boundary for this configuration.
+
+Four native compiler generations and all packed executables match exactly. A
+modified compiler source produces a different stable successor, and the new
+compiler reproduces its HIA packer. The current-application subsection binds the
+final runtime source `4c1d1724…` and binary `ecca265b…`; both original and expanded
+compilers produce identical HeptaTorch and unhex bytes. Earlier application
+snapshots in the native qualification subsection keep their own identities.
+
+The portable `tools/compiler-profile/check_capacity.py` gate has 16 pinned-input
+cases. It checks real execution at and beyond the old limits, exact new limits,
+overflow refusal, retained instruction/SSA/per-function guards and high-index
+call cycles. Separate records cover all 256 scalar exports, source/output/work
+guards, dirty buffers and the high-index call-graph path. It does not claim to
+fill every relocation slot or replace the upstream full cold campaign.
+
+CI regenerates and compares both source-authoring receipts, reproduces the
+native profile, runs the capacity gate, requires old/new application byte
+identity, then runs the unchanged 275-pair native and 159-case real-PyTorch
+gates. A fresh hosted record is required for this changed build procedure.
