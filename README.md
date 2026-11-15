@@ -44,6 +44,7 @@ cmp build/train.response build/train.expected
 - 基础数值层：**2,314,020** 次原生运算与独立 NumPy binary32 参考逐位一致，算术 NaN 统一为规范 quiet NaN。
 - exp/log/sigmoid/tanh：**3,424,359** 次测量；另用 90 位精度参考检查 **20,025** 个输入。测量误差及适用解释见 [数值说明](docs/numerics.md)。
 - 集成：广播、视图、梯度、空间算子、模块、优化器、异常输入和容量边界，均有独立参考或明确拒绝结果。
+- 托管 CI：编译器自重建、**76 对原生回归夹具**、真实 PyTorch 的 **76 项／2,754 个数值对照**及精确安装包来源检查全部通过。[成功运行](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43738165041)与[完整回执](validation/hosted.json)记录了实际测试提交和二进制身份。
 - 线性回归：**30 次 SGD 更新**，更新前损失从 **5.1570835** 降至 **0.0342863**。
 - 两层 ReLU 分类器：**18 次 Adam 更新**，更新前交叉熵从 **0.6822657** 降至 **0.0017283**；该固定 8 样本任务更新后分类正确率 **100%**。
 

@@ -42,6 +42,16 @@ passed against unchanged source and executable hashes.
 
 ## Hosted PyTorch differential gate
 
+**Observed hosted result: PASS.**
+[Run 43738165041](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43738165041)
+tested commit `4cf01bee1a6961a423bf2054dc303fb43fa0f33b`. Compiler bootstrap,
+native build, all 76 native packet pairs, all 76 live PyTorch differential cases
+(2,754 values), and all 11 exact oracle-provenance checks passed. The native
+executable was unchanged during comparison. `hosted.json` retains the complete
+per-case results, tolerances, wheel provenance and hosted bootstrap receipt.
+Documentation-only evidence updates after that run leave the tested runtime,
+compiler recipe, oracle code and fixtures unchanged.
+
 The CI workflow installs the pinned **CPU PyTorch 2.15.0+cpu** only as an
 independent test oracle. Its inline test program serializes inputs and invokes
 real PyTorch forward operations, autograd, and optimizers. It never implements
@@ -67,8 +77,9 @@ The [first hosted run](https://github.com/TrillionniumFoundation/HeptaTorch/acti
 passed compiler bootstrap, 76 native packet pairs and all 76 real-PyTorch
 numerical cases (2,754 values). Its overall result remains **FAIL** because the
 original gate incorrectly required the wheel build SHA to equal the release tag
-SHA. That failed result is retained in `hosted.json`; the provenance correction
-must pass a fresh hosted run before a hosted PASS is recorded.
+SHA. That failed result is retained in `hosted.json`. The exact provenance
+correction passed the fresh run linked above without changing the numerical
+test definitions, tolerances, seed, native implementation or executable.
 
 Local execution lacked PyTorch and remains recorded as NOT_RUN for that oracle.
 A hosted result is tied to its tested GitHub commit and run URL; none of these

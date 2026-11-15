@@ -1,6 +1,6 @@
 {
   "schema": "heptatorch.hosted-validation.v1",
-  "status": "PROVENANCE_FIX_PENDING_CI",
+  "status": "PASS",
   "scope": "Native CPU binary32 behavior in the 76 enumerated differential cases; not full PyTorch API/schema/backend compatibility.",
   "source_sha256": "88cd5a93fd473e3195fb13dd45fadea1d9ad8eacb44894d4ed536e6399ba3fd5",
   "executable_sha256": "3e3914abb451bc22dcdbf1bccdece2291a165bb26f27773977ab9f928dac7076",
@@ -165,5 +165,960 @@
     },
     "failure_reason": "The original gate incorrectly required the official wheel build Git SHA to equal the release tag Git SHA. All 76 numerical cases passed, but this provenance comparison failed. The original failed result is retained, not relabeled PASS."
   },
-  "verified_run": null
+  "verified_run": {
+    "commit": "4cf01bee1a6961a423bf2054dc303fb43fa0f33b",
+    "run_id": 43738165041,
+    "run_attempt": 1,
+    "job_id": 132885263758,
+    "run_url": "https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43738165041",
+    "created_at": "2026-11-15T16:55:18Z",
+    "completed_at": "2026-11-15T16:56:09Z",
+    "workflow_conclusion": "success",
+    "bootstrap": {
+      "status": "PASS",
+      "hepta_commit": "f33d8da316de8fdf27b504371f1a5310997ff548",
+      "compiler_source_sha256": "388b182e42675f11435867dd99520e9452a4ff48e23c0766a3952b662acc7627",
+      "B1_B2_B3_sha256": "bfd603dd2b40974d2083b567b4295fb3975938da8435dd636514fc197c485de0",
+      "standalone_compiler_sha256": "87c247e4d1c3c9a449d2947fd4227fdc186d519bffd203a04cafce7861a4ed54",
+      "standalone_fixed_point_generations": 2,
+      "B0_requires_Python_and_GNU_ld": true,
+      "full_upstream_cold_qualification": false
+    },
+    "native_fixture_pairs": 76,
+    "native_fixtures": "PASS",
+    "oracle": {
+      "schema": "heptatorch.live-pytorch-differential.v1",
+      "status": "PASS",
+      "oracle": "real pinned CPU PyTorch forward, autograd and torch.optim; no copied derivative formulas",
+      "torch_version": "2.15.0+cpu",
+      "torch_git_version": "d0f2af8b66b20da4baa50644c0cd3f887a2eae2e",
+      "upstream_commit": "31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
+      "torch_git_matches_upstream_pin": false,
+      "oracle_build_commit": "d0f2af8b66b20da4baa50644c0cd3f887a2eae2e",
+      "torch_git_matches_oracle_build_pin": true,
+      "oracle_provenance": {
+        "status": "PASS",
+        "lock_path": "compatibility/pytorch-oracle-lock.json",
+        "lock_sha256": "ca2e54ce65083bbe0ab3d47b6878971271765ab35a9dd70725fa345fceed3944",
+        "expected": {
+          "distribution": "torch",
+          "version": "2.15.0+cpu",
+          "git_commit": "d0f2af8b66b20da4baa50644c0cd3f887a2eae2e",
+          "backend_versions": {
+            "cuda": null,
+            "hip": null,
+            "rocm": null,
+            "xpu": null
+          },
+          "python": {
+            "implementation": "cpython",
+            "version": [
+              3,
+              12
+            ]
+          },
+          "platform": {
+            "sys_platform": "linux",
+            "machine": "x86_64"
+          },
+          "wheel": {
+            "url": "https://download-r2.pytorch.org/whl/cpu/torch-2.15.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl",
+            "sha256": "0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3",
+            "filename": "torch-2.15.0+cpu-cp312-cp312-manylinux_2_28_x86_64.whl",
+            "python_tag": "cp312",
+            "abi_tag": "cp312",
+            "platform_tag": "manylinux_2_28_x86_64",
+            "metadata_sha256": "8bbf94c86c3be6cf586385861d476b78cb66d19b67fef49ece4f7d68ca428cc3"
+          },
+          "install_report": "build/pytorch-install.json"
+        },
+        "observed": {
+          "python": {
+            "implementation": "cpython",
+            "version": [
+              3,
+              12
+            ],
+            "full_version": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]"
+          },
+          "platform": {
+            "sys_platform": "linux",
+            "machine": "x86_64"
+          },
+          "version": "2.15.0+cpu",
+          "git_commit": "d0f2af8b66b20da4baa50644c0cd3f887a2eae2e",
+          "backend_versions": {
+            "cuda": null,
+            "hip": null,
+            "rocm": null,
+            "xpu": null
+          },
+          "distribution_version": "2.15.0+cpu",
+          "direct_url": {
+            "archive_info": {
+              "hash": "sha256=0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3",
+              "hashes": {
+                "sha256": "0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3"
+              }
+            },
+            "url": "https://download-r2.pytorch.org/whl/cpu/torch-2.15.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl"
+          },
+          "install_report": {
+            "path": "build/pytorch-install.json",
+            "pip_version": "24.0",
+            "download_info": {
+              "url": "https://download-r2.pytorch.org/whl/cpu/torch-2.15.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl",
+              "archive_info": {
+                "hash": "sha256=0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3",
+                "hashes": {
+                  "sha256": "0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3"
+                }
+              }
+            },
+            "metadata_name": "torch",
+            "metadata_version": "2.15.0+cpu",
+            "requested": true
+          }
+        },
+        "checks": {
+          "python_matches": true,
+          "platform_matches": true,
+          "version_backend_matches": true,
+          "git_matches_oracle_build_pin": true,
+          "distribution_version_matches": true,
+          "direct_url_matches": true,
+          "direct_url_archive_sha256_matches": true,
+          "pip_report_url_matches": true,
+          "pip_report_archive_sha256_matches": true,
+          "pip_report_version_matches": true,
+          "pip_report_requested": true
+        },
+        "metadata_error": null,
+        "release_source_equivalence": {
+          "inventory_commit": "31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
+          "wheel_build_commit": "d0f2af8b66b20da4baa50644c0cd3f887a2eae2e",
+          "wheel_build_is_direct_parent_of_inventory_commit": true,
+          "torch_git_matches_upstream_pin": false,
+          "release_root_tree": "156b7013e253ac50abaa4de8a4d2e6dd7acbbb56",
+          "wheel_build_root_tree": "408badfd8e01265470f4efedfe22fa547b128351",
+          "root_entry_counts": {
+            "release": 74,
+            "wheel": 74
+          },
+          "root_trees_truncated": {
+            "release": false,
+            "wheel": false
+          },
+          "changed_paths": [
+            "pyproject.toml"
+          ],
+          "change": "The release commit adds five lines under [tool.ruff], setting target-version to py310 with explanatory comments. There are no deletions. Every other root entry and every source subtree is identical.",
+          "wheel_pyproject_blob": "6d2cb5e341729de25288267e24d76c20254288f8",
+          "release_pyproject_blob": "e7648b0fcb198697832a6aab3469719a9992a8ec",
+          "identical_subtrees": {
+            ".ci": "40279ceebccac57277fdaabf1fb8cb70b60850d6",
+            ".claude": "0075de12edc4d9bdbf28e567c5f54f3ac5e78201",
+            ".ctags.d": "3c8ba0dccbb55f2da51365a465144aa69c6025d0",
+            ".devcontainer": "6abd271cefad60b09bbfacb63e53325198cd5521",
+            ".github": "8ae0eeb95729b758872993f4a7fed6ffcefb286c",
+            ".spin": "ef791f9c9264cb8a8e13acce7ee418e0f9c956ac",
+            ".vscode": "ea91f344ac83b434b498fa28b4b8b555e68a9126",
+            "android": "d2ff3db5f9fac06b8ddce4b796409a09e8e5e8a8",
+            "aten": "742dba1bfe6135f3573e4eaac689742744628174",
+            "benchmarks": "ec19294aeabfaae61be43f8ea98c7bfe5e507b56",
+            "binaries": "f5249d171f1af6f07384c91418892a45d05fee22",
+            "c10": "bcd92827e525817818af6e44b77f64460823bef1",
+            "caffe2": "73f5fcafe72932ee5cbaab1b2bd879f8a634344e",
+            "cmake": "b622eeb5fe4620c3f58529c34cc52b4466af8519",
+            "docs": "5b3f3b84bd0c6597c7c926d221739ab4c9d4fc9f",
+            "functorch": "c559f838225b0971bc22fcb2672589c27ef01456",
+            "mypy_plugins": "f2f6231e180a450273107602eef43bd9433a51c0",
+            "scripts": "940b5e644e48b7eedc65292e19e56e4c7a9abb98",
+            "test": "9dcb79311a6209012b019fc6f20209d2804cca98",
+            "third_party": "60ad164358c335341c6a7840bb80256079e6dd8e",
+            "tools": "f35164cd2daf3f11baadcccc5551800e38392432",
+            "torch": "2877dbcda5441192b89ab6272c24bed424e53bd4",
+            "torchgen": "f5fb760a18c6d4c81a4b665ad7adef7348dba6a3"
+          },
+          "scope": "Only this exact official wheel SHA256/build commit and this exact inventory release commit. This is source equivalence for the recorded lint-only release change, not identity of the two Git commits or an allowance for other builds."
+        }
+      },
+      "native_executable_sha256": "3e3914abb451bc22dcdbf1bccdece2291a165bb26f27773977ab9f928dac7076",
+      "native_unchanged_during_run": true,
+      "seed": 1729,
+      "cases": 76,
+      "failed_cases": 0,
+      "setup_error": null,
+      "compared_values": 2754,
+      "rows": [
+        {
+          "case": "binary-1-0",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 3,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "binary-1-1",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 15,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "binary-1-2",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 34,
+          "max_absolute_error": 1.1920928955078125e-07,
+          "max_relative_error_scaled_by_atol": 1.6085704634291505e-07,
+          "mismatches": 0
+        },
+        {
+          "case": "binary-1-3",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 3,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "binary-1-4",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 57,
+          "max_absolute_error": 1.1920928955078125e-07,
+          "max_relative_error_scaled_by_atol": 2.033233196598401e-07,
+          "mismatches": 0
+        },
+        {
+          "case": "binary-2-0",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 3,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "binary-2-1",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 15,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "binary-2-2",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 34,
+          "max_absolute_error": 4.76837158203125e-07,
+          "max_relative_error_scaled_by_atol": 1.0597843423646035e-07,
+          "mismatches": 0
+        },
+        {
+          "case": "binary-2-3",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 3,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "binary-2-4",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 57,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "binary-3-0",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 3,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "binary-3-1",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 15,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "binary-3-2",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 34,
+          "max_absolute_error": 1.1920928955078125e-07,
+          "max_relative_error_scaled_by_atol": 7.401006906989696e-08,
+          "mismatches": 0
+        },
+        {
+          "case": "binary-3-3",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 3,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "binary-3-4",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 57,
+          "max_absolute_error": 2.384185791015625e-07,
+          "max_relative_error_scaled_by_atol": 1.1233252764700087e-07,
+          "mismatches": 0
+        },
+        {
+          "case": "binary-4-0",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 3,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "binary-4-1",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 15,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "binary-4-2",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 34,
+          "max_absolute_error": 1.1920928955078125e-07,
+          "max_relative_error_scaled_by_atol": 7.533658691962482e-08,
+          "mismatches": 0
+        },
+        {
+          "case": "binary-4-3",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 3,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "binary-4-4",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 57,
+          "max_absolute_error": 2.9802322387695312e-08,
+          "max_relative_error_scaled_by_atol": 1.1841438403205715e-07,
+          "mismatches": 0
+        },
+        {
+          "case": "mm-2-3-4-transpose-False",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 26,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "mm-2-3-4-transpose-True",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 26,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "mm-2-0-3-transpose-False",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 6,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "mm-2-0-3-transpose-True",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 6,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "mm-4-5-2-transpose-False",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 38,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "mm-4-5-2-transpose-True",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 38,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "unary-5",
+          "status": "PASS",
+          "rtol": 8e-05,
+          "atol": 5e-06,
+          "compared_values": 12,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "unary-6",
+          "status": "PASS",
+          "rtol": 8e-05,
+          "atol": 5e-06,
+          "compared_values": 12,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "unary-11",
+          "status": "PASS",
+          "rtol": 8e-05,
+          "atol": 5e-06,
+          "compared_values": 12,
+          "max_absolute_error": 5.960464477539063e-08,
+          "max_relative_error_scaled_by_atol": 6.78793954199464e-08,
+          "mismatches": 0
+        },
+        {
+          "case": "unary-12",
+          "status": "PASS",
+          "rtol": 8e-05,
+          "atol": 5e-06,
+          "compared_values": 12,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "unary-13",
+          "status": "PASS",
+          "rtol": 8e-05,
+          "atol": 5e-06,
+          "compared_values": 12,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "unary-14",
+          "status": "PASS",
+          "rtol": 8e-05,
+          "atol": 5e-06,
+          "compared_values": 12,
+          "max_absolute_error": 2.9802322387695312e-08,
+          "max_relative_error_scaled_by_atol": 9.862059375514676e-08,
+          "mismatches": 0
+        },
+        {
+          "case": "unary-15",
+          "status": "PASS",
+          "rtol": 8e-05,
+          "atol": 5e-06,
+          "compared_values": 12,
+          "max_absolute_error": 1.1920928955078125e-07,
+          "max_relative_error_scaled_by_atol": 2.4381065323334984e-07,
+          "mismatches": 0
+        },
+        {
+          "case": "axis-0-False-False",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 36,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "axis-0-False-True",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 36,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "axis-0-True-False",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 36,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "axis-0-True-True",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 36,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "softmax-0-False",
+          "status": "PASS",
+          "rtol": 0.0001,
+          "atol": 5e-06,
+          "compared_values": 48,
+          "max_absolute_error": 1.1827796697616577e-07,
+          "max_relative_error_scaled_by_atol": 0.0034129532857878086,
+          "mismatches": 0
+        },
+        {
+          "case": "softmax-0-True",
+          "status": "PASS",
+          "rtol": 0.0001,
+          "atol": 5e-06,
+          "compared_values": 48,
+          "max_absolute_error": 5.960464477539063e-08,
+          "max_relative_error_scaled_by_atol": 6.155431143544566e-07,
+          "mismatches": 0
+        },
+        {
+          "case": "axis-1-False-False",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 32,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "axis-1-False-True",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 32,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "axis-1-True-False",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 32,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "axis-1-True-True",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 32,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "softmax-1-False",
+          "status": "PASS",
+          "rtol": 0.0001,
+          "atol": 5e-06,
+          "compared_values": 48,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "softmax-1-True",
+          "status": "PASS",
+          "rtol": 0.0001,
+          "atol": 5e-06,
+          "compared_values": 48,
+          "max_absolute_error": 1.1920928955078125e-07,
+          "max_relative_error_scaled_by_atol": 1.7367651117234945e-07,
+          "mismatches": 0
+        },
+        {
+          "case": "axis--1-False-False",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 30,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "axis--1-False-True",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 30,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "axis--1-True-False",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 30,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "axis--1-True-True",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 30,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "softmax--1-False",
+          "status": "PASS",
+          "rtol": 0.0001,
+          "atol": 5e-06,
+          "compared_values": 48,
+          "max_absolute_error": 1.4901161193847656e-08,
+          "max_relative_error_scaled_by_atol": 1.3562856652269243e-07,
+          "mismatches": 0
+        },
+        {
+          "case": "softmax--1-True",
+          "status": "PASS",
+          "rtol": 0.0001,
+          "atol": 5e-06,
+          "compared_values": 48,
+          "max_absolute_error": 1.1920928955078125e-07,
+          "max_relative_error_scaled_by_atol": 9.418039557838111e-08,
+          "mismatches": 0
+        },
+        {
+          "case": "conv2d-0",
+          "status": "PASS",
+          "rtol": 0.0002,
+          "atol": 2e-05,
+          "compared_values": 146,
+          "max_absolute_error": 1.430511474609375e-06,
+          "max_relative_error_scaled_by_atol": 1.3046430874172667e-05,
+          "mismatches": 0
+        },
+        {
+          "case": "conv2d-1",
+          "status": "PASS",
+          "rtol": 0.0002,
+          "atol": 2e-05,
+          "compared_values": 240,
+          "max_absolute_error": 9.5367431640625e-07,
+          "max_relative_error_scaled_by_atol": 2.236723647201579e-06,
+          "mismatches": 0
+        },
+        {
+          "case": "conv2d-2",
+          "status": "PASS",
+          "rtol": 0.0002,
+          "atol": 2e-05,
+          "compared_values": 108,
+          "max_absolute_error": 4.76837158203125e-07,
+          "max_relative_error_scaled_by_atol": 4.4511666953025056e-07,
+          "mismatches": 0
+        },
+        {
+          "case": "pool-False-False-True",
+          "status": "PASS",
+          "rtol": 0.0001,
+          "atol": 5e-06,
+          "compared_values": 80,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "pool-False-True-True",
+          "status": "PASS",
+          "rtol": 0.0001,
+          "atol": 5e-06,
+          "compared_values": 80,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "pool-False-True-False",
+          "status": "PASS",
+          "rtol": 0.0001,
+          "atol": 5e-06,
+          "compared_values": 80,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "pool-True-False-True",
+          "status": "PASS",
+          "rtol": 0.0001,
+          "atol": 5e-06,
+          "compared_values": 102,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "pool-True-True-True",
+          "status": "PASS",
+          "rtol": 0.0001,
+          "atol": 5e-06,
+          "compared_values": 102,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "pool-True-True-False",
+          "status": "PASS",
+          "rtol": 0.0001,
+          "atol": 5e-06,
+          "compared_values": 102,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "layernorm-(2, 3)",
+          "status": "PASS",
+          "rtol": 0.0005,
+          "atol": 5e-05,
+          "compared_values": 18,
+          "max_absolute_error": 1.3113021850585938e-06,
+          "max_relative_error_scaled_by_atol": 5.636995911640601e-06,
+          "mismatches": 0
+        },
+        {
+          "case": "layernorm-(2, 2, 3)",
+          "status": "PASS",
+          "rtol": 0.0005,
+          "atol": 5e-05,
+          "compared_values": 30,
+          "max_absolute_error": 3.5762786865234375e-07,
+          "max_relative_error_scaled_by_atol": 4.493256905173022e-06,
+          "mismatches": 0
+        },
+        {
+          "case": "batchnorm-eval-(2, 3)",
+          "status": "PASS",
+          "rtol": 0.0002,
+          "atol": 2e-05,
+          "compared_values": 18,
+          "max_absolute_error": 2.384185791015625e-07,
+          "max_relative_error_scaled_by_atol": 8.256524512082561e-07,
+          "mismatches": 0
+        },
+        {
+          "case": "batchnorm-eval-(2, 3, 2, 2)",
+          "status": "PASS",
+          "rtol": 0.0002,
+          "atol": 2e-05,
+          "compared_values": 54,
+          "max_absolute_error": 2.384185791015625e-07,
+          "max_relative_error_scaled_by_atol": 2.0239285018921707e-07,
+          "mismatches": 0
+        },
+        {
+          "case": "cross-entropy-probabilities-(3, 4)",
+          "status": "PASS",
+          "rtol": 0.0001,
+          "atol": 5e-06,
+          "compared_values": 25,
+          "max_absolute_error": 1.1920928955078125e-07,
+          "max_relative_error_scaled_by_atol": 1.238116097403584e-07,
+          "mismatches": 0
+        },
+        {
+          "case": "cross-entropy-probabilities-(1, 3)",
+          "status": "PASS",
+          "rtol": 0.0001,
+          "atol": 5e-06,
+          "compared_values": 7,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "view-clone",
+          "status": "PASS",
+          "rtol": 4e-05,
+          "atol": 5e-06,
+          "compared_values": 12,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "optim-AdamW-False-wd-0.0",
+          "status": "PASS",
+          "rtol": 0.0001,
+          "atol": 4e-06,
+          "compared_values": 24,
+          "max_absolute_error": 2.384185791015625e-07,
+          "max_relative_error_scaled_by_atol": 1.0650177352078354e-06,
+          "mismatches": 0
+        },
+        {
+          "case": "optim-AdamW-False-wd-0.07000000029802322",
+          "status": "PASS",
+          "rtol": 0.0001,
+          "atol": 4e-06,
+          "compared_values": 24,
+          "max_absolute_error": 2.384185791015625e-07,
+          "max_relative_error_scaled_by_atol": 5.150229092490492e-07,
+          "mismatches": 0
+        },
+        {
+          "case": "optim-AdamW-True-wd-0.0",
+          "status": "PASS",
+          "rtol": 0.0001,
+          "atol": 4e-06,
+          "compared_values": 24,
+          "max_absolute_error": 4.76837158203125e-07,
+          "max_relative_error_scaled_by_atol": 5.528912778004595e-07,
+          "mismatches": 0
+        },
+        {
+          "case": "optim-AdamW-True-wd-0.07000000029802322",
+          "status": "PASS",
+          "rtol": 0.0001,
+          "atol": 4e-06,
+          "compared_values": 24,
+          "max_absolute_error": 4.172325134277344e-07,
+          "max_relative_error_scaled_by_atol": 7.198885777027677e-07,
+          "mismatches": 0
+        },
+        {
+          "case": "optim-SGD-0.0-False",
+          "status": "PASS",
+          "rtol": 5e-05,
+          "atol": 5e-06,
+          "compared_values": 21,
+          "max_absolute_error": 1.4901161193847656e-08,
+          "max_relative_error_scaled_by_atol": 7.526417915042246e-08,
+          "mismatches": 0
+        },
+        {
+          "case": "optim-SGD-0.20000000298023224-False",
+          "status": "PASS",
+          "rtol": 5e-05,
+          "atol": 5e-06,
+          "compared_values": 21,
+          "max_absolute_error": 1.1920928955078125e-07,
+          "max_relative_error_scaled_by_atol": 3.8988741221197554e-07,
+          "mismatches": 0
+        },
+        {
+          "case": "optim-SGD-0.0-True",
+          "status": "PASS",
+          "rtol": 5e-05,
+          "atol": 5e-06,
+          "compared_values": 21,
+          "max_absolute_error": 2.9802322387695312e-08,
+          "max_relative_error_scaled_by_atol": 4.2682674376864964e-07,
+          "mismatches": 0
+        },
+        {
+          "case": "optim-Adam-large-gradient",
+          "status": "PASS",
+          "rtol": 0.0001,
+          "atol": 5e-06,
+          "compared_values": 4,
+          "max_absolute_error": 0,
+          "max_relative_error_scaled_by_atol": 0,
+          "mismatches": 0
+        },
+        {
+          "case": "MLP-real-autograd-SGD-18-steps",
+          "status": "PASS",
+          "rtol": 0.0006,
+          "atol": 4e-05,
+          "compared_values": 35,
+          "max_absolute_error": 7.152557373046875e-07,
+          "max_relative_error_scaled_by_atol": 1.1253083492943955e-05,
+          "mismatches": 0
+        }
+      ],
+      "training": {
+        "steps": 18,
+        "torch_initial_loss": 6.106357574462891,
+        "torch_last_pre_update_loss": 0.3927442133426666,
+        "torch_loss_decreased": true
+      },
+      "wall_seconds": 0.2646041619999977
+    }
+  }
 }
