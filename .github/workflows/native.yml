@@ -1,0 +1,478 @@
+name: Native HIA
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out HeptaTorch
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Check out the pinned HIA toolchain sources
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: TrillionniumFoundation/Hepta
+          ref: f33d8da316de8fdf27b504371f1a5310997ff548
+          path: .toolchain/hepta
+          persist-credentials: false
+          fetch-depth: 1
+          sparse-checkout-cone-mode: true
+          sparse-checkout: |
+            hepta
+            tools
+            examples/hia_bootstrap
+            docs
+
+      - name: Bootstrap and reproduce the native HIA compiler
+        shell: bash
+        run: |
+          python3 -I -S -B - <<'PY'
+          from pathlib import Path
+          import hashlib
+          import json
+          import os
+          import subprocess
+          import sys
+
+          root = Path('.toolchain/hepta').resolve()
+          output = Path(os.environ['RUNNER_TEMP']) / 'hepta-compiler'
+          output.mkdir(parents=True, exist_ok=True)
+          sys.path.insert(0, str(root))
+          from tools.qualify_hia_selfhost import build_seed, compile_stage
+
+          expected_commit = 'f33d8da316de8fdf27b504371f1a5310997ff548'
+          expected_source = '388b182e42675f11435867dd99520e9452a4ff48e23c0766a3952b662acc7627'
+          expected_compiler = '87c247e4d1c3c9a449d2947fd4227fdc186d519bffd203a04cafce7861a4ed54'
+          head = subprocess.check_output(['git', '-C', str(root), 'rev-parse', 'HEAD'], text=True).strip()
+          if head != expected_commit:
+              raise RuntimeError('unexpected HIA source commit')
+          source = (root / 'examples/hia_bootstrap/selfhost.hepta').read_bytes()
+          if hashlib.sha256(source).hexdigest() != expected_source:
+              raise RuntimeError('unexpected HIA compiler source digest')
+
+          # B0 is the external bootstrap boundary: Python assembler and GNU ld.
+          # B1 onward are compiled by preceding HIA machine code. The upstream
+          # stdlib child transports fixed ABI buffers; it does not compile them.
+          image, seed = build_seed(output, source)
+          generations = []
+          for label in ('B1', 'B2', 'B3'):
+              image, receipt = compile_stage(
+                  output, label, image, source,
+                  image_format='seed-shared' if label == 'B1' else 'flat-x86-64')
+              generations.append(receipt['produced_sha256'])
+          if len(set(generations)) != 1:
+              raise RuntimeError('B1/B2/B3 compiler images differ')
+
+          old = b'hia-asm.v1 hepta.hia.program.v8 selfhost\n'
+          new = b'hia-asm.v1 hepta.hia.program.v8 selfhost_exec\n'
+          if not source.startswith(old):
+              raise RuntimeError('unexpected compiler module header')
+          executable_source = new + source[len(old):]
+          compiler, receipt = compile_stage(
+              output, 'native-compiler', image, executable_source,
+              output_extension='')
+          compiler.chmod(0o755)
+          compiler_bytes = compiler.read_bytes()
+          if hashlib.sha256(compiler_bytes).hexdigest() != expected_compiler:
+              raise RuntimeError('unexpected native compiler digest')
+
+          # The standalone compiler performs two further rebuilds with no PATH.
+          previous = compiler
+          for generation in (1, 2):
+              result = subprocess.run(
+                  [str(previous)], input=executable_source, capture_output=True,
+                  timeout=20, env={'PATH': ''})
+              if result.returncode or result.stderr or result.stdout != compiler_bytes:
+                  raise RuntimeError('standalone native compiler did not reproduce itself')
+              previous = output / ('native-compiler-rebuilt-' + str(generation))
+              previous.write_bytes(result.stdout)
+              previous.chmod(0o755)
+
+          print(json.dumps({
+              'status': 'PASS', 'hepta_commit': head,
+              'compiler_source_sha256': expected_source,
+              'B1_B2_B3_sha256': generations[0],
+              'standalone_compiler_sha256': expected_compiler,
+              'standalone_fixed_point_generations': 2,
+              'B0_requires_Python_and_GNU_ld': True,
+              'full_upstream_cold_qualification': False
+          }, indent=2))
+          PY
+
+      - name: Build and test the HIA implementation
+        shell: bash
+        run: |
+          make HEPTA_COMPILER="$RUNNER_TEMP/hepta-compiler/native-compiler"
+          make test HEPTA_COMPILER="$RUNNER_TEMP/hepta-compiler/native-compiler"
+
+      - name: Install the independent pinned PyTorch CPU oracle
+        shell: bash
+        run: |
+          python3 -m pip install --disable-pip-version-check 'torch==2.15.0' --index-url https://download.pytorch.org/whl/cpu
+
+      - name: Compare native HIA with real PyTorch forward, autograd and optimizers
+        shell: bash
+        run: |
+          python3 - build/heptatorch build/pytorch-differential.json <<'PYTORCH_ORACLE'
+          """Standalone CI oracle. PyTorch is a test dependency, never the native runtime.
+          
+          Usage: python pytorch_oracle.py build/heptatorch build/pytorch-differential.json
+          This file can be embedded verbatim in an isolated CI Python step.
+          """
+          import hashlib
+          import json
+          import math
+          import struct
+          import subprocess
+          import sys
+          import time
+          from pathlib import Path
+          
+          EXE = Path(sys.argv[1] if len(sys.argv) > 1 else 'build/heptatorch').resolve()
+          REPORT = Path(sys.argv[2] if len(sys.argv) > 2 else 'build/pytorch-differential.json')
+          PIN = '31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457'
+          ROWS = []
+          
+          
+          def emit(report):
+              REPORT.parent.mkdir(parents=True, exist_ok=True)
+              REPORT.write_text(json.dumps(report, indent=2, allow_nan=False) + '\n')
+              print(json.dumps(report, allow_nan=False))
+          
+          
+          try:
+              import torch
+              import torch.nn.functional as F
+          except ImportError as exc:
+              emit({'status': 'NOT_RUN', 'reason': str(exc), 'required_oracle': 'torch==2.15.0 CPU'})
+              raise SystemExit(2)
+          if torch.__version__.split('+')[0] != '2.15.0' or torch.version.cuda is not None:
+              emit({'status': 'NOT_RUN', 'reason': 'Oracle version/backend mismatch',
+                    'actual_version': torch.__version__, 'cuda': torch.version.cuda,
+                    'required_oracle': 'torch==2.15.0 CPU'})
+              raise SystemExit(2)
+          torch.set_num_threads(1)
+          torch.manual_seed(1729)
+          torch.backends.mkldnn.enabled = False
+          torch.use_deterministic_algorithms(True)
+          
+          
+          def bits(value):
+              return struct.unpack('<I', struct.pack('<f', float(value)))[0]
+          
+          
+          def f32(value):
+              return struct.unpack('<f', struct.pack('<f', float(value)))[0]
+          
+          
+          class Program:
+              """Only wire serialization and tensor-ID bookkeeping; no numerical kernels."""
+              def __init__(self):
+                  self.commands, self.blobs, self.configs, self.next_id = [], {}, {}, 1
+          
+              def command(self, code, *args):
+                  assert len(args) <= 7
+                  at = len(self.commands)
+                  self.commands.append([code] + [int(a) & ((1 << 64) - 1) for a in args] + [0] * (7 - len(args)))
+                  return at
+          
+              def make(self, code, *args, count=1):
+                  self.command(code, *args)
+                  self.next_id += count
+                  return self.next_id - 1
+          
+              def tensor(self, value, requires=False):
+                  value = torch.as_tensor(value, dtype=torch.float32, device='cpu').detach().contiguous()
+                  assert value.ndim <= 4
+                  at = self.command(1, value.ndim, int(requires), *value.shape, *([0] * (4 - value.ndim)), 0)
+                  self.blobs[at] = struct.pack('<' + str(value.numel()) + 'f', *value.reshape(-1).tolist())
+                  result = self.next_id
+                  self.next_id += 1
+                  return result
+          
+              def binary(self, op, a, b): return self.make(2, op, a, b)
+              def unary(self, op, a): return self.make(3, op, a)
+              def reduce(self, op, a): return self.make(4, op, a)
+              def mm(self, a, b): return self.make(5, a, b)
+              def transpose(self, a, x=0, y=1): return self.make(6, a, x, y)
+              def backward(self, a): return self.command(7, a)
+              def zero(self, a): return self.command(8, a)
+              def sgd(self, a, lr): return self.command(9, a, bits(lr))
+              def read(self, a, grad=False): return self.command(11 if grad else 10, a)
+              def linear(self, x, w, b): return self.make(15, x, w, b, count=3)
+              def mse(self, a, b): return self.make(16, a, b, count=3)
+              def view(self, a, shape): return self.make(17, a, len(shape), *shape, *([0] * (4 - len(shape))))
+              def clone(self, a): return self.make(18, a)
+              def detach(self, a): return self.make(19, a)
+              def axis(self, op, a, dim, keep=False): return self.make(20, op, a, dim, int(keep))
+              def softmax(self, a, dim, log=False): return self.make(21, 21 if log else 20, a, dim)
+              def conv(self, x, w, stride, pad, dilation, groups):
+                  pack = lambda v: (v[0] << 32) | v[1]
+                  return self.make(22, x, w, pack(stride), pack(pad), pack(dilation), groups)
+              def pool(self, x, kernel, stride, pad, average, include):
+                  pack = lambda v: (v[0] << 32) | v[1]
+                  return self.make(23, 23 if average else 24, x, pack(kernel), pack(stride), pack(pad), int(include))
+              def adam(self, x, m, v, step, lr, b1, b2, eps, wd, decoupled):
+                  at = self.command(24, x, m, v, step, 0)
+                  self.configs[at] = struct.pack('<6Q', bits(lr), bits(b1), bits(b2), bits(eps), bits(wd), int(decoupled))
+              def momentum(self, x, state, step, lr, momentum, dampening, wd, nesterov):
+                  at = self.command(25, x, state, 0, step, 0)
+                  self.configs[at] = struct.pack('<5Q', bits(lr), bits(momentum), bits(dampening), bits(wd), int(nesterov))
+              def layernorm(self, x, w, b, eps): return self.make(26, x, w, b, bits(eps), count=10)
+              def cross_entropy(self, x, target): return self.make(27, x, target, count=5)
+              def batchnorm(self, x, m, v, w, b, eps): return self.make(28, x, m, v, w, b, bits(eps), count=11)
+          
+              def encode(self):
+                  offset = 32 + 64 * len(self.commands)
+                  payload, commands = bytearray(), [row.copy() for row in self.commands]
+                  for at, data in self.blobs.items():
+                      commands[at][7] = offset + len(payload)
+                      payload.extend(data)
+                  for at, data in self.configs.items():
+                      while (offset + len(payload)) % 8: payload.append(0)
+                      commands[at][5] = offset + len(payload)
+                      payload.extend(data)
+                  return struct.pack('<8sQQQ', b'HTORCH01', len(commands), offset + len(payload), 0) + b''.join(struct.pack('<8Q', *row) for row in commands) + payload
+          
+          
+          def compare(name, program, expected, rtol=4e-5, atol=5e-6):
+              row = {'case': name, 'status': 'PASS', 'rtol': rtol, 'atol': atol, 'compared_values': 0,
+                     'max_absolute_error': 0., 'max_relative_error_scaled_by_atol': 0., 'mismatches': 0}
+              try:
+                  result = subprocess.run([str(EXE)], input=program.encode(), capture_output=True, timeout=120, env={'PATH': ''})
+                  assert result.returncode == 0 and not result.stderr, (result.returncode, result.stderr.decode(errors='replace'))
+                  raw = result.stdout
+                  assert len(raw) >= 32
+                  magic, version, count, status = struct.unpack_from('<8sQQQ', raw)
+                  assert (magic, version, count, status) == (b'HTORSP01', 1, len(program.commands), 0)
+                  offset = 32
+                  for i in range(count):
+                      code, error, value, size = struct.unpack_from('<4Q', raw, offset)
+                      offset += 32
+                      payload = raw[offset:offset + size]
+                      offset += size
+                      assert code == program.commands[i][0] and error == 0 and len(payload) == size
+                      if i not in expected: continue
+                      assert size == value * 4
+                      actual = torch.tensor(struct.unpack('<' + str(value) + 'f', payload), dtype=torch.float32)
+                      reference = expected[i].detach().to(dtype=torch.float32, device='cpu').reshape(-1)
+                      assert actual.shape == reference.shape
+                      finite = torch.isfinite(actual) & torch.isfinite(reference)
+                      if bool(finite.any()):
+                          delta = (actual[finite].double() - reference[finite].double()).abs()
+                          scaled = delta / reference[finite].double().abs().clamp_min(atol)
+                          row['max_absolute_error'] = max(row['max_absolute_error'], delta.max().item())
+                          row['max_relative_error_scaled_by_atol'] = max(row['max_relative_error_scaled_by_atol'], scaled.max().item())
+                      row['compared_values'] += reference.numel()
+                      bad = torch.nonzero(~torch.isclose(actual, reference, rtol=rtol, atol=atol, equal_nan=True)).reshape(-1)
+                      row['mismatches'] += bad.numel()
+                      for j in bad[:max(0, 5 - len(row.get('examples', [])))].tolist():
+                          safe = lambda v: v if math.isfinite(v) else str(v)
+                          row.setdefault('examples', []).append({'command': i, 'index': j,
+                              'actual': safe(actual[j].item()), 'reference': safe(reference[j].item())})
+                  assert offset == len(raw), (offset, len(raw))
+                  assert row['mismatches'] == 0, f"{row['mismatches']} values outside predeclared tolerances"
+              except Exception as exc:
+                  row.update(status='FAIL', error=str(exc)[:2000])
+              ROWS.append(row)
+          
+          
+          def function_case(name, data, reference_fn, native_fn, requires=None, rtol=4e-5, atol=5e-6):
+              requires = requires or [True] * len(data)
+              leaves = [a.detach().clone().requires_grad_(req) for a, req in zip(data, requires)]
+              p = Program()
+              ids = [p.tensor(a, req) for a, req in zip(leaves, requires)]
+              reference = reference_fn(*leaves)
+              output = native_fn(p, *ids)
+              upstream = torch.randn_like(reference)
+              (reference * upstream).sum().backward()
+              p.backward(p.reduce(7, p.binary(3, output, p.tensor(upstream))))
+              expected = {p.read(output): reference.detach().clone()}
+              for leaf, tid, req in zip(leaves, ids, requires):
+                  if req:
+                      assert leaf.grad is not None, name
+                      expected[p.read(tid, True)] = leaf.grad.clone()
+              compare(name, p, expected, rtol, atol)
+          
+          
+          def operators():
+              shapes = [((), ()), ((2, 3), (3,)), ((2, 1, 3), (1, 4, 1)), ((2, 0, 3), (1, 1, 3)), ((2, 1, 2, 3), (1, 3, 1, 3))]
+              for op, fn in [(1, torch.add), (2, torch.sub), (3, torch.mul), (4, torch.div)]:
+                  for i, (a, b) in enumerate(shapes):
+                      function_case(f'binary-{op}-{i}', [torch.rand(a) + .4, torch.rand(b) + .4], fn, lambda p, x, y: p.binary(op, x, y))
+              for m, k, n in [(2, 3, 4), (2, 0, 3), (4, 5, 2)]:
+                  for trans in [False, True]:
+                      data = [torch.randn((k, m) if trans else (m, k)), torch.randn(k, n)]
+                      function_case(f'mm-{m}-{k}-{n}-transpose-{trans}', data,
+                                    lambda a, b: (a.t() if trans else a) @ b,
+                                    lambda p, a, b: p.mm(p.transpose(a) if trans else a, b))
+              for op, fn in [(5, torch.relu), (6, torch.neg), (11, torch.sqrt), (12, torch.exp), (13, torch.log), (14, torch.sigmoid), (15, torch.tanh)]:
+                  x = torch.rand(2, 3) + .2 if op in [11, 13] else torch.randn(2, 3)
+                  function_case(f'unary-{op}', [x], fn, lambda p, a: p.unary(op, a), rtol=8e-5)
+              for axis in [0, 1, -1]:
+                  for keep in [False, True]:
+                      for mean in [False, True]:
+                          function_case(f'axis-{axis}-{keep}-{mean}', [torch.randn(2, 3, 4)],
+                                        lambda x: x.mean(axis, keepdim=keep) if mean else x.sum(axis, keepdim=keep),
+                                        lambda p, a: p.axis(19 if mean else 18, a, axis, keep))
+                  for log in [False, True]:
+                      function_case(f'softmax-{axis}-{log}', [torch.randn(2, 3, 4) * 3],
+                                    lambda x: F.log_softmax(x, axis) if log else F.softmax(x, axis),
+                                    lambda p, a: p.softmax(a, axis, log), rtol=1e-4)
+          
+          
+          def spatial_modules():
+              specs = [((1, 2, 5, 5), (3, 2, 3, 2), (1, 1), (1, 0), (1, 1), 1),
+                       ((1, 4, 5, 6), (4, 2, 2, 3), (2, 1), (1, 1), (1, 1), 2),
+                       ((1, 2, 5, 5), (2, 1, 2, 2), (1, 1), (1, 1), (2, 2), 2)]
+              for i, (xs, ws, stride, pad, dilation, groups) in enumerate(specs):
+                  function_case(f'conv2d-{i}', [torch.randn(xs), torch.randn(ws)],
+                                lambda x, w: F.conv2d(x, w, stride=stride, padding=pad, dilation=dilation, groups=groups),
+                                lambda p, x, w: p.conv(x, w, stride, pad, dilation, groups), rtol=2e-4, atol=2e-5)
+              for padded in [False, True]:
+                  kernel, stride, pad = (3, 2), (2, 1), ((1, 1) if padded else (0, 0))
+                  for average, include in [(False, True), (True, True), (True, False)]:
+                      function_case(f'pool-{padded}-{average}-{include}', [torch.randn(1, 2, 5, 6)],
+                                    lambda x: F.avg_pool2d(x, kernel, stride, pad, count_include_pad=include) if average else F.max_pool2d(x, kernel, stride, pad),
+                                    lambda p, x: p.pool(x, kernel, stride, pad, average, include), rtol=1e-4)
+              eps = f32(1e-5)
+              for shape in [(2, 3), (2, 2, 3)]:
+                  function_case(f'layernorm-{shape}', [torch.randn(shape), torch.randn(3), torch.randn(3)],
+                                lambda x, w, b: F.layer_norm(x, (3,), w, b, eps),
+                                lambda p, x, w, b: p.layernorm(x, w, b, eps), rtol=5e-4, atol=5e-5)
+              for shape in [(2, 3), (2, 3, 2, 2)]:
+                  data = [torch.randn(shape), torch.randn(3), torch.rand(3) + .3, torch.randn(3), torch.randn(3)]
+                  function_case(f'batchnorm-eval-{shape}', data,
+                                lambda x, m, v, w, b: F.batch_norm(x, m, v, w, b, training=False, eps=eps),
+                                lambda p, x, m, v, w, b: p.batchnorm(x, m, v, w, b, eps),
+                                requires=[True, False, False, True, True], rtol=2e-4, atol=2e-5)
+              for shape in [(3, 4), (1, 3)]:
+                  target = torch.rand(shape)
+                  target /= target.sum(1, keepdim=True)
+                  function_case(f'cross-entropy-probabilities-{shape}', [torch.randn(shape), target],
+                                F.cross_entropy, lambda p, x, t: p.cross_entropy(x, t), rtol=1e-4)
+              function_case('view-clone', [torch.randn(2, 3)], lambda x: x.view(3, 2).clone(),
+                            lambda p, x: p.clone(p.view(x, (3, 2))))
+          
+          
+          def optimizers():
+              for decoupled in [False, True]:
+                  for wd in [0., f32(.07)]:
+                      p = Program()
+                      parameter = torch.nn.Parameter(torch.tensor([-.7, .3, 1.2]))
+                      x, m, v = p.tensor(parameter, True), p.tensor(torch.zeros(3)), p.tensor(torch.zeros(3))
+                      lr, b1, b2, eps = map(f32, [.02, .9, .999, 1e-8])
+                      cls = torch.optim.AdamW if decoupled else torch.optim.Adam
+                      optimizer = cls([parameter], lr=lr, betas=(b1, b2), eps=eps, weight_decay=wd, foreach=False, fused=False)
+                      expected = {}
+                      for step in range(1, 7):
+                          grad = torch.randn_like(parameter)
+                          p.zero(x)
+                          p.backward(p.reduce(7, p.binary(3, x, p.tensor(grad))))
+                          p.adam(x, m, v, step, lr, b1, b2, eps, wd, decoupled)
+                          parameter.grad = grad.clone()
+                          optimizer.step()
+                          expected[p.read(x)] = parameter.detach().clone()
+                      expected[p.read(m)] = optimizer.state[parameter]['exp_avg'].clone()
+                      expected[p.read(v)] = optimizer.state[parameter]['exp_avg_sq'].clone()
+                      compare(f'optim-AdamW-{decoupled}-wd-{wd}', p, expected, rtol=1e-4, atol=4e-6)
+              for momentum, dampening, nesterov in [(f32(.9), 0., False), (f32(.9), f32(.2), False), (f32(.9), 0., True)]:
+                  p = Program()
+                  parameter = torch.nn.Parameter(torch.tensor([.1, -.3, .9]))
+                  x, state = p.tensor(parameter, True), p.tensor(torch.zeros(3))
+                  lr, wd = f32(.03), f32(.04)
+                  optimizer = torch.optim.SGD([parameter], lr=lr, momentum=momentum, dampening=dampening, weight_decay=wd, nesterov=nesterov, foreach=False, fused=False)
+                  expected = {}
+                  for step in range(1, 7):
+                      grad = torch.randn_like(parameter)
+                      p.zero(x)
+                      p.backward(p.reduce(7, p.binary(3, x, p.tensor(grad))))
+                      p.momentum(x, state, step, lr, momentum, dampening, wd, nesterov)
+                      parameter.grad = grad.clone()
+                      optimizer.step()
+                      expected[p.read(x)] = parameter.detach().clone()
+                  expected[p.read(state)] = optimizer.state[parameter]['momentum_buffer'].clone()
+                  compare(f'optim-SGD-{dampening}-{nesterov}', p, expected, rtol=5e-5)
+              p = Program()
+              parameter = torch.nn.Parameter(torch.ones(2))
+              x, m, v = p.tensor(parameter, True), p.tensor(torch.zeros(2)), p.tensor(torch.zeros(2))
+              grad = torch.tensor([2e19, -1e20])
+              lr, b1, b2, eps = map(f32, [.02, .9, .999, 1e-8])
+              optimizer = torch.optim.Adam([parameter], lr=lr, betas=(b1, b2), eps=eps, foreach=False, fused=False)
+              p.backward(p.reduce(7, p.binary(3, x, p.tensor(grad))))
+              p.adam(x, m, v, 1, lr, b1, b2, eps, 0., False)
+              parameter.grad = grad
+              optimizer.step()
+              compare('optim-Adam-large-gradient', p, {p.read(x): parameter.detach().clone(), p.read(v): optimizer.state[parameter]['exp_avg_sq'].clone()}, rtol=1e-4)
+          
+          
+          def training():
+              p = Program()
+              data = torch.tensor([[-2., -1.], [-1., 1.], [0., -1.], [1., 1.], [2., 0.], [3., 1.]])
+              target = data @ torch.tensor([[1.5], [-.75]]) + .3
+              params = [torch.nn.Parameter(torch.randn(4, 2) * .15), torch.nn.Parameter(torch.zeros(4)),
+                        torch.nn.Parameter(torch.randn(1, 4) * .15), torch.nn.Parameter(torch.zeros(1))]
+              x, t = p.tensor(data), p.tensor(target)
+              ids = [p.tensor(a, True) for a in params]
+              lr = f32(.04)
+              optimizer = torch.optim.SGD(params, lr=lr, foreach=False, fused=False)
+              expected, losses = {}, []
+              for step in range(18):
+                  optimizer.zero_grad(set_to_none=False)
+                  for a in ids: p.zero(a)
+                  out = p.linear(p.unary(15, p.linear(x, ids[0], ids[1])), ids[2], ids[3])
+                  loss = p.mse(out, t)
+                  reference = F.mse_loss(F.linear(torch.tanh(F.linear(data, params[0], params[1])), params[2], params[3]), target)
+                  expected[p.read(loss)] = reference.detach().clone()
+                  losses.append(reference.item())
+                  p.backward(loss)
+                  reference.backward()
+                  for a in ids: p.sgd(a, lr)
+                  optimizer.step()
+              for a, ref in zip(ids, params): expected[p.read(a)] = ref.detach().clone()
+              compare('MLP-real-autograd-SGD-18-steps', p, expected, rtol=6e-4, atol=4e-5)
+              return {'steps': 18, 'torch_initial_loss': losses[0], 'torch_last_pre_update_loss': losses[-1],
+                      'torch_loss_decreased': losses[-1] < losses[0]}
+          
+          
+          def main():
+              started = time.monotonic()
+              sha = hashlib.sha256(EXE.read_bytes()).hexdigest()
+              training_result = None
+              setup_error = None
+              try:
+                  operators()
+                  spatial_modules()
+                  optimizers()
+                  training_result = training()
+              except Exception as exc:
+                  setup_error = type(exc).__name__ + ': ' + str(exc)
+              changed = sha != hashlib.sha256(EXE.read_bytes()).hexdigest()
+              failed = sum(row['status'] == 'FAIL' for row in ROWS)
+              passed = setup_error is None and not changed and failed == 0 and len(ROWS) == 76 and torch.version.git_version == PIN
+              report = {'schema': 'heptatorch.live-pytorch-differential.v1', 'status': 'PASS' if passed else 'FAIL',
+                        'oracle': 'real pinned CPU PyTorch forward, autograd and torch.optim; no copied derivative formulas',
+                        'torch_version': torch.__version__, 'torch_git_version': torch.version.git_version,
+                        'upstream_commit': PIN, 'torch_git_matches_upstream_pin': torch.version.git_version == PIN,
+                        'native_executable_sha256': sha, 'native_unchanged_during_run': not changed,
+                        'seed': 1729, 'cases': len(ROWS), 'failed_cases': failed, 'setup_error': setup_error,
+                        'compared_values': sum(row['compared_values'] for row in ROWS), 'rows': ROWS,
+                        'training': training_result, 'wall_seconds': time.monotonic() - started}
+              emit(report)
+              if not passed: raise SystemExit(1)
+          
+          
+          if __name__ == '__main__':
+              main()
+          PYTORCH_ORACLE

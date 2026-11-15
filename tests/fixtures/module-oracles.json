@@ -1,0 +1,99 @@
+{
+  "schema": "heptatorch.fixture-oracles.v1",
+  "status": "PASS",
+  "fixture_count": 15,
+  "native_binary_sha256": "a2743509651797aca67176e1b283837a8eb8cccd9fa59635c71884aa601f6ce3",
+  "expected_output_policy": "Wire outputs captured only after the listed independent oracle assertions passed. Golden replay checks exact regression bytes; it does not establish complete PyTorch compatibility.",
+  "fixtures": [
+    {
+      "name": "module-layernorm-rank2",
+      "input_sha256": "3acd45b67197a5e89f2d8dd319042bb7b54a38401dcc148af7a927c61b6c70c2",
+      "output_sha256": "55a359d0852603652b467c210095a8a0aa70faea10e9294c1b332026c1991301",
+      "oracle": "Independent NumPy float64 layernorm formula and coordinatewise central finite differences for input, weight, and bias; rtol5e-4 atol5e-5."
+    },
+    {
+      "name": "module-layernorm-rank3",
+      "input_sha256": "e71eccb0259a2aadfb153b8763f673b42183969fe1f770081952536af6de5467",
+      "output_sha256": "a880a638c360cc897ca81fc648f926acfba7da8f3ad9b882dbd6ea05e95f4450",
+      "oracle": "Independent NumPy float64 layernorm formula and coordinatewise central finite differences for input, weight, and bias; rtol5e-4 atol5e-5."
+    },
+    {
+      "name": "module-layernorm-rank4",
+      "input_sha256": "72f16894935a0cfdd526f79ff12c8b59f7aa8aa2450364122ce0ac35040a23b5",
+      "output_sha256": "ebe7a9a84b308588a0a5f6f4e6ae79b7eda821b9963c6b656b2e56d094424893",
+      "oracle": "Independent NumPy float64 layernorm formula and coordinatewise central finite differences for input, weight, and bias; rtol5e-4 atol5e-5."
+    },
+    {
+      "name": "module-cross-entropy-soft-targets",
+      "input_sha256": "1cfafe532c016a49e6e6b1efd481644541de98ddb7589f0eccfe4645f38906dd",
+      "output_sha256": "7115ec60ad23b4d96bb6474bdb7677a3dfe7ea502b8bb287a71a8b62e00ea491",
+      "oracle": "Independent NumPy float64 logsumexp and analytic gradients for logits and probability targets; rtol5e-4 atol5e-5."
+    },
+    {
+      "name": "module-cross-entropy-single-row",
+      "input_sha256": "d30f001f09195c29b929e6ddcbfdf2aba7c21a511499bfce77c0f303b54f90ee",
+      "output_sha256": "fecda81107f62046dc66b7f89b1839cc649b9d1934e95401ffc9b917b7638247",
+      "oracle": "Independent NumPy float64 logsumexp and analytic gradients for logits and probability targets; rtol5e-4 atol5e-5."
+    },
+    {
+      "name": "module-batchnorm-eval-rank2",
+      "input_sha256": "1b7c2d0e4ea258ec4517cab9778d4dcefb7820b0d67e9910d73ca7675c4b2c08",
+      "output_sha256": "e135e215848ac0d137a84d9071bedab4548629f16fe4ac922f9115b6d0bc3a02",
+      "oracle": "Independent NumPy normalization formula and analytic input/affine gradients; rtol5e-4 atol5e-5."
+    },
+    {
+      "name": "module-batchnorm-eval-rank3",
+      "input_sha256": "3c23de1c194fae9a20159aa2bc6b69eb36f5873e3ac5b595291c40834a0413c3",
+      "output_sha256": "b53292721d93f45cd2bdd4f7fad47454e3d4ff1ba06fffcfa9e4e17332d3a289",
+      "oracle": "Independent NumPy normalization formula and analytic input/affine gradients; rtol5e-4 atol5e-5."
+    },
+    {
+      "name": "module-batchnorm-eval-rank4",
+      "input_sha256": "242d95d5f43bc13599798edd9470b9e367e2a91a7700ea3009b543571532a2c0",
+      "output_sha256": "9d21074b271b365b17424c8d1a2752253dad0e129a32e38d4f7761473a0dc5a8",
+      "oracle": "Independent NumPy normalization formula and analytic input/affine gradients; rtol5e-4 atol5e-5."
+    },
+    {
+      "name": "module-layernorm-invalid-affine",
+      "input_sha256": "43a275aeb795f1b296a09e46bce610b0b3617f602bd9dbc49cf926c19de6c0de",
+      "output_sha256": "55da8a721db085e74a9bddee6834f6464d3b3ec0d9eee92875ea6165170b09ad",
+      "oracle": "Expected status2 before an incompatible affine shape is used."
+    },
+    {
+      "name": "module-layernorm-negative-epsilon",
+      "input_sha256": "6a0c1991cd80c59da60a995f1f0c2ae4de56531f0fb159cb839d68bc48b82a95",
+      "output_sha256": "2bec7a9087b3ce82f085a0015fcbb268674433f636964241d93e53eddddac2df",
+      "oracle": "Expected status7 for negative epsilon."
+    },
+    {
+      "name": "module-batchnorm-running-stats-gradient",
+      "input_sha256": "8ca5c42a179a1ae537963d73b2d471ae350c945c96144a3331f9172244888802",
+      "output_sha256": "dd70480edbabc211bc31f8ef67fedf904966d08dfed6324d59c41eb0c81f7a3e",
+      "oracle": "Expected status5 because running statistics do not support gradients in evaluation mode."
+    },
+    {
+      "name": "advanced-signed-scalar-axes",
+      "input_sha256": "1c35786376f441225c1fb73de62d90c141d0ee4151f231bec6d2d641ba8e653f",
+      "output_sha256": "e6e30ac728bbcb5b0d8c126beaa0a0ad96c1c9652ed5ae0a3936663f5c5a9408",
+      "oracle": "Scalar softmax(-1)=1 with zero gradient, mean(-1)=identity with unit gradient, transpose(-1,0)=identity; exact expected values."
+    },
+    {
+      "name": "advanced-division-extreme-gradients",
+      "input_sha256": "2269dd0428522b6ead53425c5ab1080843b9f6e04262deff1719c715bf135381",
+      "output_sha256": "688b0c3aaeff90d2b01bc766a59a2296abb42b64082aef3d14e8e00bb1c401b7",
+      "oracle": "x/y gradients at x=y=1e20 and x=y=minnormal; independently expected +/-1/y. Detects denominator-squaring overflow and underflow; rtol3e-5 atol0."
+    },
+    {
+      "name": "advanced-noncontiguous-clone-view",
+      "input_sha256": "be8f0bc06603a9efdaa6407de098afa4c16b831ce9c19ce67d7c02fa9e64a51c",
+      "output_sha256": "47c54e331d4968024bac3774dab8a41b617adbe0dd29579992d0bec153dfc8f2",
+      "oracle": "Independent NumPy transpose(2,1,0) materialized in logical order then reshaped; exact forward values and exact unit source gradient."
+    },
+    {
+      "name": "advanced-broadcast-finite-differences",
+      "input_sha256": "2e3ccdf07e3b1f7a2721570f4487cc415bb01e58ea98d24ea7c440f2886326ee",
+      "output_sha256": "ac596dd959635258fc73242cf288fff9687abf935f92cc425ba7e421472c6a5c",
+      "oracle": "Independent float64 central finite differences, epsilon1e-5, every input/weight coordinate of mean(tanh(x*b)); seed676; rtol3e-5 atol2e-6."
+    }
+  ]
+}

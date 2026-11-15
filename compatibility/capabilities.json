@@ -1,0 +1,213 @@
+{
+  "schema": "heptatorch.scoped-capabilities.v1",
+  "upstream_version": "2.15.0",
+  "upstream_commit": "31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
+  "whole_pytorch_rewrite_complete": false,
+  "full_upstream_schema_parity_count": 0,
+  "native_schema_inventory_count": 2590,
+  "runtime_implementation": "HIA primitive Core v8, directly compiled to static Linux x86-64",
+  "device": "CPU",
+  "dtype": "IEEE binary32, software arithmetic",
+  "rank_range": [
+    0,
+    4
+  ],
+  "storage_layouts": [
+    "dense contiguous",
+    "strided layouts produced by transpose",
+    "contiguous shared view",
+    "detached shared storage"
+  ],
+  "maximum_tensor_descriptors": 255,
+  "buffer_capacity_bytes": 1048576,
+  "maximum_convolution_terms": 16777216,
+  "native_runtime_dependencies": [
+    "Linux x86-64 kernel and hardware"
+  ],
+  "external_B0_bootstrap_dependencies": [
+    "pinned Hepta Python assembler/verifier/emitter",
+    "GNU ld"
+  ],
+  "capabilities": [
+    {
+      "name": "tensor-arithmetic",
+      "hia_functions": [
+        "binary"
+      ],
+      "scope": "add/sub alpha=1, mul/div; right-aligned broadcasting including empty dimensions",
+      "forward": "implemented",
+      "backward": "implemented where mathematically applicable",
+      "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "unary",
+      "hia_functions": [
+        "unary"
+      ],
+      "scope": "ReLU, neg, sqrt, exp, log, sigmoid, tanh; no inplace/out variants",
+      "forward": "implemented",
+      "backward": "implemented where mathematically applicable",
+      "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "reductions",
+      "hia_functions": [
+        "reduce",
+        "reduce_axis"
+      ],
+      "scope": "all-axis or single-axis sum/mean, keepdim, signed axes; explicit binary32 dtype",
+      "forward": "implemented",
+      "backward": "implemented where mathematically applicable",
+      "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "matmul",
+      "hia_functions": [
+        "mm"
+      ],
+      "scope": "rank-two matrix multiplication including transpose-produced layouts",
+      "forward": "implemented",
+      "backward": "implemented where mathematically applicable",
+      "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "storage-views",
+      "hia_functions": [
+        "transpose",
+        "view",
+        "clone",
+        "detach"
+      ],
+      "scope": "shared owner/version; view only for contiguous layouts and explicit dimensions",
+      "forward": "implemented",
+      "backward": "implemented where mathematically applicable",
+      "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "autograd",
+      "hia_functions": [
+        "backward",
+        "zero_grad"
+      ],
+      "scope": "scalar seed1; retained graph and accumulated leaf gradients; conservative version preflight",
+      "forward": "implemented",
+      "backward": "implemented where mathematically applicable",
+      "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "softmax",
+      "hia_functions": [
+        "softmax"
+      ],
+      "scope": "single-axis softmax/log-softmax, stable shifted accumulation",
+      "forward": "implemented",
+      "backward": "implemented where mathematically applicable",
+      "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "linear-mse",
+      "hia_functions": [
+        "linear",
+        "mse"
+      ],
+      "scope": "rank-two Linear with OI weight; mean-squared loss with supported broadcasting",
+      "forward": "implemented",
+      "backward": "implemented where mathematically applicable",
+      "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "conv2d",
+      "hia_functions": [
+        "conv2d",
+        "back_spatial"
+      ],
+      "scope": "NCHW/OIHW, groups/depthwise, height/width stride/dilation/symmetric padding; bias composed separately; bounded work",
+      "forward": "implemented",
+      "backward": "implemented where mathematically applicable",
+      "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "pool2d",
+      "hia_functions": [
+        "pool2d",
+        "back_spatial"
+      ],
+      "scope": "floor avg/max pooling, unit dilation, avg include/exclude pad; no returned indices/ceil_mode/divisor_override",
+      "forward": "implemented",
+      "backward": "implemented where mathematically applicable",
+      "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "layernorm",
+      "hia_functions": [
+        "layernorm"
+      ],
+      "scope": "last dimension; optional vector affine; finite nonnegative epsilon",
+      "forward": "implemented",
+      "backward": "implemented where mathematically applicable",
+      "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "batchnorm-evaluation",
+      "hia_functions": [
+        "batchnorm_eval"
+      ],
+      "scope": "rank2..4 channel1; frozen non-gradient running statistics; optional vector affine",
+      "forward": "implemented",
+      "backward": "implemented where mathematically applicable",
+      "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "cross-entropy",
+      "hia_functions": [
+        "cross_entropy_probs"
+      ],
+      "scope": "rank-two probability targets, mean over batch; no index-target/ignore-index/weight/label-smoothing variants",
+      "forward": "implemented",
+      "backward": "implemented where mathematically applicable",
+      "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "optimizers",
+      "hia_functions": [
+        "sgd",
+        "sgd_momentum",
+        "adam"
+      ],
+      "scope": "SGD, momentum/Nesterov, Adam/AdamW; explicit owned state and caller step; no grad=None/AMSGrad/parameter groups",
+      "forward": "implemented",
+      "backward": "implemented where mathematically applicable",
+      "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
+      "full_upstream_schema_qualified": false
+    }
+  ],
+  "unimplemented_subsystems": [
+    "other dtypes and type promotion",
+    "arbitrary as_strided and general indexing",
+    "sparse/compressed/nested/complex/quantized layouts",
+    "remaining operator families and overloads",
+    "forward-mode and higher-order differentiation",
+    "Python/C++ frontend compatibility",
+    "CUDA/ROCm/MPS/XPU",
+    "distributed collectives/DDP/FSDP/DTensor",
+    "torch.compile/graph capture/export and compiler optimization",
+    "dataset/dataloader/multiprocessing",
+    "RNG/dropout",
+    "full checkpoint and serialization",
+    "cross-platform execution",
+    "large model memory management and device kernels"
+  ]
+}
