@@ -1,12 +1,12 @@
 # Validation evidence
 
-The final native implementation is bound by `native.json` to both its HIA source
+The original native implementation is bound by `native.json` to both its HIA source
 and executable SHA-256. It includes 123 tensor/integration cases, 17 optimizer
 cases, seven spatial/training integration cases, 894 scalar special-value
 vectors, and 19 independently reviewed adversarial groups. These counts describe
 different sets and units; they are not a count of upstream PyTorch tests.
 
-The native packet corpus contains 76 input/expected-output pairs. Its exact
+The native packet corpus contains 221 input/expected-output pairs. Its exact
 files, sizes and hashes are recorded in `fixture-manifest.json`. `make test`
 executes all of them through the native HIA hexadecimal decoder and tensor
 executable with empty PATH. Responses were recorded only after independent
@@ -40,7 +40,7 @@ repeated backward, optimizer state/configuration contracts, large gradients,
 and descriptor/workspace/output/native-wrapper limits. All reported groups
 passed against unchanged source and executable hashes.
 
-## Hosted PyTorch differential gate
+## Original hosted PyTorch differential gate
 
 **Observed hosted result: PASS.**
 [Run 43738165041](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43738165041)
@@ -55,7 +55,7 @@ compiler recipe, oracle code and fixtures unchanged.
 The CI workflow installs the pinned **CPU PyTorch 2.15.0+cpu** only as an
 independent test oracle. Its inline test program serializes inputs and invokes
 real PyTorch forward operations, autograd, and optimizers. It never implements
-HeptaTorch's runtime operations. The gate requires exactly 76 cases, zero
+HeptaTorch's runtime operations. The original gate required exactly 76 cases, zero
 failures, the exact wheel version, source revision and artifact hash, and an
 unchanged native executable. Numerical tolerances are recorded per case.
 
@@ -84,3 +84,48 @@ test definitions, tolerances, seed, native implementation or executable.
 Local execution lacked PyTorch and remains recorded as NOT_RUN for that oracle.
 A hosted result is tied to its tested GitHub commit and run URL; none of these
 scoped checks establish whole-schema or whole-project parity.
+
+## Current native expansion
+
+`native-extension.json` binds the current integrated source and executable.
+All 221 fixture pairs passed, including the 76 unchanged baseline pairs and
+145 new pairs. The final binary also passed 63 matrix/Linear cases (4,593
+values, including eight central finite-difference cases), an independent
+2,514-case matrix shape/gradient/admission review, and 11 cross-feature cases
+(529 exact comparisons). The peer review includes 529 valid matmul cases,
+1,263 shape refusals, 720 Linear cases and two capacity refusals.
+
+The 44 seeded-backward checks, 67 index_select cases, 72 gather cases and pooling
+checks in the component section were executed on isolated component binaries.
+Their original hashes remain attached; their production regression packets
+were subsequently replayed on the final integrated executable. The test-only
+error-inspection opcode used for three gradient atomicity probes is absent
+from production source and fixtures.
+
+The actual runtime now implements commands 29–32 and graph operations 25–27.
+The legacy rank-two matrix command delegates to the generalized kernel, and its
+superseded forward/reverse functions were removed. The native build has no
+Python or tensor-library dependency. The initial external compiler bootstrap
+and independent numerical oracle retain their existing, separate dependencies.
+
+The current hosted gate requires exactly 153 uniquely named real PyTorch cases,
+including the new operations, strided explicit seeds, repeated gradients and
+three attention compositions without masking or dropout. It preserves the
+original tolerances and test definitions for all 76 baseline cases and adds
+explicit tolerances for the new cases. `hosted-extension.json` records its actual
+execution status and exact commit; the historical passing run above does not
+qualify the changed source. The source/image and complete fixture manifest are
+also checked during hosted build.
+
+Observed current hosted result: **PASS**.
+[Run 43740237504](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43740237504)
+tested commit `2bfb4bac21361a5057da1eeee9349fbcb8b3cba7`. Compiler reproduction,
+221 native packet pairs, the exact source/image/fixture manifest and all
+153 real-PyTorch cases (8,244 values, zero failures) passed. All 11 oracle
+provenance checks passed. The native executable hash equals the locally tested
+image and remained unchanged during the comparison. All three attention
+compositions passed their forward and Q/K/V-gradient comparisons.
+
+The full report and per-case tolerances are retained in `hosted-extension.json`.
+This evidence update changes documentation and receipts only; it leaves the
+runtime, test workflow, compiler recipe and fixture bytes unchanged.

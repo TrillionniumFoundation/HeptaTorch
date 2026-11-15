@@ -66,9 +66,11 @@
     {
       "name": "matmul",
       "hia_functions": [
-        "mm"
+        "matmul",
+        "mm",
+        "back_matmul"
       ],
-      "scope": "rank-two matrix multiplication including transpose-produced layouts",
+      "scope": "rank1..4 vector/matrix/broadcast-batched products, transposed layouts and empty dimensions; mm remains rank2-only; at most16777216 contraction terms; broadcast-reduced first-order reverse gradients",
       "forward": "implemented",
       "backward": "implemented where mathematically applicable",
       "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
@@ -92,9 +94,10 @@
       "name": "autograd",
       "hia_functions": [
         "backward",
+        "backward_seed",
         "zero_grad"
       ],
-      "scope": "scalar seed1; retained graph and accumulated leaf gradients; conservative version preflight",
+      "scope": "implicit unit seed for one-element outputs or exact-shape explicit binary32 seed; strided/empty seeds; retained graph, accumulated leaf gradients and version preflight; no forward/higher-order AD",
       "forward": "implemented",
       "backward": "implemented where mathematically applicable",
       "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
@@ -117,7 +120,7 @@
         "linear",
         "mse"
       ],
-      "scope": "rank-two Linear with OI weight; mean-squared loss with supported broadcasting",
+      "scope": "rank1..4 Linear input with rank2 OI weight and optional vector bias; mean-squared loss with supported broadcasting",
       "forward": "implemented",
       "backward": "implemented where mathematically applicable",
       "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
@@ -141,7 +144,7 @@
         "pool2d",
         "back_spatial"
       ],
-      "scope": "floor avg/max pooling, unit dilation, avg include/exclude pad; no returned indices/ceil_mode/divisor_override",
+      "scope": "floor avg/max pooling, unit dilation, avg include/exclude pad; no returned indices/ceil_mode/divisor_override; conservative16777216 padded-window term budget",
       "forward": "implemented",
       "backward": "implemented where mathematically applicable",
       "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
@@ -192,9 +195,34 @@
       "backward": "implemented where mathematically applicable",
       "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
       "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "index-select",
+      "hia_functions": [
+        "index_select",
+        "back_index_select"
+      ],
+      "scope": "rank1..4 input, signed axis, exact raw signed-i64 index vector payload; immutable copied indices; new storage; duplicate-gradient scatter-add; no integer tensor dtype/out variants",
+      "forward": "implemented",
+      "backward": "implemented",
+      "qualification": "independent NumPy and analytical checks; native regression fixtures; hosted153-case gate recorded separately",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "gather",
+      "hia_functions": [
+        "gather",
+        "back_gather"
+      ],
+      "scope": "rank0..4, signed axis, exact raw signed-i64 shaped index payload; no broadcast, empty-index fast path; immutable copied indices and duplicate-gradient scatter-add; no integer tensor dtype/sparse-grad/out variants",
+      "forward": "implemented",
+      "backward": "implemented",
+      "qualification": "independent NumPy and analytical checks; native regression fixtures; hosted153-case gate recorded separately",
+      "full_upstream_schema_qualified": false
     }
   ],
   "unimplemented_subsystems": [
+    "scalable native module/linking and resource-bearing public ABI",
     "other dtypes and type promotion",
     "arbitrary as_strided and general indexing",
     "sparse/compressed/nested/complex/quantized layouts",
@@ -208,6 +236,18 @@
     "RNG/dropout",
     "full checkpoint and serialization",
     "cross-platform execution",
-    "large model memory management and device kernels"
-  ]
+    "large model memory management and device kernels",
+    "graph reclamation and persistent training-session state"
+  ],
+  "maximum_pooling_terms": 16777216,
+  "maximum_matmul_terms": 16777216,
+  "native_compilation_unit": {
+    "functions": 117,
+    "blocks": 1364,
+    "instructions": 5486,
+    "maximum_functions": 128,
+    "maximum_blocks": 1536,
+    "maximum_instructions": 8192,
+    "general_module_linking": false
+  }
 }

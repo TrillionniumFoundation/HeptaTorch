@@ -809,32 +809,6 @@
     ],
     "returns": "u64"
   },
-  "mm_element": {
-    "name": "mm_element",
-    "params": [
-      {
-        "name": "w",
-        "type": "mutbuf"
-      },
-      {
-        "name": "a",
-        "type": "u64"
-      },
-      {
-        "name": "b",
-        "type": "u64"
-      },
-      {
-        "name": "i",
-        "type": "u64"
-      },
-      {
-        "name": "j",
-        "type": "u64"
-      }
-    ],
-    "returns": "u64"
-  },
   "mm": {
     "name": "mm",
     "params": [
@@ -1191,42 +1165,6 @@
   },
   "back_softmax": {
     "name": "back_softmax",
-    "params": [
-      {
-        "name": "w",
-        "type": "mutbuf"
-      },
-      {
-        "name": "t",
-        "type": "u64"
-      }
-    ],
-    "returns": "u64"
-  },
-  "back_mm_element": {
-    "name": "back_mm_element",
-    "params": [
-      {
-        "name": "w",
-        "type": "mutbuf"
-      },
-      {
-        "name": "t",
-        "type": "u64"
-      },
-      {
-        "name": "i",
-        "type": "u64"
-      },
-      {
-        "name": "j",
-        "type": "u64"
-      }
-    ],
-    "returns": "u64"
-  },
-  "back_mm": {
-    "name": "back_mm",
     "params": [
       {
         "name": "w",
@@ -1918,6 +1856,290 @@
       },
       {
         "name": "t",
+        "type": "u64"
+      }
+    ],
+    "returns": "u64"
+  },
+  "matmul": {
+    "name": "matmul",
+    "params": [
+      {
+        "name": "w",
+        "type": "mutbuf"
+      },
+      {
+        "name": "a",
+        "type": "u64"
+      },
+      {
+        "name": "b",
+        "type": "u64"
+      }
+    ],
+    "returns": "u64"
+  },
+  "matmul_index": {
+    "name": "matmul_index",
+    "params": [
+      {
+        "name": "w",
+        "type": "mutbuf"
+      },
+      {
+        "name": "t",
+        "type": "u64"
+      },
+      {
+        "name": "side",
+        "type": "u64"
+      },
+      {
+        "name": "index",
+        "type": "u64"
+      },
+      {
+        "name": "k",
+        "type": "u64"
+      }
+    ],
+    "returns": "u64"
+  },
+  "matmul_point": {
+    "name": "matmul_point",
+    "params": [
+      {
+        "name": "w",
+        "type": "mutbuf"
+      },
+      {
+        "name": "t",
+        "type": "u64"
+      },
+      {
+        "name": "index",
+        "type": "u64"
+      }
+    ],
+    "returns": "u64"
+  },
+  "back_matmul_point": {
+    "name": "back_matmul_point",
+    "params": [
+      {
+        "name": "w",
+        "type": "mutbuf"
+      },
+      {
+        "name": "t",
+        "type": "u64"
+      },
+      {
+        "name": "index",
+        "type": "u64"
+      }
+    ],
+    "returns": "u64"
+  },
+  "back_matmul": {
+    "name": "back_matmul",
+    "params": [
+      {
+        "name": "w",
+        "type": "mutbuf"
+      },
+      {
+        "name": "t",
+        "type": "u64"
+      }
+    ],
+    "returns": "u64"
+  },
+  "index_select_command": {
+    "name": "index_select_command",
+    "params": [
+      {
+        "name": "s",
+        "type": "readbuf"
+      },
+      {
+        "name": "w",
+        "type": "mutbuf"
+      },
+      {
+        "name": "cp",
+        "type": "u64"
+      },
+      {
+        "name": "end",
+        "type": "u64"
+      }
+    ],
+    "returns": "u64"
+  },
+  "index_select": {
+    "name": "index_select",
+    "params": [
+      {
+        "name": "s",
+        "type": "readbuf"
+      },
+      {
+        "name": "w",
+        "type": "mutbuf"
+      },
+      {
+        "name": "a",
+        "type": "u64"
+      },
+      {
+        "name": "axis",
+        "type": "u64"
+      },
+      {
+        "name": "count",
+        "type": "u64"
+      },
+      {
+        "name": "offset",
+        "type": "u64"
+      },
+      {
+        "name": "end",
+        "type": "u64"
+      }
+    ],
+    "returns": "u64"
+  },
+  "index_select_source": {
+    "name": "index_select_source",
+    "params": [
+      {
+        "name": "w",
+        "type": "mutbuf"
+      },
+      {
+        "name": "t",
+        "type": "u64"
+      },
+      {
+        "name": "index",
+        "type": "u64"
+      }
+    ],
+    "returns": "u64"
+  },
+  "back_index_select": {
+    "name": "back_index_select",
+    "params": [
+      {
+        "name": "w",
+        "type": "mutbuf"
+      },
+      {
+        "name": "t",
+        "type": "u64"
+      }
+    ],
+    "returns": "u64"
+  },
+  "gather_command": {
+    "name": "gather_command",
+    "params": [
+      {
+        "name": "s",
+        "type": "readbuf"
+      },
+      {
+        "name": "w",
+        "type": "mutbuf"
+      },
+      {
+        "name": "cp",
+        "type": "u64"
+      },
+      {
+        "name": "end",
+        "type": "u64"
+      }
+    ],
+    "returns": "u64"
+  },
+  "gather": {
+    "name": "gather",
+    "params": [
+      {
+        "name": "s",
+        "type": "readbuf"
+      },
+      {
+        "name": "w",
+        "type": "mutbuf"
+      },
+      {
+        "name": "a",
+        "type": "u64"
+      },
+      {
+        "name": "axis",
+        "type": "u64"
+      },
+      {
+        "name": "config",
+        "type": "u64"
+      },
+      {
+        "name": "end",
+        "type": "u64"
+      }
+    ],
+    "returns": "u64"
+  },
+  "gather_source": {
+    "name": "gather_source",
+    "params": [
+      {
+        "name": "w",
+        "type": "mutbuf"
+      },
+      {
+        "name": "t",
+        "type": "u64"
+      },
+      {
+        "name": "index",
+        "type": "u64"
+      }
+    ],
+    "returns": "u64"
+  },
+  "back_gather": {
+    "name": "back_gather",
+    "params": [
+      {
+        "name": "w",
+        "type": "mutbuf"
+      },
+      {
+        "name": "t",
+        "type": "u64"
+      }
+    ],
+    "returns": "u64"
+  },
+  "backward_seed": {
+    "name": "backward_seed",
+    "params": [
+      {
+        "name": "w",
+        "type": "mutbuf"
+      },
+      {
+        "name": "t",
+        "type": "u64"
+      },
+      {
+        "name": "seed",
         "type": "u64"
       }
     ],

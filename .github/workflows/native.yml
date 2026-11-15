@@ -115,6 +115,24 @@ jobs:
         run: |
           make HEPTA_COMPILER="$RUNNER_TEMP/hepta-compiler/native-compiler"
           make test HEPTA_COMPILER="$RUNNER_TEMP/hepta-compiler/native-compiler"
+          python3 -I -S -B - <<'MANIFEST'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          digest = lambda p: hashlib.sha256(Path(p).read_bytes()).hexdigest()
+          manifest = json.loads(Path('validation/fixture-manifest.json').read_text())
+          evidence = json.loads(Path('validation/native-extension.json').read_text())
+          assert manifest['source_sha256'] == digest('src/heptatorch.hepta') == evidence['source_sha256']
+          assert evidence['executable_sha256'] == digest('build/heptatorch')
+          paths = {entry['path'] for entry in manifest['files']}
+          assert paths == {str(p) for p in Path('tests/fixtures').glob('*.hex')}
+          assert manifest['fixture_pairs'] == len(paths) // 2 == 221
+          for entry in manifest['files']:
+              assert Path(entry['path']).stat().st_size == entry['bytes']
+              assert digest(entry['path']) == entry['sha256']
+          print('PASS: exact native source, image and 221 fixture-pair manifest')
+          MANIFEST
 
       - name: Install the independent pinned PyTorch CPU oracle
         shell: bash
@@ -275,7 +293,7 @@ jobs:
           class Program:
               """Only wire serialization and tensor-ID bookkeeping; no numerical kernels."""
               def __init__(self):
-                  self.commands, self.blobs, self.configs, self.next_id = [], {}, {}, 1
+                  self.commands, self.blobs, self.configs, self.extra, self.next_id = [], {}, {}, [], 1
 
               def command(self, code, *args):
                   assert len(args) <= 7
@@ -329,11 +347,36 @@ jobs:
               def cross_entropy(self, x, target): return self.make(27, x, target, count=5)
               def batchnorm(self, x, m, v, w, b, eps): return self.make(28, x, m, v, w, b, bits(eps), count=11)
 
+              def seeded(self, output, seed): return self.command(29, output, seed)
+              def matmul(self, left, right): return self.make(32, left, right)
+
+              def index_select(self, value, axis, index):
+                  index = torch.as_tensor(index, dtype=torch.int64).reshape(-1)
+                  at = self.command(30, value, axis, index.numel(), 0)
+                  self.extra.append((at, 4, struct.pack('<' + str(index.numel()) + 'q', *index.tolist())))
+                  result = self.next_id
+                  self.next_id += 1
+                  return result
+
+              def gather(self, value, axis, index):
+                  index = torch.as_tensor(index, dtype=torch.int64)
+                  at = self.command(31, value, axis, 0)
+                  body = struct.pack('<' + str(index.ndim + 1) + 'Q', index.ndim, *index.shape)
+                  body += struct.pack('<' + str(index.numel()) + 'q', *index.reshape(-1).tolist())
+                  self.extra.append((at, 3, body))
+                  result = self.next_id
+                  self.next_id += 1
+                  return result
+
               def encode(self):
                   offset = 32 + 64 * len(self.commands)
                   payload, commands = bytearray(), [row.copy() for row in self.commands]
                   for at, data in self.blobs.items():
                       commands[at][7] = offset + len(payload)
+                      payload.extend(data)
+                  for at, field, data in self.extra:
+                      while (offset + len(payload)) % 8: payload.append(0)
+                      commands[at][field] = offset + len(payload)
                       payload.extend(data)
                   for at, data in self.configs.items():
                       while (offset + len(payload)) % 8: payload.append(0)
@@ -542,6 +585,94 @@ jobs:
                       'torch_loss_decreased': losses[-1] < losses[0]}
 
 
+
+          def seeded_case(name, data, reference_fn, native_fn, rtol=8e-5, atol=8e-6):
+              leaves = [a.detach().clone().requires_grad_(True) for a in data]
+              p = Program()
+              ids = [p.tensor(a, True) for a in leaves]
+              reference = reference_fn(*leaves)
+              output = native_fn(p, *ids)
+              upstream = torch.randn_like(reference)
+              # Construct a real noncontiguous seed whenever there are at least two axes.
+              if upstream.ndim >= 2:
+                  seed = p.transpose(p.tensor(upstream.transpose(-1, -2).contiguous()), -1, -2)
+              else:
+                  seed = p.tensor(upstream)
+              expected = {p.read(output): reference.detach().clone()}
+              for iteration in range(2):
+                  reference.backward(upstream, retain_graph=True)
+                  p.seeded(output, seed)
+                  for leaf, tid in zip(leaves, ids):
+                      assert leaf.grad is not None, name
+                      expected[p.read(tid, True)] = leaf.grad.clone()
+              compare(name, p, expected, rtol, atol)
+
+
+          def extensions():
+              specs = [((3,), (3,)), ((2, 3), (3,)), ((3,), (3, 4)), ((2, 3), (3, 4)),
+                       ((2, 3, 4), (4, 5)), ((4,), (2, 3, 4, 5)), ((2, 1, 3, 4), (5, 4, 6)),
+                       ((1, 3, 2, 4), (2, 1, 4, 5)), ((2, 3, 4, 5), (5,)), ((2, 1, 3, 4), (1, 4, 5)),
+                       ((0,), (0,)), ((2, 0), (0, 3)), ((0, 2, 3), (1, 3, 4)),
+                       ((2, 1, 0, 3), (1, 4, 3, 5)), ((2, 3), (3, 0)), ((1, 2, 3), (0, 3, 4))]
+              for number, (sa, sb) in enumerate(specs):
+                  for trans in [False, True]:
+                      a, b = torch.randn(sa), torch.randn(sb)
+                      if trans and a.ndim > 1: a = a.transpose(-1, -2).contiguous()
+                      if trans and b.ndim > 1: b = b.transpose(-1, -2).contiguous()
+                      seeded_case(f'extended-matmul-{number}-{trans}', [a, b],
+                                  lambda x, w: (x.transpose(-1, -2) if trans and x.ndim > 1 else x) @ (w.transpose(-1, -2) if trans and w.ndim > 1 else w),
+                                  lambda p, x, w: p.matmul(p.transpose(x, -1, -2) if trans and len(sa) > 1 else x,
+                                                          p.transpose(w, -1, -2) if trans and len(sb) > 1 else w))
+              for number, shape in enumerate([(3,), (2, 3), (2, 4, 3), (2, 1, 4, 3), (0, 2, 3)]):
+                  for bias in [False, True]:
+                      data = [torch.randn(shape), torch.randn(5, 3)] + ([torch.randn(5)] if bias else [])
+                      seeded_case(f'extended-linear-{number}-{bias}', data,
+                                  lambda *xs: F.linear(*xs),
+                                  lambda p, *xs: p.make(15, xs[0], xs[1], xs[2] if bias else 0, count=3 if bias else 2))
+              index_specs = [((4,), 0, [3, 0, 3]), ((2, 3), -1, [2, 0, 2]),
+                             ((2, 3, 4), 1, [2, 0]), ((2, 1, 3, 4), -2, [2, 2, 0]),
+                             ((2, 3), 0, []), ((0, 3), -1, [2, 0])]
+              for number, (shape, axis, indices) in enumerate(index_specs):
+                  index = torch.tensor(indices, dtype=torch.int64)
+                  for trans in [False, True]:
+                      x = torch.randn(shape)
+                      if trans and len(shape) > 1: x = x.transpose(-1, -2).contiguous()
+                      seeded_case(f'extended-index-select-{number}-{trans}', [x],
+                                  lambda x: torch.index_select(x.transpose(-1, -2) if trans and x.ndim > 1 else x, axis, index),
+                                  lambda p, x: p.index_select(p.transpose(x, -1, -2) if trans and len(shape) > 1 else x, axis, index))
+              gather_specs = [((), 0, torch.tensor(0)), ((3,), -1, torch.tensor([2, 0, 2])),
+                              ((2, 3), 1, torch.tensor([[2, 1], [0, 0]])),
+                              ((2, 3), 0, torch.tensor([[1, 0, 1]])),
+                              ((2, 3, 4), 1, torch.tensor([[[2, 0, 1], [0, 2, 2]]])),
+                              ((2, 1, 3, 4), -2, torch.arange(12).reshape(2, 1, 2, 3) % 3),
+                              ((2, 0, 3), 1, torch.empty(2, 0, 3, dtype=torch.int64)),
+                              ((0, 2), 0, torch.empty(0, 9, dtype=torch.int64))]
+              for number, (shape, axis, index) in enumerate(gather_specs):
+                  for trans in [False, True]:
+                      x = torch.randn(shape)
+                      if trans and len(shape) > 1: x = x.transpose(-1, -2).contiguous()
+                      seeded_case(f'extended-gather-{number}-{trans}', [x],
+                                  lambda x: torch.gather(x.transpose(-1, -2) if trans and x.ndim > 1 else x, axis, index),
+                                  lambda p, x: p.gather(p.transpose(x, -1, -2) if trans and len(shape) > 1 else x, axis, index))
+              seeded_case('extended-seeded-scalar-leaf', [torch.tensor(.75)], lambda x: x, lambda p, x: x)
+              seeded_case('extended-seeded-vector-leaf', [torch.randn(4)], lambda x: x, lambda p, x: x)
+              seeded_case('extended-seeded-transpose', [torch.randn(2, 3)], lambda x: x.t(), lambda p, x: p.transpose(x))
+              seeded_case('extended-seeded-shared-matmul', [torch.randn(3, 3)], lambda x: x @ x, lambda p, x: p.matmul(x, x))
+              # A composed no-mask/no-dropout attention path exercises all three gradients.
+              attention_specs = [((2, 3), (4, 3), (4, 5)),
+                                 ((2, 2, 3), (2, 4, 3), (2, 4, 5)),
+                                 ((2, 1, 2, 3), (1, 3, 4, 3), (1, 3, 4, 5))]
+              for number, shapes in enumerate(attention_specs):
+                  scale = f32(1.0 / math.sqrt(shapes[0][-1]))
+                  def native_attention(p, q, k, v):
+                      scores = p.matmul(q, p.transpose(k, -1, -2))
+                      scores = p.binary(3, scores, p.tensor(scale))
+                      return p.matmul(p.softmax(scores, -1, False), v)
+                  seeded_case(f'extended-attention-composition-{number}', [torch.randn(s) for s in shapes],
+                              lambda q, k, v: F.scaled_dot_product_attention(q, k, v, dropout_p=0., scale=scale),
+                              native_attention, rtol=2e-4, atol=2e-5)
+
+
           def main():
               started = time.monotonic()
               sha = hashlib.sha256(EXE.read_bytes()).hexdigest()
@@ -552,11 +683,12 @@ jobs:
                   spatial_modules()
                   optimizers()
                   training_result = training()
+                  extensions()
               except Exception as exc:
                   setup_error = type(exc).__name__ + ': ' + str(exc)
               changed = sha != hashlib.sha256(EXE.read_bytes()).hexdigest()
               failed = sum(row['status'] == 'FAIL' for row in ROWS)
-              passed = setup_error is None and not changed and failed == 0 and len(ROWS) == 76 and PROVENANCE['status'] == 'PASS'
+              passed = setup_error is None and not changed and failed == 0 and len(ROWS) == 153 and len({row["case"] for row in ROWS}) == 153 and PROVENANCE['status'] == 'PASS'
               report = {'schema': 'heptatorch.live-pytorch-differential.v1', 'status': 'PASS' if passed else 'FAIL',
                         'oracle': 'real pinned CPU PyTorch forward, autograd and torch.optim; no copied derivative formulas',
                         'torch_version': torch.__version__, 'torch_git_version': torch.version.git_version,
@@ -565,7 +697,7 @@ jobs:
                         'torch_git_matches_oracle_build_pin': torch.version.git_version == EXPECTED['git_commit'],
                         'oracle_provenance': PROVENANCE,
                         'native_executable_sha256': sha, 'native_unchanged_during_run': not changed,
-                        'seed': 1729, 'cases': len(ROWS), 'failed_cases': failed, 'setup_error': setup_error,
+                        'seed': 1729, 'expected_cases': 153, 'cases': len(ROWS), 'failed_cases': failed, 'setup_error': setup_error,
                         'compared_values': sum(row['compared_values'] for row in ROWS), 'rows': ROWS,
                         'training': training_result, 'wall_seconds': time.monotonic() - started}
               emit(report)

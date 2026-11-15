@@ -68,6 +68,10 @@ before appending another command response, with final status 3.
 | 26 | LayerNorm | input, weight_or_zero, bias_or_zero, epsilon_bits | Tensor ID |
 | 27 | Probability-target cross entropy | logits, target | Tensor ID |
 | 28 | BatchNorm evaluation | input, running_mean, running_variance, weight_or_zero, bias_or_zero, epsilon_bits | Tensor ID |
+| 29 | Seeded backward | output, seed_or_zero | 1 |
+| 30 | Index select | input, axis, index_count, index_payload_offset | Tensor ID |
+| 31 | Gather | input, axis, index_config_offset | Tensor ID |
+| 32 | General matrix multiply | left, right | Tensor ID |
 
 Binary operation IDs are 1 add, 2 sub, 3 mul, 4 div. Unary IDs are 5 ReLU,
 6 neg, 11 sqrt, 12 exp, 13 log, 14 sigmoid, 15 tanh. Full reductions are 7 sum
@@ -115,13 +119,20 @@ read in logical row-major order even when a tensor uses transposed strides.
 
 ## Autograd and storage
 
-The current reverse pass requires a gradient-tracked output with one element
-and seeds it with 1. Its graph remains available for repeated backward calls;
-leaf gradients accumulate until explicitly cleared. Only gradient-tracked leaf
-tensors support command 11. This eligibility is checked even for empty tensors.
-There is no distinct `grad=None`, no higher-order graph, and no explicit
-non-scalar seed-gradient command. A weighted scalar objective can express a
-specified upstream vector gradient.
+Command 7 requires a gradient-tracked output with one element and seeds it with
+1. Command 29 accepts a gradient-tracked output of any supported shape and an
+explicit binary32 seed tensor with exactly the same rank and dimensions. Equal
+element counts with different shapes fail with status 2. The seed is read in
+logical order, so a transposed seed is accepted. Zero as the seed ID selects the
+same implicit-unit rule as command 7. Empty outputs accept exactly shaped empty
+seeds. A seed can require gradients or alias the output; it supplies cotangent
+values without adding an edge to the graph.
+
+The graph remains available for repeated backward calls; leaf gradients
+accumulate until explicitly cleared. Only gradient-tracked leaf tensors support
+command 11. This eligibility is checked even for empty tensors. ID, seed-shape,
+tracking and saved-version checks precede gradient changes. There is no distinct
+`grad=None`, forward-mode differentiation or higher-order graph.
 
 Transpose and contiguous view share storage and the storage owner's version.
 Detach shares storage and removes the autograd connection. Clone copies logical
@@ -132,8 +143,9 @@ output versions before altering gradients. This validation is conservative.
 
 ## Modules and optimizers
 
-Linear accepts rank-two input and `[out_features, in_features]` weights, then
-computes `input @ weight.T + bias`. LayerNorm normalizes the last dimension;
+Linear accepts rank 1–4 input `[..., in_features]` and rank-two
+`[out_features, in_features]` weights, then computes `input @ weight.T + bias`.
+An optional bias must be a vector of `out_features` elements. LayerNorm normalizes the last dimension;
 affine weights and biases must be vectors of that dimension. BatchNorm evaluation
 accepts rank 2–4 with channels at dimension 1 and frozen, non-gradient running
 mean/variance vectors. Probability-target cross entropy accepts rank-two logits
@@ -155,6 +167,52 @@ Nesterov requires positive momentum and zero dampening. Gradients are not
 automatically cleared. Because `grad=None` is not represented, a zero gradient
 buffer does not suppress an explicitly requested weight-decay update.
 
+## General matrix multiplication
+
+Command 32 accepts rank 1–4 inputs. Two vectors produce a scalar dot product;
+matrix-vector and vector-matrix products omit the temporary singleton matrix
+dimension. Higher ranks broadcast the leading batch dimensions and contract the
+last left dimension with the second-last right dimension. Scalar inputs and
+incompatible contraction/batch dimensions fail with status 2. Empty batches,
+zero output dimensions and zero contraction dimensions are supported. Strided
+inputs produced by transpose are read in their logical order.
+
+Backward accumulates both operands' derivatives, including shared operands and
+reductions across broadcast batch axes. Command 5 retains its rank-two contract
+and uses the same matrix kernel. Every product checks the 16,777,216-term budget
+before allocating its result: `output_numel * contraction_size`. The check uses
+division to avoid overflow. Zero contraction size has zero work and produces
+zeros subject to the ordinary result-capacity limits.
+
+## Integer indexing payloads
+
+Index values are exact signed 64-bit little-endian integers in the request
+payload. They are not binary32 tensor elements. The runtime still has only
+binary32 tensors; this interface does not add a general integer tensor dtype.
+All payload offsets must be eight-byte aligned, at or after the command records,
+and fully contained in the request. Admitted indices are copied into private
+workspace storage and retained for the reverse scatter-add.
+
+Command 30 accepts rank 1–4 input and a one-dimensional index list of
+`index_count` integers at `index_payload_offset`. Its output replaces the chosen
+axis length by that count. Negative axes are normalized; negative or out-of-range
+indices fail with status 7. Empty lists and empty dimensions are supported.
+Rank-zero input is outside this command's contract and fails with status 2.
+
+Command 31 reads a configuration at `index_config_offset`: a u64 rank, that many
+u64 dimensions, then the product of those dimensions in signed-i64 index values.
+For non-scalar tensors, index rank must equal input rank. Nonempty results
+require every non-gather dimension to be no larger than the corresponding input
+dimension; no broadcasting occurs. A rank-zero input accepts a rank-zero index
+of value zero and axis 0 or -1. Empty index results retain the empty-index fast
+path, including non-gather dimensions larger than the input. Rank, axis,
+dimension capacity and payload framing are still checked.
+
+Both operations produce new storage. Repeated indices add their gradients to
+the same input location, and transposed inputs propagate through their original
+view graph. Mutating a saved source or output still fails the backward version
+preflight.
+
 ## Limits and errors
 
 | Status | Meaning |
@@ -173,7 +231,12 @@ The native input/output/workspace buffers are each 1 MiB. There are at most 255
 tensor descriptors and rank is at most four. Each dimension and descriptor's
 numel is bounded by 262,144; actual available storage is smaller because the
 53,248-byte metadata region and all data/gradient/work arrays share the workspace.
-One convolution is limited to 16,777,216 kernel terms in forward and backward.
+Convolution, matrix multiplication and pooling each admit at most 16,777,216
+kernel terms per operation. For pooling the conservative term count is
+`output_numel * kernel_height * kernel_width`, including padded positions. The
+forward admission bound also bounds that node's reverse work. These are
+per-operation bounds; they do not impose a wall-clock deadline on an entire
+multi-command request.
 
 The outer native ELF wrapper rejects input larger than 1 MiB with process exit
 3 and no response. Unsupported command-line arguments exit 64. OS-level I/O or
