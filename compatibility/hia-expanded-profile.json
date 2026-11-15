@@ -1,0 +1,83 @@
+{
+  "schema": "heptatorch.native-compiler-capacity-profile.v1",
+  "profile": "heptatorch.hia.compiler.f256-b2560-w2m.v1",
+  "upstream": {
+    "repository": "https://github.com/TrillionniumFoundation/Hepta",
+    "commit": "f33d8da316de8fdf27b504371f1a5310997ff548",
+    "compiler_source": "examples/hia_bootstrap/selfhost.hepta",
+    "compiler_source_sha256": "388b182e42675f11435867dd99520e9452a4ff48e23c0766a3952b662acc7627",
+    "support_contract": "docs/HIA_SELFHOST_CORE_SUPPORT.json",
+    "support_contract_sha256": "8cbf1595eeaef6280621120dd407066ae4f992ff9f9129f3404f8c36965a304c"
+  },
+  "limits": {
+    "acyclic_call_depth_max": 256,
+    "blocks_per_function": 256,
+    "blocks_total": 2560,
+    "core_structural_nodes": 262144,
+    "explicit_exports": 256,
+    "function_results": 3,
+    "functions": 256,
+    "instructions": 8192,
+    "output_capacity_bytes": 1048576,
+    "parameters_or_arguments": 16,
+    "relative_relocations": 14336,
+    "source_bytes": 1048576,
+    "ssa_names_per_function": 2048,
+    "tail_self_call_additional_frames": 0,
+    "workspace_required_bytes": 2097152
+  },
+  "bootstrap": {
+    "predecessor_sha256": "87c247e4d1c3c9a449d2947fd4227fdc186d519bffd203a04cafce7861a4ed54",
+    "predecessor_external_boundary": "Existing pinned upstream B0/B1/B2/B3 bootstrap; this distinct profile starts with its already qualified native executable.",
+    "host_authoring": "Exact-match upstream generator adaptation and ordinary verifier checks; no runtime Python and no host native compilation or ELF packing in the successor chain.",
+    "native_generations": 4,
+    "native_compilation": "stdin/stdout of preceding HIA native executable with empty PATH",
+    "native_packing": "HIA-generated packer with HIAFLT01 framing; shell only transports bytes"
+  },
+  "generated": {
+    "adapted_hia": {
+      "sha256": "5cf8a4286d0759d2368e2d8d5658ce7de0b2ad72435ce75915cf07c0a23df7bf",
+      "bytes": 464271
+    },
+    "packer_hia": {
+      "sha256": "388337bd72acb13847a894601a9c43057c86caaf33787aa0c5c706916b94a0f1",
+      "bytes": 14265
+    },
+    "flat_image": {
+      "sha256": "968a7db8bee752f5bba0ab6b2270090754a2f4fc8f7a72b0915c77b37e51cbf0",
+      "bytes": 673596
+    },
+    "packer_executable": {
+      "sha256": "d3495d2913bb3c926df7917fa467d9a40ed8a5c12d2db01f8e7232aa0d4b47a1",
+      "bytes": 17735
+    },
+    "native_compiler": {
+      "sha256": "c5a9c2b95a3061e080a21298f5b26000936ed9dac519690d845b0699a15744c6",
+      "bytes": 674085
+    }
+  },
+  "ordinary_application_profile": {
+    "name": "selfhost_exec",
+    "input_bytes": 1048576,
+    "output_bytes": 1048576,
+    "workspace_bytes": 1048576,
+    "unchanged_core_functions": [
+      "cli_begin",
+      "cli_finish",
+      "wrapper"
+    ]
+  },
+  "distribution": {
+    "upstream_full_compiler_source_vendored": false,
+    "upstream_generated_packer_source_vendored": false,
+    "check_in": "Adaptation scripts, exact per-edit receipt/manifest, hash pins and build recipes. Generate upstream-derived HIA only in build scratch.",
+    "new_upstream_license_claim": false
+  },
+  "qualification_scope": "Finite native self-reproduction, modified-source propagation, byte identity, table boundaries, buffer guards and error checks; not the full upstream cold campaign or proof of correctness.",
+  "application_equivalence": {
+    "source_sha256": "4c1d17240dd8616798e238cdd54641ee6f2e42c02635c82b3bdeea0a530b5ca5",
+    "executable_sha256": "ecca265b088e0688df8ad963613f6bdf460efd324d0c480e6395e4ef67372779",
+    "unhex_executable_sha256": "c37036dbfebc5dfae98fc22262ac8e4a8be6973f6505c438cdf8fdb46156a508",
+    "legacy_expanded_bytes_identical": true
+  }
+}

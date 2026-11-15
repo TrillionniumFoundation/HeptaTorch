@@ -30,6 +30,8 @@ make HEPTA_COMPILER=/absolute/path/to/hia-native-compiler test
 
 编译器、上游源版本与校验和均固定。GitHub Actions 从固定的 Hepta 源码重新 bootstrap 编译器，再编译本仓库并执行原生回归夹具。`make test` 使用本仓库的 HIA 解码器，不需要 Python 或 `xxd`。
 
+当前采用单独命名的扩容编译器配置，允许 256 个函数和 2,560 个总基本块。构建会从原始固定编译器出发，通过 HIA 编译与 HIA ELF 打包完成四代重建。生成配置及原生重建配方见 [构建说明](docs/build.md#reproducing-the-capacity-profile-from-the-original-compiler)。
+
 运行已经验证的 1,000 步 SGD 训练命令流：
 
 ```sh
@@ -48,7 +50,8 @@ cmp build/train.response build/train.expected
 - 集成：广播、视图、梯度、空间算子、模块、优化器、异常输入和容量边界，均有独立参考或明确拒绝结果。
 - 当前集成版本：**275 对原生回归夹具**通过，原有 221 份请求输入未变，其中 5 份 Adam 预期响应已随舍入修正重新通过独立参考验证。图生命周期的 **26 项／40,123 个值**独立检查通过，包括单次请求中的 **1,000 步 SGD、1,000 步 Adam**，以及在 1 MiB 工作区内反复回收共 **9,600,000 字节**的临时张量数据和梯度缓冲。另有 **10 项**失败原子性检查，每项比较除错误状态外的全部 **1,048,568 字节**，均未发生修改。[当前原生验证](validation/session-native.json)保存具体案例、误差和最终源码／二进制身份。
 - 上一批算子扩展的矩阵与 Linear **63 项／4,593 个值**检查、**2,514 项**独立矩阵形状／梯度／拒绝检查，以及 **11 项／529 个值**跨算子集成检查均通过；对应历史源码身份保留在[算子扩展验证](validation/native-extension.json)。
-- 托管 CI：当前版本的 **159 项／8,471 个真实 PyTorch 数值对照**全部通过，包含无掩码／无 dropout 注意力、**1,024 步 SGD、512 步 Adam 和 512 步 AdamW**。长 SGD 对照逐位一致；长 Adam／AdamW 最大绝对误差分别为 **1.49×10⁻⁸／5.96×10⁻⁸**。[成功运行](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43742636363)同时验证了编译器自重建、275 对原生夹具和 11 项 oracle 来源检查。[当前完整回执](validation/hosted-session.json)保留逐项结果；[首次失败回执](validation/hosted-session-failure.json)也保留，用于说明 Adam 舍入问题及修正过程。
+- 托管 CI：当前版本的 **159 项／8,471 个真实 PyTorch 数值对照**全部通过，包含无掩码／无 dropout 注意力、**1,024 步 SGD、512 步 Adam 和 512 步 AdamW**。长 SGD 对照逐位一致；长 Adam／AdamW 最大绝对误差分别为 **1.49×10⁻⁸／5.96×10⁻⁸**。[成功运行](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43743468220)同时验证了编译器自重建、275 对原生夹具和 11 项 oracle 来源检查。[当前完整回执](validation/hosted-compiler-profile.json)保留逐项结果；[首次失败回执](validation/hosted-session-failure.json)也保留，用于说明 Adam 舍入问题及修正过程。
+- 编译容量：扩大配置的四代原生镜像和可执行文件逐字节一致，**16 项容量门禁**、256 个显式标量导出的实际调用、高编号调用图及脏工作区检查通过。原始和扩容编译器生成的当前 HeptaTorch 与 unhex 二进制完全相同。[工具链验证](validation/compiler-profile.json)保存具体配置、来源、内存布局及独立验证记录；[扩容构建托管回执](validation/hosted-compiler-profile.json)确认了整个新构建流程、容量门禁及原有数值门禁通过。
 - 线性回归：**30 次 SGD 更新**，更新前损失从 **5.1570835** 降至 **0.0342863**。
 - 两层 ReLU 分类器：**18 次 Adam 更新**，更新前交叉熵从 **0.6822657** 降至 **0.0017283**；该固定 8 样本任务更新后分类正确率 **100%**。
 
@@ -58,7 +61,7 @@ cmp build/train.response build/train.expected
 
 当前设备为 CPU，dtype 为 binary32，张量 rank 不超过 4；同时存活的张量描述符最多 255 个，可以通过图回收在同一请求内复用。输入、输出和工作区仍各为 1 MiB；跨请求持久化尚未实现。卷积、矩阵乘法和池化各有每次 16,777,216 项的计算预算。整数索引载荷不等于完整整数张量 dtype 支持。空间、优化器和自动微分的具体限制见 [接口协议](docs/protocol.md)及 [能力清单](compatibility/capabilities.json)。
 
-本次审计修复了池化缺少计算预算的问题，统一了二维与批量矩阵乘法，并实现了保留参数／状态的图回收。后续的架构重点是 HIA 原生模块链接与张量 ABI、规模扩展和跨请求状态管理：当前编译单元已使用固定编译器的 121／128 个函数名额和 1,439／1,536 个基本块。具体证据及完整目标见 [审计更新](docs/upstream-audit.md#training-graph-lifetime-audit)。
+本次审计修复了池化缺少计算预算和 Adam 长训练舍入偏差，统一了二维与批量矩阵乘法，实现了保留参数／状态的图回收，并扩大了编译器容量。当前编译单元使用 121／256 个函数名额、1,439／2,560 个基本块及 5,751／8,192 条指令。后续的架构重点是带资源约束的跨模块导入与张量 ABI、更多 dtype 和设备、规模扩展与跨请求状态管理。具体证据及完整目标见 [审计更新](docs/upstream-audit.md#compiler-capacity-profile)。
 
 完整目标尚包括：完整 dtype/layout/promotion 语义、其余算子及重载、高阶和前向自动微分、CUDA/ROCm/MPS/XPU、分布式、图捕获与编译优化、数据加载、RNG、完整 checkpoint/serialization、Python/C++ 前端兼容和跨平台构建。[上游审计](docs/upstream-audit.md)列出这些目标的验收条件。
 

@@ -1,0 +1,1574 @@
+{
+  "schema": "heptatorch.compiler-profile-validation.v1",
+  "status": "PASS",
+  "profile": "heptatorch.hia.compiler.f256-b2560-w2m.v1",
+  "scope": "Explicit local capacity configuration; native source/image fixed points, compiler memory checks, input/output equivalence and capacity/export boundaries. No full cold-campaign or general module-linking claim.",
+  "source_adaptation": {
+    "adaptation_script_sha256": "5d9d0494198bc4159d81b714f0571045333fc8ac000e33fddd69bab146a3f6f3",
+    "application_wrapper_invariants": {
+      "cli_begin": {
+        "core_body_identical": true,
+        "core_body_sha256": "5e3293afb35d755d45897cc6be837d94c8313e830bb2d98539070a4f1137893c",
+        "function": "f107"
+      },
+      "cli_finish": {
+        "core_body_identical": true,
+        "core_body_sha256": "b15a7840a4f75c2ca4f48a7fa01cea0e5322958724ffa7d78a9d9fd7abbf09f3",
+        "function": "f109"
+      },
+      "wrapper": {
+        "core_body_identical": true,
+        "core_body_sha256": "e4f0f593f069be8604255bf5146bb239f4ba70f5e80dabe4e9ebbf48c9ccd485",
+        "function": "f13"
+      }
+    },
+    "authoring_host_boundary": "Python upstream AST authoring and unchanged Core verification only",
+    "candidate_core_sha256": "472b650c2faabf8edfd2b4b714487509f6a369f3a63865ec1dbad5b5072d61de",
+    "candidate_source_structure": {
+      "blocks": 1470,
+      "canonical_json_bytes": 1156512,
+      "core_structural_nodes": 126537,
+      "functions": 125,
+      "instructions": 8083,
+      "max_blocks_per_function": 62,
+      "source_bytes": 464271,
+      "source_sha256": "5cf8a4286d0759d2368e2d8d5658ce7de0b2ad72435ce75915cf07c0a23df7bf"
+    },
+    "canonical_core_bytes_upper_bound": 8127488,
+    "expanded_layout": [
+      {
+        "bytes": 81920,
+        "count": 256,
+        "end_exclusive": 86016,
+        "name": "function_records",
+        "start": 4096,
+        "stride": 320
+      },
+      {
+        "bytes": 819200,
+        "count": 2560,
+        "end_exclusive": 905216,
+        "name": "block_records",
+        "start": 86016,
+        "stride": 320
+      },
+      {
+        "bytes": 32768,
+        "count": 2048,
+        "end_exclusive": 937984,
+        "name": "ssa_type_records",
+        "start": 905216,
+        "stride": 16
+      },
+      {
+        "bytes": 1024,
+        "count": 1,
+        "end_exclusive": 939008,
+        "name": "argument_vector",
+        "start": 937984,
+        "stride": 1024
+      },
+      {
+        "bytes": 344064,
+        "count": 14336,
+        "end_exclusive": 1283072,
+        "name": "relative_relocations",
+        "start": 939008,
+        "stride": 24
+      },
+      {
+        "bytes": 65536,
+        "count": 65536,
+        "end_exclusive": 1348608,
+        "name": "call_graph",
+        "start": 1283072,
+        "stride": 1
+      },
+      {
+        "bytes": 2048,
+        "count": 256,
+        "end_exclusive": 1350656,
+        "name": "call_readiness",
+        "start": 1348608,
+        "stride": 8
+      },
+      {
+        "bytes": 49152,
+        "count": 2048,
+        "end_exclusive": 1399808,
+        "name": "capability_records",
+        "start": 1350656,
+        "stride": 24
+      },
+      {
+        "bytes": 2560,
+        "count": 2560,
+        "end_exclusive": 1402368,
+        "name": "block_reachability",
+        "start": 1399808,
+        "stride": 1
+      },
+      {
+        "bytes": 16,
+        "count": 16,
+        "end_exclusive": 1402384,
+        "name": "capability_temporary",
+        "start": 1402368,
+        "stride": 1
+      },
+      {
+        "bytes": 2048,
+        "count": 256,
+        "end_exclusive": 1404432,
+        "name": "resource_graph_queue",
+        "start": 1402384,
+        "stride": 8
+      },
+      {
+        "bytes": 2048,
+        "count": 2048,
+        "end_exclusive": 1406480,
+        "name": "ssa_formal_origins",
+        "start": 1404432,
+        "stride": 1
+      },
+      {
+        "bytes": 40960,
+        "count": 2560,
+        "end_exclusive": 1447440,
+        "name": "block_formal_origins",
+        "start": 1406480,
+        "stride": 16
+      },
+      {
+        "bytes": 49152,
+        "count": 2048,
+        "end_exclusive": 1496592,
+        "name": "ssa_names",
+        "start": 1447440,
+        "stride": 24
+      },
+      {
+        "bytes": 6144,
+        "count": 256,
+        "end_exclusive": 1502736,
+        "name": "block_names",
+        "start": 1496592,
+        "stride": 24
+      },
+      {
+        "bytes": 12288,
+        "count": 256,
+        "end_exclusive": 1515024,
+        "name": "explicit_exports",
+        "start": 1502736,
+        "stride": 48
+      }
+    ],
+    "layout_macros": {
+      "ARGS": {
+        "new": 937984,
+        "old": 569344
+      },
+      "BBASE": {
+        "new": 86016,
+        "old": 45056
+      },
+      "BLOCKORIGIN": {
+        "new": 1406480,
+        "old": 930576
+      },
+      "CAPBASE": {
+        "new": 1350656,
+        "old": 875776
+      },
+      "CAPTMP": {
+        "new": 1402368,
+        "old": 926464
+      },
+      "CBASE": {
+        "new": 1283072,
+        "old": 858368
+      },
+      "CSTATE": {
+        "new": 1348608,
+        "old": 874752
+      },
+      "FBASE": {
+        "new": 4096,
+        "old": 4096
+      },
+      "FIXBASE": {
+        "new": 939008,
+        "old": 570368
+      },
+      "KBASE": {
+        "new": 1399808,
+        "old": 924928
+      },
+      "ORIGINBASE": {
+        "new": 1404432,
+        "old": 928528
+      },
+      "QBASE": {
+        "new": 1402384,
+        "old": 926480
+      },
+      "VBASE": {
+        "new": 905216,
+        "old": 536576
+      }
+    },
+    "limits": {
+      "acyclic_call_depth_max": 256,
+      "blocks_per_function": 256,
+      "blocks_total": 2560,
+      "core_structural_nodes": 262144,
+      "explicit_exports": 256,
+      "function_results": 3,
+      "functions": 256,
+      "instructions": 8192,
+      "output_capacity_bytes": 1048576,
+      "parameters_or_arguments": 16,
+      "relative_relocations": 14336,
+      "source_bytes": 1048576,
+      "ssa_names_per_function": 2048,
+      "tail_self_call_additional_frames": 0,
+      "workspace_required_bytes": 2097152
+    },
+    "native_bootstrap_performed": false,
+    "native_qualification_performed": false,
+    "original_layout": [
+      {
+        "bytes": 40960,
+        "count": 128,
+        "end_exclusive": 45056,
+        "name": "function_records",
+        "start": 4096,
+        "stride": 320
+      },
+      {
+        "bytes": 491520,
+        "count": 1536,
+        "end_exclusive": 536576,
+        "name": "block_records",
+        "start": 45056,
+        "stride": 320
+      },
+      {
+        "bytes": 32768,
+        "count": 2048,
+        "end_exclusive": 569344,
+        "name": "ssa_type_records",
+        "start": 536576,
+        "stride": 16
+      },
+      {
+        "bytes": 1024,
+        "count": 1,
+        "end_exclusive": 570368,
+        "name": "argument_vector",
+        "start": 569344,
+        "stride": 1024
+      },
+      {
+        "bytes": 288000,
+        "count": 12000,
+        "end_exclusive": 858368,
+        "name": "relative_relocations",
+        "start": 570368,
+        "stride": 24
+      },
+      {
+        "bytes": 16384,
+        "count": 16384,
+        "end_exclusive": 874752,
+        "name": "call_graph",
+        "start": 858368,
+        "stride": 1
+      },
+      {
+        "bytes": 1024,
+        "count": 128,
+        "end_exclusive": 875776,
+        "name": "call_readiness",
+        "start": 874752,
+        "stride": 8
+      },
+      {
+        "bytes": 49152,
+        "count": 2048,
+        "end_exclusive": 924928,
+        "name": "capability_records",
+        "start": 875776,
+        "stride": 24
+      },
+      {
+        "bytes": 1536,
+        "count": 1536,
+        "end_exclusive": 926464,
+        "name": "block_reachability",
+        "start": 924928,
+        "stride": 1
+      },
+      {
+        "bytes": 16,
+        "count": 16,
+        "end_exclusive": 926480,
+        "name": "capability_temporary",
+        "start": 926464,
+        "stride": 1
+      },
+      {
+        "bytes": 2048,
+        "count": 256,
+        "end_exclusive": 928528,
+        "name": "resource_graph_queue",
+        "start": 926480,
+        "stride": 8
+      },
+      {
+        "bytes": 2048,
+        "count": 2048,
+        "end_exclusive": 930576,
+        "name": "ssa_formal_origins",
+        "start": 928528,
+        "stride": 1
+      },
+      {
+        "bytes": 24576,
+        "count": 1536,
+        "end_exclusive": 955152,
+        "name": "block_formal_origins",
+        "start": 930576,
+        "stride": 16
+      },
+      {
+        "bytes": 49152,
+        "count": 2048,
+        "end_exclusive": 1004304,
+        "name": "ssa_names",
+        "start": 955152,
+        "stride": 24
+      },
+      {
+        "bytes": 6144,
+        "count": 256,
+        "end_exclusive": 1010448,
+        "name": "block_names",
+        "start": 1004304,
+        "stride": 24
+      },
+      {
+        "bytes": 6144,
+        "count": 128,
+        "end_exclusive": 1016592,
+        "name": "explicit_exports",
+        "start": 1010448,
+        "stride": 48
+      }
+    ],
+    "original_source_structure": {
+      "blocks": 1470,
+      "canonical_json_bytes": 1161210,
+      "core_structural_nodes": 127034,
+      "functions": 125,
+      "instructions": 8136,
+      "max_blocks_per_function": 62,
+      "source_bytes": 466227,
+      "source_sha256": "388b182e42675f11435867dd99520e9452a4ff48e23c0766a3952b662acc7627"
+    },
+    "profile": "heptatorch.hia.compiler.f256-b2560-w2m.v1",
+    "relative_relocations_upper_bound": 13826,
+    "relocation_capacity_macro": {
+      "new": 14336,
+      "old": 12000
+    },
+    "schema": "heptatorch.compiler-capacity-adaptation.v1",
+    "source_changes": [
+      {
+        "matches": 1,
+        "new": "if n < 2097152:",
+        "old": "if n < 1048576:",
+        "reason": "private compiler workspace minimum only"
+      },
+      {
+        "matches": 1,
+        "new": "fill_range(w, CBASE, 67584, 0)",
+        "old": "fill_range(w, CBASE, 17408, 0)",
+        "reason": "clear all 256x256 call edges and 256 eight-byte readiness marks"
+      },
+      {
+        "matches": 1,
+        "new": "fill_range(w, KBASE, 2560, 0)",
+        "old": "fill_range(w, KBASE, 1536, 0)",
+        "reason": "clear every admitted block reachability byte, including dirty workspace"
+      },
+      {
+        "matches": 1,
+        "new": "f != get(w, 64) or f >= 256",
+        "old": "f != get(w, 64) or f >= 128",
+        "reason": "function declaration guard"
+      },
+      {
+        "matches": 1,
+        "new": "if f >= 256:",
+        "old": "if f >= 128:",
+        "reason": "function name discovery guard"
+      },
+      {
+        "matches": 1,
+        "new": "if x >= 256:",
+        "old": "if x >= 128:",
+        "reason": "callee ordinal guard"
+      },
+      {
+        "matches": 1,
+        "new": "CBASE + get(w, 72) * 256 + x",
+        "old": "CBASE + get(w, 72) * 128 + x",
+        "reason": "call graph row stride"
+      },
+      {
+        "matches": 1,
+        "new": "while target < 256:",
+        "old": "while target < 128:",
+        "reason": "complete call graph validation"
+      },
+      {
+        "matches": 1,
+        "new": "CBASE + f * 256 + target",
+        "old": "CBASE + f * 128 + target",
+        "reason": "call graph validation stride"
+      },
+      {
+        "matches": 1,
+        "new": "get(w, 80) >= 2560",
+        "old": "get(w, 80) >= 1536",
+        "reason": "total block declaration guard"
+      },
+      {
+        "matches": 1,
+        "new": "bid >= 2560",
+        "old": "bid >= 1536",
+        "reason": "total block edge guard"
+      },
+      {
+        "matches": 1,
+        "new": "if n >= 256 or get(w, 32) != 0:",
+        "old": "if n >= 128 or get(w, 32) != 0:",
+        "reason": "scalar export count guard"
+      },
+      {
+        "matches": 2,
+        "new": "1447440",
+        "old": "955152",
+        "reason": "move SSA-name clear and probe addresses together"
+      },
+      {
+        "matches": 4,
+        "new": "1496592",
+        "old": "1004304",
+        "reason": "move block-name lookup and all three record writes"
+      },
+      {
+        "matches": 6,
+        "new": "1502736",
+        "old": "1010448",
+        "reason": "move every explicit-export table consumer"
+      },
+      {
+        "matches": 7,
+        "new": "state_get32(w, 64)",
+        "old": "byte(w, 64)",
+        "reason": "widen private function count/ordinal"
+      },
+      {
+        "matches": 1,
+        "new": "state_put32(w, 64,",
+        "old": "store(w, 64,",
+        "reason": "widen private function count/ordinal"
+      },
+      {
+        "matches": 18,
+        "new": "state_get32(w, 72)",
+        "old": "byte(w, 72)",
+        "reason": "widen private function count/ordinal"
+      },
+      {
+        "matches": 1,
+        "new": "state_put32(w, 72,",
+        "old": "store(w, 72,",
+        "reason": "widen private function count/ordinal"
+      }
+    ],
+    "unchanged_general_core_byte_budget": 8388608,
+    "unchanged_generator_exact_source_reproduction": true,
+    "upstream_authoring_sources_verified_after_generation": true,
+    "upstream_authoring_sources_verified_before_import": true,
+    "upstream_commit": "f33d8da316de8fdf27b504371f1a5310997ff548",
+    "upstream_contract_sha256": "8cbf1595eeaef6280621120dd407066ae4f992ff9f9129f3404f8c36965a304c",
+    "upstream_qualification_claimed": false,
+    "upstream_source_files_loaded": {
+      "hepta/__init__.py": "43cd8172431b605cf0dde08fded7f88fce808aab7018b2b0158334c114ff7fec",
+      "hepta/artifact_publication.py": "09e17b2982a990706e8ee2ee23d3c009b1d2753261c5da2cf76927529122360d",
+      "hepta/hia_agent_assembly.py": "e37095496bf159ad573a31214d4d73e916648b4f0664edb541014f54681fbc03",
+      "hepta/hia_capability_flow.py": "305b5f747761f72c57dd5ff726ef6ef1350242cbdd5524931b7548eb5d7a5587",
+      "hepta/hia_core_admission_native.py": "6e1d39ce90531645f7e5db1324b7de9e909fdd2f595188d734b2799333dade7c",
+      "hepta/hia_function_shape_native.py": "c13520b9aa18f0fb52167e0d35f4cf67e5c57cf5b3156c881847141eb32b3bed",
+      "hepta/hia_instruction_policy_native.py": "73e771f4819199849f2d6148ec9d6e6c1ad9e90c847e6f95c7f32214e5e30e23",
+      "hepta/hia_json_canonical_native.py": "78c595b1cc59f6bb4c9afb371b116264a7afe623debb2d1f8172ee9da16b165d",
+      "hepta/hia_json_decode.py": "7abc295b7a64502f71e410dce8903a917d431527b3fb627958cd08e3b23f43d4",
+      "hepta/hia_json_decode_native.py": "5ed167e86808547e48e0d4cf75b97d678e421dda7f388adb2bdf82b7e7e4dbca",
+      "hepta/hia_json_preflight.py": "a416fd10b755bbc0ae106e57076a940ee9c4732bd6a156ccf6bd50872d7b6f30",
+      "hepta/hia_json_preflight_native.py": "22c2223521276c9654207177c88315d81232e16813bb73a7d9fdfbccdf63c676",
+      "hepta/hia_machine_x64.py": "545b1f8a1a302cb70d30e6432af2b565c9a787454f5286c467fe1a7f0bbaa121",
+      "hepta/hia_opcodes.py": "05d09dad1057b9a929389ac80de1fddf533652e63160434ace41818c22f0289b",
+      "hepta/hia_program.py": "76a222745e13fe29825a661be206243f137ada7b57292b07ab7513a40146fb92",
+      "hepta/hia_program_shape_native.py": "e69825796cea37b008f585d589f597cd40efa74e42ba4d8ea6dfecb8a1cffb0a",
+      "hepta/hia_program_tools.py": "273106e522628b1218b928a641d86400936c8a11bf98317f5ffc9577671e8b5d",
+      "hepta/hia_schema.py": "b6bd0864fbe2a90e8f2f705da1d81c8b1afae001d8608f54f8f1fca477cdf253",
+      "hepta/hia_sha256_native.py": "0f7fd574dfcc886e559c594eccb8f2aec163154a3c61080aabe9a93332a02013",
+      "tools/generate_hia_selfhost.py": "3c31aebb1114987142c14742cd10ee3efb6967fb25b74c7d1fdb5620947466a0",
+      "tools/hia_selfhost_chain_elf.py": "b928ce29d26ecf24c390b70c924ee57957550f20696e1537657364a084421f00",
+      "tools/hia_selfhost_cli.py": "bad278f878746841f284a290bcaef473b309b4eb13ef126f81e7de0c88c6d02f",
+      "tools/hia_selfhost_effects.py": "7e4297659c6108767e593e43c36f247fb8dfd1b192b95e80ccea72ca0b9709cf",
+      "tools/hia_selfhost_exports.py": "d429d405c30cdfda9c9ed8141591c9803cf2a5670459d7eecf34e85230537382",
+      "tools/hia_selfhost_keywords.py": "bdf6d9f8747ff0ae037e6b28b59dee38dbab91fedf30c443e2d09ea88f468bd7",
+      "tools/hia_selfhost_limits.py": "e232997b64253b8f8150785b8947f78d91dfe93a0b41537edc54eaeede52a055",
+      "tools/hia_selfhost_multi_results.py": "59163d4a11bc7fdf21ce4cee3bda75ffce5c0de371ac58d1e65fa7f87673274f",
+      "tools/hia_selfhost_names.py": "09f5f8c2f2ef8220622be4daf9d921a8ca8d6264bb7e3de62e4dc5697a96efb7",
+      "tools/hia_selfhost_owned_elf.py": "7faa48f93664b3804d250d29dd6bd7a7c0b58b13e6c9849445b3ab19ac09f0ff",
+      "tools/hia_selfhost_returned_loans.py": "2c71acbaf736dc5a01d9fc7c12cab40c451bc1f5ae686c2def30521ac0136ddb",
+      "tools/hia_selfhost_signed.py": "eb3140aed200e975f613b68b9e4d386dd3a8343596439dfa747646e93c40b555",
+      "tools/hia_selfhost_traps.py": "9f13ce716c8a7018f53e0586a568b322384be83c8199175af597692723ee67c0"
+    },
+    "upstream_source_sha256": "388b182e42675f11435867dd99520e9452a4ff48e23c0766a3952b662acc7627",
+    "workspace_end_exclusive": 1515024,
+    "workspace_unoccupied_tail_bytes": 582128
+  },
+  "packer_authoring": {
+    "adaptation_script_sha256": "03bdcd2dbaa730ad38252be08f140a58956362d9c2c58e042527356686f727b5",
+    "application_wrapper_unchanged": "The compiler's ordinary cli_begin/cli_finish/wrapper functions are unchanged; this packer only wraps the compiler flat image.",
+    "authoring_host_boundary": "Python upstream AST authoring and unchanged Core verification only",
+    "compiler_executable_mapping_bytes": 4198400,
+    "core_sha256": "9b094d583367cb255a07ef6fa9abd63498e68b6233b9eb195f87891fafd41c23",
+    "native_packing_performed": false,
+    "profile": "heptatorch.hia.compiler.f256-b2560-w2m.v1",
+    "schema": "heptatorch.compiler-native-packer-authoring.v1",
+    "settings": {
+      "OUTPUT_OFFSET": {
+        "new": 1052672,
+        "old": 8392704
+      },
+      "WIRE_BYTES": {
+        "new": 1048576,
+        "old": 8388608
+      },
+      "module": "selfhost_exec",
+      "output_bytes": 1048576,
+      "workspace_bytes": 2097152
+    },
+    "source_bytes": 14265,
+    "source_sha256": "388337bd72acb13847a894601a9c43057c86caaf33787aa0c5c706916b94a0f1",
+    "unchanged_generator_exact_source_reproduction": true,
+    "upstream_commit": "f33d8da316de8fdf27b504371f1a5310997ff548",
+    "upstream_contract_sha256": "8cbf1595eeaef6280621120dd407066ae4f992ff9f9129f3404f8c36965a304c",
+    "upstream_packer_source_sha256": "63ec799f8b427e089c2a66bc345c1ca1ed6b022c12e6af5bfebd6953d66b4c2d",
+    "upstream_source_files_loaded": {
+      "hepta/__init__.py": "43cd8172431b605cf0dde08fded7f88fce808aab7018b2b0158334c114ff7fec",
+      "hepta/artifact_publication.py": "09e17b2982a990706e8ee2ee23d3c009b1d2753261c5da2cf76927529122360d",
+      "hepta/hia_agent_assembly.py": "e37095496bf159ad573a31214d4d73e916648b4f0664edb541014f54681fbc03",
+      "hepta/hia_capability_flow.py": "305b5f747761f72c57dd5ff726ef6ef1350242cbdd5524931b7548eb5d7a5587",
+      "hepta/hia_core_admission_native.py": "6e1d39ce90531645f7e5db1324b7de9e909fdd2f595188d734b2799333dade7c",
+      "hepta/hia_function_shape_native.py": "c13520b9aa18f0fb52167e0d35f4cf67e5c57cf5b3156c881847141eb32b3bed",
+      "hepta/hia_instruction_policy_native.py": "73e771f4819199849f2d6148ec9d6e6c1ad9e90c847e6f95c7f32214e5e30e23",
+      "hepta/hia_json_canonical_native.py": "78c595b1cc59f6bb4c9afb371b116264a7afe623debb2d1f8172ee9da16b165d",
+      "hepta/hia_json_decode.py": "7abc295b7a64502f71e410dce8903a917d431527b3fb627958cd08e3b23f43d4",
+      "hepta/hia_json_decode_native.py": "5ed167e86808547e48e0d4cf75b97d678e421dda7f388adb2bdf82b7e7e4dbca",
+      "hepta/hia_json_preflight.py": "a416fd10b755bbc0ae106e57076a940ee9c4732bd6a156ccf6bd50872d7b6f30",
+      "hepta/hia_json_preflight_native.py": "22c2223521276c9654207177c88315d81232e16813bb73a7d9fdfbccdf63c676",
+      "hepta/hia_machine_x64.py": "545b1f8a1a302cb70d30e6432af2b565c9a787454f5286c467fe1a7f0bbaa121",
+      "hepta/hia_opcodes.py": "05d09dad1057b9a929389ac80de1fddf533652e63160434ace41818c22f0289b",
+      "hepta/hia_program.py": "76a222745e13fe29825a661be206243f137ada7b57292b07ab7513a40146fb92",
+      "hepta/hia_program_shape_native.py": "e69825796cea37b008f585d589f597cd40efa74e42ba4d8ea6dfecb8a1cffb0a",
+      "hepta/hia_program_tools.py": "273106e522628b1218b928a641d86400936c8a11bf98317f5ffc9577671e8b5d",
+      "hepta/hia_schema.py": "b6bd0864fbe2a90e8f2f705da1d81c8b1afae001d8608f54f8f1fca477cdf253",
+      "hepta/hia_sha256_native.py": "0f7fd574dfcc886e559c594eccb8f2aec163154a3c61080aabe9a93332a02013",
+      "tools/generate_hia_elf_linker.py": "444e2073055450d3a60812cbc32f8a779e4b4226162a661c61ccecaff8753785",
+      "tools/generate_hia_native_filter.py": "28ab8964f5ff1531cdf035abdc1eae1466b7297a563931f2925b602ca0aec480",
+      "tools/generate_hia_selfhost.py": "3c31aebb1114987142c14742cd10ee3efb6967fb25b74c7d1fdb5620947466a0",
+      "tools/hia_selfhost_chain_elf.py": "b928ce29d26ecf24c390b70c924ee57957550f20696e1537657364a084421f00",
+      "tools/hia_selfhost_cli.py": "bad278f878746841f284a290bcaef473b309b4eb13ef126f81e7de0c88c6d02f",
+      "tools/hia_selfhost_effects.py": "7e4297659c6108767e593e43c36f247fb8dfd1b192b95e80ccea72ca0b9709cf",
+      "tools/hia_selfhost_exports.py": "d429d405c30cdfda9c9ed8141591c9803cf2a5670459d7eecf34e85230537382",
+      "tools/hia_selfhost_keywords.py": "bdf6d9f8747ff0ae037e6b28b59dee38dbab91fedf30c443e2d09ea88f468bd7",
+      "tools/hia_selfhost_limits.py": "e232997b64253b8f8150785b8947f78d91dfe93a0b41537edc54eaeede52a055",
+      "tools/hia_selfhost_multi_results.py": "59163d4a11bc7fdf21ce4cee3bda75ffce5c0de371ac58d1e65fa7f87673274f",
+      "tools/hia_selfhost_names.py": "09f5f8c2f2ef8220622be4daf9d921a8ca8d6264bb7e3de62e4dc5697a96efb7",
+      "tools/hia_selfhost_owned_elf.py": "7faa48f93664b3804d250d29dd6bd7a7c0b58b13e6c9849445b3ab19ac09f0ff",
+      "tools/hia_selfhost_returned_loans.py": "2c71acbaf736dc5a01d9fc7c12cab40c451bc1f5ae686c2def30521ac0136ddb",
+      "tools/hia_selfhost_signed.py": "eb3140aed200e975f613b68b9e4d386dd3a8343596439dfa747646e93c40b555",
+      "tools/hia_selfhost_traps.py": "9f13ce716c8a7018f53e0586a568b322384be83c8199175af597692723ee67c0"
+    },
+    "upstream_source_files_preverified": {
+      "hepta/__init__.py": "43cd8172431b605cf0dde08fded7f88fce808aab7018b2b0158334c114ff7fec",
+      "hepta/artifact_publication.py": "09e17b2982a990706e8ee2ee23d3c009b1d2753261c5da2cf76927529122360d",
+      "hepta/hia_agent_assembly.py": "e37095496bf159ad573a31214d4d73e916648b4f0664edb541014f54681fbc03",
+      "hepta/hia_capability_flow.py": "305b5f747761f72c57dd5ff726ef6ef1350242cbdd5524931b7548eb5d7a5587",
+      "hepta/hia_core_admission_native.py": "6e1d39ce90531645f7e5db1324b7de9e909fdd2f595188d734b2799333dade7c",
+      "hepta/hia_function_shape_native.py": "c13520b9aa18f0fb52167e0d35f4cf67e5c57cf5b3156c881847141eb32b3bed",
+      "hepta/hia_instruction_policy_native.py": "73e771f4819199849f2d6148ec9d6e6c1ad9e90c847e6f95c7f32214e5e30e23",
+      "hepta/hia_json_canonical_native.py": "78c595b1cc59f6bb4c9afb371b116264a7afe623debb2d1f8172ee9da16b165d",
+      "hepta/hia_json_decode.py": "7abc295b7a64502f71e410dce8903a917d431527b3fb627958cd08e3b23f43d4",
+      "hepta/hia_json_decode_native.py": "5ed167e86808547e48e0d4cf75b97d678e421dda7f388adb2bdf82b7e7e4dbca",
+      "hepta/hia_json_preflight.py": "a416fd10b755bbc0ae106e57076a940ee9c4732bd6a156ccf6bd50872d7b6f30",
+      "hepta/hia_json_preflight_native.py": "22c2223521276c9654207177c88315d81232e16813bb73a7d9fdfbccdf63c676",
+      "hepta/hia_machine_x64.py": "545b1f8a1a302cb70d30e6432af2b565c9a787454f5286c467fe1a7f0bbaa121",
+      "hepta/hia_opcodes.py": "05d09dad1057b9a929389ac80de1fddf533652e63160434ace41818c22f0289b",
+      "hepta/hia_program.py": "76a222745e13fe29825a661be206243f137ada7b57292b07ab7513a40146fb92",
+      "hepta/hia_program_shape_native.py": "e69825796cea37b008f585d589f597cd40efa74e42ba4d8ea6dfecb8a1cffb0a",
+      "hepta/hia_program_tools.py": "273106e522628b1218b928a641d86400936c8a11bf98317f5ffc9577671e8b5d",
+      "hepta/hia_schema.py": "b6bd0864fbe2a90e8f2f705da1d81c8b1afae001d8608f54f8f1fca477cdf253",
+      "hepta/hia_sha256_native.py": "0f7fd574dfcc886e559c594eccb8f2aec163154a3c61080aabe9a93332a02013",
+      "tools/generate_hia_elf_linker.py": "444e2073055450d3a60812cbc32f8a779e4b4226162a661c61ccecaff8753785",
+      "tools/generate_hia_native_filter.py": "28ab8964f5ff1531cdf035abdc1eae1466b7297a563931f2925b602ca0aec480",
+      "tools/generate_hia_selfhost.py": "3c31aebb1114987142c14742cd10ee3efb6967fb25b74c7d1fdb5620947466a0",
+      "tools/hia_selfhost_chain_elf.py": "b928ce29d26ecf24c390b70c924ee57957550f20696e1537657364a084421f00",
+      "tools/hia_selfhost_cli.py": "bad278f878746841f284a290bcaef473b309b4eb13ef126f81e7de0c88c6d02f",
+      "tools/hia_selfhost_effects.py": "7e4297659c6108767e593e43c36f247fb8dfd1b192b95e80ccea72ca0b9709cf",
+      "tools/hia_selfhost_exports.py": "d429d405c30cdfda9c9ed8141591c9803cf2a5670459d7eecf34e85230537382",
+      "tools/hia_selfhost_keywords.py": "bdf6d9f8747ff0ae037e6b28b59dee38dbab91fedf30c443e2d09ea88f468bd7",
+      "tools/hia_selfhost_limits.py": "e232997b64253b8f8150785b8947f78d91dfe93a0b41537edc54eaeede52a055",
+      "tools/hia_selfhost_multi_results.py": "59163d4a11bc7fdf21ce4cee3bda75ffce5c0de371ac58d1e65fa7f87673274f",
+      "tools/hia_selfhost_names.py": "09f5f8c2f2ef8220622be4daf9d921a8ca8d6264bb7e3de62e4dc5697a96efb7",
+      "tools/hia_selfhost_owned_elf.py": "7faa48f93664b3804d250d29dd6bd7a7c0b58b13e6c9849445b3ab19ac09f0ff",
+      "tools/hia_selfhost_returned_loans.py": "2c71acbaf736dc5a01d9fc7c12cab40c451bc1f5ae686c2def30521ac0136ddb",
+      "tools/hia_selfhost_signed.py": "eb3140aed200e975f613b68b9e4d386dd3a8343596439dfa747646e93c40b555",
+      "tools/hia_selfhost_traps.py": "9f13ce716c8a7018f53e0586a568b322384be83c8199175af597692723ee67c0"
+    }
+  },
+  "native_qualification": {
+    "schema": "heptatorch.expanded-hia-native-qualification.v1",
+    "status": "PASS",
+    "profile": "heptatorch.hia.compiler.f256-b2560-w2m.v1",
+    "pins": {
+      "adapted_source": "5cf8a4286d0759d2368e2d8d5658ce7de0b2ad72435ce75915cf07c0a23df7bf",
+      "packer_source": "388337bd72acb13847a894601a9c43057c86caaf33787aa0c5c706916b94a0f1",
+      "legacy_compiler": "87c247e4d1c3c9a449d2947fd4227fdc186d519bffd203a04cafce7861a4ed54",
+      "expanded_compiler": "c5a9c2b95a3061e080a21298f5b26000936ed9dac519690d845b0699a15744c6",
+      "expanded_flat_image": "968a7db8bee752f5bba0ab6b2270090754a2f4fc8f7a72b0915c77b37e51cbf0",
+      "packer_executable": "d3495d2913bb3c926df7917fa467d9a40ed8a5c12d2db01f8e7232aa0d4b47a1"
+    },
+    "limits": {
+      "functions": 256,
+      "blocks_total": 2560,
+      "blocks_per_function": 256,
+      "instructions": 8192,
+      "ssa_per_function": 2048,
+      "parameters": 16,
+      "source_bytes": 1048576,
+      "output_bytes": 1048576,
+      "workspace_bytes": 2097152
+    },
+    "claim": "Native bootstrap and modified-source fixed points, application byte identity and bounded compiler-memory checks; full upstream cold-qualification campaign not rerun",
+    "rows": [
+      {
+        "case": "four-original-native-generations",
+        "status": "PASS",
+        "flat_sha256": "968a7db8bee752f5bba0ab6b2270090754a2f4fc8f7a72b0915c77b37e51cbf0",
+        "packed_sha256": "c5a9c2b95a3061e080a21298f5b26000936ed9dac519690d845b0699a15744c6",
+        "generation_count": 4
+      },
+      {
+        "case": "modified-source-native-fixed-point",
+        "status": "PASS",
+        "source_sha256": "e9d1c722e668bc72fe6627f20ca431813774c72e1e5430b43cbbab464efb44ee",
+        "image_sha256": [
+          "6d8133115bca66c6384e3aa23f91375f95340fb42d7ebc331cd4ac52c86936d9",
+          "51962d44efe2ca8b2030dba524e6223147da9bcf25e213500bb8034c69214296",
+          "51962d44efe2ca8b2030dba524e6223147da9bcf25e213500bb8034c69214296"
+        ],
+        "predecessor_differs": true,
+        "two_successors_identical": true,
+        "different_from_original_fixed_point": true
+      },
+      {
+        "case": "unchanged-heptatorch-machine-bytes",
+        "status": "PASS",
+        "source_sha256": "9199aaea08abf6247a565372d2ae015d2aeb9530d84890c0ad3a1f292052bf7f",
+        "executable_sha256": "192438931d5436d275dccfdebf7d6e32dfc8afa97a4b647d758d1898278e7fd4",
+        "bytes": 557772,
+        "legacy_output_matches_expanded": true
+      },
+      {
+        "case": "unchanged-unhex-machine-bytes",
+        "status": "PASS",
+        "source_sha256": "f1baf5035d33adf6e6875bac524dc110d68c8561b0966faafa7a327ca184f548",
+        "executable_sha256": "c37036dbfebc5dfae98fc22262ac8e4a8be6973f6505c438cdf8fdb46156a508",
+        "bytes": 6238,
+        "legacy_output_matches_expanded": true
+      },
+      {
+        "case": "unchanged-upstream-original-compiler-machine-bytes",
+        "status": "PASS",
+        "source_sha256": "388b182e42675f11435867dd99520e9452a4ff48e23c0766a3952b662acc7627",
+        "executable_sha256": "bfd603dd2b40974d2083b567b4295fb3975938da8435dd636514fc197c485de0",
+        "bytes": 673413,
+        "legacy_output_matches_expanded": true
+      },
+      {
+        "case": "application-one-MiB-input-wrapper-unchanged",
+        "status": "PASS",
+        "oversize_input": 1048577,
+        "exit": 3,
+        "stdout_bytes": 0
+      },
+      {
+        "case": "clean-2MiB-workspace",
+        "status": "PASS",
+        "returned": 673596,
+        "output_unchanged": false,
+        "source_unchanged": true,
+        "output_guards_unchanged": true,
+        "workspace_guards_unchanged": true,
+        "produced_sha256": "968a7db8bee752f5bba0ab6b2270090754a2f4fc8f7a72b0915c77b37e51cbf0",
+        "source_sha256": "5cf8a4286d0759d2368e2d8d5658ce7de0b2ad72435ce75915cf07c0a23df7bf",
+        "image_sha256": "968a7db8bee752f5bba0ab6b2270090754a2f4fc8f7a72b0915c77b37e51cbf0",
+        "workspace_fill": 0,
+        "workspace_bytes": 2097152,
+        "output_capacity": 1048576,
+        "forbidden_compiler_modules_loaded": []
+      },
+      {
+        "case": "dirty-2MiB-workspace",
+        "status": "PASS",
+        "returned": 673596,
+        "output_unchanged": false,
+        "source_unchanged": true,
+        "output_guards_unchanged": true,
+        "workspace_guards_unchanged": true,
+        "produced_sha256": "968a7db8bee752f5bba0ab6b2270090754a2f4fc8f7a72b0915c77b37e51cbf0",
+        "source_sha256": "5cf8a4286d0759d2368e2d8d5658ce7de0b2ad72435ce75915cf07c0a23df7bf",
+        "image_sha256": "968a7db8bee752f5bba0ab6b2270090754a2f4fc8f7a72b0915c77b37e51cbf0",
+        "workspace_fill": 90,
+        "workspace_bytes": 2097152,
+        "output_capacity": 1048576,
+        "forbidden_compiler_modules_loaded": []
+      },
+      {
+        "case": "short-workspace",
+        "status": "PASS",
+        "returned": 4294967294,
+        "output_unchanged": true,
+        "source_unchanged": true,
+        "output_guards_unchanged": true,
+        "workspace_guards_unchanged": true,
+        "produced_sha256": null,
+        "source_sha256": "5cf8a4286d0759d2368e2d8d5658ce7de0b2ad72435ce75915cf07c0a23df7bf",
+        "image_sha256": "968a7db8bee752f5bba0ab6b2270090754a2f4fc8f7a72b0915c77b37e51cbf0",
+        "workspace_fill": 165,
+        "workspace_bytes": 2097151,
+        "output_capacity": 1048576,
+        "forbidden_compiler_modules_loaded": []
+      },
+      {
+        "case": "old-one-MiB-workspace-refused",
+        "status": "PASS",
+        "returned": 4294967294,
+        "output_unchanged": true,
+        "source_unchanged": true,
+        "output_guards_unchanged": true,
+        "workspace_guards_unchanged": true,
+        "produced_sha256": null,
+        "source_sha256": "5cf8a4286d0759d2368e2d8d5658ce7de0b2ad72435ce75915cf07c0a23df7bf",
+        "image_sha256": "968a7db8bee752f5bba0ab6b2270090754a2f4fc8f7a72b0915c77b37e51cbf0",
+        "workspace_fill": 90,
+        "workspace_bytes": 1048576,
+        "output_capacity": 1048576,
+        "forbidden_compiler_modules_loaded": []
+      },
+      {
+        "case": "short-output",
+        "status": "PASS",
+        "returned": 4294967294,
+        "output_unchanged": true,
+        "source_unchanged": true,
+        "output_guards_unchanged": true,
+        "workspace_guards_unchanged": true,
+        "produced_sha256": null,
+        "source_sha256": "5cf8a4286d0759d2368e2d8d5658ce7de0b2ad72435ce75915cf07c0a23df7bf",
+        "image_sha256": "968a7db8bee752f5bba0ab6b2270090754a2f4fc8f7a72b0915c77b37e51cbf0",
+        "workspace_fill": 90,
+        "workspace_bytes": 2097152,
+        "output_capacity": 1024,
+        "forbidden_compiler_modules_loaded": []
+      },
+      {
+        "case": "too-large-output",
+        "status": "PASS",
+        "returned": 4294967294,
+        "output_unchanged": true,
+        "source_unchanged": true,
+        "output_guards_unchanged": true,
+        "workspace_guards_unchanged": true,
+        "produced_sha256": null,
+        "source_sha256": "5cf8a4286d0759d2368e2d8d5658ce7de0b2ad72435ce75915cf07c0a23df7bf",
+        "image_sha256": "968a7db8bee752f5bba0ab6b2270090754a2f4fc8f7a72b0915c77b37e51cbf0",
+        "workspace_fill": 90,
+        "workspace_bytes": 2097152,
+        "output_capacity": 1048577,
+        "forbidden_compiler_modules_loaded": []
+      },
+      {
+        "case": "too-large-source",
+        "status": "PASS",
+        "returned": 4294967295,
+        "output_unchanged": true,
+        "source_unchanged": true,
+        "output_guards_unchanged": true,
+        "workspace_guards_unchanged": true,
+        "produced_sha256": null,
+        "source_sha256": "08713584cd119dc65b4445d70922114d354e9b57d0ce1747243f7e82e766f0a2",
+        "image_sha256": "968a7db8bee752f5bba0ab6b2270090754a2f4fc8f7a72b0915c77b37e51cbf0",
+        "workspace_fill": 90,
+        "workspace_bytes": 2097152,
+        "output_capacity": 1048576,
+        "forbidden_compiler_modules_loaded": []
+      },
+      {
+        "case": "expanded-compiler-static-elf",
+        "status": "PASS",
+        "PT_INTERP": false,
+        "writable_executable_load_segment": false
+      },
+      {
+        "case": "native-packer-static-elf",
+        "status": "PASS",
+        "PT_INTERP": false,
+        "writable_executable_load_segment": false
+      },
+      {
+        "case": "application-static-elf",
+        "status": "PASS",
+        "PT_INTERP": false,
+        "writable_executable_load_segment": false
+      }
+    ],
+    "seconds": 7.204997902999821
+  },
+  "current_application_equivalence": {
+    "schema": "heptatorch.expanded-compiler-application-equivalence.v1",
+    "status": "PASS",
+    "profile": "heptatorch.hia.compiler.f256-b2560-w2m.v1",
+    "legacy_compiler_sha256": "87c247e4d1c3c9a449d2947fd4227fdc186d519bffd203a04cafce7861a4ed54",
+    "expanded_compiler_sha256": "c5a9c2b95a3061e080a21298f5b26000936ed9dac519690d845b0699a15744c6",
+    "runtime_path": "empty",
+    "rows": [
+      {
+        "application": "heptatorch",
+        "source_path": "src/heptatorch.hepta",
+        "source_sha256": "4c1d17240dd8616798e238cdd54641ee6f2e42c02635c82b3bdeea0a530b5ca5",
+        "executable_sha256": "ecca265b088e0688df8ad963613f6bdf460efd324d0c480e6395e4ef67372779",
+        "executable_bytes": 570551,
+        "legacy_expanded_bytes_identical": true,
+        "source_unchanged_during_run": true
+      },
+      {
+        "application": "unhex",
+        "source_path": "tools/unhex.hepta",
+        "source_sha256": "f1baf5035d33adf6e6875bac524dc110d68c8561b0966faafa7a327ca184f548",
+        "executable_sha256": "c37036dbfebc5dfae98fc22262ac8e4a8be6973f6505c438cdf8fdb46156a508",
+        "executable_bytes": 6238,
+        "legacy_expanded_bytes_identical": true,
+        "source_unchanged_during_run": true
+      }
+    ]
+  },
+  "boundary_review": {
+    "cases": [
+      {
+        "case": "functions-129",
+        "compile_exit": 0,
+        "compile_seconds": 0.07859538100092323,
+        "execute_exit": 0,
+        "execute_seconds": 0.0034139549989049556,
+        "expected_compile_exit": 0,
+        "expected_output_bytes": 4,
+        "expected_output_sha256": "1fc3bd4778fdfdaea679fe9d9da2bf8a30ce49e7a9e477c602c0ae68da9f57b6",
+        "host_assembly_reference": {
+          "accepted": true,
+          "core_sha256": "99c5ef6cb47a6c121a44b9bf1234daddb989823f52dbdb9a89db5380169f7d03"
+        },
+        "observed_output_bytes": 4,
+        "observed_output_sha256": "1fc3bd4778fdfdaea679fe9d9da2bf8a30ce49e7a9e477c602c0ae68da9f57b6",
+        "pass": true,
+        "produced_bytes": 16680,
+        "produced_sha256": "aa3dee4137c142cb1ad2784f363823d230fb8fe18cfefc2be34a2677cb6a88c9",
+        "source_bytes": 23564,
+        "source_sha256": "4d072c79f61710b251529574b9c83b0be651eebbe84585de4d6646ab6d5aac36"
+      },
+      {
+        "case": "functions-255",
+        "compile_exit": 0,
+        "compile_seconds": 0.263736857999902,
+        "execute_exit": 0,
+        "execute_seconds": 0.002230522000900237,
+        "expected_compile_exit": 0,
+        "expected_output_bytes": 4,
+        "expected_output_sha256": "81ff65efc4487853bdb4625559e69ab44f19e0f5efbd6d5b2af5e3ab267c8e06",
+        "host_assembly_reference": {
+          "accepted": true,
+          "core_sha256": "60210cea833381bf5a3e5197528f0edf9650fe437d3876de7a428cbbee4853bf"
+        },
+        "observed_output_bytes": 4,
+        "observed_output_sha256": "81ff65efc4487853bdb4625559e69ab44f19e0f5efbd6d5b2af5e3ab267c8e06",
+        "pass": true,
+        "produced_bytes": 31926,
+        "produced_sha256": "d3268fef1c888403a8b29d94c72cb0eaf2cd721fcc65127518a6188c8f57f7f5",
+        "source_bytes": 46118,
+        "source_sha256": "dc600f65a8ca79a753653ccb6e314d19e920a91685268e206ba0e02213d149a6"
+      },
+      {
+        "case": "functions-256",
+        "compile_exit": 0,
+        "compile_seconds": 0.25264187999891874,
+        "execute_exit": 0,
+        "execute_seconds": 0.002396767999016447,
+        "expected_compile_exit": 0,
+        "expected_output_bytes": 4,
+        "expected_output_sha256": "bf5e8ffa51a9e748985800c1d3d7f1a2a6ae7435136593ca8d9637e3f87c699c",
+        "host_assembly_reference": {
+          "accepted": true,
+          "core_sha256": "8a431af303d9be91221b3ebeeadbfc965a30328cff86e39cb1899c374d937f6d"
+        },
+        "observed_output_bytes": 4,
+        "observed_output_sha256": "bf5e8ffa51a9e748985800c1d3d7f1a2a6ae7435136593ca8d9637e3f87c699c",
+        "pass": true,
+        "produced_bytes": 32047,
+        "produced_sha256": "cd3aa7a06156027e0094b1dba8830d44cfabd1824171489ee9e9a9fe8e7eea57",
+        "source_bytes": 46297,
+        "source_sha256": "9566518ffa77efa127c554b49288e3df73862583223b3be25724cdaf24a4c50f"
+      },
+      {
+        "case": "functions-257",
+        "compile_exit": 2,
+        "compile_seconds": 0.02507757100102026,
+        "expected_compile_exit": 2,
+        "host_assembly_reference": {
+          "accepted": false,
+          "error": "E_HIA_ASSEMBLY_LIMIT: line 1813: function inventory exceeds budget"
+        },
+        "pass": true,
+        "produced_bytes": 0,
+        "produced_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_bytes": 46476,
+        "source_sha256": "c23e46830453b85af34cae7687a735d6f1641ae60d9992b053f919c3ee8ed568"
+      },
+      {
+        "case": "blocks-1537",
+        "compile_exit": 0,
+        "compile_seconds": 0.4944593520012859,
+        "execute_exit": 0,
+        "execute_seconds": 0.007360377998338663,
+        "expected_compile_exit": 0,
+        "expected_output_bytes": 4,
+        "expected_output_sha256": "294cbca3d5f36949ec78e874650c67cb993b15c243a93d3eda5822957ab746ab",
+        "host_assembly_reference": {
+          "accepted": true,
+          "core_sha256": "4d7e01fcb42e6536cb5b21491d228f7202dedf445faa5cc81167bf0655e4a71a"
+        },
+        "observed_output_bytes": 4,
+        "observed_output_sha256": "294cbca3d5f36949ec78e874650c67cb993b15c243a93d3eda5822957ab746ab",
+        "pass": true,
+        "produced_bytes": 118564,
+        "produced_sha256": "57632e3205d123cf6ef90f8141fc1352630980c414a9af23b9d97917a635952c",
+        "source_bytes": 166246,
+        "source_sha256": "4c224ba9bc072763be8a7fafdb032808d824454699e26f2e38302b54d486c1fd"
+      },
+      {
+        "case": "blocks-2559",
+        "compile_exit": 0,
+        "compile_seconds": 0.9134608690001187,
+        "execute_exit": 0,
+        "execute_seconds": 0.0025707329987199046,
+        "expected_compile_exit": 0,
+        "expected_output_bytes": 4,
+        "expected_output_sha256": "9d84a2c827def69eff3464a85b7e7e4a0d15d9dd165f6bb7582f93f6d0c171fa",
+        "host_assembly_reference": {
+          "accepted": true,
+          "core_sha256": "8c1baa0c01d9473ba9196b0771bc38c0155b6b67614ac24103fd67d1ad240aff"
+        },
+        "observed_output_bytes": 4,
+        "observed_output_sha256": "9d84a2c827def69eff3464a85b7e7e4a0d15d9dd165f6bb7582f93f6d0c171fa",
+        "pass": true,
+        "produced_bytes": 196660,
+        "produced_sha256": "5af5f100d8831e09976749ff568a0f66525cd65ed19c939899c464f17974ffd1",
+        "source_bytes": 276286,
+        "source_sha256": "c077fd1aa8beda22010624b7677f05a39418f116d248d0cb360263cb490451e3"
+      },
+      {
+        "case": "blocks-2560",
+        "compile_exit": 0,
+        "compile_seconds": 0.8394265610004368,
+        "execute_exit": 0,
+        "execute_seconds": 0.0037628459995175945,
+        "expected_compile_exit": 0,
+        "expected_output_bytes": 4,
+        "expected_output_sha256": "487561731597bec15a3b6df8028ab30afa3aac33756a98aca6272cef916b609f",
+        "host_assembly_reference": {
+          "accepted": true,
+          "core_sha256": "21163999a90b0576055e5acfe339c9a30b0d103cda8e19c0dc8f183ba8cd0838"
+        },
+        "observed_output_bytes": 4,
+        "observed_output_sha256": "487561731597bec15a3b6df8028ab30afa3aac33756a98aca6272cef916b609f",
+        "pass": true,
+        "produced_bytes": 196736,
+        "produced_sha256": "8eca224f5bc3c585563f31157c19d3da42c031fb2e37330ad4b0813bc9c33a34",
+        "source_bytes": 276395,
+        "source_sha256": "3144d53bcdcba80ce15e95424ff6d1834bb9450e60ab1ab73514e4880bce6e64"
+      },
+      {
+        "case": "blocks-2561",
+        "compile_exit": 2,
+        "compile_seconds": 0.12642110399974626,
+        "expected_compile_exit": 2,
+        "host_assembly_reference": {
+          "accepted": true,
+          "core_sha256": "9e3be0e7cedc157249509e590d6c6c25656a3f719ca57f89f62deb553b793d34"
+        },
+        "pass": true,
+        "produced_bytes": 0,
+        "produced_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_bytes": 276504,
+        "source_sha256": "c88252ab1bf98bd0c67e348ab98f96e7e263cee7cfeec49f30dd55e48de0d9d8"
+      },
+      {
+        "case": "high-index-cycle-reachable",
+        "compile_exit": 2,
+        "compile_seconds": 0.3894573420002416,
+        "expected_compile_exit": 2,
+        "host_assembly_reference": {
+          "accepted": true,
+          "core_sha256": "92c580259edf5f1974bc12ce18882035f0cd2bced8750e3622ea7d4e5a3db53e"
+        },
+        "pass": true,
+        "produced_bytes": 0,
+        "produced_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_bytes": 46366,
+        "source_sha256": "f6ad23c5433f22ff757d18fec0f78d6e698968ca5e6f70a9e4da2ce5dc476738"
+      },
+      {
+        "case": "high-index-cycle-unreachable",
+        "compile_exit": 2,
+        "compile_seconds": 0.029875711999920895,
+        "expected_compile_exit": 2,
+        "host_assembly_reference": {
+          "accepted": true,
+          "core_sha256": "f05badb8eddff6cd6934f2e88f4a63ec80d9a3e5501e2af4230a89384ba52324"
+        },
+        "pass": true,
+        "produced_bytes": 0,
+        "produced_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_bytes": 29015,
+        "source_sha256": "0a61546f73fb5c46c6a603521b757397847105bffbac79926d400c5d15775b6f"
+      },
+      {
+        "case": "high-index-cycle-nontail-self",
+        "compile_exit": 2,
+        "compile_seconds": 0.03215644000010798,
+        "expected_compile_exit": 2,
+        "host_assembly_reference": {
+          "accepted": true,
+          "core_sha256": "eedf573094defb4ee7b0752625489f83fe9a5f8342c337e4de3e2f79f7f5e8d4"
+        },
+        "pass": true,
+        "produced_bytes": 0,
+        "produced_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_bytes": 46366,
+        "source_sha256": "9811f849da7d70e14bc6ff4fc5bf83b06b584ba062e2bd52e5e192b40e3a08a6"
+      },
+      {
+        "case": "blocks-per-function-257",
+        "compile_exit": 2,
+        "compile_seconds": 0.005662277000737959,
+        "expected_compile_exit": 2,
+        "host_assembly_reference": {
+          "accepted": true,
+          "core_sha256": "b189ed6391de8eda9a294ce493e6edb0033ec9997bd2739f934f3af799a86b76"
+        },
+        "pass": true,
+        "produced_bytes": 0,
+        "produced_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_bytes": 28535,
+        "source_sha256": "c633ca41eb8d547f56dafed4a3d8ce4a88a387b278c6724e1c9b5270e84e2717"
+      },
+      {
+        "case": "instructions-8192",
+        "compile_exit": 0,
+        "compile_seconds": 0.4106621169994469,
+        "execute_exit": 0,
+        "execute_seconds": 0.0028300069989199983,
+        "expected_compile_exit": 0,
+        "expected_output_bytes": 8176,
+        "expected_output_sha256": "dc8d695362bd3045c7a4e2c9c6fcafb3305cba9f304c8030f64cb0833154e736",
+        "host_assembly_reference": {
+          "accepted": true,
+          "core_sha256": "899989df67a230d3f0ba574bec684a7cd325fafc7bd3cb0708f756b0fcadc585"
+        },
+        "observed_output_bytes": 8176,
+        "observed_output_sha256": "dc8d695362bd3045c7a4e2c9c6fcafb3305cba9f304c8030f64cb0833154e736",
+        "pass": true,
+        "produced_bytes": 214520,
+        "produced_sha256": "f023153ee52a8462fb826c4a4a68076af179e4371fd0383cd71756de54275c6d",
+        "source_bytes": 286259,
+        "source_sha256": "8f3de38202aa8e9573f15bca0a48e0b7600a2716a35af4788e16843f8bda7189"
+      },
+      {
+        "case": "instructions-8193",
+        "compile_exit": 2,
+        "compile_seconds": 0.08400890600023558,
+        "expected_compile_exit": 2,
+        "host_assembly_reference": {
+          "accepted": true,
+          "core_sha256": "78432c792fc4c781c27ac2e7a2f8758a265dfc8e1da29521c2e7431fdfacd745"
+        },
+        "pass": true,
+        "produced_bytes": 0,
+        "produced_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_bytes": 286386,
+        "source_sha256": "6f984ca396d4667c1151873a68677c2becec77b398933db6d3632f3b1f8ae059"
+      },
+      {
+        "case": "ssa-names-2048",
+        "compile_exit": 0,
+        "compile_seconds": 0.0837462069994217,
+        "execute_exit": 0,
+        "execute_seconds": 0.002332476000447059,
+        "expected_compile_exit": 0,
+        "expected_output_bytes": 0,
+        "expected_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "host_assembly_reference": {
+          "accepted": true,
+          "core_sha256": "b8ca3742305f594d85d4edd10841ad6310a6ae40a45743561802142edaaffa79"
+        },
+        "observed_output_bytes": 0,
+        "observed_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "pass": true,
+        "produced_bytes": 35550,
+        "produced_sha256": "6d4611170e9244d5c5cd1a32bef2e790c2e86b840e44cb4e5e5fc4494da64bf5",
+        "source_bytes": 68615,
+        "source_sha256": "ea69b22eed82e66a0c99d44d8949212b0d9a3d497987586511f27d6351df27f2"
+      },
+      {
+        "case": "ssa-names-2049",
+        "compile_exit": 2,
+        "compile_seconds": 0.024268391000077827,
+        "expected_compile_exit": 2,
+        "host_assembly_reference": {
+          "accepted": true,
+          "core_sha256": "f164e02b9eede286b7afaff32d925d94dfdfe4f63e97b50de2d1ddf4bd4ff746"
+        },
+        "pass": true,
+        "produced_bytes": 0,
+        "produced_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_bytes": 68649,
+        "source_sha256": "b6d3cc1456829657717152d96349c616781850696fac84b95bcba238ab1505f1"
+      }
+    ],
+    "compiler_sha256": "c5a9c2b95a3061e080a21298f5b26000936ed9dac519690d845b0699a15744c6",
+    "compiler_unchanged": true,
+    "full_cold_or_upstream_qualification": false,
+    "pass": true,
+    "passed": 16,
+    "resource_limits": {
+      "address_bytes": 268435456,
+      "cpu_seconds": 10,
+      "stack_bytes": 8388608,
+      "wall_seconds": 20
+    },
+    "runtime_path": "empty",
+    "schema": "heptatorch.compiler-capacity-boundaries.v1",
+    "scope": "finite local capacity/CFG/call-boundary compilation and Linux x86-64 execution",
+    "total": 16
+  },
+  "explicit_exports_review": {
+    "all_u32_high_bit_values_match": true,
+    "compiler_sha256": "c5a9c2b95a3061e080a21298f5b26000936ed9dac519690d845b0699a15744c6",
+    "executed_exports": 256,
+    "explicit_exports": 256,
+    "foreign_reference_boundary": "GNU ld shared linking and isolated Python ctypes/libc loader only for this independent execution oracle",
+    "identifier_bytes_each": 128,
+    "link_command": [
+      "/usr/bin/x86_64-linux-gnu-ld.bfd",
+      "-shared",
+      "-z",
+      "noexecstack",
+      "-z",
+      "relro",
+      "-o",
+      "/workspace/scratch/d26699e25fea/compiler-capacity-review/pytorch_scope/exports/exports-256.so",
+      "/workspace/scratch/d26699e25fea/compiler-capacity-review/pytorch_scope/exports/exports-256.o"
+    ],
+    "linker_path": "/usr/bin/x86_64-linux-gnu-ld.bfd",
+    "linker_sha256": "d2766988b6a1b1d1518cdc09242e726d1f24e151e16410ada3092b11ffd9081b",
+    "negative257_export_function_compile_exit": 2,
+    "negative_stdout_empty": true,
+    "object_bytes": 66160,
+    "object_sha256": "a0dc7724903d06b12e67d6bb2f3a1cd1af7ffaf35565a8b897fbf6be34db3ae4",
+    "pass": true,
+    "positive_compile_exit": 0,
+    "schema": "heptatorch.compiler-expanded-export-observation.v1",
+    "source_bytes": 95289,
+    "source_sha256": "36296253d175bcaec3d07ed0ab12d1910988fbb761920ac62ed52d922956aa1f",
+    "upstream_full_cold_qualification": false
+  },
+  "layout_relocation_review": {
+    "schema": "heptatorch.compiler-layout-relocation-review.v1",
+    "pass": true,
+    "findings": [],
+    "reviewed_files_sha256": {
+      "compiler-expansion/source-adaptation/adapt.py": "5d9d0494198bc4159d81b714f0571045333fc8ac000e33fddd69bab146a3f6f3",
+      "compiler-expansion/source-adaptation/generate_packer.py": "03bdcd2dbaa730ad38252be08f140a58956362d9c2c58e042527356686f727b5",
+      "compiler-expansion/rebuild.sh": "57fe7bea8386a4058352101830cb371cab2c96400cbd96712b76d8a79f469368",
+      "compiler-expansion/INTEGRATION.md": "59a05af33b632fd67e492ca225004de56f48f33d972999a1756f731b8e42a572",
+      "compiler-expansion/source-pins.sha256": "3ff7ffc9f30e5a325e29a2e10e3cbcb9771e4bcadd9a1d7b0b5a3559a9357084",
+      "compiler-expansion/profile.json": "180dbfd75201e0099e1bb6a50f9c0395a2fd16f762f913bdfa45d80be5955d06",
+      "compiler-expansion/compiler.hepta": "5cf8a4286d0759d2368e2d8d5658ce7de0b2ad72435ce75915cf07c0a23df7bf",
+      "compiler-expansion/native-build/hia-native-compiler": "c5a9c2b95a3061e080a21298f5b26000936ed9dac519690d845b0699a15744c6"
+    },
+    "layout": [
+      {
+        "name": "function_records",
+        "start": 4096,
+        "end_exclusive": 86016,
+        "count": 256,
+        "stride": 320,
+        "bytes": 81920
+      },
+      {
+        "name": "block_records",
+        "start": 86016,
+        "end_exclusive": 905216,
+        "count": 2560,
+        "stride": 320,
+        "bytes": 819200
+      },
+      {
+        "name": "ssa_type_records",
+        "start": 905216,
+        "end_exclusive": 937984,
+        "count": 2048,
+        "stride": 16,
+        "bytes": 32768
+      },
+      {
+        "name": "argument_vector",
+        "start": 937984,
+        "end_exclusive": 939008,
+        "count": 1,
+        "stride": 1024,
+        "bytes": 1024
+      },
+      {
+        "name": "relative_relocations",
+        "start": 939008,
+        "end_exclusive": 1283072,
+        "count": 14336,
+        "stride": 24,
+        "bytes": 344064
+      },
+      {
+        "name": "call_graph",
+        "start": 1283072,
+        "end_exclusive": 1348608,
+        "count": 65536,
+        "stride": 1,
+        "bytes": 65536
+      },
+      {
+        "name": "call_readiness",
+        "start": 1348608,
+        "end_exclusive": 1350656,
+        "count": 256,
+        "stride": 8,
+        "bytes": 2048
+      },
+      {
+        "name": "capability_records",
+        "start": 1350656,
+        "end_exclusive": 1399808,
+        "count": 2048,
+        "stride": 24,
+        "bytes": 49152
+      },
+      {
+        "name": "block_reachability",
+        "start": 1399808,
+        "end_exclusive": 1402368,
+        "count": 2560,
+        "stride": 1,
+        "bytes": 2560
+      },
+      {
+        "name": "capability_temporary",
+        "start": 1402368,
+        "end_exclusive": 1402384,
+        "count": 16,
+        "stride": 1,
+        "bytes": 16
+      },
+      {
+        "name": "resource_graph_queue",
+        "start": 1402384,
+        "end_exclusive": 1404432,
+        "count": 256,
+        "stride": 8,
+        "bytes": 2048
+      },
+      {
+        "name": "ssa_formal_origins",
+        "start": 1404432,
+        "end_exclusive": 1406480,
+        "count": 2048,
+        "stride": 1,
+        "bytes": 2048
+      },
+      {
+        "name": "block_formal_origins",
+        "start": 1406480,
+        "end_exclusive": 1447440,
+        "count": 2560,
+        "stride": 16,
+        "bytes": 40960
+      },
+      {
+        "name": "ssa_names",
+        "start": 1447440,
+        "end_exclusive": 1496592,
+        "count": 2048,
+        "stride": 24,
+        "bytes": 49152
+      },
+      {
+        "name": "block_names",
+        "start": 1496592,
+        "end_exclusive": 1502736,
+        "count": 256,
+        "stride": 24,
+        "bytes": 6144
+      },
+      {
+        "name": "explicit_exports",
+        "start": 1502736,
+        "end_exclusive": 1515024,
+        "count": 256,
+        "stride": 48,
+        "bytes": 12288
+      }
+    ],
+    "workspace_end_exclusive": 1515024,
+    "workspace_tail_bytes": 582128,
+    "review_conclusions": [
+      "Every table is contiguous, disjoint, eight-byte aligned at its start, and contained in the declared two-MiB workspace.",
+      "Call graph uses 256-byte rows, scans 256 columns, and clears 67584 bytes covering all 65536 edge bytes and 2048 readiness bytes before admission.",
+      "Both function-count/header 64 and function-ordinal/header 72 are widened to state_get32/state_put32 after the original byte optimization; header full-word clearing preserves high-zero invariants.",
+      "Remaining 128 literals denote x86 ModR/M encoding, ASCII boundary, and the intentionally unchanged 128-byte identifier ceiling. Remaining 1 MiB literals constrain source and output; no old 1536, 17408, 12000 capacity literal remains in reconstructed adapted authoring.",
+      "Per-function resource queue capacity 256 remains appropriate because each unique block is queued at most once and per-function blocks remain limited to 256.",
+      "Relocation records are guarded before writes. Each operation contributes at most one relative record, each block at most two edge records, each function at most one entry jump, wrapper/export count at most F, plus two optional shared-destructor allocator records.",
+      "The relocation-table endpoint 1283072 equals the call-graph start; the conservative 13826-record bound fits 14336 slots with 510 spare.",
+      "Canonical Core byte bound 8127488 remains within the unchanged 8 MiB gate. Source, output, per-function blocks, SSA, parameter and instruction limits are unchanged.",
+      "Build recipe pins source/predecessor/final artifacts, uses HIA for native compilation and packing with empty PATH, requires a new output directory, checks all four image/executable generations and successor-rebuilt packer, and repeats source/predecessor identity checks at completion.",
+      "Compiler packer alone changes private workspace allocation; ordinary application wrapper Core bodies retain their original bytes. No packaging or reproducibility blocker identified."
+    ],
+    "relocation_bound": {
+      "formula": "2*F + I + 2*B + 2",
+      "functions": 256,
+      "instructions": 8192,
+      "blocks": 2560,
+      "upper_bound": 13826,
+      "capacity": 14336,
+      "margin": 510,
+      "exact_capacity_saturation_test_claimed": false
+    },
+    "core_bytes_upper_bound": 8127488,
+    "remaining_old_constants": [
+      {
+        "function": "compile",
+        "value": 1048576,
+        "source": "if length(s) > 1048576:"
+      },
+      {
+        "function": "compile",
+        "value": 1048576,
+        "source": "if length(o) > 1048576:"
+      },
+      {
+        "function": "mem",
+        "value": 128,
+        "source": "emit(o, w, 128 + reg * 8 + base)"
+      },
+      {
+        "function": "is_word",
+        "value": 128,
+        "source": "if c < 128:"
+      },
+      {
+        "function": "identifier",
+        "value": 128,
+        "source": "if size == 0 or size > 128:"
+      }
+    ],
+    "relocation_routes": [
+      {
+        "function": "edge",
+        "source": "relocation(o, w, 2, bid)"
+      },
+      {
+        "function": "instruction",
+        "source": "relocation(o, w, 2, get(w, fb + 8) + get(w, fb + 264))"
+      },
+      {
+        "function": "instruction",
+        "source": "relocation(o, w, 1, x)"
+      },
+      {
+        "function": "wrapper",
+        "source": "relocation(o, w, 1, 0)"
+      },
+      {
+        "function": "function_start",
+        "source": "relocation(o, w, 2, get(w, fb + 8) + get(w, fb + 264))"
+      },
+      {
+        "function": "owned_import",
+        "source": "relocation(o, w, 3, symbol)"
+      },
+      {
+        "function": "owned_allocate_libc",
+        "source": "owned_import(o, w, 0)"
+      },
+      {
+        "function": "owned_drop_libc",
+        "source": "owned_import(o, w, 1)"
+      },
+      {
+        "function": "owned_instruction",
+        "source": "chain_drop_call(o, w, a)"
+      },
+      {
+        "function": "chain_drop_call",
+        "source": "relocation(o, w, 4, 0)"
+      },
+      {
+        "function": "chain_bytes_push",
+        "source": "owned_import(o, w, 0)"
+      },
+      {
+        "function": "chain_bytes_pop",
+        "source": "owned_import(o, w, 1)"
+      },
+      {
+        "function": "chain_bytes_drop",
+        "source": "owned_import(o, w, 1)"
+      },
+      {
+        "function": "chain_bytes_drop",
+        "source": "owned_import(o, w, 1)"
+      },
+      {
+        "function": "export_wrapper",
+        "source": "relocation(o, w, 1, f)"
+      }
+    ],
+    "native_followup": "dirty-high-graph-review.json",
+    "scope": "Independent read-only review of finite capacity adaptation and packaging plus one high-index dirty-workspace native fixture; not a formal proof or full cold campaign."
+  },
+  "dirty_high_call_graph_review": {
+    "schema": "heptatorch.compiler-high-graph-dirty-workspace-review.v1",
+    "compiler_sha256": "c5a9c2b95a3061e080a21298f5b26000936ed9dac519690d845b0699a15744c6",
+    "image_sha256": "968a7db8bee752f5bba0ab6b2270090754a2f4fc8f7a72b0915c77b37e51cbf0",
+    "source_sha256": "fad36c7c6ae8aae858ad6707cc8d30c7cb4009912a38b283f0f215c34ddc62ab",
+    "source_bytes": 50216,
+    "functions": 256,
+    "blocks": 259,
+    "entry_of_function255": "b2",
+    "call_path": "f0 -> f255 -> f254 -> ... -> f1",
+    "native_bytes": 39534,
+    "native_sha256": "7b83f941cd622bef37b471c09e1bfcd6ef3606a3e34d0e7bcbb95efb13797318",
+    "executions": [
+      {
+        "input": 0,
+        "expected_u32": 255,
+        "observed_hex": "ff000000",
+        "pass": true
+      },
+      {
+        "input": 255,
+        "expected_u32": 766,
+        "observed_hex": "fe020000",
+        "pass": true
+      }
+    ],
+    "flat_abi": [
+      {
+        "returned": 39534,
+        "output_unchanged": false,
+        "source_unchanged": true,
+        "output_guards_unchanged": true,
+        "workspace_guards_unchanged": true,
+        "produced_sha256": "7b83f941cd622bef37b471c09e1bfcd6ef3606a3e34d0e7bcbb95efb13797318",
+        "source_sha256": "fad36c7c6ae8aae858ad6707cc8d30c7cb4009912a38b283f0f215c34ddc62ab",
+        "image_sha256": "968a7db8bee752f5bba0ab6b2270090754a2f4fc8f7a72b0915c77b37e51cbf0",
+        "workspace_fill": 0,
+        "workspace_bytes": 2097152,
+        "output_capacity": 1048576,
+        "forbidden_compiler_modules_loaded": []
+      },
+      {
+        "returned": 39534,
+        "output_unchanged": false,
+        "source_unchanged": true,
+        "output_guards_unchanged": true,
+        "workspace_guards_unchanged": true,
+        "produced_sha256": "7b83f941cd622bef37b471c09e1bfcd6ef3606a3e34d0e7bcbb95efb13797318",
+        "source_sha256": "fad36c7c6ae8aae858ad6707cc8d30c7cb4009912a38b283f0f215c34ddc62ab",
+        "image_sha256": "968a7db8bee752f5bba0ab6b2270090754a2f4fc8f7a72b0915c77b37e51cbf0",
+        "workspace_fill": 90,
+        "workspace_bytes": 2097152,
+        "output_capacity": 1048576,
+        "forbidden_compiler_modules_loaded": []
+      }
+    ],
+    "compiler_unchanged": true,
+    "image_unchanged": true,
+    "pass": true
+  },
+  "boundary_gate_sha256": "6f7bbb6f4fa4b9f16bfc0dcc3d285d5f3f15dd4e02c0672af7f084edcf71257f",
+  "source_and_runtime_unchanged": true,
+  "whole_pytorch_rewrite_complete": false,
+  "integrated_repository_recipe": {
+    "status": "PASS",
+    "source_adaptation_receipts_match_committed_records": true,
+    "native_fixed_point_generations": 4,
+    "compiler_sha256": "c5a9c2b95a3061e080a21298f5b26000936ed9dac519690d845b0699a15744c6",
+    "capacity_gate": {
+      "compiler_sha256": "c5a9c2b95a3061e080a21298f5b26000936ed9dac519690d845b0699a15744c6",
+      "failed_cases": [],
+      "fixture_hashes_match": true,
+      "full_cold_or_upstream_qualification": false,
+      "pass": true,
+      "passed": 16,
+      "schema": "heptatorch.compiler-capacity-summary.v1",
+      "total": 16,
+      "upstream_imports_required": false
+    },
+    "fresh_make_build": true,
+    "native_fixture_pairs": 275,
+    "native_regression": "PASS",
+    "runtime_source_sha256": "4c1d17240dd8616798e238cdd54641ee6f2e42c02635c82b3bdeea0a530b5ca5",
+    "runtime_executable_sha256": "ecca265b088e0688df8ad963613f6bdf460efd324d0c480e6395e4ef67372779",
+    "oracle_shell_step_sha256": "6aa844d6d39cd8e71f6b8a90bee292a36f79803c5f3eb0dbfd60540f8f5ab436",
+    "runtime_source_fixtures_and_oracle_unchanged": true,
+    "hosted_execution": "PASS; validation/hosted-compiler-profile.json"
+  }
+}

@@ -110,11 +110,56 @@ jobs:
           }, indent=2))
           PY
 
+      - name: Expand and reproduce the HIA compiler capacity profile
+        shell: bash
+        run: |
+          python3 -I -S -B tools/compiler-profile/adapt.py \
+            --source-root "$GITHUB_WORKSPACE/.toolchain/hepta" \
+            --output "$RUNNER_TEMP/hepta-profile-sources"
+          python3 -I -S -B tools/compiler-profile/generate_packer.py \
+            --source-root "$GITHUB_WORKSPACE/.toolchain/hepta" \
+            --output "$RUNNER_TEMP/hepta-profile-sources"
+          bash tools/compiler-profile/rebuild.sh \
+            "$RUNNER_TEMP/hepta-compiler/native-compiler" \
+            "$RUNNER_TEMP/hepta-profile-sources" \
+            "$RUNNER_TEMP/hepta-expanded"
+          python3 -I -S -B tools/compiler-profile/check_capacity.py \
+            --compiler "$RUNNER_TEMP/hepta-expanded/hia-native-compiler" \
+            --output "$RUNNER_TEMP/hepta-capacity-review"
+          python3 -I -S -B - <<'PROFILE'
+          from pathlib import Path
+          import hashlib
+          import json
+          import os
+          import subprocess
+          temporary = Path(os.environ['RUNNER_TEMP'])
+          profile = json.loads(Path('compatibility/hia-expanded-profile.json').read_text())
+          recorded = json.loads(Path('validation/compiler-profile.json').read_text())
+          digest = lambda p: hashlib.sha256(Path(p).read_bytes()).hexdigest()
+          legacy = temporary / 'hepta-compiler/native-compiler'
+          expanded = temporary / 'hepta-expanded/hia-native-compiler'
+          generated = temporary / 'hepta-profile-sources'
+          assert digest(expanded) == profile['generated']['native_compiler']['sha256']
+          assert json.loads((generated / 'adaptation.json').read_text()) == recorded['source_adaptation']
+          assert json.loads((generated / 'packer-authoring.json').read_text()) == recorded['packer_authoring']
+          for name in ('heptatorch', 'unhex'):
+              source = Path('src/heptatorch.hepta' if name == 'heptatorch' else 'tools/unhex.hepta').read_bytes()
+              outputs = [subprocess.run([str(compiler)], input=source, capture_output=True,
+                                        timeout=30, env={'PATH': ''}) for compiler in (legacy, expanded)]
+              assert all(p.returncode == 0 and not p.stderr for p in outputs)
+              assert outputs[0].stdout == outputs[1].stdout
+          print(json.dumps({'schema': 'heptatorch.hosted-compiler-profile.v1', 'status': 'PASS',
+                            'profile': profile['profile'], 'native_compiler_sha256': digest(expanded),
+                            'native_fixed_point_generations': 4,
+                            'adaptation_receipts_match': True, 'application_images_identical': True,
+                            'capacity_review': json.loads((temporary / 'hepta-capacity-review/summary.json').read_text())}))
+          PROFILE
+
       - name: Build and test the HIA implementation
         shell: bash
         run: |
-          make HEPTA_COMPILER="$RUNNER_TEMP/hepta-compiler/native-compiler"
-          make test HEPTA_COMPILER="$RUNNER_TEMP/hepta-compiler/native-compiler"
+          make HEPTA_COMPILER="$RUNNER_TEMP/hepta-expanded/hia-native-compiler"
+          make test HEPTA_COMPILER="$RUNNER_TEMP/hepta-expanded/hia-native-compiler"
           python3 -I -S -B - <<'MANIFEST'
           import hashlib
           import json

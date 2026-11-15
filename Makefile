@@ -1,6 +1,6 @@
 SHELL := /bin/sh
 HEPTA_COMPILER ?= hia-native-compiler
-COMPILER_SHA256 := 87c247e4d1c3c9a449d2947fd4227fdc186d519bffd203a04cafce7861a4ed54
+COMPILER_SHA256 := c5a9c2b95a3061e080a21298f5b26000936ed9dac519690d845b0699a15744c6
 
 .PHONY: all test check-compiler clean
 
