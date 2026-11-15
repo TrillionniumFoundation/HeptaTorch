@@ -390,3 +390,11 @@ combines modules into one limited Core program. Scaling the full PyTorch rewrite
 therefore still requires cross-unit signatures, effects, ownership/borrowing
 contracts and linking, together with the remaining operator, dtype, frontend
 and device work already listed in the completion matrix.
+
+The expanded profile also passed the complete fresh
+[hosted build](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43743468220)
+on commit `2bb11186c9e2bffaddd4d0e0fc88cf9997f8b52d`: source-receipt equality,
+four native generations, all 16 capacity cases, original/expanded application
+byte identity, 275 native packet pairs, 159 real-PyTorch cases and all oracle
+provenance checks. `validation/hosted-compiler-profile.json` retains the complete
+result; the original runtime and failed Adam records remain separately bound.

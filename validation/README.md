@@ -226,3 +226,13 @@ CI regenerates and compares both source-authoring receipts, reproduces the
 native profile, runs the capacity gate, requires old/new application byte
 identity, then runs the unchanged 275-pair native and 159-case real-PyTorch
 gates. A fresh hosted record is required for this changed build procedure.
+
+Observed expanded-profile hosted result: **PASS**.
+[Run 43743468220](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43743468220)
+tested commit `2bb11186c9e2bffaddd4d0e0fc88cf9997f8b52d`. The original bootstrap,
+expanded four-generation native reproduction, exact source receipts, all 16
+capacity cases, original/expanded application byte identity, 275 native packet
+pairs and all 159 real-PyTorch cases (8,471 values) passed. All 11 oracle origin
+checks passed. `hosted-compiler-profile.json` preserves the complete reports and
+binds the expanded compiler hash to that run. This receipt update changes no
+compiler recipe, runtime source, test definition, tolerance or fixture bytes.

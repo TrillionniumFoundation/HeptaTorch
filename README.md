@@ -50,8 +50,8 @@ cmp build/train.response build/train.expected
 - 集成：广播、视图、梯度、空间算子、模块、优化器、异常输入和容量边界，均有独立参考或明确拒绝结果。
 - 当前集成版本：**275 对原生回归夹具**通过，原有 221 份请求输入未变，其中 5 份 Adam 预期响应已随舍入修正重新通过独立参考验证。图生命周期的 **26 项／40,123 个值**独立检查通过，包括单次请求中的 **1,000 步 SGD、1,000 步 Adam**，以及在 1 MiB 工作区内反复回收共 **9,600,000 字节**的临时张量数据和梯度缓冲。另有 **10 项**失败原子性检查，每项比较除错误状态外的全部 **1,048,568 字节**，均未发生修改。[当前原生验证](validation/session-native.json)保存具体案例、误差和最终源码／二进制身份。
 - 上一批算子扩展的矩阵与 Linear **63 项／4,593 个值**检查、**2,514 项**独立矩阵形状／梯度／拒绝检查，以及 **11 项／529 个值**跨算子集成检查均通过；对应历史源码身份保留在[算子扩展验证](validation/native-extension.json)。
-- 托管 CI：当前版本的 **159 项／8,471 个真实 PyTorch 数值对照**全部通过，包含无掩码／无 dropout 注意力、**1,024 步 SGD、512 步 Adam 和 512 步 AdamW**。长 SGD 对照逐位一致；长 Adam／AdamW 最大绝对误差分别为 **1.49×10⁻⁸／5.96×10⁻⁸**。[成功运行](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43742636363)同时验证了编译器自重建、275 对原生夹具和 11 项 oracle 来源检查。[当前完整回执](validation/hosted-session.json)保留逐项结果；[首次失败回执](validation/hosted-session-failure.json)也保留，用于说明 Adam 舍入问题及修正过程。
-- 编译容量：扩大配置的四代原生镜像和可执行文件逐字节一致，**16 项容量门禁**、256 个显式标量导出的实际调用、高编号调用图及脏工作区检查通过。原始和扩容编译器生成的当前 HeptaTorch 与 unhex 二进制完全相同。[工具链验证](validation/compiler-profile.json)保存具体配置、来源、内存布局及独立验证记录；构建流程变更需要单独的托管回执。
+- 托管 CI：当前版本的 **159 项／8,471 个真实 PyTorch 数值对照**全部通过，包含无掩码／无 dropout 注意力、**1,024 步 SGD、512 步 Adam 和 512 步 AdamW**。长 SGD 对照逐位一致；长 Adam／AdamW 最大绝对误差分别为 **1.49×10⁻⁸／5.96×10⁻⁸**。[成功运行](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43743468220)同时验证了编译器自重建、275 对原生夹具和 11 项 oracle 来源检查。[当前完整回执](validation/hosted-compiler-profile.json)保留逐项结果；[首次失败回执](validation/hosted-session-failure.json)也保留，用于说明 Adam 舍入问题及修正过程。
+- 编译容量：扩大配置的四代原生镜像和可执行文件逐字节一致，**16 项容量门禁**、256 个显式标量导出的实际调用、高编号调用图及脏工作区检查通过。原始和扩容编译器生成的当前 HeptaTorch 与 unhex 二进制完全相同。[工具链验证](validation/compiler-profile.json)保存具体配置、来源、内存布局及独立验证记录；[扩容构建托管回执](validation/hosted-compiler-profile.json)确认了整个新构建流程、容量门禁及原有数值门禁通过。
 - 线性回归：**30 次 SGD 更新**，更新前损失从 **5.1570835** 降至 **0.0342863**。
 - 两层 ReLU 分类器：**18 次 Adam 更新**，更新前交叉熵从 **0.6822657** 降至 **0.0017283**；该固定 8 样本任务更新后分类正确率 **100%**。
 
