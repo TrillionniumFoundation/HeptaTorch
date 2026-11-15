@@ -6,7 +6,7 @@ cases, seven spatial/training integration cases, 894 scalar special-value
 vectors, and 19 independently reviewed adversarial groups. These counts describe
 different sets and units; they are not a count of upstream PyTorch tests.
 
-The native packet corpus contains 221 input/expected-output pairs. Its exact
+The native packet corpus contains 273 input/expected-output pairs. Its exact
 files, sizes and hashes are recorded in `fixture-manifest.json`. `make test`
 executes all of them through the native HIA hexadecimal decoder and tensor
 executable with empty PATH. Responses were recorded only after independent
@@ -85,9 +85,9 @@ Local execution lacked PyTorch and remains recorded as NOT_RUN for that oracle.
 A hosted result is tied to its tested GitHub commit and run URL; none of these
 scoped checks establish whole-schema or whole-project parity.
 
-## Current native expansion
+## Previous native expansion
 
-`native-extension.json` binds the current integrated source and executable.
+`native-extension.json` binds the previous operator-expansion source and executable.
 All 221 fixture pairs passed, including the 76 unchanged baseline pairs and
 145 new pairs. The final binary also passed 63 matrix/Linear cases (4,593
 values, including eight central finite-difference cases), an independent
@@ -108,7 +108,7 @@ superseded forward/reverse functions were removed. The native build has no
 Python or tensor-library dependency. The initial external compiler bootstrap
 and independent numerical oracle retain their existing, separate dependencies.
 
-The current hosted gate requires exactly 153 uniquely named real PyTorch cases,
+That revision of the hosted gate required exactly 153 uniquely named real PyTorch cases,
 including the new operations, strided explicit seeds, repeated gradients and
 three attention compositions without masking or dropout. It preserves the
 original tolerances and test definitions for all 76 baseline cases and adds
@@ -117,7 +117,7 @@ execution status and exact commit; the historical passing run above does not
 qualify the changed source. The source/image and complete fixture manifest are
 also checked during hosted build.
 
-Observed current hosted result: **PASS**.
+Observed operator-expansion hosted result: **PASS**.
 [Run 43740237504](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43740237504)
 tested commit `2bfb4bac21361a5057da1eeee9349fbcb8b3cba7`. Compiler reproduction,
 221 native packet pairs, the exact source/image/fixture manifest and all
@@ -129,3 +129,35 @@ compositions passed their forward and Q/K/V-gradient comparisons.
 The full report and per-case tolerances are retained in `hosted-extension.json`.
 This evidence update changes documentation and receipts only; it leaves the
 runtime, test workflow, compiler recipe and fixture bytes unchanged.
+
+## Current training graph lifetime
+
+`session-native.json` binds the current integrated source and executable. All
+273 native packet pairs pass: 221 previous pairs remain byte-identical and 52
+new pairs cover graph reset, generation-checked IDs and retained state. The new
+pairs comprise 14 implementation cases, 12 independent invariant cases and 26
+independent public-protocol cases. The original isolated component identities
+remain attached; replay results are bound to the final binary separately.
+
+The final independent public-protocol review passes 26 cases and compares
+40,123 numeric values, including 1,000 SGD and 1,000 Adam updates in single
+requests. SGD matches an independent binary32 recurrence exactly; the maximum
+Adam discrepancy is 9.685754776e-7 against independently computed state and bias
+correction. A retained 20,000-element tensor also survives 20 backward/reset
+iterations that allocate 9,600,000 cumulative transient payload bytes within
+the unchanged 1 MiB workspace. Both 1,000-step optimizer requests fit the HIA
+hex decoder and are durable native fixtures.
+
+Ten further native rejection checks compare all 1,048,568 workspace bytes except
+the eight-byte status field. None changes after rejected reset. The scratch-only
+entry harness preserves every one of the 118 nonentry HIA function bodies from
+the final production source. Boundary-generation injection is confined to that
+harness; no debug opcode or artificial test state is shipped in the runtime.
+
+The hosted gate now requires exactly 159 unique real-PyTorch cases. It retains
+the previous 153 case definitions and tolerances, adds six graph-lifetime cases,
+and checks the exact current source, image and 273-pair fixture manifest. The
+six additions cover 1,024-step SGD, 512-step Adam, 512-step AdamW, gradient
+accumulation, an empty retained prefix and an empty retained tensor. Their
+oracle results must come from a new hosted execution; earlier receipts qualify
+only their own recorded runtime identities.

@@ -259,7 +259,7 @@ are recorded in `validation/native-extension.json`.
 | Non-scalar outputs lacked a direct cotangent interface | Implemented exact-shape seeded backward, strided seeds, repeated accumulation and error preflight |
 | General matrix shapes and integer selection were absent | Implemented scoped native matmul, index_select and gather; remaining dtype/overload coverage stays open |
 | One native compilation unit is approaching fixed compiler limits | Open: 117/128 functions and 1,364/1,536 blocks; general module linking and resource-bearing public ABI are not implemented in the pinned native profile |
-| Graph/data arena grows for the duration of one request | Open: 255 descriptors and 1 MiB workspace; no graph reclamation preserving parameter/state handles, no persistent training session |
+| Graph/data arena grows for the duration of one request | Resolved within one request by the subsequent graph-lifetime change below; cross-request persistence and scalable allocation remain open |
 | Only software binary32 and one CPU target exist | Open: other dtypes, SIMD/device code generation, device memory/stream services and independent backend qualification |
 | The wire protocol is separate from upstream frontends | Open: Python/C++ object, dispatch, module/state, override and extension interfaces |
 
@@ -284,3 +284,38 @@ qualify composition of the implemented primitives, not the complete attention
 API. The current fixture manifest contains 221 native packet pairs. Historical
 baseline, isolated component, final integrated and hosted results retain their
 own source and executable hashes in the validation records.
+
+## Training graph lifetime audit
+
+Starting from merged commit `297f34be8f0e9f2a2283042db513abafc3f1e7dd`, command
+33 now reclaims transient graph descriptors and arena storage while preserving a
+fixed initial prefix of owned leaves. Parameters, optimizer states, gradients
+and versions survive reset. Transient handles combine a 56-bit generation and
+an 8-bit slot, and validation compares the complete handle. A discarded handle
+cannot become valid when its slot is reused. Graph traversal still follows slot
+order, converting slots to the current generation's IDs at each visit.
+
+The audit covered every numeric ID consumer (`valid`, `dptr`, `descriptor`,
+`mark_graph`, `backward_seed`), owner/version equality checks and workspace
+header offsets. Independent review specifically checked the `keep=255` endpoint:
+clearing uses a raw descriptor address, avoiding a masked `dptr(256)` wrap to
+slot zero. Invalid prefix ranges or changes, retained aliases/nonleaves and
+generation exhaustion are rejected before state mutation.
+
+The final binary passed 273 native packet pairs, preserving all 221 earlier
+pairs. Its independent 26-case review compared 40,123 numeric values, including
+1,000 SGD and 1,000 Adam updates within individual requests. Another case
+reclaimed 9,600,000 cumulative transient bytes in the unchanged 1 MiB workspace.
+Ten native refusal probes compared all 1,048,568 workspace bytes other than the
+error word and found no changes. Their scratch entry harness preserves all 118
+nonentry production function bodies byte for byte and is not a production
+debug interface. Exact identities and original isolated-component records are
+in `validation/session-native.json`.
+
+The compiler profile is unchanged: the runtime now uses 119 functions, 1,393
+blocks and 5,612 instructions. Graph reset does not increase request/response
+capacities, provide cross-request persistence, general reference counting or
+full upstream graph-lifetime compatibility. The new hosted gate requires 159
+uniquely named real-PyTorch cases, with long SGD/Adam/AdamW sessions and preserved
+gradient tests added after the unchanged previous 153 cases. A fresh hosted
+receipt is required for this runtime revision.

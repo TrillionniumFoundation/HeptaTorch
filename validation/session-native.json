@@ -1,0 +1,813 @@
+{
+  "schema": "heptatorch.training-lifetime-validation.v1",
+  "status": "PASS",
+  "baseline_commit": "297f34be8f0e9f2a2283042db513abafc3f1e7dd",
+  "source": "src/heptatorch.hepta",
+  "source_sha256": "9199aaea08abf6247a565372d2ae015d2aeb9530d84890c0ad3a1f292052bf7f",
+  "executable_sha256": "192438931d5436d275dccfdebf7d6e32dfc8afa97a4b647d758d1898278e7fd4",
+  "build": {
+    "compiler_sha256": "87c247e4d1c3c9a449d2947fd4227fdc186d519bffd203a04cafce7861a4ed54",
+    "source_bytes": 373509,
+    "executable_bytes": 557772,
+    "functions": 119,
+    "blocks": 1393,
+    "instructions": 5612
+  },
+  "native_regression": {
+    "status": "PASS",
+    "fixture_pairs": 273,
+    "unchanged_previous_pairs": 221,
+    "new_pairs": 52,
+    "new_pair_groups": {
+      "session-implementation-": 14,
+      "session-invariant-": 12,
+      "session-review-": 26
+    },
+    "command": "make HEPTA_COMPILER=<pinned-native-compiler> test",
+    "environment": {
+      "PATH": ""
+    },
+    "fixture_manifest": "validation/fixture-manifest.json"
+  },
+  "integrated_public_protocol_review": {
+    "status": "PASS",
+    "cases": 26,
+    "source_sha256": "9199aaea08abf6247a565372d2ae015d2aeb9530d84890c0ad3a1f292052bf7f",
+    "executable_sha256": "192438931d5436d275dccfdebf7d6e32dfc8afa97a4b647d758d1898278e7fd4",
+    "compiler_sha256": "87c247e4d1c3c9a449d2947fd4227fdc186d519bffd203a04cafce7861a4ed54",
+    "seed_changes": false,
+    "oracle": "Protocol semantics independently specified; NumPy float32 exact SGD recurrence; independent float64 bias-corrected Adam reference with float32 state; analytic matmul/VJP/indexing derivatives",
+    "rows": [
+      {
+        "case": "reset-retains-gradient-until-explicit-zero",
+        "status": "PASS",
+        "protocol_status": 0,
+        "commands": 15,
+        "compared_values": 10,
+        "maximum_absolute_error": 0.0,
+        "atol": 0,
+        "rtol": 0,
+        "input_bytes": 1008,
+        "response_bytes": 552
+      },
+      {
+        "case": "reset-retains-version-and-value",
+        "status": "PASS",
+        "protocol_status": 0,
+        "commands": 6,
+        "compared_values": 1,
+        "maximum_absolute_error": 0.0,
+        "atol": 0,
+        "rtol": 0,
+        "input_bytes": 420,
+        "response_bytes": 436
+      },
+      {
+        "case": "reset-repeat-without-allocation",
+        "status": "PASS",
+        "protocol_status": 0,
+        "commands": 6,
+        "compared_values": 1,
+        "maximum_absolute_error": 0.0,
+        "atol": 0,
+        "rtol": 0,
+        "input_bytes": 424,
+        "response_bytes": 228
+      },
+      {
+        "case": "reset-stale-leaf-after-slot-reuse",
+        "status": "PASS",
+        "protocol_status": 1,
+        "commands": 5,
+        "compared_values": 1,
+        "maximum_absolute_error": 0.0,
+        "atol": 0,
+        "rtol": 0,
+        "input_bytes": 360,
+        "response_bytes": 196
+      },
+      {
+        "case": "reset-stale-graph-after-slot-reuse",
+        "status": "PASS",
+        "protocol_status": 1,
+        "commands": 6,
+        "compared_values": 1,
+        "maximum_absolute_error": 0.0,
+        "atol": 0,
+        "rtol": 0,
+        "input_bytes": 420,
+        "response_bytes": 228
+      },
+      {
+        "case": "reset-stale-view-after-slot-reuse",
+        "status": "PASS",
+        "protocol_status": 1,
+        "commands": 6,
+        "compared_values": 6,
+        "maximum_absolute_error": 0.0,
+        "atol": 0,
+        "rtol": 0,
+        "input_bytes": 440,
+        "response_bytes": 248
+      },
+      {
+        "case": "reset-rejects-encoded-retained",
+        "status": "PASS",
+        "protocol_status": 1,
+        "commands": 4,
+        "compared_values": 0,
+        "maximum_absolute_error": 0.0,
+        "atol": 0,
+        "rtol": 0,
+        "input_bytes": 296,
+        "response_bytes": 160
+      },
+      {
+        "case": "reset-rejects-slot-zero",
+        "status": "PASS",
+        "protocol_status": 1,
+        "commands": 4,
+        "compared_values": 0,
+        "maximum_absolute_error": 0.0,
+        "atol": 0,
+        "rtol": 0,
+        "input_bytes": 296,
+        "response_bytes": 160
+      },
+      {
+        "case": "reset-rejects-future-generation",
+        "status": "PASS",
+        "protocol_status": 1,
+        "commands": 4,
+        "compared_values": 0,
+        "maximum_absolute_error": 0.0,
+        "atol": 0,
+        "rtol": 0,
+        "input_bytes": 296,
+        "response_bytes": 160
+      },
+      {
+        "case": "reset-rejects-raw-reused-slot",
+        "status": "PASS",
+        "protocol_status": 1,
+        "commands": 4,
+        "compared_values": 0,
+        "maximum_absolute_error": 0.0,
+        "atol": 0,
+        "rtol": 0,
+        "input_bytes": 296,
+        "response_bytes": 160
+      },
+      {
+        "case": "reset-fixed-prefix-rejects-change",
+        "status": "PASS",
+        "protocol_status": 7,
+        "commands": 4,
+        "compared_values": 0,
+        "maximum_absolute_error": 0.0,
+        "atol": 0,
+        "rtol": 0,
+        "input_bytes": 296,
+        "response_bytes": 160
+      },
+      {
+        "case": "reset-rejects-unallocated-prefix",
+        "status": "PASS",
+        "protocol_status": 7,
+        "commands": 2,
+        "compared_values": 0,
+        "maximum_absolute_error": 0.0,
+        "atol": 0,
+        "rtol": 0,
+        "input_bytes": 164,
+        "response_bytes": 96
+      },
+      {
+        "case": "reset-rejects-overflow-prefix",
+        "status": "PASS",
+        "protocol_status": 7,
+        "commands": 2,
+        "compared_values": 0,
+        "maximum_absolute_error": 0.0,
+        "atol": 0,
+        "rtol": 0,
+        "input_bytes": 164,
+        "response_bytes": 96
+      },
+      {
+        "case": "reset-rejects-nonowned-or-nonleaf-clone",
+        "status": "PASS",
+        "protocol_status": 6,
+        "commands": 3,
+        "compared_values": 0,
+        "maximum_absolute_error": 0.0,
+        "atol": 0,
+        "rtol": 0,
+        "input_bytes": 228,
+        "response_bytes": 128
+      },
+      {
+        "case": "reset-rejects-nonowned-or-nonleaf-detach",
+        "status": "PASS",
+        "protocol_status": 6,
+        "commands": 3,
+        "compared_values": 0,
+        "maximum_absolute_error": 0.0,
+        "atol": 0,
+        "rtol": 0,
+        "input_bytes": 228,
+        "response_bytes": 128
+      },
+      {
+        "case": "reset-rejects-nonowned-or-nonleaf-view",
+        "status": "PASS",
+        "protocol_status": 6,
+        "commands": 3,
+        "compared_values": 0,
+        "maximum_absolute_error": 0.0,
+        "atol": 0,
+        "rtol": 0,
+        "input_bytes": 228,
+        "response_bytes": 128
+      },
+      {
+        "case": "reset-rejects-nonowned-or-nonleaf-transpose",
+        "status": "PASS",
+        "protocol_status": 6,
+        "commands": 3,
+        "compared_values": 0,
+        "maximum_absolute_error": 0.0,
+        "atol": 0,
+        "rtol": 0,
+        "input_bytes": 228,
+        "response_bytes": 128
+      },
+      {
+        "case": "reset-empty-owned-prefix-reclaims-data",
+        "status": "PASS",
+        "protocol_status": 0,
+        "commands": 10,
+        "compared_values": 4,
+        "maximum_absolute_error": 0.0,
+        "atol": 0,
+        "rtol": 0,
+        "input_bytes": 692,
+        "response_bytes": 368
+      },
+      {
+        "case": "reset-preserves-all-255-owned-leaves",
+        "status": "PASS",
+        "protocol_status": 0,
+        "commands": 265,
+        "compared_values": 6,
+        "maximum_absolute_error": 0.0,
+        "atol": 0,
+        "rtol": 0,
+        "input_bytes": 18012,
+        "response_bytes": 8744
+      },
+      {
+        "case": "reset-full-prefix-refuses-extra-slot",
+        "status": "PASS",
+        "protocol_status": 3,
+        "commands": 257,
+        "compared_values": 0,
+        "maximum_absolute_error": 0.0,
+        "atol": 0,
+        "rtol": 0,
+        "input_bytes": 16480,
+        "response_bytes": 8256
+      },
+      {
+        "case": "reset-slot255-reuses-with-generation",
+        "status": "PASS",
+        "protocol_status": 1,
+        "commands": 262,
+        "compared_values": 2,
+        "maximum_absolute_error": 0.0,
+        "atol": 0,
+        "rtol": 0,
+        "input_bytes": 16812,
+        "response_bytes": 8424
+      },
+      {
+        "case": "reset-matmul-vjp-generational-graph",
+        "status": "PASS",
+        "protocol_status": 0,
+        "commands": 24,
+        "compared_values": 12,
+        "maximum_absolute_error": 0.0,
+        "atol": 0,
+        "rtol": 0,
+        "input_bytes": 1632,
+        "response_bytes": 944
+      },
+      {
+        "case": "reset-index-gather-copied-index-lifetime",
+        "status": "PASS",
+        "protocol_status": 0,
+        "commands": 22,
+        "compared_values": 18,
+        "maximum_absolute_error": 0.0,
+        "atol": 0,
+        "rtol": 0,
+        "input_bytes": 1704,
+        "response_bytes": 808
+      },
+      {
+        "case": "reset-reclaims-9600000-transient-bytes",
+        "status": "PASS",
+        "protocol_status": 0,
+        "commands": 123,
+        "compared_values": 40000,
+        "maximum_absolute_error": 0.0,
+        "atol": 0,
+        "rtol": 0,
+        "input_bytes": 87904,
+        "response_bytes": 163968,
+        "transient_tensor_payload_bytes_over_run": 9600000,
+        "workspace_capacity_bytes": 1048576
+      },
+      {
+        "case": "reset-SGD-1000-real-iterations",
+        "status": "PASS",
+        "protocol_status": 0,
+        "commands": 7023,
+        "compared_values": 22,
+        "maximum_absolute_error": 0.0,
+        "atol": 0,
+        "rtol": 0,
+        "input_bytes": 449516,
+        "response_bytes": 225896,
+        "optimizer_updates": 1000,
+        "final_parameters": [
+          0.013307956978678703,
+          -0.019961895421147346
+        ]
+      },
+      {
+        "case": "reset-Adam-1000-real-iterations",
+        "status": "PASS",
+        "protocol_status": 0,
+        "commands": 6018,
+        "compared_values": 39,
+        "maximum_absolute_error": 9.685754776000977e-07,
+        "atol": 0.0002,
+        "rtol": 0.0002,
+        "input_bytes": 433232,
+        "response_bytes": 192868,
+        "optimizer_updates": 1000,
+        "final_reference_parameters": [
+          9.34280251385644e-06,
+          -9.33905721467454e-06,
+          -0.49999454617500305
+        ]
+      }
+    ],
+    "seconds": 4.1463736050009175
+  },
+  "integrated_failure_atomicity_review": {
+    "status": "PASS",
+    "cases": 10,
+    "source_sha256": "9199aaea08abf6247a565372d2ae015d2aeb9530d84890c0ad3a1f292052bf7f",
+    "candidate_executable_sha256": "192438931d5436d275dccfdebf7d6e32dfc8afa97a4b647d758d1898278e7fd4",
+    "harness_source_sha256": "e9273f119ae382e299d5cb4b63273f2a16711227c12202500549f7f7d4e62c86",
+    "harness_executable_sha256": "5e8f7a8bafec7107846b7782e541acf8ba185d0ba4a409d5150b8302f0ebd0ec",
+    "all_nonentry_functions_byte_identical": true,
+    "scope": "Scratch-only native entry replaces packet entry; executes same exact HIA graph_reset and library function bytes from candidate. Copies all workspace except8byteerrorstatus before attempted reset then independently compares every8byteword afterward. Only modes4,8,9 inject boundary generation values unreachable by bounded public request. No debug opcode shipped.",
+    "rows": [
+      {
+        "case": 0,
+        "status": "PASS",
+        "expected_error": 7,
+        "compared_workspace_bytes": 1048568,
+        "first_changed_offset": null,
+        "arena": 53260,
+        "generation": 0,
+        "boundary_handle": 0
+      },
+      {
+        "case": 1,
+        "status": "PASS",
+        "expected_error": 6,
+        "compared_workspace_bytes": 1048568,
+        "first_changed_offset": null,
+        "arena": 53272,
+        "generation": 0,
+        "boundary_handle": 0
+      },
+      {
+        "case": 2,
+        "status": "PASS",
+        "expected_error": 6,
+        "compared_workspace_bytes": 1048568,
+        "first_changed_offset": null,
+        "arena": 53260,
+        "generation": 0,
+        "boundary_handle": 0
+      },
+      {
+        "case": 3,
+        "status": "PASS",
+        "expected_error": 7,
+        "compared_workspace_bytes": 1048568,
+        "first_changed_offset": null,
+        "arena": 53272,
+        "generation": 1,
+        "boundary_handle": 0
+      },
+      {
+        "case": 4,
+        "status": "PASS",
+        "expected_error": 3,
+        "compared_workspace_bytes": 1048568,
+        "first_changed_offset": null,
+        "arena": 53260,
+        "generation": 72057594037927935,
+        "boundary_handle": 0
+      },
+      {
+        "case": 5,
+        "status": "PASS",
+        "expected_error": 7,
+        "compared_workspace_bytes": 1048568,
+        "first_changed_offset": null,
+        "arena": 53260,
+        "generation": 0,
+        "boundary_handle": 0
+      },
+      {
+        "case": 6,
+        "status": "PASS",
+        "expected_error": 7,
+        "compared_workspace_bytes": 1048568,
+        "first_changed_offset": null,
+        "arena": 53260,
+        "generation": 0,
+        "boundary_handle": 0
+      },
+      {
+        "case": 7,
+        "status": "PASS",
+        "expected_error": 6,
+        "compared_workspace_bytes": 1048568,
+        "first_changed_offset": null,
+        "arena": 53268,
+        "generation": 0,
+        "boundary_handle": 0
+      },
+      {
+        "case": 8,
+        "status": "PASS",
+        "expected_error": 3,
+        "compared_workspace_bytes": 1048568,
+        "first_changed_offset": null,
+        "arena": 53264,
+        "generation": 72057594037927935,
+        "boundary_handle": 18446744073709551362
+      },
+      {
+        "case": 9,
+        "status": "PASS",
+        "expected_error": 3,
+        "compared_workspace_bytes": 1048568,
+        "first_changed_offset": null,
+        "arena": 53260,
+        "generation": 72057594037927936,
+        "boundary_handle": 0
+      }
+    ]
+  },
+  "isolated_component_evidence": {
+    "implementation": {
+      "status": "PASS",
+      "binary_sha256": "8a2803490b6ac6f48e6efc9aff3334d1c42658515e6bf733eb9e1572b73498da",
+      "existing_regression_fixtures": 221,
+      "new_cases": 15,
+      "numeric_values": 268,
+      "cases": [
+        {
+          "case": "reset-preserves-values-gradients-versions",
+          "status": "PASS",
+          "expected_status": 0,
+          "numeric_values": 8,
+          "request_sha256": "f0bd30fc375e78a7818fec9044a04ee7fb0b46311c1bef8ab345b55d5bdd5868",
+          "response_sha256": "e0f3f9dd3ba3711a10342ec41f1eacba74a35f5d738af7000ac65f6d5fc12abc"
+        },
+        {
+          "case": "reset-rejects-initial-generation-reused-slot",
+          "status": "PASS",
+          "expected_status": 1,
+          "numeric_values": 0,
+          "request_sha256": "1827239310540a288e49d4977fc9d36eb2a2aba1fb8d8af1d712ff036097609b",
+          "response_sha256": "ab2d5e4987f9fa78f6f4e87144cba2fea7a6ab14856c3e11f0613be141eb4c73"
+        },
+        {
+          "case": "reset-rejects-later-generation-reused-slot",
+          "status": "PASS",
+          "expected_status": 1,
+          "numeric_values": 0,
+          "request_sha256": "1868074fd9eb65cf4397926ce5a65294fe9f74306e7a382ead7bf558059a3807",
+          "response_sha256": "bc1bd02e98fe8498fddb684091e1cc9da616aa09e2a5477abe341fed4f1e198e"
+        },
+        {
+          "case": "reset-rejects-raw-transient-slot",
+          "status": "PASS",
+          "expected_status": 1,
+          "numeric_values": 0,
+          "request_sha256": "caeea25018909e4c5c0b3548578310e75a83bc996e0df9ef4a60f189d0c8e645",
+          "response_sha256": "fa4373a07bfe65800747d351eb40e36ccd0f087b57216b8c196c1a1e6a2e069a"
+        },
+        {
+          "case": "reset-rejects-generated-persistent-id",
+          "status": "PASS",
+          "expected_status": 1,
+          "numeric_values": 0,
+          "request_sha256": "b13103d17e88b9071ea0e0385dcd238c14ef789757a96fa6c8863148083bb4ff",
+          "response_sha256": "44121b3de86949854e268f6fba48e85294d27005362e7e5d476f061fa6d3aaf9"
+        },
+        {
+          "case": "reset-empty-prefix",
+          "status": "PASS",
+          "expected_status": 0,
+          "numeric_values": 2,
+          "request_sha256": "94dd0b0f2b9fdf912bef10efd8765ef259aac8fc6d0276236fe0ead97f2611f9",
+          "response_sha256": "3b201106e58a578ea663e1f6a8ad944ee38d26c06b390e2aaed0820085a0cb67"
+        },
+        {
+          "case": "reset-frozen-zero-prefix",
+          "status": "PASS",
+          "expected_status": 7,
+          "numeric_values": 0,
+          "request_sha256": "98b4532fbae025b561dbd03c1f652c0e3f3bb03b2042708ce6d742199512d694",
+          "response_sha256": "21cc2a395291953c1660eebaa2d8852f6309f19f453bbde5433313bf9232ffe4"
+        },
+        {
+          "case": "reset-frozen-prefix",
+          "status": "PASS",
+          "expected_status": 7,
+          "numeric_values": 0,
+          "request_sha256": "b44b875f4599d1533ae00f4ceb76eae0a49d79e9f9b46a593865f76790811d3d",
+          "response_sha256": "a65c7f073e1921a3c7f4da63e780cf133dd9e5c757e5d2fb77bee671f9a008ec"
+        },
+        {
+          "case": "reset-invalid-prefix",
+          "status": "PASS",
+          "expected_status": 7,
+          "numeric_values": 0,
+          "request_sha256": "6e68f16a0a90369ac92921173909fc95966f7ea5d1e514d89908991d77d0b901",
+          "response_sha256": "efd8ed3a0f670827741307cf7e6c2795254333abb5823707aa78c9731d68beb7"
+        },
+        {
+          "case": "reset-refuses-retained-alias",
+          "status": "PASS",
+          "expected_status": 6,
+          "numeric_values": 0,
+          "request_sha256": "bb314d9a79786a18e1b6efb2b4183aa566320c66ca201b3410082e637ee4e91f",
+          "response_sha256": "102ee2e5c3ef3a3eac5ef1d3e9ae6e823ba54eb85307880eccd1b4f618792383"
+        },
+        {
+          "case": "reset-refuses-retained-graph",
+          "status": "PASS",
+          "expected_status": 6,
+          "numeric_values": 0,
+          "request_sha256": "133041fea9a38e42566e60e9b38a83bf10938d358a6ea2a77b4042fd94a8c3f7",
+          "response_sha256": "381839cc4701703a497ba7c6fab839ea5ec0ada87aba1f4f14a252a435581b90"
+        },
+        {
+          "case": "reset-empty-owned-leaf",
+          "status": "PASS",
+          "expected_status": 0,
+          "numeric_values": 2,
+          "request_sha256": "6ef1fcce850541df0faf33f402e5c73386f288f17db99eb7fec5e9484e0ed471",
+          "response_sha256": "3df642051867a2ed86d2a13378afbc5caacdb9b2a034a6f5860fb4e289afdce1"
+        },
+        {
+          "case": "reset-full-preserved-prefix",
+          "status": "PASS",
+          "expected_status": 0,
+          "numeric_values": 255,
+          "request_sha256": "de0aa80ccc6aaa81ebe31b99a2f66bb0f63c7d685dab3d1c71808ed277b1d7c5",
+          "response_sha256": "a40a2edd1578ae65c14a5ede4bcb7ac67a3d8dae96442bcf0d740a8a70bed161"
+        },
+        {
+          "case": "reset-full-prefix-capacity",
+          "status": "PASS",
+          "expected_status": 3,
+          "numeric_values": 0,
+          "request_sha256": "913b5f5a925df6ce27c06c31a0d7edd552e6de2e0d5a6a03af060916325e45a6",
+          "response_sha256": "dea86e880597fcad041b8e7482fc0a20cf0414d86e8276a57f0e0a8236bebde4"
+        },
+        {
+          "case": "reset-reclaims-large-transient-arena",
+          "status": "PASS",
+          "expected_status": 0,
+          "numeric_values": 1,
+          "request_sha256": "66e758f810507f55dd0a0f19e88a51b83c5b8514a345037ae0335ed9b3f1a1c4",
+          "response_sha256": "1cba61f5c6ea6ffc7921e370e29bdfeb2deecae2c27ae1a5022b00ff1e300342"
+        }
+      ]
+    },
+    "identity_invariants": {
+      "status": "PASS",
+      "source_sha256": "f32184f6f07a5f5d7246d8eba5097bbeb6330d4558131132b391a84abfc7d2fe",
+      "binary_sha256": "8a2803490b6ac6f48e6efc9aff3334d1c42658515e6bf733eb9e1572b73498da",
+      "cases": 12,
+      "compared_values": 370,
+      "oracle": "Independent exact values and coordinate-scatter/matrix gradients; error states from generation/ownership contract; no live PyTorch execution",
+      "rows": [
+        {
+          "name": "keep255-preserves-all-descriptors",
+          "status": "PASS",
+          "expected_status": 0,
+          "compared_values": 257,
+          "request_sha256": "665442831b08ceb44a92f120fe511c489f46c5a73becb8c2a15e11c122846358",
+          "response_sha256": "4b94bf0a0791e5aca0f960601effa8ba7132d33970390751bb693ce526ca187d"
+        },
+        {
+          "name": "handles-raw-old",
+          "status": "PASS",
+          "expected_status": 1,
+          "compared_values": 1,
+          "request_sha256": "09e4f9e70ebfd937f398c04f1cbc183fb02bb4977f5e88fddd8dcd6fd5da4a38",
+          "response_sha256": "8690be70a6dd6d77120e0fc5554fb03a9d208a6c839cbfa63a3838f61e9f0658"
+        },
+        {
+          "name": "handles-generation-old",
+          "status": "PASS",
+          "expected_status": 1,
+          "compared_values": 2,
+          "request_sha256": "ab65f61d3e40bf0c8e105fbe3b65ade6fc12ff388ed695bce8dbd09db6ad7e65",
+          "response_sha256": "ec0d73046f9f387942e9525fd706eabdb872544f1c3b92d5dec1970f72b2903c"
+        },
+        {
+          "name": "handles-future",
+          "status": "PASS",
+          "expected_status": 1,
+          "compared_values": 1,
+          "request_sha256": "a34a5231b352dc5ce58ea7370ba8ccc82440d7196a3cd25ea98808f5cfefbf6c",
+          "response_sha256": "8690be70a6dd6d77120e0fc5554fb03a9d208a6c839cbfa63a3838f61e9f0658"
+        },
+        {
+          "name": "handles-prefix-encoded",
+          "status": "PASS",
+          "expected_status": 1,
+          "compared_values": 1,
+          "request_sha256": "b4b9a6e65c2283264d94e2d159c0d6bd48cddaab4f4b66ff927c2a9b5251dbd6",
+          "response_sha256": "18b6ba20307ea65ec2356cd5f56dc4db82ac1a6f536e7ed1df557b37ece0a339"
+        },
+        {
+          "name": "handles-zero-slot",
+          "status": "PASS",
+          "expected_status": 1,
+          "compared_values": 1,
+          "request_sha256": "b90ae011f6088bd5c7d44fbbf9fb4f5763d0c954dce5af45d082a0351ac2df29",
+          "response_sha256": "8690be70a6dd6d77120e0fc5554fb03a9d208a6c839cbfa63a3838f61e9f0658"
+        },
+        {
+          "name": "new-generation-optimizer-owned-leaves",
+          "status": "PASS",
+          "expected_status": 0,
+          "compared_values": 7,
+          "request_sha256": "b7dd624da6d25cdecde8880127076ad7955ab405c3ee0d4d3b1e69d139996deb",
+          "response_sha256": "aff286661f74a9567054a511cd6c792b853907fa979c5f9fe5bfb05258c4574f"
+        },
+        {
+          "name": "generation-chain-retained-gradient-accumulation",
+          "status": "PASS",
+          "expected_status": 0,
+          "compared_values": 100,
+          "request_sha256": "0ce2a26fbc2d13517927e97d114bd0e780073ac78a823c98a3a274b0e86a12ae",
+          "response_sha256": "e3f566d49031dabe47a7c90e28180463f7134c3b72961692cf21bfe0fd74306e"
+        },
+        {
+          "name": "new-generation-saved-output-mutation",
+          "status": "PASS",
+          "expected_status": 6,
+          "compared_values": 0,
+          "request_sha256": "5d97e0b3aaf92b283237fb579eac48f100de24ceb3466d5c89e7171b718f3046",
+          "response_sha256": "dde9bb5845d67598519c8b7f0646a35ae7f46850936ebbf9c246859fd8ed8a35"
+        },
+        {
+          "name": "reject-retained-alias",
+          "status": "PASS",
+          "expected_status": 6,
+          "compared_values": 0,
+          "request_sha256": "bb314d9a79786a18e1b6efb2b4183aa566320c66ca201b3410082e637ee4e91f",
+          "response_sha256": "102ee2e5c3ef3a3eac5ef1d3e9ae6e823ba54eb85307880eccd1b4f618792383"
+        },
+        {
+          "name": "reject-prefix-growth",
+          "status": "PASS",
+          "expected_status": 7,
+          "compared_values": 0,
+          "request_sha256": "7a2fdbcbef24274400013ace4600a08b73ea8b6ac5146c3af8f4f0c492c08294",
+          "response_sha256": "e38116e143880fc4749992d4e29b8e444456de499078da00c869081854df69ad"
+        },
+        {
+          "name": "reject-prefix-shrink",
+          "status": "PASS",
+          "expected_status": 7,
+          "compared_values": 0,
+          "request_sha256": "05d9109d3bbadf9d056280a653ca021e9724b673e0ad5ce6122559192e8ecaee",
+          "response_sha256": "94d945731f24404a950443b82c3e81e8c7341658f5c27ad3222ed505dcbc23b5"
+        }
+      ]
+    },
+    "binding_note": "Original isolated-candidate hashes preserved; the14 implementation and12 invariant fixture pairs were subsequently replayed on the final integrated executable."
+  },
+  "hosted_oracle": {
+    "status": "NOT_RUN_LOCALLY",
+    "reason": "Local environment has no torch installation;159-case official CPU PyTorch gate executes on GitHub Actions."
+  },
+  "scope": {
+    "graph_reclamation": "Owned-leaf prefix preserved within one bounded request; transient generation handles and arena reclaimed",
+    "cross_request_persistence": false,
+    "whole_pytorch_rewrite_complete": false,
+    "full_upstream_schema_parity_count": 0
+  },
+  "oracle_static_review": {
+    "status": "PASS_STATIC_REVIEW",
+    "torch_executed": false,
+    "source_sha256": "3dc8db2544b8a4e4c169a0bd0b8c8adb5cb37c6d25b70cbb74539371fe862982",
+    "unchanged_top_level_functions": [
+      "bits",
+      "compare",
+      "emit",
+      "extensions",
+      "f32",
+      "function_case",
+      "operators",
+      "optimizers",
+      "seeded_case",
+      "spatial_modules",
+      "training"
+    ],
+    "changed_program_methods": [
+      "__init__",
+      "make",
+      "tensor",
+      "index_select",
+      "gather"
+    ],
+    "new_program_methods": [
+      "handle",
+      "reset_graph"
+    ],
+    "added_cases": 6,
+    "added_compared_values": 227,
+    "capacities": [
+      {
+        "case": "SGD",
+        "steps": 1024,
+        "commands": 5149,
+        "request_bytes": 329600,
+        "response_bytes": 165124,
+        "max_live_slots": 5,
+        "compared_values": 81
+      },
+      {
+        "case": "Adam",
+        "steps": 512,
+        "commands": 2581,
+        "request_bytes": 189856,
+        "response_bytes": 82836,
+        "max_live_slots": 7,
+        "compared_values": 53
+      },
+      {
+        "case": "AdamW",
+        "steps": 512,
+        "commands": 2581,
+        "request_bytes": 189856,
+        "response_bytes": 82836,
+        "max_live_slots": 7,
+        "compared_values": 53
+      },
+      {
+        "case": "accumulated-gradients",
+        "commands": 25,
+        "request_bytes": 1644,
+        "response_bytes": 928,
+        "max_live_slots": 3,
+        "compared_values": 24
+      },
+      {
+        "case": "empty-prefix",
+        "commands": 24,
+        "request_bytes": 1600,
+        "response_bytes": 832,
+        "max_live_slots": 3,
+        "compared_values": 8
+      },
+      {
+        "case": "empty-kept-tensor",
+        "commands": 34,
+        "request_bytes": 2216,
+        "response_bytes": 1152,
+        "max_live_slots": 5,
+        "compared_values": 8
+      }
+    ]
+  }
+}

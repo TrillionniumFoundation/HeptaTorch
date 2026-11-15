@@ -219,6 +219,22 @@
       "backward": "implemented",
       "qualification": "independent NumPy and analytical checks; native regression fixtures; hosted153-case gate recorded separately",
       "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "training-graph-reclamation",
+      "hia_functions": [
+        "graph_reset",
+        "live_id",
+        "valid",
+        "descriptor",
+        "mark_graph",
+        "backward_seed"
+      ],
+      "scope": "fixed initial owned-leaf prefix; preserve parameter/optimizer values, gradients and versions; reclaim all other descriptors and arena bytes; generation-checked transient IDs; no implicit zero_grad; bounded single request",
+      "forward": "implemented",
+      "backward": "retained leaves accept new graphs across generations",
+      "qualification": "native regressions and independent long-training, handle and whole-workspace failure-atomicity checks; hosted real PyTorch comparison recorded separately",
+      "full_upstream_schema_qualified": false
     }
   ],
   "unimplemented_subsystems": [
@@ -237,17 +253,26 @@
     "full checkpoint and serialization",
     "cross-platform execution",
     "large model memory management and device kernels",
-    "graph reclamation and persistent training-session state"
+    "persistent state across requests, general lifetime/allocator management"
   ],
   "maximum_pooling_terms": 16777216,
   "maximum_matmul_terms": 16777216,
   "native_compilation_unit": {
-    "functions": 117,
-    "blocks": 1364,
-    "instructions": 5486,
+    "functions": 119,
+    "blocks": 1393,
+    "instructions": 5612,
     "maximum_functions": 128,
     "maximum_blocks": 1536,
     "maximum_instructions": 8192,
     "general_module_linking": false
+  },
+  "tensor_descriptor_limit_scope": "255 simultaneously live slots; command33 reclaims transient graph slots within the current request",
+  "tensor_handles": {
+    "slot_bits": 8,
+    "generation_bits": 56,
+    "retained_prefix_ids": "unchanged original IDs",
+    "transient_ids": "(generation << 8) | slot",
+    "wrong_generation": "rejected with status1",
+    "scope": "one bounded request; no cross-request persistence"
   }
 }

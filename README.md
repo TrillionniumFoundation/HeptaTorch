@@ -16,6 +16,7 @@ HIA 原生张量、自动微分和神经网络训练运行时。核心实现由 
 | 神经网络 | rank 1–4 输入的 Linear、MSE、softmax/log-softmax、最后一维 LayerNorm、冻结统计量的 BatchNorm、概率目标交叉熵 |
 | 空间算子 | NCHW/OIHW conv2d、分组与 depthwise 卷积、逐轴 stride/dilation/padding、平均池化和最大池化，以及对应反向传播 |
 | 优化器 | SGD、momentum、Nesterov、Adam、AdamW；显式状态张量与版本失效检查 |
+| 训练生命周期 | 保留参数／状态的图回收、工作区复用、带代际信息的张量 ID、旧句柄拒绝；单次请求内反复训练 |
 | 执行接口 | 有边界检查的二进制命令协议、明确错误状态、原生 HIA 十六进制解码工具 |
 
 本次实现使用软件浮点算术。运行时无 Python、PyTorch、NumPy、libm 或 libc 依赖。HIA 编译器的初始 bootstrap 使用其上游 Python 实现和 GNU ld，随后由 HIA 编译器自行重建；构建与运行依赖见 [构建说明](docs/build.md)。
@@ -29,24 +30,25 @@ make HEPTA_COMPILER=/absolute/path/to/hia-native-compiler test
 
 编译器、上游源版本与校验和均固定。GitHub Actions 从固定的 Hepta 源码重新 bootstrap 编译器，再编译本仓库并执行原生回归夹具。`make test` 使用本仓库的 HIA 解码器，不需要 Python 或 `xxd`。
 
-运行已经验证的两层 ReLU 网络训练命令流：
+运行已经验证的 1,000 步 SGD 训练命令流：
 
 ```sh
-./build/unhex < tests/fixtures/mlp-adam-training-18-steps.input.hex > build/train.request
+./build/unhex < tests/fixtures/session-review-reset-SGD-1000-real-iterations.input.hex > build/train.request
 ./build/heptatorch < build/train.request > build/train.response
-./build/unhex < tests/fixtures/mlp-adam-training-18-steps.output.hex > build/train.expected
+./build/unhex < tests/fixtures/session-review-reset-SGD-1000-real-iterations.output.hex > build/train.expected
 cmp build/train.response build/train.expected
 ```
 
-命令流包含实际的前向、反向和 18 次 Adam 更新。输入、标签、初始参数及优化器状态均由请求提供。
+命令流最小化平方损失，每一步执行前向、反向、参数更新和图回收。参数保持原 ID，临时图复用描述符与工作区。原有的两层 ReLU／18 步 Adam 训练夹具也保留在回归集中。
 
 ## 已观察到的验证结果
 
 - 基础数值层：**2,314,020** 次原生运算与独立 NumPy binary32 参考逐位一致，算术 NaN 统一为规范 quiet NaN。
 - exp/log/sigmoid/tanh：**3,424,359** 次测量；另用 90 位精度参考检查 **20,025** 个输入。测量误差及适用解释见 [数值说明](docs/numerics.md)。
 - 集成：广播、视图、梯度、空间算子、模块、优化器、异常输入和容量边界，均有独立参考或明确拒绝结果。
-- 当前集成版本：**221 对原生回归夹具**通过；新增矩阵与 Linear 的 **63 项／4,593 个值**检查、**2,514 项**独立矩阵形状／梯度／拒绝检查，以及 **11 项／529 个值**跨算子集成检查通过。各项的单位、独立参考和源码身份见 [本次原生验证](validation/native-extension.json)。
-- 托管 CI：当前源码的 **153 项／8,244 个真实 PyTorch 数值对照**全部通过，包括三种无掩码、无 dropout 注意力组合的前向与 Q/K/V 梯度。[成功运行](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43740237504)同时通过编译器自重建、221 对原生夹具、源码／二进制／夹具精确绑定，以及 11 项安装包来源检查。[本次完整回执](validation/hosted-extension.json)与[原基线历史回执](validation/hosted.json)分别保存。
+- 当前集成版本：**273 对原生回归夹具**通过，其中原有 221 对字节未变。图生命周期的 **26 项／40,123 个值**独立检查通过，包括单次请求中的 **1,000 步 SGD、1,000 步 Adam**，以及在 1 MiB 工作区内反复回收共 **9,600,000 字节**的临时张量数据和梯度缓冲。另有 **10 项**失败原子性检查，每项比较除错误状态外的全部 **1,048,568 字节**，均未发生修改。[当前原生验证](validation/session-native.json)保存具体案例、误差和最终源码／二进制身份。
+- 上一批算子扩展的矩阵与 Linear **63 项／4,593 个值**检查、**2,514 项**独立矩阵形状／梯度／拒绝检查，以及 **11 项／529 个值**跨算子集成检查均通过；对应历史源码身份保留在[算子扩展验证](validation/native-extension.json)。
+- 托管 CI：上一批源码的 **153 项／8,244 个真实 PyTorch 数值对照**全部通过，包括三种无掩码、无 dropout 注意力组合的前向与 Q/K/V 梯度。[成功运行](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43740237504)及[完整回执](validation/hosted-extension.json)保留其精确身份。当前图回收版本的门禁扩展为 **159 项**，增加长步数 SGD／Adam／AdamW 和跨代际梯度检查；新源码须由新的托管运行验证，旧回执不替代它。
 - 线性回归：**30 次 SGD 更新**，更新前损失从 **5.1570835** 降至 **0.0342863**。
 - 两层 ReLU 分类器：**18 次 Adam 更新**，更新前交叉熵从 **0.6822657** 降至 **0.0017283**；该固定 8 样本任务更新后分类正确率 **100%**。
 
@@ -54,9 +56,9 @@ cmp build/train.response build/train.expected
 
 ## 当前边界与完整目标
 
-当前设备为 CPU，dtype 为 binary32，张量 rank 不超过 4；一次请求最多 255 个张量描述符，输入、输出和工作区各为 1 MiB。卷积、矩阵乘法和池化各有每次 16,777,216 项的计算预算。整数索引载荷不等于完整整数张量 dtype 支持。空间、优化器和自动微分的具体限制见 [接口协议](docs/protocol.md)及 [能力清单](compatibility/capabilities.json)。
+当前设备为 CPU，dtype 为 binary32，张量 rank 不超过 4；同时存活的张量描述符最多 255 个，可以通过图回收在同一请求内复用。输入、输出和工作区仍各为 1 MiB；跨请求持久化尚未实现。卷积、矩阵乘法和池化各有每次 16,777,216 项的计算预算。整数索引载荷不等于完整整数张量 dtype 支持。空间、优化器和自动微分的具体限制见 [接口协议](docs/protocol.md)及 [能力清单](compatibility/capabilities.json)。
 
-本次审计修复了池化缺少计算预算的问题，并统一了二维与批量矩阵乘法的原生实现。后续的架构重点是 HIA 原生模块链接与张量 ABI、可回收的训练图及持久参数状态：当前编译单元已使用固定编译器的 117／128 个函数名额和 1,364／1,536 个基本块。具体证据及完整目标见 [审计更新](docs/upstream-audit.md#native-extension-audit)。
+本次审计修复了池化缺少计算预算的问题，统一了二维与批量矩阵乘法，并实现了保留参数／状态的图回收。后续的架构重点是 HIA 原生模块链接与张量 ABI、规模扩展和跨请求状态管理：当前编译单元已使用固定编译器的 119／128 个函数名额和 1,393／1,536 个基本块。具体证据及完整目标见 [审计更新](docs/upstream-audit.md#training-graph-lifetime-audit)。
 
 完整目标尚包括：完整 dtype/layout/promotion 语义、其余算子及重载、高阶和前向自动微分、CUDA/ROCm/MPS/XPU、分布式、图捕获与编译优化、数据加载、RNG、完整 checkpoint/serialization、Python/C++ 前端兼容和跨平台构建。[上游审计](docs/upstream-audit.md)列出这些目标的验收条件。
 
