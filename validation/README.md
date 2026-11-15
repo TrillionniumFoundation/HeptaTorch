@@ -6,7 +6,7 @@ cases, seven spatial/training integration cases, 894 scalar special-value
 vectors, and 19 independently reviewed adversarial groups. These counts describe
 different sets and units; they are not a count of upstream PyTorch tests.
 
-The native packet corpus contains 273 input/expected-output pairs. Its exact
+The native packet corpus contains 275 input/expected-output pairs. Its exact
 files, sizes and hashes are recorded in `fixture-manifest.json`. `make test`
 executes all of them through the native HIA hexadecimal decoder and tensor
 executable with empty PATH. Responses were recorded only after independent
@@ -133,16 +133,17 @@ runtime, test workflow, compiler recipe and fixture bytes unchanged.
 ## Current training graph lifetime
 
 `session-native.json` binds the current integrated source and executable. All
-273 native packet pairs pass: 221 previous pairs remain byte-identical and 52
+275 native packet pairs pass: 221 previous request inputs remain byte-identical, five previous output files
+are independently requalified after the Adam rounding correction, and 54
 new pairs cover graph reset, generation-checked IDs and retained state. The new
 pairs comprise 14 implementation cases, 12 independent invariant cases and 26
-independent public-protocol cases. The original isolated component identities
+independent public-protocol cases, plus two 512-step rounding regressions. The original isolated component identities
 remain attached; replay results are bound to the final binary separately.
 
 The final independent public-protocol review passes 26 cases and compares
 40,123 numeric values, including 1,000 SGD and 1,000 Adam updates in single
 requests. SGD matches an independent binary32 recurrence exactly; the maximum
-Adam discrepancy is 9.685754776e-7 against independently computed state and bias
+Adam discrepancy is 9.089708328e-7 against independently computed state and bias
 correction. A retained 20,000-element tensor also survives 20 backward/reset
 iterations that allocate 9,600,000 cumulative transient payload bytes within
 the unchanged 1 MiB workspace. Both 1,000-step optimizer requests fit the HIA
@@ -150,14 +151,37 @@ hex decoder and are durable native fixtures.
 
 Ten further native rejection checks compare all 1,048,568 workspace bytes except
 the eight-byte status field. None changes after rejected reset. The scratch-only
-entry harness preserves every one of the 118 nonentry HIA function bodies from
+entry harness preserves every one of the 120 nonentry HIA function bodies from
 the final production source. Boundary-generation injection is confined to that
 harness; no debug opcode or artificial test state is shipped in the runtime.
 
 The hosted gate now requires exactly 159 unique real-PyTorch cases. It retains
 the previous 153 case definitions and tolerances, adds six graph-lifetime cases,
-and checks the exact current source, image and 273-pair fixture manifest. The
+and checks the exact current source, image and 275-pair fixture manifest. The
 six additions cover 1,024-step SGD, 512-step Adam, 512-step AdamW, gradient
 accumulation, an empty retained prefix and an empty retained tensor. Their
 oracle results must come from a new hosted execution; earlier receipts qualify
 only their own recorded runtime identities.
+
+### Adam rounding failure and correction
+
+The first 159-case hosted run failed in two new 512-step Adam/AdamW trajectories,
+with maximum absolute discrepancies of 0.000664085 and 0.000812143. Its complete
+report, exact source/image identity and successful native/build/provenance
+checks remain in `hosted-session-failure.json`; that run is not relabeled.
+
+The runtime correction uses stable lerp for the first moment and software fused
+multiply-add for the final product/addition in the second moment. The software
+FMA passed 485,163 independent exact binary32 comparisons, and both 512-step
+native sessions reproduce all eight originally published PyTorch reference
+values exactly. The original 17-case optimizer reference (320 values), 18-step
+network reference (56 values), four large-gradient cases, 26 lifetime cases and
+ten workspace refusal probes were rerun against the corrected binary. All
+passed with their original numerical thresholds.
+
+Six pre-correction golden responses changed; each was independently requalified
+before updating. This includes five files from the pre-existing 221-pair corpus
+and one added 1,000-step Adam response. Every earlier request input is preserved.
+Two 512-step native regression pairs bring the corpus to 275 pairs. The real
+PyTorch oracle's 159 cases, hyperparameters, random sequence and tolerances are
+unchanged. A fresh hosted run must qualify the corrected source.

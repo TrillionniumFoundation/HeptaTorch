@@ -302,8 +302,8 @@ clearing uses a raw descriptor address, avoiding a masked `dptr(256)` wrap to
 slot zero. Invalid prefix ranges or changes, retained aliases/nonleaves and
 generation exhaustion are rejected before state mutation.
 
-The final binary passed 273 native packet pairs, preserving all 221 earlier
-pairs. Its independent 26-case review compared 40,123 numeric values, including
+The final binary passed 275 native packet pairs, preserving all 221 earlier
+request inputs and independently requalifying five changed Adam output files. Its independent 26-case review compared 40,123 numeric values, including
 1,000 SGD and 1,000 Adam updates within individual requests. Another case
 reclaimed 9,600,000 cumulative transient bytes in the unchanged 1 MiB workspace.
 Ten native refusal probes compared all 1,048,568 workspace bytes other than the
@@ -312,10 +312,18 @@ nonentry production function bodies byte for byte and is not a production
 debug interface. Exact identities and original isolated-component records are
 in `validation/session-native.json`.
 
-The compiler profile is unchanged: the runtime now uses 119 functions, 1,393
-blocks and 5,612 instructions. Graph reset does not increase request/response
+The compiler profile is unchanged: the runtime now uses 121 functions, 1,439
+blocks and 5,751 instructions. Graph reset does not increase request/response
 capacities, provide cross-request persistence, general reference counting or
 full upstream graph-lifetime compatibility. The new hosted gate requires 159
 uniquely named real-PyTorch cases, with long SGD/Adam/AdamW sessions and preserved
 gradient tests added after the unchanged previous 153 cases. A fresh hosted
 receipt is required for this runtime revision.
+
+The first 159-case hosted execution found two 512-step Adam trajectory failures,
+retained with their original identities in `validation/hosted-session-failure.json`.
+The correction adds stable first-moment lerp and software fused multiply-add
+for the second moment. Independent FMA qualification passed 485,163 exact bit
+comparisons. Six expected-response files were updated only after the original
+independent optimizer/training references passed; two new 512-step regression
+pairs make 275 total. The oracle inputs and thresholds remain unchanged.

@@ -3,37 +3,40 @@
   "status": "PASS",
   "baseline_commit": "297f34be8f0e9f2a2283042db513abafc3f1e7dd",
   "source": "src/heptatorch.hepta",
-  "source_sha256": "9199aaea08abf6247a565372d2ae015d2aeb9530d84890c0ad3a1f292052bf7f",
-  "executable_sha256": "192438931d5436d275dccfdebf7d6e32dfc8afa97a4b647d758d1898278e7fd4",
+  "source_sha256": "4c1d17240dd8616798e238cdd54641ee6f2e42c02635c82b3bdeea0a530b5ca5",
+  "executable_sha256": "ecca265b088e0688df8ad963613f6bdf460efd324d0c480e6395e4ef67372779",
   "build": {
     "compiler_sha256": "87c247e4d1c3c9a449d2947fd4227fdc186d519bffd203a04cafce7861a4ed54",
-    "source_bytes": 373509,
-    "executable_bytes": 557772,
-    "functions": 119,
-    "blocks": 1393,
-    "instructions": 5612
+    "source_bytes": 383387,
+    "executable_bytes": 570551,
+    "functions": 121,
+    "blocks": 1439,
+    "instructions": 5751
   },
   "native_regression": {
     "status": "PASS",
-    "fixture_pairs": 273,
-    "unchanged_previous_pairs": 221,
-    "new_pairs": 52,
+    "fixture_pairs": 275,
+    "unchanged_previous_pairs": 216,
+    "new_pairs": 54,
     "new_pair_groups": {
       "session-implementation-": 14,
       "session-invariant-": 12,
-      "session-review-": 26
+      "session-review-": 26,
+      "optimizer-rounding": 2
     },
     "command": "make HEPTA_COMPILER=<pinned-native-compiler> test",
     "environment": {
       "PATH": ""
     },
-    "fixture_manifest": "validation/fixture-manifest.json"
+    "fixture_manifest": "validation/fixture-manifest.json",
+    "previous_input_pairs_unchanged": 221,
+    "requalified_previous_output_pairs": 5
   },
   "integrated_public_protocol_review": {
     "status": "PASS",
     "cases": 26,
-    "source_sha256": "9199aaea08abf6247a565372d2ae015d2aeb9530d84890c0ad3a1f292052bf7f",
-    "executable_sha256": "192438931d5436d275dccfdebf7d6e32dfc8afa97a4b647d758d1898278e7fd4",
+    "source_sha256": "4c1d17240dd8616798e238cdd54641ee6f2e42c02635c82b3bdeea0a530b5ca5",
+    "executable_sha256": "ecca265b088e0688df8ad963613f6bdf460efd324d0c480e6395e4ef67372779",
     "compiler_sha256": "87c247e4d1c3c9a449d2947fd4227fdc186d519bffd203a04cafce7861a4ed54",
     "seed_changes": false,
     "oracle": "Protocol semantics independently specified; NumPy float32 exact SGD recurrence; independent float64 bias-corrected Adam reference with float32 state; analytic matmul/VJP/indexing derivatives",
@@ -351,7 +354,7 @@
         "protocol_status": 0,
         "commands": 6018,
         "compared_values": 39,
-        "maximum_absolute_error": 9.685754776000977e-07,
+        "maximum_absolute_error": 9.08970832824707e-07,
         "atol": 0.0002,
         "rtol": 0.0002,
         "input_bytes": 433232,
@@ -364,15 +367,15 @@
         ]
       }
     ],
-    "seconds": 4.1463736050009175
+    "seconds": 3.9117938020008296
   },
   "integrated_failure_atomicity_review": {
     "status": "PASS",
     "cases": 10,
-    "source_sha256": "9199aaea08abf6247a565372d2ae015d2aeb9530d84890c0ad3a1f292052bf7f",
-    "candidate_executable_sha256": "192438931d5436d275dccfdebf7d6e32dfc8afa97a4b647d758d1898278e7fd4",
-    "harness_source_sha256": "e9273f119ae382e299d5cb4b63273f2a16711227c12202500549f7f7d4e62c86",
-    "harness_executable_sha256": "5e8f7a8bafec7107846b7782e541acf8ba185d0ba4a409d5150b8302f0ebd0ec",
+    "source_sha256": "4c1d17240dd8616798e238cdd54641ee6f2e42c02635c82b3bdeea0a530b5ca5",
+    "candidate_executable_sha256": "ecca265b088e0688df8ad963613f6bdf460efd324d0c480e6395e4ef67372779",
+    "harness_source_sha256": "a4ed1961df8eb24fea6007b0f5f50aa68878342adc274fb0f7d6ae5fc0aa9237",
+    "harness_executable_sha256": "edd2c2659c9f917457fca869f7c1267f56dc3bd35a267c28ad77d86d0bb38ae4",
     "all_nonentry_functions_byte_identical": true,
     "scope": "Scratch-only native entry replaces packet entry; executes same exact HIA graph_reset and library function bytes from candidate. Copies all workspace except8byteerrorstatus before attempted reset then independently compares every8byteword afterward. Only modes4,8,9 inject boundary generation values unreachable by bounded public request. No debug opcode shipped.",
     "rows": [
@@ -809,5 +812,347 @@
         "compared_values": 8
       }
     ]
+  },
+  "optimizer_rounding_correction": {
+    "status": "PASS_LOCAL_REQUIRES_FRESH_HOSTED_RUN",
+    "unchanged_before_fix_pairs": 267,
+    "requalified_changed_outputs": 6,
+    "historical_failed_hosted_receipt": "validation/hosted-session-failure.json",
+    "software_fma": {
+      "schema": "heptatorch.software-fma-independent.v1",
+      "status": "PASS",
+      "oracle": "System libm fmaf: correctly rounded binary32 fused multiply-add; all NaN results canonicalized to0x7fc00000; all other outputs including signedzero compared byexactbits",
+      "seed": 16742321885461,
+      "source_sha256": "00a3db103e7917b01385a1d96820892fd3463534493fd48fd9970a22e2799995",
+      "executable_sha256": "7664b6b1cb28cdb4e5250205f6c373eab84995dfb15b596dbea033b466fca7ba",
+      "candidate_source_sha256": "4c1d17240dd8616798e238cdd54641ee6f2e42c02635c82b3bdeea0a530b5ca5",
+      "candidate_executable_sha256": "ecca265b088e0688df8ad963613f6bdf460efd324d0c480e6395e4ef67372779",
+      "cases": 5,
+      "exact_bit_comparisons": 485163,
+      "rows": [
+        {
+          "case": "all-special-value-triples",
+          "status": "PASS",
+          "exact_bit_comparisons": 17576
+        },
+        {
+          "case": "uniform-random-bit-patterns",
+          "status": "PASS",
+          "exact_bit_comparisons": 250000
+        },
+        {
+          "case": "exact-and-neighbor-product-cancellation",
+          "status": "PASS",
+          "exact_bit_comparisons": 156267
+        },
+        {
+          "case": "exponent-mantissa-overflow-cancellation-boundaries",
+          "status": "PASS",
+          "exact_bit_comparisons": 15240
+        },
+        {
+          "case": "subnormal-halfway-ties-and-signed-results",
+          "status": "PASS",
+          "exact_bit_comparisons": 46080
+        }
+      ],
+      "seconds": 1.0897146009992866
+    },
+    "native_sessions_and_golden_changes": {
+      "kind": "independent-arithmetic-model-and-recorded-hosted-comparisons",
+      "torch_executed_locally": false,
+      "binary_sha256": "ecca265b088e0688df8ad963613f6bdf460efd324d0c480e6395e4ef67372779",
+      "sessions": [
+        {
+          "case": "Adam",
+          "status": "PASS",
+          "steps": 512,
+          "model_values_checked": 16,
+          "published_hosted_reference_values_checked": 5,
+          "actual": {
+            "p": [
+              0.48493656516075134,
+              -0.4845586121082306,
+              0.24307584762573242,
+              0.7273544073104858
+            ],
+            "g": [
+              -0.007512390613555908,
+              0.007441267371177673,
+              -0.0041031986474990845,
+              -0.01139146089553833
+            ],
+            "m": [
+              3.336157533340156e-06,
+              -4.330651427153498e-05,
+              -0.00011318664473947138,
+              -9.125469659920782e-06
+            ],
+            "v": [
+              7.623398090572664e-08,
+              5.840399808221264e-08,
+              8.05308957296802e-08,
+              3.942007964496952e-08
+            ]
+          },
+          "request_sha256": "c9cb7690cef2c3083857724df02da9f5f63b747ec40c7fea1d935e7abc4d48fe",
+          "response_sha256": "a1e6e54cfa48a416d9320098048b43b2a3a9c7a92266ac89eee305b1f21f996a"
+        },
+        {
+          "case": "AdamW",
+          "status": "PASS",
+          "steps": 512,
+          "model_values_checked": 16,
+          "published_hosted_reference_values_checked": 3,
+          "actual": {
+            "p": [
+              0.5004169344902039,
+              -0.5009113550186157,
+              0.25052979588508606,
+              0.7493904232978821
+            ],
+            "g": [
+              -0.0003014206886291504,
+              0.00019155442714691162,
+              -0.0002581179141998291,
+              7.787346839904785e-05
+            ],
+            "m": [
+              -0.00010586588177829981,
+              8.070256444625556e-05,
+              -8.743978105485439e-05,
+              7.583897968288511e-05
+            ],
+            "v": [
+              1.1069109007166844e-07,
+              3.129142100988247e-08,
+              6.802014951290403e-08,
+              1.2296570162106946e-07
+            ]
+          },
+          "request_sha256": "ee3540f90b832aa5b0a06f9933897ad83b0f67d8dc7ff9265d4ac66772f2d5a7",
+          "response_sha256": "6fac5fd88d757f4bbf2c7dc2d45bb05cbad05b4b40584ec982d6a8b1975f282f"
+        }
+      ],
+      "golden_changes": [
+        {
+          "fixture": "adam-coupled-wd-0.0.input.hex",
+          "changed_u32_words": 11,
+          "old_response_sha256": "b0b69c575d99a41135198252f323bc97d49d59846e852ad4e67cfda98555ff42",
+          "new_response_sha256": "5ca5a69b9671eda2158c0f237b5b9c83887b99ad5c8371b7adbfe2d84507c546"
+        },
+        {
+          "fixture": "adam-coupled-wd-0.07.input.hex",
+          "changed_u32_words": 12,
+          "old_response_sha256": "125968267d4107ff17d7d6d72d80aa233c1ef98705c9bea222421f39083b264e",
+          "new_response_sha256": "bf20c01f30765a5ec10e8a4d2f3a62f239d444a027a99f77cb4106176f1ca710"
+        },
+        {
+          "fixture": "adam-decoupled-wd-0.0.input.hex",
+          "changed_u32_words": 4,
+          "old_response_sha256": "0097f38249204417eacb1ddbac6f266da044ae2399fc0c9012b0c4895a73e0f0",
+          "new_response_sha256": "d0c6afbf22e6411be3e310991f39cd356d0bb351186c9e9e9c6677addd44d8c4"
+        },
+        {
+          "fixture": "adam-decoupled-wd-0.07.input.hex",
+          "changed_u32_words": 3,
+          "old_response_sha256": "d3f1ed9469d5697c16aecf0c096f976be19964fe1ac934a6e01328dbdac09e74",
+          "new_response_sha256": "e860234ff993cd61890cb8d15c3b97b06e913262adf03d101c98158968cd69c5"
+        },
+        {
+          "fixture": "mlp-adam-training-18-steps.input.hex",
+          "changed_u32_words": 28,
+          "old_response_sha256": "b2e44030029226574f3e4e697103f3632a2e927596a380ad7d7d76aaec34c337",
+          "new_response_sha256": "f9f39b5a0e6f01bf04ca11fe6027949268f23bbeee7fbf0ee522f3a8bd406f46"
+        },
+        {
+          "fixture": "session-review-reset-Adam-1000-real-iterations.input.hex",
+          "changed_u32_words": 7,
+          "old_response_sha256": "60c725f97155932829abcc311d71d4da8dc54ff21b6dcccafd4f9d8ec5e4c702",
+          "new_response_sha256": "8f1bf2a1652c56c9a14433e0676097ff25aa4f6c88a4b97677ed25d2dab70e89"
+        }
+      ],
+      "unchanged_fixtures": 267,
+      "status": "PASS_SESSIONS_GOLDEN_UPDATES_REQUIRE_INDEPENDENT_QUALIFICATION"
+    },
+    "independent_optimizer_reference": {
+      "schema": "heptatorch.optimizer-validation.v1",
+      "status": "PASS",
+      "oracle": "independent NumPy float64 recurrences, f32 hyperparameters; default Adam bias powers are f32 in runtime",
+      "cases": 17,
+      "compared_values": 320,
+      "rows": [
+        {
+          "case": "adam-coupled-wd-0.0",
+          "status": "PASS",
+          "compared_values": 52,
+          "expected_status": 0,
+          "fixture": true
+        },
+        {
+          "case": "adam-coupled-wd-0.07",
+          "status": "PASS",
+          "compared_values": 52,
+          "expected_status": 0,
+          "fixture": true
+        },
+        {
+          "case": "adam-decoupled-wd-0.0",
+          "status": "PASS",
+          "compared_values": 52,
+          "expected_status": 0,
+          "fixture": true
+        },
+        {
+          "case": "adam-decoupled-wd-0.07",
+          "status": "PASS",
+          "compared_values": 52,
+          "expected_status": 0,
+          "fixture": true
+        },
+        {
+          "case": "momentum-0.9-0.0-0",
+          "status": "PASS",
+          "compared_values": 27,
+          "expected_status": 0,
+          "fixture": true
+        },
+        {
+          "case": "momentum-0.9-0.2-0",
+          "status": "PASS",
+          "compared_values": 27,
+          "expected_status": 0,
+          "fixture": true
+        },
+        {
+          "case": "momentum-0.9-0.0-1",
+          "status": "PASS",
+          "compared_values": 27,
+          "expected_status": 0,
+          "fixture": true
+        },
+        {
+          "case": "momentum-0.0-0.0-0",
+          "status": "PASS",
+          "compared_values": 27,
+          "expected_status": 0,
+          "fixture": true
+        },
+        {
+          "case": "adam-large-gradient-2e+19",
+          "status": "PASS",
+          "compared_values": 2,
+          "expected_status": 0,
+          "fixture": true
+        },
+        {
+          "case": "adam-large-gradient-1e+20",
+          "status": "PASS",
+          "compared_values": 2,
+          "expected_status": 0,
+          "fixture": true
+        },
+        {
+          "case": "adam-step-zero",
+          "status": "PASS",
+          "compared_values": 0,
+          "expected_status": 7,
+          "fixture": true
+        },
+        {
+          "case": "adam-beta-one",
+          "status": "PASS",
+          "compared_values": 0,
+          "expected_status": 7,
+          "fixture": true
+        },
+        {
+          "case": "adam-beta-nan",
+          "status": "PASS",
+          "compared_values": 0,
+          "expected_status": 7,
+          "fixture": true
+        },
+        {
+          "case": "adam-epsilon-negative",
+          "status": "PASS",
+          "compared_values": 0,
+          "expected_status": 7,
+          "fixture": true
+        },
+        {
+          "case": "adam-state-alias",
+          "status": "PASS",
+          "compared_values": 0,
+          "expected_status": 7,
+          "fixture": true
+        },
+        {
+          "case": "adam-state-shape",
+          "status": "PASS",
+          "compared_values": 0,
+          "expected_status": 2,
+          "fixture": true
+        },
+        {
+          "case": "nesterov-dampening",
+          "status": "PASS",
+          "compared_values": 0,
+          "expected_status": 7,
+          "fixture": true
+        }
+      ],
+      "source_sha256": "4c1d17240dd8616798e238cdd54641ee6f2e42c02635c82b3bdeea0a530b5ca5",
+      "executable_sha256": "ecca265b088e0688df8ad963613f6bdf460efd324d0c480e6395e4ef67372779"
+    },
+    "independent_mlp_reference": {
+      "status": "PASS",
+      "source_sha256": "4c1d17240dd8616798e238cdd54641ee6f2e42c02635c82b3bdeea0a530b5ca5",
+      "executable_sha256": "ecca265b088e0688df8ad963613f6bdf460efd324d0c480e6395e4ef67372779",
+      "case": "mlp-adam-training-18-steps",
+      "oracle": "Original independent float64 analytic forward/backprop and Adam recurrences; original rtol4e-4 atol2e-5 retained",
+      "training": {
+        "steps": 18,
+        "initial_loss": 0.682265685780814,
+        "last_pre_update_loss": 0.0017282889221473304,
+        "post_update_accuracy": 1.0,
+        "task": "deterministic two-layer ReLU XOR classifier; all four parameters updated by native Adam",
+        "samples": 8,
+        "hidden_width": 4,
+        "gradient_oracle": "independent float64 analytic backpropagation; no HIA derivative code reused"
+      },
+      "rows": [
+        {
+          "case": "mlp-adam-training-18-steps",
+          "status": "PASS",
+          "compared_values": 56,
+          "expected_status": 0,
+          "fixture": true
+        }
+      ],
+      "large_gradient_recheck": [
+        {
+          "gradient": 1.9999999961012896e+19,
+          "parameter": 0.9800000190734863,
+          "second_moment": 3.999948665368281e+35
+        },
+        {
+          "gradient": 1.0000000200408773e+20,
+          "parameter": 0.9800000190734863,
+          "second_moment": 9.99987190110519e+36
+        },
+        {
+          "gradient": -1.9999999961012896e+19,
+          "parameter": 1.0199999809265137,
+          "second_moment": 3.999948665368281e+35
+        },
+        {
+          "gradient": -1.0000000200408773e+20,
+          "parameter": 1.0199999809265137,
+          "second_moment": 9.99987190110519e+36
+        }
+      ]
+    },
+    "oracle_tolerances_hyperparameters_and_cases_unchanged": true
   }
 }

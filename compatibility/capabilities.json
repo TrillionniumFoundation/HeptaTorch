@@ -188,9 +188,11 @@
       "hia_functions": [
         "sgd",
         "sgd_momentum",
-        "adam"
+        "adam",
+        "fmaf",
+        "lerpf"
       ],
-      "scope": "SGD, momentum/Nesterov, Adam/AdamW; explicit owned state and caller step; no grad=None/AMSGrad/parameter groups",
+      "scope": "SGD, momentum/Nesterov, Adam/AdamW; explicit owned state and caller step; no grad=None/AMSGrad/parameter groups; stable lerp first moment and software fused final multiply-add for Adam second moment",
       "forward": "implemented",
       "backward": "implemented where mathematically applicable",
       "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
@@ -258,9 +260,9 @@
   "maximum_pooling_terms": 16777216,
   "maximum_matmul_terms": 16777216,
   "native_compilation_unit": {
-    "functions": 119,
-    "blocks": 1393,
-    "instructions": 5612,
+    "functions": 121,
+    "blocks": 1439,
+    "instructions": 5751,
     "maximum_functions": 128,
     "maximum_blocks": 1536,
     "maximum_instructions": 8192,

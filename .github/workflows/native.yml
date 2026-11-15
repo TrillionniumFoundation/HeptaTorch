@@ -127,11 +127,11 @@ jobs:
           assert evidence['executable_sha256'] == digest('build/heptatorch')
           paths = {entry['path'] for entry in manifest['files']}
           assert paths == {str(p) for p in Path('tests/fixtures').glob('*.hex')}
-          assert manifest['fixture_pairs'] == len(paths) // 2 == 273
+          assert manifest['fixture_pairs'] == len(paths) // 2 == 275
           for entry in manifest['files']:
               assert Path(entry['path']).stat().st_size == entry['bytes']
               assert digest(entry['path']) == entry['sha256']
-          print('PASS: exact native source, image and 273 fixture-pair manifest')
+          print('PASS: exact native source, image and 275 fixture-pair manifest')
           MANIFEST
 
       - name: Install the independent pinned PyTorch CPU oracle
