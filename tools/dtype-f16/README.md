@@ -56,3 +56,7 @@ it does not invoke that C++ implementation. The byte packet helpers come from th
 previously qualified native BF16 component at source SHA-256
 `2f4790a050ccf24bc869c4a9a46c4be4fd740355f363b086eac512e360718469`.
 The full 2,590-schema, 17-subsystem acceptance remains HOLD.
+
+## Actual hosted qualification
+
+[Run 43799179683](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43799179683) passed against both CPython and the exact locked PyTorch 2.15.0+cpu wheel: 16 cases, 817,083 non-NaN bit comparisons and 4,471 NaN classification checks per reference. All 11 PyTorch provenance checks passed. The [full receipt](../../validation/hosted-native-f16.json) binds source, compiler, native image and executed oracle script to implementation commit `ef96a4f1218b62afe92c60b1631815c0a03854ca`. The existing Native HIA workflow also passed all 34 steps at that commit. These are conversion checks; Tensor dtype integration and full upstream acceptance remain open.

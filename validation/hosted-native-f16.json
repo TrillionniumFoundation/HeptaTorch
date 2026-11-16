@@ -1,0 +1,542 @@
+{
+  "schema": "heptatorch.hosted-native-f16.v1",
+  "status": "PASS_FOR_RECORDED_SCOPE",
+  "tested_commit": "ef96a4f1218b62afe92c60b1631815c0a03854ca",
+  "workflow_run_id": 43799179683,
+  "workflow_job_id": 133074904459,
+  "url": "https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43799179683",
+  "workflow_source_sha256": "8f673cfc31a0df6ba4d7d6693d73c6eb65c13cef8ded7b36ea6ff9b49a62168f",
+  "steps": [
+    {
+      "name": "Set up job",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 1
+    },
+    {
+      "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 2
+    },
+    {
+      "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 3
+    },
+    {
+      "name": "Reproduce native HIA compiler",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 4
+    },
+    {
+      "name": "Install exact independent PyTorch wheel",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 5
+    },
+    {
+      "name": "Native differential against real PyTorch",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 6
+    },
+    {
+      "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 11
+    },
+    {
+      "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 12
+    },
+    {
+      "name": "Complete job",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 13
+    }
+  ],
+  "raw_log_sha256": "f9e3c935d5eb41f716a7a634b086c7965901232b4ef940edb0aa500fc628cca7",
+  "reports": [
+    {
+      "schema": "heptatorch.native-f16-conversion-review.v1",
+      "status": "PASS",
+      "reference": "cpython",
+      "oracle_provenance": null,
+      "source_sha256": "85b9387deccbf67f78bc28da4994ae691b144dbaa927d66d5677d94d6f70a105",
+      "compiler_sha256": "87c247e4d1c3c9a449d2947fd4227fdc186d519bffd203a04cafce7861a4ed54",
+      "native_executable_sha256": "97c52928ef9dc201c02818c73bb2f82351dbc5fe0305f3b3dc58b32aa92031ac",
+      "source_producer_and_image_unchanged": true,
+      "oracle_script_sha256": "34940af7cd7c4dbb8de376e8e041d6c7f3820a6a6fbbea07bf3d6ec61562ccd9",
+      "native_compilations_byte_identical": true,
+      "cases": 16,
+      "failed_cases": 0,
+      "exact_non_nan": 817083,
+      "nan_classification": 4471,
+      "rows": [
+        {
+          "case": "widen-all-65536-encodings",
+          "status": "PASS",
+          "input_count": 65536,
+          "exact_non_nan": 63490,
+          "nan_classification": 2046,
+          "mismatches": [],
+          "request_sha256": "989e64e4f1b2d79dcda70ccbb4350c93daab6141ff09899eebeb079b7da6adf3",
+          "response_sha256": "e480333675acffbf9a7743c3a880785d814341cfa8b11f2eef426c9da451b9d4",
+          "reference_packed_sha256": "ace258bc1879e9180ecf63aa1c93a37850c018bad062cc7a98c42232c72204b6"
+        },
+        {
+          "case": "round-all-exact-half-values",
+          "status": "PASS",
+          "input_count": 65536,
+          "exact_non_nan": 63490,
+          "nan_classification": 2046,
+          "mismatches": [],
+          "request_sha256": "049449646de3aee4c08637b79c7002ecffcde7ef113dc8b4d5332a0477921974",
+          "response_sha256": "3079794689340437507e6ba48c765ceb7773ad74eb4b189f074462213b0e36b7",
+          "reference_packed_sha256": "1cf019b8000192e57048795931a21d9727dd913dba0830e1c663132a9e62c9b8"
+        },
+        {
+          "case": "round-every-finite-half-boundary-and-neighbors",
+          "status": "PASS",
+          "input_count": 190464,
+          "exact_non_nan": 190464,
+          "nan_classification": 0,
+          "mismatches": [],
+          "request_sha256": "87b13e9210d95fde29a13939e8b5450c48b226f7fc005be128f2aea4af4e91fe",
+          "response_sha256": "a73d48db57006b0aac61099f0c3454b6b374bfcd3a834627dcc202cfe4051179",
+          "reference_packed_sha256": "e95311ce479f2de70ec0ca60765ca149507b321d56d43acfcb1c9bfa5420cb10"
+        },
+        {
+          "case": "round-100000-seeded-f32-encodings",
+          "status": "PASS",
+          "input_count": 100000,
+          "exact_non_nan": 99627,
+          "nan_classification": 373,
+          "mismatches": [],
+          "request_sha256": "05e1a7f5ab5b262c4eebb41683e7fe002d479e1cf0072afcb1664a095274c228",
+          "response_sha256": "f036e8b000e6a4d2c0dbb76ff4dfd1ea9e910f9005bd5b8820bd27df1507356c",
+          "reference_packed_sha256": "5b3ad833f491b0fc4b6b39292520309549b4d4059dcd60c5a927b9ac44bed395"
+        },
+        {
+          "case": "round-special-f32-encodings",
+          "status": "PASS",
+          "input_count": 18,
+          "exact_non_nan": 12,
+          "nan_classification": 6,
+          "mismatches": [],
+          "request_sha256": "cefb36b999165093c43cd9b99ee6b8a80027764dada6ca292fc4f04345e9f0e3",
+          "response_sha256": "4ddd99c842151f67f61600fcedf059f8248e4c6378c3d9ec2ae59e58f519da4f",
+          "reference_packed_sha256": "ec004721cb715d924de9cffbcf70e78bdf3d8aadfbcf4a1e5085af89169e5863"
+        },
+        {
+          "case": "round-empty",
+          "status": "PASS",
+          "input_count": 0,
+          "exact_non_nan": 0,
+          "nan_classification": 0,
+          "mismatches": [],
+          "request_sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+          "response_sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+          "reference_packed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "case": "widen-empty",
+          "status": "PASS",
+          "input_count": 0,
+          "exact_non_nan": 0,
+          "nan_classification": 0,
+          "mismatches": [],
+          "request_sha256": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8",
+          "response_sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+          "reference_packed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "case": "round-exact-packet-count-limit",
+          "status": "PASS",
+          "input_count": 200000,
+          "exact_non_nan": 200000,
+          "nan_classification": 0,
+          "mismatches": [],
+          "request_sha256": "4c16730e74fe22574cd26f356ce985e4bbf220afdf085766de7c9fa46edf2e57",
+          "response_sha256": "d3971774de668346b067c5a99444ed8ada5b2774660d00126bef8b7ad7acb192",
+          "reference_packed_sha256": "554ce5399a823017c633f9675344d786ba8049df557ebf0ddb1e3ef738211466"
+        },
+        {
+          "case": "widen-exact-packet-count-limit",
+          "status": "PASS",
+          "input_count": 200000,
+          "exact_non_nan": 200000,
+          "nan_classification": 0,
+          "mismatches": [],
+          "request_sha256": "6cbdfee5ed2f8d0dcc9f3baa8f5dd51b5e174cf4a6e3f00ee45393ce4cd466a2",
+          "response_sha256": "8c7b586d7df38c5b2fec217b7981eddfd235dfd3b479e99a8b57463aa4dc8a31",
+          "reference_packed_sha256": "0d0d4607617e00da5729e931ba939785d95dadf22b8f8ebff0a032a5f0884f35"
+        },
+        {
+          "case": "refuse-short-header",
+          "status": "PASS",
+          "request_sha256": "837885c8f8091aeaeb9ec3c3f85a6ff470a415e610b8ba3e49f9b33c9cf9d619",
+          "response_sha256": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450"
+        },
+        {
+          "case": "refuse-unknown-mode",
+          "status": "PASS",
+          "request_sha256": "d86e8112f3c4c4442126f8e9f44f16867da487f29052bf91b810457db34209a4",
+          "response_sha256": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450"
+        },
+        {
+          "case": "refuse-truncated-f32",
+          "status": "PASS",
+          "request_sha256": "48fc2ea12d47df40af2a6a8a3b8338ef2f4697b4b9dea6e34fed0032d3f2e4b7",
+          "response_sha256": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450"
+        },
+        {
+          "case": "refuse-truncated-half",
+          "status": "PASS",
+          "request_sha256": "c1a55026080627649a9e5f2226e3ce91f2c1b7959d429a312a0c96339108b6c9",
+          "response_sha256": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450"
+        },
+        {
+          "case": "refuse-extra-payload",
+          "status": "PASS",
+          "request_sha256": "f91b14e7bbea4c5bfa0e1a704017716659f4910e557b869f226a69652d2a6f12",
+          "response_sha256": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450"
+        },
+        {
+          "case": "refuse-count-limit-plus-one",
+          "status": "PASS",
+          "request_sha256": "ee2d59011107680401f10513c66090955533144fbbad259fbd6c944e5fe89bdd",
+          "response_sha256": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450"
+        },
+        {
+          "case": "refuse-u32-max-count",
+          "status": "PASS",
+          "request_sha256": "b15348c8f462384c01e83b6d499c6faf3f96808f5aa07c6bab4b65b36b4445d4",
+          "response_sha256": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450"
+        }
+      ],
+      "exact_nan_payload_parity_claimed": false,
+      "torch_or_python_production_runtime": false,
+      "scope": "Native IEEE binary16 conversion, finite RNE boundaries and packet refusal; complete dtype/Tensor integration and full upstream gates remain open."
+    },
+    {
+      "schema": "heptatorch.native-f16-conversion-review.v1",
+      "status": "PASS",
+      "reference": "pytorch",
+      "oracle_provenance": {
+        "status": "PASS",
+        "lock_path": "/home/runner/work/HeptaTorch/HeptaTorch/compatibility/pytorch-oracle-lock.json",
+        "lock_sha256": "ca2e54ce65083bbe0ab3d47b6878971271765ab35a9dd70725fa345fceed3944",
+        "expected": {
+          "distribution": "torch",
+          "version": "2.15.0+cpu",
+          "git_commit": "d0f2af8b66b20da4baa50644c0cd3f887a2eae2e",
+          "backend_versions": {
+            "cuda": null,
+            "hip": null,
+            "rocm": null,
+            "xpu": null
+          },
+          "python": {
+            "implementation": "cpython",
+            "version": [
+              3,
+              12
+            ]
+          },
+          "platform": {
+            "sys_platform": "linux",
+            "machine": "x86_64"
+          },
+          "wheel": {
+            "url": "https://download-r2.pytorch.org/whl/cpu/torch-2.15.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl",
+            "sha256": "0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3",
+            "filename": "torch-2.15.0+cpu-cp312-cp312-manylinux_2_28_x86_64.whl",
+            "python_tag": "cp312",
+            "abi_tag": "cp312",
+            "platform_tag": "manylinux_2_28_x86_64",
+            "metadata_sha256": "8bbf94c86c3be6cf586385861d476b78cb66d19b67fef49ece4f7d68ca428cc3"
+          },
+          "install_report": "build/pytorch-install.json"
+        },
+        "observed": {
+          "python": {
+            "implementation": "cpython",
+            "version": [
+              3,
+              12
+            ],
+            "full_version": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]"
+          },
+          "platform": {
+            "sys_platform": "linux",
+            "machine": "x86_64"
+          },
+          "version": "2.15.0+cpu",
+          "git_commit": "d0f2af8b66b20da4baa50644c0cd3f887a2eae2e",
+          "backend_versions": {
+            "cuda": null,
+            "hip": null,
+            "rocm": null,
+            "xpu": null
+          },
+          "distribution_version": "2.15.0+cpu",
+          "direct_url": {
+            "archive_info": {
+              "hash": "sha256=0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3",
+              "hashes": {
+                "sha256": "0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3"
+              }
+            },
+            "url": "https://download-r2.pytorch.org/whl/cpu/torch-2.15.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl"
+          },
+          "install_report": {
+            "path": "build/pytorch-install.json",
+            "pip_version": "24.0",
+            "download_info": {
+              "url": "https://download-r2.pytorch.org/whl/cpu/torch-2.15.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl",
+              "archive_info": {
+                "hash": "sha256=0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3",
+                "hashes": {
+                  "sha256": "0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3"
+                }
+              }
+            },
+            "metadata_name": "torch",
+            "metadata_version": "2.15.0+cpu",
+            "requested": true
+          }
+        },
+        "checks": {
+          "python_matches": true,
+          "platform_matches": true,
+          "version_backend_matches": true,
+          "git_matches_oracle_build_pin": true,
+          "distribution_version_matches": true,
+          "direct_url_matches": true,
+          "direct_url_archive_sha256_matches": true,
+          "pip_report_url_matches": true,
+          "pip_report_archive_sha256_matches": true,
+          "pip_report_version_matches": true,
+          "pip_report_requested": true
+        },
+        "metadata_error": null,
+        "release_source_equivalence": {
+          "inventory_commit": "31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
+          "wheel_build_commit": "d0f2af8b66b20da4baa50644c0cd3f887a2eae2e",
+          "wheel_build_is_direct_parent_of_inventory_commit": true,
+          "torch_git_matches_upstream_pin": false,
+          "release_root_tree": "156b7013e253ac50abaa4de8a4d2e6dd7acbbb56",
+          "wheel_build_root_tree": "408badfd8e01265470f4efedfe22fa547b128351",
+          "root_entry_counts": {
+            "release": 74,
+            "wheel": 74
+          },
+          "root_trees_truncated": {
+            "release": false,
+            "wheel": false
+          },
+          "changed_paths": [
+            "pyproject.toml"
+          ],
+          "change": "The release commit adds five lines under [tool.ruff], setting target-version to py310 with explanatory comments. There are no deletions. Every other root entry and every source subtree is identical.",
+          "wheel_pyproject_blob": "6d2cb5e341729de25288267e24d76c20254288f8",
+          "release_pyproject_blob": "e7648b0fcb198697832a6aab3469719a9992a8ec",
+          "identical_subtrees": {
+            ".ci": "40279ceebccac57277fdaabf1fb8cb70b60850d6",
+            ".claude": "0075de12edc4d9bdbf28e567c5f54f3ac5e78201",
+            ".ctags.d": "3c8ba0dccbb55f2da51365a465144aa69c6025d0",
+            ".devcontainer": "6abd271cefad60b09bbfacb63e53325198cd5521",
+            ".github": "8ae0eeb95729b758872993f4a7fed6ffcefb286c",
+            ".spin": "ef791f9c9264cb8a8e13acce7ee418e0f9c956ac",
+            ".vscode": "ea91f344ac83b434b498fa28b4b8b555e68a9126",
+            "android": "d2ff3db5f9fac06b8ddce4b796409a09e8e5e8a8",
+            "aten": "742dba1bfe6135f3573e4eaac689742744628174",
+            "benchmarks": "ec19294aeabfaae61be43f8ea98c7bfe5e507b56",
+            "binaries": "f5249d171f1af6f07384c91418892a45d05fee22",
+            "c10": "bcd92827e525817818af6e44b77f64460823bef1",
+            "caffe2": "73f5fcafe72932ee5cbaab1b2bd879f8a634344e",
+            "cmake": "b622eeb5fe4620c3f58529c34cc52b4466af8519",
+            "docs": "5b3f3b84bd0c6597c7c926d221739ab4c9d4fc9f",
+            "functorch": "c559f838225b0971bc22fcb2672589c27ef01456",
+            "mypy_plugins": "f2f6231e180a450273107602eef43bd9433a51c0",
+            "scripts": "940b5e644e48b7eedc65292e19e56e4c7a9abb98",
+            "test": "9dcb79311a6209012b019fc6f20209d2804cca98",
+            "third_party": "60ad164358c335341c6a7840bb80256079e6dd8e",
+            "tools": "f35164cd2daf3f11baadcccc5551800e38392432",
+            "torch": "2877dbcda5441192b89ab6272c24bed424e53bd4",
+            "torchgen": "f5fb760a18c6d4c81a4b665ad7adef7348dba6a3"
+          },
+          "scope": "Only this exact official wheel SHA256/build commit and this exact inventory release commit. This is source equivalence for the recorded lint-only release change, not identity of the two Git commits or an allowance for other builds."
+        }
+      },
+      "source_sha256": "85b9387deccbf67f78bc28da4994ae691b144dbaa927d66d5677d94d6f70a105",
+      "compiler_sha256": "87c247e4d1c3c9a449d2947fd4227fdc186d519bffd203a04cafce7861a4ed54",
+      "native_executable_sha256": "97c52928ef9dc201c02818c73bb2f82351dbc5fe0305f3b3dc58b32aa92031ac",
+      "source_producer_and_image_unchanged": true,
+      "oracle_script_sha256": "34940af7cd7c4dbb8de376e8e041d6c7f3820a6a6fbbea07bf3d6ec61562ccd9",
+      "native_compilations_byte_identical": true,
+      "cases": 16,
+      "failed_cases": 0,
+      "exact_non_nan": 817083,
+      "nan_classification": 4471,
+      "rows": [
+        {
+          "case": "widen-all-65536-encodings",
+          "status": "PASS",
+          "input_count": 65536,
+          "exact_non_nan": 63490,
+          "nan_classification": 2046,
+          "mismatches": [],
+          "request_sha256": "989e64e4f1b2d79dcda70ccbb4350c93daab6141ff09899eebeb079b7da6adf3",
+          "response_sha256": "e480333675acffbf9a7743c3a880785d814341cfa8b11f2eef426c9da451b9d4",
+          "reference_packed_sha256": "b636c5716ff84d972782faf02d0194cb8951526bea4cc487082feb47b1860ddf"
+        },
+        {
+          "case": "round-all-exact-half-values",
+          "status": "PASS",
+          "input_count": 65536,
+          "exact_non_nan": 63490,
+          "nan_classification": 2046,
+          "mismatches": [],
+          "request_sha256": "049449646de3aee4c08637b79c7002ecffcde7ef113dc8b4d5332a0477921974",
+          "response_sha256": "3079794689340437507e6ba48c765ceb7773ad74eb4b189f074462213b0e36b7",
+          "reference_packed_sha256": "1cf019b8000192e57048795931a21d9727dd913dba0830e1c663132a9e62c9b8"
+        },
+        {
+          "case": "round-every-finite-half-boundary-and-neighbors",
+          "status": "PASS",
+          "input_count": 190464,
+          "exact_non_nan": 190464,
+          "nan_classification": 0,
+          "mismatches": [],
+          "request_sha256": "87b13e9210d95fde29a13939e8b5450c48b226f7fc005be128f2aea4af4e91fe",
+          "response_sha256": "a73d48db57006b0aac61099f0c3454b6b374bfcd3a834627dcc202cfe4051179",
+          "reference_packed_sha256": "e95311ce479f2de70ec0ca60765ca149507b321d56d43acfcb1c9bfa5420cb10"
+        },
+        {
+          "case": "round-100000-seeded-f32-encodings",
+          "status": "PASS",
+          "input_count": 100000,
+          "exact_non_nan": 99627,
+          "nan_classification": 373,
+          "mismatches": [],
+          "request_sha256": "05e1a7f5ab5b262c4eebb41683e7fe002d479e1cf0072afcb1664a095274c228",
+          "response_sha256": "f036e8b000e6a4d2c0dbb76ff4dfd1ea9e910f9005bd5b8820bd27df1507356c",
+          "reference_packed_sha256": "0d2aabb62d852573850bdda19d5be7e85bedb8de41f82d0bb0d90ea02e0f9c44"
+        },
+        {
+          "case": "round-special-f32-encodings",
+          "status": "PASS",
+          "input_count": 18,
+          "exact_non_nan": 12,
+          "nan_classification": 6,
+          "mismatches": [],
+          "request_sha256": "cefb36b999165093c43cd9b99ee6b8a80027764dada6ca292fc4f04345e9f0e3",
+          "response_sha256": "4ddd99c842151f67f61600fcedf059f8248e4c6378c3d9ec2ae59e58f519da4f",
+          "reference_packed_sha256": "9575c5d29f165b6cfc56dc2b0f6e71b2e5c119786d87109cc5adeb3b982015bf"
+        },
+        {
+          "case": "round-empty",
+          "status": "PASS",
+          "input_count": 0,
+          "exact_non_nan": 0,
+          "nan_classification": 0,
+          "mismatches": [],
+          "request_sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+          "response_sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+          "reference_packed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "case": "widen-empty",
+          "status": "PASS",
+          "input_count": 0,
+          "exact_non_nan": 0,
+          "nan_classification": 0,
+          "mismatches": [],
+          "request_sha256": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8",
+          "response_sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+          "reference_packed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "case": "round-exact-packet-count-limit",
+          "status": "PASS",
+          "input_count": 200000,
+          "exact_non_nan": 200000,
+          "nan_classification": 0,
+          "mismatches": [],
+          "request_sha256": "4c16730e74fe22574cd26f356ce985e4bbf220afdf085766de7c9fa46edf2e57",
+          "response_sha256": "d3971774de668346b067c5a99444ed8ada5b2774660d00126bef8b7ad7acb192",
+          "reference_packed_sha256": "554ce5399a823017c633f9675344d786ba8049df557ebf0ddb1e3ef738211466"
+        },
+        {
+          "case": "widen-exact-packet-count-limit",
+          "status": "PASS",
+          "input_count": 200000,
+          "exact_non_nan": 200000,
+          "nan_classification": 0,
+          "mismatches": [],
+          "request_sha256": "6cbdfee5ed2f8d0dcc9f3baa8f5dd51b5e174cf4a6e3f00ee45393ce4cd466a2",
+          "response_sha256": "8c7b586d7df38c5b2fec217b7981eddfd235dfd3b479e99a8b57463aa4dc8a31",
+          "reference_packed_sha256": "0d0d4607617e00da5729e931ba939785d95dadf22b8f8ebff0a032a5f0884f35"
+        },
+        {
+          "case": "refuse-short-header",
+          "status": "PASS",
+          "request_sha256": "837885c8f8091aeaeb9ec3c3f85a6ff470a415e610b8ba3e49f9b33c9cf9d619",
+          "response_sha256": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450"
+        },
+        {
+          "case": "refuse-unknown-mode",
+          "status": "PASS",
+          "request_sha256": "d86e8112f3c4c4442126f8e9f44f16867da487f29052bf91b810457db34209a4",
+          "response_sha256": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450"
+        },
+        {
+          "case": "refuse-truncated-f32",
+          "status": "PASS",
+          "request_sha256": "48fc2ea12d47df40af2a6a8a3b8338ef2f4697b4b9dea6e34fed0032d3f2e4b7",
+          "response_sha256": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450"
+        },
+        {
+          "case": "refuse-truncated-half",
+          "status": "PASS",
+          "request_sha256": "c1a55026080627649a9e5f2226e3ce91f2c1b7959d429a312a0c96339108b6c9",
+          "response_sha256": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450"
+        },
+        {
+          "case": "refuse-extra-payload",
+          "status": "PASS",
+          "request_sha256": "f91b14e7bbea4c5bfa0e1a704017716659f4910e557b869f226a69652d2a6f12",
+          "response_sha256": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450"
+        },
+        {
+          "case": "refuse-count-limit-plus-one",
+          "status": "PASS",
+          "request_sha256": "ee2d59011107680401f10513c66090955533144fbbad259fbd6c944e5fe89bdd",
+          "response_sha256": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450"
+        },
+        {
+          "case": "refuse-u32-max-count",
+          "status": "PASS",
+          "request_sha256": "b15348c8f462384c01e83b6d499c6faf3f96808f5aa07c6bab4b65b36b4445d4",
+          "response_sha256": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450"
+        }
+      ],
+      "exact_nan_payload_parity_claimed": false,
+      "torch_or_python_production_runtime": false,
+      "scope": "Native IEEE binary16 conversion, finite RNE boundaries and packet refusal; complete dtype/Tensor integration and full upstream gates remain open."
+    }
+  ],
+  "ordinary_runtime_regression_run_id": 43799179694,
+  "ordinary_runtime_regression_conclusion": "success",
+  "whole_pytorch_rewrite_complete": false,
+  "tensor_dtype_integration_complete": false
+}
