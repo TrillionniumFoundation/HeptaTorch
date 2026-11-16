@@ -3,7 +3,7 @@ on:
   push:
     branches: ["feature/native-tensor-objects", "feature/native-backward-release", "feature/native-backward-partial", "feature/native-cpu-generators", "feature/native-gradient-none", "feature/native-optimizer-objects"]
   pull_request:
-    paths: ["tests/pytorch_backward_release_probe.py", "tests/pytorch_backward_partial_probe.py", "tests/pytorch_gradient_presence_probe.py", "tests/pytorch_gradient_signed_zero_probe.py", "tests/pytorch_grad_clear_probe.py", "tests/pytorch_optimizer_object_probe.py", "tests/pytorch_requires_grad_probe.py", "tests/pytorch_accumulator_lifetime_probe.py", "tests/pytorch_gradient_object_probe.py", "tests/pytorch_bernoulli_dropout_probe.py", "tests/pytorch_uniform_probe.py", "tests/pytorch_uniform_range_probe.py", ".github/workflows/backward-observations.yml"]
+    paths: ["tests/pytorch_backward_release_probe.py", "tests/pytorch_backward_partial_probe.py", "tests/pytorch_gradient_presence_probe.py", "tests/pytorch_gradient_signed_zero_probe.py", "tests/pytorch_grad_clear_probe.py", "tests/pytorch_optimizer_object_probe.py", "tests/pytorch_requires_grad_probe.py", "tests/pytorch_accumulator_lifetime_probe.py", "tests/pytorch_gradient_object_probe.py", "tests/pytorch_bernoulli_dropout_probe.py", "tests/pytorch_uniform_probe.py", "tests/pytorch_uniform_range_probe.py", "tests/pytorch_gradient_materialization_probe.py", "tests/pytorch_gradient_alias_edge_probe.py", "tests/pytorch_bernoulli_gradient_layout_probe.py", "tests/pytorch_zero_merge_layout_probe.py", "tests/pytorch_scalar_add_nan_probe.py", "tests/pytorch_extreme_stride_probe.py", ".github/workflows/backward-observations.yml"]
   workflow_dispatch:
 permissions:
   contents: read
@@ -113,3 +113,137 @@ jobs:
             --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
             --repo . --output build/torch-gradient-objects.json > build/torch-gradient-objects.stdout
           python3 -I -S -B tools/emit_ci_report.py build/torch-gradient-objects.json
+      - name: Verify fixed incoming-gradient materialization source and syntax
+        run: |
+          echo '8706090d731cf705e68a2e474693d10448b1fa00371ca8ddd5db36163500bd69  tests/pytorch_gradient_materialization_probe.py' | sha256sum -c -
+          python3 -I -S -B -m py_compile tests/pytorch_gradient_materialization_probe.py
+      - name: Prepare incoming-gradient materialization observation plan
+        run: |
+          python3 -I -S -B tests/pytorch_gradient_materialization_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/torch-gradient-materialization-prepared.json --prepare-only
+          python3 -I -S -B tools/emit_ci_report.py build/torch-gradient-materialization-prepared.json
+      - name: Observe actual incoming-gradient copy steal and layout controls
+        run: |
+          python3 tests/pytorch_gradient_materialization_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/torch-gradient-materialization.json
+      - name: Preserve complete incoming-gradient observations including failures
+        if: always()
+        run: |
+          test -f build/torch-gradient-materialization.json
+          python3 -I -S -B tools/emit_ci_report.py build/torch-gradient-materialization.json
+      - name: Verify fixed gradient alias and edge-order source and syntax
+        run: |
+          echo 'cc0392888f0db9f7026c3f24e0787845b60e43b5e18d8c63cdcb8c720d51acd5  tests/pytorch_gradient_alias_edge_probe.py' | sha256sum -c -
+          python3 -I -S -B -m py_compile tests/pytorch_gradient_alias_edge_probe.py
+      - name: Prepare gradient alias mutation and edge-order observation plan
+        run: |
+          python3 -I -S -B tests/pytorch_gradient_alias_edge_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/torch-gradient-alias-edge-prepared.json --prepare-only
+          python3 -I -S -B tools/emit_ci_report.py build/torch-gradient-alias-edge-prepared.json
+      - name: Observe gradient alias mutation lifetimes and repeated-edge rounding
+        run: |
+          python3 tests/pytorch_gradient_alias_edge_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/torch-gradient-alias-edge.json
+      - name: Preserve complete gradient alias and edge-order observations
+        if: always()
+        run: |
+          test -f build/torch-gradient-alias-edge.json
+          python3 -I -S -B tools/emit_ci_report.py build/torch-gradient-alias-edge.json
+      - name: Verify fixed Bernoulli gradient layout and alias source
+        run: |
+          echo 'f43ba1d1cc220c76279e3c8f96fb1358ce421e9f309d209bcdb5a5dbc554f718  tests/pytorch_bernoulli_gradient_layout_probe.py' | sha256sum -c -
+          python3 -I -S -B -m py_compile tests/pytorch_bernoulli_gradient_layout_probe.py
+      - name: Prepare Bernoulli gradient layout and alias observation plan
+        run: |
+          python3 -I -S -B tests/pytorch_bernoulli_gradient_layout_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/torch-bernoulli-gradient-layout-prepared.json --prepare-only
+          python3 -I -S -B tools/emit_ci_report.py build/torch-bernoulli-gradient-layout-prepared.json
+      - name: Observe Bernoulli gradient materialization layouts and alias lifetimes
+        run: |
+          python3 tests/pytorch_bernoulli_gradient_layout_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/torch-bernoulli-gradient-layout.json
+      - name: Preserve complete Bernoulli gradient layout observations including failures
+        if: always()
+        run: |
+          test -f build/torch-bernoulli-gradient-layout.json
+          python3 -I -S -B tools/emit_ci_report.py build/torch-bernoulli-gradient-layout.json
+      - name: Verify fixed mixed zero and nonzero gradient layout source
+        run: |
+          echo '3f8c8c6b3d8bb86cdbfe574ab92ac2c43f6817e3b6cc32b1f4e48957cd8816ae  tests/pytorch_zero_merge_layout_probe.py' | sha256sum -c -
+          python3 -I -S -B -m py_compile tests/pytorch_zero_merge_layout_probe.py
+      - name: Prepare both mixed zero and nonzero gradient creation orders
+        run: |
+          python3 -I -S -B tests/pytorch_zero_merge_layout_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/torch-zero-merge-layout-prepared.json --prepare-only
+          python3 -I -S -B tools/emit_ci_report.py build/torch-zero-merge-layout-prepared.json
+      - name: Observe mixed Bernoulli and nonzero gradients in both creation orders
+        run: |
+          python3 tests/pytorch_zero_merge_layout_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/torch-zero-merge-layout.json
+      - name: Preserve complete mixed zero and nonzero gradient observations
+        if: always()
+        run: |
+          test -f build/torch-zero-merge-layout.json
+          python3 -I -S -B tools/emit_ci_report.py build/torch-zero-merge-layout.json
+      - name: Verify fixed scalar addition NaN payload observation source
+        run: |
+          echo 'bd4660bf02d32e175d8c9802c09f2dcc93b4f589d06749ae43645544fb76936a  tests/pytorch_scalar_add_nan_probe.py' | sha256sum -c -
+          python3 -I -S -B -m py_compile tests/pytorch_scalar_add_nan_probe.py
+      - name: Prepare scalar addition NaN payload variants
+        run: |
+          python3 -I -S -B tests/pytorch_scalar_add_nan_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/torch-scalar-add-nan-prepared.json --prepare-only
+          python3 -I -S -B tools/emit_ci_report.py build/torch-scalar-add-nan-prepared.json
+      - name: Observe scalar addition NaN payloads across layouts and vector widths
+        run: |
+          python3 tests/pytorch_scalar_add_nan_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/torch-scalar-add-nan.json
+      - name: Preserve complete scalar addition NaN payload observations
+        if: always()
+        run: |
+          test -f build/torch-scalar-add-nan.json
+          python3 -I -S -B tools/emit_ci_report.py build/torch-scalar-add-nan.json
+      - name: Verify fixed extreme singleton-stride observation source
+        run: |
+          echo '568ece8996db71f5d1a16b6dfb71efd963a258f457e73cfdc738f7d60e226f89  tests/pytorch_extreme_stride_probe.py' | sha256sum -c -
+          python3 -I -S -B -m py_compile tests/pytorch_extreme_stride_probe.py
+      - name: Prepare extreme singleton-stride observation plan
+        run: |
+          python3 -I -S -B tests/pytorch_extreme_stride_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/torch-extreme-stride-prepared.json --prepare-only
+          python3 -I -S -B tools/emit_ci_report.py build/torch-extreme-stride-prepared.json
+      - name: Observe actual pointwise layout at signed byte-stride boundaries
+        run: |
+          python3 tests/pytorch_extreme_stride_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/torch-extreme-stride.json
+      - name: Preserve complete extreme singleton-stride observations
+        if: always()
+        run: |
+          test -f build/torch-extreme-stride.json
+          python3 -I -S -B tools/emit_ci_report.py build/torch-extreme-stride.json
+      - name: Index original reference reports and checkout identity
+        if: always()
+        env:
+          HEPTATORCH_SOURCE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: python3 -I -S -B tools/collect_ci_reports.py --workflow .github/workflows/backward-observations.yml --job-status '${{ job.status }}'
+      - name: Export original reference observations as a lossless artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: reference-observations-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+          path: build/*.json
+          if-no-files-found: error
+          compression-level: 9
+          retention-days: 30
