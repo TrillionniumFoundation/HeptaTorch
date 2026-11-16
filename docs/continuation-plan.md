@@ -153,3 +153,22 @@ or distributed correctness.
 remain internally consistent. `make full-acceptance` uses the same checks and
 returns status 2 while the whole rewrite remains unqualified. Neither target
 replaces the native regression suite or the full subsystem qualification work.
+
+## Native int64 Tensor successor: bounded progress
+
+The separately frozen544-function profile now has real eight-byte int64
+Storage, internal CPU promotion materialization, integer-to-binary32 nearest
+even rounding, typed arithmetic and in-place operations, and actual ultimate
+base Tensor roots for int64 views. The first source-bound integration executes
+a new eleven-unit cold build and all four native gate groups. Original
+failures, inputs and raw process evidence are preserved in
+[the integration record](../validation/integer-tensors/integration-final/custody.json).
+
+Keep new-image live32/full35 and each new source head's hosted admission
+separate. Complete mixed F32/int64 AD next: current requires-grad admission
+refuses it explicitly with full rollback. Public Tensor.to, general dtype
+promotion and kernels, arbitrary views/overlap, Python frontend/dispatch,
+serialization, devices and every remaining full-system obligation remain open.
+The denominator is unchanged:2,590 schemas,688 derivatives,seventeen gates and
+zero complete-schema parity. Continue source-bound implementation and
+independent qualification without replacing full closure with bounded suites.

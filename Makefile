@@ -488,6 +488,35 @@ test-native-dropout: retained-gradients
 	mkdir -p build/native-dropout; cp -a --remove-destination "$$review/observed/producer/native/." build/native-dropout/
 
 
+INTEGER_TENSOR_INPUTS := $(wildcard tools/integer_tensors/* tests/integer_tensor_review/* tests/integer_tensor_review/*/* tests/int64_inplace_review/* tests/integer_resource_review/* validation/integer-tensors/reference/*) tests/qualify_integer_tensors.py Makefile
+
+.PHONY: integer-tensors test-integer-tensors
+integer-tensors: build/integer-tensors/build.json
+
+build/integer-tensors/build.json: build/native-dropout/build.json $(INTEGER_TENSOR_INPUTS) | build
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.integer-tensors.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	python3 -S -B tools/integer_tensors/rebuild.py --parent "$(CURDIR)/build/native-dropout" \
+	  --repository "$(CURDIR)" --upstream "$(HEPTA_SOURCE_ROOT)" \
+	  --compiler "$(HEPTA_STACK_BUILD)/native/stack-module-compiler" --linker "$(HEPTA_STACK_BUILD)/native/stack-linker-session" \
+	  --output "$$tmp/native"; \
+	mkdir -p build/integer-tensors; cp -a --remove-destination "$$tmp/native/." build/integer-tensors/
+
+test-integer-tensors: native-dropout
+	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/.integer-tensors-review.XXXXXX"); status=0; \
+	python3 -I -S -B tests/qualify_integer_tensors.py --repo "$(CURDIR)" \
+	  --parent-build "$(CURDIR)/build/native-dropout" --upstream "$(HEPTA_SOURCE_ROOT)" \
+	  --compiler "$(HEPTA_STACK_BUILD)/native/stack-module-compiler" --linker "$(HEPTA_STACK_BUILD)/native/stack-linker-session" \
+	  --flat-compiler "$$(command -v "$(HEPTA_COMPILER)")" --stack-build "$(HEPTA_STACK_BUILD)" \
+	  --output "$$review/observed" || status=$$?; \
+	if [ -f "$$review/observed/report.json" ]; then cp "$$review/observed/report.json" build/hosted-integer-tensors-native.json; fi; \
+	if [ -f "$$review/observed/evidence-manifest.json" ]; then cp "$$review/observed/evidence-manifest.json" build/integer-tensors-ci-raw-manifest.json; fi; \
+	if [ -f "$$review/observed/raw-evidence.tar.xz" ]; then cp "$$review/observed/raw-evidence.tar.xz" build/integer-tensors-ci-raw.tar.xz; fi; \
+	test "$$status" -eq 0 || exit "$$status"; \
+	test -f build/hosted-integer-tensors-native.json; \
+	test -f build/integer-tensors-ci-raw-manifest.json; test -f build/integer-tensors-ci-raw.tar.xz; \
+	mkdir -p build/integer-tensors; cp -a --remove-destination "$$review/observed/producer10/native/." build/integer-tensors/
+
+
 check-compiler:
 	@compiler=$$(command -v "$(HEPTA_COMPILER)") || { echo 'Set HEPTA_COMPILER to the pinned native HIA compiler; see docs/build.md.' >&2; exit 1; }; \
 	printf '%s  %s\n' '$(COMPILER_SHA256)' "$$compiler" | sha256sum -c -

@@ -325,3 +325,9 @@ Version 检查和 283 项旧显式状态差异完整保留；参数 Version 差�
 
 计数按各自参考与运行来源保留，原 183 组参考中的 18 OPEN 不改写。其他 dtype、
 promotion、完整 Python 接口和所有 17 项系统门禁继续开放。
+
+## 原生 int64 Tensor 后继配置
+
+[独立的 int64 Tensor 配置](docs/integer-tensors.md)新增实际八字节 Storage、类型化算术与原地操作、最近偶数舍入、类型提升临时对象，以及真正持有 ultimate-base Tensor 的 int64 视图。新的 544 函数／十一模块映像已通过实际冷构建、固定参考重放和独立资源、入口、跨版本 owner 交接检查。原地操作首轮三个失败和后续修复均保留。
+
+完整报告、原始字节和四门统一冷构建回执见[整合证据](validation/integer-tensors/integration-final/custody.json)。各组检查存在重叠，不能累加为唯一算子或 schema 覆盖数。新映像的 live32、完整35及新提交的托管验证各自需要实际结果；混合 dtype 自动微分、公开 Tensor.to、其他 dtype／设备和全部 17 项全项目门槛继续开放。全量完成标记仍为 false。
