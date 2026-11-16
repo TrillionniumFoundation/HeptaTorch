@@ -214,3 +214,9 @@ jobs:
         shell: bash
         run: |
           python3 tests/pytorch_oracle.py build/heptatorch build/pytorch-differential.json
+
+      - name: Observe pinned PyTorch indexed-accumulation boundary semantics
+        run: python3 tests/pytorch_index_semantics.py build/index-semantics.json compatibility/pytorch-oracle-lock.json
+
+      - name: Observe pinned PyTorch empty-tensor metadata
+        run: python3 tests/pytorch_empty_semantics.py build/empty-semantics.json
