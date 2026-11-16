@@ -49,10 +49,15 @@ def main():
     raw=source.read_bytes()
     assert SHA(raw)==SOURCE_SHA
     assert SHA(compiler.read_bytes())==COMPILER_SHA
+    observer_path=Path(__file__).with_name('integer_byte_evidence.py')
+    assert SHA(observer_path.read_bytes())=='6a5ff8a8a6f920f8734f9c5a26533ba26d71965d8de4fbbf1e7f7aa1c631f453'
+    evidence=runpy.run_path(str(observer_path),run_name='integer_byte_observer')['Evidence'](
+        output,'i8',a.reference,source,compiler,Path(__file__),repo)
     images=[]
     for i in range(2):
         r=subprocess.run([str(compiler)],input=raw,capture_output=True,env={'PATH':''},timeout=45)
         (output/f'compiler-{i}.stderr').write_bytes(r.stderr)
+        evidence.compile_result(i,r)
         assert r.returncode==0 and not r.stderr and r.stdout.startswith(b'\x7fELF')
         images.append(r.stdout)
     assert images[0]==images[1]
@@ -74,23 +79,29 @@ def main():
         torch.set_num_threads(1)
     rows=[]
     def execute(raw_input):
+        evidence.request(raw_input)
         proc=subprocess.run([str(exe)],input=raw_input,capture_output=True,timeout=90,env={'PATH':''})
+        evidence.native_result(proc)
         assert proc.returncode==0 and not proc.stderr,(proc.returncode,proc.stderr[:200])
         return proc.stdout
     for name,mode,pairs in corpus():
         row={'case':name,'mode':mode,'count':len(pairs),'status':'FAIL'}
+        evidence.begin_case(name)
         try:
             request=wire(mode,pairs);actual=execute(request)
             expected=bytes(one(mode,x,y) for x,y in pairs)
+            evidence.reference_bytes('cpython',expected)
             if torch is not None and pairs:
                 left=torch.tensor([signed(x) for x,y in pairs],dtype=torch.int8)
                 right=torch.tensor([signed(y) for x,y in pairs],dtype=torch.int8)
                 ops=(lambda a,b:a+b,lambda a,b:a-b,lambda a,b:a*b,torch.bitwise_and,torch.bitwise_or,torch.bitwise_xor)
                 want=bytes(v&255 for v in ops[mode](left,right).tolist())
+                evidence.reference_bytes('pytorch',want)
                 if want!=expected:
                     row['reference_disagreements']=sum(x!=y for x,y in zip(want,expected))
                     raise AssertionError('PyTorch and independent CPython mismatch')
                 expected=want
+            evidence.expected_bytes(expected,'payload','pytorch' if torch is not None and pairs else ('cpython' if torch is None else 'empty-no-framework-operation'))
             assert actual==bytes(4)+expected,(name,len(actual),len(expected),next(((i,v,e) for i,(v,e) in enumerate(zip(actual[4:],expected)) if v!=e),None))
             row.update(status='PASS',input_sha256=SHA(request),output_sha256=SHA(actual),expected_sha256=SHA(expected),compared_values=len(pairs))
         except Exception as e:row.update(error=repr(e),traceback=traceback.format_exc()[:3000])
@@ -104,6 +115,8 @@ def main():
     ]
     for name,request in refuses:
         row={'case':'refuse-'+name,'status':'FAIL'}
+        evidence.begin_case('refuse-'+name)
+        evidence.expected_bytes(b'\x01\x00\x00\x00','full-response','protocol-literal')
         try:
             actual=execute(request)
             assert actual==b'\x01\x00\x00\x00',actual[:32].hex()
@@ -122,6 +135,7 @@ def main():
        'scope':'byte-packed CPU int8 add/sub/mul and bitwise operations only; no complete torch schema or Tensor dispatcher',
        'full_rewrite_complete':False,'pytorch_schema_denominator':2590,'full_system_gates_closed':0}
     (output/'report.json').write_text(json.dumps(report,indent=2,allow_nan=False)+'\n')
+    evidence.finalize(output/'report.json')
     print(json.dumps({k:v for k,v in report.items() if k not in ('rows','provenance')},sort_keys=True))
     return 0 if passed else 1
 

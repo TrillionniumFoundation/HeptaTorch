@@ -1,0 +1,101 @@
+{
+  "architecture_references": [
+    {
+      "role": "Official Intel architectural specification; online reference, not a pinned build input.",
+      "sections": [
+        "14.5.1",
+        "Table 14-17",
+        "Appendix D, Table D-13"
+      ],
+      "url": "https://cdrdv2-public.intel.com/843827/253665-sdm-vol-1-dec-24.pdf"
+    },
+    {
+      "role": "Official Intel SSE/AVX NaN source precedence; online reference, not a pinned build input.",
+      "sections": [
+        "Table 4-8"
+      ],
+      "url": "https://cdrdv2-public.intel.com/874241/253665-090-sdm-vol-1.pdf"
+    }
+  ],
+  "fixed_wheel_48_observation_status": "PENDING_AT_REVIEW",
+  "live_torch_executed": false,
+  "native_tests_executed": 0,
+  "no_new_oracle_expectation_installed": true,
+  "pytorch_commit": "31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
+  "risk_conclusions": [
+    "FMA prioritizes NaNs in multiplicand, multiplier, then addend order; it quiets the chosen signaling NaN. With alpha=1 and the emitted operand mapping unchanged, other wins over self when both are NaNs.",
+    "Separate scalar ADD can propagate its first encoded NaN source. Source-level expression order does not alone prove encoded operand order or whether the compiler contracts into FMA.",
+    "Therefore scalar and vector paths can differ for two NaNs. The fixed-wheel observation, or its actual machine code, must settle the result; these sources do not establish which path any particular layout takes.",
+    "For opposite infinities without NaN inputs, masked x86 ADD/FMA invalid results use binary32 QNaNIndefinite 0xffc00000. This differs from a positive canonical 0x7fc00000 fallback.",
+    "Only cmd95 is under review. This does not qualify general NaN propagation, floating exception flags, or the whole numerical runtime."
+  ],
+  "schema": "heptatorch.independent-scalar-add-nan-source-review.v1",
+  "source_facts": [
+    {
+      "fact": "Scalar computes self + alpha * other.",
+      "line": 16,
+      "path": "aten/src/ATen/native/ufunc/add.h"
+    },
+    {
+      "fact": "Vector computes fmadd(other, alpha, self).",
+      "line": 23,
+      "path": "aten/src/ATen/native/ufunc/add.h"
+    },
+    {
+      "fact": "fmadd calls _mm256_fmadd_ps directly.",
+      "line": 765,
+      "path": "aten/src/ATen/cpu/vec/vec256/vec256_float.h"
+    },
+    {
+      "fact": "fmadd calls _mm512_fmadd_ps directly.",
+      "line": 820,
+      "path": "aten/src/ATen/cpu/vec/vec512/vec512_float.h"
+    },
+    {
+      "fact": "CPU code generation passes separate scalar and vector lambdas to cpu_kernel_vec.",
+      "line": 487,
+      "path": "torchgen/dest/ufunc.py"
+    }
+  ],
+  "sources_reverified_sha256_and_git_blob": [
+    {
+      "bytes": 29839,
+      "computed_git_blob_sha1": "f3af1a0b5b893e815f12a4a664086542889dc198",
+      "official_blob_verified": true,
+      "official_git_blob_sha1": "f3af1a0b5b893e815f12a4a664086542889dc198",
+      "path": "aten/src/ATen/cpu/vec/vec256/vec256_float.h",
+      "sha256": "cbb3e06a833ad6cbd6a63b2c8358b9a7b59bc4866278596a9956e65c02634131",
+      "url": "https://raw.githubusercontent.com/pytorch/pytorch/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/aten/src/ATen/cpu/vec/vec256/vec256_float.h"
+    },
+    {
+      "bytes": 32620,
+      "computed_git_blob_sha1": "b3cf1ee48b427af6b3edefb6345f9a27a44e2219",
+      "official_blob_verified": true,
+      "official_git_blob_sha1": "b3cf1ee48b427af6b3edefb6345f9a27a44e2219",
+      "path": "aten/src/ATen/cpu/vec/vec512/vec512_float.h",
+      "sha256": "643960800e998342f8574da43895eade1b8157f6f5045879fa224be771041850",
+      "url": "https://raw.githubusercontent.com/pytorch/pytorch/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/aten/src/ATen/cpu/vec/vec512/vec512_float.h"
+    },
+    {
+      "bytes": 657,
+      "computed_git_blob_sha1": "cd8c33bd40c992480f5a62794e7f6af71d435bb2",
+      "official_blob_verified": true,
+      "official_git_blob_sha1": "cd8c33bd40c992480f5a62794e7f6af71d435bb2",
+      "path": "aten/src/ATen/native/ufunc/add.h",
+      "sha256": "a277e74e7e35497127da9e24ae91b2be38e01e3d6f0e8c8b1834c10d72870f4c",
+      "url": "https://raw.githubusercontent.com/pytorch/pytorch/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/aten/src/ATen/native/ufunc/add.h"
+    },
+    {
+      "bytes": 18204,
+      "computed_git_blob_sha1": "82ba5352e586d509cd8a26fc6c63ed249e5e35c8",
+      "official_blob_verified": true,
+      "official_git_blob_sha1": "82ba5352e586d509cd8a26fc6c63ed249e5e35c8",
+      "path": "torchgen/dest/ufunc.py",
+      "sha256": "1b21db3b7c4125883d7066614df00b7afba31b44713236dc9e7e240e3bbc4da9",
+      "url": "https://raw.githubusercontent.com/pytorch/pytorch/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/torchgen/dest/ufunc.py"
+    }
+  ],
+  "status": "SOURCE_REVIEW_ONLY",
+  "target_source_modified": false,
+  "upstream_source_custody_sha256": "8180c37ca57e87048f3dfc19aa9ef92feb6763fd30cfc34336a9a756a02ce9db"
+}

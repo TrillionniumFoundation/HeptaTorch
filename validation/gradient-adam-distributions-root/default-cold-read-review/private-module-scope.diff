@@ -1,0 +1,16 @@
+--- before.py
++++ after.py
+@@ -189,10 +189,12 @@
+         bodies = functions((native / 'runtime.hepta').read_bytes())
+         check(len(bodies) == len(compiled['core_body_bindings']) == 428 and set(bodies) == set(compiled['core_body_bindings']), '428 complete source bodies')
+         units = {u['name']: functions((native / (u['name'] + '.hepta')).read_bytes()) for u in build['units']}
++        core_units = {binding['unit'] for binding in compiled['core_body_bindings'].values()}
++        check(core_units == set(units) - {'rng03', 'owners'}, 'exactly seven current-runtime partition units')
+         for name, binding in compiled['core_body_bindings'].items():
+             body = bodies[name]
+             check(len(body) == binding['bytes'] and hashlib.sha256(body).hexdigest() == binding['sha256'] and
+-                  units[binding['unit']][name] == body and sum(name in unit for unit in units.values()) == 1,
++                  units[binding['unit']][name] == body and sum(name in units[unit] for unit in core_units) == 1,
+                   'source/body/unit exact once ' + name)
+         check(compiled['actual_EOF_cleanup_exit'] == 0 and compiled['all_object_and_image_bytes_identical'] is True,
+               'actual image reproduction and EOF execution receipt')

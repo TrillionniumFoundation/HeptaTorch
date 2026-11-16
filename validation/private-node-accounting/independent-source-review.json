@@ -1,0 +1,109 @@
+{
+  "schema": "heptatorch.pr28.private-node-observer-independent-source-review.v1",
+  "status": "SOURCE_REVIEW_ONLY_NO_NEW_EXECUTION",
+  "reviewer_role": "Independent read-only review of the explicit replacement for the failed bridge-only node accounting assertion.",
+  "target_sources": {
+    "owner_accounting.py": {
+      "sha256": "e900466bff13bcaa5cd89a814dc411b4fc33320d84855ca6bd085179cd599c6a",
+      "bytes": 30568
+    },
+    "run_frozen35_accounted.py": {
+      "sha256": "65c0d68725f0585b79f88ceb5fa106526a44805eca0b58535f32b5b29916cd12",
+      "bytes": 10739
+    },
+    "source-review.json": {
+      "sha256": "28a4b9e9773dd5b090b58d552c7a43af358c02f5353a739bc8aec657e41db491",
+      "bytes": 5836
+    },
+    "review_first_failure.py": {
+      "sha256": "0509a93370d0920b35bc3cc69ee4479a6df9cdd62b4e32a4d280d8a2663168c0",
+      "bytes": 19817
+    }
+  },
+  "exact_original_failure": {
+    "native_profile": "355",
+    "source": "1b18da2cf9791e1b20982f9706434c1359ea194dd983dc6c66eb005f152e77b5",
+    "image": "be18ab877f38a4027a527783db80a1418a137c7d6da91e5bc39e2af8c044cb6b",
+    "report_sha256": "46c861a63c1dae54b257ea78b140f442868e0848f347d6cc10fec38013d08dbe",
+    "cases": 35,
+    "failed": 32,
+    "passed": 3,
+    "all_failures": "bridge.py line 297, original extra observer equality stats[11] == self.next_id-1"
+  },
+  "findings": [
+    {
+      "area": "Original numerical source custody",
+      "result": "No source change observed",
+      "evidence": "Launcher requires the exact 149b entry, c288 bridge, 4a195 lifecycle, ee3cf owned28, 35fa session21 and ef8 support159 source hashes. It loads the original entry and calls driver.main with the original CLI; no case AST, tolerance or expected-value replacement exists."
+    },
+    {
+      "area": "Explicit accounting change",
+      "result": "Identified and bounded",
+      "evidence": "Original bridge-only close equality is deliberately replaced. Its old truth value remains diagnostic. The independent physical-state checks use exact equations, never >=. This is an observer contract change, not a claim that every prior bridge assertion still executes."
+    },
+    {
+      "area": "Original EOF and Version obligations",
+      "result": "Preserved by actual function calls",
+      "evidence": "AccountedSession.close directly invokes OriginalSession.close after the new stats comparison; EOF completion marker is set only after return. The _v2_assert_versions wrapper calls the original function before its completion marker. Launcher requires both markers on all35 rows and the original inner report PASS."
+    },
+    {
+      "area": "Real gradient identities and owners",
+      "result": "Strict source checks",
+      "evidence": "Pure snapshot checker follows parent+384/+392 to actual private G node, verifies live typed T row, SID/VID, matching incarnation, shape and gradient presence, and recounts +400/+208/+88. Its graph-root closure rejects anonymous live nodes."
+    },
+    {
+      "area": "Exact allocation history",
+      "result": "Strict source checks",
+      "evidence": "Each successful frame requires delta(global120) == sum(original Program constructor tickets) + count(new G incarnations). No-reset frames require exact next-slot delta and contiguous new incarnation interval; reset requires max live slot/keep plus1 and exact retained closure."
+    },
+    {
+      "area": "Original client creation counts",
+      "result": "Unmodified source bookkeeping observed",
+      "evidence": "Program.command snapshots the original next_id and Program.handle records its actual delta after invoking the original handle. It therefore retains compound Linear/MSE count3 without guessing physical native slots or changing logical handle return values."
+    },
+    {
+      "area": "Frozen35 mixed-frame scope",
+      "result": "Source-reviewed restriction holds",
+      "evidence": "Backward and reset/drop are in separate frames across the actual frozen35 recipes. The only same-frame create/read/reset recipe is cumulative with requires_grad=False. Unsupported invisible G allocations cannot be filled by a guessed residual."
+    },
+    {
+      "area": "Failure rollback",
+      "result": "Strict source checks",
+      "evidence": "For expected failed frames the pure checker requires identical owner pointer, canonical structural snapshot, and complete raw-owner SHA256; no native memory write is present."
+    },
+    {
+      "area": "Read-only observer mechanics",
+      "result": "No memory mutation found",
+      "evidence": "OwnerReader opens /proc/child/mem in rb and uses os.pread. It waits for the pinned wrapper's blocked read(fd0,control,16), verifies live owner call-slot cleanup and exact state/backing tags before reading."
+    },
+    {
+      "area": "Reference lifetime intrusion",
+      "result": "No Torch Tensor retaining observer added",
+      "evidence": "Session and Journal retain only copied native metadata, scalar identifiers, raw hashes and ordinary Python dictionaries; neither observer nor launcher imports Torch or stores reference Tensor objects."
+    },
+    {
+      "area": "Execution/custody claims",
+      "result": "Separately scoped",
+      "evidence": "Launcher records reused frozen ELF bytes explicitly rather than calling them a fresh native build. Restoring bridge.install by object/code identity and original bridge AST is checked after execution. Actual12 retained-gradient successor is not applied to this PR28 profile."
+    }
+  ],
+  "blockers_found_in_source_review": [],
+  "pending": [
+    "Execute independent copied-snapshot positive and negative controls using a completed journal.",
+    "Inspect actual355 and428 original35 rerun reports and all completion markers.",
+    "Retain the first3PASS/32FAIL artifact unchanged; a later pass is a new execution."
+  ],
+  "negative_controls_prepared": {
+    "source_key": "pr28_observer_negative_controls_source_v2",
+    "positive_samples_planned": 4,
+    "negative_mutations_planned": 18,
+    "status": "PREPARED_NOT_EXECUTED",
+    "native_memory_written": false,
+    "note": "Reads journals one at a time; retains only four required copied snapshots. Required --expected-profile selects355 or428. Prepared v1 retained separately, never executed."
+  },
+  "native_execution_by_this_review": false,
+  "Torch_execution_by_this_review": false,
+  "admission_allowed": false,
+  "full_rewrite_complete": false,
+  "pytorch_api_denominator": 2590
+}

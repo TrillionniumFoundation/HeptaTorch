@@ -1,0 +1,652 @@
+{
+  "schema": "heptatorch.retained-gradient-independent-source-review.v1",
+  "status": "PASS",
+  "review_kind": "Independent read-only source and observer-lifetime review; no new native or Torch run.",
+  "source_sha256": "666230f05cc6942470006d1f184135321d8cbc26a6c6ba0bf7e3cf9857fe515b",
+  "native_sha256": "7568c0a4ec40d82d3a0b46d1e8a27499dd96e8fe3fd15433523131a196da89b5",
+  "parent_source_sha256": "1fed8ea7ba5bf755a9df9ca1e61d34cfd4712cc2fd66e0728493091c81c24dae",
+  "peer_runner_sha256": "c925e33872dc87ead29ecc2125b1799763a87b13c8ae2eba85e966b4202f1d8e",
+  "source_functions": 446,
+  "parent_functions": 428,
+  "unchanged_parent_bodies": 410,
+  "changed_parent_bodies": [
+    "backward_execute",
+    "gradient_gc_enqueue",
+    "gradient_object_command",
+    "init_state",
+    "optimizer_audit_entry",
+    "optimizer_fill_group",
+    "owned_adam_audit_entry",
+    "owned_adam_fill_group",
+    "partial_execute",
+    "publish_tensor",
+    "so_audit_records",
+    "so_state_header",
+    "so_state_init",
+    "state_header",
+    "tensor_row_release",
+    "tgrad",
+    "zero_grad",
+    "zero_grad_none"
+  ],
+  "added_functions": [
+    "retained_apply",
+    "retained_axis_order",
+    "retained_compare_axes",
+    "retained_enable",
+    "retained_enabled",
+    "retained_gc_enqueue_original",
+    "retained_incoming_channels_last",
+    "retained_parameter_blocker",
+    "retained_publish_original",
+    "retained_query",
+    "retained_release_one",
+    "retained_release_reservations",
+    "retained_reserve",
+    "retained_reserve_one",
+    "retained_row",
+    "retained_row_release_original",
+    "retained_sum_layout",
+    "retained_temporary_root"
+  ],
+  "all446_core_bodies_in_exactly_one_actual_unit": true,
+  "units": [
+    {
+      "name": "rng03",
+      "source_sha256": "a3fa507339b40435285dc1fa65e3cd519b6a0921a4c93bccf6ea834bb24763a3",
+      "object_sha256": "cd7371a9bfe71110ba64defcc5fd7d9c48374e1e14600aa9015a1c140b7867ec"
+    },
+    {
+      "name": "retained_gradient_00",
+      "source_sha256": "fa585f5d1c4913c4b8441b241fbe7d75399aaca47c9178fcaefe36907df8d962",
+      "object_sha256": "14b4e4a2e9bc5c5d956adbc43d2c44d97fc47de3b8b0ed3761eae54fd3d8d26c"
+    },
+    {
+      "name": "retained_gradient_01",
+      "source_sha256": "4d83a3002119cb1ebe82fecf1a566bf79a017da34e155267c332a393258db851",
+      "object_sha256": "dd9a3e1e013b903e96861329c66446ff6b677f0d549849aac4f0876d5364771e"
+    },
+    {
+      "name": "retained_gradient_02",
+      "source_sha256": "0ddda95dd1886232ccf3508905384a5d43490ecf5e69546c9d6985a411664cb3",
+      "object_sha256": "acd2adcf311e79c69838a1b43d69ea112f073fd4642f6cb8daf118ccd8411e14"
+    },
+    {
+      "name": "retained_gradient_03",
+      "source_sha256": "fd01e91425c01f8be9061a7da6612859428fe4b9aa72ecd5c9b4dfea5c01f318",
+      "object_sha256": "3cec2ced5a799a3597115337d5984b105127d8dbc15f87f74c8ff84dc9c0e1f2"
+    },
+    {
+      "name": "retained_gradient_04",
+      "source_sha256": "3a1c1c0aa84be5008c970024b49aa7455e73fe3fab3a2467659cc8a84296250d",
+      "object_sha256": "6076a8263e7300309ba83914826754de0e37dbc6212ce2f9a8d8116589e22ca8"
+    },
+    {
+      "name": "retained_gradient_05",
+      "source_sha256": "f9a6d3d2672d7046dcee5643b8067f94d39e79fe5000373569caf219d8bd9119",
+      "object_sha256": "52f4dfcebd649fe73c2965b8f6df62912ad331a175f7a19bf58769e6e7d62eb7"
+    },
+    {
+      "name": "retained_gradient_06",
+      "source_sha256": "b5bf8319f17ff62825ca5a6522a6dc5538934fe7ac751c03e584455eaf88f497",
+      "object_sha256": "5e3c3f5dc62cd882ad1fb2362e4e9eadd81a6cb7f3e2918d8b56348548bc9c43"
+    },
+    {
+      "name": "owners",
+      "source_sha256": "9c02b75c44eee8459c476049f4d9ebe10935d9d9ed8b27f5842c699f8e6a0884",
+      "object_sha256": "da1c2c940f125a54c4ee83a0667a4b014432357965fe3d651a61143e5a15be30"
+    }
+  ],
+  "aliases": [
+    {
+      "old": "gradient_gc_enqueue",
+      "alias": "retained_gc_enqueue_original",
+      "old_body_sha256": "1afd5d1f105c3bbbe4909e0e032abe977ee0b3e6cb545bb9a68078819507f2b5",
+      "new_alias_body_sha256": "500cde29912ea5e0301d7cd955793f94f421a9e7bc0b8959cbbdaf81c7a15411",
+      "name_only_inverse_exact": true
+    },
+    {
+      "old": "tensor_row_release",
+      "alias": "retained_row_release_original",
+      "old_body_sha256": "ff0e8cd34f51861f15e060fdcd9949721143d98367c2c47eb64e20ef26e73cae",
+      "new_alias_body_sha256": "0bdd876dd2415f91f288664bdf0176cb455bd06f4e5acb0d627e6eb1c5e5658c",
+      "name_only_inverse_exact": true
+    },
+    {
+      "old": "publish_tensor",
+      "alias": "retained_publish_original",
+      "old_body_sha256": "0acfdd8156339e1ad52451f803a8ca735a25a17ea839ac2676c71c9c3d1b1cee",
+      "new_alias_body_sha256": "fea49eecc38d83a53fbdaec43ee128951709089caf221b7f58b8af6daf4d11f1",
+      "name_only_inverse_exact": true
+    }
+  ],
+  "tags": [
+    {
+      "function": "init_state",
+      "old_tag": "HTGAD002",
+      "new_tag": "HTRET001",
+      "single_literal_inverse_exact": true
+    },
+    {
+      "function": "state_header",
+      "old_tag": "HTGAD002",
+      "new_tag": "HTRET001",
+      "single_literal_inverse_exact": true
+    },
+    {
+      "function": "so_state_init",
+      "old_tag": "HTOGAD02",
+      "new_tag": "HTORET01",
+      "single_literal_inverse_exact": true
+    },
+    {
+      "function": "so_state_header",
+      "old_tag": "HTOGAD02",
+      "new_tag": "HTORET01",
+      "single_literal_inverse_exact": true
+    }
+  ],
+  "selected_authoring_comparisons": [
+    {
+      "name": "partial_execute",
+      "before_ast_sha256": "69884fcd80c79b7e740a2a49f300c5661d0ae2408962f17c5d899383de08166f",
+      "after_ast_sha256": "53c63461ba9937fe018007650bcb48bce8a861b51e32c85d35ea07eb482b2300",
+      "before_matches_pinned_selected_original": true,
+      "after_matches_emitted_overlay_authoring": true,
+      "old_HIA_sha256": "89e9d4f318a5f85a2f4180b1ef691a3e8cbc2ba59b5800e0ceb41f8ee7fa8ff2",
+      "new_HIA_sha256": "7984a6423a12cd611c5aff6fb02bdd44ccadcfe41d0b47254c55e90dc20ad47b"
+    },
+    {
+      "name": "backward_execute",
+      "before_ast_sha256": "74e594ebe02ae646cf27e5e3e1ff5177b26dfe1990d6bf5b4f8694a43998516d",
+      "after_ast_sha256": "53275c975cf9d8f24b6a3107f1b8c8550390673dba5059694fc344094faf5e19",
+      "before_matches_pinned_selected_original": true,
+      "after_matches_emitted_overlay_authoring": true,
+      "old_HIA_sha256": "298dc439bd68edf77c8ec0f2bc628703ee4821e8b8fe7c5444858ce4429311ca",
+      "new_HIA_sha256": "f60459130985a636f4b3782ecb28a48a5c341495b0d1d07716333c825aa877f1"
+    },
+    {
+      "name": "tgrad",
+      "before_ast_sha256": "cdd2735679a32b53bc60bbecca464f3c5e059f63aeb877da0b21ae00f7f33e06",
+      "after_ast_sha256": "f364cd3e7605a19b3b5f9da852af4516ae3678aaaa488c169bdca535d60e39f8",
+      "before_matches_pinned_selected_original": true,
+      "after_matches_emitted_overlay_authoring": true,
+      "old_HIA_sha256": "d708c9760b4283691f469282f278bc2a3a4dc6d99582cd4bf80788d92e6df810",
+      "new_HIA_sha256": "a5d066836229558dbb2052e2cc14b17069098848a11c8acb567f26bdda62da96"
+    },
+    {
+      "name": "zero_grad",
+      "before_ast_sha256": "e494cae79177f905b83c677fb61f24097262941cc35433cbceb5240beb900c1b",
+      "after_ast_sha256": "b1d38b7f7757368abc8e6f32440381e0e0b677c6ecdfc4f996b604125913c270",
+      "before_matches_pinned_selected_original": true,
+      "after_matches_emitted_overlay_authoring": true,
+      "old_HIA_sha256": "3bf32d2a382d5c5dbc25c16574ea5a85db1d1c3573f5cdd090714f80ebbc28fd",
+      "new_HIA_sha256": "cbd04af8a87b068e5fde285616549b518e3b584d517ed7c87414917dc52e3d69"
+    },
+    {
+      "name": "zero_grad_none",
+      "before_ast_sha256": "abf2c9f3204e311188dc4f3bda8613de5b350b475609d25b43f730acdce98ee9",
+      "after_ast_sha256": "e35fa85bb8f66002c21c67c20c1a0a2941bd61a011ce274d9806993e51baaba9",
+      "before_matches_pinned_selected_original": true,
+      "after_matches_emitted_overlay_authoring": true,
+      "old_HIA_sha256": "d5a703a63eec7f65621038a90cf19a5811ded9fcaff0d79950cdf66729ee0562",
+      "new_HIA_sha256": "f9f6527ff1af3c374fe09faa7e628836c03850caa9966f86f3c8a4e5808cd6c0"
+    },
+    {
+      "name": "gradient_object_command",
+      "before_ast_sha256": "fe9aa024db22765ceae18ddeba152cbfcfc66dde8e05ad0f4647f1735e7362c6",
+      "after_ast_sha256": "b7b907febdf4019cbaddebc8da46540c6c5b5fa2bfacba0938b77ae82b3dc7fe",
+      "before_matches_pinned_selected_original": true,
+      "after_matches_emitted_overlay_authoring": true,
+      "old_HIA_sha256": "201cf8e39f5aa85f74622f719a6a26de313e49df016e10fa7ba2d0354e266051",
+      "new_HIA_sha256": "5af95c15415635e521cc3a51a835fb386e1f0068b52441d88b80d395103afb98"
+    },
+    {
+      "name": "optimizer_fill_group",
+      "before_ast_sha256": "196c97e88f382bb7313ef4320f1ce057fcdaf057855012db6629781efa8fd6d6",
+      "after_ast_sha256": "56d8cf9b3b0416621ed52cc7b9643f624fb028a242684a4e5308e8f9ee363b30",
+      "before_matches_pinned_selected_original": true,
+      "after_matches_emitted_overlay_authoring": true,
+      "old_HIA_sha256": "feab6b839ce473aa744b5ac4ba1489b9831639e99d98b39a8016b0eef368da59",
+      "new_HIA_sha256": "d55d8f83a7c68c993f94f12835c92a2789ae13208a50f2ef9f600c7620ba7085"
+    },
+    {
+      "name": "optimizer_audit_entry",
+      "before_ast_sha256": "0660620a2f0fe2fd71fb3950f2605bbad315a198e606c8a39d2be51e00360193",
+      "after_ast_sha256": "d598f41bf3beb9b0c98d20e2c4506d4af2e2260c93619ba6092f9bb962966d0b",
+      "before_matches_pinned_selected_original": true,
+      "after_matches_emitted_overlay_authoring": true,
+      "old_HIA_sha256": "dd65507b8302ce7470c1992d976e5215daf9fe55b7dac44675ca1bfff9c25e21",
+      "new_HIA_sha256": "efd1a2167a42f47a956556832a24d4d53d97c2edc65e9f9abb81eab29f36e109"
+    },
+    {
+      "name": "owned_adam_fill_group",
+      "before_ast_sha256": "5215ddbbcfbc0a846d5b152956ed62e3c6ca25a2b906b2d6d3956531bd109473",
+      "after_ast_sha256": "afb1218ffa7359800a6df152537bb6d9ca61c2343af7abd5e22e4d9e239ebcc5",
+      "before_matches_pinned_selected_original": true,
+      "after_matches_emitted_overlay_authoring": true,
+      "old_HIA_sha256": "6c8d65e63c8a456c543bfd6b49f33e2f79cf16360019cc01b8ff21e7a5f01eb4",
+      "new_HIA_sha256": "cb6ece0b5f2f2bdcd190d6d793da3c6f44966902de0d1dff685bda5f6bff7566"
+    },
+    {
+      "name": "owned_adam_audit_entry",
+      "before_ast_sha256": "ee7542d1a293c0d59717b9250b4328a0ab73bac1fa16f3221ebfa471bf1ab737",
+      "after_ast_sha256": "247145ed704e84cb09e4bc9c71ece0f6dc5ec6c3a546c938420fca9069a254a9",
+      "before_matches_pinned_selected_original": true,
+      "after_matches_emitted_overlay_authoring": true,
+      "old_HIA_sha256": "6988fc49d6f140dbe829f5561170df9fa13cecb519cdb901dc2ed89644b0ca1e",
+      "new_HIA_sha256": "a11369772e9290877a91449c61c9021a79fa371655e6f34e50683c719fc93e80"
+    },
+    {
+      "name": "so_audit_records",
+      "before_ast_sha256": "1a8361841a0b4c729aa4424f49684c8e71a3a3ded1ba7bf7582a12495eafa6dd",
+      "after_ast_sha256": "212bc7ba4be34bdb7517e3dc119cee5f35bfc62ce57add3830afcec1e0f7ef40",
+      "before_matches_pinned_selected_original": true,
+      "after_matches_emitted_overlay_authoring": true,
+      "old_HIA_sha256": "c41be1ba3c9e5e1ebab530bf4379301e48e4c6b3342c89e77c22a65a6ee502b8",
+      "new_HIA_sha256": "fdf5b9ef59b06b05cc1f9774b6944fa767f862ce9416d5295a98960a4537675f"
+    }
+  ],
+  "producer_original_reemit_receipt_observed": true,
+  "original_authoring_not_reexecuted_by_this_review": true,
+  "owner_and_rng_modules_byte_identical_to_parent": true,
+  "findings": [
+    {
+      "topic": "Weak self and committed Tensor flags",
+      "finding": "Enabling writes only T-row+56=1 after live public Tensor/requires/nonleaf checks. It does not increment node208/312/400. New descriptors start from zero row flags; same-Tensor republication restores the previous 0/1 flag.",
+      "functions": [
+        {
+          "path": "overlay-authoring.py",
+          "function": "retained_enable",
+          "first_line": 552,
+          "last_line": 565,
+          "normalized_ast_sha256": "c8c311e39d95c9db451659098a88e8bf21d95b9cedc676a5f319f80f08e2b9bd"
+        },
+        {
+          "path": "overlay-authoring.py",
+          "function": "retained_row",
+          "first_line": 493,
+          "last_line": 502,
+          "normalized_ast_sha256": "107c1dec5c616f5c671859b6a5bb1a7c31ee6c0e5f2ebcec9f85b70fd0843239"
+        },
+        {
+          "path": "overlay-authoring.py",
+          "function": "publish_tensor",
+          "first_line": 534,
+          "last_line": 550,
+          "normalized_ast_sha256": "b6b09aba5d2d90e7bf3852ec19b4d099552dce933d297ab4f92849edbd0e3788"
+        }
+      ]
+    },
+    {
+      "topic": "Real temporary reservation root",
+      "finding": "A fresh descriptor owns Storage/Version, node_retain precedes flag2, and public200 is cleared. GC/Tensor-row wrappers preserve that private reservation. Release clears flag2 before node_release can enqueue collection.",
+      "functions": [
+        {
+          "path": "overlay-authoring.py",
+          "function": "retained_reserve_one",
+          "first_line": 573,
+          "last_line": 585,
+          "normalized_ast_sha256": "0f824beacf4b62198425359598a5503d276efde340fbf47bc0f65eacc4f59c6f"
+        },
+        {
+          "path": "overlay-authoring.py",
+          "function": "retained_release_one",
+          "first_line": 587,
+          "last_line": 592,
+          "normalized_ast_sha256": "6f9bd3f7e4742187cd0d1489bcf24a13f0f1ffb53cd5ff5fbf429816ffd70784"
+        },
+        {
+          "path": "overlay-authoring.py",
+          "function": "gradient_gc_enqueue",
+          "first_line": 524,
+          "last_line": 527,
+          "normalized_ast_sha256": "53dddbdb5b90439ba083aded0f3fd9b99b41e5353a78ff14cdd3412b2f7d7d98"
+        },
+        {
+          "path": "overlay-authoring.py",
+          "function": "tensor_row_release",
+          "first_line": 529,
+          "last_line": 532,
+          "normalized_ast_sha256": "c458363a07c185394fa24137b623c0c189805dc2995b7b134fcee1e3e4d60835"
+        }
+      ]
+    },
+    {
+      "topic": "Reservations are indexed by old nodes but contain fresh node indices",
+      "finding": "The table has limit+1 u64 entries inside a real private Hold. Existing descriptor admission limits node indices to below65536, so the new table size is at most524288 bytes. Cleanup iterates table entries, releases every contained fresh node even above output, then collects from node1 through the live graph range.",
+      "functions": [
+        {
+          "path": "overlay-authoring.py",
+          "function": "retained_reserve",
+          "first_line": 594,
+          "last_line": 606,
+          "normalized_ast_sha256": "fe4e2ee8832ddf8e661b4e62e47a72a9def38e1fa29dea559d957ec493bd29a1"
+        },
+        {
+          "path": "overlay-authoring.py",
+          "function": "retained_release_reservations",
+          "first_line": 608,
+          "last_line": 617,
+          "normalized_ast_sha256": "214df5fafe4bb7161a7f7d26d349b14996be141156322297884ca025de097e57"
+        }
+      ]
+    },
+    {
+      "topic": "58 exception order and structured cleanup",
+      "finding": "Reserve occurs before execution. retained_apply precedes partial_check_node. completed increments only after successful node application and Saved release. On structured error, status is saved and cleared, marks/incoming scratch and all reservations are released, then the queue Hold is released before the exception payload is returned.",
+      "functions": [
+        {
+          "path": "overlay-authoring.py",
+          "function": "partial_execute",
+          "first_line": 1,
+          "last_line": 82,
+          "normalized_ast_sha256": "53c63461ba9937fe018007650bcb48bce8a861b51e32c85d35ea07eb482b2300"
+        }
+      ]
+    },
+    {
+      "topic": "Fresh gradient ownership",
+      "finding": "The hook fills a fresh descriptor, binds it through the unchanged gradient_assign ownership path, clears its table entry and releases only the reservation root. Existing gradient storage/version is read without in-place mutation. Undefined G uses contiguous fresh layout; replacement layout uses actual incoming metadata.",
+      "functions": [
+        {
+          "path": "overlay-authoring.py",
+          "function": "retained_apply",
+          "first_line": 619,
+          "last_line": 645,
+          "normalized_ast_sha256": "a0a4ab8089e4c07ccea1f751dc5657d15820f1007708d8b39b5b5ed770c8d5f4"
+        },
+        {
+          "path": "overlay-authoring.py",
+          "function": "retained_sum_layout",
+          "first_line": 711,
+          "last_line": 742,
+          "normalized_ast_sha256": "bdd24831924c5a4de7e3edba6c91512c433506fa5e922efc94626088257e7699"
+        }
+      ]
+    },
+    {
+      "topic": "Atomic entries and allocation refusal",
+      "finding": "7/29/57 retain the old owner transaction. All new admission/reservation failures return through ordinary rollback; successful atomic paths also release all reservations and private Holds. The unchanged owners module performs the actual clone/commit/drop lifecycle.",
+      "functions": [
+        {
+          "path": "overlay-authoring.py",
+          "function": "backward_execute",
+          "first_line": 84,
+          "last_line": 173,
+          "normalized_ast_sha256": "53275c975cf9d8f24b6a3107f1b8c8550390673dba5059694fc344094faf5e19"
+        }
+      ]
+    },
+    {
+      "topic": "Committed audit and Optimizer roles",
+      "finding": "Committed T rows permit only flags0/1, rejecting transient2/3. Nonleaf admission is broadened only through retained_parameter_blocker; Optimizer private roots and gradient binding reference counters remain real existing roles, not replaced by the retain flag.",
+      "functions": [
+        {
+          "path": "overlay-authoring.py",
+          "function": "so_audit_records",
+          "first_line": 423,
+          "last_line": 491,
+          "normalized_ast_sha256": "212bc7ba4be34bdb7517e3dc119cee5f35bfc62ce57add3830afcec1e0f7ef40"
+        },
+        {
+          "path": "overlay-authoring.py",
+          "function": "retained_parameter_blocker",
+          "first_line": 513,
+          "last_line": 516,
+          "normalized_ast_sha256": "c78d806a5c4488e455df2d99e0a1ff83717593e4684fa179d08c19441cdac0bc"
+        },
+        {
+          "path": "overlay-authoring.py",
+          "function": "optimizer_audit_entry",
+          "first_line": 300,
+          "last_line": 343,
+          "normalized_ast_sha256": "d598f41bf3beb9b0c98d20e2c4506d4af2e2260c93619ba6092f9bb962966d0b"
+        },
+        {
+          "path": "overlay-authoring.py",
+          "function": "owned_adam_audit_entry",
+          "first_line": 391,
+          "last_line": 421,
+          "normalized_ast_sha256": "247145ed704e84cb09e4bc9c71ece0f6dc5ec6c3a546c938420fca9069a254a9"
+        }
+      ]
+    }
+  ],
+  "peer_observer_lifetime_review": [
+    {
+      "method": "gradient",
+      "finding": "Reads current G public flag before91; temporary publication is closed only when it was not already public. Explicit held aliases are retained.",
+      "first_line": 273,
+      "last_line": 284,
+      "normalized_ast_sha256": "a9b145dd2551f593529bcd022326590cb1352b1a8a88d977d296cfe28f16c555"
+    },
+    {
+      "method": "optimizer_snapshot",
+      "finding": "Uses76 public-token inventory before77. Fresh state getter tokens are immediately closed; already-public state aliases remain open.",
+      "first_line": 298,
+      "last_line": 351,
+      "normalized_ast_sha256": "687b429e0e7bc0445527e982a85fd92e2937c39ed7c0cb719f3889664ee8227a"
+    },
+    {
+      "method": "case_private",
+      "finding": "The temporary75 parameter publication is closed before78 drops the actual private Optimizer root. Temporary xG/seed public tokens are closed before lifecycle observations.",
+      "first_line": 568,
+      "last_line": 598,
+      "normalized_ast_sha256": "b95144b558a5126e87c525aa4cf7154f65cdb671a09a6805e4133d8cedb7313b"
+    },
+    {
+      "method": "expired",
+      "finding": "A successful weak43 lock creates a real Hold that is immediately released by45; expired6 checks do not create a Hold.",
+      "first_line": 402,
+      "last_line": 406,
+      "normalized_ast_sha256": "2326e8a34a04ef344a1292442d46107443dac1b30a6aed2702b8dc374ba2fa43"
+    },
+    {
+      "method": "case_weak",
+      "finding": "The q public root is explicitly dropped before weak observation/backward. Snapshots do not leave a hidden G token, except the intentionally held old-gradient recipe.",
+      "first_line": 535,
+      "last_line": 566,
+      "normalized_ast_sha256": "58dc2d6ad2d5237655985d447c0fc75f0a8835009e33e8a6a144c9ed13400469"
+    },
+    {
+      "method": "weak_snapshot",
+      "finding": "Only Storage expiry participates in equality assertions; Python wrapper weakrefs are retained as diagnostic fields.",
+      "first_line": 408,
+      "last_line": 414,
+      "normalized_ast_sha256": "0bb75de9a3271fb295a111af65532d719edd8c4cb6a398904c4a2b77a07541f0"
+    }
+  ],
+  "existing_negative_contract_change": {
+    "opcodes": [
+      93,
+      94
+    ],
+    "old_empty_args_status": 4,
+    "new_empty_args_status": 1,
+    "old_suite_not_relabelled_unchanged_PASS": true
+  },
+  "limits": [
+    "Only checked producer/wire-created owner states are covered, not arbitrary foreign fabricated owner metadata.",
+    "Per-function authoring checks are not whole-aggregate Core admission; actual modules still pass native checks and whole-link stack admission.",
+    "This receipt is not a general proof of arbitrary code or every retained-gradient input.",
+    "Actual12 replay and the separate8 resource plus2 typed-handoff executions retain separate evidence/counts."
+  ],
+  "inputs": [
+    {
+      "path": "/workspace/scratch/d26699e25fea/retained-gradient-resource-review/source_review.py",
+      "bytes": 15960,
+      "sha256": "2a1bc6a9865062952bbb027b72125895c81841d50db1eba40fb484266a867003"
+    },
+    {
+      "path": "/dev/shm/heptatorch-d26699e25fea/grad/retained-portable-build-01/runtime.hepta",
+      "bytes": 1500181,
+      "sha256": "666230f05cc6942470006d1f184135321d8cbc26a6c6ba0bf7e3cf9857fe515b"
+    },
+    {
+      "path": "/dev/shm/heptatorch-d26699e25fea/gradient-adam-distributions-root-integrated-05/producer/native/runtime.hepta",
+      "bytes": 1460221,
+      "sha256": "1fed8ea7ba5bf755a9df9ca1e61d34cfd4712cc2fd66e0728493091c81c24dae"
+    },
+    {
+      "path": "/dev/shm/heptatorch-d26699e25fea/grad/retained-portable-build-01/tensor-retained-session",
+      "bytes": 2334720,
+      "sha256": "7568c0a4ec40d82d3a0b46d1e8a27499dd96e8fe3fd15433523131a196da89b5"
+    },
+    {
+      "path": "/workspace/scratch/d26699e25fea/retained-nonleaf-native-review/replay_retained_nonleaf.py",
+      "bytes": 39228,
+      "sha256": "c925e33872dc87ead29ecc2125b1799763a87b13c8ae2eba85e966b4202f1d8e"
+    },
+    {
+      "path": "/dev/shm/heptatorch-d26699e25fea/grad/retained-portable-build-01/build.json",
+      "bytes": 5510,
+      "sha256": "08859abde69863a4de689079e70ea70d97f5dacb5399d0a8ff9834f4d2ece637"
+    },
+    {
+      "path": "/workspace/scratch/d26699e25fea/retained-gradient-resource-review/source-inputs/source-map.json",
+      "bytes": 105898,
+      "sha256": "a330ec49d36f7b54f77d19675df86174cebb77d9fb7e7e4843be7fa3a71150a9"
+    },
+    {
+      "path": "/workspace/scratch/d26699e25fea/retained-gradient-resource-review/source-inputs/originals.py",
+      "bytes": 15466,
+      "sha256": "561d74b9cd5dabd2916ccb64ffcb7c9a7adab6b97bca132a0e5f5548169562d8"
+    },
+    {
+      "path": "/workspace/scratch/d26699e25fea/retained-gradient-resource-review/source-inputs/overlay-authoring.py",
+      "bytes": 23497,
+      "sha256": "2487b959c406f4ee0687034e4121b2d17f5199951da5750b666ea36a5b6b7859"
+    },
+    {
+      "path": "/workspace/scratch/d26699e25fea/retained-gradient-resource-review/source-inputs/authoring-custody.json",
+      "bytes": 224874,
+      "sha256": "93eba85ab97da186e1d6a04c18ff0ecf0e5cb987e8d7112b47bc2e8830b57d2d"
+    },
+    {
+      "path": "/workspace/scratch/d26699e25fea/retained-gradient-resource-review/source-inputs/build.py",
+      "bytes": 15644,
+      "sha256": "9f5c25208518e9c2a7789e2db5bd44111a901bab5ba45a4c91b7daa7ff9ea119"
+    },
+    {
+      "path": "/workspace/scratch/d26699e25fea/retained-gradient-resource-review/source-inputs/original-authoring-custody.json",
+      "bytes": 1975,
+      "sha256": "4f522958beb9d11df6e76acb16aa03f5fba459483378bb718896ebbb3672ebf7"
+    },
+    {
+      "path": "/workspace/scratch/d26699e25fea/retained-gradient-resource-review/source-inputs/retained.py",
+      "bytes": 4184,
+      "sha256": "f6f24385543890a89667be804f4a2fda5d8bc15ad257caca55935b447fb0dacd"
+    },
+    {
+      "path": "/workspace/scratch/d26699e25fea/retained-gradient-resource-review/source-inputs/layout.py",
+      "bytes": 2877,
+      "sha256": "58b69bc880cc4cc2f559dcce30c6fd394734266110942b01fa5d683915d50170"
+    },
+    {
+      "path": "/dev/shm/heptatorch-d26699e25fea/grad/retained-portable-build-01/rng03.hepta",
+      "bytes": 23281,
+      "sha256": "a3fa507339b40435285dc1fa65e3cd519b6a0921a4c93bccf6ea834bb24763a3"
+    },
+    {
+      "path": "/dev/shm/heptatorch-d26699e25fea/grad/retained-portable-build-01/rng03.o",
+      "bytes": 28256,
+      "sha256": "cd7371a9bfe71110ba64defcc5fd7d9c48374e1e14600aa9015a1c140b7867ec"
+    },
+    {
+      "path": "/dev/shm/heptatorch-d26699e25fea/grad/retained-portable-build-01/retained_gradient_00.hepta",
+      "bytes": 168484,
+      "sha256": "fa585f5d1c4913c4b8441b241fbe7d75399aaca47c9178fcaefe36907df8d962"
+    },
+    {
+      "path": "/dev/shm/heptatorch-d26699e25fea/grad/retained-portable-build-01/retained_gradient_00.o",
+      "bytes": 251248,
+      "sha256": "14b4e4a2e9bc5c5d956adbc43d2c44d97fc47de3b8b0ed3761eae54fd3d8d26c"
+    },
+    {
+      "path": "/dev/shm/heptatorch-d26699e25fea/grad/retained-portable-build-01/retained_gradient_01.hepta",
+      "bytes": 153176,
+      "sha256": "4d83a3002119cb1ebe82fecf1a566bf79a017da34e155267c332a393258db851"
+    },
+    {
+      "path": "/dev/shm/heptatorch-d26699e25fea/grad/retained-portable-build-01/retained_gradient_01.o",
+      "bytes": 261728,
+      "sha256": "dd9a3e1e013b903e96861329c66446ff6b677f0d549849aac4f0876d5364771e"
+    },
+    {
+      "path": "/dev/shm/heptatorch-d26699e25fea/grad/retained-portable-build-01/retained_gradient_02.hepta",
+      "bytes": 199538,
+      "sha256": "0ddda95dd1886232ccf3508905384a5d43490ecf5e69546c9d6985a411664cb3"
+    },
+    {
+      "path": "/dev/shm/heptatorch-d26699e25fea/grad/retained-portable-build-01/retained_gradient_02.o",
+      "bytes": 348832,
+      "sha256": "acd2adcf311e79c69838a1b43d69ea112f073fd4642f6cb8daf118ccd8411e14"
+    },
+    {
+      "path": "/dev/shm/heptatorch-d26699e25fea/grad/retained-portable-build-01/retained_gradient_03.hepta",
+      "bytes": 251128,
+      "sha256": "fd01e91425c01f8be9061a7da6612859428fe4b9aa72ecd5c9b4dfea5c01f318"
+    },
+    {
+      "path": "/dev/shm/heptatorch-d26699e25fea/grad/retained-portable-build-01/retained_gradient_03.o",
+      "bytes": 435840,
+      "sha256": "3cec2ced5a799a3597115337d5984b105127d8dbc15f87f74c8ff84dc9c0e1f2"
+    },
+    {
+      "path": "/dev/shm/heptatorch-d26699e25fea/grad/retained-portable-build-01/retained_gradient_04.hepta",
+      "bytes": 238055,
+      "sha256": "3a1c1c0aa84be5008c970024b49aa7455e73fe3fab3a2467659cc8a84296250d"
+    },
+    {
+      "path": "/dev/shm/heptatorch-d26699e25fea/grad/retained-portable-build-01/retained_gradient_04.o",
+      "bytes": 421200,
+      "sha256": "6076a8263e7300309ba83914826754de0e37dbc6212ce2f9a8d8116589e22ca8"
+    },
+    {
+      "path": "/dev/shm/heptatorch-d26699e25fea/grad/retained-portable-build-01/retained_gradient_05.hepta",
+      "bytes": 266620,
+      "sha256": "f9a6d3d2672d7046dcee5643b8067f94d39e79fe5000373569caf219d8bd9119"
+    },
+    {
+      "path": "/dev/shm/heptatorch-d26699e25fea/grad/retained-portable-build-01/retained_gradient_05.o",
+      "bytes": 503248,
+      "sha256": "52f4dfcebd649fe73c2965b8f6df62912ad331a175f7a19bf58769e6e7d62eb7"
+    },
+    {
+      "path": "/dev/shm/heptatorch-d26699e25fea/grad/retained-portable-build-01/retained_gradient_06.hepta",
+      "bytes": 262447,
+      "sha256": "b5bf8319f17ff62825ca5a6522a6dc5538934fe7ac751c03e584455eaf88f497"
+    },
+    {
+      "path": "/dev/shm/heptatorch-d26699e25fea/grad/retained-portable-build-01/retained_gradient_06.o",
+      "bytes": 489376,
+      "sha256": "5e3c3f5dc62cd882ad1fb2362e4e9eadd81a6cb7f3e2918d8b56348548bc9c43"
+    },
+    {
+      "path": "/dev/shm/heptatorch-d26699e25fea/grad/retained-portable-build-01/owners.hepta",
+      "bytes": 7724,
+      "sha256": "9c02b75c44eee8459c476049f4d9ebe10935d9d9ed8b27f5842c699f8e6a0884"
+    },
+    {
+      "path": "/dev/shm/heptatorch-d26699e25fea/grad/retained-portable-build-01/owners.o",
+      "bytes": 15560,
+      "sha256": "da1c2c940f125a54c4ee83a0667a4b014432357965fe3d651a61143e5a15be30"
+    },
+    {
+      "path": "/dev/shm/heptatorch-d26699e25fea/gradient-adam-distributions-root-integrated-05/producer/native/owners.hepta",
+      "bytes": 7724,
+      "sha256": "9c02b75c44eee8459c476049f4d9ebe10935d9d9ed8b27f5842c699f8e6a0884"
+    },
+    {
+      "path": "/dev/shm/heptatorch-d26699e25fea/gradient-adam-distributions-root-integrated-05/producer/native/rng03.hepta",
+      "bytes": 23281,
+      "sha256": "a3fa507339b40435285dc1fa65e3cd519b6a0921a4c93bccf6ea834bb24763a3"
+    }
+  ],
+  "all_inputs_unchanged": true,
+  "native_executed_by_this_review": false,
+  "Torch_executed_by_this_review": false,
+  "full_rewrite_complete": false,
+  "pytorch_api_denominator": 2590
+}

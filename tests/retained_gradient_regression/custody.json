@@ -1,0 +1,58 @@
+{
+  "schema": "heptatorch.retained-legacy-adapter-custody.v1",
+  "purpose": "Explicit new93/94 reserved-field admission and new private owner tags. Existing numerical, identity, lifetime, rollback assertions unchanged. Original unknown-op4 contract is superseded only for93/94. Frozen original runner failure is preserved separately.",
+  "rows": [
+    {
+      "file": "test_gradient_references.py",
+      "original_sha256": "d11209dc7a1340fb490c11c16aa1b4a839d5301371a68eb11667ac4489234543",
+      "adapted_sha256": "28f15f87a0d02e2df6e2d4eaa95915c1e266b4fe45b69c9ff38140491e98f8bf",
+      "inverse_byte_identical": true,
+      "edits": [
+        {
+          "before": "([(93,parameter)],4), ([(94,parameter)],4)",
+          "after": "([(93,parameter,1)],7), ([(94,parameter,1)],7)"
+        }
+      ]
+    },
+    {
+      "file": "test_native_lifetimes.py",
+      "original_sha256": "f67a05f238c994e701239d7d7f83b31378bf12226ef7b72e74e03f7810581ad5",
+      "adapted_sha256": "ab79c0a6e57eaf85d26d2d16d42eb34daa6b578e1081ba02909564c584822321",
+      "inverse_byte_identical": true,
+      "edits": [
+        {
+          "before": "b'HTGAD002'",
+          "after": "b'HTRET001'"
+        },
+        {
+          "before": "b'HTOGAD02'",
+          "after": "b'HTORET01'"
+        },
+        {
+          "before": "((93,),4),((94,),4)",
+          "after": "((93,p,1),7),((94,p,1),7)"
+        },
+        {
+          "before": "'reserved_93_94_remain_unimplemented':True",
+          "after": "'retained_93_94_reserved_fields_rejected':True"
+        }
+      ]
+    },
+    {
+      "file": "replay_grad_clear.py",
+      "original_sha256": "4eafa1416b6ad822ff45f0b5966b3d2cc05dd1b4d77b998382de4bc436dacea1",
+      "adapted_sha256": "a87c381cc428ccb6d9295c99e769b3145f88ecb437367d9bd4fcfa7f1a923bf3",
+      "inverse_byte_identical": true,
+      "edits": [
+        {
+          "before": "b'HTGAD002'",
+          "after": "b'HTRET001'"
+        },
+        {
+          "before": "b'HTOGAD02'",
+          "after": "b'HTORET01'"
+        }
+      ]
+    }
+  ]
+}

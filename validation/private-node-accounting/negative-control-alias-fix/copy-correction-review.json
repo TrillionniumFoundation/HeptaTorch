@@ -1,0 +1,125 @@
+{
+  "schema": "heptatorch.private-node-peer-fixture-copy-correction.v1",
+  "status": "PASS_EXACT_SINGLE_COPY_SITE_CORRECTION",
+  "old": {
+    "path": "/Users/qianqi/heptatorch-pr28-validation-20261116/peer-review/check_owner_snapshots.py",
+    "bytes": 13676,
+    "sha256": "48e3b0592585ba721265536fc11cfb460d870e88cb20dbfd9ecb41d6f299215f"
+  },
+  "new": {
+    "path": "/Users/qianqi/heptatorch-pr28-validation-20261116/peer-review/revision-02/check_owner_snapshots.py",
+    "bytes": 14072,
+    "sha256": "c4873900abd44f2c74c2632d662d932ee0912501b7a127771c2bfecccc0f2db6"
+  },
+  "cause": "Content-addressed journals make before and after the same Python dict for a rolled-back frame. deepcopy preserves the alias, so the intended one-sided corruption changed both sides.",
+  "correction": "Deserialize the canonical JSON event into independent before and after containers; require identity separation and byte-equal original before after every mutation.",
+  "all_other_source_bytes_unchanged": true,
+  "inverse_restores_original_source_exactly": true,
+  "all_18_case_names_inputs_and_exact_rejection_rules_unchanged": true,
+  "negative_controls": [
+    {
+      "case": "extra-incarnation-not-attributed",
+      "sample_category": "materialization",
+      "expected_rule": "unexplained-incarnation-delta"
+    },
+    {
+      "case": "wrong-gradient-incarnation",
+      "sample_category": "materialization",
+      "expected_rule": "gradient-incarnation"
+    },
+    {
+      "case": "wrong-gradient-incoming-reference-count",
+      "sample_category": "materialization",
+      "expected_rule": "gradient-reference-count"
+    },
+    {
+      "case": "wrong-node-reference-count",
+      "sample_category": "materialization",
+      "expected_rule": "node-reference-count"
+    },
+    {
+      "case": "wrong-accumulator-reference-count",
+      "sample_category": "materialization",
+      "expected_rule": "accumulator-reference-count"
+    },
+    {
+      "case": "private-gradient-incorrectly-public",
+      "sample_category": "materialization",
+      "expected_rule": "unexpected-public-or-nonleaf-gradient"
+    },
+    {
+      "case": "gradient-binding-without-presence",
+      "sample_category": "materialization",
+      "expected_rule": "gradient-not-defined"
+    },
+    {
+      "case": "gradient-T-record-points-to-wrong-node",
+      "sample_category": "materialization",
+      "expected_rule": "T-row-node-mapping"
+    },
+    {
+      "case": "committed-incoming-temporary-not-cleared",
+      "sample_category": "materialization",
+      "expected_rule": "descriptor-transient"
+    },
+    {
+      "case": "hidden-gradient-node-entry",
+      "sample_category": "materialization",
+      "expected_rule": "node-index-coverage"
+    },
+    {
+      "case": "duplicate-live-node-incarnation",
+      "sample_category": "materialization",
+      "expected_rule": "node-incarnation-unique"
+    },
+    {
+      "case": "extra-unrooted-live-gradient-cannot-explain-allocation",
+      "sample_category": "materialization",
+      "expected_rule": "anonymous-live-node"
+    },
+    {
+      "case": "compound-three-constructors-miscounted-as-one",
+      "sample_category": "compound-construction",
+      "expected_rule": "unexplained-incarnation-delta"
+    },
+    {
+      "case": "duplicate-program-creation-ticket",
+      "sample_category": "compound-construction",
+      "expected_rule": "duplicate-creation-ticket"
+    },
+    {
+      "case": "reset-high-water-includes-unexplained-dead-slot",
+      "sample_category": "reset-with-private-gradient",
+      "expected_rule": "reset-high-water"
+    },
+    {
+      "case": "unrequested-generation-change",
+      "sample_category": "materialization",
+      "expected_rule": "unrequested-reset"
+    },
+    {
+      "case": "failed-frame-raw-owner-digest-changed",
+      "sample_category": "failed-frame-rollback",
+      "expected_rule": "failed-frame-full-owner-rollback"
+    },
+    {
+      "case": "failed-frame-owner-pointer-changed",
+      "sample_category": "failed-frame-rollback",
+      "expected_rule": "failed-frame-structural-rollback"
+    }
+  ],
+  "frozen_observer_sha256": "e900466bff13bcaa5cd89a814dc411b4fc33320d84855ca6bd085179cd599c6a",
+  "observer_changed": false,
+  "native_changed": false,
+  "numeric_or_version_assertions_changed": false,
+  "original_failure": {
+    "host": "rog",
+    "job": "1a1e42d4c50-392-366e",
+    "report_sha256": "da94a750c7848730a20f134fc844d5388143ecfaa71efad4b84bd5771063563b",
+    "positive_cases": 4,
+    "negative_cases_completed": 16
+  },
+  "execution_scope": "Source inverse and AST checks only; separate actual copied-snapshot reports qualify the new checker.",
+  "native_executed_by_this_check": false,
+  "torch_executed_by_this_check": false
+}

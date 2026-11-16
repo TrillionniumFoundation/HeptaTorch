@@ -1,0 +1,21 @@
+--- candidate04/pointwise-layout-authoring.py
++++ candidate05/pointwise-layout-authoring.py
+@@ -4,12 +4,14 @@
+         source = a
+         if operand == 1:
+             source = b
+-        ls = dist_probability_stride(w,out,source,left)
+-        rs = dist_probability_stride(w,out,source,right)
++        ls = dist_probability_stride(w,out,source,left) << 2
++        rs = dist_probability_stride(w,out,source,right) << 2
+         if ls != 0 and rs != 0:
+-            if ls < rs:
++            ordered_left = ls ^ 9223372036854775808
++            ordered_right = rs ^ 9223372036854775808
++            if ordered_left < ordered_right:
+                 return 1
+-            if ls > rs:
++            if ordered_left > ordered_right:
+                 return 2
+             if getw(w,out+96+left*8) > getw(w,out+96+right*8):
+                 return 2

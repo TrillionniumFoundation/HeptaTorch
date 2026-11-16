@@ -21,6 +21,30 @@ entire subsystem or a complete upstream schema by itself.
 
 ## Current implementation and next work
 
+The latest combined owner is now the 428-core-function public-gradient / Adam /
+CPU-distribution profile documented in
+[gradient-objects-and-composition.md](gradient-objects-and-composition.md).
+Its source is `1fed8ea7ba5bf755a9df9ca1e61d34cfd4712cc2fd66e0728493091c81c24dae`
+and executable is
+`6773485896d961b6c2e62784ebb66320290df47128bd1331aecc0c8b7f6611fe`.
+It is built from the exact 355-function public-gradient and 378-function
+Adam/distribution parents. Root cold qualification has completed the original
+16-step gradient-parent and 17-step combined runs. Each new image must also
+complete its own unchanged hosted live32/frozen35 regressions; a predecessor's
+PASS is not transferred. The 378 parent has already passed both68-step jobs and
+is merged at `e4cf7b6d3645b5a340ec3b47489ecc326e908c13`.
+
+Immediate semantic work is retained nonleaf `retain_grad`: actual first-gradient
+contiguous materialization, out-of-place subsequent accumulation, hook timing on
+node failure, weak lifetime and Optimizer acceptance. Freeze actual pinned Torch
+observations before binding new HIA behavior. Keep the original Optimizer24
+mapping at23 qualified plus one partial until that subobservation is executed.
+The distribution18 missing dtype/mask observations, general dtype/layout and
+all other full-system requirements remain in scope. Do not close a whole gate
+for these bounded recipes. The older baseline table below describes retained
+build paths and historical milestones; current source-bound successor receipts
+take precedence for the active implementation.
+
 The tensor-composition source is `264e9c5c4e8ea1834724cc0d8d859952016daffe4af330a8daa7745e7a5e5233`.
 It contains 143 HIA functions, 1,783 blocks and 7,064 instructions. The default
 native build compiles two complete source units independently and resolves 1,108

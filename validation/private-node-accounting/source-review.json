@@ -1,0 +1,76 @@
+{
+  "schema": "heptatorch.frozen35-owner-accounting-source-review.v1",
+  "status": "SOURCE_REVIEW_ONLY_NOT_EXECUTED",
+  "repository": "TrillionniumFoundation/HeptaTorch",
+  "commit": "30ea38d3572a18ede2dda80decc2fcb4a83feb84",
+  "source_custody": {
+    "bridge35": "c2888687f8876ad3505f0e13c9aecddc45695eff22bfdd9fa16d760f9aa3dac5",
+    "bridge35_lifecycle": "4a195d07772123342ac3a33aa878aab1663ce0d0d1dbd8ea5ddb110438fd278c",
+    "bridge_oracle_driver35": "149b41c455444edeb8d25d0ad98045e29683e780f37f7e210e7985242d359597",
+    "bridge_session21": "35fa5fa3e1b740f901c11d46dca484079b77805004586c03ae42b35be2265577",
+    "bridge_support159": "ef8fe89aa7dbff4ee03f9d5762d2736a3648d9e48e97ad5df7bec615676f04ae",
+    "bridge_frozen28": "ee3cf72154ac9dfa31055557b3facab8fdd3e14aad03ef6000ced55ccd75ed88"
+  },
+  "native_source_sha256": "1fed8ea7ba5bf755a9df9ca1e61d34cfd4712cc2fd66e0728493091c81c24dae",
+  "native_sha256": "6773485896d961b6c2e62784ebb66320290df47128bd1331aecc0c8b7f6611fe",
+  "verified_native_functions": [
+    {
+      "name": "descriptor",
+      "sha256": "3ea0866cdc43a6eda40d576863b84268f1e05d69a3efbd60bac682a94da524df",
+      "body_retrieved_and_sha256_checked": true
+    },
+    {
+      "name": "graph_reset",
+      "sha256": "e7d463c2e8b82126357059abb4fcd932320f5b92f7da2565ebae74316f858e4b",
+      "body_retrieved_and_sha256_checked": true
+    },
+    {
+      "name": "graph_node_release",
+      "sha256": "7f7c3f7bccc8fbbee23ef14c5c38a505cb18011dd195c8add68584102b8fcfbd",
+      "body_retrieved_and_sha256_checked": true
+    },
+    {
+      "name": "gradient_new",
+      "sha256": "622e5631fb34db0a2a21014e42ab004ee8b419106fdad794da9e4ef79c5adada",
+      "body_retrieved_and_sha256_checked": true
+    },
+    {
+      "name": "gradient_audit",
+      "sha256": "8e28d47f567955c5a7ba40d5aa7f26bdb7797c5ef84862e1dc3fce334eb347e5",
+      "body_retrieved_and_sha256_checked": true
+    }
+  ],
+  "findings": [
+    "object_stats writes getw(w,8)-1 at payload byte88; this is internal node high-water mark, including actual gradient Tensor nodes, not logical client creation count.",
+    "descriptor increments global word120 and stores it at descriptor+320; graph_reset does not change that monotonically increasing incarnation allocator.",
+    "gradient_new calls descriptor and retains its actual Tensor via parent+384/+392, target+400 and +208; target+200 is zero, so it is a legitimate private Tensor with actual Storage and Version.",
+    "graph_reset keeps the highest still-live internal slot after dropping public roots above keep and running collection; higher private G nodes can retain holes below that high-water mark.",
+    "The original bridge.close equality must be preserved as historical failed observer logic, not treated as an application invariant.",
+    "OriginalSession.close EOF/exit0/empty stdout and stderr and the frozen28 post-close _v2_assert_versions were skipped by each first-run close failure and must execute in a fresh complete rerun."
+  ],
+  "proposed_observer": {
+    "source_scope": "Independent launcher and observer module; unchanged original35/28/21/159 source bytes, numeric case AST, expected values, tolerances, Version and lifetime assertions.",
+    "transport": "Read-only /proc child memory after the actual native process blocks on read(fd0,control,16); verify trusted wrapper live-owner slot and exact profile tags before sparse descriptor/table reads.",
+    "logical_creation_tickets": "Subclass Program.command only to snapshot unmodified next_id before each record; subclass handle to record actual unmodified next_id minus that snapshot. Includes existing compound count3 and preserves original logical IDs.",
+    "exact_allocation_equation": "For every successful frame: delta(global120) == sum(logical creation tickets) + count(unique new gradient Tensor incarnations proved by actual parent G bindings). Failed frames admit no committed increment.",
+    "gradient_identity": "Every newly counted G has actual live T row/node mapping, incarnation match, public0, leaf/no-requires flags, exact parent shape, SID and VID live; each root is proven by parent+384/+392 and counted in target+400/+208.",
+    "exact_reference_recount": "For every live node independently count all graph-parent edges, enabled leaf accumulator edges and gradient-binding edges. Require +208 == graph_edges + private_optimizer_roots(+312) + gradient_roots(+400); +88 equals enabled incoming leaf edges; +400 equals actual binding incoming edges. Frozen35 has no owned Optimizer commands, so +312 must be zero.",
+    "sequence_checks": "Report the logical allocator and internal slot high-water mark separately. Match all12 actual stats words exactly to observed owner/table metadata; word11==global8-1. Verify reset high-water mark from the maximum live slot/keep and record cleared holes explicitly.",
+    "committed_cleanup": "All transient incoming/GC/staging fields zero; no anonymous live nodes outside public/graph/G root closure; stale public bindings rejected by exact kind/gen/node mapping.",
+    "evidence_scope_guard": "Original35 source review confirms no successful frame constructs a G and then drops/resets it before the response. Reject any unsupported mixed frame instead of inferring an invisible allocation.",
+    "mutation_guards": [
+      "unexplained incarnation increment",
+      "anonymous live node",
+      "G incarnation mismatch",
+      "wrong G strong count",
+      "incorrect graph reference count",
+      "wrong node high-water mark",
+      "invalid owner tag or source/image pin",
+      "unavailable read-only observer"
+    ],
+    "replay_requirement": "Fresh live pinned-Torch35 run required; do not reclassify the original 3PASS/32FAIL report."
+  },
+  "no_native_or_oracle_sources_changed": true,
+  "full_rewrite_complete": false,
+  "pytorch_api_denominator": 2590
+}
