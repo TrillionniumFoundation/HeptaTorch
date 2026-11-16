@@ -133,3 +133,23 @@ jobs:
         run: |
           test -f build/torch-gradient-materialization.json
           python3 -I -S -B tools/emit_ci_report.py build/torch-gradient-materialization.json
+      - name: Verify fixed gradient alias and edge-order source and syntax
+        run: |
+          echo 'cc0392888f0db9f7026c3f24e0787845b60e43b5e18d8c63cdcb8c720d51acd5  tests/pytorch_gradient_alias_edge_probe.py' | sha256sum -c -
+          python3 -I -S -B -m py_compile tests/pytorch_gradient_alias_edge_probe.py
+      - name: Prepare gradient alias mutation and edge-order observation plan
+        run: |
+          python3 -I -S -B tests/pytorch_gradient_alias_edge_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/torch-gradient-alias-edge-prepared.json --prepare-only
+          python3 -I -S -B tools/emit_ci_report.py build/torch-gradient-alias-edge-prepared.json
+      - name: Observe gradient alias mutation lifetimes and repeated-edge rounding
+        run: |
+          python3 tests/pytorch_gradient_alias_edge_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/torch-gradient-alias-edge.json
+      - name: Preserve complete gradient alias and edge-order observations
+        if: always()
+        run: |
+          test -f build/torch-gradient-alias-edge.json
+          python3 -I -S -B tools/emit_ci_report.py build/torch-gradient-alias-edge.json
