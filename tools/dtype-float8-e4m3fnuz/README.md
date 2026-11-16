@@ -1,0 +1,13 @@
+# Native HIA float8 E4M3FNUZ conversion
+
+Standalone native `float32 ↔ float8_e4m3fnuz` conversion, not a routed PyTorch operation. Both directions and packet bounds execute as HIA-compiled x86-64 machine code without an upstream numerical runtime.
+
+E4M3FNUZ uses exponent bias 8, 127 finite positive encodings, a single unsigned NaN code 0x80, and no negative zero. The exact PyTorch 2.15.0+cpu reference maps nonfinite inputs and finite magnitudes at or above the 248 rounding boundary to the sole NaN code 0x80. Values below that boundary round to finite values, with negative underflow producing positive zero. This is an observed public dtype contract, not finite saturation; retain the original strict-real-Torch failure rather than changing tolerances. An independent CPython exact finite-lattice reference compares every 256 encoding, every finite midpoint and adjacent binary32 word, 100,000 deterministic random input words, both maximum packet sizes, and malformed packet refusals. Original and newly observed failures must remain visible.
+
+Packet input: little-endian u32 mode (0 = round f32→E4M3FNUZ, 1 = widen), u32 count, and a precisely sized payload of f32 words or float8 octets. Output: u32 status (0 success, 1 refusal) followed by packed converted values. At most 200,000 values; no trailing bytes admitted.
+
+The test compiles the same source twice with the fixed standalone HIA compiler, executes both under an empty PATH, and checks the full provenance of the pinned torch CPU wheel when requested. A passing component proves only these conversions; it does not qualify Tensor storage, dtype dispatch, promotion, autograd, devices or any complete upstream native schema. All 2,590 declarations and 17 full-subsystem gates remain open.
+
+## First exact hosted qualification
+
+The source SHA-256 `e3e7df555f1bf76bd1376d3596b9da179fab2ecea9ac01294e7e2325faab2d74` produces standalone HIA ELF `bb4a98a62a8765aebd898dd6c0544c2005eb4177c409a955f2a80602f81c6c18` twice, byte-identically, with compiler `87c247e4d1c3c9a449d2947fd4227fdc186d519bffd203a04cafce7861a4ed54`. On [run 43815614430](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43815614430), both independent CPython and the exact PyTorch 2.15.0+cpu oracle passed 16/16 groups with 500,921 bit-exact non-NaN comparisons and 381 NaN classification checks apiece. The actual wheel passed all 11 provenance checks. Full reports live in `validation/hosted-native-float8-e4m3fnuz.json`; the initial frozen strict-PyTorch overflow failure remains in `validation/native-float8-e4m3fnuz-first-failure.json`. Re-run final exact-head CI after this evidence/pin commit. No full native schema or subsystem is claimed.
