@@ -413,3 +413,18 @@ corrected oracle records both absolute counters and checks exact shared
 increments and clone independence. All numerical tolerances, the other case
 functions, and native source/image identities remain unchanged. Absolute
 PyTorch counter parity remains an explicit open compatibility item.
+
+### Observed hosted persistent-session result
+
+`hosted-persistent-session.json` records successful run 43794542802, job
+133060243554, at commit `c627e1f7a5ab44a882a047a6c63ee4c8ca8a3c3a`. All
+30 hosted steps passed. Each actual session image passed 21 pinned PyTorch
+cases, 4,681 interactive frames, 491,847 numerical comparisons and 11 provenance
+checks. Both 270-case ordinary oracles, both 461-pair fixture runs, 477 native
+session cases per image and the new native tool/capacity gates also passed.
+
+The receipt contains every live oracle report and reproduces the exact hosted
+JSON file hashes. It explicitly records the absolute version-counter gap.
+Earlier native and oracle preparation snapshots remain NOT_RUN at their
+original assembly times; this hosted receipt supplies the subsequent actual
+execution evidence without rebinding them.
