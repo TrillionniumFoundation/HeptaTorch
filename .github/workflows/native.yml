@@ -486,6 +486,27 @@ jobs:
             HEPTA_OWNED_COMPILER="$RUNNER_TEMP/hepta-owned-modules/native/owned-module-compiler" \
             HEPTA_OWNED_SESSION_BUILD="$RUNNER_TEMP/hepta-owned-session-tools"
 
+      - name: Reproduce ABI3 native stack admission and guarded startup
+        run: |
+          sha256sum -c validation/stack-budget-package.sha256
+          python3 -I -S -B tools/stack_budget/rebuild.py \
+            --source-root "$GITHUB_WORKSPACE/.toolchain/hepta" \
+            --owned-build "$RUNNER_TEMP/hepta-owned-modules" \
+            --session-build "$RUNNER_TEMP/hepta-owned-session-tools" \
+            --borrowed-tools "$RUNNER_TEMP/hepta-modules-native" \
+            --output "$RUNNER_TEMP/hepta-stack-budget"
+
+      - name: Qualify native stack gates and unchanged Tensor application
+        run: |
+          make stack-tensors test-stack-tensors \
+            HEPTA_COMPILER="$RUNNER_TEMP/hepta-expanded/hia-native-compiler" \
+            HEPTA_MODULE_COMPILER="$RUNNER_TEMP/hepta-modules-native/module-compiler" \
+            HEPTA_MODULE_LINKER="$RUNNER_TEMP/hepta-modules-native/module-linker" \
+            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
+            HEPTA_OWNED_COMPILER="$RUNNER_TEMP/hepta-owned-modules/native/owned-module-compiler" \
+            HEPTA_OWNED_SESSION_BUILD="$RUNNER_TEMP/hepta-owned-session-tools" \
+            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget"
+
       - name: Install the independent pinned PyTorch CPU oracle
         shell: bash
         run: |
@@ -609,3 +630,12 @@ jobs:
             --reference tests/pytorch_oracle.py \
             --lock compatibility/pytorch-oracle-lock.json --repo . \
             --expected-native-sha256 57292dfc87acf88e1f94df70bdd4579ace4dbdeecd288f2d60113f7762837575
+
+      - name: Compare guarded Tensor image with unchanged strict PyTorch oracle
+        run: |
+          python3 tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py \
+            build/stack-tensors/owned-tensor-session build/pytorch-stack-tensor.json \
+            --session-reference tests/pytorch_session_oracle.py \
+            --reference tests/pytorch_oracle.py \
+            --lock compatibility/pytorch-oracle-lock.json --repo . \
+            --expected-native-sha256 e172bc81dfbe9ee2c9853cf9221ebf7236e8099a207947bccff66b0b01dc1f5f

@@ -86,6 +86,12 @@ cmp build/train.response build/train.expected
 
 [首次严格门禁](validation/hosted-owned-tensor-initial-failure.json)已实际完成全部 28 项、6,233 帧和 2,590,207 个数值比较，其中两项因非零权重衰减 AdamW 的绝对版本计数而失败，原始结果完整保留。[原生修正版](tools/owned_tensor_versions/README.md)仅替换 `adam` 的版本收尾调用并新增一个 HIA 辅助函数，修正参数和二阶矩计数；原 28 项 PyTorch oracle 源码与断言保持逐字不变。修正版原生资格还检查了零／负零衰减、零学习率和空张量的版本行为。[实际修复 CI](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43801012881)已通过全部 37 个步骤，严格门禁 **28／28 PASS、6,233 帧、2,590,207 个值、11 项来源检查**，参数绝对计数差异为 0；另有 22 项真实上游生命周期观察。[完整回执](validation/hosted-owned-tensors.json)绑定实现、二进制及全部实际报告。预先提供的 momentum 状态与 torch.optim 新建状态之间的生命周期差异仍保留为开放问题。
 
+## 原生栈预算与保护页
+
+[ABI3 栈配置](tools/stack_budget/README.md)由 HIA 原生编译器生成栈帧和调用图元数据，原生链接器逐条解析受支持的机器指令，核对真实调用与栈帧后计算最长调用路径。生产程序分配带两侧保护页的 8 MiB 私有栈，正常退出前释放 owner、私有栈和 I/O 映射。源文件、编译器与对象都有明确身份；这项检查不声称验证任意外来机器码的全部寄存器、内存或效果行为。
+
+当前 **151 函数**的数值 Tensor 程序经该配置重新编译和链接，所有模块源文件、函数体及链接后的数值机器码保持逐字一致。最长调用路径实际为 **61,488 字节**，另预留 4,096 字节。原生资格包含 **86 项**栈边界／真实深调用／保护页／退出清理／工作区复用／元数据攻击检查，以及另外编写的 **9 项**直接调用与栈帧伪造复验；随后执行同一份数值 Tensor 回归。[完整本地证据](validation/native-stack-budget.json)保留早期错误接纳及修复后的原始结果，[构建说明](docs/build.md#guarded-stack-and-native-call-path-admission)提供复现入口。真实 PyTorch 28 项回归另由 CI 对新映像执行；全量 17 项子系统验收仍开放。
+
 ## 跨请求持久会话
 
 会话进程读取 `HTOSES01` 外层帧，执行其中的 `HTORCH01` 请求，在 stdin 仍打开时立即输出 `HTOSRP01` 响应帧，然后读取下一帧。每个完整请求在 shadow 工作区执行；成功才提交，失败返回保留原错误码的 32 字节、零记录响应，并保持已提交状态不变。外层格式、EOF／EINTR／断管处理及边界见 [会话合同](tools/session/CONTRACT.md)。

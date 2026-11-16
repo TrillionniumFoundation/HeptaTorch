@@ -1,0 +1,285 @@
+def stack_modrm_size(s:readbuf, at:u64, end:u64) -> u64:
+    if at >= end:
+        return 0
+    modrm = byte(s, at)
+    mode = modrm >> 6
+    rm = modrm & 7
+    size = 1
+    if mode != 3:
+        if rm == 4:
+            if at + size >= end:
+                return 0
+            base = byte(s, at + size) & 7
+            size = size + 1
+            if mode == 0 and base == 5:
+                size = size + 4
+        if mode == 0 and rm == 5:
+            size = size + 4
+        if mode == 1:
+            size = size + 1
+        if mode == 2:
+            size = size + 4
+    if size > end - at:
+        return 0
+    return size
+
+def stack_instruction(s:readbuf, at:u64, end:u64) -> u64:
+    if at >= end:
+        return 0
+    pos = at
+    rex = 0
+    opcode = byte(s, pos)
+    if opcode >= 64 and opcode <= 79:
+        rex = opcode
+        pos = pos + 1
+        if pos >= end:
+            return 0
+        opcode = byte(s, pos)
+    pos = pos + 1
+    kind = 0
+    immediate = 0
+    modrm = 0
+    if opcode == 232:
+        if rex != 0:
+            return 0
+        immediate = 4
+        kind = 1
+    else:
+        if opcode == 233:
+            immediate = 4
+            kind = 2
+        else:
+            if opcode == 235 or (opcode >= 112 and opcode <= 127):
+                immediate = 1
+                kind = 3
+            else:
+                if opcode >= 184 and opcode <= 191:
+                    immediate = 4
+                    if (rex & 8) != 0:
+                        immediate = 8
+                else:
+                    if opcode == 15:
+                        if pos >= end:
+                            return 0
+                        second = byte(s, pos)
+                        pos = pos + 1
+                        if second >= 128 and second <= 143:
+                            immediate = 4
+                            kind = 2
+                        else:
+                            if second == 175 or second == 182 or second == 190 or second == 191 or (second >= 64 and second <= 79) or (second >= 144 and second <= 159):
+                                modrm = 1
+                            else:
+                                if second != 11:
+                                    return 0
+                    else:
+                        if opcode == 1 or opcode == 9 or opcode == 33 or opcode == 41 or opcode == 49 or opcode == 57 or opcode == 99 or opcode == 133 or opcode == 136 or opcode == 137 or opcode == 138 or opcode == 139 or opcode == 141 or opcode == 211:
+                            modrm = 1
+                        else:
+                            if opcode == 129:
+                                modrm = 1
+                                immediate = 4
+                            else:
+                                if opcode == 131 or opcode == 193:
+                                    modrm = 1
+                                    immediate = 1
+                                else:
+                                    if opcode == 247:
+                                        if pos >= end or (byte(s, pos) & 56) < 16:
+                                            return 0
+                                        modrm = 1
+                                    else:
+                                        if opcode == 37:
+                                            immediate = 4
+                                        else:
+                                            if opcode == 243:
+                                                if rex != 0 or pos >= end:
+                                                    return 0
+                                                second = byte(s, pos)
+                                                if second != 164 and second != 170:
+                                                    return 0
+                                                pos = pos + 1
+                                            else:
+                                                if opcode >= 80 and opcode <= 95:
+                                                    if opcode == 85 and (rex & 1) == 0:
+                                                        kind = 4
+                                                else:
+                                                    if opcode != 144 and opcode != 153 and opcode != 195 and opcode != 201 and opcode != 252 and opcode != 253:
+                                                        return 0
+    if modrm != 0:
+        size = stack_modrm_size(s, pos, end)
+        if size == 0:
+            return 0
+        pos = pos + size
+    if immediate > end - pos:
+        return 0
+    pos = pos + immediate
+    if pos - at > 15:
+        return 0
+    return (kind << 8) | (pos - at)
+
+def stack_relative(s:readbuf, absolute:u64, operand:u64, size:u64) -> u64:
+    value = uint(s, absolute, size)
+    next = operand + size
+    sign = 1 << (size * 8 - 1)
+    if value >= sign:
+        amount = sign * 2 - value
+        if amount > next:
+            return 18446744073709551615
+        return next - amount
+    return next + value
+
+def stack_relocation(s:readbuf, at:u64, count:u64, offset:u64) -> u64:
+    low = 0
+    high = count
+    while low < high:
+        middle = low + (high - low) // 2
+        item = at + middle * 24
+        value = uint(s, item, 8)
+        if value == offset:
+            return item
+        if value < offset:
+            low = middle + 1
+        else:
+            high = middle
+    return 0
+
+def stack_target_function(s:readbuf, w:mutbuf, offset:u64) -> u64:
+    low = 0
+    high = get(w, 13393968)
+    at = get(w, 13393920)
+    while low < high:
+        middle = low + (high - low) // 2
+        ordinal = get(w, 13391872 + middle * 8)
+        value = uint(s, at + 64 + ordinal * 64 + 8, 8)
+        if value == offset:
+            return ordinal
+        if value < offset:
+            low = middle + 1
+        else:
+            high = middle
+    return 18446744073709551615
+
+def stack_bind_call(s:readbuf, w:mutbuf, caller:u64, operand:u64) -> u64:
+    at = get(w, 13393920)
+    text = get(w, 13393928)
+    relocation = stack_relocation(s, get(w, 13393944), get(w, 13393952), operand)
+    target = 18446744073709551615
+    if relocation != 0:
+        symbol = uint(s, relocation + 12, 4)
+        contract = get(w, 13393960) + 64 + (symbol - 2) * 256
+        target = uint(s, contract + 192, 8)
+        if uint(s, at + 64 + target * 64 + 40, 8) != 1:
+            return 0
+        put(w, 13394008, get(w, 13394008) + 1)
+    else:
+        offset = stack_relative(s, text + operand, operand, 4)
+        if offset >= get(w, 13393936):
+            return 0
+        if offset >= get(w, 13393976):
+            if offset == get(w, 13393984) or offset == get(w, 13393992) or offset == get(w, 13394000):
+                return 1
+            return 0
+        target = stack_target_function(s, w, offset)
+    if target >= uint(s, at + 16, 8) or target == caller:
+        return 0
+    position = 13252608 + caller * uint(s, at + 40, 8) + target // 8
+    store(w, position, byte(w, position) | (1 << (target % 8)))
+    return 1
+
+def stack_scan_function(s:readbuf, w:mutbuf, ordinal:u64, phase:u64) -> u64:
+    at = get(w, 13393920)
+    function = at + 64 + ordinal * 64
+    start = uint(s, function + 8, 8)
+    end = start + uint(s, function + 16, 8)
+    text = get(w, 13393928)
+    body = start + 4 + ((uint(s, function + 24, 8) + 4095) // 4096) * 11
+    pos = start
+    while pos < end:
+        decoded = stack_instruction(s, text + pos, text + end)
+        size = decoded & 255
+        kind = decoded >> 8
+        if size == 0:
+            return 0
+        if kind == 4 and pos != start:
+            return 0
+        if phase == 0:
+            boundary = 13260800 + pos // 8
+            store(w, boundary, byte(w, boundary) | (1 << (pos % 8)))
+            if kind == 1:
+                if stack_bind_call(s, w, ordinal, pos + size - 4) == 0:
+                    return 0
+        else:
+            if kind == 2 or kind == 3:
+                width = 4
+                if kind == 3:
+                    width = 1
+                operand = pos + size - width
+                target = stack_relative(s, text + operand, operand, width)
+                if target < body or target >= end:
+                    return 0
+                if (byte(w, 13260800 + target // 8) & (1 << (target % 8))) == 0:
+                    return 0
+        pos = pos + size
+    return 1
+
+def stack_machine_calls(s:readbuf, w:mutbuf, object:u64, at:u64, end:u64) -> u64:
+    record = 4096 + object * 80
+    pos = get(w, record)
+    table = pos + uint(s, pos + 40, 8)
+    text = pos + 64
+    text_size = uint(s, table + 96, 8)
+    if text_size > 1048576:
+        return 0
+    flags = uint(s, at + 56, 8)
+    if flags != 0 and flags != 2 and flags != 3:
+        return 0
+    if stack_helper_bytes(s, text, text_size, end, flags) == 0:
+        return 0
+    fill_range(w, 13252608, 8192, 0)
+    fill_range(w, 13260800, (text_size + 7) // 8, 0)
+    put(w, 13393920, at)
+    put(w, 13393928, text)
+    put(w, 13393936, text_size)
+    put(w, 13393944, pos + uint(s, table + 408, 8))
+    put(w, 13393952, uint(s, table + 416, 8) // 24)
+    put(w, 13393960, get(w, 13111808 + object * 8))
+    put(w, 13393976, end)
+    put(w, 13393984, 18446744073709551615)
+    put(w, 13393992, 18446744073709551615)
+    put(w, 13394000, 18446744073709551615)
+    put(w, 13394008, 0)
+    helper = end
+    if flags == 3:
+        put(w, 13393984, helper)
+        helper = helper + CHAIN_DROP_BYTES
+    if flags >= 2:
+        put(w, 13393992, helper)
+        put(w, 13394000, helper + CALLOC_BYTES)
+    count = uint(s, at + 16, 8)
+    locals = 0
+    i = 0
+    while i < count:
+        if uint(s, at + 64 + i * 64 + 40, 8) == 0:
+            put(w, 13391872 + locals * 8, i)
+            locals = locals + 1
+        i = i + 1
+    put(w, 13393968, locals)
+    phase = 0
+    while phase < 2:
+        i = 0
+        while i < locals:
+            if stack_scan_function(s, w, get(w, 13391872 + i * 8), phase) == 0:
+                return 0
+            i = i + 1
+        phase = phase + 1
+    if get(w, 13394008) != get(w, 13393952):
+        return 0
+    matrix = at + 64 + count * 64
+    size = count * uint(s, at + 40, 8)
+    i = 0
+    while i < size:
+        if byte(s, matrix + i) != byte(w, 13252608 + i):
+            return 0
+        i = i + 1
+    return 1
