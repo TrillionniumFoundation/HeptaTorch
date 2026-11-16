@@ -17,7 +17,7 @@ import traceback
 
 ROOT = Path(__file__).resolve().parents[1]
 COMPILER_SHA = '87c247e4d1c3c9a449d2947fd4227fdc186d519bffd203a04cafce7861a4ed54'
-IMAGE_SHA = None  # Locked after first hosted compilation; initial run requires two byte-identical native compiles.
+IMAGE_SHA = '971beb1762275b501e5cc240c53e258426f01a86979c2f2cb8870f8d91f7bf3e'
 REFERENCE_SHA = 'ef8fe89aa7dbff4ee03f9d5762d2736a3648d9e48e97ad5df7bec615676f04ae'
 sha = lambda data: hashlib.sha256(data).hexdigest()
 
@@ -176,6 +176,8 @@ def main():
             for index, (src, actual, expected) in enumerate(zip(values, got, want)):
                 if src & src_exp == src_exp and src & src_fraction:
                     assert actual & dst_exp == dst_exp and actual & dst_fraction and actual & dst_quiet
+                    # A NaN may have a different payload, but its sign must survive.
+                    assert bool(actual & (0x80 if mode == 0 else 0x80000000)) == bool(src & (0x80000000 if mode == 0 else 0x80))
                     assert expected & dst_exp == dst_exp and expected & dst_fraction
                     row['nan_classification'] += 1
                 else:
