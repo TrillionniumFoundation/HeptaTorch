@@ -577,3 +577,20 @@ frozen canonical state subset, and its owned-state diagnostics are scoped to
 owners produced by this service. Tensor filling, global/default bindings,
 normal generation, all remaining distributions, concurrent shared Generators
 and accelerator generators require additional implementations and tests.
+
+The actual hosted result is retained in
+`validation/hosted-native-cpu-generators.json`: all 24 cases, 2297 live frames,
+26466 exact values, 4181312 compared serialized-state bytes and all 11 provenance
+checks passed. The complete original native and Torch JSON bytes are saved in
+`validation/hosted-cpu-generator-oracles/`; the receipt binds both byte lengths
+and hashes to implementation commit, run, job and all 46 actual CI steps.
+
+The separate lightweight reference workflow also records actual default-release,
+partial-failure, gradient-presence, signed-zero and uniform-traversal behavior.
+`validation/hosted-reference-observations.json` binds the exact frozen probe
+sources and complete original reports under `hosted-reference-observations/`.
+Each `.json.zlib` file is lossless zlib compression of the original JSON bytes;
+decompress it with Python `zlib.decompress` and check its original length and
+SHA256 against the receipt. These files are reference observations for subsequent
+native work and do not claim that the Generator service implements autodiff or
+Tensor filling.
