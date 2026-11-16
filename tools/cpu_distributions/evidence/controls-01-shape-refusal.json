@@ -1,0 +1,28 @@
+{
+  "schema": "heptatorch.cpu-distributions-native-controls.v1",
+  "status": "FAIL",
+  "runtime_source_sha256": "a72a98232c7b7f10efa67ce29b21e417c58201383bef9aacc266fe247ff356ce",
+  "executable_sha256": "515790a191b3db1ecbfcb3f2afab644ef980b51ad85c5d6daf1b8c5a9a5a6e28",
+  "cases": [
+    {
+      "name": "admission-and-stale-generator",
+      "status": "PASS",
+      "frames": 37,
+      "malformed_reserved_and_scalar_requests": 21,
+      "wrong_or_stale_handles": 6,
+      "unsupported_reserved_opcodes": 4,
+      "full_frame_failure_after_random_prefix": true
+    },
+    {
+      "name": "one-million-bound-and-empty-no-consumption",
+      "status": "FAIL",
+      "error": "AssertionError((3, []))",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/scratch/d26699e25fea/cpu-distributions-extension/test_controls.py\", line 61, in case\n    details = body(session)\n              ^^^^^^^^^^^^^\n  File \"/workspace/scratch/d26699e25fea/cpu-distributions-extension/test_controls.py\", line 111, in size_bound\n    x, empty, too_large, g = [r['value'] for r in session.run(\n                                                  ^^^^^^^^^^^^\n  File \"/workspace/scratch/d26699e25fea/tensor-rng-extension/package/tools/tensor_rng/protocol.py\", line 92, in run\n    assert status == 0 and len(records) == len(commands), (status, records)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: (3, [])\n"
+    }
+  ],
+  "frames_before_EOF": 37,
+  "rollback_bytes": 9654784,
+  "full_state_comparisons": 0,
+  "exact_value_comparisons": 0,
+  "pytorch_executed_here": false
+}
