@@ -1,0 +1,35 @@
+{
+  "schema": "heptatorch.cpu-generator-integration-history.v1",
+  "status": "PASS",
+  "failures": [
+    {
+      "kind": "build-output-directory-already-existed",
+      "exit_status": 2,
+      "log_sha256": "9baabf760ebbf4be721026607c68dd603b17ccd18d96ecb6212ae8cc9a64455e",
+      "cause": "The frozen builder correctly requires a new output directory. The first Make integration reused an existing local build after Makefile changed.",
+      "fix": "Use a fresh mktemp subdirectory, then copy successfully verified outputs into the public build directory. No frozen builder, source, oracle, or assertion changed."
+    },
+    {
+      "kind": "qualification-python-sibling-import",
+      "exit_status": 2,
+      "log_sha256": "2140d33d2fdb77d3dcd7c5387116124408263a0a29263b81360320cfe79b6b99",
+      "cause": "The first Make recipe invoked frozen host test scripts with -I, which removes their script directory from imports and hid the checked sibling client module.",
+      "fix": "Run the unchanged host qualification scripts with -B as documented by the frozen package. Build and report binder retain isolated execution; all frozen package and reference files are still hash checked."
+    }
+  ],
+  "native_source_modified": false,
+  "successful_retest": {
+    "make_targets": [
+      "cpu-generators",
+      "test-cpu-generators"
+    ],
+    "native_cases": 11,
+    "entry_cases": 59,
+    "frames": 1715,
+    "native_image_sha256": "ba344748d42f0def1cd5d88e5e27232a6dfa08e33ef4c42e6f00486f3ca08572",
+    "report_sha256": "5d3c0c5900dd0ea88dcab8a832e26f6e47ae41ea07d62e68aca1469851a33fe2",
+    "package_source_sha256": "d5d529a697056625a19c06abf4ddc25326dad8854ae87b0406ec86f5a66fd085",
+    "all_frozen_package_sources_unchanged": true,
+    "real_pytorch_run": false
+  }
+}

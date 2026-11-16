@@ -70,6 +70,14 @@ cmp build/train.response build/train.expected
 
 本地独立参考资格已通过 **74 项／110 次原生调用／718,619 个精确值／434,816 字节完整状态比较**，另有 **35 项独立原生边界检查**通过。短输出缓冲区的实际失败及修复复测原样保留；原有 74 项请求和响应结果未变。[实际托管 PyTorch 对照](validation/hosted-native-rng.json)已通过 **76 项／114 次原生调用／719,337 个精确值／455,040 字节状态比较／11 项来源检查**。持久 Generator、默认全局状态、Tensor 填充、normal/dropout 等其他分布、并发和加速设备仍待实现。
 
+## 持久 CPU Generator 对象
+
+[独立 HIA Generator 服务](tools/cpu_generators/README.md)把已固定的 17 个 RNG 函数体原样接入真实 heap owner，实现创建、默认构造、重设种子、系统随机种子、完整状态导入导出、克隆、交错消费和释放。最多同时持有 1,024 个独立 Generator；对象身份在释放后不复用，失败时保留完整原始 owner。`seed()` 的八字节熵来自原生 Linux `getrandom`，使用单独的四参数 ABI3 入口，原有三参数会话合同不变。
+
+冻结原生资格通过 **11 组／1,715 帧／121,611 个精确值／471 次完整状态检查／72 次完整池回滚**，另有 **59 项实际入口边界检查**。测试包含实际分配失败、系统熵失败、释放后活进程内地址解映射、短内部 owner 和句柄／epoch 耗尽；[包清单](validation/cpu-generator-package.sha256)与[失败历史](validation/native-cpu-generator-failure-history.json)保留完整来源。独立的 **24 项固定 PyTorch 对象对照**已加入 CI，实际结果在通过并取回前保持待验证。
+
+这是有界 CPU 对象服务。全局 Generator、Tensor 写入、normal/dropout、其他分布、共享对象并发、非规范历史状态和加速设备仍开放。内部状态诊断的边界是本服务创建并持有的 owner，不接纳调用方构造的任意本机指针或 owner 描述符。
+
 ## 原生资源所有权
 
 独立的 ABI2 工具链支持 `buffer`／`chain` 在线性调用中消费、返回和释放，允许最多三个标量／owner 返回值，并由 HIA 原生程序执行接口接纳与链接。分配和回收直接调用 Linux `mmap`／`munmap`；零长度、溢出、真实分配失败、借用未结束时的移动／释放，以及错误效果声明都有明确检查。源码、接口和分配合同见 [owned 模块说明](tools/owned_modules/CONTRACT.md)。

@@ -1,9 +1,9 @@
 name: Pinned PyTorch backward failure observations
 on:
   push:
-    branches: ["feature/native-tensor-objects", "feature/native-backward-release", "feature/native-backward-partial"]
+    branches: ["feature/native-tensor-objects", "feature/native-backward-release", "feature/native-backward-partial", "feature/native-cpu-generators"]
   pull_request:
-    paths: ["tests/pytorch_backward_release_probe.py", "tests/pytorch_backward_partial_probe.py", ".github/workflows/backward-observations.yml"]
+    paths: ["tests/pytorch_backward_release_probe.py", "tests/pytorch_backward_partial_probe.py", "tests/pytorch_gradient_presence_probe.py", "tests/pytorch_uniform_probe.py", ".github/workflows/backward-observations.yml"]
   workflow_dispatch:
 permissions:
   contents: read
@@ -31,6 +31,8 @@ jobs:
         run: |
           echo '1192de6e175407756b01028278446067b22b70fe2d820f0045f6f5d623d46aa3  tests/pytorch_backward_release_probe.py' | sha256sum -c -
           echo '2dc9a76462368f5bb227f02d5e401e10505e38676c9fe9b04460c1dae2d2c970  tests/pytorch_backward_partial_probe.py' | sha256sum -c -
+          echo 'b368fd752485bd40a109712fffe156f6dfb43e48c4c1c971f9836e54bc861306  tests/pytorch_gradient_presence_probe.py' | sha256sum -c -
+          echo 'a27756cc3be9603dbaa6b21465a3258d148f6ff3fde1f5df9ed7c8b0d93f9876  tests/pytorch_uniform_probe.py' | sha256sum -c -
       - name: Observe default Saved release and repeat backward
         run: |
           python3 tests/pytorch_backward_release_probe.py \
@@ -43,3 +45,15 @@ jobs:
             --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
             --repo . --output build/torch-backward-partial.json
           python3 -I -S -B tools/emit_ci_report.py build/torch-backward-partial.json
+      - name: Observe absent gradients and optimizer skips against defined zeros
+        run: |
+          python3 tests/pytorch_gradient_presence_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/torch-gradient-presence.json > build/torch-gradient-presence.stdout
+          python3 -I -S -B tools/emit_ci_report.py build/torch-gradient-presence.json
+      - name: Observe uniform rounding traversal and empty mutation boundaries
+        run: |
+          python3 tests/pytorch_uniform_probe.py \
+            --support tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --executable build/heptatorch --output build/pytorch-uniform-probe.json > build/pytorch-uniform-probe.stdout
+          python3 -I -S -B tools/emit_ci_report.py build/pytorch-uniform-probe.json

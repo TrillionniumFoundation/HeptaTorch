@@ -535,3 +535,45 @@ compression neither changes numeric JSON values nor reclassifies failures.
 The separate `backward-observations.yml` workflow records actual pinned reference
 behavior for the next release/failure implementation; reference observations do
 not count as native parity.
+
+## Persistent native CPU Generator service
+
+After reproducing the ABI3 stack tools above, build the separately named four-parameter
+entropy session profile and its three HIA application modules:
+
+```sh
+make cpu-generators test-cpu-generators \
+  HEPTA_SOURCE_ROOT=/absolute/path/to/pinned/Hepta \
+  HEPTA_STACK_BUILD=/absolute/path/to/reproduced/stack-budget-tools
+```
+
+The 26-file package manifest is checked before construction and again by the
+independent report binder after qualification. The build verifies its complete
+pinned upstream authoring closure before and after source generation. All 17
+non-entry RNG bodies retain their frozen identities. The new native linker
+checks the exact `step(readbuf, mutbuf, buffer, readbuf) -> (buffer, u32)`
+contract; the existing three-parameter owned-session linker is not changed.
+
+`build/cpu-generators/generator-session` must have SHA256
+`ba344748d42f0def1cd5d88e5e27232a6dfa08e33ef4c42e6f00486f3ca08572`.
+Native numerical and object qualification runs 11 complete groups; the real
+entry harness independently exercises 59 cases. The tests require actual Linux
+`prlimit`, child `/proc` observations and seccomp; these observations are not
+silently skipped when unavailable. `build/hosted-cpu-generator-native.json`
+contains all executed reports and their source custody, but does not stand in
+for an actual PyTorch run.
+
+The separate frozen `tests/pytorch_cpu_generator_oracle.py` exercises 24 actual
+PyTorch object trajectories, including 12 seed bit patterns, interleaving,
+cloning across twists, restore, cached normal states, reseeding, live release,
+zero-count operations, entropy round trips and long cloned trajectories. It
+uses the same exact wheel and all 11 existing provenance requirements. CI
+rebuilds the target from source before running the oracle and preserves the
+original oracle exit status alongside its lossless report. The reference
+supplies expected values; every target transition executes in native HIA.
+
+This component does not close the full RNG gate. Its importer accepts the
+frozen canonical state subset, and its owned-state diagnostics are scoped to
+owners produced by this service. Tensor filling, global/default bindings,
+normal generation, all remaining distributions, concurrent shared Generators
+and accelerator generators require additional implementations and tests.
