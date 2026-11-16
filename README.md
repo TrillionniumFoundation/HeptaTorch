@@ -208,6 +208,6 @@ third_party/pytorch/      上游许可证与通知
 
 [根集成资格](validation/owned-optimizer-root-native.json)独立冷重建 7 个完整 HIA 模块，复现相同源码、对象和 ELF，并执行 19 份资格报告。固定 24 组 Optimizer 观测中，18 组在当前公开 SGD 范围内通过、1 组保留非叶参数场景仅部分覆盖、5 组仍开放；6 组叶标志对照和 3 组累积器生命周期对照全部通过。另验证公开句柄关闭、descriptor 跨页、表扩容、owner 迁移、真实内存失败与最终 Weak 过期。两种真实旧／新运行时的 owner 交接共 4 向、91 帧通过。
 
-历史 candidate06 的非求导 transpose 叶身份错误和前向后开启梯度错误在根集成中重新复现，保留预期退出码 1；新候选在相同输入与断言下通过。原来的 13／16／8／10 组回归和两套 RNG 组合测试保持数值、容差及错误断言不变。旧显式状态 API 的版本、惰性创建和缺失 step Tensor 差异继续单独保留。新映像上的原样 live32 与 frozen35 已加入 CI，实际托管结果尚待验收。
+历史 candidate06 的非求导 transpose 叶身份错误和前向后开启梯度错误在根集成中重新复现，保留预期退出码 1；新候选在相同输入与断言下通过。原来的 13／16／8／10 组回归和两套 RNG 组合测试保持数值、容差及错误断言不变。旧显式状态 API 的版本、惰性创建和缺失 step Tensor 差异继续单独保留。[实际托管资格](validation/hosted-native-owned-optimizers.json)已通过实现提交 `0cdd8641e9ccefe94b86da687f053f7579f3d806` 的两条 Native CI，各 **57 个步骤全部通过**。相同 ELF 上的原样 **32 组 live 联合测试**通过：2,132 帧、17,455 个精确字、1,137,600 字节完整 Generator 状态；原样 **35 组 Tensor 回归**通过：6,344 帧、2,590,274 个值、零参数绝对版本差异。旧显式状态的 283 个版本差异仍明确保留。每套实际参考的 11 项来源检查全部通过，15 份完整原始报告逐字压缩保存。
 
 公开 `.grad` 对象另有 [10 组实际参考观测](validation/hosted-public-gradient-object-observations.json)，覆盖身份、布局、赋值、别名、Version 和生命周期；参考观测本身不代表原生实现通过。真正的公开梯度对象、owned Adam／AdamW 状态、完整 state_dict、任意优化器失败副作用和其他后端继续实现。整个 PyTorch 的 2,590 条 schema 与 17 项门禁保持未闭合。
