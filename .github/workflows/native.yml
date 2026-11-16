@@ -622,6 +622,32 @@ jobs:
           fi
           exit "$status"
 
+      - name: Cold-build int64 Tensors and independently qualify resources entry and owner handoff
+        run: |
+          status=0
+          make test-integer-tensors \
+            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
+            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget" \
+            HEPTA_COMPILER="$RUNNER_TEMP/hepta-expanded/hia-native-compiler" || status=$?
+          if [ -f build/hosted-integer-tensors-native.json ]; then
+            python3 -I -S -B tools/emit_ci_report.py build/hosted-integer-tensors-native.json
+          fi
+          exit "$status"
+
+      - name: Validate int64-profile Storage tombstones with unchanged copied rejection rules
+        run: |
+          status=0
+          python3 -I -S -B tests/integer_frozen35_accounting/test_storage_tombstone.py \
+            --binary build/integer-tensors/tensor-integer-session \
+            --source build/integer-tensors/runtime.hepta \
+            --protocol tests/retained_nonleaf_review/protocol.py \
+            --output build/frozen35-integer-node/storage-tombstone || status=$?
+          if [ -f build/frozen35-integer-node/storage-tombstone/report.json ]; then
+            cp build/frozen35-integer-node/storage-tombstone/report.json build/integer-tensors-storage-tombstone.json
+            python3 -I -S -B tools/emit_ci_report.py build/integer-tensors-storage-tombstone.json
+          fi
+          exit "$status"
+
       - name: Reproduce and qualify persistent native CPU Generator objects
         run: |
           make cpu-generators test-cpu-generators \
@@ -1117,6 +1143,58 @@ jobs:
           fi
           exit "$status"
 
+      - name: Compare int64-capable owner with the unchanged live floating-point oracle (32 cases)
+        run: |
+          echo '554671168c7a4a408dc1e1df89a19db15c3efcefcf4ae1a300af1b6dcae40160  tests/pytorch_tensor_rng_backward_oracle.py' | sha256sum -c -
+          status=0
+          python3 tests/pytorch_tensor_rng_backward_oracle.py \
+            --native build/integer-tensors/tensor-integer-session \
+            --source build/integer-tensors/runtime.hepta \
+            --expected-native-sha256 b7324639bade3312981d1cbf9c2491b9fcff04fb6c3f808e9c5e1a7c2ca88f08 \
+            --expected-source-sha256 adf6cae67666273aa6fb77989080ca3b1e3632188d2d7956a6d8b71808787e62 \
+            --repo . --output build/pytorch-integer-tensors-backward.json > build/pytorch-integer-tensors-backward.stdout || status=$?
+          python3 -I -S -B tools/emit_ci_report.py build/pytorch-integer-tensors-backward.json
+          exit "$status"
+
+      - name: Regress int64-capable owner on all original35 F32 cases with full 640-byte accounting
+        run: |
+          echo '149b41c455444edeb8d25d0ad98045e29683e780f37f7e210e7985242d359597  tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py' | sha256sum -c -
+          status=0
+          python3 tests/integer_frozen35_accounting/run_frozen35_accounted.py \
+            --legacy-directory tests/tensor_object_oracle \
+            --native-source build/integer-tensors/runtime.hepta \
+            --observer-output build/frozen35-integer-node/544 \
+            --observer-report build/pytorch-integer-tensors-frozen35.json \
+            -- build/integer-tensors/tensor-integer-session build/pytorch-integer-tensors-frozen35-original.json \
+            --owned-reference tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py \
+            --session-reference tests/pytorch_session_oracle.py --reference tests/pytorch_oracle.py \
+            --lock compatibility/pytorch-oracle-lock.json --repo . \
+            --trace-directory build/frozen35-integer-node-wire/544 \
+            --expected-native-sha256 b7324639bade3312981d1cbf9c2491b9fcff04fb6c3f808e9c5e1a7c2ca88f08 || status=$?
+          if [ -f build/pytorch-integer-tensors-frozen35.json ]; then
+            python3 -I -S -B tools/emit_ci_report.py build/pytorch-integer-tensors-frozen35.json
+          fi
+          if [ "$status" -eq 0 ]; then
+            python3 -I -S -B tests/integer_frozen35_accounting/check_frozen35_accounted.py \
+              --observer-report build/pytorch-integer-tensors-frozen35.json \
+              --original-report build/pytorch-integer-tensors-frozen35-original.json
+          fi
+          exit "$status"
+
+      - name: Check original18 copied refusals against the int64-profile full35 journals
+        run: |
+          status=0
+          python3 -I -S -B tests/integer_frozen35_accounting/check_owner_snapshots.py \
+            --observer tests/integer_frozen35_accounting/owner_accounting_int64.py \
+            --expected-profile integer-tensor-544-fixed35-F32 \
+            --journals build/frozen35-integer-node/544/owners \
+            --output build/frozen35-integer-node/544/copied-controls || status=$?
+          if [ -f build/frozen35-integer-node/544/copied-controls/report.json ]; then
+            cp build/frozen35-integer-node/544/copied-controls/report.json build/pytorch-integer-tensors-frozen35-observer-controls.json
+            python3 -I -S -B tools/emit_ci_report.py build/pytorch-integer-tensors-frozen35-observer-controls.json
+          fi
+          exit "$status"
+
       - name: Index complete original CI reports and checkout identity
         if: always()
         env:
@@ -1205,6 +1283,44 @@ jobs:
           path: |
             build/frozen35-dtype-node/
             build/frozen35-dtype-node-wire/
+          if-no-files-found: warn
+          compression-level: 9
+          retention-days: 30
+
+      - name: Export complete original int64 Tensor native evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: integer-tensor-native-evidence-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+          path: |
+            build/integer-tensors-ci-raw.tar.xz
+            build/integer-tensors-ci-raw-manifest.json
+            build/hosted-integer-tensors-native.json
+          if-no-files-found: warn
+          compression-level: 9
+          retention-days: 30
+
+      - name: Index original int64-profile full640 journals and oracle reports
+        if: always()
+        env:
+          HEPTATORCH_SOURCE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          HEPTATORCH_OBSERVER_ARTIFACT: integer-node-journals-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+        run: |
+          python3 -I -S -B tests/private_node_accounting/collect_private_node_journals.py \
+            --build build --journal-root build/frozen35-integer-node --wire-root build/frozen35-integer-node-wire \
+            --reports build/pytorch-integer-tensors-frozen35.json build/pytorch-integer-tensors-frozen35-original.json \
+              build/pytorch-integer-tensors-frozen35-observer-controls.json build/integer-tensors-storage-tombstone.json \
+              build/pytorch-integer-tensors-backward.json build/pytorch-install.json \
+            --job-status '${{ job.status }}'
+
+      - name: Export original int64-profile full640 journals and wire traces
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: integer-node-journals-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+          path: |
+            build/frozen35-integer-node/
+            build/frozen35-integer-node-wire/
           if-no-files-found: warn
           compression-level: 9
           retention-days: 30

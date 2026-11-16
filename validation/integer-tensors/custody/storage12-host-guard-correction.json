@@ -1,0 +1,12 @@
+{
+  "status": "HOST_EXPECTATION_CORRECTION",
+  "original_runner_sha256": "d942ec4bb96bdc18140f9abb2116c3fa77abc1df2b1607f80fc5d0f22c2421b7",
+  "successor_runner_sha256": "4b79b1e55eee68b48e511fb4f6695ef2b8789727ee397f36ae61f34d0f9edf73",
+  "inverse_exact": true,
+  "native_changed": false,
+  "reference_changed": false,
+  "original_report_sha256": "4c2ffcb8b8cce8ee3c346d3c54ff2731397c1f2ecbb9f2547d60c7f8d0dbb68c",
+  "reason": "The rejected constructor admits no Tensor, so this fresh session never allocates a descriptor page. After dropping its Generator, zero Storage/Hold objects remain. The first observer incorrectly assumed every case had a page. All original actual metadata/value/refusal assertions remain byte-exact.",
+  "change_before": "eq('remaining_owned_live_counts',stats[5:11],(0,1,0,0,0,1))",
+  "change_after": "eq('remaining_owned_live_counts',stats[5:11],(0,0,0,0,0,0) if op=='construction-requires-grad' else (0,1,0,0,0,1))"
+}

@@ -992,3 +992,35 @@ reference and failure evidence. See
 commands, source/image identities, the separate suites, the six new hosted gates
 and the remaining boundaries. These profiles do not replace the older frozen
 builds or close a complete PyTorch subsystem.
+
+## Native int64 Tensor profile
+
+`make integer-tensors` verifies the frozen source package and actually rebuilds
+all eleven native modules. The resulting executable is
+`build/integer-tensors/tensor-integer-session`. The build depends on the exact
+523-function native-dropout parent; it does not use an existing int64 image.
+
+Run the complete native integration gate with:
+
+```sh
+make test-integer-tensors \
+  HEPTA_SOURCE_ROOT=/absolute/path/to/fixed-hepta-source \
+  HEPTA_STACK_BUILD=/absolute/path/to/complete-stack-tools \
+  HEPTA_COMPILER=/absolute/path/to/hia-native-compiler
+```
+
+The stack directory must contain the pinned module compiler, session linker
+and runtime linker under `native/`. The coordinator creates a new directory,
+executes the ten-step cold producer, six independent resource cases, five owned
+entry groups and two typed handoff directions against that same new image.
+The producer's sibling imports use a disclosed `-S -B` child invocation; the
+stdlib-only coordinator itself uses `-I -S -B`. Source package hashes and modes
+are required before and after execution.
+
+The aggregate report is `build/hosted-integer-tensors-native.json`; complete
+original evidence is `build/integer-tensors-ci-raw.tar.xz` with
+`build/integer-tensors-ci-raw-manifest.json`. On failure, the actual failure
+status and available original evidence remain. Successful native integration
+does not substitute for the unchanged live32, complete35, copied observer
+controls or the new source head's hosted artifact admission. See
+[the int64 profile](integer-tensors.md) for exact scope and remaining work.

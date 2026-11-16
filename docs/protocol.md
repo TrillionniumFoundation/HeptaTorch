@@ -432,3 +432,18 @@ arenas and can commit or discard the complete packet, including graph-reset
 generations, gradients and optimizer states. It has no owner outside those
 arenas and does not establish general storage allocation or persistence after
 process exit. The same numerical kernels serve both entry modes.
+
+## Separate typed int64 owner profile
+
+The successor eleven-module profile uses `HTINT002` / `HTOINT02` private state
+tags and 640-byte descriptors. Its exact wire contract is separately versioned
+in [the int64 protocol](../tools/integer_tensors/PROTOCOL.md). Commands97/98/100
+provide qualified dtype2 construction, raw reads and fill. Command103 performs
+typed binary arithmetic,104 its admitted int64 Tensor-RHS in-place variants,
+105 explicit late-error int64 dropout, and106 actual Scalar add_ with alpha1.
+
+Command105 commits the observed completed prefix and RNG advancement before
+its runtime error, then stops the suffix. The ordinary full-frame rollback
+contract remains separate. Public Python exception classes/messages, arbitrary
+dtype/mode combinations and mixed F32/int64 autograd remain unimplemented.
+This profile does not change the earlier canonical binary32 packet contract.
