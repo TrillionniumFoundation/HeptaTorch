@@ -1,0 +1,337 @@
+def state_init(w:mutbuf, slots:u64, pool:u64) -> u64:
+    uput(w,0,STATE_MAGIC)
+    uput(w,8,1)
+    uput(w,16,slots)
+    uput(w,24,pool)
+    uput(w,32,1)
+    uput(w,48,1)
+    free = 128+slots*384
+    uput(w,free,0)
+    uput(w,free+8,pool)
+    return 0
+
+def state_header(w:mutbuf) -> u64:
+    if length(w) < 144:
+        return 9
+    if uget(w,0) != STATE_MAGIC or uget(w,8) != 1 or uget(w,48) != 1:
+        return 9
+    slots = uget(w,16)
+    pool = uget(w,24)
+    size = state_size(slots,pool)
+    if size == 0 or size != length(w) or uget(w,32) > slots+1:
+        return 9
+    i = 56
+    while i < 128:
+        if uget(w,i) != 0:
+            return 9
+        i = i + 8
+    return 0
+
+def handle(kind:u64, slot:u64, generation:u64) -> u64:
+    return (generation << 32) | (kind << 24) | slot
+
+def slot_at(w:mutbuf, kind:u64, slot:u64) -> u64:
+    return 128+((kind-1)*uget(w,16)+slot-1)*64
+
+def slot_lookup(w:mutbuf, kind:u64, id:u64) -> u64:
+    if kind == 0 or kind > 6 or ((id >> 24) & 255) != kind:
+        return 0
+    slot = id & 16777215
+    if slot == 0 or slot > uget(w,16):
+        return 0
+    p = slot_at(w,kind,slot)
+    generation = id >> 32
+    if generation == 0 or uget(w,p) != generation or uget(w,p+8) != 1:
+        return 0
+    return p
+
+def slot_available(w:mutbuf, kind:u64) -> u64:
+    i = 1
+    while i <= uget(w,16):
+        p = slot_at(w,kind,i)
+        if uget(w,p+8) == 0 and uget(w,p) < 4294967295:
+            return 1
+        i = i + 1
+    return 0
+
+def slot_new(w:mutbuf, kind:u64) -> u64:
+    i = 1
+    while i <= uget(w,16):
+        p = slot_at(w,kind,i)
+        if uget(w,p+8) == 0 and uget(w,p) < 4294967295:
+            generation = uget(w,p)+1
+            fill_range(w,p,64,0)
+            uput(w,p,generation)
+            uput(w,p+8,1)
+            return handle(kind,i,generation)
+        i = i + 1
+    return 0
+
+def slot_drop(w:mutbuf, kind:u64, id:u64) -> u64:
+    p = slot_lookup(w,kind,id)
+    if p == 0:
+        return 1
+    fill_range(w,p+8,56,0)
+    return 0
+
+def extent_room(w:mutbuf, size:u64) -> u64:
+    if size == 0:
+        return 1
+    size = align16(size)
+    free = 128+uget(w,16)*384
+    i = 0
+    while i < uget(w,32):
+        if uget(w,free+i*16+8) >= size:
+            return 1
+        i = i + 1
+    return 0
+
+def extent_remove(w:mutbuf, index:u64) -> u64:
+    free = 128+uget(w,16)*384
+    count = uget(w,32)
+    i = index
+    while i+1 < count:
+        uput(w,free+i*16,uget(w,free+(i+1)*16))
+        uput(w,free+i*16+8,uget(w,free+(i+1)*16+8))
+        i = i + 1
+    fill_range(w,free+(count-1)*16,16,0)
+    uput(w,32,count-1)
+    return 0
+
+def extent_allocate(w:mutbuf, size:u64) -> u64:
+    if size == 0:
+        return 1
+    size = align16(size)
+    free = 128+uget(w,16)*384
+    i = 0
+    while i < uget(w,32):
+        at = free+i*16
+        available = uget(w,at+8)
+        if available >= size:
+            offset = uget(w,at)
+            if available == size:
+                extent_remove(w,i)
+            else:
+                uput(w,at,offset+size)
+                uput(w,at+8,available-size)
+            return offset+1
+        i = i + 1
+    return 0
+
+def extent_release(w:mutbuf, offset:u64, size:u64) -> u64:
+    if size == 0:
+        return 0
+    pool = uget(w,24)
+    if offset > pool or size > pool-offset or (offset & 15) != 0 or (size & 15) != 0:
+        return 9
+    free = 128+uget(w,16)*384
+    count = uget(w,32)
+    i = 0
+    while i < count:
+        start = uget(w,free+i*16)
+        length = uget(w,free+i*16+8)
+        if offset < start+length and start < offset+size:
+            return 9
+        i = i + 1
+    i = 0
+    while i < count:
+        start = uget(w,free+i*16)
+        length = uget(w,free+i*16+8)
+        if start+length == offset:
+            length = length+size
+            if i+1 < count and offset+size == uget(w,free+(i+1)*16):
+                length = length+uget(w,free+(i+1)*16+8)
+                extent_remove(w,i+1)
+            uput(w,free+i*16+8,length)
+            return 0
+        if offset+size == start:
+            uput(w,free+i*16,offset)
+            uput(w,free+i*16+8,length+size)
+            return 0
+        i = i+1
+    if count >= uget(w,16)+1:
+        return 9
+    i = count
+    moving = 1
+    while i > 0 and moving == 1:
+        start = uget(w,free+(i-1)*16)
+        if start < offset:
+            moving = 0
+        else:
+            uput(w,free+i*16,start)
+            uput(w,free+i*16+8,uget(w,free+(i-1)*16+8))
+            i = i - 1
+    uput(w,free+i*16,offset)
+    uput(w,free+i*16+8,size)
+    uput(w,32,count+1)
+    i = 0
+    while i+1 < uget(w,32):
+        start = uget(w,free+i*16)
+        length = uget(w,free+i*16+8)
+        next_start = uget(w,free+(i+1)*16)
+        if start+length == next_start:
+            uput(w,free+i*16+8,length+uget(w,free+(i+1)*16+8))
+            extent_remove(w,i+1)
+        else:
+            i = i + 1
+    return 0
+
+def state_migrate(source:readbuf, target:mutbuf, slots:u64, pool:u64) -> u64:
+    old_slots = rget(source,16)
+    old_pool = rget(source,24)
+    state_init(target,slots,pool)
+    fill_range(target,128+slots*384,(slots+1)*16,0)
+    uput(target,32,rget(source,32))
+    uput(target,40,rget(source,40)+1)
+    kind = 0
+    while kind < 6:
+        copy_range(target,source,128+kind*slots*64,128+kind*old_slots*64,old_slots*64)
+        kind = kind + 1
+    copy_range(target,source,128+slots*384,128+old_slots*384,rget(source,32)*16)
+    copy_range(target,source,data_base(slots),data_base(old_slots),old_pool)
+    if pool > old_pool:
+        return extent_release(target,old_pool,pool-old_pool)
+    return 0
+
+def storage_live(w:mutbuf, id:u64) -> u64:
+    p = slot_lookup(w,2,id)
+    if p == 0:
+        return 0
+    if uget(w,p+40) == 0 or uget(w,p+48) == 0 or uget(w,p+56) != 0:
+        return 0
+    return p
+
+def version_live(w:mutbuf, id:u64) -> u64:
+    p = slot_lookup(w,3,id)
+    if p == 0:
+        return 0
+    if uget(w,p+24) == 0:
+        return 0
+    return p
+
+def tensor_live(w:mutbuf, id:u64) -> u64:
+    p = slot_lookup(w,1,id)
+    if p == 0:
+        return 0
+    storage = storage_live(w,uget(w,p+16))
+    if storage == 0 or version_live(w,uget(w,p+24)) == 0:
+        return 0
+    offset = uget(w,p+32)
+    size = uget(w,p+40)
+    if offset > uget(w,storage+24) or size > uget(w,storage+24)-offset:
+        return 0
+    return p
+
+def saved_live(w:mutbuf, id:u64) -> u64:
+    p = slot_lookup(w,5,id)
+    if p == 0:
+        return 0
+    storage = storage_live(w,uget(w,p+16))
+    if storage == 0 or version_live(w,uget(w,p+24)) == 0:
+        return 0
+    offset = uget(w,p+40)
+    size = uget(w,p+48)
+    if offset > uget(w,storage+24) or size > uget(w,storage+24)-offset:
+        return 0
+    return p
+
+def storage_retain(w:mutbuf, id:u64) -> u64:
+    p = storage_live(w,id)
+    if p == 0:
+        return 1
+    value = uget(w,p+40)
+    if value >= 4294967295:
+        return 8
+    uput(w,p+40,value+1)
+    return 0
+
+def version_retain(w:mutbuf, id:u64) -> u64:
+    p = version_live(w,id)
+    if p == 0:
+        return 1
+    value = uget(w,p+24)
+    if value >= 4294967295:
+        return 8
+    uput(w,p+24,value+1)
+    return 0
+
+def version_release(w:mutbuf, id:u64) -> u64:
+    p = version_live(w,id)
+    if p == 0:
+        return 1
+    value = uget(w,p+24)
+    if value == 1:
+        return slot_drop(w,3,id)
+    uput(w,p+24,value-1)
+    return 0
+
+def storage_release(w:mutbuf, id:u64) -> u64:
+    p = storage_live(w,id)
+    if p == 0:
+        return 1
+    value = uget(w,p+40)
+    if value > 1:
+        uput(w,p+40,value-1)
+        return 0
+    status = extent_release(w,uget(w,p+16),uget(w,p+32))
+    if status != 0:
+        return status
+    weak = uget(w,p+48)
+    if weak == 1:
+        return slot_drop(w,2,id)
+    uput(w,p+16,0)
+    uput(w,p+32,0)
+    uput(w,p+40,0)
+    uput(w,p+48,weak-1)
+    uput(w,p+56,1)
+    return 0
+
+def weak_storage_release(w:mutbuf, id:u64) -> u64:
+    p = slot_lookup(w,2,id)
+    if p == 0 or uget(w,p+48) == 0:
+        return 1
+    weak = uget(w,p+48)
+    strong = uget(w,p+40)
+    if weak == 1:
+        if strong != 0:
+            return 9
+        return slot_drop(w,2,id)
+    uput(w,p+48,weak-1)
+    return 0
+
+def saved_check(w:mutbuf, id:u64) -> u64:
+    p = saved_live(w,id)
+    if p == 0:
+        return 1
+    version = version_live(w,uget(w,p+24))
+    if uget(w,p+32) != uget(w,version+16):
+        return 5
+    return 0
+
+def plan_slot(w:mutbuf, kind:u64) -> u64:
+    if slot_available(w,kind) == 1:
+        return 0
+    slots = uget(w,16)
+    if slots >= 65536:
+        return 3
+    uput(w,64,slots*2)
+    return 0
+
+def plan_pool(w:mutbuf, size:u64) -> u64:
+    if size > 1073741824:
+        return 2
+    if extent_room(w,size) == 1:
+        return 0
+    pool = uget(w,24)
+    size = align16(size)
+    if size > 1073741824-pool:
+        return 3
+    target = pool+size
+    result = pool
+    while result < target:
+        if result > 536870912:
+            result = 1073741824
+        else:
+            result = result*2
+    uput(w,72,result)
+    return 0

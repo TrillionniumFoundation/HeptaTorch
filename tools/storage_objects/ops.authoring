@@ -1,0 +1,393 @@
+def command_arity(op:u64) -> u64:
+    if op == 1:
+        return 2
+    if op == 2 or op == 19 or op == 11:
+        return 3
+    if op >= 3 and op <= 10:
+        return 1
+    if op >= 12 and op <= 14 or op == 17:
+        return 2
+    if op == 15:
+        return 1
+    if op == 16 or op == 18 or op == 20:
+        return 0
+    return 99
+
+def prepare_create(s:readbuf, w:mutbuf, cp:u64) -> u64:
+    if rget(s,cp+16) > 255:
+        return 2
+    status = plan_pool(w,rget(s,cp+8))
+    if status != 0:
+        return status
+    kind = 1
+    while kind <= 3:
+        status = plan_slot(w,kind)
+        if status != 0:
+            return status
+        kind = kind+1
+    return 0
+
+def prepare_alias(s:readbuf, w:mutbuf, cp:u64) -> u64:
+    p = tensor_live(w,rget(s,cp+8))
+    if p == 0:
+        return 1
+    offset = rget(s,cp+16)
+    size = rget(s,cp+24)
+    if offset > uget(w,p+40) or size > uget(w,p+40)-offset:
+        return 2
+    storage = storage_live(w,uget(w,p+16))
+    version = version_live(w,uget(w,p+24))
+    if uget(w,storage+40) >= 4294967295 or uget(w,version+24) >= 4294967295:
+        return 8
+    status = plan_slot(w,1)
+    if status != 0:
+        return status
+    if rget(s,cp) == 19:
+        return plan_slot(w,3)
+    return 0
+
+def prepare_lifetime(s:readbuf, w:mutbuf, cp:u64) -> u64:
+    op = rget(s,cp)
+    id = rget(s,cp+8)
+    if op == 3:
+        if tensor_live(w,id) == 0:
+            return 1
+        return 0
+    if op == 4 or op == 8:
+        p = tensor_live(w,id)
+        if p == 0:
+            return 1
+        storage = storage_live(w,uget(w,p+16))
+        if op == 4:
+            if uget(w,storage+48) >= 4294967295:
+                return 8
+            return plan_slot(w,4)
+        version = version_live(w,uget(w,p+24))
+        if uget(w,storage+40) >= 4294967295 or uget(w,version+24) >= 4294967295:
+            return 8
+        return plan_slot(w,5)
+    if op == 5 or op == 6:
+        p = slot_lookup(w,4,id)
+        if p == 0:
+            return 1
+        storage = slot_lookup(w,2,uget(w,p+16))
+        if storage == 0 or uget(w,storage+48) == 0:
+            return 9
+        if op == 6:
+            return 0
+        if uget(w,storage+40) == 0:
+            return 6
+        if uget(w,storage+40) >= 4294967295:
+            return 8
+        return plan_slot(w,6)
+    if op == 7:
+        p = slot_lookup(w,6,id)
+        if p == 0:
+            return 1
+        if storage_live(w,uget(w,p+16)) == 0:
+            return 9
+        return 0
+    if op == 9:
+        return saved_check(w,id)
+    if op == 10:
+        if saved_live(w,id) == 0:
+            return 1
+        return 0
+    return 7
+
+def prepare_access(s:readbuf, w:mutbuf, cp:u64) -> u64:
+    op = rget(s,cp)
+    id = rget(s,cp+8)
+    index = rget(s,cp+16)
+    if op == 11 or op == 12:
+        p = tensor_live(w,id)
+        if p == 0:
+            return 1
+        if index >= uget(w,p+40):
+            return 2
+        if op == 11:
+            if rget(s,cp+24) > 255:
+                return 2
+            version = version_live(w,uget(w,p+24))
+            if uget(w,version+16) == 18446744073709551615:
+                return 8
+        return 0
+    if op == 13:
+        p = slot_lookup(w,6,id)
+        if p == 0:
+            return 1
+        storage = storage_live(w,uget(w,p+16))
+        if storage == 0:
+            return 9
+        if index >= uget(w,storage+24):
+            return 2
+        return 0
+    status = saved_check(w,id)
+    if status != 0:
+        return status
+    p = saved_live(w,id)
+    if index >= uget(w,p+48):
+        return 2
+    return 0
+
+def prepare(s:readbuf, w:mutbuf, cp:u64, remaining:u64) -> u64:
+    op = rget(s,cp)
+    arity = command_arity(op)
+    if arity == 99:
+        return 7
+    j = arity+1
+    while j < 8:
+        if rget(s,cp+j*8) != 0:
+            return 7
+        j = j+1
+    if remaining < 64:
+        return 3
+    uput(w,64,uget(w,16))
+    uput(w,72,uget(w,24))
+    if op == 1:
+        return prepare_create(s,w,cp)
+    if op == 2 or op == 19:
+        return prepare_alias(s,w,cp)
+    if op >= 3 and op <= 10:
+        return prepare_lifetime(s,w,cp)
+    if op >= 11 and op <= 14:
+        return prepare_access(s,w,cp)
+    if op == 15:
+        id = rget(s,cp+8)
+        kind = (id >> 24) & 255
+        if slot_lookup(w,kind,id) == 0:
+            return 1
+        return 0
+    if op == 17:
+        slots = slots_normalized(rget(s,cp+8))
+        pool = rget(s,cp+16)
+        if slots == 0 or pool > 1073741824:
+            return 2
+        pool = align16(pool)
+        if slots > uget(w,16):
+            uput(w,64,slots)
+        if pool > uget(w,24):
+            uput(w,72,pool)
+        return 0
+    if op == 18:
+        if length(w) > remaining-64:
+            return 3
+        return 0
+    if op == 20:
+        if uget(w,16) > 4096:
+            return 3
+    return 0
+
+def apply_create(s:readbuf, w:mutbuf, o:mutbuf, cp:u64, at:u64) -> u64:
+    size = rget(s,cp+8)
+    extent = extent_allocate(w,size)
+    if extent == 0:
+        return 9
+    sid = slot_new(w,2)
+    vid = slot_new(w,3)
+    tid = slot_new(w,1)
+    if sid == 0 or vid == 0 or tid == 0:
+        return 9
+    p = slot_lookup(w,2,sid)
+    uput(w,p+16,extent-1)
+    uput(w,p+24,size)
+    uput(w,p+32,align16(size))
+    uput(w,p+40,1)
+    uput(w,p+48,1)
+    p = slot_lookup(w,3,vid)
+    uput(w,p+24,1)
+    p = slot_lookup(w,1,tid)
+    uput(w,p+16,sid)
+    uput(w,p+24,vid)
+    uput(w,p+40,size)
+    fill_range(w,data_base(uget(w,16))+extent-1,size,rget(s,cp+16))
+    reply_record(o,at,1,tid,sid,vid,extent-1,size,0)
+    return 0
+
+def apply_alias(s:readbuf, w:mutbuf, o:mutbuf, cp:u64, at:u64) -> u64:
+    p = tensor_live(w,rget(s,cp+8))
+    sid = uget(w,p+16)
+    vid = uget(w,p+24)
+    offset = uget(w,p+32)+rget(s,cp+16)
+    if rget(s,cp) == 19:
+        vid = slot_new(w,3)
+        if vid == 0:
+            return 9
+        uput(w,slot_lookup(w,3,vid)+24,1)
+    else:
+        if version_retain(w,vid) != 0:
+            return 9
+    if storage_retain(w,sid) != 0:
+        return 9
+    tid = slot_new(w,1)
+    if tid == 0:
+        return 9
+    p = slot_lookup(w,1,tid)
+    uput(w,p+16,sid)
+    uput(w,p+24,vid)
+    uput(w,p+32,offset)
+    uput(w,p+40,rget(s,cp+24))
+    reply_record(o,at,rget(s,cp),tid,sid,vid,offset,rget(s,cp+24),0)
+    return 0
+
+def apply_drop(s:readbuf, w:mutbuf, o:mutbuf, cp:u64, at:u64) -> u64:
+    op = rget(s,cp)
+    id = rget(s,cp+8)
+    kind = 1
+    if op == 6:
+        kind = 4
+    if op == 7:
+        kind = 6
+    if op == 10:
+        kind = 5
+    p = slot_lookup(w,kind,id)
+    if p == 0:
+        return 9
+    sid = uget(w,p+16)
+    if kind == 1 or kind == 5:
+        if version_release(w,uget(w,p+24)) != 0:
+            return 9
+    if kind == 4:
+        if weak_storage_release(w,sid) != 0:
+            return 9
+    else:
+        if storage_release(w,sid) != 0:
+            return 9
+    if slot_drop(w,kind,id) != 0:
+        return 9
+    reply_record(o,at,op,0,0,0,0,0,0)
+    return 0
+
+def apply_weak(s:readbuf, w:mutbuf, o:mutbuf, cp:u64, at:u64) -> u64:
+    op = rget(s,cp)
+    if op == 4:
+        tensor = tensor_live(w,rget(s,cp+8))
+        sid = uget(w,tensor+16)
+        storage = storage_live(w,sid)
+        id = slot_new(w,4)
+        if id == 0:
+            return 9
+        uput(w,slot_lookup(w,4,id)+16,sid)
+        uput(w,storage+48,uget(w,storage+48)+1)
+        reply_record(o,at,4,id,sid,0,0,0,0)
+        return 0
+    weak = slot_lookup(w,4,rget(s,cp+8))
+    sid = uget(w,weak+16)
+    if storage_retain(w,sid) != 0:
+        return 9
+    id = slot_new(w,6)
+    if id == 0:
+        return 9
+    uput(w,slot_lookup(w,6,id)+16,sid)
+    reply_record(o,at,5,id,sid,0,0,0,0)
+    return 0
+
+def apply_save(s:readbuf, w:mutbuf, o:mutbuf, cp:u64, at:u64) -> u64:
+    op = rget(s,cp)
+    if op == 9:
+        p = saved_live(w,rget(s,cp+8))
+        version = version_live(w,uget(w,p+24))
+        reply_record(o,at,9,uget(w,p+32),uget(w,version+16),0,0,0,0)
+        return 0
+    p = tensor_live(w,rget(s,cp+8))
+    sid = uget(w,p+16)
+    vid = uget(w,p+24)
+    snapshot = uget(w,version_live(w,vid)+16)
+    if storage_retain(w,sid) != 0 or version_retain(w,vid) != 0:
+        return 9
+    id = slot_new(w,5)
+    if id == 0:
+        return 9
+    target = slot_lookup(w,5,id)
+    uput(w,target+16,sid)
+    uput(w,target+24,vid)
+    uput(w,target+32,snapshot)
+    uput(w,target+40,uget(w,p+32))
+    uput(w,target+48,uget(w,p+40))
+    reply_record(o,at,8,id,sid,vid,snapshot,0,0)
+    return 0
+
+def apply_access(s:readbuf, w:mutbuf, o:mutbuf, cp:u64, at:u64) -> u64:
+    op = rget(s,cp)
+    id = rget(s,cp+8)
+    offset = rget(s,cp+16)
+    kind = 1
+    if op == 13:
+        kind = 6
+    if op == 14:
+        kind = 5
+    p = slot_lookup(w,kind,id)
+    sid = uget(w,p+16)
+    if kind == 1:
+        offset = offset+uget(w,p+32)
+    if kind == 5:
+        offset = offset+uget(w,p+40)
+    storage = storage_live(w,sid)
+    address = data_base(uget(w,16))+uget(w,storage+16)+offset
+    value = byte(w,address)
+    if op == 11:
+        store(w,address,rget(s,cp+24))
+        version = version_live(w,uget(w,p+24))
+        value = uget(w,version+16)+1
+        uput(w,version+16,value)
+    reply_record(o,at,op,value,0,0,0,0,0)
+    return 0
+
+def apply_info(s:readbuf, w:mutbuf, o:mutbuf, cp:u64, at:u64) -> u64:
+    id = rget(s,cp+8)
+    kind = (id >> 24) & 255
+    p = slot_lookup(w,kind,id)
+    if kind == 1:
+        reply_record(o,at,15,uget(w,p+16),uget(w,p+24),uget(w,p+32),uget(w,p+40),uget(w,version_live(w,uget(w,p+24))+16),0)
+        return 0
+    if kind == 2:
+        reply_record(o,at,15,uget(w,p+16),uget(w,p+24),uget(w,p+40),uget(w,p+48),uget(w,p+56),0)
+        return 0
+    if kind == 3:
+        reply_record(o,at,15,uget(w,p+16),uget(w,p+24),0,0,0,0)
+        return 0
+    if kind == 5:
+        reply_record(o,at,15,uget(w,p+16),uget(w,p+24),uget(w,p+32),uget(w,p+40),uget(w,p+48),0)
+        return 0
+    reply_record(o,at,15,uget(w,p+16),0,0,0,0,0)
+    return 0
+
+def apply_stats(w:mutbuf, o:mutbuf, at:u64, op:u64) -> u64:
+    free = 128+uget(w,16)*384
+    i = 0
+    total = 0
+    while i < uget(w,32):
+        total = total+uget(w,free+i*16+8)
+        i = i+1
+    reply_record(o,at,op,uget(w,16),uget(w,24),uget(w,32),total,uget(w,40),0)
+    return 0
+
+def apply(s:readbuf, w:mutbuf, o:mutbuf, cp:u64, at:u64) -> u64:
+    op = rget(s,cp)
+    if op == 1:
+        return apply_create(s,w,o,cp,at)
+    if op == 2 or op == 19:
+        return apply_alias(s,w,o,cp,at)
+    if op == 3 or op == 6 or op == 7 or op == 10:
+        return apply_drop(s,w,o,cp,at)
+    if op == 4 or op == 5:
+        return apply_weak(s,w,o,cp,at)
+    if op == 8 or op == 9:
+        return apply_save(s,w,o,cp,at)
+    if op >= 11 and op <= 14:
+        return apply_access(s,w,o,cp,at)
+    if op == 15:
+        return apply_info(s,w,o,cp,at)
+    if op == 16 or op == 17:
+        return apply_stats(w,o,at,op)
+    if op == 18:
+        reply_record(o,at,18,uget(w,16),uget(w,24),uget(w,40),0,0,length(w))
+        copy_from_mut(o,w,at+64,0,length(w))
+        return 0
+    if op == 20:
+        status = audit(w)
+        if status != 0:
+            return status
+        reply_record(o,at,20,1,0,0,0,0,0)
+        return 0
+    return 7

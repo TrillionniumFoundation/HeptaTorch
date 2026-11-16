@@ -64,7 +64,17 @@ cmp build/train.response build/train.expected
 
 该编译器自身有 8,229 条指令，通过两个合法编译单元完成原生重建，保留单元容量限制和全部既有 ownership checker。三代 ABI2 重建字节一致；正式源码重新构建与 **385 项**原生资格检查通过，并为当前完整 runtime 和 unhex 生成与已有构建逐字相同的映像。[资格证据](validation/native-owned-modules.json)包含 315 项接口攻击、资源生命周期和独立跨模块执行。[实际托管 CI](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43795584310)的 **32 个步骤全部通过**，包含全部 385 项 owned 资格、原有双 270 项普通 PyTorch 门禁和双 21 项交互门禁；[完整托管回执](validation/hosted-owned-modules.json)绑定实现提交 `030694be9373aefc9a6740c3ccc8d742098e5c51`。
 
-这是原生所有权基础。当前张量内核和 borrowed 持久会话仍使用有界 arena；可增长 Tensor／Storage／Version 对象、强弱引用和 owned 交互入口需要继续集成。此处不把复制 owner 的两个机器字解释为合法所有权复制，也不接纳任意外部指针。
+这是原生所有权基础。当前张量内核和 borrowed 持久会话仍使用有界 arena；另一个原生字节存储服务已实现独立 Storage／Version 对象、强弱引用、可增长 owned 内存池及 owned 交互入口，下一步继续连接数值张量内核。此处不把复制 owner 的两个机器字解释为合法所有权复制，也不接纳任意外部指针。
+
+## 可增长原生存储与 owned 交互入口
+
+[字节存储服务](tools/storage_objects/README.md)使用真正的 HIA `buffer` owner，维护独立的逻辑 Tensor、Storage、Version、Weak、Saved 和 StrongHold 句柄。每次访问检查类型、存活状态和 generation；强引用释放后回收数据区，弱引用可保留已过期的对象身份。空闲区可拆分、合并并复用，已有句柄和相对偏移在扩容后保持有效。新的 Version 对象从 0 开始；用户写入递增共享的 Version。
+
+服务已实际分配超过 1 MiB 的载荷，并把池迁移到 3,145,744 字节。地址空间限制下真实的 `mmap` 失败保持已提交 owner 和全部状态不变。每帧在独立 trial owner 上执行，成功才提交；失败释放 trial 并返回原 owner。这个服务目前处理字节值和字节区间，数值张量、shape/stride、自动求导和优化器仍需继续接入。
+
+[owned 交互入口](tools/owned_sessions/README.md)由单独固定的原生 HIA linker 接纳 `step(readbuf,mutbuf,buffer)->(buffer,u32)` 和 `close(buffer)->()`。原生 startup 在 stdin 未关闭时返回响应，先接管返回的唯一 owner，再处理输出或退出。正常 EOF、断管及其他可恢复传输失败会调用真实 close。单独标识的资格程序在进程退出前观测到了实际解除映射；真实 EINTR 和短写也已执行验证。
+
+正式源码的独立资格包含 **131 项 owner 入口／传输检查**、有限 trace 与交互模式各 **12 组／63 帧**、**5 项当前极限状态守卫**，以及独立参考模型的 **2,952 帧／11,177 次精确标量比较／93 次完整状态回滚比较**。[源码与原始证据](validation/storage-object-handoff.json)保留 456 个文件的逐字节清单；[两种模块排列的独立模型回执](validation/storage-independent-models.json)分别绑定两个不同映像。重复执行同一语料不增加上游 PyTorch 测试或 schema 覆盖数。实际构建与报告门禁见 [构建配方](docs/build.md#building-owned-interactive-storage)。 [实际托管 CI](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43797863695)已在提交 `8186da151687808085479392f4e4720b8ac71769` 上通过全部 **34 个步骤**，包括新的存储／所有权资格、原有双 270 项普通 PyTorch 门禁和双 21 项交互门禁。[完整托管证据](validation/hosted-owned-storage.json)保留实际逐项报告、源码和二进制身份。
 
 ## 跨请求持久会话
 

@@ -1,0 +1,128 @@
+hia-asm.v1 hepta.hia.program.v8 storage_trace
+exports(entry)
+fn rget(s:readbuf,at:u64) -> (u64) effects(read,write,trap) external()
+fn uput(w:mutbuf,at:u64,value:u64) -> (u64) effects(read,write,trap) external()
+fn trace_valid(s:readbuf) -> (u64) effects(read,write,trap) external()
+fn step(s:readbuf,o:mutbuf,state:buffer) -> (buffer,u32) effects(alloc,read,write,trap) external()
+fn close(state:buffer) -> () effects(alloc,trap) external()
+fn entry(s:readbuf,o:mutbuf,w:mutbuf) -> (u32) effects(alloc,read,write,trap) entry(b0)
+block b0(s:readbuf,o:mutbuf,w:mutbuf)
+  cap:usize = buffer.len(o)
+  minimum:usize = const() {"value":32}
+  short:bool = compare.lt(cap,minimum)
+  branch short no_output() start(s,o)
+block no_output()
+  n0:u32 = const() {"value":0}
+  ret(n0)
+block start(s1:readbuf,o1:mutbuf)
+  z1:usize = const() {"value":0}
+  state1:buffer = buffer.new(z1)
+  status1:u64 = call(s1) {"function":"trace_valid"}
+  zero1:u64 = const() {"value":0}
+  at1:u64 = const() {"value":32}
+  good1:bool = compare.eq(status1,zero1)
+  branch good1 ready(s1,o1,state1) finish(o1,state1,zero1,at1,status1)
+block ready(s2:readbuf,o2:mutbuf,state2:buffer)
+  count_at2:u64 = const() {"value":8}
+  count2:u64 = call(s2,count_at2) {"function":"rget"}
+  i2:u64 = const() {"value":0}
+  in2:u64 = const() {"value":16}
+  out2:u64 = const() {"value":32}
+  jump loop(s2,o2,state2,i2,in2,out2,count2)
+block loop(s3:readbuf,o3:mutbuf,state3:buffer,i3:u64,in3:u64,out3:u64,count3:u64)
+  more3:bool = compare.lt(i3,count3)
+  zero3:u64 = const() {"value":0}
+  branch more3 capacity(s3,o3,state3,i3,in3,out3,count3) finish(o3,state3,i3,out3,zero3)
+block capacity(s4:readbuf,o4:mutbuf,state4:buffer,i4:u64,in4:u64,out4:u64,count4:u64)
+  capacity4:usize = buffer.len(o4)
+  cap4:u64 = int.cast(capacity4) {"mode":"wrap"}
+  rest4:u64 = int.sub.wrap(cap4,out4)
+  minimum4:u64 = const() {"value":40}
+  short4:bool = compare.lt(rest4,minimum4)
+  bad4:u64 = const() {"value":3}
+  branch short4 finish(o4,state4,i4,out4,bad4) input_allocate(s4,o4,state4,i4,in4,out4,count4,rest4)
+block input_allocate(s5:readbuf,o5:mutbuf,state5:buffer,i5:u64,in5:u64,out5:u64,count5:u64,rest5:u64)
+  n5:u64 = call(s5,in5) {"function":"rget"}
+  size5:usize = int.cast(n5) {"mode":"wrap"}
+  input5:buffer,ok5:bool = buffer.try_new(size5)
+  branch ok5 output_allocate(s5,o5,state5,input5,i5,in5,out5,count5,n5,rest5) input_failed(o5,state5,input5,i5,out5)
+block input_failed(ofi:mutbuf,stfi:buffer,infi:buffer,ifi:u64,atfi:u64)
+  _ = owner.drop(infi)
+  badfi:u64 = const() {"value":3}
+  jump finish(ofi,stfi,ifi,atfi,badfi)
+block output_allocate(s6:readbuf,o6:mutbuf,state6:buffer,input6:buffer,i6:u64,in6:u64,out6:u64,count6:u64,n6:u64,rest6:u64)
+  prefix6:u64 = const() {"value":8}
+  available6:u64 = int.sub.wrap(rest6,prefix6)
+  maximum6:u64 = const() {"value":1048576}
+  wide6:bool = compare.gt(available6,maximum6)
+  bounded6:u64 = select(wide6,maximum6,available6)
+  amount6:usize = int.cast(bounded6) {"mode":"wrap"}
+  output6:buffer,ok6:bool = buffer.try_new(amount6)
+  branch ok6 invoke(s6,o6,state6,input6,output6,i6,in6,out6,count6,n6) output_failed(o6,state6,input6,output6,i6,out6)
+block output_failed(ofo:mutbuf,stfo:buffer,info:buffer,outfo:buffer,ifo:u64,atfo:u64)
+  _ = owner.drop(info)
+  _ = owner.drop(outfo)
+  badfo:u64 = const() {"value":3}
+  jump finish(ofo,stfo,ifo,atfo,badfo)
+block invoke(s7:readbuf,o7:mutbuf,state7:buffer,input7:buffer,output7:buffer,i7:u64,in7:u64,out7:u64,count7:u64,n7:u64)
+  prefix7:u64 = const() {"value":8}
+  body7:u64 = int.add.wrap(in7,prefix7)
+  next_in7:u64 = int.add.wrap(body7,n7)
+  dst7:mutbuf = borrow.mut(input7)
+  zero7:usize = const() {"value":0}
+  source_at7:usize = int.cast(body7) {"mode":"wrap"}
+  count_bytes7:usize = int.cast(n7) {"mode":"wrap"}
+  _ = buffer.copy_range(dst7,s7,zero7,source_at7,count_bytes7)
+  _ = loan.end(dst7)
+  req7:readbuf = borrow.read(input7)
+  rep7:mutbuf = borrow.mut(output7)
+  next_state7:buffer,response_size7:u32 = call(req7,rep7,state7) {"function":"step"}
+  _ = loan.end(rep7)
+  _ = loan.end(req7)
+  _ = owner.drop(input7)
+  reply_size7:u64 = int.cast(response_size7) {"mode":"wrap"}
+  cap7:usize = buffer.len(output7)
+  cap64_7:u64 = int.cast(cap7) {"mode":"wrap"}
+  minimum7:u64 = const() {"value":32}
+  short7:bool = compare.lt(reply_size7,minimum7)
+  over7:bool = compare.gt(reply_size7,cap64_7)
+  invalid7:bool = bool.or(short7,over7)
+  branch invalid7 invalid_reply(o7,next_state7,output7,i7,out7) publish(s7,o7,next_state7,output7,i7,next_in7,out7,count7,reply_size7)
+block invalid_reply(oir:mutbuf,stir:buffer,outir:buffer,iir:u64,atir:u64)
+  _ = owner.drop(outir)
+  badir:u64 = const() {"value":9}
+  jump finish(oir,stir,iir,atir,badir)
+block publish(s8:readbuf,o8:mutbuf,state8:buffer,output8:buffer,i8:u64,in8:u64,out8:u64,count8:u64,n8:u64)
+  stored8:u64 = call(o8,out8,n8) {"function":"uput"}
+  prefix8:u64 = const() {"value":8}
+  body8:u64 = int.add.wrap(out8,prefix8)
+  next_out8:u64 = int.add.wrap(body8,n8)
+  dest8:usize = int.cast(body8) {"mode":"wrap"}
+  amount8:usize = int.cast(n8) {"mode":"wrap"}
+  zero8:usize = const() {"value":0}
+  src8:readbuf = borrow.read(output8)
+  _ = buffer.copy_range(o8,src8,dest8,zero8,amount8)
+  _ = loan.end(src8)
+  _ = owner.drop(output8)
+  one8:u64 = const() {"value":1}
+  next_i8:u64 = int.add.wrap(i8,one8)
+  jump loop(s8,o8,state8,next_i8,in8,next_out8,count8)
+block finish(of:mutbuf,statef:buffer,countf:u64,atf:u64,statusf:u64)
+  _ = call(statef) {"function":"close"}
+  zf:usize = const() {"value":0}
+  hf:usize = const() {"value":32}
+  zerof:u8 = const() {"value":0}
+  _ = buffer.fill_range(of,zf,hf,zerof)
+  magicf:u64 = const() {"value":TRACE_RESPONSE_MAGIC}
+  zero64f:u64 = const() {"value":0}
+  versionf:u64 = const() {"value":1}
+  va:u64 = const() {"value":8}
+  ca:u64 = const() {"value":16}
+  sa:u64 = const() {"value":24}
+  store_m:u64 = call(of,zero64f,magicf) {"function":"uput"}
+  store_v:u64 = call(of,va,versionf) {"function":"uput"}
+  store_c:u64 = call(of,ca,countf) {"function":"uput"}
+  store_s:u64 = call(of,sa,statusf) {"function":"uput"}
+  resultf:u32 = int.cast(atf) {"mode":"wrap"}
+  ret(resultf)
+end

@@ -455,3 +455,49 @@ Both ordinary 270-case PyTorch oracles, both interactive 21-case oracles, both
 461-pair fixture runs and all prior borrowed/session native gates also passed.
 This evidence does not qualify a general Tensor storage object or owned-state
 interactive entry; those have distinct implementations and acceptance work.
+
+## Native owned interactive byte storage
+
+`native-owned-sessions.json` contains the frozen 131-case entry/transport
+qualification and the three separately reproduced native linker profiles.
+`owned-session-package.sha256` binds all 23 portable files, including the source
+and actual original report. Production never contains the post-close or signal
+qualification hooks.
+
+`storage-object-handoff.json` binds every byte of the 456-file storage package
+under `tools/storage_objects`. The package retains its six generated HIA modules,
+source authoring and provenance, actual request/response bytes, all original
+failures, and the candidate-03/candidate-04 coalescing correction. The two
+12-group / 63-frame reports use different actual native entry paths over the same
+corpus. Five current extreme-state probes pass; the sixth historical probe is
+a separately identified old failure that demonstrates the correction.
+
+`storage-independent-models.json` records a reviewer that imports none of the
+storage authoring, codec or expected-output code. Each of two actual module
+orders executed 2,952 live frames, 11,177 exact scalar comparisons, 93 full-state
+rollback comparisons and 578 unique handle observations. The corresponding
+request and response transcript hashes are identical across images. The model
+independently derives strong/weak/version references from logical live records,
+checks values and expiry, and releases all references before checking stale IDs.
+These repeated campaigns do not count as additional upstream PyTorch tests.
+
+The formal Make/CI gate freshly compiles and executes the current service,
+owner-aware transport and independent model. Numerical Tensor storage, typed
+metadata, arbitrary layouts, device/foreign allocations and general concurrent
+lifetime remain separate work. Whole-project acceptance remains HOLD.
+
+### Observed hosted owned-storage result
+
+`hosted-owned-storage.json` records actual run 43797863695, job 133070700679,
+at commit `8186da151687808085479392f4e4720b8ac71769`. All 34 steps passed:
+owned-module qualification, owned-session linker reproduction, 131 entry/transport
+cases, both 12-group / 63-frame storage paths, five current extreme guards,
+and the 2,952-frame independent model. Every stored suite report reconstructs
+its actual hosted file SHA-256. Deterministic storage/model reports and all
+native build identities equal the fresh canonical-worktree results.
+
+Both ordinary 270-case / 13,076-value / 11-provenance-check PyTorch gates and
+both interactive 21-case / 4,681-frame / 491,847-value / 11-check gates passed,
+with the earlier fixtures and native tool qualifications still required.
+The receipt includes those full reports, so successful storage qualification
+is not substituted for unchanged numerical-runtime regression.

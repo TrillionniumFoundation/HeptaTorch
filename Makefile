@@ -4,14 +4,20 @@ HEPTA_MODULE_COMPILER ?= hia-module-compiler
 HEPTA_MODULE_LINKER ?= hia-module-linker
 HEPTA_FLAT_LINKER ?= hia-flat-linker
 HEPTA_SESSION_PACKER ?= hia-session-packer
+HEPTA_SOURCE_ROOT ?= .toolchain/hepta
+HEPTA_OWNED_COMPILER ?= owned-module-compiler
+HEPTA_OWNED_LINKER ?= linker-abi2-w1m
+HEPTA_OWNED_SESSION_BUILD ?= build/owned-session-tools
+HEPTA_OWNED_SESSION_LINKER ?= $(HEPTA_OWNED_SESSION_BUILD)/production-native/owned-session-linker
 COMPILER_SHA256 := c5a9c2b95a3061e080a21298f5b26000936ed9dac519690d845b0699a15744c6
 MODULE_COMPILER_SHA256 := e250d93bc0b2a5ff878d2188c95780abf7e7ebaf186e4531b136fa2735b2af59
 MODULE_LINKER_SHA256 := 1ba40ffe025abfcc2edd8d69f1ad689817598571138c11806af7aa60047fc7b8
 FLAT_LINKER_SHA256 := 4c36e3409b397788664f1501896aff2719f667306795cb5fa95061d710fd6139
 SESSION_PACKER_SHA256 := 22600cee8853b6a49dfbf66154ddcdc99bdbbc6fcfb2face2605ad7117b20a44
 SESSION_INPUTS := src/heptatorch.hepta tools/session/build_runtime.py tools/session/entry.hepta tools/session/profile.json tools/modules/split_runtime.py Makefile
+STORAGE_INPUTS := $(wildcard tools/storage_objects/*.py tools/storage_objects/*.authoring tools/storage_objects/*.hia.in) tools/storage_objects/source-lock.json Makefile
 
-.PHONY: all monolithic session session-monolithic test test-monolithic test-session test-session-monolithic check-compiler check-module-tools check-session-tools check-session-packer acceptance-status full-acceptance clean
+.PHONY: all monolithic session session-monolithic storage-objects test test-monolithic test-session test-session-monolithic test-storage-objects check-compiler check-module-tools check-session-tools check-session-packer check-storage-tools acceptance-status full-acceptance clean
 
 all: build/heptatorch build/unhex
 
@@ -20,6 +26,41 @@ monolithic: build/heptatorch-monolithic build/unhex
 session: build/heptatorch-session
 
 session-monolithic: build/heptatorch-session-monolithic
+
+storage-objects: build/storage-native/build.json build/storage-interactive/build.json
+
+check-storage-tools:
+	@set -eu; compiler=$$(command -v "$(HEPTA_OWNED_COMPILER)"); linker=$$(command -v "$(HEPTA_OWNED_LINKER)"); session=$$(command -v "$(HEPTA_OWNED_SESSION_LINKER)"); \
+	printf '%s  %s\n' '0ccdb524ea327ab290b2e70feaac49a4789abb2fee6da8746a095f435c17af73' "$$compiler" \
+	  '23eed229e329fb5b7e2116012f74f210d5de4acd2b4f8475e364890748da86ee' "$$linker" \
+	  '55a2b0a762c8db574a65d0d0e6a18e3cedc668c01d20080a11c26cf1ccb601b3' "$$session" | sha256sum -c -
+
+build/storage-native/build.json: $(STORAGE_INPUTS) | build check-storage-tools
+	python3 -I -S -B tools/storage_objects/build.py --upstream "$(HEPTA_SOURCE_ROOT)" \
+	  --compiler "$$(command -v "$(HEPTA_OWNED_COMPILER)")" --linker "$$(command -v "$(HEPTA_OWNED_LINKER)")" \
+	  --output "$(CURDIR)/build/storage-native"
+
+build/storage-interactive/build.json: build/storage-native/build.json tools/storage_objects/link_session.py | check-storage-tools
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.storage-link.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	python3 -I -S -B tools/storage_objects/link_session.py --modules "$(CURDIR)/build/storage-native" \
+	  --linker "$$(command -v "$(HEPTA_OWNED_SESSION_LINKER)")" --output "$$tmp/native"; \
+	mkdir -p build/storage-interactive; cp "$$tmp/native/"* build/storage-interactive/
+
+test-storage-objects: storage-objects
+	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/.storage-review.XXXXXX"); \
+	python3 -I -S -B tools/owned_sessions/qualify.py --build "$(HEPTA_OWNED_SESSION_BUILD)" \
+	  --compiler "$$(command -v "$(HEPTA_OWNED_COMPILER)")" --output "$$review/owned-session" \
+	  build/storage-native/bytes.hepta build/storage-native/records.hepta build/storage-native/audit.hepta \
+	  build/storage-native/ops.hepta build/storage-native/owners.hepta; \
+	python3 -I -S -B tools/storage_objects/qualify.py --binary "$(CURDIR)/build/storage-native/storage-trace" --transport trace --output "$$review/trace"; \
+	python3 -I -S -B tools/storage_objects/qualify.py --binary "$(CURDIR)/build/storage-interactive/storage-session" --transport session --output "$$review/interactive"; \
+	python3 -I -S -B tools/storage_objects/qualify_guards.py --compiler "$$(command -v "$(HEPTA_OWNED_COMPILER)")" \
+	  --linker "$$(command -v "$(HEPTA_OWNED_LINKER)")" --module-dir "$(CURDIR)/build/storage-native" --output "$$review/guards"; \
+	python3 -I -S -B tests/owned_storage_independent.py --executable "$(CURDIR)/build/storage-interactive/storage-session" --output "$$review/model"; \
+	python3 -I -S -B tests/check_storage_object_reports.py --session-build "$(HEPTA_OWNED_SESSION_BUILD)" \
+	  --session-review "$$review/owned-session" --native "$(CURDIR)/build/storage-native" --interactive "$(CURDIR)/build/storage-interactive" \
+	  --trace-review "$$review/trace" --interactive-review "$$review/interactive" --guard-review "$$review/guards" \
+	  --model-review "$$review/model" --output build/hosted-owned-storage-gates.json
 
 check-compiler:
 	@compiler=$$(command -v "$(HEPTA_COMPILER)") || { echo 'Set HEPTA_COMPILER to the pinned native HIA compiler; see docs/build.md.' >&2; exit 1; }; \
