@@ -23,3 +23,18 @@ NaN payload parity is not claimed.
 This is an independently compiled native component; integration with
 general Tensor storage, dtype promotion, AD, devices and the 2590 frozen
 upstream schemas remains open. Full project acceptance stays HOLD.
+
+## Observed hosted qualification
+
+[Run 43802551513](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43802551513)
+executed the pinned native compiler, produced the locked E5M2 ELF twice
+byte-identically and passed both CPython and official PyTorch 2.15.0+cpu
+reference suites. Each suite passed all 16 cases, 500,887 non-NaN bitwise
+comparisons and 391 NaN classification/sign-preservation checks with zero
+failures; all 11 independent PyTorch wheel/source/provenance checks passed.
+[The full two-reference receipt](../../validation/hosted-native-float8-e5m2.json)
+binds the exact source, compiler image, native executable and oracle script.
+The original three-case native infinity-overflow failure is retained unchanged
+in [the initial failure receipt](../../validation/native-float8-e5m2-first-failure.json)
+and is not relabeled as a pass. The corrected native image is
+`971beb1762275b501e5cc240c53e258426f01a86979c2f2cb8870f8d91f7bf3e`.
