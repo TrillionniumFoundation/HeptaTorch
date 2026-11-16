@@ -407,10 +407,10 @@ jobs:
       - name: Observe pinned PyTorch layout-selection semantics
         run: python3 tests/pytorch_layout_semantics.py build/layout-semantics.json
 
-      - name: Compare native-linked HIA with pinned real PyTorch (268 cases)
+      - name: Compare native-linked HIA with pinned real PyTorch (270 cases)
         run: python3 tests/pytorch_oracle.py build/heptatorch build/pytorch-native-linked.json
 
-      - name: Compare monolithic HIA with pinned real PyTorch (268 cases)
+      - name: Compare monolithic HIA with pinned real PyTorch (270 cases)
         run: python3 tests/pytorch_oracle.py build/heptatorch-monolithic build/pytorch-monolithic.json
 
       - name: Summarize both current PyTorch oracle builds without changing historical receipts
@@ -434,7 +434,7 @@ jobs:
               ('monolithic', 'build/heptatorch-monolithic', 'build/pytorch-monolithic.json')):
               report = json.loads(Path(report_file).read_text())
               assert report['status'] == 'PASS' and report['failed_cases'] == 0
-              assert report['expected_cases'] == report['cases'] == len(report['rows']) == 268
+              assert report['expected_cases'] == report['cases'] == len(report['rows']) == 270
               assert report['native_unchanged_during_run']
               assert report['native_executable_sha256'] == digest(executable)
               provenance = report['oracle_provenance']
@@ -443,7 +443,7 @@ jobs:
               assert all(value is True for value in provenance['checks'].values())
               assert provenance['lock_sha256'] == digest('compatibility/pytorch-oracle-lock.json')
               case_names = {row['case'] for row in report['rows']}
-              assert len(case_names) == 268 and all(row['status'] == 'PASS' for row in report['rows'])
+              assert len(case_names) == 270 and all(row['status'] == 'PASS' for row in report['rows'])
               if names is not None:
                   assert case_names == names
               names = case_names
@@ -464,7 +464,7 @@ jobs:
               output.write('| Build | Native fixtures | PyTorch cases | Provenance checks | Executable SHA-256 |\n')
               output.write('| --- | ---: | ---: | ---: | --- |\n')
               for report in reports:
-                  output.write('| ' + report['build'] + ' | 461 | 268 | 11 | `' + report['native_executable_sha256'] + '` |\n')
+                  output.write('| ' + report['build'] + ' | 461 | 270 | 11 | `' + report['native_executable_sha256'] + '` |\n')
               output.write('\nHistorical 159-case receipts remain unchanged. Current reports are recorded separately for each build.\n')
           DUAL_ORACLE
 
