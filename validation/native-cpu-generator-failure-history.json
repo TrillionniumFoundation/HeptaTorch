@@ -1,0 +1,28 @@
+{
+  "schema": "heptatorch.cpu-generator-discovered-failures.v1",
+  "status": "RESOLVED_FOR_THIS_COMPONENT",
+  "items": [
+    {
+      "name": "missing-verification-callee-closure",
+      "phase": "source authoring",
+      "diagnostic_sha256": "e367291edf9e9657d257beb31a1850bf5a7fb1027caa626192e52c169467b14c",
+      "correction": "include exact unchanged frozen RNG functions in the verification document; native checks unchanged"
+    },
+    {
+      "name": "fixed-address-space-guess-did-not-force-OOM",
+      "phase": "test assumption",
+      "report_sha256": "cfbc01ec402152a8e1bc5f29b70914fbe6734b46322ba0ed3dc39ef4af1269c5",
+      "observed_status": 0,
+      "incorrect_expected_status": 3,
+      "correction": "measure child VmSize, then use real prlimit to leave 1MiB headroom before a >4MiB trial"
+    },
+    {
+      "name": "short-internal-owner-diagnostic-read",
+      "phase": "direct owned ABI qualification",
+      "report_sha256": "7e202af4b34408a8ddb217217c0f82ff5a883d1bd325fbacfd9dfbfe61bf1c41",
+      "old_process_returncode": -4,
+      "wire_caller_can_forge_owner": false,
+      "correction": "cg_stat guards length <64; final 59 entry cases PASS"
+    }
+  ]
+}

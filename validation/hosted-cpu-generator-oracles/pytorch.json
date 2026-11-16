@@ -1,0 +1,533 @@
+{
+  "schema": "heptatorch.live-pytorch-owned-cpu-generator.v1",
+  "native_executable_sha256": "ba344748d42f0def1cd5d88e5e27232a6dfa08e33ef4c42e6f00486f3ca08572",
+  "source_custody": {
+    "native": "ba344748d42f0def1cd5d88e5e27232a6dfa08e33ef4c42e6f00486f3ca08572",
+    "oracle": "3b9e1c9058776c67c00c4b07610a2a0d377dda16ca4a956d7e66c442bdfd4157",
+    "reference_support": "ef8fe89aa7dbff4ee03f9d5762d2736a3648d9e48e97ad5df7bec615676f04ae",
+    "lock": "ca2e54ce65083bbe0ab3d47b6878971271765ab35a9dd70725fa345fceed3944"
+  },
+  "case_plan": [
+    "mixed-seed-0",
+    "mixed-seed-1",
+    "mixed-seed-17",
+    "mixed-seed-5489",
+    "mixed-seed-2147483647",
+    "mixed-seed-4294967295",
+    "mixed-seed-4294967296",
+    "mixed-seed-4294967313",
+    "mixed-seed-9223372036854775807",
+    "mixed-seed-9223372036854775808",
+    "mixed-seed-18446744073709551614",
+    "mixed-seed-18446744073709551615",
+    "default-construction",
+    "six-interleaved-generators",
+    "clone-across-twist",
+    "state-export-restore",
+    "float-normal-cache-clones",
+    "double-normal-cache-clones",
+    "reseed-clears-both-caches",
+    "native-system-seed-roundtrip",
+    "release-compaction-preserves-survivors",
+    "zero-count-does-not-advance",
+    "sixty-four-independent-generators",
+    "long-cloned-trajectory"
+  ],
+  "expected_cases": 24,
+  "pytorch_api_denominator": 2590,
+  "full_rng_gate_closed": false,
+  "whole_pytorch_rewrite_complete": false,
+  "status": "PASS",
+  "cases": 24,
+  "failed_cases": 0,
+  "oracle_provenance": {
+    "status": "PASS",
+    "lock_path": "/home/runner/work/HeptaTorch/HeptaTorch/compatibility/pytorch-oracle-lock.json",
+    "lock_sha256": "ca2e54ce65083bbe0ab3d47b6878971271765ab35a9dd70725fa345fceed3944",
+    "expected": {
+      "distribution": "torch",
+      "version": "2.15.0+cpu",
+      "git_commit": "d0f2af8b66b20da4baa50644c0cd3f887a2eae2e",
+      "backend_versions": {
+        "cuda": null,
+        "hip": null,
+        "rocm": null,
+        "xpu": null
+      },
+      "python": {
+        "implementation": "cpython",
+        "version": [
+          3,
+          12
+        ]
+      },
+      "platform": {
+        "sys_platform": "linux",
+        "machine": "x86_64"
+      },
+      "wheel": {
+        "url": "https://download-r2.pytorch.org/whl/cpu/torch-2.15.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl",
+        "sha256": "0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3",
+        "filename": "torch-2.15.0+cpu-cp312-cp312-manylinux_2_28_x86_64.whl",
+        "python_tag": "cp312",
+        "abi_tag": "cp312",
+        "platform_tag": "manylinux_2_28_x86_64",
+        "metadata_sha256": "8bbf94c86c3be6cf586385861d476b78cb66d19b67fef49ece4f7d68ca428cc3"
+      },
+      "install_report": "build/pytorch-install.json"
+    },
+    "observed": {
+      "python": {
+        "implementation": "cpython",
+        "version": [
+          3,
+          12
+        ],
+        "full_version": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]"
+      },
+      "platform": {
+        "sys_platform": "linux",
+        "machine": "x86_64"
+      },
+      "version": "2.15.0+cpu",
+      "git_commit": "d0f2af8b66b20da4baa50644c0cd3f887a2eae2e",
+      "backend_versions": {
+        "cuda": null,
+        "hip": null,
+        "rocm": null,
+        "xpu": null
+      },
+      "distribution_version": "2.15.0+cpu",
+      "direct_url": {
+        "archive_info": {
+          "hash": "sha256=0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3",
+          "hashes": {
+            "sha256": "0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3"
+          }
+        },
+        "url": "https://download-r2.pytorch.org/whl/cpu/torch-2.15.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl"
+      },
+      "install_report": {
+        "path": "build/pytorch-install.json",
+        "pip_version": "24.0",
+        "download_info": {
+          "url": "https://download-r2.pytorch.org/whl/cpu/torch-2.15.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl",
+          "archive_info": {
+            "hash": "sha256=0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3",
+            "hashes": {
+              "sha256": "0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3"
+            }
+          }
+        },
+        "metadata_name": "torch",
+        "metadata_version": "2.15.0+cpu",
+        "requested": true
+      }
+    },
+    "checks": {
+      "python_matches": true,
+      "platform_matches": true,
+      "version_backend_matches": true,
+      "git_matches_oracle_build_pin": true,
+      "distribution_version_matches": true,
+      "direct_url_matches": true,
+      "direct_url_archive_sha256_matches": true,
+      "pip_report_url_matches": true,
+      "pip_report_archive_sha256_matches": true,
+      "pip_report_version_matches": true,
+      "pip_report_requested": true
+    },
+    "metadata_error": null,
+    "release_source_equivalence": {
+      "inventory_commit": "31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
+      "wheel_build_commit": "d0f2af8b66b20da4baa50644c0cd3f887a2eae2e",
+      "wheel_build_is_direct_parent_of_inventory_commit": true,
+      "torch_git_matches_upstream_pin": false,
+      "release_root_tree": "156b7013e253ac50abaa4de8a4d2e6dd7acbbb56",
+      "wheel_build_root_tree": "408badfd8e01265470f4efedfe22fa547b128351",
+      "root_entry_counts": {
+        "release": 74,
+        "wheel": 74
+      },
+      "root_trees_truncated": {
+        "release": false,
+        "wheel": false
+      },
+      "changed_paths": [
+        "pyproject.toml"
+      ],
+      "change": "The release commit adds five lines under [tool.ruff], setting target-version to py310 with explanatory comments. There are no deletions. Every other root entry and every source subtree is identical.",
+      "wheel_pyproject_blob": "6d2cb5e341729de25288267e24d76c20254288f8",
+      "release_pyproject_blob": "e7648b0fcb198697832a6aab3469719a9992a8ec",
+      "identical_subtrees": {
+        ".ci": "40279ceebccac57277fdaabf1fb8cb70b60850d6",
+        ".claude": "0075de12edc4d9bdbf28e567c5f54f3ac5e78201",
+        ".ctags.d": "3c8ba0dccbb55f2da51365a465144aa69c6025d0",
+        ".devcontainer": "6abd271cefad60b09bbfacb63e53325198cd5521",
+        ".github": "8ae0eeb95729b758872993f4a7fed6ffcefb286c",
+        ".spin": "ef791f9c9264cb8a8e13acce7ee418e0f9c956ac",
+        ".vscode": "ea91f344ac83b434b498fa28b4b8b555e68a9126",
+        "android": "d2ff3db5f9fac06b8ddce4b796409a09e8e5e8a8",
+        "aten": "742dba1bfe6135f3573e4eaac689742744628174",
+        "benchmarks": "ec19294aeabfaae61be43f8ea98c7bfe5e507b56",
+        "binaries": "f5249d171f1af6f07384c91418892a45d05fee22",
+        "c10": "bcd92827e525817818af6e44b77f64460823bef1",
+        "caffe2": "73f5fcafe72932ee5cbaab1b2bd879f8a634344e",
+        "cmake": "b622eeb5fe4620c3f58529c34cc52b4466af8519",
+        "docs": "5b3f3b84bd0c6597c7c926d221739ab4c9d4fc9f",
+        "functorch": "c559f838225b0971bc22fcb2672589c27ef01456",
+        "mypy_plugins": "f2f6231e180a450273107602eef43bd9433a51c0",
+        "scripts": "940b5e644e48b7eedc65292e19e56e4c7a9abb98",
+        "test": "9dcb79311a6209012b019fc6f20209d2804cca98",
+        "third_party": "60ad164358c335341c6a7840bb80256079e6dd8e",
+        "tools": "f35164cd2daf3f11baadcccc5551800e38392432",
+        "torch": "2877dbcda5441192b89ab6272c24bed424e53bd4",
+        "torchgen": "f5fb760a18c6d4c81a4b665ad7adef7348dba6a3"
+      },
+      "scope": "Only this exact official wheel SHA256/build commit and this exact inventory release commit. This is source equivalence for the recorded lint-only release change, not identity of the two Git commits or an allowance for other builds."
+    }
+  },
+  "rows": [
+    {
+      "case": "mixed-seed-0",
+      "status": "PASS",
+      "frames": 52,
+      "exact_values": 530,
+      "serialized_state_bytes_compared": 91008,
+      "raw32_reference_projection_values": 640,
+      "request_stream_sha256": "847234db80a8cca55e252ce0ce37b57d174588baa18114dd644b206212e173e7",
+      "response_stream_sha256": "196a971aded73b9e3180c5e3eae020bf52bd8dbd41455feacd475594fcefc8bf",
+      "reference_values_sha256": "64ba836dfcc9e402ac5e6974d53f1eaa175ca774208788f43d090538854e7fc9",
+      "reference_states_sha256": "793ab5ee81b96c1fc666e0022c956f3c5900bbb6e49d9672db6fd6eef64bcb13",
+      "nondeterministic_seed_observations": []
+    },
+    {
+      "case": "mixed-seed-1",
+      "status": "PASS",
+      "frames": 52,
+      "exact_values": 530,
+      "serialized_state_bytes_compared": 91008,
+      "raw32_reference_projection_values": 640,
+      "request_stream_sha256": "fd299b263ad6debc12ef39ddcc1422da264d3353812efa498167f490e799bac7",
+      "response_stream_sha256": "987fa32494b0e00d82e0a977c6a631bcb47076ef3663c879a1ea78f0ea73ce77",
+      "reference_values_sha256": "7a367cbe0a11bfece345aeccd7d29349e7a2d8be219d7a8e676b5daed625a590",
+      "reference_states_sha256": "b2d92cddec8b378e44d67b72e71c2a21f017eb572a4a557e409484a1058927e3",
+      "nondeterministic_seed_observations": []
+    },
+    {
+      "case": "mixed-seed-17",
+      "status": "PASS",
+      "frames": 52,
+      "exact_values": 530,
+      "serialized_state_bytes_compared": 91008,
+      "raw32_reference_projection_values": 640,
+      "request_stream_sha256": "bf2d3883d8cf3ba39486b874f37e201ccf128573e7c759a1b4dcce65a47b427f",
+      "response_stream_sha256": "707cd77bec5d285debf3ae012047ba749b056117ca2c7e81ce4420a992c04ba7",
+      "reference_values_sha256": "4789df7ab69276683109b094bf05153ba7d840d79037449a1ba14eb8461fa55c",
+      "reference_states_sha256": "435a6831908b339825ee1a10a7519e104e6470515062bdeecfa8ecadb2021335",
+      "nondeterministic_seed_observations": []
+    },
+    {
+      "case": "mixed-seed-5489",
+      "status": "PASS",
+      "frames": 52,
+      "exact_values": 530,
+      "serialized_state_bytes_compared": 91008,
+      "raw32_reference_projection_values": 640,
+      "request_stream_sha256": "a94ce1e3b3ec5e10a571cc3b744f0a4c47227595f251985123da27beccf83471",
+      "response_stream_sha256": "6130156c4cb488f7f39d169da58ea28cad0e25ad200dba651486cb4f6b46af6c",
+      "reference_values_sha256": "0df5668dba75545e914869ad74cfe4623579ab8c1a6729f6e159d763875a2d82",
+      "reference_states_sha256": "4128379193da45c4af1baf9214580fa573c0ae213edbd4cb366f8a05010d414a",
+      "nondeterministic_seed_observations": []
+    },
+    {
+      "case": "mixed-seed-2147483647",
+      "status": "PASS",
+      "frames": 52,
+      "exact_values": 530,
+      "serialized_state_bytes_compared": 91008,
+      "raw32_reference_projection_values": 640,
+      "request_stream_sha256": "094a1f7e8cb6fb176d46a9395a95dc1a7a56cffaeba5c9c2183232b12b0a73ed",
+      "response_stream_sha256": "98a322ee98a15b4816947e874afccfa5d8752488930131a4a25fbbaac81f2697",
+      "reference_values_sha256": "8accb65258c1b68008b9a2b4f3ee53dacfb63e25bcea6b8a6620c183a8b23906",
+      "reference_states_sha256": "7df3f701dd7fa09600db2dc828fe0c13c0e5790bec7b867a938466eaf18cb29a",
+      "nondeterministic_seed_observations": []
+    },
+    {
+      "case": "mixed-seed-4294967295",
+      "status": "PASS",
+      "frames": 52,
+      "exact_values": 530,
+      "serialized_state_bytes_compared": 91008,
+      "raw32_reference_projection_values": 640,
+      "request_stream_sha256": "cfefaf465a756c105ab611c80599260fc6924d95e90259911723a401e6919058",
+      "response_stream_sha256": "d892e79b1c3555f9b4f89b85c868f4f21debc98c3547d4af0bb9aa7af6557c31",
+      "reference_values_sha256": "d1f89215dba17eb54c88f4f679accee1ed6be8e12d7a3a28cba9cd697f583512",
+      "reference_states_sha256": "b3d90e44a154945a7892503cf5e6bdc1725a6e2555d4f4d40ff8c7d303237a08",
+      "nondeterministic_seed_observations": []
+    },
+    {
+      "case": "mixed-seed-4294967296",
+      "status": "PASS",
+      "frames": 52,
+      "exact_values": 530,
+      "serialized_state_bytes_compared": 91008,
+      "raw32_reference_projection_values": 640,
+      "request_stream_sha256": "7362268a7b389750f5bd9e4783d0f41d8008a4cfbf7a3a8863c32d6057aa3dff",
+      "response_stream_sha256": "d6101899b9c91a36ac85860d8bb6765c867d9871c9803a04fb8aa82632be4ea2",
+      "reference_values_sha256": "64ba836dfcc9e402ac5e6974d53f1eaa175ca774208788f43d090538854e7fc9",
+      "reference_states_sha256": "8d1356005661a431f3c61373e68d5b73573567b9f7b797c6f2ac8fb6c15c99e9",
+      "nondeterministic_seed_observations": []
+    },
+    {
+      "case": "mixed-seed-4294967313",
+      "status": "PASS",
+      "frames": 52,
+      "exact_values": 530,
+      "serialized_state_bytes_compared": 91008,
+      "raw32_reference_projection_values": 640,
+      "request_stream_sha256": "d848873acaa0887e7b29ab9a319b4bd7a701fc85dc513a14405303ac064e8b4a",
+      "response_stream_sha256": "02ea465365ae02fa5177f1ddaa71d19138dc5ed0cedbfec87c663f54f0505dd5",
+      "reference_values_sha256": "4789df7ab69276683109b094bf05153ba7d840d79037449a1ba14eb8461fa55c",
+      "reference_states_sha256": "5edd58c18209cc4fead85ad54e20564dc62cbda1436cde1fd82ec4854fbee06b",
+      "nondeterministic_seed_observations": []
+    },
+    {
+      "case": "mixed-seed-9223372036854775807",
+      "status": "PASS",
+      "frames": 52,
+      "exact_values": 530,
+      "serialized_state_bytes_compared": 91008,
+      "raw32_reference_projection_values": 640,
+      "request_stream_sha256": "270168f74f43c6da057d1b35544ff4bc03bb3a2c3c85472e2f425e8db0fcd1df",
+      "response_stream_sha256": "bf5250456991125b064bbb0e4a737b367433ce84cfc128b91c2001f2c9ac016d",
+      "reference_values_sha256": "d1f89215dba17eb54c88f4f679accee1ed6be8e12d7a3a28cba9cd697f583512",
+      "reference_states_sha256": "da950868f6a137959122759611b10a392e3d0e290523303653ab272a94e59c70",
+      "nondeterministic_seed_observations": []
+    },
+    {
+      "case": "mixed-seed-9223372036854775808",
+      "status": "PASS",
+      "frames": 52,
+      "exact_values": 530,
+      "serialized_state_bytes_compared": 91008,
+      "raw32_reference_projection_values": 640,
+      "request_stream_sha256": "2d2a2062ed45e6ab9fa1b735b41c6fa0c705dd205192b29e99ec9c34a84cfbf5",
+      "response_stream_sha256": "6736e9175bd24d0805b19146eba5c0f9aa34d8fa5508cac886b7ff68c020ac4c",
+      "reference_values_sha256": "64ba836dfcc9e402ac5e6974d53f1eaa175ca774208788f43d090538854e7fc9",
+      "reference_states_sha256": "f0772225379a0ee905269c9e6e85c647aac125bddb7329950b6a043fc722f38a",
+      "nondeterministic_seed_observations": []
+    },
+    {
+      "case": "mixed-seed-18446744073709551614",
+      "status": "PASS",
+      "frames": 52,
+      "exact_values": 530,
+      "serialized_state_bytes_compared": 91008,
+      "raw32_reference_projection_values": 640,
+      "request_stream_sha256": "359f3ea268f8fdf07a10730e674bbfb01a7fd521f600af45a4aeb79bee7a6907",
+      "response_stream_sha256": "c561b6e2562df1c1252bfb6e6173fcce2ac9b36a2e89e4daa2ab3380b5c886d1",
+      "reference_values_sha256": "5bc9899d7f665386021c7569a1271f41a5ef0c42a85fd6bcacf4fce2e087b1b4",
+      "reference_states_sha256": "ae6fba55cd07c9ea0289886e75cf950e2aa2457d8a961c32732f3f0c2c417405",
+      "nondeterministic_seed_observations": []
+    },
+    {
+      "case": "mixed-seed-18446744073709551615",
+      "status": "PASS",
+      "frames": 52,
+      "exact_values": 530,
+      "serialized_state_bytes_compared": 91008,
+      "raw32_reference_projection_values": 640,
+      "request_stream_sha256": "cda8114ceae3d3aefaf659f71e3526f1ea35265aed646c71a47f20b628b37845",
+      "response_stream_sha256": "93649a528213cda5d94de9ec42e2deb07ed818e84acc3d2862666265b3df2d1f",
+      "reference_values_sha256": "d1f89215dba17eb54c88f4f679accee1ed6be8e12d7a3a28cba9cd697f583512",
+      "reference_states_sha256": "9d6b08cea33e00614990e49086bf451650f5ecb7fc6c0277e8518b9fe97b4424",
+      "nondeterministic_seed_observations": []
+    },
+    {
+      "case": "default-construction",
+      "status": "PASS",
+      "frames": 11,
+      "exact_values": 1250,
+      "serialized_state_bytes_compared": 20224,
+      "raw32_reference_projection_values": 1250,
+      "request_stream_sha256": "fd6098bfa1742a92a297ca95bcb1e55b44b42bc143d06d43db5687e2ea147e02",
+      "response_stream_sha256": "dc69e14b47b9885ffa3188b5edae52dc0d25324041279aee9cc2c00a3a7affba",
+      "reference_values_sha256": "9046e7f1f0887945c3031ec15d856ac21aa89ea6ec183afd22d926c8db159d85",
+      "reference_states_sha256": "ffe1614cbbc979681049401bf7066316c84f0173e8f774fd914a0a947e46f82c",
+      "nondeterministic_seed_observations": []
+    },
+    {
+      "case": "six-interleaved-generators",
+      "status": "PASS",
+      "frames": 234,
+      "exact_values": 2444,
+      "serialized_state_bytes_compared": 394368,
+      "raw32_reference_projection_values": 0,
+      "request_stream_sha256": "9b27a6abef11bea6b78ff77a9651599e424e1ed998f2ae577636281c4ea597df",
+      "response_stream_sha256": "8b25a9e1c48601369e583d343723bffbb41743f19d39745dfbe4f20aa57d506b",
+      "reference_values_sha256": "5be747160fdbbf45fd760b2c288ec3ce8886bf65e4e51ae27097f05da6c7d267",
+      "reference_states_sha256": "f8688c3b5d140d0553dada6800ad4fab6cb36da67d20a4cac5e76a445635d14a",
+      "nondeterministic_seed_observations": []
+    },
+    {
+      "case": "clone-across-twist",
+      "status": "PASS",
+      "frames": 56,
+      "exact_values": 2643,
+      "serialized_state_bytes_compared": 111232,
+      "raw32_reference_projection_values": 3131,
+      "request_stream_sha256": "b577078fb3c9a8930525667e1aaaf0713112d1db3df09592a4eed91be9c08400",
+      "response_stream_sha256": "d88e9df799f3a9c1e078e8d8596fbbd6bfdf36b60f6c0dc545a41747cdde1b13",
+      "reference_values_sha256": "58e2241ac723d6eece9baf58f54cc72dd1e88a94fb2c60db8507731077245969",
+      "reference_states_sha256": "fcbd3bdb9ecd0c5a27f3f8a5344af3b806984c0e938776cd6950c41f1c6c44c0",
+      "nondeterministic_seed_observations": []
+    },
+    {
+      "case": "state-export-restore",
+      "status": "PASS",
+      "frames": 25,
+      "exact_values": 3396,
+      "serialized_state_bytes_compared": 45504,
+      "raw32_reference_projection_values": 0,
+      "request_stream_sha256": "d5796d1205f400d51a7c16fe174217e5216fca809fd647520cf2170cc0a31ae2",
+      "response_stream_sha256": "c22a32aea1eb3ce2596378ca66456974dd0038ad8214ddee500e536a401028f9",
+      "reference_values_sha256": "8a2f54862fc47d55264b4cd93ee5b0154e9d04e7300c946872537339fcb019d7",
+      "reference_states_sha256": "3a67945c2b6b7258c2a16ab3470b998166d6879d4c303408b89b2e6be175a134",
+      "nondeterministic_seed_observations": []
+    },
+    {
+      "case": "float-normal-cache-clones",
+      "status": "PASS",
+      "frames": 55,
+      "exact_values": 633,
+      "serialized_state_bytes_compared": 101120,
+      "raw32_reference_projection_values": 0,
+      "request_stream_sha256": "8d043e9a8d728377fc496635e6c0d208557a25621d7bef6458c20a45e8e71cfa",
+      "response_stream_sha256": "fa3bde709d24c7eec11c499e9d489a7f636745819403f0480312259d397b667b",
+      "reference_values_sha256": "5fe0ca5bed52d3dc33ef1476a5b0e62f668581c93a6054ec88506f0ff1f67933",
+      "reference_states_sha256": "bf25943b73d194f7b15b5120f0e1ce5ddde8764038f8bf6ad940d2fea5fa117a",
+      "nondeterministic_seed_observations": []
+    },
+    {
+      "case": "double-normal-cache-clones",
+      "status": "PASS",
+      "frames": 55,
+      "exact_values": 633,
+      "serialized_state_bytes_compared": 101120,
+      "raw32_reference_projection_values": 0,
+      "request_stream_sha256": "8d043e9a8d728377fc496635e6c0d208557a25621d7bef6458c20a45e8e71cfa",
+      "response_stream_sha256": "fa3bde709d24c7eec11c499e9d489a7f636745819403f0480312259d397b667b",
+      "reference_values_sha256": "5fe0ca5bed52d3dc33ef1476a5b0e62f668581c93a6054ec88506f0ff1f67933",
+      "reference_states_sha256": "bf25943b73d194f7b15b5120f0e1ce5ddde8764038f8bf6ad940d2fea5fa117a",
+      "nondeterministic_seed_observations": []
+    },
+    {
+      "case": "reseed-clears-both-caches",
+      "status": "PASS",
+      "frames": 55,
+      "exact_values": 633,
+      "serialized_state_bytes_compared": 101120,
+      "raw32_reference_projection_values": 0,
+      "request_stream_sha256": "9d5843c7598503000a00f6546125daaf8800a9920c2e251064e6b46610fdd308",
+      "response_stream_sha256": "e6956a69d8ffcc83e2ab764e9379b445dbf02c908a4e2a3b03ec583fb4a37e14",
+      "reference_values_sha256": "5fe0ca5bed52d3dc33ef1476a5b0e62f668581c93a6054ec88506f0ff1f67933",
+      "reference_states_sha256": "86e3849aad95d8593f100a532cb89f4c1ce25193d2b0d4ad7dbe0d3ba7bcf10a",
+      "nondeterministic_seed_observations": []
+    },
+    {
+      "case": "native-system-seed-roundtrip",
+      "status": "PASS",
+      "frames": 27,
+      "exact_values": 74,
+      "serialized_state_bytes_compared": 45504,
+      "raw32_reference_projection_values": 0,
+      "request_stream_sha256": "f346d11bfec5847ff704bcb03e490f90f6a1a8674c53f93ebb08d0b4934bb1d3",
+      "response_stream_sha256": "320550052741c989c7f1533b49d361a007c03c8c647f311b831da37f165b1c06",
+      "reference_values_sha256": "b8a09ad36c850f5329b55bf6e6bced922a5a59a23c148a7a0b0d933d0f27b89c",
+      "reference_states_sha256": "ce96ba27b3a954a0a3ee2a0e48e2f4c97f2755aacaa473c39821c907d319a8bb",
+      "nondeterministic_seed_observations": [
+        {
+          "native_returned_seed": 9753972789480971042,
+          "reference_independent_seed": 17651861857970883067
+        },
+        {
+          "native_returned_seed": 14773542233113637336,
+          "reference_independent_seed": 16615238329938669887
+        },
+        {
+          "native_returned_seed": 10584717929155426699,
+          "reference_independent_seed": 3541320861189731563
+        },
+        {
+          "native_returned_seed": 18130677742040053847,
+          "reference_independent_seed": 7356943834874819615
+        }
+      ]
+    },
+    {
+      "case": "release-compaction-preserves-survivors",
+      "status": "PASS",
+      "frames": 84,
+      "exact_values": 1475,
+      "serialized_state_bytes_compared": 141568,
+      "raw32_reference_projection_values": 0,
+      "request_stream_sha256": "bac4e4ec61bd70b3b100951736c5a8da33f74d76d4d1fbab80faecb923ddc5d1",
+      "response_stream_sha256": "2afa9f1534be490149390f9e35c95430c98ead500060a450ea9fbfb2c344f805",
+      "reference_values_sha256": "8748ff21e8e626772aa39cc9bc3a71202f92b3492a517ff3d7f8ea2412ba4aa3",
+      "reference_states_sha256": "9737154a8912429c591a3068ef822c45d60c6774d35976b126d91c2e06fbb1a3",
+      "nondeterministic_seed_observations": []
+    },
+    {
+      "case": "zero-count-does-not-advance",
+      "status": "PASS",
+      "frames": 31,
+      "exact_values": 0,
+      "serialized_state_bytes_compared": 55616,
+      "raw32_reference_projection_values": 0,
+      "request_stream_sha256": "41b554860829960a8511b88025cc61ff618ed59ce6cbb72db1b58bd9525cbfe9",
+      "response_stream_sha256": "e5d11672d02fed5e4bd223db62ad8103ecbc0fb32d9e409485ce7de7b4a54e51",
+      "reference_values_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reference_states_sha256": "ee71b3b370f6a9950f84764156fd76f1fa83400a4fdfa1ebe11d90a998f8af71",
+      "nondeterministic_seed_observations": []
+    },
+    {
+      "case": "sixty-four-independent-generators",
+      "status": "PASS",
+      "frames": 641,
+      "exact_values": 128,
+      "serialized_state_bytes_compared": 1294336,
+      "raw32_reference_projection_values": 34272,
+      "request_stream_sha256": "68716858c1465b8a59a2e8cbeb2058c91ccd9eaa4b98f75d199bd6bd894cf7ef",
+      "response_stream_sha256": "c023591d266d5a7f1d10a66de95562a2f1e7f08ec76934a11c061ce6b7f62303",
+      "reference_values_sha256": "99367d189bbb68a4c46c522f837dedf18ce4d029ac93a860457d9486283f2f76",
+      "reference_states_sha256": "a0fce2f8f974058da260248ae5ca0f2ffa8760d97e57aa5549cd02c56a539841",
+      "nondeterministic_seed_observations": []
+    },
+    {
+      "case": "long-cloned-trajectory",
+      "status": "PASS",
+      "frames": 399,
+      "exact_values": 6797,
+      "serialized_state_bytes_compared": 677504,
+      "raw32_reference_projection_values": 627,
+      "request_stream_sha256": "491191aebf0447e317ca0b680d8b0bbdf468bc352ea36d40302eb66bcc2ee0eb",
+      "response_stream_sha256": "3dfc20b89bbcd2a769197856d7480cb78eb2bd7e465bc344dd990066c4f810b1",
+      "reference_values_sha256": "92309baceb790bc1048141d9cc70ce208682a5d62ab3ae7e14fa782d7eec7f23",
+      "reference_states_sha256": "bf3cc77cdee8cb185aa7f20d433c17f4bb7360bd69860499b1ee2aa53dd9a1fd",
+      "nondeterministic_seed_observations": []
+    }
+  ],
+  "source_files_unchanged_during_run": {
+    "native": true,
+    "oracle": true,
+    "reference_support": true,
+    "lock": true
+  },
+  "frames": 2297,
+  "exact_values": 26466,
+  "serialized_state_bytes_compared": 4181312,
+  "raw32_reference_boundary": "Full CPython MT19937 words plus actual Torch int32 low31 projection and full state. No host RNG in target.",
+  "nondeterministic_seed_boundary": "Native and Torch independently call seed(); target seed is then passed to reference manual_seed for complete state and value comparison.",
+  "scope": "Canonical CPU Generator states and specified uniform/integer draws; no normal target generation, Tensor filling, default global generator, concurrent access or accelerator RNG."
+}

@@ -156,6 +156,28 @@ test-tensor-objects: tensor-objects
 	  --abi3 "$(CURDIR)/build/tensor-objects/abi3" --output "$$review/observed"; \
 	cp "$$review/observed/report.json" build/hosted-tensor-object-native.json
 
+CPU_GENERATOR_INPUTS := $(wildcard tools/cpu_generators/* tools/cpu_generators/sources/*) validation/cpu-generator-package.sha256 Makefile
+
+.PHONY: cpu-generators test-cpu-generators
+cpu-generators: build/cpu-generators/rebuild.json
+
+build/cpu-generators/rebuild.json: $(CPU_GENERATOR_INPUTS) | build
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.cpu-generators.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	sha256sum -c validation/cpu-generator-package.sha256; \
+	python3 -I -S -B tools/cpu_generators/rebuild.py --upstream "$(HEPTA_SOURCE_ROOT)" \
+	  --stack-build "$(HEPTA_STACK_BUILD)" --rng-source tools/rng-cpu/rng.hepta \
+	  --output "$$tmp/native"; \
+	mkdir -p build/cpu-generators; cp -a --remove-destination "$$tmp/native/." build/cpu-generators/
+
+test-cpu-generators: cpu-generators
+	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/.cpu-generator-review.XXXXXX"); \
+	sha256sum -c validation/cpu-generator-package.sha256; \
+	python3 -B tools/cpu_generators/qualify.py --build "$(CURDIR)/build/cpu-generators" --output "$$review/native"; \
+	python3 -B tools/cpu_generators/test_entry.py --build "$(CURDIR)/build/cpu-generators" \
+	  --stack-build "$(HEPTA_STACK_BUILD)" --output "$$review/entry"; \
+	python3 -I -S -B tests/check_cpu_generator_reports.py --build "$(CURDIR)/build/cpu-generators" \
+	  --review "$$review" --output build/hosted-cpu-generator-native.json
+
 check-compiler:
 	@compiler=$$(command -v "$(HEPTA_COMPILER)") || { echo 'Set HEPTA_COMPILER to the pinned native HIA compiler; see docs/build.md.' >&2; exit 1; }; \
 	printf '%s  %s\n' '$(COMPILER_SHA256)' "$$compiler" | sha256sum -c -
