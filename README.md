@@ -134,6 +134,16 @@ cmp build/train.response build/train.expected
 
 [实际托管联合资格](validation/hosted-native-tensor-rng-backward.json)已在实现提交 `44bd2a3bed4dab600bb31298c2b7f698df75d89d` 上通过全部 **51 个 CI 步骤**。主审独立的 **32 组 live PyTorch 联合测试全部通过**：2,132 帧、17,455 个精确 binary32 字、1,137,600 字节完整 Generator 状态、238 次绝对版本和 166 次梯度存在比较；同时检查实际 Storage 字节数和偏移。原样 **35 组 Tensor 回归全部通过**：6,344 帧、2,590,274 个数值比较、零参数绝对版本差异。两套实际参考的 11 项来源检查全部通过，原始报告逐字压缩保存在 `validation/hosted-tensor-rng-oracles/`；原有 283 项 momentum 生命周期观察和另一组 8／65 项状态观察分别保留，不相加计数。`validation/tensor-rng-backward-oracle-preparation.json` 保持 `NOT_RUN` 的准备身份，不能当作执行通过记录。完整 Python API、其他 dtype/device、其他分布、非叶原地随机操作的完整自动微分和优化器对象生命周期仍开放。
 
+## 梯度清除与同一 owner 内的重新物化
+
+[独立 nullable-gradient 组件](tools/gradient_none/README.md)增加命令 70：实际释放叶梯度的私有 Storage／Hold，把梯度存在状态改为 None；后续反向传播重新取得真实存储，并继续保留首次写入的精确位模式。命令 8 只清零已存在的梯度，None 时不分配、不写空地址。命令 58 失败时，已经完成的叶梯度保留，尚未物化的预留存储被回收。
+
+[联合实现](tools/tensor_rng_nullable/README.md)把同样的行为接入现有 Tensor／Generator owner。全部 7 个原生单元的源码、对象文件和最终映像已经重新构建并逐字匹配。其新私有状态使用明确的格式屏障；真实跨模块 owner 交接检查了拒绝后的完整内容、原运行时恢复，以及进程仍存活时解除映射。
+
+[本地正式资格](validation/gradient-none-root-native.json)对独立和联合两个映像分别通过 6 组／179 帧、131,101 个精确梯度字及 261 次提交节点不变量检查；还分别重放了全部 10 组实际 PyTorch 梯度清除观测和原有 13／16／8 组回归。新增联合检查覆盖 24 次训练更新、34 份完整随机状态和 2,500,896 字节失败回滚。10 组梯度清除重放中的 6 个 Adam 位差异仍按原有容差记录；11 项状态版本、9 项状态创建和 30 项缺失 step Tensor 的观察独立保留。旧的 8／65 项观察没有被替换或相加。
+
+[实际托管资格](validation/hosted-native-gradient-none.json)已通过实现提交 `cb7c676a8455be70a653093eee1ac7e9f4ad2a68` 的全部 **54 个 CI 步骤**。新映像上的原样 **32 组 live PyTorch 联合测试全部通过**：2,132 帧、17,455 个精确字和 1,137,600 字节完整 Generator 状态；原样 **35 组 Tensor 回归全部通过**：6,344 帧、2,590,274 个值、零参数绝对版本差异。两套独立参考的 11 项来源检查全部通过，12 份完整原始报告逐字压缩保留。公开 `.grad` Tensor 身份／版本和外部别名存活期、真正的 Optimizer 对象及完整 Python 接口仍开放。[后续实现所需的真实参考](validation/hosted-object-distribution-observations.json)另外冻结了 24 组优化器对象、6 组叶求导标志及 183 组 Bernoulli／dropout 观测；这些参考观测不作为 HIA 已实现的数量。
+
 ## 跨请求持久会话
 
 会话进程读取 `HTOSES01` 外层帧，执行其中的 `HTORCH01` 请求，在 stdin 仍打开时立即输出 `HTOSRP01` 响应帧，然后读取下一帧。每个完整请求在 shadow 工作区执行；成功才提交，失败返回保留原错误码的 32 字节、零记录响应，并保持已提交状态不变。外层格式、EOF／EINTR／断管处理及边界见 [会话合同](tools/session/CONTRACT.md)。

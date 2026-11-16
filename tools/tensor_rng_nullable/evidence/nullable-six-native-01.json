@@ -1,0 +1,128 @@
+{
+  "schema": "heptatorch.nullable-gradient-native-qualification.v1",
+  "status": "PASS",
+  "native_executable_sha256": "5baa9cd5e5625f0e2324941486982b714dcdedfe897f5c16686a3ac8882ce242",
+  "native_source_sha256": "490fc144160f6e4440aed001363f86ccff56c335f9781e38b058fc6106b1be09",
+  "input_sha256": {
+    "/workspace/scratch/d26699e25fea/tensor-rng-nullable-extension/qualification-sources/test_nullable.py": "d391228f3540661c0fdc8d4507d53d63b95a31bd919cfe37aa2fc773bc0dc418",
+    "/workspace/scratch/d26699e25fea/tensor-rng-nullable-extension/candidate-01/tensor-rng-session": "5baa9cd5e5625f0e2324941486982b714dcdedfe897f5c16686a3ac8882ce242",
+    "/workspace/scratch/d26699e25fea/tensor-rng-nullable-extension/candidate-01/runtime.hepta": "490fc144160f6e4440aed001363f86ccff56c335f9781e38b058fc6106b1be09",
+    "/workspace/scratch/d26699e25fea/HeptaTorch-cpu-generators/tools/tensor_objects/protocol.py": "5b99b0e508c2093fe830e509fffbb46b709f65e85b669ab6d79a32d425aa95ac"
+  },
+  "native_executed": true,
+  "pinned_Torch_executed": false,
+  "rows": [
+    {
+      "case": "fresh-None-idempotent-clear-and-zero-readout",
+      "status": "PASS",
+      "frames": 14,
+      "exact_gradient_words": 6,
+      "rollback_bytes": 0,
+      "committed_node_checks": 4,
+      "details": {
+        "constructor_gradient_hold": 0,
+        "clear_None_and_zero_None_do_not_allocate": true,
+        "compatibility_grad_read_zero_with_presence_false": true
+      },
+      "all_responses_before_stdin_eof": true
+    },
+    {
+      "case": "four-backward-entries-rebuild-storage-and-preserve-negative-zero",
+      "status": "PASS",
+      "frames": 93,
+      "exact_gradient_words": 16,
+      "rollback_bytes": 0,
+      "committed_node_checks": 176,
+      "details": [
+        {
+          "backward_entry": 7,
+          "old_hold": 8690597892,
+          "new_hold": 12985565188,
+          "clear_releases_one_Storage_and_Hold": true,
+          "first_rebuilt_gradient_word": 2147483648
+        },
+        {
+          "backward_entry": 29,
+          "old_hold": 8690597895,
+          "new_hold": 12985565191,
+          "clear_releases_one_Storage_and_Hold": true,
+          "first_rebuilt_gradient_word": 2147483648
+        },
+        {
+          "backward_entry": 57,
+          "old_hold": 8690597898,
+          "new_hold": 12985565194,
+          "clear_releases_one_Storage_and_Hold": true,
+          "first_rebuilt_gradient_word": 2147483648
+        },
+        {
+          "backward_entry": 58,
+          "old_hold": 4395630606,
+          "new_hold": 17280532492,
+          "clear_releases_one_Storage_and_Hold": true,
+          "first_rebuilt_gradient_word": 2147483648
+        }
+      ],
+      "all_responses_before_stdin_eof": true
+    },
+    {
+      "case": "empty-gradient-owner-clear-and-rebuild",
+      "status": "PASS",
+      "frames": 13,
+      "exact_gradient_words": 0,
+      "rollback_bytes": 0,
+      "committed_node_checks": 8,
+      "details": {
+        "zero_length_gradient_has_real_owner_when_defined": true,
+        "clear_changes_object_counts_without_free_byte_delta": true
+      },
+      "all_responses_before_stdin_eof": true
+    },
+    {
+      "case": "admission-validation-and-clear-transaction-boundaries",
+      "status": "PASS",
+      "frames": 22,
+      "exact_gradient_words": 4,
+      "rollback_bytes": 2111984,
+      "committed_node_checks": 15,
+      "details": {
+        "failed_frame_restores_released_gradient": true,
+        "runtime_error_commits_prefix_clear_and_does_not_run_suffix": true
+      },
+      "all_responses_before_stdin_eof": true
+    },
+    {
+      "case": "partial-error-cleans-only-unmaterialized-reserves",
+      "status": "PASS",
+      "frames": 20,
+      "exact_gradient_words": 3,
+      "rollback_bytes": 0,
+      "committed_node_checks": 36,
+      "details": {
+        "unready_leaf_reservation_released": true,
+        "completed_leaf_keeps_real_gradient": true,
+        "completed_leaf_can_be_cleared_and_rebuilt_after_partial_failure": true
+      },
+      "all_responses_before_stdin_eof": true
+    },
+    {
+      "case": "real-allocation-failure-during-gradient-recreation",
+      "status": "PASS",
+      "frames": 17,
+      "exact_gradient_words": 131072,
+      "rollback_bytes": 8559248,
+      "committed_node_checks": 22,
+      "details": {
+        "real_address_limit_bytes": 33554432,
+        "entire_owner_unchanged_after_failed_rebuild": true,
+        "rebuild_succeeds_after_unrelated_storage_release": true,
+        "large_exact_gradient_values": 131072
+      },
+      "all_responses_before_stdin_eof": true
+    }
+  ],
+  "frames": 179,
+  "exact_gradient_words": 131101,
+  "rollback_bytes": 10671232,
+  "committed_node_checks": 261
+}

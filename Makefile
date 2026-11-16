@@ -257,6 +257,35 @@ test-tensor-rng-composition: tensor-rng-composition
 	  --stack-build "$(HEPTA_STACK_BUILD)" --output "$$review/observed"; \
 	cp "$$review/observed/report.json" build/hosted-tensor-rng-composition-native.json
 
+GRADIENT_NONE_INPUTS := $(wildcard tools/gradient_none/* tools/gradient_none/evidence/*) validation/gradient-none-package.json tests/qualify_gradient_none.py Makefile
+TENSOR_RNG_NULLABLE_INPUTS := $(wildcard tools/tensor_rng_nullable/* tools/tensor_rng_nullable/evidence/*) validation/tensor-rng-nullable-package.sha256 tests/qualify_gradient_none.py Makefile
+
+.PHONY: gradient-none tensor-rng-nullable test-gradient-none
+gradient-none: build/gradient-none/build.json
+tensor-rng-nullable: build/tensor-rng-nullable/reproduction.json
+
+build/gradient-none/build.json: build/gradient-materialization/build.json build/backward-partial/build.json $(HEPTA_TENSOR_OBJECT_BASELINE)/build.json $(GRADIENT_NONE_INPUTS) | build
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.gradient-none.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	python3 -I -S -B tools/gradient_none/build.py --repository "$(CURDIR)" --source-root "$(HEPTA_SOURCE_ROOT)" \
+	  --baseline "$(CURDIR)/build/gradient-materialization" --partial-baseline "$(CURDIR)/build/backward-partial" \
+	  --tensor-objects "$(HEPTA_TENSOR_OBJECT_BASELINE)" --compiler "$(HEPTA_STACK_BUILD)/native/stack-module-compiler" \
+	  --linker "$(HEPTA_STACK_BUILD)/native/stack-linker-session" --output "$$tmp/native"; \
+	mkdir -p build/gradient-none; cp -a --remove-destination "$$tmp/native/." build/gradient-none/
+
+build/tensor-rng-nullable/reproduction.json: build/gradient-none/build.json build/tensor-rng-composition/reproduction.json $(TENSOR_RNG_NULLABLE_INPUTS) | build
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.tensor-rng-nullable.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	python3 -I -S -B tools/tensor_rng_nullable/rebuild.py --common-build "$(CURDIR)/build/tensor-rng-composition/native" \
+	  --materialization-build "$(CURDIR)/build/gradient-materialization" --nullable-build "$(CURDIR)/build/gradient-none" \
+	  --stack-build "$(HEPTA_STACK_BUILD)" --output "$$tmp/native"; \
+	mkdir -p build/tensor-rng-nullable; cp -a --remove-destination "$$tmp/native/." build/tensor-rng-nullable/
+
+test-gradient-none: tensor-rng-nullable
+	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/.gradient-none-review.XXXXXX"); \
+	python3 -I -S -B tests/qualify_gradient_none.py --nullable-build "$(CURDIR)/build/gradient-none" \
+	  --build "$(CURDIR)/build/tensor-rng-nullable" --previous-common "$(CURDIR)/build/tensor-rng-composition/native" \
+	  --materialization "$(CURDIR)/build/gradient-materialization" --stack-build "$(HEPTA_STACK_BUILD)" --output "$$review/observed"; \
+	cp "$$review/observed/report.json" build/hosted-gradient-none-native.json
+
 check-compiler:
 	@compiler=$$(command -v "$(HEPTA_COMPILER)") || { echo 'Set HEPTA_COMPILER to the pinned native HIA compiler; see docs/build.md.' >&2; exit 1; }; \
 	printf '%s  %s\n' '$(COMPILER_SHA256)' "$$compiler" | sha256sum -c -
