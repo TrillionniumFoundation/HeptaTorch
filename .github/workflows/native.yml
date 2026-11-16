@@ -648,6 +648,32 @@ jobs:
           fi
           exit "$status"
 
+      - name: Cold-build mixed integer autograd and qualify all seven independent outer gates
+        run: |
+          status=0
+          make test-mixed-integer-autograd \
+            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
+            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget" \
+            HEPTA_COMPILER="$RUNNER_TEMP/hepta-expanded/hia-native-compiler" || status=$?
+          if [ -f build/hosted-mixed-integer-autograd-native.json ]; then
+            python3 -I -S -B tools/emit_ci_report.py build/hosted-mixed-integer-autograd-native.json
+          fi
+          exit "$status"
+
+      - name: Validate mixed-autograd Storage tombstones with unchanged copied rejection rules
+        run: |
+          status=0
+          python3 -I -S -B tests/mixed_frozen35_accounting/test_storage_tombstone_legacy_refusal.py \
+            --binary build/mixed-integer-autograd/tensor-mixed-autograd-session \
+            --source build/mixed-integer-autograd/runtime.hepta \
+            --protocol tests/retained_nonleaf_review/protocol.py \
+            --output build/frozen35-mixed-integer-node/storage-tombstone || status=$?
+          if [ -f build/frozen35-mixed-integer-node/storage-tombstone/report.json ]; then
+            cp build/frozen35-mixed-integer-node/storage-tombstone/report.json build/mixed-integer-autograd-storage-tombstone.json
+            python3 -I -S -B tools/emit_ci_report.py build/mixed-integer-autograd-storage-tombstone.json
+          fi
+          exit "$status"
+
       - name: Reproduce and qualify persistent native CPU Generator objects
         run: |
           make cpu-generators test-cpu-generators \
@@ -1195,6 +1221,58 @@ jobs:
           fi
           exit "$status"
 
+      - name: Compare mixed-autograd owner with the unchanged live floating-point oracle (32 cases)
+        run: |
+          echo '554671168c7a4a408dc1e1df89a19db15c3efcefcf4ae1a300af1b6dcae40160  tests/pytorch_tensor_rng_backward_oracle.py' | sha256sum -c -
+          status=0
+          python3 tests/pytorch_tensor_rng_backward_oracle.py \
+            --native build/mixed-integer-autograd/tensor-mixed-autograd-session \
+            --source build/mixed-integer-autograd/runtime.hepta \
+            --expected-native-sha256 69045063c00395d07fc6c0101ed1b8aba18376cb1daea54e0a01c2c5caeb49b6 \
+            --expected-source-sha256 5f8ab1f7ca1593dc21b8b6a3537e210cfbc42b37ddefcb322239c5a316d88c49 \
+            --repo . --output build/pytorch-mixed-integer-autograd-backward.json > build/pytorch-mixed-integer-autograd-backward.stdout || status=$?
+          python3 -I -S -B tools/emit_ci_report.py build/pytorch-mixed-integer-autograd-backward.json
+          exit "$status"
+
+      - name: Regress mixed-autograd owner on all original35 F32 cases with explicit Saved Tensor accounting
+        run: |
+          echo '149b41c455444edeb8d25d0ad98045e29683e780f37f7e210e7985242d359597  tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py' | sha256sum -c -
+          status=0
+          python3 tests/mixed_frozen35_accounting/run_frozen35_accounted.py \
+            --legacy-directory tests/tensor_object_oracle \
+            --native-source build/mixed-integer-autograd/runtime.hepta \
+            --observer-output build/frozen35-mixed-integer-node/556 \
+            --observer-report build/pytorch-mixed-integer-autograd-frozen35.json \
+            -- build/mixed-integer-autograd/tensor-mixed-autograd-session build/pytorch-mixed-integer-autograd-frozen35-original.json \
+            --owned-reference tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py \
+            --session-reference tests/pytorch_session_oracle.py --reference tests/pytorch_oracle.py \
+            --lock compatibility/pytorch-oracle-lock.json --repo . \
+            --trace-directory build/frozen35-mixed-integer-node-wire/556 \
+            --expected-native-sha256 69045063c00395d07fc6c0101ed1b8aba18376cb1daea54e0a01c2c5caeb49b6 || status=$?
+          if [ -f build/pytorch-mixed-integer-autograd-frozen35.json ]; then
+            python3 -I -S -B tools/emit_ci_report.py build/pytorch-mixed-integer-autograd-frozen35.json
+          fi
+          if [ "$status" -eq 0 ]; then
+            python3 -I -S -B tests/mixed_frozen35_accounting/check_frozen35_accounted.py \
+              --observer-report build/pytorch-mixed-integer-autograd-frozen35.json \
+              --original-report build/pytorch-mixed-integer-autograd-frozen35-original.json
+          fi
+          exit "$status"
+
+      - name: Check original18 copied refusals against the mixed-autograd full35 journals
+        run: |
+          status=0
+          python3 -I -S -B tests/mixed_frozen35_accounting/check_owner_snapshots.py \
+            --observer tests/mixed_frozen35_accounting/owner_accounting_mixed.py \
+            --expected-profile mixed-integer-556-fixed35-F32-Saved \
+            --journals build/frozen35-mixed-integer-node/556/owners \
+            --output build/frozen35-mixed-integer-node/556/copied-controls || status=$?
+          if [ -f build/frozen35-mixed-integer-node/556/copied-controls/report.json ]; then
+            cp build/frozen35-mixed-integer-node/556/copied-controls/report.json build/pytorch-mixed-integer-autograd-frozen35-observer-controls.json
+            python3 -I -S -B tools/emit_ci_report.py build/pytorch-mixed-integer-autograd-frozen35-observer-controls.json
+          fi
+          exit "$status"
+
       - name: Index complete original CI reports and checkout identity
         if: always()
         env:
@@ -1321,6 +1399,44 @@ jobs:
           path: |
             build/frozen35-integer-node/
             build/frozen35-integer-node-wire/
+          if-no-files-found: warn
+          compression-level: 9
+          retention-days: 30
+
+      - name: Export complete original mixed integer autograd native evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: mixed-integer-autograd-native-evidence-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+          path: |
+            build/mixed-integer-autograd-ci-raw.tar.xz
+            build/mixed-integer-autograd-ci-raw-manifest.json
+            build/hosted-mixed-integer-autograd-native.json
+          if-no-files-found: warn
+          compression-level: 9
+          retention-days: 30
+
+      - name: Index original mixed-autograd full640 Saved journals and oracle reports
+        if: always()
+        env:
+          HEPTATORCH_SOURCE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          HEPTATORCH_OBSERVER_ARTIFACT: mixed-integer-node-journals-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+        run: |
+          python3 -I -S -B tests/private_node_accounting/collect_private_node_journals.py \
+            --build build --journal-root build/frozen35-mixed-integer-node --wire-root build/frozen35-mixed-integer-node-wire \
+            --reports build/pytorch-mixed-integer-autograd-frozen35.json build/pytorch-mixed-integer-autograd-frozen35-original.json \
+              build/pytorch-mixed-integer-autograd-frozen35-observer-controls.json build/mixed-integer-autograd-storage-tombstone.json \
+              build/pytorch-mixed-integer-autograd-backward.json build/pytorch-install.json \
+            --job-status '${{ job.status }}'
+
+      - name: Export original mixed-autograd full640 Saved journals and wire traces
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: mixed-integer-node-journals-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+          path: |
+            build/frozen35-mixed-integer-node/
+            build/frozen35-mixed-integer-node-wire/
           if-no-files-found: warn
           compression-level: 9
           retention-days: 30

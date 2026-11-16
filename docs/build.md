@@ -1024,3 +1024,37 @@ status and available original evidence remain. Successful native integration
 does not substitute for the unchanged live32, complete35, copied observer
 controls or the new source head's hosted artifact admission. See
 [the int64 profile](integer-tensors.md) for exact scope and remaining work.
+
+
+## Native mixed integer autograd
+
+The separate 556-function profile adds genuine mixed F32/int64 differentiation
+and original Saved Tensor access to the qualified 544 parent. All eleven native
+units are rebuilt by the pinned HIA compiler and linker.
+
+```sh
+make test-mixed-integer-autograd \
+  HEPTA_SOURCE_ROOT=/absolute/path/to/pinned/Hepta \
+  HEPTA_STACK_BUILD=/absolute/path/to/complete/stack-build \
+  HEPTA_COMPILER=/absolute/path/to/expanded/hia-native-compiler
+```
+
+The stack build must contain `native/stack-module-compiler`,
+`native/stack-linker-session` and `native/stack-linker-runtime`. The parent target
+first supplies a real `build/integer-tensors/` image. The new qualification
+creates a fresh output directory and executes seven outer commands: producer5,
+source custody, full owner accounting with copied refusals, resources, owned
+entry, new Saved entry, and actual previous/new owner handoff. The Saved-entry
+gate explicitly reuses only the preceding gate's newly compiled probe.
+
+The aggregate is `build/hosted-mixed-integer-autograd-native.json`. Complete
+original evidence is `build/mixed-integer-autograd-ci-raw.tar.xz` with
+`build/mixed-integer-autograd-ci-raw-manifest.json`. Failure paths preserve
+their original reports, stdout/stderr, completed commands and partial evidence.
+Only a successful full native qualification copies the new image from
+`producer5/native` to `build/mixed-integer-autograd/`.
+
+The build-only `make mixed-integer-autograd` target reproduces the locked image;
+it does not claim the seven qualification gates. Complete live32, accounted35,
+copied18 refusals and hosted artifact admission are separate obligations.
+See [the exact contract and evidence](mixed-integer-autograd.md).

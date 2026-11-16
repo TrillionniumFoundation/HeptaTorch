@@ -1,0 +1,3946 @@
+{
+  "parent_source_sha256": "adf6cae67666273aa6fb77989080ca3b1e3632188d2d7956a6d8b71808787e62",
+  "parent_authoring_sha256": "27a1dd831a43dbb1167f078052adf9a836c1be5ce81f077ee17fd85de55cd0bd",
+  "baseline_reemission_all_exact": true,
+  "native_tags": [
+    {
+      "function": "init_state",
+      "before": "e512974e10ee8ea2c0c81e41f06d282aa235866b859b4888daea3b6156dfc2b6",
+      "after": "e838be4e5ad5fdbdb4130ea10c6327d441484754e2e85407662c9f64f1674018",
+      "inverse_exact": true
+    },
+    {
+      "function": "state_header",
+      "before": "8dd7073326707d0991fbab11b3682ef00735e44879bf212187836839edf0f7ab",
+      "after": "d16eec89fa5a80cc2ec4e6c8b56a4c6266299181eddb8b50ac888c5778bccac6",
+      "inverse_exact": true
+    },
+    {
+      "function": "so_state_init",
+      "before": "38e4f2273efc51dc439bfe3fffb29952b9007d247cf0f0a1f1affb3d470119e8",
+      "after": "6b8c5378dc61077a26d14409035c10ccbf70da73a4b75cedcaee1ff29f1046a3",
+      "inverse_exact": true
+    },
+    {
+      "function": "so_state_header",
+      "before": "c048e295ef2df016408b532c30a62333540a69db2b66ec310b7f89142521edf2",
+      "after": "7d5006752ef6ef71b77e3f929198aee113d169cb2ab2494ea0b1137b3f99b2e2",
+      "inverse_exact": true
+    }
+  ],
+  "alias_inverse": {
+    "record": {
+      "original_sha256": "0ae09ab35da4b7e2007bb84515477fded4579442dca5a145bda2b48da9e564de",
+      "alias_sha256": "128fbfc2feffcb673835833dbae33ddcb15572a5f2786d1cd64287545ec82a77",
+      "inverse_exact": true
+    },
+    "dtype_mask_release": {
+      "original_sha256": "df7f11fb944e0f900d3f0ec887dba87ba2dabdd6f3d62f7ed0d83605e641895f",
+      "alias_sha256": "08086cad4813ff3570503715854c0f3f47a30fa5f643cd263045d202cb5c35ac",
+      "inverse_exact": true
+    }
+  },
+  "back_binary_five_reads_inverse_exact": true,
+  "changes": {
+    "entry": {
+      "before": "def entry(s: readbuf, o: mutbuf, w: mutbuf, scratch: mutbuf) -> u32:\n    if length(o) < 32:\n        return 0\n    reply_error(o, 0)\n    error = frame_valid(s)\n    if error != 0:\n        reply_error(o, error)\n        return 32\n    putw(w, 0, 0)\n    putw(w, 48, 0)\n    putw(w, 56, 0)\n    count = getr(s, 8)\n    if count != 0:\n        putw(w, 96, 8192)\n    end = 32 + count * 64\n    i = 0\n    at = 32\n    halted = 0\n    while i < count and halted == 0:\n        if at > length(o) - 32:\n            putw(o, 24, 3)\n            return at\n        putw(w, 104, i)\n        code = getr(s, 32 + i * 64)\n        if code == 106:\n            next = integer_scalar_command(s, o, w, 32 + i * 64, at)\n        elif code == 105:\n            next = integer_dropout_command(s, o, w, scratch, 32 + i * 64, at)\n        elif code == 103 or code == 104:\n            next = integer_command(s, o, w, 32 + i * 64, at)\n        elif code >= 96 and code <= 102:\n            next = typed_command(s, o, w, scratch, 32 + i * 64, at, end)\n        elif code >= 91 and code <= 94:\n            next = gradient_object_command(s, o, w, 32 + i * 64, at)\n        elif code >= 71 and code <= 79 or code == 90 or code == 95:\n            next = owned_optimizer_command(s, o, w, 32 + i * 64, at, end)\n        elif code >= 80 and code <= 89:\n            if code == 86 or code == 87:\n                next = dist_partial_command(s, o, w, scratch, 32 + i * 64, at)\n            else:\n                next = dist_command(s, o, w, scratch, 32 + i * 64, at)\n        elif code >= 60 and code <= 69:\n            next = rng_command(s, o, w, scratch, 32 + i * 64, at, end)\n        else:\n            next = command(s, o, w, 32 + i * 64, at, end)\n        if getw(w, 0) == 0 and getw(w, 3968) != 0:\n            graph_collect_since(w, getw(w, 8))\n        error = getw(w, 0)\n        if error != 0:\n            putw(o, 24, error)\n            return next\n        putw(w, getw(w, 96) + i * 8, getw(o, at + 16))\n        if (code == 58 or code == 86 or code == 87) and getw(o, at + 16) != 0:\n            halted = 1\n        if code == 105 and getw(o, at + 32) != 0:\n            halted = 1\n        at = next\n        i = i + 1\n        putw(o, 16, i)\n    if count != 0:\n        fill_range(w, 8192, count * 8, 0)\n        putw(w, 96, 0)\n        putw(w, 104, 0)\n    putw(w, 80, 0)\n    if getw(w, 0) != 0:\n        reply_error(o, getw(w, 0))\n        return 32\n    return at",
+      "after": "def entry(s: readbuf, o: mutbuf, w: mutbuf, scratch: mutbuf) -> u32:\n    if length(o) < 32:\n        return 0\n    reply_error(o, 0)\n    error = frame_valid(s)\n    if error != 0:\n        reply_error(o, error)\n        return 32\n    putw(w, 0, 0)\n    putw(w, 48, 0)\n    putw(w, 56, 0)\n    count = getr(s, 8)\n    if count != 0:\n        putw(w, 96, 8192)\n    end = 32 + count * 64\n    i = 0\n    at = 32\n    halted = 0\n    while i < count and halted == 0:\n        if at > length(o) - 32:\n            putw(o, 24, 3)\n            return at\n        putw(w, 104, i)\n        code = getr(s, 32 + i * 64)\n        if code == 107:\n            next = binary_saved_command(s,o,w,32+i*64,at)\n        elif code == 106:\n            next = integer_scalar_command(s, o, w, 32 + i * 64, at)\n        elif code == 105:\n            next = integer_dropout_command(s, o, w, scratch, 32 + i * 64, at)\n        elif code == 103 or code == 104:\n            next = integer_command(s, o, w, 32 + i * 64, at)\n        elif code >= 96 and code <= 102:\n            next = typed_command(s, o, w, scratch, 32 + i * 64, at, end)\n        elif code >= 91 and code <= 94:\n            next = gradient_object_command(s, o, w, 32 + i * 64, at)\n        elif code >= 71 and code <= 79 or code == 90 or code == 95:\n            next = owned_optimizer_command(s, o, w, 32 + i * 64, at, end)\n        elif code >= 80 and code <= 89:\n            if code == 86 or code == 87:\n                next = dist_partial_command(s, o, w, scratch, 32 + i * 64, at)\n            else:\n                next = dist_command(s, o, w, scratch, 32 + i * 64, at)\n        elif code >= 60 and code <= 69:\n            next = rng_command(s, o, w, scratch, 32 + i * 64, at, end)\n        else:\n            next = command(s, o, w, 32 + i * 64, at, end)\n        if getw(w, 0) == 0 and getw(w, 3968) != 0:\n            graph_collect_since(w, getw(w, 8))\n        error = getw(w, 0)\n        if error != 0:\n            putw(o, 24, error)\n            return next\n        putw(w, getw(w, 96) + i * 8, getw(o, at + 16))\n        if (code == 58 or code == 86 or code == 87) and getw(o, at + 16) != 0:\n            halted = 1\n        if code == 105 and getw(o, at + 32) != 0:\n            halted = 1\n        at = next\n        i = i + 1\n        putw(o, 16, i)\n    if count != 0:\n        fill_range(w, 8192, count * 8, 0)\n        putw(w, 96, 0)\n        putw(w, 104, 0)\n    putw(w, 80, 0)\n    if getw(w, 0) != 0:\n        reply_error(o, getw(w, 0))\n        return 32\n    return at"
+    },
+    "integer_result_dtype": {
+      "before": "def integer_result_dtype(w: mutbuf, op: u64, a: u64, b: u64) -> u64:\n    ca = tensor_dtype(w, a)\n    cb = tensor_dtype(w, b)\n    if ca > 2 or cb > 2 or (ca != 2 and cb != 2):\n        return terror(w, 7)\n    if op < 1 or op > 7:\n        return terror(w, 7)\n    if op == 2 and (ca == 1 or cb == 1):\n        return terror(w, 7)\n    if getw(w, dptr(w, a) + 32) != 0 or getw(w, dptr(w, b) + 32) != 0:\n        return terror(w, 5)\n    if ca == 0 or cb == 0 or op == 7:\n        return 0\n    return 2",
+      "after": "def integer_result_dtype(w: mutbuf, op: u64, a: u64, b: u64) -> u64:\n    ca = tensor_dtype(w, a)\n    cb = tensor_dtype(w, b)\n    if ca > 2 or cb > 2 or (ca != 2 and cb != 2):\n        return terror(w, 7)\n    if op < 1 or op > 7:\n        return terror(w, 7)\n    if op == 2 and (ca == 1 or cb == 1):\n        return terror(w, 7)\n    if ca == 0 or cb == 0 or op == 7:\n        return 0\n    return 2"
+    },
+    "integer_binary": {
+      "before": "def integer_binary(w: mutbuf, op: u64, a: u64, b: u64, inplace: u64) -> u64:\n    if valid(w, a) == 0 or valid(w, b) == 0:\n        return 0\n    dtype = integer_result_dtype(w, op, a, b)\n    if getw(w, 0) != 0:\n        return 0\n    if inplace != 0:\n        if integer_inplace_overlap(w, a, b) == 0:\n            return 0\n    rank = bshape(w, a, b)\n    if getw(w, 0) != 0:\n        return 0\n    target = a\n    if inplace != 0:\n        if integer_target_shape(w, a, rank) == 0:\n            return 0\n        if tensor_dtype(w, a) != 2 or dtype != 2:\n            return terror(w, 7)\n        if version_can_bump(w, a, 1) == 0:\n            return 0\n    if op >= 4 and op <= 6 and (dtype == 0):\n        return terror(w, 7)\n    left = integer_promote_operand(w, a, dtype)\n    if left == 0:\n        return 0\n    right = integer_promote_operand(w, b, dtype)\n    if right == 0:\n        return 0\n    if inplace == 0:\n        rank = bshape(w, left, right)\n        if getw(w, 0) != 0:\n            return 0\n        target = typed_descriptor(w, rank, 128, 0, 1, dtype)\n        if target == 0:\n            return 0\n        if integer_pointwise_layout(w, target, left, right) == 0:\n            return 0\n    n = getw(w, dptr(w, target) + 8)\n    i = 0\n    while i < n:\n        integer_binary_element(w, op, target, left, right, i)\n        i = i + 1\n    if inplace != 0:\n        if bump_version(w, target) == 0:\n            return 0\n    return target",
+      "after": "def integer_binary(w: mutbuf, op: u64, a: u64, b: u64, inplace: u64) -> u64:\n    if valid(w, a) == 0 or valid(w, b) == 0:\n        return 0\n    requires = getw(w,dptr(w,a)+32) | getw(w,dptr(w,b)+32)\n    if inplace != 0 and requires != 0:\n        return terror(w,5)\n    dtype = integer_result_dtype(w, op, a, b)\n    if getw(w, 0) != 0:\n        return 0\n    if inplace != 0:\n        if integer_inplace_overlap(w, a, b) == 0:\n            return 0\n    rank = bshape(w, a, b)\n    if getw(w, 0) != 0:\n        return 0\n    target = a\n    if inplace != 0:\n        if integer_target_shape(w, a, rank) == 0:\n            return 0\n        if tensor_dtype(w, a) != 2 or dtype != 2:\n            return terror(w, 7)\n        if version_can_bump(w, a, 1) == 0:\n            return 0\n    if op >= 4 and op <= 6 and (dtype == 0):\n        return terror(w, 7)\n    left = integer_promote_operand(w, a, dtype)\n    if left == 0:\n        return 0\n    right = integer_promote_operand(w, b, dtype)\n    if right == 0:\n        return 0\n    if inplace == 0:\n        rank = bshape(w, left, right)\n        if getw(w, 0) != 0:\n            return 0\n        target = typed_descriptor(w, rank, 128, requires, 1, dtype)\n        if target == 0:\n            return 0\n        if integer_pointwise_layout(w, target, left, right) == 0:\n            return 0\n    n = getw(w, dptr(w, target) + 8)\n    i = 0\n    while i < n:\n        integer_binary_element(w, op, target, left, right, i)\n        i = i + 1\n    if inplace != 0:\n        if bump_version(w, target) == 0:\n            return 0\n    if inplace == 0 and requires != 0:\n        return record(w,target,choose(op == 7,4,op),a,b)\n    return target"
+    },
+    "dtype_audit": {
+      "before": "def dtype_audit(w: mutbuf) -> u64:\n    status = 0\n    i = 1\n    while i < getw(w, 8):\n        p = dptr(w, i)\n        if getw(w, p + 616) != 0:\n            status = 9\n        i = i + 1\n    if status == 0:\n        status = history_audit(w)\n    i = 1\n    while i < getw(w, 8) and status == 0:\n        p = dptr(w, i)\n        if getw(w, p + 304) != 0:\n            code = getw(w, p + 576)\n            if code > 2:\n                status = 9\n            if code != 0 and (getw(w, p + 32) != 0 or getw(w, p + 384) != 0):\n                status = 9\n            mask = getw(w, p + 584)\n            if mask != 0:\n                q = private_tensor(w, mask, getw(w, p + 592))\n                if code == 2 and getw(w, p + 408) != 0:\n                    if integer_view_root_valid(w, p, q) == 0:\n                        status = 9\n                    else:\n                        putw(w, q + 616, getw(w, q + 616) + 1)\n                elif q == 0 or getw(w, p + 40) != 42 or getw(w, p + 288) == 0:\n                    status = 9\n                else:\n                    saved = so_saved_live(w, getw(w, p + 288))\n                    if saved == 0:\n                        status = 9\n                    elif so_uget(w, saved + 16) != getw(w, q + 216) or so_uget(w, saved + 24) != getw(w, q + 224):\n                        status = 9\n                    putw(w, q + 616, getw(w, q + 616) + 1)\n            elif getw(w, p + 592) != 0 or (code == 2 and getw(w, p + 408) != 0):\n                status = 9\n        elif getw(w, p + 584) != 0 or getw(w, p + 592) != 0 or getw(w, p + 600) != 0:\n            status = 9\n        i = i + 1\n    i = 1\n    while i < getw(w, 8):\n        p = dptr(w, i)\n        if getw(w, p + 600) != getw(w, p + 616):\n            status = 9\n        putw(w, p + 616, 0)\n        i = i + 1\n    return status",
+      "after": "def dtype_audit(w: mutbuf) -> u64:\n    status = 0\n    i = 1\n    while i < getw(w, 8):\n        p = dptr(w, i)\n        if getw(w, p + 616) != 0:\n            status = 9\n        i = i + 1\n    if status == 0:\n        status = history_audit(w)\n    i = 1\n    while i < getw(w, 8) and status == 0:\n        p = dptr(w, i)\n        if getw(w, p + 304) != 0:\n            code = getw(w, p + 576)\n            if code > 2:\n                status = 9\n            if code != 0 and (getw(w, p + 32) != 0 or getw(w, p + 384) != 0):\n                status = 9\n            mask = getw(w, p + 584)\n            if mask > 65535:\n                status = binary_saved_audit(w,p)\n            elif mask != 0:\n                q = private_tensor(w, mask, getw(w, p + 592))\n                if code == 2 and getw(w, p + 408) != 0:\n                    if integer_view_root_valid(w, p, q) == 0:\n                        status = 9\n                    else:\n                        putw(w, q + 616, getw(w, q + 616) + 1)\n                elif q == 0 or getw(w, p + 40) != 42 or getw(w, p + 288) == 0:\n                    status = 9\n                else:\n                    saved = so_saved_live(w, getw(w, p + 288))\n                    if saved == 0:\n                        status = 9\n                    elif so_uget(w, saved + 16) != getw(w, q + 216) or so_uget(w, saved + 24) != getw(w, q + 224):\n                        status = 9\n                    putw(w, q + 616, getw(w, q + 616) + 1)\n            elif getw(w, p + 592) != 0 or (code == 2 and getw(w, p + 408) != 0):\n                status = 9\n        elif getw(w, p + 584) != 0 or getw(w, p + 592) != 0 or getw(w, p + 600) != 0:\n            status = 9\n        i = i + 1\n    i = 1\n    while i < getw(w, 8):\n        p = dptr(w, i)\n        if getw(w, p + 600) != getw(w, p + 616):\n            status = 9\n        putw(w, p + 616, 0)\n        i = i + 1\n    return status"
+    },
+    "gradient_detach_inplace": {
+      "before": "def gradient_detach_inplace(w: mutbuf, g: u64) -> u64:\n    p = dptr(w, g)\n    if getw(w, p + 40) != 0:\n        if getw(w, p + 408) != 0 or getw(w, p + 208) != getw(w, p + 312) + getw(w, p + 400):\n            return terror(w, 5)\n        j = 0\n        while j < gradient_parent_count(w, g):\n            if graph_release_edge(w, graph_parent_at(w, g, j), graph_edge_enabled(w, g, j)) == 0:\n                return 0\n            j = j + 1\n        saved_release(w, getw(w, p + 280))\n        saved_release(w, getw(w, p + 288))\n        saved_release(w, getw(w, p + 296))\n        hold_release(w, getw(w, p + 256))\n        hold_release(w, getw(w, p + 264))\n        hold_release(w, getw(w, p + 272))\n        putw(w, p + 40, 0)\n        putw(w, p + 48, 0)\n        putw(w, p + 56, 0)\n        putw(w, p + 72, 0)\n        putw(w, p + 80, 0)\n        putw(w, p + 160, 0)\n        putw(w, p + 184, 0)\n        putw(w, p + 256, 0)\n        putw(w, p + 264, 0)\n        putw(w, p + 272, 0)\n        putw(w, p + 280, 0)\n        putw(w, p + 288, 0)\n        putw(w, p + 296, 0)\n        putw(w, p + 328, 0)\n        putw(w, p + 344, 0)\n        putw(w, p + 352, 0)\n    putw(w, p + 32, 0)\n    return choose(getw(w, 0) == 0, 1, 0)",
+      "after": "def gradient_detach_inplace(w: mutbuf, g: u64) -> u64:\n    p = dptr(w, g)\n    if getw(w, p + 40) != 0:\n        if getw(w, p + 408) != 0 or getw(w, p + 208) != getw(w, p + 312) + getw(w, p + 400):\n            return terror(w, 5)\n        if dtype_mask_release(w, g) == 0:\n            return 0\n        j = 0\n        while j < gradient_parent_count(w, g):\n            if graph_release_edge(w, graph_parent_at(w, g, j), graph_edge_enabled(w, g, j)) == 0:\n                return 0\n            j = j + 1\n        saved_release(w, getw(w, p + 280))\n        saved_release(w, getw(w, p + 288))\n        saved_release(w, getw(w, p + 296))\n        hold_release(w, getw(w, p + 256))\n        hold_release(w, getw(w, p + 264))\n        hold_release(w, getw(w, p + 272))\n        putw(w, p + 40, 0)\n        putw(w, p + 48, 0)\n        putw(w, p + 56, 0)\n        putw(w, p + 72, 0)\n        putw(w, p + 80, 0)\n        putw(w, p + 160, 0)\n        putw(w, p + 184, 0)\n        putw(w, p + 256, 0)\n        putw(w, p + 264, 0)\n        putw(w, p + 272, 0)\n        putw(w, p + 280, 0)\n        putw(w, p + 288, 0)\n        putw(w, p + 296, 0)\n        putw(w, p + 328, 0)\n        putw(w, p + 344, 0)\n        putw(w, p + 352, 0)\n    putw(w, p + 32, 0)\n    return choose(getw(w, 0) == 0, 1, 0)"
+    }
+  },
+  "compactor_records": [
+    [
+      {
+        "name": "entry",
+        "raw_structured_sha256": "911fa5ef1d1f461e6961e4758f4f7fd673b73144e05121920a6bb98a6df82124",
+        "compacted_structured_sha256": "844e3ae862bafe2629173ad6672d3734bfbe76ddda438f853c8e59976230eb01",
+        "raw_blocks": 56,
+        "compacted_blocks": 45,
+        "removed_scalar_parameters": {
+          "b4": [
+            "v31"
+          ],
+          "b5": [
+            "v48"
+          ],
+          "b6": [
+            "v54"
+          ],
+          "b7": [
+            "v63"
+          ],
+          "b8": [
+            "v74"
+          ],
+          "b9": [
+            "v88"
+          ],
+          "b10": [
+            "v98",
+            "v100",
+            "v101",
+            "v103"
+          ],
+          "b11": [
+            "v113",
+            "v114",
+            "v115",
+            "v116",
+            "v118"
+          ],
+          "b12": [
+            "v123"
+          ],
+          "b13": [
+            "v146"
+          ],
+          "b14": [
+            "v157"
+          ],
+          "b15": [
+            "v175"
+          ],
+          "b16": [
+            "v186"
+          ],
+          "b17": [
+            "v207"
+          ],
+          "b18": [
+            "v218"
+          ],
+          "b19": [
+            "v239"
+          ],
+          "b20": [
+            "v250"
+          ],
+          "b21": [
+            "v271"
+          ],
+          "b22": [
+            "v282"
+          ],
+          "b23": [
+            "v309"
+          ],
+          "b24": [
+            "v320"
+          ],
+          "b25": [
+            "v341"
+          ],
+          "b26": [
+            "v352"
+          ],
+          "b27": [
+            "v368"
+          ],
+          "b28": [
+            "v379"
+          ],
+          "b29": [
+            "v400"
+          ],
+          "b30": [
+            "v417"
+          ],
+          "b31": [
+            "v428"
+          ],
+          "b32": [
+            "v449"
+          ],
+          "b33": [
+            "v461"
+          ],
+          "b34": [
+            "v473"
+          ],
+          "b35": [
+            "v485"
+          ],
+          "b36": [
+            "v497"
+          ],
+          "b37": [
+            "v509"
+          ],
+          "b38": [
+            "v521"
+          ],
+          "b39": [
+            "v533"
+          ],
+          "b40": [
+            "v548",
+            "v556"
+          ],
+          "b41": [
+            "v561"
+          ],
+          "b42": [
+            "v578"
+          ],
+          "b43": [
+            "v590"
+          ],
+          "b44": [
+            "v605"
+          ],
+          "b45": [
+            "v621",
+            "v622",
+            "v623",
+            "v624",
+            "v625",
+            "v626"
+          ],
+          "b46": [
+            "v632"
+          ],
+          "b47": [
+            "v664",
+            "v672"
+          ],
+          "b48": [
+            "v677"
+          ],
+          "b49": [
+            "v699",
+            "v705",
+            "v707"
+          ],
+          "b50": [
+            "v712",
+            "v716",
+            "v718"
+          ],
+          "b51": [
+            "v737",
+            "v739",
+            "v740",
+            "v742"
+          ],
+          "b52": [
+            "v747",
+            "v748",
+            "v749",
+            "v750",
+            "v752"
+          ],
+          "b53": [
+            "v768",
+            "v769",
+            "v770",
+            "v771",
+            "v773"
+          ],
+          "b54": [
+            "v783",
+            "v784",
+            "v785",
+            "v786",
+            "v787",
+            "v788"
+          ],
+          "b55": [
+            "v793",
+            "v794",
+            "v795",
+            "v796",
+            "v798"
+          ]
+        },
+        "forwarding_substitutions": [
+          {
+            "block": "b6",
+            "parameters": [
+              "v50",
+              "v51",
+              "v52",
+              "v53",
+              "v55"
+            ],
+            "target": "b7",
+            "arguments": [
+              "v50",
+              "v51",
+              "v52",
+              "v53",
+              "v55"
+            ]
+          },
+          {
+            "block": "b29",
+            "parameters": [
+              "v396",
+              "v397",
+              "v398",
+              "v399",
+              "v401",
+              "v402",
+              "v403",
+              "v404",
+              "v405",
+              "v406",
+              "v407"
+            ],
+            "target": "b33",
+            "arguments": [
+              "v396",
+              "v397",
+              "v398",
+              "v399",
+              "v401",
+              "v402",
+              "v403",
+              "v404",
+              "v405",
+              "v406",
+              "v407"
+            ]
+          },
+          {
+            "block": "b32",
+            "parameters": [
+              "v445",
+              "v446",
+              "v447",
+              "v448",
+              "v450",
+              "v451",
+              "v452",
+              "v453",
+              "v454",
+              "v455",
+              "v456"
+            ],
+            "target": "b33",
+            "arguments": [
+              "v445",
+              "v446",
+              "v447",
+              "v448",
+              "v450",
+              "v451",
+              "v452",
+              "v453",
+              "v454",
+              "v455",
+              "v456"
+            ]
+          },
+          {
+            "block": "b33",
+            "parameters": [
+              "v457",
+              "v458",
+              "v459",
+              "v460",
+              "v462",
+              "v463",
+              "v464",
+              "v465",
+              "v466",
+              "v467",
+              "v468"
+            ],
+            "target": "b34",
+            "arguments": [
+              "v457",
+              "v458",
+              "v459",
+              "v460",
+              "v462",
+              "v463",
+              "v464",
+              "v465",
+              "v466",
+              "v467",
+              "v468"
+            ]
+          },
+          {
+            "block": "b34",
+            "parameters": [
+              "v469",
+              "v470",
+              "v471",
+              "v472",
+              "v474",
+              "v475",
+              "v476",
+              "v477",
+              "v478",
+              "v479",
+              "v480"
+            ],
+            "target": "b35",
+            "arguments": [
+              "v469",
+              "v470",
+              "v471",
+              "v472",
+              "v474",
+              "v475",
+              "v476",
+              "v477",
+              "v478",
+              "v479",
+              "v480"
+            ]
+          },
+          {
+            "block": "b35",
+            "parameters": [
+              "v481",
+              "v482",
+              "v483",
+              "v484",
+              "v486",
+              "v487",
+              "v488",
+              "v489",
+              "v490",
+              "v491",
+              "v492"
+            ],
+            "target": "b36",
+            "arguments": [
+              "v481",
+              "v482",
+              "v483",
+              "v484",
+              "v486",
+              "v487",
+              "v488",
+              "v489",
+              "v490",
+              "v491",
+              "v492"
+            ]
+          },
+          {
+            "block": "b36",
+            "parameters": [
+              "v493",
+              "v494",
+              "v495",
+              "v496",
+              "v498",
+              "v499",
+              "v500",
+              "v501",
+              "v502",
+              "v503",
+              "v504"
+            ],
+            "target": "b37",
+            "arguments": [
+              "v493",
+              "v494",
+              "v495",
+              "v496",
+              "v498",
+              "v499",
+              "v500",
+              "v501",
+              "v502",
+              "v503",
+              "v504"
+            ]
+          },
+          {
+            "block": "b37",
+            "parameters": [
+              "v505",
+              "v506",
+              "v507",
+              "v508",
+              "v510",
+              "v511",
+              "v512",
+              "v513",
+              "v514",
+              "v515",
+              "v516"
+            ],
+            "target": "b38",
+            "arguments": [
+              "v505",
+              "v506",
+              "v507",
+              "v508",
+              "v510",
+              "v511",
+              "v512",
+              "v513",
+              "v514",
+              "v515",
+              "v516"
+            ]
+          },
+          {
+            "block": "b38",
+            "parameters": [
+              "v517",
+              "v518",
+              "v519",
+              "v520",
+              "v522",
+              "v523",
+              "v524",
+              "v525",
+              "v526",
+              "v527",
+              "v528"
+            ],
+            "target": "b39",
+            "arguments": [
+              "v517",
+              "v518",
+              "v519",
+              "v520",
+              "v522",
+              "v523",
+              "v524",
+              "v525",
+              "v526",
+              "v527",
+              "v528"
+            ]
+          },
+          {
+            "block": "b43",
+            "parameters": [
+              "v586",
+              "v587",
+              "v588",
+              "v589",
+              "v591",
+              "v592",
+              "v593",
+              "v594",
+              "v595",
+              "v596",
+              "v597"
+            ],
+            "target": "b44",
+            "arguments": [
+              "v586",
+              "v587",
+              "v588",
+              "v589",
+              "v591",
+              "v592",
+              "v593",
+              "v594",
+              "v595",
+              "v596",
+              "v597"
+            ]
+          },
+          {
+            "block": "b52",
+            "parameters": [
+              "v743",
+              "v744",
+              "v745",
+              "v746",
+              "v751"
+            ],
+            "target": "b53",
+            "arguments": [
+              "v743",
+              "v744",
+              "v745",
+              "v746",
+              "v751"
+            ]
+          }
+        ],
+        "callees": [
+          "command",
+          "dist_command",
+          "dist_partial_command",
+          "frame_valid",
+          "getr",
+          "getw",
+          "gradient_object_command",
+          "graph_collect_since",
+          "integer_command",
+          "integer_dropout_command",
+          "integer_scalar_command",
+          "owned_optimizer_command",
+          "putw",
+          "reply_error",
+          "rng_command",
+          "typed_command"
+        ]
+      }
+    ],
+    [
+      {
+        "name": "integer_result_dtype",
+        "raw_structured_sha256": "06eeeb5fba592712be112ac1e36f823b181694f74288f3dbedb63c83b0aa9823",
+        "compacted_structured_sha256": "5a2c5e4c4680399c7a04aa5df9c5f8c973e22620988680d88189c92160438379",
+        "raw_blocks": 11,
+        "compacted_blocks": 11,
+        "removed_scalar_parameters": {
+          "b1": [
+            "v15",
+            "v16",
+            "v17",
+            "v18",
+            "v19"
+          ],
+          "b3": [
+            "v34",
+            "v35",
+            "v36",
+            "v37",
+            "v38"
+          ],
+          "b5": [
+            "v55",
+            "v56",
+            "v57",
+            "v58",
+            "v59"
+          ],
+          "b7": [
+            "v76",
+            "v80"
+          ],
+          "b8": [
+            "v83",
+            "v84"
+          ],
+          "b9": [
+            "v95",
+            "v96",
+            "v97",
+            "v98",
+            "v99"
+          ],
+          "b10": [
+            "v102",
+            "v103"
+          ]
+        },
+        "forwarding_substitutions": [],
+        "callees": [
+          "dptr",
+          "getw",
+          "tensor_dtype",
+          "terror"
+        ]
+      }
+    ],
+    [
+      {
+        "name": "integer_binary",
+        "raw_structured_sha256": "c1384e149a85e88cabbeab76b7f9ae99b635a4fa5d3112526c6f595dbb53dfe6",
+        "compacted_structured_sha256": "36afbd5ffc3a6eb4cec6481cae9f74fad01766eb985cbc8cdeff10a9bfed0729",
+        "raw_blocks": 48,
+        "compacted_blocks": 40,
+        "removed_scalar_parameters": {
+          "b1": [
+            "v13"
+          ],
+          "b3": [
+            "v24",
+            "v25",
+            "v26",
+            "v27"
+          ],
+          "b5": [
+            "v39",
+            "v40",
+            "v41",
+            "v42",
+            "v43"
+          ],
+          "b9": [
+            "v69",
+            "v70",
+            "v71",
+            "v72",
+            "v73"
+          ],
+          "b12": [
+            "v92",
+            "v93",
+            "v94",
+            "v95",
+            "v96",
+            "v97"
+          ],
+          "b15": [
+            "v122"
+          ],
+          "b16": [
+            "v128",
+            "v129",
+            "v130",
+            "v131",
+            "v132",
+            "v133",
+            "v134"
+          ],
+          "b17": [
+            "v141"
+          ],
+          "b18": [
+            "v153",
+            "v155"
+          ],
+          "b19": [
+            "v162"
+          ],
+          "b20": [
+            "v168",
+            "v169",
+            "v170",
+            "v171",
+            "v172",
+            "v173",
+            "v174"
+          ],
+          "b21": [
+            "v181"
+          ],
+          "b22": [
+            "v190",
+            "v191",
+            "v192",
+            "v193",
+            "v194",
+            "v195",
+            "v196"
+          ],
+          "b23": [
+            "v203"
+          ],
+          "b24": [
+            "v212"
+          ],
+          "b25": [
+            "v223",
+            "v224",
+            "v225",
+            "v226",
+            "v227",
+            "v228",
+            "v229"
+          ],
+          "b26": [
+            "v236"
+          ],
+          "b27": [
+            "v244",
+            "v245",
+            "v246",
+            "v247",
+            "v248",
+            "v249",
+            "v250",
+            "v251"
+          ],
+          "b28": [
+            "v254",
+            "v258"
+          ],
+          "b29": [
+            "v266",
+            "v267",
+            "v268",
+            "v269",
+            "v270",
+            "v271",
+            "v272",
+            "v273",
+            "v274"
+          ],
+          "b30": [
+            "v277",
+            "v278",
+            "v281"
+          ],
+          "b31": [
+            "v290",
+            "v291",
+            "v294",
+            "v295"
+          ],
+          "b32": [
+            "v300",
+            "v301",
+            "v303",
+            "v304"
+          ],
+          "b33": [
+            "v313",
+            "v314",
+            "v315",
+            "v316",
+            "v317",
+            "v318",
+            "v319",
+            "v320",
+            "v321"
+          ],
+          "b34": [
+            "v324",
+            "v325",
+            "v329"
+          ],
+          "b35": [
+            "v339",
+            "v340",
+            "v341",
+            "v342",
+            "v343",
+            "v344",
+            "v345",
+            "v346",
+            "v347"
+          ],
+          "b36": [
+            "v350",
+            "v351",
+            "v353",
+            "v354"
+          ],
+          "b37": [
+            "v363",
+            "v364",
+            "v365",
+            "v366",
+            "v367",
+            "v368",
+            "v369",
+            "v370",
+            "v371"
+          ],
+          "b38": [
+            "v374",
+            "v375",
+            "v377",
+            "v378"
+          ],
+          "b39": [
+            "v385",
+            "v386",
+            "v388",
+            "v389"
+          ],
+          "b40": [
+            "v400",
+            "v401",
+            "v403",
+            "v404"
+          ],
+          "b41": [
+            "v413",
+            "v414",
+            "v416",
+            "v417"
+          ],
+          "b42": [
+            "v424",
+            "v425",
+            "v426",
+            "v428",
+            "v429",
+            "v431",
+            "v432",
+            "v433",
+            "v434"
+          ],
+          "b43": [
+            "v441",
+            "v442",
+            "v443",
+            "v444",
+            "v445",
+            "v446",
+            "v448",
+            "v449",
+            "v450",
+            "v451"
+          ],
+          "b44": [
+            "v453",
+            "v454",
+            "v455",
+            "v456",
+            "v457",
+            "v458",
+            "v460",
+            "v461",
+            "v462",
+            "v463"
+          ],
+          "b45": [
+            "v468",
+            "v469",
+            "v470",
+            "v471",
+            "v472",
+            "v473",
+            "v474",
+            "v475",
+            "v476",
+            "v477",
+            "v478"
+          ],
+          "b46": [
+            "v480",
+            "v481",
+            "v482",
+            "v483",
+            "v484",
+            "v485",
+            "v487",
+            "v488",
+            "v489",
+            "v490"
+          ],
+          "b47": [
+            "v493",
+            "v494",
+            "v495",
+            "v496",
+            "v497",
+            "v498",
+            "v500",
+            "v501",
+            "v502",
+            "v503"
+          ]
+        },
+        "forwarding_substitutions": [
+          {
+            "block": "b8",
+            "parameters": [
+              "v59",
+              "v60",
+              "v61",
+              "v62",
+              "v63",
+              "v64"
+            ],
+            "target": "b11",
+            "arguments": [
+              "v59",
+              "v60",
+              "v61",
+              "v62",
+              "v63",
+              "v64"
+            ]
+          },
+          {
+            "block": "b10",
+            "parameters": [
+              "v74",
+              "v75",
+              "v76",
+              "v77",
+              "v78",
+              "v79"
+            ],
+            "target": "b11",
+            "arguments": [
+              "v74",
+              "v75",
+              "v76",
+              "v77",
+              "v78",
+              "v79"
+            ]
+          },
+          {
+            "block": "b15",
+            "parameters": [
+              "v116",
+              "v117",
+              "v118",
+              "v119",
+              "v120",
+              "v121",
+              "v123"
+            ],
+            "target": "b24",
+            "arguments": [
+              "v116",
+              "v117",
+              "v118",
+              "v119",
+              "v120",
+              "v121",
+              "v123"
+            ]
+          },
+          {
+            "block": "b23",
+            "parameters": [
+              "v197",
+              "v198",
+              "v199",
+              "v200",
+              "v201",
+              "v202",
+              "v204"
+            ],
+            "target": "b24",
+            "arguments": [
+              "v197",
+              "v198",
+              "v199",
+              "v200",
+              "v201",
+              "v202",
+              "v204"
+            ]
+          },
+          {
+            "block": "b32",
+            "parameters": [
+              "v298",
+              "v299",
+              "v302",
+              "v305",
+              "v306",
+              "v307"
+            ],
+            "target": "b39",
+            "arguments": [
+              "v298",
+              "v299",
+              "v302",
+              "v305",
+              "v306",
+              "v307"
+            ]
+          },
+          {
+            "block": "b38",
+            "parameters": [
+              "v372",
+              "v373",
+              "v376",
+              "v379",
+              "v380",
+              "v381"
+            ],
+            "target": "b39",
+            "arguments": [
+              "v372",
+              "v373",
+              "v376",
+              "v379",
+              "v380",
+              "v381"
+            ]
+          },
+          {
+            "block": "b44",
+            "parameters": [
+              "v452",
+              "v459"
+            ],
+            "target": "b47",
+            "arguments": [
+              "v452",
+              "v459"
+            ]
+          },
+          {
+            "block": "b46",
+            "parameters": [
+              "v479",
+              "v486"
+            ],
+            "target": "b47",
+            "arguments": [
+              "v479",
+              "v486"
+            ]
+          }
+        ],
+        "callees": [
+          "bshape",
+          "bump_version",
+          "dptr",
+          "getw",
+          "integer_binary_element",
+          "integer_inplace_overlap",
+          "integer_pointwise_layout",
+          "integer_promote_operand",
+          "integer_result_dtype",
+          "integer_target_shape",
+          "tensor_dtype",
+          "terror",
+          "typed_descriptor",
+          "valid",
+          "version_can_bump"
+        ]
+      }
+    ],
+    [
+      {
+        "name": "dtype_audit",
+        "raw_structured_sha256": "fffd576c4ab0999919a88bc61a3cee083c579b2eb963b6b76eed054ffd383a9a",
+        "compacted_structured_sha256": "5ab249afd35c490974d76b2922ada4c84c049d521d9d4513d4b9f50fc88e1a5b",
+        "raw_blocks": 53,
+        "compacted_blocks": 46,
+        "removed_scalar_parameters": {
+          "b3": [
+            "v14"
+          ],
+          "b4": [
+            "v28",
+            "v29"
+          ],
+          "b5": [
+            "v32"
+          ],
+          "b6": [
+            "v36"
+          ],
+          "b8": [
+            "v47"
+          ],
+          "b11": [
+            "v59"
+          ],
+          "b14": [
+            "v88"
+          ],
+          "b16": [
+            "v105",
+            "v106"
+          ],
+          "b17": [
+            "v112"
+          ],
+          "b19": [
+            "v137"
+          ],
+          "b20": [
+            "v148",
+            "v149",
+            "v151"
+          ],
+          "b21": [
+            "v156",
+            "v157"
+          ],
+          "b22": [
+            "v169",
+            "v170"
+          ],
+          "b23": [
+            "v176",
+            "v177"
+          ],
+          "b24": [
+            "v183",
+            "v185",
+            "v186",
+            "v187",
+            "v188"
+          ],
+          "b25": [
+            "v192",
+            "v193",
+            "v194"
+          ],
+          "b26": [
+            "v206",
+            "v207",
+            "v208",
+            "v209"
+          ],
+          "b27": [
+            "v216",
+            "v217",
+            "v219"
+          ],
+          "b28": [
+            "v224",
+            "v225"
+          ],
+          "b29": [
+            "v237",
+            "v238",
+            "v240"
+          ],
+          "b30": [
+            "v245",
+            "v246"
+          ],
+          "b31": [
+            "v255",
+            "v257",
+            "v258",
+            "v259",
+            "v260"
+          ],
+          "b32": [
+            "v265",
+            "v266"
+          ],
+          "b33": [
+            "v276",
+            "v278",
+            "v279",
+            "v280",
+            "v282"
+          ],
+          "b34": [
+            "v286",
+            "v287",
+            "v288"
+          ],
+          "b35": [
+            "v302",
+            "v303",
+            "v304",
+            "v307"
+          ],
+          "b36": [
+            "v311",
+            "v312",
+            "v313",
+            "v315"
+          ],
+          "b37": [
+            "v329",
+            "v330",
+            "v331",
+            "v333"
+          ],
+          "b38": [
+            "v343",
+            "v344",
+            "v345",
+            "v346"
+          ],
+          "b39": [
+            "v350",
+            "v351",
+            "v352",
+            "v353"
+          ],
+          "b40": [
+            "v364",
+            "v365"
+          ],
+          "b41": [
+            "v369",
+            "v370",
+            "v371"
+          ],
+          "b42": [
+            "v379",
+            "v380",
+            "v381",
+            "v382"
+          ],
+          "b43": [
+            "v386",
+            "v387",
+            "v388",
+            "v389"
+          ],
+          "b44": [
+            "v401",
+            "v402",
+            "v403"
+          ],
+          "b45": [
+            "v413"
+          ],
+          "b47": [
+            "v428"
+          ],
+          "b48": [
+            "v432"
+          ],
+          "b49": [
+            "v444"
+          ],
+          "b52": [
+            "v459"
+          ]
+        },
+        "forwarding_substitutions": [
+          {
+            "block": "b5",
+            "parameters": [
+              "v30",
+              "v31"
+            ],
+            "target": "b6",
+            "arguments": [
+              "v30",
+              "v31"
+            ]
+          },
+          {
+            "block": "b17",
+            "parameters": [
+              "v107",
+              "v108",
+              "v109",
+              "v110",
+              "v111",
+              "v113"
+            ],
+            "target": "b15",
+            "arguments": [
+              "v107",
+              "v108",
+              "v109",
+              "v110",
+              "v111",
+              "v113"
+            ]
+          },
+          {
+            "block": "b26",
+            "parameters": [
+              "v203",
+              "v204",
+              "v205"
+            ],
+            "target": "b39",
+            "arguments": [
+              "v203",
+              "v204",
+              "v205"
+            ]
+          },
+          {
+            "block": "b38",
+            "parameters": [
+              "v340",
+              "v341",
+              "v342"
+            ],
+            "target": "b39",
+            "arguments": [
+              "v340",
+              "v341",
+              "v342"
+            ]
+          },
+          {
+            "block": "b39",
+            "parameters": [
+              "v347",
+              "v348",
+              "v349"
+            ],
+            "target": "b44",
+            "arguments": [
+              "v347",
+              "v348",
+              "v349"
+            ]
+          },
+          {
+            "block": "b43",
+            "parameters": [
+              "v383",
+              "v384",
+              "v385",
+              "v390"
+            ],
+            "target": "b41",
+            "arguments": [
+              "v383",
+              "v384",
+              "v385",
+              "v390"
+            ]
+          },
+          {
+            "block": "b44",
+            "parameters": [
+              "v398",
+              "v399",
+              "v400"
+            ],
+            "target": "b49",
+            "arguments": [
+              "v398",
+              "v399",
+              "v400"
+            ]
+          }
+        ],
+        "callees": [
+          "dptr",
+          "getw",
+          "history_audit",
+          "integer_view_root_valid",
+          "private_tensor",
+          "putw",
+          "so_saved_live",
+          "so_uget"
+        ]
+      }
+    ],
+    [
+      {
+        "name": "gradient_detach_inplace",
+        "raw_structured_sha256": "9046c00f13c9a8bec3a5142f0a5921136327a3677bd78bf814dc89b509edd0bc",
+        "compacted_structured_sha256": "ceafe32b6bdfc2b8f56536719024fdf755011f6bd2b8606c705f25922bf5b886",
+        "raw_blocks": 13,
+        "compacted_blocks": 12,
+        "removed_scalar_parameters": {
+          "b2": [
+            "v12"
+          ],
+          "b3": [
+            "v22"
+          ],
+          "b5": [
+            "v39",
+            "v40"
+          ],
+          "b9": [
+            "v58",
+            "v60"
+          ],
+          "b10": [
+            "v67",
+            "v68",
+            "v69"
+          ],
+          "b12": [
+            "v139"
+          ]
+        },
+        "forwarding_substitutions": [
+          {
+            "block": "b2",
+            "parameters": [
+              "v11",
+              "v13"
+            ],
+            "target": "b12",
+            "arguments": [
+              "v11",
+              "v13"
+            ]
+          }
+        ],
+        "callees": [
+          "dptr",
+          "getw",
+          "gradient_parent_count",
+          "graph_edge_enabled",
+          "graph_parent_at",
+          "graph_release_edge",
+          "hold_release",
+          "putw",
+          "saved_release",
+          "terror"
+        ]
+      }
+    ],
+    [
+      {
+        "name": "entry",
+        "raw_structured_sha256": "124258fc41e0a71672befc80b0689b1d9f481a5f7bf6e93e88425edb6d901d8f",
+        "compacted_structured_sha256": "824e7625050623a5ec699573af7c5330edc3a4a95e29256ee436ebdd56bca34a",
+        "raw_blocks": 59,
+        "compacted_blocks": 47,
+        "removed_scalar_parameters": {
+          "b4": [
+            "v31"
+          ],
+          "b5": [
+            "v48"
+          ],
+          "b6": [
+            "v54"
+          ],
+          "b7": [
+            "v63"
+          ],
+          "b8": [
+            "v74"
+          ],
+          "b9": [
+            "v88"
+          ],
+          "b10": [
+            "v98",
+            "v100",
+            "v101",
+            "v103"
+          ],
+          "b11": [
+            "v113",
+            "v114",
+            "v115",
+            "v116",
+            "v118"
+          ],
+          "b12": [
+            "v123"
+          ],
+          "b13": [
+            "v146"
+          ],
+          "b14": [
+            "v157"
+          ],
+          "b15": [
+            "v175"
+          ],
+          "b16": [
+            "v186"
+          ],
+          "b17": [
+            "v204"
+          ],
+          "b18": [
+            "v215"
+          ],
+          "b19": [
+            "v236"
+          ],
+          "b20": [
+            "v247"
+          ],
+          "b21": [
+            "v268"
+          ],
+          "b22": [
+            "v279"
+          ],
+          "b23": [
+            "v300"
+          ],
+          "b24": [
+            "v311"
+          ],
+          "b25": [
+            "v338"
+          ],
+          "b26": [
+            "v349"
+          ],
+          "b27": [
+            "v370"
+          ],
+          "b28": [
+            "v381"
+          ],
+          "b29": [
+            "v397"
+          ],
+          "b30": [
+            "v408"
+          ],
+          "b31": [
+            "v429"
+          ],
+          "b32": [
+            "v446"
+          ],
+          "b33": [
+            "v457"
+          ],
+          "b34": [
+            "v478"
+          ],
+          "b35": [
+            "v490"
+          ],
+          "b36": [
+            "v502"
+          ],
+          "b37": [
+            "v514"
+          ],
+          "b38": [
+            "v526"
+          ],
+          "b39": [
+            "v538"
+          ],
+          "b40": [
+            "v550"
+          ],
+          "b41": [
+            "v562"
+          ],
+          "b42": [
+            "v574"
+          ],
+          "b43": [
+            "v589",
+            "v597"
+          ],
+          "b44": [
+            "v602"
+          ],
+          "b45": [
+            "v619"
+          ],
+          "b46": [
+            "v631"
+          ],
+          "b47": [
+            "v646"
+          ],
+          "b48": [
+            "v662",
+            "v663",
+            "v664",
+            "v665",
+            "v666",
+            "v667"
+          ],
+          "b49": [
+            "v673"
+          ],
+          "b50": [
+            "v705",
+            "v713"
+          ],
+          "b51": [
+            "v718"
+          ],
+          "b52": [
+            "v740",
+            "v746",
+            "v748"
+          ],
+          "b53": [
+            "v753",
+            "v757",
+            "v759"
+          ],
+          "b54": [
+            "v778",
+            "v780",
+            "v781",
+            "v783"
+          ],
+          "b55": [
+            "v788",
+            "v789",
+            "v790",
+            "v791",
+            "v793"
+          ],
+          "b56": [
+            "v809",
+            "v810",
+            "v811",
+            "v812",
+            "v814"
+          ],
+          "b57": [
+            "v824",
+            "v825",
+            "v826",
+            "v827",
+            "v828",
+            "v829"
+          ],
+          "b58": [
+            "v834",
+            "v835",
+            "v836",
+            "v837",
+            "v839"
+          ]
+        },
+        "forwarding_substitutions": [
+          {
+            "block": "b6",
+            "parameters": [
+              "v50",
+              "v51",
+              "v52",
+              "v53",
+              "v55"
+            ],
+            "target": "b7",
+            "arguments": [
+              "v50",
+              "v51",
+              "v52",
+              "v53",
+              "v55"
+            ]
+          },
+          {
+            "block": "b31",
+            "parameters": [
+              "v425",
+              "v426",
+              "v427",
+              "v428",
+              "v430",
+              "v431",
+              "v432",
+              "v433",
+              "v434",
+              "v435",
+              "v436"
+            ],
+            "target": "b35",
+            "arguments": [
+              "v425",
+              "v426",
+              "v427",
+              "v428",
+              "v430",
+              "v431",
+              "v432",
+              "v433",
+              "v434",
+              "v435",
+              "v436"
+            ]
+          },
+          {
+            "block": "b34",
+            "parameters": [
+              "v474",
+              "v475",
+              "v476",
+              "v477",
+              "v479",
+              "v480",
+              "v481",
+              "v482",
+              "v483",
+              "v484",
+              "v485"
+            ],
+            "target": "b35",
+            "arguments": [
+              "v474",
+              "v475",
+              "v476",
+              "v477",
+              "v479",
+              "v480",
+              "v481",
+              "v482",
+              "v483",
+              "v484",
+              "v485"
+            ]
+          },
+          {
+            "block": "b35",
+            "parameters": [
+              "v486",
+              "v487",
+              "v488",
+              "v489",
+              "v491",
+              "v492",
+              "v493",
+              "v494",
+              "v495",
+              "v496",
+              "v497"
+            ],
+            "target": "b36",
+            "arguments": [
+              "v486",
+              "v487",
+              "v488",
+              "v489",
+              "v491",
+              "v492",
+              "v493",
+              "v494",
+              "v495",
+              "v496",
+              "v497"
+            ]
+          },
+          {
+            "block": "b36",
+            "parameters": [
+              "v498",
+              "v499",
+              "v500",
+              "v501",
+              "v503",
+              "v504",
+              "v505",
+              "v506",
+              "v507",
+              "v508",
+              "v509"
+            ],
+            "target": "b37",
+            "arguments": [
+              "v498",
+              "v499",
+              "v500",
+              "v501",
+              "v503",
+              "v504",
+              "v505",
+              "v506",
+              "v507",
+              "v508",
+              "v509"
+            ]
+          },
+          {
+            "block": "b37",
+            "parameters": [
+              "v510",
+              "v511",
+              "v512",
+              "v513",
+              "v515",
+              "v516",
+              "v517",
+              "v518",
+              "v519",
+              "v520",
+              "v521"
+            ],
+            "target": "b38",
+            "arguments": [
+              "v510",
+              "v511",
+              "v512",
+              "v513",
+              "v515",
+              "v516",
+              "v517",
+              "v518",
+              "v519",
+              "v520",
+              "v521"
+            ]
+          },
+          {
+            "block": "b38",
+            "parameters": [
+              "v522",
+              "v523",
+              "v524",
+              "v525",
+              "v527",
+              "v528",
+              "v529",
+              "v530",
+              "v531",
+              "v532",
+              "v533"
+            ],
+            "target": "b39",
+            "arguments": [
+              "v522",
+              "v523",
+              "v524",
+              "v525",
+              "v527",
+              "v528",
+              "v529",
+              "v530",
+              "v531",
+              "v532",
+              "v533"
+            ]
+          },
+          {
+            "block": "b39",
+            "parameters": [
+              "v534",
+              "v535",
+              "v536",
+              "v537",
+              "v539",
+              "v540",
+              "v541",
+              "v542",
+              "v543",
+              "v544",
+              "v545"
+            ],
+            "target": "b40",
+            "arguments": [
+              "v534",
+              "v535",
+              "v536",
+              "v537",
+              "v539",
+              "v540",
+              "v541",
+              "v542",
+              "v543",
+              "v544",
+              "v545"
+            ]
+          },
+          {
+            "block": "b40",
+            "parameters": [
+              "v546",
+              "v547",
+              "v548",
+              "v549",
+              "v551",
+              "v552",
+              "v553",
+              "v554",
+              "v555",
+              "v556",
+              "v557"
+            ],
+            "target": "b41",
+            "arguments": [
+              "v546",
+              "v547",
+              "v548",
+              "v549",
+              "v551",
+              "v552",
+              "v553",
+              "v554",
+              "v555",
+              "v556",
+              "v557"
+            ]
+          },
+          {
+            "block": "b41",
+            "parameters": [
+              "v558",
+              "v559",
+              "v560",
+              "v561",
+              "v563",
+              "v564",
+              "v565",
+              "v566",
+              "v567",
+              "v568",
+              "v569"
+            ],
+            "target": "b42",
+            "arguments": [
+              "v558",
+              "v559",
+              "v560",
+              "v561",
+              "v563",
+              "v564",
+              "v565",
+              "v566",
+              "v567",
+              "v568",
+              "v569"
+            ]
+          },
+          {
+            "block": "b46",
+            "parameters": [
+              "v627",
+              "v628",
+              "v629",
+              "v630",
+              "v632",
+              "v633",
+              "v634",
+              "v635",
+              "v636",
+              "v637",
+              "v638"
+            ],
+            "target": "b47",
+            "arguments": [
+              "v627",
+              "v628",
+              "v629",
+              "v630",
+              "v632",
+              "v633",
+              "v634",
+              "v635",
+              "v636",
+              "v637",
+              "v638"
+            ]
+          },
+          {
+            "block": "b55",
+            "parameters": [
+              "v784",
+              "v785",
+              "v786",
+              "v787",
+              "v792"
+            ],
+            "target": "b56",
+            "arguments": [
+              "v784",
+              "v785",
+              "v786",
+              "v787",
+              "v792"
+            ]
+          }
+        ],
+        "callees": [
+          "binary_saved_command",
+          "command",
+          "dist_command",
+          "dist_partial_command",
+          "frame_valid",
+          "getr",
+          "getw",
+          "gradient_object_command",
+          "graph_collect_since",
+          "integer_command",
+          "integer_dropout_command",
+          "integer_scalar_command",
+          "owned_optimizer_command",
+          "putw",
+          "reply_error",
+          "rng_command",
+          "typed_command"
+        ]
+      },
+      {
+        "name": "integer_result_dtype",
+        "raw_structured_sha256": "e34e8bb5a47976b4c44ff7bbd2aaa55c11adc89b99002352678d6f3bf82bfca4",
+        "compacted_structured_sha256": "874367d393cc58f32a5b089d427262c47671f009d4a6de595e1bac1f478e96e3",
+        "raw_blocks": 7,
+        "compacted_blocks": 7,
+        "removed_scalar_parameters": {
+          "b1": [
+            "v15",
+            "v16",
+            "v17",
+            "v18",
+            "v19"
+          ],
+          "b2": [
+            "v22",
+            "v23"
+          ],
+          "b3": [
+            "v34",
+            "v35",
+            "v36",
+            "v37",
+            "v38"
+          ],
+          "b4": [
+            "v41",
+            "v42"
+          ],
+          "b5": [
+            "v55",
+            "v56",
+            "v57",
+            "v58",
+            "v59"
+          ],
+          "b6": [
+            "v62",
+            "v63"
+          ]
+        },
+        "forwarding_substitutions": [],
+        "callees": [
+          "tensor_dtype",
+          "terror"
+        ]
+      },
+      {
+        "name": "integer_binary",
+        "raw_structured_sha256": "0c88e200bc96ea1ac584899f8fc68a63b52248c959fed51fe01c7c0b1b8bd9a1",
+        "compacted_structured_sha256": "19febfd63ca5b599194b8085c147d286626f366b140ae4b5d79e0b5171daf49a",
+        "raw_blocks": 52,
+        "compacted_blocks": 44,
+        "removed_scalar_parameters": {
+          "b1": [
+            "v13"
+          ],
+          "b3": [
+            "v24",
+            "v25",
+            "v26",
+            "v27"
+          ],
+          "b5": [
+            "v47",
+            "v48",
+            "v49",
+            "v50",
+            "v51"
+          ],
+          "b7": [
+            "v65",
+            "v66",
+            "v67",
+            "v68",
+            "v69",
+            "v70"
+          ],
+          "b11": [
+            "v99",
+            "v100",
+            "v101",
+            "v102",
+            "v103",
+            "v104"
+          ],
+          "b14": [
+            "v125",
+            "v126",
+            "v127",
+            "v128",
+            "v129",
+            "v130",
+            "v131"
+          ],
+          "b17": [
+            "v159"
+          ],
+          "b18": [
+            "v165",
+            "v166",
+            "v167",
+            "v168",
+            "v169",
+            "v170",
+            "v171",
+            "v172"
+          ],
+          "b19": [
+            "v180"
+          ],
+          "b20": [
+            "v193",
+            "v195"
+          ],
+          "b21": [
+            "v203"
+          ],
+          "b22": [
+            "v209",
+            "v210",
+            "v211",
+            "v212",
+            "v213",
+            "v214",
+            "v215",
+            "v216"
+          ],
+          "b23": [
+            "v224"
+          ],
+          "b24": [
+            "v233",
+            "v234",
+            "v235",
+            "v236",
+            "v237",
+            "v238",
+            "v239",
+            "v240"
+          ],
+          "b25": [
+            "v248"
+          ],
+          "b26": [
+            "v258"
+          ],
+          "b27": [
+            "v269",
+            "v270",
+            "v271",
+            "v272",
+            "v273",
+            "v274",
+            "v275",
+            "v276"
+          ],
+          "b28": [
+            "v284"
+          ],
+          "b29": [
+            "v292",
+            "v293",
+            "v294",
+            "v295",
+            "v296",
+            "v297",
+            "v298",
+            "v299",
+            "v300"
+          ],
+          "b30": [
+            "v308"
+          ],
+          "b31": [
+            "v316",
+            "v317",
+            "v318",
+            "v319",
+            "v320",
+            "v321",
+            "v322",
+            "v323",
+            "v324",
+            "v325"
+          ],
+          "b32": [
+            "v333"
+          ],
+          "b33": [
+            "v347",
+            "v348"
+          ],
+          "b34": [
+            "v357",
+            "v358"
+          ],
+          "b35": [
+            "v367",
+            "v368",
+            "v369",
+            "v370",
+            "v371",
+            "v372",
+            "v373",
+            "v374",
+            "v375",
+            "v376"
+          ],
+          "b36": [
+            "v385"
+          ],
+          "b37": [
+            "v395",
+            "v396",
+            "v397",
+            "v398",
+            "v399",
+            "v400",
+            "v401",
+            "v402",
+            "v403",
+            "v404"
+          ],
+          "b38": [
+            "v411",
+            "v412"
+          ],
+          "b39": [
+            "v421",
+            "v422",
+            "v423",
+            "v424",
+            "v425",
+            "v426",
+            "v427",
+            "v428",
+            "v429",
+            "v430"
+          ],
+          "b40": [
+            "v437",
+            "v438"
+          ],
+          "b41": [
+            "v449",
+            "v450"
+          ],
+          "b42": [
+            "v465",
+            "v466"
+          ],
+          "b43": [
+            "v479",
+            "v480"
+          ],
+          "b44": [
+            "v492",
+            "v493",
+            "v495",
+            "v496",
+            "v497",
+            "v498"
+          ],
+          "b45": [
+            "v510",
+            "v511",
+            "v513",
+            "v514",
+            "v515",
+            "v516"
+          ],
+          "b46": [
+            "v523",
+            "v524",
+            "v526",
+            "v527",
+            "v528",
+            "v529"
+          ],
+          "b47": [
+            "v534",
+            "v535",
+            "v536",
+            "v537",
+            "v538",
+            "v539",
+            "v540",
+            "v541",
+            "v542",
+            "v543",
+            "v544",
+            "v545"
+          ],
+          "b48": [
+            "v552",
+            "v553",
+            "v555",
+            "v556",
+            "v557",
+            "v558"
+          ],
+          "b49": [
+            "v566",
+            "v567",
+            "v569",
+            "v570",
+            "v571",
+            "v572"
+          ],
+          "b50": [
+            "v581",
+            "v582",
+            "v583",
+            "v584",
+            "v586",
+            "v587",
+            "v588",
+            "v589"
+          ],
+          "b51": [
+            "v591",
+            "v592",
+            "v593",
+            "v594",
+            "v595",
+            "v596",
+            "v597",
+            "v599",
+            "v600",
+            "v601",
+            "v602"
+          ]
+        },
+        "forwarding_substitutions": [
+          {
+            "block": "b10",
+            "parameters": [
+              "v88",
+              "v89",
+              "v90",
+              "v91",
+              "v92",
+              "v93",
+              "v94"
+            ],
+            "target": "b13",
+            "arguments": [
+              "v88",
+              "v89",
+              "v90",
+              "v91",
+              "v92",
+              "v93",
+              "v94"
+            ]
+          },
+          {
+            "block": "b12",
+            "parameters": [
+              "v105",
+              "v106",
+              "v107",
+              "v108",
+              "v109",
+              "v110",
+              "v111"
+            ],
+            "target": "b13",
+            "arguments": [
+              "v105",
+              "v106",
+              "v107",
+              "v108",
+              "v109",
+              "v110",
+              "v111"
+            ]
+          },
+          {
+            "block": "b17",
+            "parameters": [
+              "v152",
+              "v153",
+              "v154",
+              "v155",
+              "v156",
+              "v157",
+              "v158",
+              "v160"
+            ],
+            "target": "b26",
+            "arguments": [
+              "v152",
+              "v153",
+              "v154",
+              "v155",
+              "v156",
+              "v157",
+              "v158",
+              "v160"
+            ]
+          },
+          {
+            "block": "b25",
+            "parameters": [
+              "v241",
+              "v242",
+              "v243",
+              "v244",
+              "v245",
+              "v246",
+              "v247",
+              "v249"
+            ],
+            "target": "b26",
+            "arguments": [
+              "v241",
+              "v242",
+              "v243",
+              "v244",
+              "v245",
+              "v246",
+              "v247",
+              "v249"
+            ]
+          },
+          {
+            "block": "b34",
+            "parameters": [
+              "v351",
+              "v352",
+              "v353",
+              "v354",
+              "v355",
+              "v356",
+              "v359",
+              "v360",
+              "v361"
+            ],
+            "target": "b41",
+            "arguments": [
+              "v351",
+              "v352",
+              "v353",
+              "v354",
+              "v355",
+              "v356",
+              "v359",
+              "v360",
+              "v361"
+            ]
+          },
+          {
+            "block": "b40",
+            "parameters": [
+              "v431",
+              "v432",
+              "v433",
+              "v434",
+              "v435",
+              "v436",
+              "v439",
+              "v440",
+              "v441"
+            ],
+            "target": "b41",
+            "arguments": [
+              "v431",
+              "v432",
+              "v433",
+              "v434",
+              "v435",
+              "v436",
+              "v439",
+              "v440",
+              "v441"
+            ]
+          },
+          {
+            "block": "b46",
+            "parameters": [
+              "v517",
+              "v518",
+              "v519",
+              "v520",
+              "v521",
+              "v522",
+              "v525"
+            ],
+            "target": "b49",
+            "arguments": [
+              "v517",
+              "v518",
+              "v519",
+              "v520",
+              "v521",
+              "v522",
+              "v525"
+            ]
+          },
+          {
+            "block": "b48",
+            "parameters": [
+              "v546",
+              "v547",
+              "v548",
+              "v549",
+              "v550",
+              "v551",
+              "v554"
+            ],
+            "target": "b49",
+            "arguments": [
+              "v546",
+              "v547",
+              "v548",
+              "v549",
+              "v550",
+              "v551",
+              "v554"
+            ]
+          }
+        ],
+        "callees": [
+          "bshape",
+          "bump_version",
+          "dptr",
+          "getw",
+          "integer_binary_element",
+          "integer_inplace_overlap",
+          "integer_pointwise_layout",
+          "integer_promote_operand",
+          "integer_result_dtype",
+          "integer_target_shape",
+          "record",
+          "tensor_dtype",
+          "terror",
+          "typed_descriptor",
+          "valid",
+          "version_can_bump"
+        ]
+      },
+      {
+        "name": "dtype_audit",
+        "raw_structured_sha256": "a7b9b17cc2dc4bde9c6f20ff328d1b135bc33865b75b9e71efbf6c83b949edbf",
+        "compacted_structured_sha256": "79ad973e2e23b116fc9343b8d9dba19383739d3e0a6178712dc9c4e1ddf5fba6",
+        "raw_blocks": 56,
+        "compacted_blocks": 48,
+        "removed_scalar_parameters": {
+          "b3": [
+            "v14"
+          ],
+          "b4": [
+            "v28",
+            "v29"
+          ],
+          "b5": [
+            "v32"
+          ],
+          "b6": [
+            "v36"
+          ],
+          "b8": [
+            "v47"
+          ],
+          "b11": [
+            "v59"
+          ],
+          "b14": [
+            "v88"
+          ],
+          "b16": [
+            "v105",
+            "v106"
+          ],
+          "b17": [
+            "v112"
+          ],
+          "b18": [
+            "v127",
+            "v130",
+            "v131"
+          ],
+          "b21": [
+            "v152"
+          ],
+          "b22": [
+            "v163",
+            "v164",
+            "v166"
+          ],
+          "b23": [
+            "v171",
+            "v172"
+          ],
+          "b24": [
+            "v184",
+            "v185"
+          ],
+          "b25": [
+            "v191",
+            "v192"
+          ],
+          "b26": [
+            "v198",
+            "v200",
+            "v201",
+            "v202",
+            "v203"
+          ],
+          "b27": [
+            "v207",
+            "v208",
+            "v209"
+          ],
+          "b28": [
+            "v221",
+            "v222",
+            "v223",
+            "v224"
+          ],
+          "b29": [
+            "v231",
+            "v232",
+            "v234"
+          ],
+          "b30": [
+            "v239",
+            "v240"
+          ],
+          "b31": [
+            "v252",
+            "v253",
+            "v255"
+          ],
+          "b32": [
+            "v260",
+            "v261"
+          ],
+          "b33": [
+            "v270",
+            "v272",
+            "v273",
+            "v274",
+            "v275"
+          ],
+          "b34": [
+            "v280",
+            "v281"
+          ],
+          "b35": [
+            "v291",
+            "v293",
+            "v294",
+            "v295",
+            "v297"
+          ],
+          "b36": [
+            "v301",
+            "v302",
+            "v303"
+          ],
+          "b37": [
+            "v317",
+            "v318",
+            "v319",
+            "v322"
+          ],
+          "b38": [
+            "v326",
+            "v327",
+            "v328",
+            "v330"
+          ],
+          "b39": [
+            "v344",
+            "v345",
+            "v346",
+            "v348"
+          ],
+          "b40": [
+            "v358",
+            "v359",
+            "v360",
+            "v361"
+          ],
+          "b41": [
+            "v365",
+            "v366",
+            "v367",
+            "v368"
+          ],
+          "b42": [
+            "v379",
+            "v380"
+          ],
+          "b43": [
+            "v384",
+            "v385",
+            "v386"
+          ],
+          "b44": [
+            "v394",
+            "v395",
+            "v396",
+            "v397"
+          ],
+          "b45": [
+            "v401",
+            "v402",
+            "v403",
+            "v404"
+          ],
+          "b46": [
+            "v416",
+            "v417",
+            "v418"
+          ],
+          "b47": [
+            "v422",
+            "v423",
+            "v424"
+          ],
+          "b48": [
+            "v434"
+          ],
+          "b50": [
+            "v449"
+          ],
+          "b51": [
+            "v453"
+          ],
+          "b52": [
+            "v465"
+          ],
+          "b55": [
+            "v480"
+          ]
+        },
+        "forwarding_substitutions": [
+          {
+            "block": "b5",
+            "parameters": [
+              "v30",
+              "v31"
+            ],
+            "target": "b6",
+            "arguments": [
+              "v30",
+              "v31"
+            ]
+          },
+          {
+            "block": "b17",
+            "parameters": [
+              "v107",
+              "v108",
+              "v109",
+              "v110",
+              "v111",
+              "v113"
+            ],
+            "target": "b15",
+            "arguments": [
+              "v107",
+              "v108",
+              "v109",
+              "v110",
+              "v111",
+              "v113"
+            ]
+          },
+          {
+            "block": "b28",
+            "parameters": [
+              "v218",
+              "v219",
+              "v220"
+            ],
+            "target": "b41",
+            "arguments": [
+              "v218",
+              "v219",
+              "v220"
+            ]
+          },
+          {
+            "block": "b40",
+            "parameters": [
+              "v355",
+              "v356",
+              "v357"
+            ],
+            "target": "b41",
+            "arguments": [
+              "v355",
+              "v356",
+              "v357"
+            ]
+          },
+          {
+            "block": "b41",
+            "parameters": [
+              "v362",
+              "v363",
+              "v364"
+            ],
+            "target": "b46",
+            "arguments": [
+              "v362",
+              "v363",
+              "v364"
+            ]
+          },
+          {
+            "block": "b45",
+            "parameters": [
+              "v398",
+              "v399",
+              "v400",
+              "v405"
+            ],
+            "target": "b43",
+            "arguments": [
+              "v398",
+              "v399",
+              "v400",
+              "v405"
+            ]
+          },
+          {
+            "block": "b46",
+            "parameters": [
+              "v413",
+              "v414",
+              "v415"
+            ],
+            "target": "b47",
+            "arguments": [
+              "v413",
+              "v414",
+              "v415"
+            ]
+          },
+          {
+            "block": "b47",
+            "parameters": [
+              "v419",
+              "v420",
+              "v421"
+            ],
+            "target": "b52",
+            "arguments": [
+              "v419",
+              "v420",
+              "v421"
+            ]
+          }
+        ],
+        "callees": [
+          "binary_saved_audit",
+          "dptr",
+          "getw",
+          "history_audit",
+          "integer_view_root_valid",
+          "private_tensor",
+          "putw",
+          "so_saved_live",
+          "so_uget"
+        ]
+      },
+      {
+        "name": "gradient_detach_inplace",
+        "raw_structured_sha256": "8e5f8e2de7e76767484cc302369fac53d548bb397ce8ad1c7158a1461046bf5f",
+        "compacted_structured_sha256": "c75b6a5b9a177eb631106e3778ce3246de7a8702a317731ecb4204f9240132a3",
+        "raw_blocks": 15,
+        "compacted_blocks": 14,
+        "removed_scalar_parameters": {
+          "b2": [
+            "v12"
+          ],
+          "b3": [
+            "v22"
+          ],
+          "b5": [
+            "v39",
+            "v40"
+          ],
+          "b7": [
+            "v50",
+            "v51"
+          ],
+          "b11": [
+            "v68",
+            "v70"
+          ],
+          "b12": [
+            "v77",
+            "v78",
+            "v79"
+          ],
+          "b14": [
+            "v149"
+          ]
+        },
+        "forwarding_substitutions": [
+          {
+            "block": "b2",
+            "parameters": [
+              "v11",
+              "v13"
+            ],
+            "target": "b14",
+            "arguments": [
+              "v11",
+              "v13"
+            ]
+          }
+        ],
+        "callees": [
+          "dptr",
+          "dtype_mask_release",
+          "getw",
+          "gradient_parent_count",
+          "graph_edge_enabled",
+          "graph_parent_at",
+          "graph_release_edge",
+          "hold_release",
+          "putw",
+          "saved_release",
+          "terror"
+        ]
+      },
+      {
+        "name": "binary_saved_base",
+        "raw_structured_sha256": "d179801c769bbe0ebbb2af0c43743bd613e7bc679eb4ad9cbd1dac61d5b8c510",
+        "compacted_structured_sha256": "d8a45c65db4910d32ace2687347fc2afe79bf1a8972b513bf3ed1588d8f99567",
+        "raw_blocks": 13,
+        "compacted_blocks": 13,
+        "removed_scalar_parameters": {
+          "b1": [
+            "v8",
+            "v9"
+          ],
+          "b3": [
+            "v20",
+            "v22"
+          ],
+          "b4": [
+            "v25"
+          ],
+          "b5": [
+            "v34",
+            "v35",
+            "v36"
+          ],
+          "b6": [
+            "v39"
+          ],
+          "b7": [
+            "v51",
+            "v52",
+            "v54"
+          ],
+          "b8": [
+            "v57",
+            "v58"
+          ],
+          "b9": [
+            "v67",
+            "v68",
+            "v69",
+            "v70"
+          ],
+          "b10": [
+            "v73",
+            "v74"
+          ],
+          "b11": [
+            "v88",
+            "v89",
+            "v90",
+            "v91",
+            "v92"
+          ],
+          "b12": [
+            "v94",
+            "v95",
+            "v96",
+            "v97"
+          ]
+        },
+        "forwarding_substitutions": [],
+        "callees": [
+          "getw",
+          "so_slot_lookup",
+          "so_storage_live",
+          "so_uget",
+          "terror"
+        ]
+      },
+      {
+        "name": "binary_saved_retain_one",
+        "raw_structured_sha256": "791119b921758ffe5917a498c08f66aadd8a668f55b0581c526ccb0ffab54e3e",
+        "compacted_structured_sha256": "9eb63e8a972e05a26a314b116af439ba97da3ca7df8080a16e71ae4f5449d3e5",
+        "raw_blocks": 17,
+        "compacted_blocks": 17,
+        "removed_scalar_parameters": {
+          "b1": [
+            "v8",
+            "v9",
+            "v10",
+            "v11"
+          ],
+          "b3": [
+            "v26",
+            "v29"
+          ],
+          "b4": [
+            "v34"
+          ],
+          "b5": [
+            "v47",
+            "v50"
+          ],
+          "b6": [
+            "v55"
+          ],
+          "b7": [
+            "v65",
+            "v66",
+            "v67",
+            "v68",
+            "v69",
+            "v70"
+          ],
+          "b8": [
+            "v75"
+          ],
+          "b9": [
+            "v91",
+            "v94"
+          ],
+          "b10": [
+            "v99",
+            "v101"
+          ],
+          "b11": [
+            "v111",
+            "v112",
+            "v113",
+            "v114",
+            "v115",
+            "v116"
+          ],
+          "b12": [
+            "v121",
+            "v123"
+          ],
+          "b13": [
+            "v132",
+            "v133",
+            "v134",
+            "v135",
+            "v136",
+            "v137"
+          ],
+          "b14": [
+            "v142",
+            "v144"
+          ],
+          "b15": [
+            "v151",
+            "v152",
+            "v153",
+            "v154",
+            "v155",
+            "v156"
+          ],
+          "b16": [
+            "v161",
+            "v163"
+          ]
+        },
+        "forwarding_substitutions": [],
+        "callees": [
+          "dptr",
+          "getw",
+          "node_retain",
+          "putw",
+          "so_saved_live",
+          "so_uget",
+          "terror"
+        ]
+      },
+      {
+        "name": "binary_saved_bind",
+        "raw_structured_sha256": "136fa953a3c8d68fa541e8a1dfc444fab4d4a5f3339849f44837461a545fb500",
+        "compacted_structured_sha256": "8a4f8aa4b18177fcb6a3d1a58ab088a72065993db37ba13980d4a133b7b4aeee",
+        "raw_blocks": 11,
+        "compacted_blocks": 11,
+        "removed_scalar_parameters": {
+          "b1": [
+            "v16",
+            "v17",
+            "v18",
+            "v19",
+            "v20",
+            "v21"
+          ],
+          "b2": [
+            "v23"
+          ],
+          "b3": [
+            "v36",
+            "v42"
+          ],
+          "b4": [
+            "v44"
+          ],
+          "b5": [
+            "v57",
+            "v58",
+            "v59",
+            "v60",
+            "v61",
+            "v62"
+          ],
+          "b6": [
+            "v64"
+          ],
+          "b7": [
+            "v78",
+            "v79",
+            "v80",
+            "v81",
+            "v82",
+            "v83",
+            "v84"
+          ],
+          "b8": [
+            "v86"
+          ],
+          "b9": [
+            "v106",
+            "v107",
+            "v108",
+            "v109",
+            "v110",
+            "v111",
+            "v112"
+          ],
+          "b10": [
+            "v114",
+            "v115",
+            "v117",
+            "v118"
+          ]
+        },
+        "forwarding_substitutions": [],
+        "callees": [
+          "alloc",
+          "binary_saved_retain_one",
+          "dptr",
+          "getw",
+          "putw",
+          "terror"
+        ]
+      },
+      {
+        "name": "record",
+        "raw_structured_sha256": "3fa51de06428c1f86f062caf57d6a6385edda39eb8b965ad119766b043640cfd",
+        "compacted_structured_sha256": "cba6bb6858e489cd989edc95a18e2dbf38b0eca6758ff0de80b698150f432a1b",
+        "raw_blocks": 8,
+        "compacted_blocks": 6,
+        "removed_scalar_parameters": {
+          "b1": [
+            "v9",
+            "v10",
+            "v11",
+            "v12",
+            "v13"
+          ],
+          "b3": [
+            "v28"
+          ],
+          "b4": [
+            "v33",
+            "v34",
+            "v35",
+            "v36"
+          ],
+          "b5": [
+            "v42",
+            "v43",
+            "v44",
+            "v45",
+            "v46"
+          ],
+          "b6": [
+            "v48",
+            "v49",
+            "v50",
+            "v51"
+          ],
+          "b7": [
+            "v55",
+            "v56",
+            "v57",
+            "v58"
+          ]
+        },
+        "forwarding_substitutions": [
+          {
+            "block": "b4",
+            "parameters": [
+              "v32",
+              "v37"
+            ],
+            "target": "b7",
+            "arguments": [
+              "v32",
+              "v37"
+            ]
+          },
+          {
+            "block": "b6",
+            "parameters": [
+              "v47",
+              "v52"
+            ],
+            "target": "b7",
+            "arguments": [
+              "v47",
+              "v52"
+            ]
+          }
+        ],
+        "callees": [
+          "binary_saved_bind",
+          "mixed_original_record"
+        ]
+      },
+      {
+        "name": "binary_saved_release",
+        "raw_structured_sha256": "ac0f753889eb66f26e7b2ea96fa9f54e0a1787cd59249ce133ab748875777d19",
+        "compacted_structured_sha256": "a3f5ebc51702f61e9b7a9b5d964362abb95c2335b7b66a262308899d240d6e71",
+        "raw_blocks": 17,
+        "compacted_blocks": 15,
+        "removed_scalar_parameters": {
+          "b1": [
+            "v7",
+            "v8",
+            "v9"
+          ],
+          "b2": [
+            "v11"
+          ],
+          "b3": [
+            "v25",
+            "v26"
+          ],
+          "b4": [
+            "v33",
+            "v34"
+          ],
+          "b5": [
+            "v39",
+            "v40",
+            "v41",
+            "v43"
+          ],
+          "b6": [
+            "v54",
+            "v55"
+          ],
+          "b7": [
+            "v62",
+            "v63",
+            "v67"
+          ],
+          "b8": [
+            "v73",
+            "v74",
+            "v79",
+            "v81"
+          ],
+          "b9": [
+            "v83",
+            "v84",
+            "v89"
+          ],
+          "b10": [
+            "v98",
+            "v99",
+            "v100",
+            "v101",
+            "v102",
+            "v103",
+            "v104",
+            "v105"
+          ],
+          "b11": [
+            "v107",
+            "v108",
+            "v113"
+          ],
+          "b12": [
+            "v134",
+            "v135",
+            "v136",
+            "v137",
+            "v138",
+            "v139",
+            "v140",
+            "v141"
+          ],
+          "b13": [
+            "v143",
+            "v144",
+            "v148",
+            "v149",
+            "v150"
+          ],
+          "b14": [
+            "v155",
+            "v156",
+            "v157",
+            "v158",
+            "v159",
+            "v160",
+            "v161"
+          ],
+          "b15": [
+            "v163",
+            "v164",
+            "v168",
+            "v169"
+          ],
+          "b16": [
+            "v173",
+            "v174",
+            "v178",
+            "v179"
+          ]
+        },
+        "forwarding_substitutions": [
+          {
+            "block": "b13",
+            "parameters": [
+              "v142",
+              "v145",
+              "v146",
+              "v147"
+            ],
+            "target": "b16",
+            "arguments": [
+              "v142",
+              "v145",
+              "v146",
+              "v147"
+            ]
+          },
+          {
+            "block": "b15",
+            "parameters": [
+              "v162",
+              "v165",
+              "v166",
+              "v167"
+            ],
+            "target": "b16",
+            "arguments": [
+              "v162",
+              "v165",
+              "v166",
+              "v167"
+            ]
+          }
+        ],
+        "callees": [
+          "binary_saved_base",
+          "dptr",
+          "getw",
+          "hold_release",
+          "node_release",
+          "private_tensor",
+          "putw",
+          "terror"
+        ]
+      },
+      {
+        "name": "dtype_mask_release",
+        "raw_structured_sha256": "35f217c2f76093a532c8045b965355ea2ecf96d09dc62bea652242e60950abcb",
+        "compacted_structured_sha256": "35f217c2f76093a532c8045b965355ea2ecf96d09dc62bea652242e60950abcb",
+        "raw_blocks": 3,
+        "compacted_blocks": 3,
+        "removed_scalar_parameters": {},
+        "forwarding_substitutions": [],
+        "callees": [
+          "binary_saved_release",
+          "dptr",
+          "getw",
+          "mixed_original_mask_release"
+        ]
+      },
+      {
+        "name": "binary_saved_audit",
+        "raw_structured_sha256": "5303738a141891e4a66dad83d1b45bc4a35f6a67cbef74fd9a66fecb1e03eabd",
+        "compacted_structured_sha256": "c4646d755f02b0494e8905f64053a93ce3b3ad4edf61f095b225702aba98456a",
+        "raw_blocks": 33,
+        "compacted_blocks": 32,
+        "removed_scalar_parameters": {
+          "b1": [
+            "v8"
+          ],
+          "b3": [
+            "v21"
+          ],
+          "b5": [
+            "v32",
+            "v33"
+          ],
+          "b7": [
+            "v49",
+            "v50"
+          ],
+          "b8": [
+            "v54"
+          ],
+          "b9": [
+            "v62",
+            "v63",
+            "v64"
+          ],
+          "b10": [
+            "v68"
+          ],
+          "b11": [
+            "v74"
+          ],
+          "b12": [
+            "v82"
+          ],
+          "b13": [
+            "v86",
+            "v87",
+            "v88",
+            "v90"
+          ],
+          "b14": [
+            "v108",
+            "v111"
+          ],
+          "b15": [
+            "v117"
+          ],
+          "b16": [
+            "v128",
+            "v129",
+            "v130",
+            "v131",
+            "v132",
+            "v133",
+            "v134",
+            "v135"
+          ],
+          "b17": [
+            "v139",
+            "v142",
+            "v143",
+            "v144"
+          ],
+          "b18": [
+            "v153",
+            "v156",
+            "v158",
+            "v161"
+          ],
+          "b19": [
+            "v165",
+            "v168",
+            "v170"
+          ],
+          "b20": [
+            "v179",
+            "v182",
+            "v184",
+            "v187"
+          ],
+          "b21": [
+            "v191",
+            "v194",
+            "v195",
+            "v196"
+          ],
+          "b22": [
+            "v205",
+            "v206",
+            "v207",
+            "v208",
+            "v209",
+            "v210",
+            "v211",
+            "v212",
+            "v213",
+            "v214"
+          ],
+          "b23": [
+            "v218",
+            "v221",
+            "v222",
+            "v223"
+          ],
+          "b24": [
+            "v237",
+            "v240",
+            "v241",
+            "v242",
+            "v245"
+          ],
+          "b25": [
+            "v249",
+            "v252",
+            "v253",
+            "v254"
+          ],
+          "b26": [
+            "v266",
+            "v267",
+            "v268",
+            "v269",
+            "v270",
+            "v271",
+            "v272",
+            "v273",
+            "v274",
+            "v275"
+          ],
+          "b27": [
+            "v279",
+            "v282",
+            "v283",
+            "v284"
+          ],
+          "b28": [
+            "v298",
+            "v301",
+            "v302",
+            "v303",
+            "v306"
+          ],
+          "b29": [
+            "v310",
+            "v313",
+            "v314",
+            "v315",
+            "v317"
+          ],
+          "b30": [
+            "v325",
+            "v326",
+            "v327",
+            "v328",
+            "v329",
+            "v330",
+            "v331",
+            "v332",
+            "v333",
+            "v334"
+          ],
+          "b31": [
+            "v338",
+            "v341",
+            "v342",
+            "v343",
+            "v345"
+          ],
+          "b32": [
+            "v357",
+            "v360",
+            "v361",
+            "v362"
+          ]
+        },
+        "forwarding_substitutions": [
+          {
+            "block": "b17",
+            "parameters": [
+              "v136",
+              "v137",
+              "v138",
+              "v140",
+              "v141"
+            ],
+            "target": "b32",
+            "arguments": [
+              "v136",
+              "v137",
+              "v138",
+              "v140",
+              "v141"
+            ]
+          }
+        ],
+        "callees": [
+          "binary_saved_base",
+          "getw",
+          "private_tensor",
+          "putw",
+          "so_saved_live",
+          "so_uget"
+        ]
+      },
+      {
+        "name": "binary_saved_needed",
+        "raw_structured_sha256": "f7dfc2efa182b828f510ffef933dc153e15ec1fddec130e636b0f303c0af392b",
+        "compacted_structured_sha256": "d13142c26f147be7a86b91113e2e46db7df50dabbaf66b30b24c7313582d5120",
+        "raw_blocks": 9,
+        "compacted_blocks": 9,
+        "removed_scalar_parameters": {
+          "b1": [
+            "v12",
+            "v13",
+            "v14"
+          ],
+          "b3": [
+            "v26",
+            "v27",
+            "v28"
+          ],
+          "b5": [
+            "v39",
+            "v40"
+          ],
+          "b6": [
+            "v43"
+          ],
+          "b7": [
+            "v52",
+            "v53"
+          ],
+          "b8": [
+            "v56",
+            "v57"
+          ]
+        },
+        "forwarding_substitutions": [],
+        "callees": [
+          "getw",
+          "terror"
+        ]
+      },
+      {
+        "name": "binary_saved_get",
+        "raw_structured_sha256": "4dbe8d175dc72f04af1435615cb5476094d17c8f84985208eb986fa25b634b54",
+        "compacted_structured_sha256": "660ef0e5b8e41c1623ca80401a8aa34c86ec6c92ce7c2432d22745890d0b16d0",
+        "raw_blocks": 17,
+        "compacted_blocks": 17,
+        "removed_scalar_parameters": {
+          "b1": [
+            "v7",
+            "v8",
+            "v9"
+          ],
+          "b2": [
+            "v11"
+          ],
+          "b3": [
+            "v21",
+            "v25"
+          ],
+          "b4": [
+            "v27",
+            "v30"
+          ],
+          "b5": [
+            "v35",
+            "v36",
+            "v37",
+            "v38"
+          ],
+          "b6": [
+            "v40",
+            "v43"
+          ],
+          "b7": [
+            "v51",
+            "v52",
+            "v53",
+            "v54"
+          ],
+          "b8": [
+            "v56",
+            "v59"
+          ],
+          "b9": [
+            "v71",
+            "v72",
+            "v73",
+            "v74",
+            "v75"
+          ],
+          "b10": [
+            "v77",
+            "v80"
+          ],
+          "b11": [
+            "v88",
+            "v89",
+            "v90",
+            "v91",
+            "v92"
+          ],
+          "b12": [
+            "v94",
+            "v97",
+            "v98"
+          ],
+          "b13": [
+            "v104",
+            "v105",
+            "v106",
+            "v107",
+            "v108",
+            "v109"
+          ],
+          "b14": [
+            "v111",
+            "v113",
+            "v114",
+            "v115"
+          ],
+          "b15": [
+            "v130",
+            "v131",
+            "v132",
+            "v133",
+            "v134",
+            "v135",
+            "v136"
+          ],
+          "b16": [
+            "v138",
+            "v139",
+            "v140",
+            "v141",
+            "v142",
+            "v143"
+          ]
+        },
+        "forwarding_substitutions": [],
+        "callees": [
+          "binary_saved_base",
+          "binary_saved_needed",
+          "dptr",
+          "getw",
+          "graph_saved_check",
+          "private_tensor",
+          "publish_tensor",
+          "terror"
+        ]
+      },
+      {
+        "name": "binary_saved_command",
+        "raw_structured_sha256": "fe6a73275957c24027795a1ef4be3174fe0b1d6c1b067611659ae1ef6693cbe0",
+        "compacted_structured_sha256": "9fc8bd45af902f33a2876ca6395b977cc31d81cac3240e5334d8d123b1a95b4d",
+        "raw_blocks": 18,
+        "compacted_blocks": 14,
+        "removed_scalar_parameters": {
+          "b1": [
+            "v16"
+          ],
+          "b3": [
+            "v35"
+          ],
+          "b5": [
+            "v54"
+          ],
+          "b7": [
+            "v73"
+          ],
+          "b13": [
+            "v118"
+          ],
+          "b14": [
+            "v133"
+          ],
+          "b15": [
+            "v138",
+            "v141"
+          ],
+          "b16": [
+            "v149",
+            "v152"
+          ],
+          "b17": [
+            "v156"
+          ]
+        },
+        "forwarding_substitutions": [
+          {
+            "block": "b10",
+            "parameters": [
+              "v92",
+              "v93",
+              "v94",
+              "v95",
+              "v96",
+              "v97"
+            ],
+            "target": "b11",
+            "arguments": [
+              "v92",
+              "v93",
+              "v94",
+              "v95",
+              "v96",
+              "v97"
+            ]
+          },
+          {
+            "block": "b13",
+            "parameters": [
+              "v115",
+              "v116",
+              "v117",
+              "v119",
+              "v120"
+            ],
+            "target": "b17",
+            "arguments": [
+              "v115",
+              "v116",
+              "v117",
+              "v119",
+              "v120"
+            ]
+          },
+          {
+            "block": "b15",
+            "parameters": [
+              "v135",
+              "v136",
+              "v137",
+              "v139",
+              "v140"
+            ],
+            "target": "b16",
+            "arguments": [
+              "v135",
+              "v136",
+              "v137",
+              "v139",
+              "v140"
+            ]
+          },
+          {
+            "block": "b16",
+            "parameters": [
+              "v146",
+              "v147",
+              "v148",
+              "v150",
+              "v151"
+            ],
+            "target": "b17",
+            "arguments": [
+              "v146",
+              "v147",
+              "v148",
+              "v150",
+              "v151"
+            ]
+          }
+        ],
+        "callees": [
+          "binary_saved_get",
+          "getr",
+          "getw",
+          "public_node",
+          "putw",
+          "resolve_handle",
+          "terror"
+        ]
+      },
+      {
+        "name": "binary_backward_read",
+        "raw_structured_sha256": "96cba578343351137eed03d78f09be98361d7090936f03e89a567545e30569cc",
+        "compacted_structured_sha256": "96cba578343351137eed03d78f09be98361d7090936f03e89a567545e30569cc",
+        "raw_blocks": 1,
+        "compacted_blocks": 1,
+        "removed_scalar_parameters": {},
+        "forwarding_substitutions": [],
+        "callees": [
+          "integer_as_f32",
+          "tensor_dtype",
+          "tget"
+        ]
+      }
+    ]
+  ]
+}

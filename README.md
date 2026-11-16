@@ -330,4 +330,24 @@ promotion、完整 Python 接口和所有 17 项系统门禁继续开放。
 
 [独立的 int64 Tensor 配置](docs/integer-tensors.md)新增实际八字节 Storage、类型化算术与原地操作、最近偶数舍入、类型提升临时对象，以及真正持有 ultimate-base Tensor 的 int64 视图。新的 544 函数／十一模块映像已通过实际冷构建、固定参考重放和独立资源、入口、跨版本 owner 交接检查。原地操作首轮三个失败和后续修复均保留。
 
-完整报告、原始字节和四门统一冷构建回执见[整合证据](validation/integer-tensors/integration-final/custody.json)。各组检查存在重叠，不能累加为唯一算子或 schema 覆盖数。新映像的 live32、完整35及新提交的托管验证各自需要实际结果；混合 dtype 自动微分、公开 Tensor.to、其他 dtype／设备和全部 17 项全项目门槛继续开放。全量完成标记仍为 false。
+完整报告、原始字节和四门统一冷构建回执见[整合证据](validation/integer-tensors/integration-final/custody.json)。各组检查存在重叠，不能累加为唯一算子或 schema 覆盖数。该映像的 live32、完整35和 PR #33 两份托管 Native 作业已实际通过，两份作业各完成 96 步；PR／push 原始产物分别通过 217,481／217,482 项完整审查。合并提交 `26f3b2d0…` 的代码树与验收树完全一致，[原件与准入记录](validation/hosted-integer-tensors-343/)保留历史失败及证据范围。公开 Tensor.to、其他 dtype／设备和全部 17 项全项目门槛继续开放。全量完成标记仍为 false。
+
+## 原生 F32／int64 自动求导与 Saved Tensor 生命周期
+
+[556 函数／十一模块的原生后继](docs/mixed-integer-autograd.md)加入混合
+F32／int64 加、减、乘和真除法的有限自动求导，以及原始 Saved Tensor 访问。
+计算图保存原输入的真实 Tensor、Storage 和 Version；普通 F32 乘除法同样使用
+实际 Saved 引用，重复输入按各自槽位计数和释放。
+
+新的五门冷构建已重新编译全部模块，并通过固定 36 组混合 AD、旧 int64／523
+回归和独立 14 组公开 Saved 生命周期检查。原 `zero_grad(False)` 遗漏释放
+Saved Hold、以及整数 view 最后一个公开 Saved 引用释放后 Storage 仍存活的
+两次真实失败均已修复，原失败记录完整保留。独立资源、入口容量、Saved getter
+错误与双向 owner 交接另有原生执行证据，见[完整手包](validation/mixed-integer-autograd-evidence/)。
+
+[七个外层命令的统一冷构建](validation/mixed-integer-autograd-root/report.json)已实际全部通过，
+完整 2,225 个原始证据成员另经独立字节复核。新映像的 live32 和完整 35 组参考也已实际通过，
+全部 6,344 次状态转移再经独立重算；原来源、EOF、关闭后 Version 检查和历史差异均保留。
+[完整参考证据](validation/mixed-frozen35-accounting/remote10/)与该源提交自己的托管产物
+继续分别验收。计数按原参考范围保留，重叠测试不累加为 schema 覆盖率。
+整个 PyTorch 重写状态继续为 **HOLD**，完整 schema 闭合数仍为 **0／2,590**。

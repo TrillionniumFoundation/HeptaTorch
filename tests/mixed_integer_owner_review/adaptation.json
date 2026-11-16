@@ -1,0 +1,125 @@
+{
+  "status": "SOURCE_ADAPTED_NOT_NATIVE_QUALIFIED",
+  "parent07_sha256": "fd7a5be1ba4c1f9dbcfd6955e6fe5eb63860e55cdb87cd9556a969be4c8236d0",
+  "source_sha256": "aa8a9c2faf0fccabe0acb42d3f21e316c10c5c8b8626baa323bd8f186bead7ea",
+  "inverse_exact_parent07": true,
+  "changed_definitions": [
+    "decode_owner",
+    "pin_profile",
+    "verify_isolated_transition",
+    "verify_snapshot"
+  ],
+  "unchanged_definitions": [
+    "OwnerReader",
+    "_reach",
+    "_scc",
+    "_verify_mt_state",
+    "canonical",
+    "need",
+    "semantic",
+    "sha",
+    "token",
+    "w"
+  ],
+  "edits": [
+    {
+      "name": "schema",
+      "before": "heptatorch.integer-owner-observer07.v1",
+      "after": "heptatorch.mixed-integer-owner-observer10.v1",
+      "count": 1
+    },
+    {
+      "name": "profile",
+      "before": "integer-tensor-544-general-owner07",
+      "after": "mixed-integer-tensor-556-general-owner10",
+      "count": 1
+    },
+    {
+      "name": "source",
+      "before": "adf6cae67666273aa6fb77989080ca3b1e3632188d2d7956a6d8b71808787e62",
+      "after": "5f8ab1f7ca1593dc21b8b6a3537e210cfbc42b37ddefcb322239c5a316d88c49",
+      "count": 1
+    },
+    {
+      "name": "image",
+      "before": "b7324639bade3312981d1cbf9c2491b9fcff04fb6c3f808e9c5e1a7c2ca88f08",
+      "after": "69045063c00395d07fc6c0101ed1b8aba18376cb1daea54e0a01c2c5caeb49b6",
+      "count": 1
+    },
+    {
+      "name": "state",
+      "before": "HTINT002",
+      "after": "HTMXAD02",
+      "count": 2
+    },
+    {
+      "name": "backing",
+      "before": "HTOINT02",
+      "after": "HTOMXD02",
+      "count": 2
+    },
+    {
+      "name": "raw_saved_Tensor_pairs",
+      "before": "\"optimizer_blobs\": {}, \"generator_states\": {}, \"saved_layouts\": {},",
+      "after": "\"optimizer_blobs\": {}, \"generator_states\": {}, \"saved_layouts\": {}, \"binary_saved_roots\": {},",
+      "count": 1
+    },
+    {
+      "name": "decode_real_private_Hold_bytes",
+      "before": "        result[\"edges\"][key] = edges\n",
+      "after": "        result[\"edges\"][key] = edges\n        if w(node, 584) > 65535:\n            original_tensor_pairs = hold(w(node, 584))\n            need(len(original_tensor_pairs) == 32, \"decode-binary-Saved-Hold-size\")\n            result[\"binary_saved_roots\"][key] = list(struct.unpack('<4Q', original_tensor_pairs))\n",
+      "count": 1
+    },
+    {
+      "name": "empty_no_unreported_roles",
+      "before": "\"optimizer_blobs\", \"generator_states\", \"saved_layouts\")), \"empty-owner\")",
+      "after": "\"optimizer_blobs\", \"generator_states\", \"saved_layouts\", \"binary_saved_roots\")), \"empty-owner\")",
+      "count": 1
+    },
+    {
+      "name": "binary_pair_inventory",
+      "before": "accumulator_arcs, weak_hooks, masks, integer_views = [], [], [], []",
+      "after": "accumulator_arcs, weak_hooks, masks, integer_views, binary_saved_edges = [], [], [], [], []\n    need(set(snapshot[\"binary_saved_roots\"]) == {str(i) for i,n in live.items() if w(n,584)>65535},\n         \"binary-Saved-pair-coverage\")",
+      "count": 1
+    },
+    {
+      "name": "rowless_I64_metadata_cannot_hold_real_base",
+      "before": "        integer_view = w(node, 576) == 2 and w(node, 408) == 1",
+      "after": "        integer_view = w(node, 576) == 2 and w(node, 408) == 1 and w(node, 240) == 1\n        if w(node,576) == 2 and w(node,408) == 1 and w(node,240) == 0:\n            need(mask == 0 and w(node,592) == 0, \"I64-rowless-view-base-retained\", node=i)",
+      "count": 1
+    },
+    {
+      "name": "new_Hold_role_strict_before_old_node_roles",
+      "before": "        if integer_view:\n",
+      "after": "        if mask > 65535:\n            region = private_hold(mask, f\"binary-Saved:{i}\", 32)\n            need(w(node, 592) == TAG + region[2], \"binary-Saved-relative-address\", node=i)\n            need(w(node, 576) == 0 and w(node, 32) == 1 and op in (3,4)\n                 and w(node, 328) == 0, \"binary-Saved-owner-role\", node=i)\n            values = snapshot[\"binary_saved_roots\"][str(i)]\n            need(len(values) == 4 and all(type(x) is int and 0 <= x <= MAX_U64 for x in values),\n                 \"binary-Saved-pair-width\", node=i)\n            need(sha(struct.pack('<4Q',*values)) == snapshot[\"hold_regions\"][str(mask)][\"sha256\"],\n                 \"binary-Saved-Hold-content\", node=i)\n            populated = 0\n            for slot in range(2):\n                target, incarnation = values[2*slot:2*slot+2]\n                saved = w(node,280+8*slot)\n                needed = w(node,80) if slot == 0 else (w(node,72)|w(node,80) if op==4 else w(node,72))\n                need(bool(target) == bool(saved) == bool(needed), \"binary-Saved-slot-presence\", node=i, slot=slot)\n                if target:\n                    tn = tensor(target,incarnation,\"binary-Saved-original-Tensor-incarnation\")\n                    need(incarnation < w(node,320), \"binary-Saved-original-order\", node=i, slot=slot)\n                    sr = lookup(5,saved)\n                    need(sr[2] == w(tn,216) and sr[3] == w(tn,224)\n                         and sr[5] == w(tn,232) and sr[7] == 0,\n                         \"binary-Saved-original-S-V-offset\", node=i, slot=slot)\n                    owned_refs[target] += 1; strong_arcs[i].append(target)\n                    binary_saved_edges.append([i,slot,target,incarnation,saved,mask])\n                    populated += 1\n                else:\n                    need(incarnation == 0, \"binary-Saved-absent-incarnation\", node=i, slot=slot)\n            need(populated > 0,\"binary-Saved-empty-Hold\",node=i)\n        elif integer_view:\n",
+      "count": 1
+    },
+    {
+      "name": "report_actual_Saved_Tensor_arcs",
+      "before": "\"I64_ultimate_base_edges\": integer_views,",
+      "after": "\"I64_ultimate_base_edges\": integer_views, \"binary_Saved_original_Tensor_edges\": binary_saved_edges,",
+      "count": 1
+    },
+    {
+      "name": "new_actual_differentiable_out_of_place_contract",
+      "before": "and 1 <= command[1] <= 7 and w(left, 32) == w(right, 32) == 0,",
+      "after": "and 1 <= command[1] <= 7 and (code == 103 or w(left, 32) == w(right, 32) == 0),",
+      "count": 1
+    },
+    {
+      "name": "explicit_existing_gradient_read_has_zero_descriptors",
+      "before": "elif code in (13, 39, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 53, 54,",
+      "after": "elif code in (13, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 53, 54,",
+      "count": 1
+    },
+    {
+      "name": "zero_allocation_actual_Saved_accessor",
+      "before": "    elif code == 106:\n",
+      "after": "    elif code == 107:\n        _, node = public_argument(command[1])\n        need(command[2] in (0,1) and not any(command[3:]), \"Saved-accessor-command-shape\")\n        allocated = 0  # publish_tensor toggles an existing live T, no new descriptor\n    elif code == 106:\n",
+      "count": 1
+    }
+  ],
+  "script_sha256": "2ef4d9e470e67b9d7fb049cd24b6369ece2f49182b3942f96a0af0e5a6117847",
+  "source_native_sha256": "5f8ab1f7ca1593dc21b8b6a3537e210cfbc42b37ddefcb322239c5a316d88c49",
+  "native_image_sha256": "69045063c00395d07fc6c0101ed1b8aba18376cb1daea54e0a01c2c5caeb49b6"
+}

@@ -1,0 +1,136 @@
+{
+  "status": "PASS_LOCAL_PREPUBLICATION_ACCOUNTING_AND_WORKFLOW",
+  "commands": [
+    {
+      "name": "accounting",
+      "argv": [
+        "python3",
+        "-I",
+        "-S",
+        "-B",
+        "tools/check_acceptance.py"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "028e7b5d23462b006302ad8256bce69837d4d5c3733f3102f60160e37e1c3a39",
+      "report": {
+        "accounting_status": "PASS",
+        "checks": {
+          "all_subsystems_retained": true,
+          "completion_flags_agree": true,
+          "continuation_plan_exists": true,
+          "exact_schema_denominator": true,
+          "full_schema_qualification_not_inferred": true,
+          "no_unverified_subsystem_closure": true,
+          "schema_count": true,
+          "upstream_identity": true
+        },
+        "full_upstream_schema_parity_count": 0,
+        "limitation": "Accounting consistency only; full subsystem qualification runners remain to be implemented alongside their native functionality.",
+        "native_schema_inventory_count": 2590,
+        "open_full_subsystem_gates": 17,
+        "schema": "heptatorch.acceptance-accounting.v1",
+        "whole_project_status": "HOLD",
+        "whole_pytorch_rewrite_complete": false
+      }
+    },
+    {
+      "name": "negative-controls",
+      "argv": [
+        "python3",
+        "-I",
+        "-S",
+        "-B",
+        "tests/check_acceptance_negative.py"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "2206820b0dd8a2a21fb381dd7a6fcc7ce12bd4590d83afba915b1d9b32b9b761",
+      "report": {
+        "cases": 9,
+        "rows": [
+          {
+            "case": "deleted-schema",
+            "rejected": true
+          },
+          {
+            "case": "changed-schema-preserving-count",
+            "rejected": true
+          },
+          {
+            "case": "declared-schema-qualification",
+            "rejected": true
+          },
+          {
+            "case": "deleted-subsystem",
+            "rejected": true
+          },
+          {
+            "case": "duplicated-subsystem",
+            "rejected": true
+          },
+          {
+            "case": "unverified-subsystem-closure",
+            "rejected": true
+          },
+          {
+            "case": "fabricated-whole-completion",
+            "rejected": true
+          },
+          {
+            "case": "scoped-kernel-promoted-to-full-schema",
+            "rejected": true
+          },
+          {
+            "case": "changed-upstream-pin",
+            "rejected": true
+          }
+        ],
+        "schema": "heptatorch.acceptance-negative-controls.v1",
+        "status": "PASS",
+        "verifier_sha256": "6a8e3b94e1eb046edf10ecb17065b03aec1b59ef0c50e5ef2a0fe21f2edc9e45",
+        "whole_project_status": "HOLD"
+      }
+    },
+    {
+      "name": "full-project",
+      "argv": [
+        "python3",
+        "-I",
+        "-S",
+        "-B",
+        "tools/check_acceptance.py",
+        "--require-complete"
+      ],
+      "exit_code": 2,
+      "stdout_sha256": "028e7b5d23462b006302ad8256bce69837d4d5c3733f3102f60160e37e1c3a39",
+      "report": {
+        "accounting_status": "PASS",
+        "checks": {
+          "all_subsystems_retained": true,
+          "completion_flags_agree": true,
+          "continuation_plan_exists": true,
+          "exact_schema_denominator": true,
+          "full_schema_qualification_not_inferred": true,
+          "no_unverified_subsystem_closure": true,
+          "schema_count": true,
+          "upstream_identity": true
+        },
+        "full_upstream_schema_parity_count": 0,
+        "limitation": "Accounting consistency only; full subsystem qualification runners remain to be implemented alongside their native functionality.",
+        "native_schema_inventory_count": 2590,
+        "open_full_subsystem_gates": 17,
+        "schema": "heptatorch.acceptance-accounting.v1",
+        "whole_project_status": "HOLD",
+        "whole_pytorch_rewrite_complete": false
+      }
+    }
+  ],
+  "parent_workflow_sha256": "e3cc81d3a573ab60695bbb07f7dbfedcccb4852b5ffb9f9592c07fe7441eb93e",
+  "current_workflow_sha256": "d88f040fa306133fab5398999265de635e2c9e44a0791fb48bb2922c0b35f0f1",
+  "parent91_steps_and43_envelopes_byte_preserved": true,
+  "explicit_steps": 99,
+  "envelopes": 48,
+  "whole_workflow_inverse_exact_with_one_final_blank_line": true,
+  "whole_project_gate": "HOLD",
+  "closed_full_schemas": 0,
+  "source_head_hosted_status": "NOT_RUN"
+}
