@@ -78,7 +78,7 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          import hashlib,json,os,subprocess,sys
+          import hashlib,json,os,re,subprocess,sys
           script=Path('tests/f64_oracle.py')
           assert hashlib.sha256(script.read_bytes()).hexdigest()=='bb639f7ef669d34787986ed62e870cc61071adcba1ae4e44e325673e2f75bb03'
           args=[sys.executable,str(script),'--compiler',str(Path(os.environ['RUNNER_TEMP'])/'f64-compiler/native-compiler'),
@@ -89,13 +89,21 @@ jobs:
           sys.stdout.buffer.write(process.stdout);sys.stdout.flush()
           sys.stderr.buffer.write(process.stderr);sys.stderr.flush()
           report=json.loads(Path('build/f64-pytorch/report.json').read_bytes())
-          assert process.returncode in (0,1) and not process.stderr
+          assert process.returncode in (0,1)
+          # This exact optional-NumPy import warning is present in the pinned
+          # wheel without NumPy. Preserve it; reject any other diagnostic.
+          expected_warning = (r"[^\n]+/torch/_subclasses/functional_tensor.py:377: UserWarning: "
+              r"Failed to initialize NumPy: No module named 'numpy' "
+              r"\(Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82\.\)\n"
+              r'  cpu = _conversion_method_template\(device=torch.device\("cpu"\)\)\n')
+          assert not process.stderr or re.fullmatch(expected_warning,process.stderr.decode()), process.stderr
           assert process.returncode==(1 if report['status']=='FAIL' else 0)
           result={'schema':'heptatorch.f64-frozen-strict-exit.v1','status':report['status'],
                   'actual_exit_code':process.returncode,'original_oracle_sha256':hashlib.sha256(script.read_bytes()).hexdigest(),
                   'report_sha256':hashlib.sha256(Path('build/f64-pytorch/report.json').read_bytes()).hexdigest(),
                   'stdout_sha256':hashlib.sha256(process.stdout).hexdigest(),
                   'stderr_sha256':hashlib.sha256(process.stderr).hexdigest(),
+                  'stderr_text':process.stderr.decode(),
                   'strict_gate_reclassified':False,'whole_pytorch_rewrite_complete':False}
           raw=json.dumps(result,indent=2)+'\n';Path('build/f64-strict-exit.json').write_text(raw);print(raw)
           PY

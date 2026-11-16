@@ -1,0 +1,74 @@
+name: Standalone HIA E5M2 float8 differential
+on:
+  push:
+    branches: ["feature/native-float8-e5m2-conversion"]
+  pull_request:
+    paths: ["tools/dtype-float8-e5m2/**", "tests/float8_e5m2_oracle.py", ".github/workflows/dtype-float8-e5m2.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  float8:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: TrillionniumFoundation/Hepta
+          ref: f33d8da316de8fdf27b504371f1a5310997ff548
+          path: .toolchain/hepta
+          persist-credentials: false
+          sparse-checkout-cone-mode: true
+          sparse-checkout: |
+            hepta
+            tools
+            examples/hia_bootstrap
+            docs
+      - name: Reproduce native HIA compiler
+        run: |
+          python3 -I -S -B - <<'PY'
+          from pathlib import Path
+          import hashlib,os,subprocess,sys
+          root=Path('.toolchain/hepta').resolve()
+          assert subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD'],text=True).strip()=='f33d8da316de8fdf27b504371f1a5310997ff548'
+          src=(root/'examples/hia_bootstrap/selfhost.hepta').read_bytes()
+          assert hashlib.sha256(src).hexdigest()=='388b182e42675f11435867dd99520e9452a4ff48e23c0766a3952b662acc7627'
+          sys.path.insert(0,str(root))
+          from tools.qualify_hia_selfhost import build_seed,compile_stage
+          out=Path(os.environ['RUNNER_TEMP'])/'float8-compiler';out.mkdir(parents=True,exist_ok=True)
+          image,_=build_seed(out,src)
+          generations=[]
+          for label in ('B1','B2','B3'):
+              image,record=compile_stage(out,label,image,src,image_format='seed-shared' if label=='B1' else 'flat-x86-64')
+              generations.append(record['produced_sha256'])
+          assert len(set(generations))==1
+          before=b'hia-asm.v1 hepta.hia.program.v8 selfhost\n'
+          assert src.startswith(before)
+          executable=b'hia-asm.v1 hepta.hia.program.v8 selfhost_exec\n'+src[len(before):]
+          compiler,_=compile_stage(out,'native-compiler',image,executable,output_extension='')
+          compiler.chmod(0o755)
+          assert hashlib.sha256(compiler.read_bytes()).hexdigest()=='87c247e4d1c3c9a449d2947fd4227fdc186d519bffd203a04cafce7861a4ed54'
+          for i in range(2):
+              p=subprocess.run([str(compiler)],input=executable,capture_output=True,timeout=30,env={'PATH':''})
+              assert p.returncode==0 and not p.stderr and p.stdout==compiler.read_bytes()
+          print('PASS native HIA compiler reproduction')
+          PY
+      - name: Install exact independent PyTorch wheel
+        run: |
+          python3 - <<'PY'
+          import json,platform,subprocess,sys
+          from pathlib import Path
+          x=json.load(open('compatibility/pytorch-oracle-lock.json'))['oracle']
+          assert list(sys.version_info[:2])==x['python']['version'] and platform.machine()=='x86_64'
+          url=x['wheel']['url']+'#sha256='+x['wheel']['sha256']
+          Path(x['install_report']).parent.mkdir(parents=True,exist_ok=True)
+          subprocess.run([sys.executable,'-m','pip','install','--disable-pip-version-check','--force-reinstall',
+             '--index-url','https://download.pytorch.org/whl/cpu','--report',x['install_report'],url],check=True)
+          PY
+      - name: Native differential against real PyTorch
+        run: |
+          python3 -I -S -B tests/float8_e5m2_oracle.py --compiler "$RUNNER_TEMP/float8-compiler/native-compiler" --reference cpython --output build/float8-cpython
+          python3 tests/float8_e5m2_oracle.py --compiler "$RUNNER_TEMP/float8-compiler/native-compiler" --reference pytorch --output build/float8-pytorch

@@ -1,0 +1,246 @@
+def stack_frame_valid(s:readbuf, text:u64, size:u64, extent:u64) -> u64:
+    if size < 15 or extent < 608 or extent > 33360 or (extent & 15) != 0:
+        return 0
+    if uint(s, text, 4) != 3850979413:
+        return 0
+    pos = 4
+    remain = extent
+    while remain > 0:
+        amount = remain
+        if amount > 4096:
+            amount = 4096
+        if within(size, pos, 11) == 0:
+            return 0
+        if uint(s, text + pos, 3) != 15499592 or uint(s, text + pos + 3, 4) != amount:
+            return 0
+        if uint(s, text + pos + 7, 4) != 604277576:
+            return 0
+        pos = pos + 11
+        remain = remain - amount
+    return 1
+
+def stack_code_valid(s:readbuf, pos:u64, text_size:u64, function:u64, end:u64) -> u64:
+    start = uint(s, function + 8, 8)
+    size = uint(s, function + 16, 8)
+    extent = uint(s, function + 24, 8)
+    imported = uint(s, function + 40, 8)
+    variables = uint(s, function + 48, 8)
+    if uint(s, function + 56, 8) != 0 or imported > 1:
+        return 18446744073709551615
+    if imported == 1:
+        if start != 0 or size != 0 or extent != 0 or variables != 0:
+            return 18446744073709551615
+        return end
+    if variables > 2047 or extent != (variables + 2) * 16 + 576:
+        return 18446744073709551615
+    if start != end or within(text_size, start, size) == 0:
+        return 18446744073709551615
+    if stack_frame_valid(s, pos + 64 + start, size, extent) == 0:
+        return 18446744073709551615
+    return start + size
+
+def stack_symbol_valid(s:readbuf, w:mutbuf, object:u64, at:u64, i:u64) -> u64:
+    record = 4096 + object * 80
+    metadata = get(w, 13111808 + object * 8)
+    function = at + 64 + i * 64
+    symbol = uint(s, function + 32, 8)
+    imported = uint(s, function + 40, 8)
+    if uint(s, function, 8) != i:
+        return 0
+    if imported == 1:
+        if symbol < uint(s, metadata + 32, 8) + 2 or symbol >= uint(s, metadata + 16, 8) + 2:
+            return 0
+    else:
+        if symbol == 0:
+            return 1
+        if symbol < 2 or symbol >= uint(s, metadata + 32, 8) + 2:
+            return 0
+    contract = metadata + 64 + (symbol - 2) * 256
+    if uint(s, contract + 192, 8) != i or uint(s, contract + 8, 8) != imported:
+        return 0
+    symbols = get(w, record) + uint(s, get(w, record + 32) + 24, 8)
+    if uint(s, symbols + symbol * 24 + 8, 8) != uint(s, function + 8, 8):
+        return 0
+    if uint(s, symbols + symbol * 24 + 16, 8) != uint(s, function + 16, 8):
+        return 0
+    return 1
+
+def stack_row_valid(s:readbuf, at:u64, i:u64) -> u64:
+    count = uint(s, at + 16, 8)
+    width = uint(s, at + 40, 8)
+    imported = uint(s, at + 64 + i * 64 + 40, 8)
+    j = 0
+    while j < width:
+        bits = byte(s, at + 64 + count * 64 + i * width + j)
+        if imported == 1 and bits != 0:
+            return 0
+        if j == i // 8 and (bits & (1 << (i % 8))) != 0:
+            return 0
+        if j + 1 == width and count % 8 != 0 and (bits >> (count % 8)) != 0:
+            return 0
+        j = j + 1
+    return 1
+
+def stack_members(s:readbuf, w:mutbuf, object:u64, at:u64) -> u64:
+    record = 4096 + object * 80
+    pos = get(w, record)
+    table = pos + uint(s, pos + 40, 8)
+    count = uint(s, at + 16, 8)
+    end = 0
+    i = 0
+    while i < count:
+        end = stack_code_valid(s, pos, uint(s, table + 96, 8), at + 64 + i * 64, end)
+        if end == 18446744073709551615:
+            return 0
+        if stack_symbol_valid(s, w, object, at, i) == 0 or stack_row_valid(s, at, i) == 0:
+            return 0
+        i = i + 1
+    metadata = get(w, 13111808 + object * 8)
+    i = 0
+    while i < uint(s, metadata + 16, 8):
+        contract = metadata + 64 + i * 256
+        ordinal = uint(s, contract + 192, 8)
+        if uint(s, at + 64 + ordinal * 64 + 32, 8) != i + 2:
+            return 0
+        i = i + 1
+    i = 64 + count * 64 + count * uint(s, at + 40, 8)
+    while i < uint(s, table + 544, 8):
+        if byte(s, at + i) != 0:
+            return 0
+        i = i + 1
+    return stack_machine_calls(s, w, object, at, end)
+
+def stack_layout(s:readbuf, w:mutbuf, object:u64) -> u64:
+    record = 4096 + object * 80
+    pos = get(w, record)
+    table = pos + uint(s, pos + 40, 8)
+    at = pos + uint(s, table + 536, 8)
+    size = uint(s, table + 544, 8)
+    metadata = get(w, 13111808 + object * 8)
+    count = uint(s, metadata + 24, 8)
+    width = (count + 7) // 8
+    if size != 64 + count * 64 + aligned(count * width, 8):
+        return 0
+    if uint(s, at, 8) != STACK_MAGIC or uint(s, at + 8, 8) != 1:
+        return 0
+    if uint(s, at + 16, 8) != count or uint(s, at + 24, 8) != count - uint(s, metadata + 40, 8):
+        return 0
+    if uint(s, at + 32, 8) != 64 or uint(s, at + 40, 8) != width or uint(s, at + 48, 8) != 40:
+        return 0
+    if stack_members(s, w, object, at) == 0:
+        return 0
+    return at
+
+def stack_unit_cost(s:readbuf, w:mutbuf, object:u64) -> u64:
+    at = get(w, 13112320 + object * 8)
+    count = uint(s, at + 16, 8)
+    width = uint(s, at + 40, 8)
+    matrix = at + 64 + count * 64
+    costs = 13112832 + object * 2048
+    record = 4096 + object * 80
+    fill_range(w, 13244416, 2048, 0)
+    i = 0
+    while i < count:
+        function = at + 64 + i * 64
+        if uint(s, function + 40, 8) == 1:
+            symbol = uint(s, function + 32, 8)
+            sym = 262144 + (get(w, record + 64) + symbol) * 32
+            found = global_find(s, w, get(w, sym), get(w, sym + 8))
+            if found == 0:
+                return 0
+            index = (get(w, found + 16) - 262144) // 32
+            target = get(w, 12582912 + index * 8)
+            provider = get(w, 12845056 + index * 8)
+            if target == 0 or provider == 0 or provider > get(w, 0):
+                return 0
+            ordinal = uint(s, target + 192, 8)
+            if ordinal >= uint(s, get(w, 13112320 + (provider - 1) * 8) + 16, 8):
+                return 0
+            value = get(w, 13112832 + (provider - 1) * 2048 + ordinal * 8)
+            if value == 0:
+                return 0
+            put(w, costs + i * 8, value)
+            put(w, 13244416 + i * 8, 2)
+        i = i + 1
+    i = 0
+    while i < count:
+        if get(w, 13244416 + i * 8) == 0:
+            depth = 1
+            put(w, 13246464, i)
+            put(w, 13246472, 0)
+            put(w, 13246480, 0)
+            put(w, 13244416 + i * 8, 1)
+            while depth > 0:
+                cursor = 13246464 + (depth - 1) * 24
+                current = get(w, cursor)
+                next = get(w, cursor + 8)
+                best = get(w, cursor + 16)
+                if next == count:
+                    value = uint(s, at + 64 + current * 64 + 24, 8) + 16
+                    if value > STACK_LIMIT or best > STACK_LIMIT - value:
+                        return 0
+                    value = value + best
+                    put(w, costs + current * 8, value)
+                    put(w, 13244416 + current * 8, 2)
+                    if value > get(w, 104):
+                        put(w, 104, value)
+                    depth = depth - 1
+                    if depth > 0:
+                        parent = 13246464 + (depth - 1) * 24
+                        if value > get(w, parent + 16):
+                            put(w, parent + 16, value)
+                else:
+                    put(w, cursor + 8, next + 1)
+                    bits = byte(s, matrix + current * width + next // 8)
+                    if (bits & (1 << (next % 8))) != 0:
+                        color = get(w, 13244416 + next * 8)
+                        if color == 1:
+                            return 0
+                        if color == 2:
+                            value = get(w, costs + next * 8)
+                            if value > best:
+                                put(w, cursor + 16, value)
+                        else:
+                            if depth >= count:
+                                return 0
+                            child = 13246464 + depth * 24
+                            put(w, child, next)
+                            put(w, child + 8, 0)
+                            put(w, child + 16, 0)
+                            put(w, 13244416 + next * 8, 1)
+                            depth = depth + 1
+        i = i + 1
+    return 1
+
+def stack_contracts(s:readbuf, w:mutbuf) -> u64:
+    fill_range(w, 13112320, 140288, 0)
+    object = 0
+    while object < get(w, 0):
+        at = stack_layout(s, w, object)
+        if at == 0:
+            return 0
+        put(w, 13112320 + object * 8, at)
+        object = object + 1
+    step = 0
+    while step < get(w, 0):
+        object = 0
+        pending = 0
+        while object < get(w, 0):
+            if get(w, 13243904 + object * 8) == 0:
+                ready = 1
+                provider = 0
+                while provider < get(w, 0):
+                    if byte(w, 13107200 + object * 64 + provider) != 0 and get(w, 13243904 + provider * 8) == 0:
+                        ready = 0
+                    provider = provider + 1
+                if ready == 1:
+                    if stack_unit_cost(s, w, object) == 0:
+                        return 0
+                    put(w, 13243904 + object * 8, 1)
+                else:
+                    pending = pending + 1
+            object = object + 1
+        if pending == 0:
+            return 1
+        step = step + 1
+    return 0

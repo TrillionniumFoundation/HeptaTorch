@@ -1,0 +1,255 @@
+{
+  "schema": "heptatorch.native-float8-e5m2-first-failure.v1",
+  "original_run_url": "https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43802223045",
+  "original_job_id": 133084905876,
+  "original_head_sha": "7b4788b607bdfb661b28c438b4c579737c82c586",
+  "original_error": "The first native float8 exponent-overflow path retained binary16 infinity constant 31744, truncating the byte to signed zero. Three original numeric cases FAILED; real test thresholds and reference values were not altered.",
+  "corrected_source_head": "358b009375c3a6c2fa43e16efde047c6646a64d1",
+  "correction": "float8_e5m2.hepta round_float8_e5m2.infinity inf2 constant = 124, not 31744",
+  "original_report": {
+    "schema": "heptatorch.native-float8_e5m2-conversion-review.v1",
+    "status": "FAIL",
+    "reference": "cpython",
+    "oracle_provenance": null,
+    "source_sha256": "85886ad4e5aa5116bd67981b4d32d66ffc798e6a26fd299643a188cfe04cc21f",
+    "compiler_sha256": "87c247e4d1c3c9a449d2947fd4227fdc186d519bffd203a04cafce7861a4ed54",
+    "native_executable_sha256": "fa96c2126f0216d434eea574d2402a15f0ad40c67a700695e81439e54bd1a06b",
+    "source_producer_and_image_unchanged": true,
+    "oracle_script_sha256": "8b11183c6bca58628b9c7ff11682c8ff6335d516fc05e9f15d5e8e518e9bb51b",
+    "native_compilations_byte_identical": true,
+    "cases": 16,
+    "failed_cases": 3,
+    "exact_non_nan": 500887,
+    "nan_classification": 391,
+    "rows": [
+      {
+        "case": "widen-all-256-encodings",
+        "status": "PASS",
+        "input_count": 256,
+        "exact_non_nan": 250,
+        "nan_classification": 6,
+        "mismatches": [],
+        "request_sha256": "ac9956e8d15f0a442adb492cf18bffdf92f8b7220adcaf85a543b02b19959ae5",
+        "response_sha256": "90b8dab9146ff3616beec09e55dd59f24395f7c6519d97dfd076854fc1ea0f55",
+        "reference_packed_sha256": "f27340bbd2d23b7ee6ed74aef34425c94f9037517888fe98870711bec0be8f6c"
+      },
+      {
+        "case": "round-exact-float8-encodings",
+        "status": "FAIL",
+        "input_count": 256,
+        "exact_non_nan": 250,
+        "nan_classification": 6,
+        "mismatches": [
+          {
+            "index": 124,
+            "input": 2139095040,
+            "actual": 0,
+            "expected": 124
+          },
+          {
+            "index": 252,
+            "input": 4286578688,
+            "actual": 128,
+            "expected": 252
+          }
+        ],
+        "error": "[{'index': 124, 'input': 2139095040, 'actual': 0, 'expected': 124}, {'index': 252, 'input': 4286578688, 'actual': 128, 'expected': 252}]",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/runner/work/HeptaTorch/HeptaTorch/tests/float8_e5m2_oracle.py\", line 185, in main\n    assert not row['mismatches'], row['mismatches']\n           ^^^^^^^^^^^^^^^^^^^^^\nAssertionError: [{'index': 124, 'input': 2139095040, 'actual': 0, 'expected': 124}, {'index': 252, 'input': 4286578688, 'actual': 128, 'expected': 252}]\n"
+      },
+      {
+        "case": "round-all-signed-midpoints-and-neighbors",
+        "status": "PASS",
+        "input_count": 744,
+        "exact_non_nan": 744,
+        "nan_classification": 0,
+        "mismatches": [],
+        "request_sha256": "6ee892c5bbd19e1e3eb8d38932cfba006ec85bf7fc310cc1aa4e63d40741aca6",
+        "response_sha256": "a51f2aef6dac2633a01ce73f46d5c5a488fecf0c6bfbfa23374acd90e826a62a",
+        "reference_packed_sha256": "c089cb48dcf3065b7a72be2336f9fd6cfeac53a7a297e864a79d31012ea2b0cd"
+      },
+      {
+        "case": "round-100000-seeded-f32-encodings",
+        "status": "FAIL",
+        "input_count": 100000,
+        "exact_non_nan": 99627,
+        "nan_classification": 373,
+        "mismatches": [
+          {
+            "index": 0,
+            "input": 4132248825,
+            "actual": 128,
+            "expected": 252
+          },
+          {
+            "index": 12,
+            "input": 1247271203,
+            "actual": 0,
+            "expected": 124
+          },
+          {
+            "index": 16,
+            "input": 1436688608,
+            "actual": 0,
+            "expected": 124
+          },
+          {
+            "index": 17,
+            "input": 3681318455,
+            "actual": 128,
+            "expected": 252
+          },
+          {
+            "index": 21,
+            "input": 3758172985,
+            "actual": 128,
+            "expected": 252
+          },
+          {
+            "index": 22,
+            "input": 3614831412,
+            "actual": 128,
+            "expected": 252
+          },
+          {
+            "index": 23,
+            "input": 3972959995,
+            "actual": 128,
+            "expected": 252
+          },
+          {
+            "index": 26,
+            "input": 4106008004,
+            "actual": 128,
+            "expected": 252
+          }
+        ],
+        "error": "[{'index': 0, 'input': 4132248825, 'actual': 128, 'expected': 252}, {'index': 12, 'input': 1247271203, 'actual': 0, 'expected': 124}, {'index': 16, 'input': 1436688608, 'actual': 0, 'expected': 124}, {'index': 17, 'input': 3681318455, 'actual': 128, 'expected': 252}, {'index': 21, 'input': 3758172985, 'actual': 128, 'expected': 252}, {'index': 22, 'input': 3614831412, 'actual': 128, 'expected': 252}, {'index': 23, 'input': 3972959995, 'actual': 128, 'expected': 252}, {'index': 26, 'input': 4106008004, 'actual': 128, 'expected': 252}]",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/runner/work/HeptaTorch/HeptaTorch/tests/float8_e5m2_oracle.py\", line 185, in main\n    assert not row['mismatches'], row['mismatches']\n           ^^^^^^^^^^^^^^^^^^^^^\nAssertionError: [{'index': 0, 'input': 4132248825, 'actual': 128, 'expected': 252}, {'index': 12, 'input': 1247271203, 'actual': 0, 'expected': 124}, {'index': 16, 'input': 1436688608, 'actual': 0, 'expected': 124}, {'index': 17, 'input': 3681318455, 'actual': 128, 'expected': 252}, {'index': 21, 'input': 3758172985, 'actual': 128, 'expected': 252}, {'index': 22, 'input': 3614831412, 'actual': 128, 'expected': 252}, {'index': 23, 'input': 3972959995, 'actual': 128, 'expected': 252}, {'index': 26, 'input': 4106008004, 'actual': 128, 'expected': 252}]\n"
+      },
+      {
+        "case": "round-special-f32-encodings",
+        "status": "FAIL",
+        "input_count": 22,
+        "exact_non_nan": 16,
+        "nan_classification": 6,
+        "mismatches": [
+          {
+            "index": 8,
+            "input": 2139095039,
+            "actual": 0,
+            "expected": 124
+          },
+          {
+            "index": 9,
+            "input": 4286578687,
+            "actual": 128,
+            "expected": 252
+          },
+          {
+            "index": 10,
+            "input": 2139095040,
+            "actual": 0,
+            "expected": 124
+          },
+          {
+            "index": 11,
+            "input": 4286578688,
+            "actual": 128,
+            "expected": 252
+          }
+        ],
+        "error": "[{'index': 8, 'input': 2139095039, 'actual': 0, 'expected': 124}, {'index': 9, 'input': 4286578687, 'actual': 128, 'expected': 252}, {'index': 10, 'input': 2139095040, 'actual': 0, 'expected': 124}, {'index': 11, 'input': 4286578688, 'actual': 128, 'expected': 252}]",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/runner/work/HeptaTorch/HeptaTorch/tests/float8_e5m2_oracle.py\", line 185, in main\n    assert not row['mismatches'], row['mismatches']\n           ^^^^^^^^^^^^^^^^^^^^^\nAssertionError: [{'index': 8, 'input': 2139095039, 'actual': 0, 'expected': 124}, {'index': 9, 'input': 4286578687, 'actual': 128, 'expected': 252}, {'index': 10, 'input': 2139095040, 'actual': 0, 'expected': 124}, {'index': 11, 'input': 4286578688, 'actual': 128, 'expected': 252}]\n"
+      },
+      {
+        "case": "round-empty",
+        "status": "PASS",
+        "input_count": 0,
+        "exact_non_nan": 0,
+        "nan_classification": 0,
+        "mismatches": [],
+        "request_sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+        "response_sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+        "reference_packed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "case": "widen-empty",
+        "status": "PASS",
+        "input_count": 0,
+        "exact_non_nan": 0,
+        "nan_classification": 0,
+        "mismatches": [],
+        "request_sha256": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8",
+        "response_sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+        "reference_packed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "case": "round-exact-packet-count-limit",
+        "status": "PASS",
+        "input_count": 200000,
+        "exact_non_nan": 200000,
+        "nan_classification": 0,
+        "mismatches": [],
+        "request_sha256": "896389e41ce511a307068925e89ac862c026f1e08301ddc162e98b1689faa0d7",
+        "response_sha256": "07203db117cfb7cfe4ee844d4105ecf5d2fe19e95aaf6d1006d4491977782c1b",
+        "reference_packed_sha256": "5b2115dd11dc217c5a0d8f860b9c937cfa6ccde330c18f0875ec1da827cd5918"
+      },
+      {
+        "case": "widen-exact-packet-count-limit",
+        "status": "PASS",
+        "input_count": 200000,
+        "exact_non_nan": 200000,
+        "nan_classification": 0,
+        "mismatches": [],
+        "request_sha256": "30866b6e6b10a52541279dc5640c2a5a7c1a918186f2e972d2c8d0d374661587",
+        "response_sha256": "befdb216eeae64bb51d33a990ed189156b301e5500e0b2f467b74c02d294fee6",
+        "reference_packed_sha256": "7e237fe50beba3b8e3633341227e0536c3f61c38defb0ffb2eb79822fbf43e1b"
+      },
+      {
+        "case": "refuse-short-header",
+        "status": "PASS",
+        "request_sha256": "837885c8f8091aeaeb9ec3c3f85a6ff470a415e610b8ba3e49f9b33c9cf9d619",
+        "response_sha256": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450"
+      },
+      {
+        "case": "refuse-unknown-mode",
+        "status": "PASS",
+        "request_sha256": "d86e8112f3c4c4442126f8e9f44f16867da487f29052bf91b810457db34209a4",
+        "response_sha256": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450"
+      },
+      {
+        "case": "refuse-truncated-f32",
+        "status": "PASS",
+        "request_sha256": "48fc2ea12d47df40af2a6a8a3b8338ef2f4697b4b9dea6e34fed0032d3f2e4b7",
+        "response_sha256": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450"
+      },
+      {
+        "case": "refuse-truncated-float8",
+        "status": "PASS",
+        "request_sha256": "ee5c0f39398418d9ca7b8cea9b465b151895d537ced67d19268944c0efdbb17f",
+        "response_sha256": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450"
+      },
+      {
+        "case": "refuse-extra-payload",
+        "status": "PASS",
+        "request_sha256": "f91b14e7bbea4c5bfa0e1a704017716659f4910e557b869f226a69652d2a6f12",
+        "response_sha256": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450"
+      },
+      {
+        "case": "refuse-count-limit-plus-one",
+        "status": "PASS",
+        "request_sha256": "ee2d59011107680401f10513c66090955533144fbbad259fbd6c944e5fe89bdd",
+        "response_sha256": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450"
+      },
+      {
+        "case": "refuse-u32-max-count",
+        "status": "PASS",
+        "request_sha256": "b15348c8f462384c01e83b6d499c6faf3f96808f5aa07c6bab4b65b36b4445d4",
+        "response_sha256": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450"
+      }
+    ],
+    "exact_nan_payload_parity_claimed": false,
+    "torch_or_python_production_runtime": false,
+    "scope": "Native E5M2 float8 conversion, finite RNE boundaries and packet refusal; full Tensor dtype integration and upstream gates remain open."
+  }
+}

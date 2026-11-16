@@ -1,0 +1,61 @@
+def stack_metadata(o: mutbuf, w: mutbuf) -> u64:
+    count = state_get32(w, 64)
+    width = (count + 7) >> 3
+    locals = 0
+    i = 0
+    while i < count:
+        if get(w, 4096 + i * 320 + 272) == 0:
+            locals = locals + 1
+        i = i + 1
+    emit8(o, w, STACK_MAGIC)
+    emit8(o, w, 1)
+    emit8(o, w, count)
+    emit8(o, w, locals)
+    emit8(o, w, 64)
+    emit8(o, w, width)
+    emit8(o, w, 40)
+    helpers = 0
+    if get(w, 360) != 0:
+        helpers = helpers | 1
+    if get(w, 696) != 0:
+        helpers = helpers | 2
+    emit8(o, w, helpers)
+    i = 0
+    while i < count:
+        fb = 4096 + i * 320
+        imported = get(w, fb + 272)
+        emit8(o, w, i)
+        code = 0
+        size = 0
+        extent = 0
+        variables = 0
+        if imported == 0:
+            code = get(w, fb) - 64
+            size = get(w, fb + 280)
+            variables = get(w, fb + 40)
+            extent = (variables + 2) * 16 + 576
+        emit8(o, w, code)
+        emit8(o, w, size)
+        emit8(o, w, extent)
+        emit8(o, w, get(w, fb + 288))
+        emit8(o, w, imported)
+        emit8(o, w, variables)
+        emit8(o, w, 0)
+        i = i + 1
+    i = 0
+    while i < count:
+        j = 0
+        while j < width:
+            bits = 0
+            k = 0
+            while k < 8:
+                target = j * 8 + k
+                if target < count:
+                    if byte(w, 1283072 + i * 256 + target) != 0:
+                        bits = bits | (1 << k)
+                k = k + 1
+            emit(o, w, bits)
+            j = j + 1
+        i = i + 1
+    align8(o, w)
+    return 0

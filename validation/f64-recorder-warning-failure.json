@@ -1,0 +1,13 @@
+{
+  "schema": "heptatorch.f64-oracle-recorder-integration-failure.v1",
+  "tested_commit": "73c37da27e5d5274fc0d1e52fefd7d186d367ae9",
+  "workflow_run_id": 43804949297,
+  "workflow_job_id": 133093457370,
+  "raw_job_log_sha256": "377e52d54710c814801eeec6ce6a36b7d2020946197b95236e7960797c5b0156",
+  "actual_workflow_status": "FAIL",
+  "failing_step": "Record original strict PyTorch outcome without reclassifying it",
+  "cause": "Recorder incorrectly required empty stderr. Exact pinned PyTorch emits optional NumPy import warning; original strict oracle itself still reports FAIL.",
+  "new_component_qualification_executed": false,
+  "correction": "Record complete stderr and accept only empty stderr or the exact observed optional NumPy warning; reject all other diagnostics. Original oracle bytes and strict FAIL remain unchanged.",
+  "whole_pytorch_rewrite_complete": false
+}

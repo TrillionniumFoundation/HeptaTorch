@@ -422,3 +422,56 @@ for the unchanged real PyTorch oracle command, the explicit image identity and
 the complete first-failure receipt. CI runs both original native qualification
 and corrected qualification before executing the strict oracle against the
 corrected image. It does not count replaying one corpus as new upstream coverage.
+
+## Guarded stack and native call-path admission
+
+The separate ABI3 profile in [tools/stack_budget](../tools/stack_budget/README.md)
+reproduces a native compiler and nine native linker variants from the unchanged
+ABI2 prerequisites. Its native linker checks the real machine call sites and
+function prologues against the emitted metadata, computes the longest resolved
+call path, and rejects a program that exceeds its declared stack budget. The
+production executable allocates an 8 MiB private stack between two inaccessible
+pages; normal owned-state cleanup releases this stack and the I/O mappings.
+
+```sh
+python3 -I -S -B tools/stack_budget/rebuild.py \
+  --source-root /absolute/path/to/pinned-hepta \
+  --owned-build /absolute/path/to/owned-module-build \
+  --session-build /absolute/path/to/owned-session-tools \
+  --borrowed-tools /absolute/path/to/native-module-tools \
+  --output build/stack-budget-tools
+
+make stack-tensors test-stack-tensors \
+  HEPTA_COMPILER=/absolute/path/to/expanded-hia-native-compiler \
+  HEPTA_MODULE_COMPILER=/absolute/path/to/native-module-tools/module-compiler \
+  HEPTA_MODULE_LINKER=/absolute/path/to/native-module-tools/module-linker \
+  HEPTA_SOURCE_ROOT=/absolute/path/to/pinned-hepta \
+  HEPTA_OWNED_COMPILER=/absolute/path/to/owned-module-build/native/owned-module-compiler \
+  HEPTA_OWNED_SESSION_BUILD=/absolute/path/to/owned-session-tools \
+  HEPTA_STACK_BUILD="$PWD/build/stack-budget-tools"
+```
+
+The output is `build/stack-tensors/owned-tensor-session`, with SHA256
+`e172bc81dfbe9ee2c9853cf9221ebf7236e8099a207947bccff66b0b01dc1f5f`.
+All 151 numerical core function bodies and all three module sources are identical
+to the corrected ABI2 Tensor application. Its resolved maximum call path is
+61,488 bytes, plus a 4,096-byte reserve. Both programs have byte-identical linked
+application text after the distinct 4096-byte startup area.
+
+The Make gate runs the 86 native stack/resource cases, a separately authored
+nine-case metadata attack/execution review, and the current Tensor's unchanged
+11 native groups and 16 peer frames. It retains the full aggregate in
+`build/hosted-stack-budget.json`. The CI workflow additionally runs the same
+strict 28-case PyTorch oracle against the guarded image with its explicit SHA;
+the oracle and its numerical assertions are unchanged. Actual run
+[43803875841](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43803875841)
+passed all 40 steps, including 28 strict guarded-image cases, 6,233 frames,
+2,590,207 compared values and all 11 provenance checks. The full receipt is
+`validation/hosted-stack-budget.json`; the 283 explicit momentum-state lifecycle
+observations remain open and are not counted as parameter-version mismatches.
+
+This profile assumes verified source/object custody through the pinned native
+producer. It is not a general verifier for arbitrary substituted x86 code,
+asynchronous signal recovery, or every future compiler backend. The original
+matrix-only false-admission witnesses are retained in the validation history;
+the new implementation reconstructs actual calls before accepting the matrix.
