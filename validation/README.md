@@ -53,7 +53,7 @@ Documentation-only evidence updates after that run leave the tested runtime,
 compiler recipe, oracle code and fixtures unchanged.
 
 The CI workflow installs the pinned **CPU PyTorch 2.15.0+cpu** only as an
-independent test oracle. Its inline test program serializes inputs and invokes
+independent test oracle. Its test program, now in `tests/pytorch_oracle.py`, serializes inputs and invokes
 real PyTorch forward operations, autograd, and optimizers. It never implements
 HeptaTorch's runtime operations. The original gate required exactly 76 cases, zero
 failures, the exact wheel version, source revision and artifact hash, and an

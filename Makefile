@@ -2,7 +2,7 @@ SHELL := /bin/sh
 HEPTA_COMPILER ?= hia-native-compiler
 COMPILER_SHA256 := c5a9c2b95a3061e080a21298f5b26000936ed9dac519690d845b0699a15744c6
 
-.PHONY: all test check-compiler clean
+.PHONY: all test check-compiler acceptance-status full-acceptance clean
 
 all: build/heptatorch build/unhex
 
@@ -23,6 +23,12 @@ build/unhex: tools/unhex.hepta | build check-compiler
 
 test: all
 	sh tests/run.sh
+
+acceptance-status:
+	python3 -I -S -B tools/check_acceptance.py
+
+full-acceptance:
+	python3 -I -S -B tools/check_acceptance.py --require-complete
 
 clean:
 	rm -f build/heptatorch build/unhex build/.heptatorch.* build/.unhex.*
