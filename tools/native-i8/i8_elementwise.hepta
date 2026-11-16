@@ -1,0 +1,180 @@
+hia-asm.v1 hepta.hia.program.v8 selfhost_exec
+fn entry(inp:readbuf,out:mutbuf,scratch:mutbuf) -> (u32) effects(read,write,trap) entry(b0)
+block b0(inp:readbuf,out:mutbuf,scratch:mutbuf)
+  b0_byte_len:usize = buffer.len(inp)
+  b0_input_len:u64 = int.cast(b0_byte_len) {"mode":"wrap"}
+  b0_eight:u64 = const() {"value":8}
+  b0_tiny:bool = compare.lt(b0_input_len,b0_eight)
+  branch b0_tiny reject(out) parse(inp,out,b0_input_len)
+block reject(reject_out:mutbuf)
+  reject_zero:u64 = const() {"value":0}
+  reject_one:u64 = const() {"value":1}
+  reject_ignored:u64 = call(reject_out,reject_zero,reject_one) {"function":"put4"}
+  reject_four:u64 = const() {"value":4}
+  reject_response:u32 = int.cast(reject_four) {"mode":"wrap"}
+  ret(reject_response)
+block parse(parse_inp:readbuf,parse_out:mutbuf,parse_input_len:u64)
+  parse_zero:u64 = const() {"value":0}
+  parse_four:u64 = const() {"value":4}
+  parse_mode:u64 = call(parse_inp,parse_zero) {"function":"load4"}
+  parse_count:u64 = call(parse_inp,parse_four) {"function":"load4"}
+  parse_five:u64 = const() {"value":5}
+  parse_maxcount:u64 = const() {"value":100000}
+  parse_bad_mode:bool = compare.gt(parse_mode,parse_five)
+  parse_bad_count:bool = compare.gt(parse_count,parse_maxcount)
+  parse_bad_header:bool = bool.or(parse_bad_mode,parse_bad_count)
+  branch parse_bad_header reject(parse_out) admit(parse_inp,parse_out,parse_input_len,parse_mode,parse_count)
+block admit(admit_inp:readbuf,admit_out:mutbuf,admit_input_len:u64,admit_mode:u64,admit_count:u64)
+  admit_two:u64 = const() {"value":2}
+  admit_eight:u64 = const() {"value":8}
+  admit_four:u64 = const() {"value":4}
+  admit_operand_size:u64 = int.mul.wrap(admit_count,admit_two)
+  admit_required_input:u64 = int.add.wrap(admit_eight,admit_operand_size)
+  admit_required_output:u64 = int.add.wrap(admit_four,admit_count)
+  admit_available_out:usize = buffer.len(admit_out)
+  admit_available:u64 = int.cast(admit_available_out) {"mode":"wrap"}
+  admit_mismatch:bool = compare.ne(admit_input_len,admit_required_input)
+  admit_no_space:bool = compare.gt(admit_required_output,admit_available)
+  admit_bad:bool = bool.or(admit_mismatch,admit_no_space)
+  branch admit_bad reject(admit_out) prepare(admit_inp,admit_out,admit_mode,admit_count,admit_required_output)
+block prepare(prepare_inp:readbuf,prepare_out:mutbuf,prepare_mode:u64,prepare_count:u64,prepare_required_output:u64)
+  prepare_zero:u64 = const() {"value":0}
+  prepare_cleared:u64 = call(prepare_out,prepare_zero,prepare_zero) {"function":"put4"}
+  jump loop(prepare_inp,prepare_out,prepare_mode,prepare_count,prepare_zero,prepare_required_output)
+block loop(loop_inp:readbuf,loop_out:mutbuf,loop_mode:u64,loop_count:u64,loop_index:u64,loop_required_output:u64)
+  loop_more:bool = compare.lt(loop_index,loop_count)
+  branch loop_more compute(loop_inp,loop_out,loop_mode,loop_count,loop_index,loop_required_output) finish(loop_required_output)
+block compute(compute_inp:readbuf,compute_out:mutbuf,compute_mode:u64,compute_count:u64,compute_index:u64,compute_required_output:u64)
+  compute_two:u64 = const() {"value":2}
+  compute_eight:u64 = const() {"value":8}
+  compute_four:u64 = const() {"value":4}
+  compute_one:u64 = const() {"value":1}
+  compute_input_shift:u64 = int.mul.wrap(compute_index,compute_two)
+  compute_base_in:u64 = int.add.wrap(compute_eight,compute_input_shift)
+  compute_second_in:u64 = int.add.wrap(compute_base_in,compute_one)
+  compute_left_at:usize = int.cast(compute_base_in) {"mode":"wrap"}
+  compute_right_at:usize = int.cast(compute_second_in) {"mode":"wrap"}
+  compute_left_octet:u8 = buffer.load(compute_inp,compute_left_at)
+  compute_right_octet:u8 = buffer.load(compute_inp,compute_right_at)
+  compute_left:u64 = int.cast(compute_left_octet) {"mode":"wrap"}
+  compute_right:u64 = int.cast(compute_right_octet) {"mode":"wrap"}
+  compute_converted:u64 = call(compute_mode,compute_left,compute_right) {"function":"i8_lane"}
+  compute_out_offset:u64 = int.add.wrap(compute_four,compute_index)
+  compute_out_at:usize = int.cast(compute_out_offset) {"mode":"wrap"}
+  compute_result:u8 = int.cast(compute_converted) {"mode":"wrap"}
+  _ = buffer.store(compute_out,compute_out_at,compute_result)
+  compute_next:u64 = int.add.wrap(compute_index,compute_one)
+  jump loop(compute_inp,compute_out,compute_mode,compute_count,compute_next,compute_required_output)
+block finish(finish_required_output:u64)
+  finish_answer:u32 = int.cast(finish_required_output) {"mode":"wrap"}
+  ret(finish_answer)
+end
+fn i8_lane(mode:u64,left:u64,right:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(mode:u64,left:u64,right:u64)
+  b0_zero:u64 = const() {"value":0}
+  b0_isadd:bool = compare.eq(mode,b0_zero)
+  branch b0_isadd add(left,right) next1(mode,left,right)
+block add(add_left:u64,add_right:u64)
+  add_result:u64 = int.add.wrap(add_left,add_right)
+  ret(add_result)
+block next1(next1_mode:u64,next1_left:u64,next1_right:u64)
+  next1_one:u64 = const() {"value":1}
+  next1_issub:bool = compare.eq(next1_mode,next1_one)
+  branch next1_issub sub(next1_left,next1_right) next2(next1_mode,next1_left,next1_right)
+block sub(sub_left:u64,sub_right:u64)
+  sub_result:u64 = int.sub.wrap(sub_left,sub_right)
+  ret(sub_result)
+block next2(next2_mode:u64,next2_left:u64,next2_right:u64)
+  next2_two:u64 = const() {"value":2}
+  next2_ismul:bool = compare.eq(next2_mode,next2_two)
+  branch next2_ismul mul(next2_left,next2_right) next3(next2_mode,next2_left,next2_right)
+block mul(mul_left:u64,mul_right:u64)
+  mul_result:u64 = int.mul.wrap(mul_left,mul_right)
+  ret(mul_result)
+block next3(next3_mode:u64,next3_left:u64,next3_right:u64)
+  next3_three:u64 = const() {"value":3}
+  next3_isand:bool = compare.eq(next3_mode,next3_three)
+  branch next3_isand and_op(next3_left,next3_right) next4(next3_mode,next3_left,next3_right)
+block and_op(and_op_left:u64,and_op_right:u64)
+  and_op_result:u64 = bit.and(and_op_left,and_op_right)
+  ret(and_op_result)
+block next4(next4_mode:u64,next4_left:u64,next4_right:u64)
+  next4_four:u64 = const() {"value":4}
+  next4_isor:bool = compare.eq(next4_mode,next4_four)
+  branch next4_isor or_op(next4_left,next4_right) xor_op(next4_left,next4_right)
+block or_op(or_op_left:u64,or_op_right:u64)
+  or_op_result:u64 = bit.or(or_op_left,or_op_right)
+  ret(or_op_result)
+block xor_op(xor_op_left:u64,xor_op_right:u64)
+  xor_op_result:u64 = bit.xor(xor_op_left,xor_op_right)
+  ret(xor_op_result)
+end
+fn load4(input:readbuf,offset:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(input:readbuf,offset:u64)
+  b0_accum0:u64 = const() {"value":0}
+  b0_shift0:u64 = const() {"value":0}
+  b0_byteoff0:u64 = const() {"value":0}
+  b0_pos0:u64 = int.add.wrap(offset,b0_byteoff0)
+  b0_at0:usize = int.cast(b0_pos0) {"mode":"wrap"}
+  b0_octet0:u8 = buffer.load(input,b0_at0)
+  b0_piece0:u64 = int.cast(b0_octet0) {"mode":"wrap"}
+  b0_shifted0:u64 = int.shl.checked(b0_piece0,b0_shift0)
+  b0_accum1:u64 = bit.or(b0_accum0,b0_shifted0)
+  b0_shift1:u64 = const() {"value":8}
+  b0_byteoff1:u64 = const() {"value":1}
+  b0_pos1:u64 = int.add.wrap(offset,b0_byteoff1)
+  b0_at1:usize = int.cast(b0_pos1) {"mode":"wrap"}
+  b0_octet1:u8 = buffer.load(input,b0_at1)
+  b0_piece1:u64 = int.cast(b0_octet1) {"mode":"wrap"}
+  b0_shifted1:u64 = int.shl.checked(b0_piece1,b0_shift1)
+  b0_accum2:u64 = bit.or(b0_accum1,b0_shifted1)
+  b0_shift2:u64 = const() {"value":16}
+  b0_byteoff2:u64 = const() {"value":2}
+  b0_pos2:u64 = int.add.wrap(offset,b0_byteoff2)
+  b0_at2:usize = int.cast(b0_pos2) {"mode":"wrap"}
+  b0_octet2:u8 = buffer.load(input,b0_at2)
+  b0_piece2:u64 = int.cast(b0_octet2) {"mode":"wrap"}
+  b0_shifted2:u64 = int.shl.checked(b0_piece2,b0_shift2)
+  b0_accum3:u64 = bit.or(b0_accum2,b0_shifted2)
+  b0_shift3:u64 = const() {"value":24}
+  b0_byteoff3:u64 = const() {"value":3}
+  b0_pos3:u64 = int.add.wrap(offset,b0_byteoff3)
+  b0_at3:usize = int.cast(b0_pos3) {"mode":"wrap"}
+  b0_octet3:u8 = buffer.load(input,b0_at3)
+  b0_piece3:u64 = int.cast(b0_octet3) {"mode":"wrap"}
+  b0_shifted3:u64 = int.shl.checked(b0_piece3,b0_shift3)
+  b0_accum4:u64 = bit.or(b0_accum3,b0_shifted3)
+  ret(b0_accum4)
+end
+fn put4(output:mutbuf,offset:u64,value:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(output:mutbuf,offset:u64,value:u64)
+  b0_shift0:u64 = const() {"value":0}
+  b0_byteoff0:u64 = const() {"value":0}
+  b0_sliced0:u64 = int.shr.checked(value,b0_shift0)
+  b0_octet0:u8 = int.cast(b0_sliced0) {"mode":"wrap"}
+  b0_pos0:u64 = int.add.wrap(offset,b0_byteoff0)
+  b0_at0:usize = int.cast(b0_pos0) {"mode":"wrap"}
+  _ = buffer.store(output,b0_at0,b0_octet0)
+  b0_shift1:u64 = const() {"value":8}
+  b0_byteoff1:u64 = const() {"value":1}
+  b0_sliced1:u64 = int.shr.checked(value,b0_shift1)
+  b0_octet1:u8 = int.cast(b0_sliced1) {"mode":"wrap"}
+  b0_pos1:u64 = int.add.wrap(offset,b0_byteoff1)
+  b0_at1:usize = int.cast(b0_pos1) {"mode":"wrap"}
+  _ = buffer.store(output,b0_at1,b0_octet1)
+  b0_shift2:u64 = const() {"value":16}
+  b0_byteoff2:u64 = const() {"value":2}
+  b0_sliced2:u64 = int.shr.checked(value,b0_shift2)
+  b0_octet2:u8 = int.cast(b0_sliced2) {"mode":"wrap"}
+  b0_pos2:u64 = int.add.wrap(offset,b0_byteoff2)
+  b0_at2:usize = int.cast(b0_pos2) {"mode":"wrap"}
+  _ = buffer.store(output,b0_at2,b0_octet2)
+  b0_shift3:u64 = const() {"value":24}
+  b0_byteoff3:u64 = const() {"value":3}
+  b0_sliced3:u64 = int.shr.checked(value,b0_shift3)
+  b0_octet3:u8 = int.cast(b0_sliced3) {"mode":"wrap"}
+  b0_pos3:u64 = int.add.wrap(offset,b0_byteoff3)
+  b0_at3:usize = int.cast(b0_pos3) {"mode":"wrap"}
+  _ = buffer.store(output,b0_at3,b0_octet3)
+  ret(value)
+end

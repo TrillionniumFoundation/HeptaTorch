@@ -1,0 +1,130 @@
+name: Native HIA packed int8 exact differential
+on:
+  push:
+    branches: ["feature/native-int8-packed"]
+  pull_request:
+    paths:
+      - "tools/native-i8/**"
+      - "tests/i8_oracle.py"
+      - ".github/workflows/native-i8.yml"
+      - "tests/integer_byte_evidence.py"
+      - "tests/check_integer_byte_evidence.py"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native-int8:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: TrillionniumFoundation/Hepta
+          ref: f33d8da316de8fdf27b504371f1a5310997ff548
+          path: .toolchain/hepta
+          persist-credentials: false
+          sparse-checkout-cone-mode: true
+          sparse-checkout: |
+            hepta
+            tools
+            examples/hia_bootstrap
+            docs
+      - name: Reproduce exact native HIA compiler
+        run: |
+          python3 -I -S -B - <<'PY'
+          from pathlib import Path
+          import hashlib,os,subprocess,sys
+          root=Path('.toolchain/hepta').resolve()
+          sha=lambda b:hashlib.sha256(b).hexdigest()
+          assert subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD'],text=True).strip()=='f33d8da316de8fdf27b504371f1a5310997ff548'
+          src=(root/'examples/hia_bootstrap/selfhost.hepta').read_bytes()
+          assert sha(src)=='388b182e42675f11435867dd99520e9452a4ff48e23c0766a3952b662acc7627'
+          sys.path.insert(0,str(root))
+          from tools.qualify_hia_selfhost import build_seed,compile_stage
+          out=Path(os.environ['RUNNER_TEMP'])/'i8-compiler'
+          out.mkdir(parents=True,exist_ok=True)
+          image,_=build_seed(out,src)
+          hashes=[]
+          for label in ('B1','B2','B3'):
+              image,record=compile_stage(out,label,image,src,image_format='seed-shared' if label=='B1' else 'flat-x86-64')
+              hashes.append(record['produced_sha256'])
+          assert len(set(hashes))==1
+          before=b'hia-asm.v1 hepta.hia.program.v8 selfhost\n'
+          assert src.startswith(before)
+          executable=b'hia-asm.v1 hepta.hia.program.v8 selfhost_exec\n'+src[len(before):]
+          compiler,_=compile_stage(out,'native-compiler',image,executable,output_extension='')
+          compiler.chmod(0o755)
+          assert sha(compiler.read_bytes())=='87c247e4d1c3c9a449d2947fd4227fdc186d519bffd203a04cafce7861a4ed54'
+          print('Pinned native compiler reproduced')
+          PY
+      - name: Execute independent CPython exact differential
+        run: |
+          python3 -I -S -B tests/i8_oracle.py --compiler "$RUNNER_TEMP/i8-compiler/native-compiler" \
+            --source tools/native-i8/i8_elementwise.hepta --repo . --reference cpython \
+            --expected-elf-sha256 eba8c05bfe514c38ffa1a5e1ccbc9aacd513531f74becd18f4e3dca73db0a0b1 \
+            --output build/native-i8-cpython
+      - name: Install pinned official PyTorch CPU oracle
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import json,platform,subprocess,sys
+          x=json.loads(Path('compatibility/pytorch-oracle-lock.json').read_text())['oracle']
+          assert list(sys.version_info[:2])==x['python']['version'] and platform.machine()==x['platform']['machine']
+          url=x['wheel']['url']+'#sha256='+x['wheel']['sha256']
+          Path(x['install_report']).parent.mkdir(parents=True,exist_ok=True)
+          subprocess.run([sys.executable,'-m','pip','install','--disable-pip-version-check','--force-reinstall',
+            '--report',x['install_report'],url],check=True)
+          PY
+      - name: Execute real PyTorch byte exact differential and 11 provenance checks
+        run: |
+          python3 -B tests/i8_oracle.py --compiler "$RUNNER_TEMP/i8-compiler/native-compiler" \
+            --source tools/native-i8/i8_elementwise.hepta --repo . --reference pytorch \
+            --expected-elf-sha256 eba8c05bfe514c38ffa1a5e1ccbc9aacd513531f74becd18f4e3dca73db0a0b1 \
+            --output build/native-i8-pytorch
+      - name: Capture original exact-head identity and reports
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import hashlib,json,os,subprocess
+          from pathlib import Path
+          h=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest() if Path(p).is_file() else None
+          doc={'schema':'heptatorch.packed-int8-hosted-custody.v1',
+            'checkout_sha':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
+            'checkout_tree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip(),
+            'github_sha':os.getenv('GITHUB_SHA'),
+            'source_sha':h('tools/native-i8/i8_elementwise.hepta'),
+            'oracle_sha':h('tests/i8_oracle.py'),
+            'lock_sha':h('compatibility/pytorch-oracle-lock.json'),
+            'compiler_sha':h(Path(os.environ['RUNNER_TEMP'])/'i8-compiler/native-compiler'),
+            'cpython_report_sha':h('build/native-i8-cpython/report.json'),
+            'torch_report_sha':h('build/native-i8-pytorch/report.json'),
+            'torch_provenance_sha':h('build/native-i8-pytorch/provenance.json'),
+            'whole_rewrite_complete':False}
+          Path('build').mkdir(exist_ok=True)
+          Path('build/native-i8-custody.json').write_text(json.dumps(doc,indent=2)+'\n')
+          print(json.dumps(doc))
+          PY
+      - name: Preserve and verify complete original integer byte evidence
+        if: always()
+        run: |
+          tar -cJf build/native-i8-original-byte-evidence.tar.xz -C build native-i8-cpython native-i8-pytorch
+          python3 -I -S -B tests/check_integer_byte_evidence.py             --profile i8 --reference cpython --directory build/native-i8-cpython             --output build/native-i8-byte-review-cpython.json
+          python3 -I -S -B tests/check_integer_byte_evidence.py             --profile i8 --reference pytorch --directory build/native-i8-pytorch             --output build/native-i8-byte-review-pytorch.json
+      - name: Upload unmodified source-bound reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: native-i8-evidence
+          path: |
+            build/native-i8-custody.json
+            build/native-i8-cpython/report.json
+            build/native-i8-pytorch/report.json
+            build/native-i8-pytorch/provenance.json
+            build/native-i8-original-byte-evidence.tar.xz
+            build/native-i8-byte-review-cpython.json
+            build/native-i8-byte-review-pytorch.json
+          if-no-files-found: warn
+          retention-days: 30
