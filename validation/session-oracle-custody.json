@@ -1,0 +1,22 @@
+{
+  "schema": "heptatorch.persistent-session-oracle-custody.v1",
+  "status": "NOT_RUN",
+  "reason": "Prepared and independently source-reviewed before first actual hosted PyTorch execution; local runtime lacks the pinned PyTorch wheel.",
+  "expected_cases": 21,
+  "case_families": {
+    "storage_alias_join_index_empty_cumulative_transaction": 6,
+    "SGD_variants_64_steps": 6,
+    "Adam_AdamW_variants_128_steps": 4,
+    "MLP_24_steps": 1,
+    "matmul_and_repeated_seeded_backward": 3,
+    "channels_last_cat_layout_and_gradient": 1
+  },
+  "oracle_source_sha256": "b219fb63e7698f09951454cce9073157689398d38b1ea3d21e22b412a0dce606",
+  "unchanged_reference_support_sha256": "5754bd0a85c80daa164395cd4abc3006c4e5a20647f2bcd923b1efde5860926a",
+  "existing_268_case_oracle_modified": false,
+  "provenance_checks_retained": 11,
+  "execution_contract": "Each case uses one native process; every framed request receives a complete native response while stdin remains open. Host code only serializes, observes and compares real PyTorch references.",
+  "transaction_contract": "Only successful whole frames commit and publish tensor IDs. Failed frames return only the original-status 32-byte response header; local handle bookkeeping is not advanced.",
+  "source_review": "Independent peer checked reference-script import/main guard, precise float32 optimizer settings, tensor-ID rollback, retained prefixes, matmul seed transpose, empty strides and channels-last view construction; no new oracle case has yet been executed.",
+  "whole_pytorch_rewrite_complete": false
+}
