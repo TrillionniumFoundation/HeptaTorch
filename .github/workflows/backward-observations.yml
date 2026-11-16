@@ -3,7 +3,7 @@ on:
   push:
     branches: ["feature/native-tensor-objects", "feature/native-backward-release", "feature/native-backward-partial", "feature/native-cpu-generators", "feature/native-gradient-none"]
   pull_request:
-    paths: ["tests/pytorch_backward_release_probe.py", "tests/pytorch_backward_partial_probe.py", "tests/pytorch_gradient_presence_probe.py", "tests/pytorch_gradient_signed_zero_probe.py", "tests/pytorch_grad_clear_probe.py", "tests/pytorch_optimizer_object_probe.py", "tests/pytorch_uniform_probe.py", "tests/pytorch_uniform_range_probe.py", ".github/workflows/backward-observations.yml"]
+    paths: ["tests/pytorch_backward_release_probe.py", "tests/pytorch_backward_partial_probe.py", "tests/pytorch_gradient_presence_probe.py", "tests/pytorch_gradient_signed_zero_probe.py", "tests/pytorch_grad_clear_probe.py", "tests/pytorch_optimizer_object_probe.py", "tests/pytorch_requires_grad_probe.py", "tests/pytorch_uniform_probe.py", "tests/pytorch_uniform_range_probe.py", ".github/workflows/backward-observations.yml"]
   workflow_dispatch:
 permissions:
   contents: read
@@ -37,6 +37,7 @@ jobs:
           echo 'a607164e51891c0c45922b5cd596e14fb8ecc6f176e0585757aebb56e106e29f  tests/pytorch_uniform_range_probe.py' | sha256sum -c -
           echo 'f34e98011e62bdac2eb94beb5a07c043bde09d2fc8d9c416e52e22d278c96b50  tests/pytorch_grad_clear_probe.py' | sha256sum -c -
           echo 'f69340170dc2e55886bca73a8d37265ba2c95a8c793c7633c7e8a22234cfa386  tests/pytorch_optimizer_object_probe.py' | sha256sum -c -
+          echo 'aeccf1ed21501682df772bbc9e05ccdaf821e93bb243a6f2a045c05035e56ad3  tests/pytorch_requires_grad_probe.py' | sha256sum -c -
       - name: Observe default Saved release and repeat backward
         run: |
           python3 tests/pytorch_backward_release_probe.py \
@@ -85,3 +86,9 @@ jobs:
             --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
             --repo . --output build/torch-optimizer-objects.json > build/torch-optimizer-objects.stdout
           python3 -I -S -B tools/emit_ci_report.py build/torch-optimizer-objects.json
+      - name: Observe leaf flag changes existing gradients and captured edges
+        run: |
+          python3 tests/pytorch_requires_grad_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/torch-requires-grad.json > build/torch-requires-grad.stdout
+          python3 -I -S -B tools/emit_ci_report.py build/torch-requires-grad.json
