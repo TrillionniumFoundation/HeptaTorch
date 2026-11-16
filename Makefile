@@ -178,6 +178,85 @@ test-cpu-generators: cpu-generators
 	python3 -I -S -B tests/check_cpu_generator_reports.py --build "$(CURDIR)/build/cpu-generators" \
 	  --review "$$review" --output build/hosted-cpu-generator-native.json
 
+HEPTA_TENSOR_OBJECT_BASELINE ?= build/tensor-objects/abi3
+BACKWARD_RELEASE_INPUTS := $(wildcard tools/backward_release/* tools/backward_release/evidence/*) validation/backward-release-package.json tests/qualify_backward_release.py Makefile
+
+.PHONY: backward-release test-backward-release
+backward-release: build/backward-release/build.json
+
+build/backward-release/build.json: $(HEPTA_TENSOR_OBJECT_BASELINE)/build.json $(BACKWARD_RELEASE_INPUTS) | build
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.backward-release.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	python3 -I -S -B tools/backward_release/build.py --repository "$(CURDIR)" --source-root "$(HEPTA_SOURCE_ROOT)" \
+	  --baseline "$(HEPTA_TENSOR_OBJECT_BASELINE)" --compiler "$(HEPTA_STACK_BUILD)/native/stack-module-compiler" \
+	  --linker "$(HEPTA_STACK_BUILD)/native/stack-linker-session" --output "$$tmp/native"; \
+	mkdir -p build/backward-release; cp -a --remove-destination "$$tmp/native/." build/backward-release/
+
+test-backward-release: backward-release
+	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/.backward-release-review.XXXXXX"); \
+	python3 -I -S -B tests/qualify_backward_release.py --build "$(CURDIR)/build/backward-release" \
+	  --baseline "$(HEPTA_TENSOR_OBJECT_BASELINE)" --stack-build "$(HEPTA_STACK_BUILD)" --output "$$review/observed"; \
+	cp "$$review/observed/report.json" build/hosted-backward-release-native.json
+
+BACKWARD_PARTIAL_INPUTS := $(wildcard tools/backward_partial/* tools/backward_partial/evidence/*) validation/backward-partial-package.json Makefile
+GRADIENT_MATERIALIZATION_INPUTS := $(wildcard tools/gradient_materialization/* tools/gradient_materialization/evidence/*) validation/gradient-materialization-package.json tests/qualify_gradient_materialization.py Makefile
+
+.PHONY: backward-partial gradient-materialization test-gradient-materialization
+backward-partial: build/backward-partial/build.json
+gradient-materialization: build/gradient-materialization/build.json
+
+build/backward-partial/build.json: build/backward-release/build.json $(HEPTA_TENSOR_OBJECT_BASELINE)/build.json $(BACKWARD_PARTIAL_INPUTS) | build
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.backward-partial.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	python3 -I -S -B tools/backward_partial/build.py --repository "$(CURDIR)" --source-root "$(HEPTA_SOURCE_ROOT)" \
+	  --baseline "$(CURDIR)/build/backward-release" --tensor-objects "$(HEPTA_TENSOR_OBJECT_BASELINE)" \
+	  --compiler "$(HEPTA_STACK_BUILD)/native/stack-module-compiler" --linker "$(HEPTA_STACK_BUILD)/native/stack-linker-session" --output "$$tmp/native"; \
+	mkdir -p build/backward-partial; cp -a --remove-destination "$$tmp/native/." build/backward-partial/
+
+build/gradient-materialization/build.json: build/backward-partial/build.json $(GRADIENT_MATERIALIZATION_INPUTS) | build
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.gradient-materialization.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	python3 -I -S -B tools/gradient_materialization/build.py --repository "$(CURDIR)" --source-root "$(HEPTA_SOURCE_ROOT)" \
+	  --baseline "$(CURDIR)/build/backward-partial" --compiler "$(HEPTA_STACK_BUILD)/native/stack-module-compiler" \
+	  --linker "$(HEPTA_STACK_BUILD)/native/stack-linker-session" --output "$$tmp/native"; \
+	mkdir -p build/gradient-materialization; cp -a --remove-destination "$$tmp/native/." build/gradient-materialization/
+
+test-gradient-materialization: gradient-materialization
+	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/.gradient-materialization-review.XXXXXX"); \
+	python3 -I -S -B tests/qualify_gradient_materialization.py --build "$(CURDIR)/build/gradient-materialization" \
+	  --partial-build "$(CURDIR)/build/backward-partial" --output "$$review/observed"; \
+	cp "$$review/observed/report.json" build/hosted-gradient-materialization-native.json
+
+TENSOR_RNG_INPUTS := $(wildcard tools/tensor_rng/* tools/tensor_rng/evidence/*) validation/tensor-rng-package.sha256 tools/rng-cpu/rng.hepta Makefile
+
+.PHONY: tensor-rng
+tensor-rng: build/tensor-rng/reproduction.json
+
+build/tensor-rng/reproduction.json: $(HEPTA_TENSOR_OBJECT_BASELINE)/build.json $(TENSOR_RNG_INPUTS) | build
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.tensor-rng.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	python3 -I -S -B tools/tensor_rng/rebuild.py --baseline "$(HEPTA_TENSOR_OBJECT_BASELINE)" \
+	  --rng-source "$(CURDIR)/tools/rng-cpu/rng.hepta" --upstream "$(HEPTA_SOURCE_ROOT)" \
+	  --stack-build "$(HEPTA_STACK_BUILD)" --output "$$tmp/native"; \
+	mkdir -p build/tensor-rng; cp -a --remove-destination "$$tmp/native/." build/tensor-rng/
+
+TENSOR_RNG_COMPOSITION_INPUTS := $(wildcard tools/tensor_rng_composition/* tools/tensor_rng_composition/evidence/*) validation/tensor-rng-composition-package.sha256 tests/qualify_tensor_rng_composition.py Makefile
+
+.PHONY: tensor-rng-composition test-tensor-rng-composition
+tensor-rng-composition: build/tensor-rng-composition/reproduction.json build/tensor-rng/reproduction.json
+
+build/tensor-rng-composition/reproduction.json: build/gradient-materialization/build.json $(HEPTA_TENSOR_OBJECT_BASELINE)/build.json $(TENSOR_RNG_COMPOSITION_INPUTS) $(TENSOR_RNG_INPUTS) | build
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.tensor-rng-composition.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	python3 -I -S -B tools/tensor_rng_composition/rebuild.py --tensor09 "$(HEPTA_TENSOR_OBJECT_BASELINE)" \
+	  --partial-build "$(CURDIR)/build/gradient-materialization" --entry-authoring "$(CURDIR)/build/backward-partial/overlay-authoring.py" \
+	  --rng-package "$(CURDIR)/tools/tensor_rng" --rng-source "$(CURDIR)/tools/rng-cpu/rng.hepta" \
+	  --upstream "$(HEPTA_SOURCE_ROOT)" --stack-build "$(HEPTA_STACK_BUILD)" --output "$$tmp/native"; \
+	mkdir -p build/tensor-rng-composition; cp -a --remove-destination "$$tmp/native/." build/tensor-rng-composition/
+
+test-tensor-rng-composition: tensor-rng-composition
+	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/.tensor-rng-composition-review.XXXXXX"); \
+	python3 -I -S -B tests/qualify_tensor_rng_composition.py --build "$(CURDIR)/build/tensor-rng-composition" \
+	  --tensor09 "$(HEPTA_TENSOR_OBJECT_BASELINE)" --release "$(CURDIR)/build/backward-release" \
+	  --materialization "$(CURDIR)/build/gradient-materialization" --rng-build "$(CURDIR)/build/tensor-rng" \
+	  --stack-build "$(HEPTA_STACK_BUILD)" --output "$$review/observed"; \
+	cp "$$review/observed/report.json" build/hosted-tensor-rng-composition-native.json
+
 check-compiler:
 	@compiler=$$(command -v "$(HEPTA_COMPILER)") || { echo 'Set HEPTA_COMPILER to the pinned native HIA compiler; see docs/build.md.' >&2; exit 1; }; \
 	printf '%s  %s\n' '$(COMPILER_SHA256)' "$$compiler" | sha256sum -c -

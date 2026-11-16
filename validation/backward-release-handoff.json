@@ -1,0 +1,36 @@
+{
+  "schema": "heptatorch.backward-release-handoff.v1",
+  "status": "READY_WITH_EXPLICIT_FAILURE_SEMANTICS_DIFFERENCE",
+  "package_directory": "/workspace/scratch/d26699e25fea/backward-release-extension/package",
+  "manifest": "/workspace/scratch/d26699e25fea/backward-release-extension/package-manifest.json",
+  "manifest_sha256": "f84af45658190243dcdbffdee124fe008327c9caa8293736fba536d0d79e5fc3",
+  "file_count": 30,
+  "source_sha256": "e9e325374153f64744fbddfd2ccee00e570585cc42e4ad239361ce035ad4d2c2",
+  "native_sha256": "f146b71b5614b7d1022ef41875f5fbfd857e80028d33b2d634ecd255163f320b",
+  "fresh_build": "/workspace/scratch/d26699e25fea/backward-release-extension/portable-04",
+  "fresh_cross_state_build": "/workspace/scratch/d26699e25fea/backward-release-extension/portable-state-handoff-04",
+  "build_cli": "python3 -I -S -B tools/backward_release/build.py --repository REPO --source-root PINNED_HIA --baseline V3_09_BUILD --compiler ABI3_COMPILER --linker ABI3_SESSION_LINKER --output FRESH_OUTPUT",
+  "required_suites": [
+    "test_release.py (10 groups)",
+    "native_release_controls.py (14 groups)",
+    "replay_backward_release.py (first20 actual Torch cases)",
+    "replay_backward_lifetimes.py (last16:15 matched plus1 explicit difference)",
+    "build_state_handoff.py and test_state_handoff.py (2 legal cross-format handoffs)"
+  ],
+  "actual_qualification": {
+    "native_groups": 10,
+    "native_frames": 144,
+    "independent_controls": 14,
+    "control_frames": 207,
+    "pinned_torch_observation_replay_cases": 36,
+    "pytorch_matched_cases": 35,
+    "explicit_partial_failure_difference_cases": 1,
+    "unexpected_failures": 0,
+    "observation_replay_frames": 536,
+    "legal_cross_state_frames": 28,
+    "legal_cross_state_bytes_compared": 595232
+  },
+  "failure_semantics_successor": "Separate command58 work starts next; frozen57 remains whole-frame atomic.",
+  "canonical_repository_changed": false,
+  "full_rewrite_complete": false
+}

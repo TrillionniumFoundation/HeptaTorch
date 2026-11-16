@@ -1,0 +1,309 @@
+def rng_object(w:mutbuf,id:u64) -> u64:
+    if getw(w,0) != 0:
+        return 0
+    id = resolve_handle(w,id)
+    p = so_slot_lookup(w,7,id)
+    if p == 0:
+        return terror(w,1)
+    address = private_hold(w,so_uget(w,p+16),5056)
+    if address == 0:
+        return terror(w,9)
+    return address
+
+def rng_load_scratch(w:mutbuf,scratch:mutbuf,address:u64) -> u64:
+    copy_from_mut(scratch,w,0,object_address(w,address),5056)
+    return 1
+
+def rng_save_scratch(w:mutbuf,scratch:mutbuf,address:u64) -> u64:
+    copy_from_mut(w,scratch,object_address(w,address),0,5056)
+    return 1
+
+def rng_create_object(w:mutbuf,scratch:mutbuf,seed:u64) -> u64:
+    if storage_capacity(w,7,0) == 0:
+        return 0
+    data = alloc(w,5056)
+    if data == 0:
+        return 0
+    hold = getw(w,80)
+    id = so_slot_new(w,7)
+    if id == 0:
+        return terror(w,9)
+    so_uput(w,so_slot_lookup(w,7,id)+16,hold)
+    rng_seed(scratch,seed)
+    rng_save_scratch(w,scratch,data)
+    return id
+
+def rng_clone_object(w:mutbuf,id:u64) -> u64:
+    source = rng_object(w,id)
+    if source == 0 or storage_capacity(w,7,0) == 0:
+        return 0
+    data = alloc(w,5056)
+    if data == 0:
+        return 0
+    hold = getw(w,80)
+    result = so_slot_new(w,7)
+    if result == 0:
+        return terror(w,9)
+    so_uput(w,so_slot_lookup(w,7,result)+16,hold)
+    move_within(w,object_address(w,data),object_address(w,source),5056)
+    return result
+
+def rng_drop_object(w:mutbuf,id:u64) -> u64:
+    if rng_object(w,id) == 0:
+        return 0
+    id = resolve_handle(w,id)
+    p = so_slot_lookup(w,7,id)
+    if hold_release(w,so_uget(w,p+16)) == 0:
+        return 0
+    if so_slot_drop(w,7,id) != 0:
+        return terror(w,9)
+    return 1
+
+def rng_interval(from_bits:u64,to_bits:u64) -> u64:
+    if from_bits > 4294967295 or to_bits > 4294967295:
+        return 0
+    left = absf(from_bits)
+    right = absf(to_bits)
+    if left >= 2139095040 or right >= 2139095040 or ltf(to_bits,from_bits) != 0:
+        return 0
+    if (from_bits >> 31) != 0 and (to_bits >> 31) == 0:
+        larger = choose(left>right,left,right)
+        smaller = choose(left>right,right,left)
+        if larger > 2130706431:
+            if smaller > subf(2139095039,larger):
+                return 0
+    return 1
+
+def rng_axis_order(w:mutbuf,p:u64) -> u64:
+    rank = getw(w,p)
+    perm = 0
+    i = 0
+    while i < rank:
+        perm = perm | ((rank-i-1) << (i*8))
+        i = i+1
+    i = 1
+    while i < rank:
+        anchor = i
+        j = i
+        done = 0
+        while j > 0 and done == 0:
+            j = j-1
+            left = (perm >> (j*8)) & 255
+            right = (perm >> (anchor*8)) & 255
+            ls = getw(w,p+128+left*8)
+            rs = getw(w,p+128+right*8)
+            if ls != 0 and rs != 0:
+                if ls > rs or (ls == rs and getw(w,p+96+left*8) > getw(w,p+96+right*8)):
+                    difference = left ^ right
+                    perm = perm ^ (difference << (j*8)) ^ (difference << (anchor*8))
+                    anchor = j
+                else:
+                    if ls < rs:
+                        done = 1
+        i = i+1
+    return perm
+
+def rng_iteration_address(w:mutbuf,p:u64,perm:u64,index:u64) -> u64:
+    offset = 0
+    i = 0
+    while i < getw(w,p):
+        axis = (perm >> (i*8)) & 255
+        dim = getw(w,p+96+axis*8)
+        coordinate = index % dim
+        index = index // dim
+        offset = offset+coordinate*getw(w,p+128+axis*8)
+        i = i+1
+    return getw(w,p+16)+offset*4
+
+def rng_uniform_tensor(w:mutbuf,scratch:mutbuf,tensor:u64,generator:u64,from_bits:u64,to_bits:u64,no_grad:u64) -> u64:
+    t = public_node(w,tensor)
+    data = rng_object(w,generator)
+    if t == 0 or data == 0:
+        return 0
+    p = dptr(w,t)
+    if no_grad > 1:
+        return terror(w,7)
+    if no_grad == 0 and getw(w,p+32) != 0:
+        return terror(w,5)
+    if rng_interval(from_bits,to_bits) == 0:
+        return terror(w,7)
+    n = getw(w,p+8)
+    if n > 1000000:
+        return terror(w,3)
+    if version_can_bump(w,t,1) == 0:
+        return 0
+    if n != 0:
+        i = 0
+        while i < getw(w,p):
+            if getw(w,p+96+i*8) > 1 and getw(w,p+128+i*8) == 0:
+                return terror(w,2)
+            i = i+1
+        rng_load_scratch(w,scratch,data)
+        perm = rng_axis_order(w,p)
+        width = subf(to_bits,from_bits)
+        i = 0
+        while i < n:
+            unit = rng_unit32(rng_next(scratch))
+            value = fmaf(unit,width,from_bits)
+            if value == to_bits or (absf(value) == 0 and absf(to_bits) == 0):
+                value = from_bits
+            put4(w,rng_iteration_address(w,p,perm,i),value)
+            i = i+1
+        rng_save_scratch(w,scratch,data)
+    bump_version(w,t)
+    return getw(w,p+192)
+
+def rng_strided_view(s:readbuf,w:mutbuf,id:u64,config:u64,end:u64) -> u64:
+    t = public_node(w,id)
+    if t == 0:
+        return 0
+    if config < end or config > length(s) or 80 > length(s)-config or (config & 7) != 0:
+        return terror(w,100)
+    rank = getr(s,config)
+    offset = getr(s,config+72)
+    if rank > 4:
+        return terror(w,2)
+    p = dptr(w,t)
+    sp = so_storage_live(w,getw(w,p+216))
+    if sp == 0:
+        return terror(w,1)
+    size = so_uget(w,sp+24)//4
+    if offset > 268435456:
+        return terror(w,3)
+    n = 1
+    i = 0
+    while i < 4:
+        dim = getr(s,config+8+i*8)
+        stride = getr(s,config+40+i*8)
+        if i >= rank:
+            if dim != 0 or stride != 0:
+                return terror(w,2)
+        else:
+            if dim > 262144 or stride >= 9223372036854775808:
+                return terror(w,3)
+            if dim == 0:
+                n = 0
+        putw(w,2048+i*8,dim)
+        i = i+1
+    if n != 0:
+        if offset > size:
+            return terror(w,2)
+        extent = 1
+        i = 0
+        while i < rank:
+            dim = getr(s,config+8+i*8)
+            stride = getr(s,config+40+i*8)
+            if n > 16777216//dim:
+                return terror(w,3)
+            n = n*dim
+            if extent > size-offset:
+                return terror(w,2)
+            if stride != 0:
+                if dim-1 > (size-offset-extent)//stride:
+                    return terror(w,2)
+                extent = extent+(dim-1)*stride
+            i = i+1
+        if extent > size-offset:
+            return terror(w,2)
+    result = descriptor(w,rank,2048,0,0)
+    if result == 0:
+        return 0
+    q = dptr(w,result)
+    if bind_alias(w,result,t) == 0:
+        return 0
+    putw(w,q+16,9223372036854775808+so_uget(w,sp+16)+offset*4)
+    putw(w,q+64,getw(w,p+64))
+    putw(w,q+232,offset*4)
+    tp = so_slot_lookup(w,1,getw(w,q+192))
+    so_uput(w,tp+32,offset*4)
+    remaining = 0
+    if offset <= size:
+        remaining = (size-offset)*4
+    so_uput(w,tp+40,remaining)
+    i = 0
+    while i < rank:
+        putw(w,q+128+i*8,getr(s,config+40+i*8))
+        i = i+1
+    return result
+
+def rng_command(s:readbuf,o:mutbuf,w:mutbuf,scratch:mutbuf,cp:u64,at:u64,end:u64) -> u64:
+    code = getr(s,cp)
+    a = getr(s,cp+8)
+    b = getr(s,cp+16)
+    c = getr(s,cp+24)
+    d = getr(s,cp+32)
+    result = 0
+    payload = 0
+    first = getw(w,8)
+    if code < 60 or code > 69:
+        terror(w,4)
+    if getr(s,cp+48) != 0 or getr(s,cp+56) != 0:
+        terror(w,7)
+    if code != 68 and getr(s,cp+40) != 0:
+        terror(w,7)
+    if code != 68 and d != 0:
+        terror(w,7)
+    if code != 64 and code != 68 and code != 69 and c != 0:
+        terror(w,7)
+    if code == 60 or code == 62 or code == 63 or code == 65 or code == 66:
+        if b != 0:
+            terror(w,7)
+    if getw(w,0) == 0:
+        if code == 60:
+            result = rng_create_object(w,scratch,a)
+        if code == 65:
+            result = rng_clone_object(w,a)
+        if code == 66:
+            result = rng_drop_object(w,a)
+        if code == 69:
+            if c != 80:
+                terror(w,100)
+            else:
+                result = rng_strided_view(s,w,a,b,end)
+                if getw(w,0) == 0:
+                    result = publish_tensor(w,result)
+                    finish_command(w,first)
+        if code == 68:
+            result = rng_uniform_tensor(w,scratch,a,b,c,d,getr(s,cp+40))
+        if code == 61 or code == 62 or code == 63 or code == 64 or code == 67:
+            address = rng_object(w,a)
+            if address != 0:
+                if code == 61:
+                    rng_seed(scratch,b)
+                    result = rng_save_scratch(w,scratch,address)
+                if code == 62:
+                    result = getw(w,address)
+                if code == 63:
+                    if length(o)-at-32 < 5056:
+                        terror(w,3)
+                    else:
+                        copy_from_mut(o,w,at+32,object_address(w,address),5056)
+                        result = 5056
+                        payload = 5056
+                if code == 64:
+                    if b < end or b > length(s) or c != 5056 or 5056 > length(s)-b or (b & 7) != 0:
+                        terror(w,100)
+                    else:
+                        if rng_restore(s,scratch,b) != 0:
+                            terror(w,7)
+                        else:
+                            result = rng_save_scratch(w,scratch,address)
+                if code == 67:
+                    if b > 1000000:
+                        terror(w,3)
+                    else:
+                        rng_load_scratch(w,scratch,address)
+                        i = 0
+                        while i < b:
+                            rng_next(scratch)
+                            i = i+1
+                        result = rng_save_scratch(w,scratch,address)
+    status = getw(w,0)
+    if status != 0:
+        result = 0
+        payload = 0
+    putw(o,at,code)
+    putw(o,at+8,status)
+    putw(o,at+16,result)
+    putw(o,at+24,payload)
+    return at+32+payload

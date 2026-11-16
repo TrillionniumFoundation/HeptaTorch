@@ -3,7 +3,7 @@ on:
   push:
     branches: ["feature/native-tensor-objects", "feature/native-backward-release", "feature/native-backward-partial", "feature/native-cpu-generators"]
   pull_request:
-    paths: ["tests/pytorch_backward_release_probe.py", "tests/pytorch_backward_partial_probe.py", "tests/pytorch_gradient_presence_probe.py", "tests/pytorch_gradient_signed_zero_probe.py", "tests/pytorch_uniform_probe.py", ".github/workflows/backward-observations.yml"]
+    paths: ["tests/pytorch_backward_release_probe.py", "tests/pytorch_backward_partial_probe.py", "tests/pytorch_gradient_presence_probe.py", "tests/pytorch_gradient_signed_zero_probe.py", "tests/pytorch_grad_clear_probe.py", "tests/pytorch_uniform_probe.py", "tests/pytorch_uniform_range_probe.py", ".github/workflows/backward-observations.yml"]
   workflow_dispatch:
 permissions:
   contents: read
@@ -34,6 +34,8 @@ jobs:
           echo 'b368fd752485bd40a109712fffe156f6dfb43e48c4c1c971f9836e54bc861306  tests/pytorch_gradient_presence_probe.py' | sha256sum -c -
           echo 'a27756cc3be9603dbaa6b21465a3258d148f6ff3fde1f5df9ed7c8b0d93f9876  tests/pytorch_uniform_probe.py' | sha256sum -c -
           echo '4e31fd8fcabf0349a31a3f833906776567c54a467e28f8eba833ca7d5df61d2c  tests/pytorch_gradient_signed_zero_probe.py' | sha256sum -c -
+          echo 'a607164e51891c0c45922b5cd596e14fb8ecc6f176e0585757aebb56e106e29f  tests/pytorch_uniform_range_probe.py' | sha256sum -c -
+          echo 'f34e98011e62bdac2eb94beb5a07c043bde09d2fc8d9c416e52e22d278c96b50  tests/pytorch_grad_clear_probe.py' | sha256sum -c -
       - name: Observe default Saved release and repeat backward
         run: |
           python3 tests/pytorch_backward_release_probe.py \
@@ -64,3 +66,15 @@ jobs:
             --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
             --repo . --output build/torch-gradient-signed-zero.json > build/torch-gradient-signed-zero.stdout
           python3 -I -S -B tools/emit_ci_report.py build/torch-gradient-signed-zero.json
+      - name: Observe binary64 uniform interval admission at binary32 maximum
+        run: |
+          python3 tests/pytorch_uniform_range_probe.py \
+            --support tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --executable build/heptatorch --output build/pytorch-uniform-range-probe.json > build/pytorch-uniform-range-probe.stdout
+          python3 -I -S -B tools/emit_ci_report.py build/pytorch-uniform-range-probe.json
+      - name: Observe actual gradient release and optimizer state skipping
+        run: |
+          python3 tests/pytorch_grad_clear_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/torch-grad-clear.json > build/torch-grad-clear.stdout
+          python3 -I -S -B tools/emit_ci_report.py build/torch-grad-clear.json

@@ -1,0 +1,5237 @@
+{
+  "schema": "heptatorch.pinned-torch-gradient-presence-observations.v1",
+  "probe_sha256": "b368fd752485bd40a109712fffe156f6dfb43e48c4c1c971f9836e54bc861306",
+  "support_sha256": "ef8fe89aa7dbff4ee03f9d5762d2736a3648d9e48e97ad5df7bec615676f04ae",
+  "lock_sha256": "ca2e54ce65083bbe0ab3d47b6878971271765ab35a9dd70725fa345fceed3944",
+  "upstream_commit": "31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
+  "expected_cases": 8,
+  "case_names": [
+    "absent-then-produced-zero-SGD-momentum",
+    "absent-then-produced-zero-Adam",
+    "absent-then-produced-zero-AdamW",
+    "partial-backward-then-step-SGD-momentum",
+    "partial-backward-then-step-Adam",
+    "partial-backward-then-step-AdamW",
+    "empty-leaf-produced-gradient-is-present",
+    "nonleaf-and-produced-zero-gradient-presence"
+  ],
+  "target_execution": false,
+  "native_values_compared": 0,
+  "full_rewrite_complete": false,
+  "pytorch_api_denominator": 2590,
+  "scope": "Real CPU Torch None versus defined zero/empty gradients, optimizer skip and zero_grad(False). No target compatibility is asserted.",
+  "engine_mode": "Autograd multithreading disabled; first-order backward; foreach=False and fused=False optimizers.",
+  "not_covered": [
+    "zero_grad(set_to_none=True) protocol implementation",
+    "assignment to .grad",
+    "retain_grad on nonleaf",
+    "optimizer-state lifetime equivalence with explicit native state tensors"
+  ],
+  "status": "OBSERVED",
+  "cases": 8,
+  "probe_errors": 0,
+  "rows": [
+    {
+      "case": "absent-then-produced-zero-SGD-momentum",
+      "status": "OBSERVED",
+      "observation": {
+        "optimizer": "SGD-momentum",
+        "config": {
+          "lr": 0.125,
+          "momentum": 0.5,
+          "dampening": 0.0,
+          "weight_decay": 0.25,
+          "nesterov": false,
+          "foreach": false,
+          "fused": false
+        },
+        "actions": [
+          {
+            "action": "step with initially absent gradient",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    -2.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "p": null
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    -2.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "p": null
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            }
+          },
+          {
+            "action": "zero_grad(set_to_none=False) while absent",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    -2.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "p": null
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    -2.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "p": null
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            }
+          },
+          {
+            "action": "step while gradient remains absent",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    -2.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "p": null
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    -2.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "p": null
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            }
+          },
+          {
+            "action": "backward produces a defined zero gradient",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    -2.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "p": null
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    -2.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 0,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            }
+          },
+          {
+            "action": "step with present zero gradient and weight decay",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    -2.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 0,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    0.96875,
+                    -1.9375,
+                    0.484375
+                  ]
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 0,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": true,
+                  "fields": {
+                    "momentum_buffer": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 0,
+                        "values": [
+                          0.25,
+                          -0.5,
+                          0.125
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "action": "zero_grad(set_to_none=False) while present",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    0.96875,
+                    -1.9375,
+                    0.484375
+                  ]
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 0,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": true,
+                  "fields": {
+                    "momentum_buffer": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 0,
+                        "values": [
+                          0.25,
+                          -0.5,
+                          0.125
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    0.96875,
+                    -1.9375,
+                    0.484375
+                  ]
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 1,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": true,
+                  "fields": {
+                    "momentum_buffer": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 0,
+                        "values": [
+                          0.25,
+                          -0.5,
+                          0.125
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "action": "second step with present zero gradient and weight decay",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    0.96875,
+                    -1.9375,
+                    0.484375
+                  ]
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 1,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": true,
+                  "fields": {
+                    "momentum_buffer": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 0,
+                        "values": [
+                          0.25,
+                          -0.5,
+                          0.125
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 2,
+                  "values": [
+                    0.9228515625,
+                    -1.845703125,
+                    0.46142578125
+                  ]
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 1,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": true,
+                  "fields": {
+                    "momentum_buffer": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 2,
+                        "values": [
+                          0.3671875,
+                          -0.734375,
+                          0.18359375
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "absent-then-produced-zero-Adam",
+      "status": "OBSERVED",
+      "observation": {
+        "optimizer": "Adam",
+        "config": {
+          "lr": 0.125,
+          "betas": [
+            0.5,
+            0.75
+          ],
+          "eps": 0.01,
+          "weight_decay": 0.25,
+          "amsgrad": false,
+          "foreach": false,
+          "fused": false
+        },
+        "actions": [
+          {
+            "action": "step with initially absent gradient",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    -2.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "p": null
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    -2.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "p": null
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            }
+          },
+          {
+            "action": "zero_grad(set_to_none=False) while absent",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    -2.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "p": null
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    -2.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "p": null
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            }
+          },
+          {
+            "action": "step while gradient remains absent",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    -2.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "p": null
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    -2.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "p": null
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            }
+          },
+          {
+            "action": "backward produces a defined zero gradient",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    -2.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "p": null
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    -2.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 0,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            }
+          },
+          {
+            "action": "step with present zero gradient and weight decay",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    -2.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 0,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    0.879807710647583,
+                    -1.877450942993164,
+                    0.38425925374031067
+                  ]
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 0,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": true,
+                  "fields": {
+                    "step": {
+                      "tensor": {
+                        "shape": [],
+                        "strides": [],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          1.0
+                        ]
+                      }
+                    },
+                    "exp_avg": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          0.125,
+                          -0.25,
+                          0.0625
+                        ]
+                      }
+                    },
+                    "exp_avg_sq": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 2,
+                        "values": [
+                          0.015625,
+                          0.0625,
+                          0.00390625
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "action": "zero_grad(set_to_none=False) while present",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    0.879807710647583,
+                    -1.877450942993164,
+                    0.38425925374031067
+                  ]
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 0,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": true,
+                  "fields": {
+                    "step": {
+                      "tensor": {
+                        "shape": [],
+                        "strides": [],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          1.0
+                        ]
+                      }
+                    },
+                    "exp_avg": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          0.125,
+                          -0.25,
+                          0.0625
+                        ]
+                      }
+                    },
+                    "exp_avg_sq": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 2,
+                        "values": [
+                          0.015625,
+                          0.0625,
+                          0.00390625
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    0.879807710647583,
+                    -1.877450942993164,
+                    0.38425925374031067
+                  ]
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 1,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": true,
+                  "fields": {
+                    "step": {
+                      "tensor": {
+                        "shape": [],
+                        "strides": [],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          1.0
+                        ]
+                      }
+                    },
+                    "exp_avg": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          0.125,
+                          -0.25,
+                          0.0625
+                        ]
+                      }
+                    },
+                    "exp_avg_sq": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 2,
+                        "values": [
+                          0.015625,
+                          0.0625,
+                          0.00390625
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "action": "second step with present zero gradient and weight decay",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    0.879807710647583,
+                    -1.877450942993164,
+                    0.38425925374031067
+                  ]
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 1,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": true,
+                  "fields": {
+                    "step": {
+                      "tensor": {
+                        "shape": [],
+                        "strides": [],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          1.0
+                        ]
+                      }
+                    },
+                    "exp_avg": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          0.125,
+                          -0.25,
+                          0.0625
+                        ]
+                      }
+                    },
+                    "exp_avg_sq": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 2,
+                        "values": [
+                          0.015625,
+                          0.0625,
+                          0.00390625
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 2,
+                  "values": [
+                    0.7616592645645142,
+                    -1.7557884454727173,
+                    0.2735976576805115
+                  ]
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 1,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": true,
+                  "fields": {
+                    "step": {
+                      "tensor": {
+                        "shape": [],
+                        "strides": [],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 2,
+                        "values": [
+                          2.0
+                        ]
+                      }
+                    },
+                    "exp_avg": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 2,
+                        "values": [
+                          0.17247596383094788,
+                          -0.3596813678741455,
+                          0.07928240299224854
+                        ]
+                      }
+                    },
+                    "exp_avg_sq": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 4,
+                        "values": [
+                          0.023813461884856224,
+                          0.10195034742355347,
+                          0.0052367993630468845
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "absent-then-produced-zero-AdamW",
+      "status": "OBSERVED",
+      "observation": {
+        "optimizer": "AdamW",
+        "config": {
+          "lr": 0.125,
+          "betas": [
+            0.5,
+            0.75
+          ],
+          "eps": 0.01,
+          "weight_decay": 0.25,
+          "amsgrad": false,
+          "foreach": false,
+          "fused": false
+        },
+        "actions": [
+          {
+            "action": "step with initially absent gradient",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    -2.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "p": null
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    -2.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "p": null
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            }
+          },
+          {
+            "action": "zero_grad(set_to_none=False) while absent",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    -2.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "p": null
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    -2.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "p": null
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            }
+          },
+          {
+            "action": "step while gradient remains absent",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    -2.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "p": null
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    -2.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "p": null
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            }
+          },
+          {
+            "action": "backward produces a defined zero gradient",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    -2.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "p": null
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    -2.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 0,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            }
+          },
+          {
+            "action": "step with present zero gradient and weight decay",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    -2.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 0,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 2,
+                  "values": [
+                    0.96875,
+                    -1.9375,
+                    0.484375
+                  ]
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 0,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": true,
+                  "fields": {
+                    "step": {
+                      "tensor": {
+                        "shape": [],
+                        "strides": [],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          1.0
+                        ]
+                      }
+                    },
+                    "exp_avg": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      }
+                    },
+                    "exp_avg_sq": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 2,
+                        "values": [
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "action": "zero_grad(set_to_none=False) while present",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 2,
+                  "values": [
+                    0.96875,
+                    -1.9375,
+                    0.484375
+                  ]
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 0,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": true,
+                  "fields": {
+                    "step": {
+                      "tensor": {
+                        "shape": [],
+                        "strides": [],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          1.0
+                        ]
+                      }
+                    },
+                    "exp_avg": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      }
+                    },
+                    "exp_avg_sq": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 2,
+                        "values": [
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 2,
+                  "values": [
+                    0.96875,
+                    -1.9375,
+                    0.484375
+                  ]
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 1,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": true,
+                  "fields": {
+                    "step": {
+                      "tensor": {
+                        "shape": [],
+                        "strides": [],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          1.0
+                        ]
+                      }
+                    },
+                    "exp_avg": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      }
+                    },
+                    "exp_avg_sq": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 2,
+                        "values": [
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "action": "second step with present zero gradient and weight decay",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 2,
+                  "values": [
+                    0.96875,
+                    -1.9375,
+                    0.484375
+                  ]
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 1,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": true,
+                  "fields": {
+                    "step": {
+                      "tensor": {
+                        "shape": [],
+                        "strides": [],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          1.0
+                        ]
+                      }
+                    },
+                    "exp_avg": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      }
+                    },
+                    "exp_avg_sq": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 2,
+                        "values": [
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 4,
+                  "values": [
+                    0.9384765625,
+                    -1.876953125,
+                    0.46923828125
+                  ]
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 1,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": true,
+                  "fields": {
+                    "step": {
+                      "tensor": {
+                        "shape": [],
+                        "strides": [],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 2,
+                        "values": [
+                          2.0
+                        ]
+                      }
+                    },
+                    "exp_avg": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 2,
+                        "values": [
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      }
+                    },
+                    "exp_avg_sq": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 4,
+                        "values": [
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "partial-backward-then-step-SGD-momentum",
+      "status": "OBSERVED",
+      "observation": {
+        "optimizer": "SGD-momentum",
+        "config": {
+          "lr": 0.125,
+          "momentum": 0.5,
+          "dampening": 0.0,
+          "weight_decay": 0.25,
+          "nesterov": false,
+          "foreach": false,
+          "fused": false
+        },
+        "graph_creation_order": [
+          "bad*bad",
+          "good*good",
+          "add",
+          "sum"
+        ],
+        "mutation": {
+          "parameter": "bad",
+          "operation": "add_",
+          "scalar": 1.0
+        },
+        "actions": [
+          {
+            "action": "backward fails after newer independent branch",
+            "before": {
+              "parameters": {
+                "bad": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    2.0,
+                    3.0,
+                    4.0
+                  ]
+                },
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    2.0,
+                    -1.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "bad": null,
+                "good": null
+              },
+              "optimizer_state": {
+                "bad": {
+                  "entry_exists": false,
+                  "fields": {}
+                },
+                "good": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            },
+            "outcome": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "one of the variables needed for gradient computation has been modified by an inplace operation: [torch.FloatTensor [3]] is at version 1; expected version 0 instead. Hint: enable anomaly detection to find the operation that failed to compute its gradient, with torch.autograd.set_detect_anomaly(True, check_nan=False).",
+            "after": {
+              "parameters": {
+                "bad": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    2.0,
+                    3.0,
+                    4.0
+                  ]
+                },
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    2.0,
+                    -1.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "bad": null,
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 1,
+                  "values": [
+                    4.0,
+                    -2.0,
+                    1.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "bad": {
+                  "entry_exists": false,
+                  "fields": {}
+                },
+                "good": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            }
+          },
+          {
+            "action": "optimizer step skips only absent-gradient parameter",
+            "before": {
+              "parameters": {
+                "bad": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    2.0,
+                    3.0,
+                    4.0
+                  ]
+                },
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    2.0,
+                    -1.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "bad": null,
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 1,
+                  "values": [
+                    4.0,
+                    -2.0,
+                    1.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "bad": {
+                  "entry_exists": false,
+                  "fields": {}
+                },
+                "good": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "bad": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    2.0,
+                    3.0,
+                    4.0
+                  ]
+                },
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    1.4375,
+                    -0.71875,
+                    0.359375
+                  ]
+                }
+              },
+              "gradients": {
+                "bad": null,
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 1,
+                  "values": [
+                    4.0,
+                    -2.0,
+                    1.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "bad": {
+                  "entry_exists": false,
+                  "fields": {}
+                },
+                "good": {
+                  "entry_exists": true,
+                  "fields": {
+                    "momentum_buffer": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 0,
+                        "values": [
+                          4.5,
+                          -2.25,
+                          1.125
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "action": "zero_grad(False) preserves absent versus present distinction",
+            "before": {
+              "parameters": {
+                "bad": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    2.0,
+                    3.0,
+                    4.0
+                  ]
+                },
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    1.4375,
+                    -0.71875,
+                    0.359375
+                  ]
+                }
+              },
+              "gradients": {
+                "bad": null,
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 1,
+                  "values": [
+                    4.0,
+                    -2.0,
+                    1.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "bad": {
+                  "entry_exists": false,
+                  "fields": {}
+                },
+                "good": {
+                  "entry_exists": true,
+                  "fields": {
+                    "momentum_buffer": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 0,
+                        "values": [
+                          4.5,
+                          -2.25,
+                          1.125
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "bad": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    2.0,
+                    3.0,
+                    4.0
+                  ]
+                },
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    1.4375,
+                    -0.71875,
+                    0.359375
+                  ]
+                }
+              },
+              "gradients": {
+                "bad": null,
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 2,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "bad": {
+                  "entry_exists": false,
+                  "fields": {}
+                },
+                "good": {
+                  "entry_exists": true,
+                  "fields": {
+                    "momentum_buffer": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 0,
+                        "values": [
+                          4.5,
+                          -2.25,
+                          1.125
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "action": "optimizer step with one absent and one present-zero gradient",
+            "before": {
+              "parameters": {
+                "bad": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    2.0,
+                    3.0,
+                    4.0
+                  ]
+                },
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    1.4375,
+                    -0.71875,
+                    0.359375
+                  ]
+                }
+              },
+              "gradients": {
+                "bad": null,
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 2,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "bad": {
+                  "entry_exists": false,
+                  "fields": {}
+                },
+                "good": {
+                  "entry_exists": true,
+                  "fields": {
+                    "momentum_buffer": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 0,
+                        "values": [
+                          4.5,
+                          -2.25,
+                          1.125
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "bad": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    2.0,
+                    3.0,
+                    4.0
+                  ]
+                },
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 2,
+                  "values": [
+                    1.111328125,
+                    -0.5556640625,
+                    0.27783203125
+                  ]
+                }
+              },
+              "gradients": {
+                "bad": null,
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 2,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "bad": {
+                  "entry_exists": false,
+                  "fields": {}
+                },
+                "good": {
+                  "entry_exists": true,
+                  "fields": {
+                    "momentum_buffer": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 2,
+                        "values": [
+                          2.609375,
+                          -1.3046875,
+                          0.65234375
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "partial-backward-then-step-Adam",
+      "status": "OBSERVED",
+      "observation": {
+        "optimizer": "Adam",
+        "config": {
+          "lr": 0.125,
+          "betas": [
+            0.5,
+            0.75
+          ],
+          "eps": 0.01,
+          "weight_decay": 0.25,
+          "amsgrad": false,
+          "foreach": false,
+          "fused": false
+        },
+        "graph_creation_order": [
+          "bad*bad",
+          "good*good",
+          "add",
+          "sum"
+        ],
+        "mutation": {
+          "parameter": "bad",
+          "operation": "add_",
+          "scalar": 1.0
+        },
+        "actions": [
+          {
+            "action": "backward fails after newer independent branch",
+            "before": {
+              "parameters": {
+                "bad": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    2.0,
+                    3.0,
+                    4.0
+                  ]
+                },
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    2.0,
+                    -1.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "bad": null,
+                "good": null
+              },
+              "optimizer_state": {
+                "bad": {
+                  "entry_exists": false,
+                  "fields": {}
+                },
+                "good": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            },
+            "outcome": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "one of the variables needed for gradient computation has been modified by an inplace operation: [torch.FloatTensor [3]] is at version 1; expected version 0 instead. Hint: enable anomaly detection to find the operation that failed to compute its gradient, with torch.autograd.set_detect_anomaly(True, check_nan=False).",
+            "after": {
+              "parameters": {
+                "bad": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    2.0,
+                    3.0,
+                    4.0
+                  ]
+                },
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    2.0,
+                    -1.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "bad": null,
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 1,
+                  "values": [
+                    4.0,
+                    -2.0,
+                    1.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "bad": {
+                  "entry_exists": false,
+                  "fields": {}
+                },
+                "good": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            }
+          },
+          {
+            "action": "optimizer step skips only absent-gradient parameter",
+            "before": {
+              "parameters": {
+                "bad": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    2.0,
+                    3.0,
+                    4.0
+                  ]
+                },
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    2.0,
+                    -1.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "bad": null,
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 1,
+                  "values": [
+                    4.0,
+                    -2.0,
+                    1.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "bad": {
+                  "entry_exists": false,
+                  "fields": {}
+                },
+                "good": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "bad": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    2.0,
+                    3.0,
+                    4.0
+                  ]
+                },
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    1.8752771615982056,
+                    -0.8755530714988708,
+                    0.3761013150215149
+                  ]
+                }
+              },
+              "gradients": {
+                "bad": null,
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 1,
+                  "values": [
+                    4.0,
+                    -2.0,
+                    1.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "bad": {
+                  "entry_exists": false,
+                  "fields": {}
+                },
+                "good": {
+                  "entry_exists": true,
+                  "fields": {
+                    "step": {
+                      "tensor": {
+                        "shape": [],
+                        "strides": [],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          1.0
+                        ]
+                      }
+                    },
+                    "exp_avg": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          2.25,
+                          -1.125,
+                          0.5625
+                        ]
+                      }
+                    },
+                    "exp_avg_sq": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 2,
+                        "values": [
+                          5.0625,
+                          1.265625,
+                          0.31640625
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "action": "zero_grad(False) preserves absent versus present distinction",
+            "before": {
+              "parameters": {
+                "bad": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    2.0,
+                    3.0,
+                    4.0
+                  ]
+                },
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    1.8752771615982056,
+                    -0.8755530714988708,
+                    0.3761013150215149
+                  ]
+                }
+              },
+              "gradients": {
+                "bad": null,
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 1,
+                  "values": [
+                    4.0,
+                    -2.0,
+                    1.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "bad": {
+                  "entry_exists": false,
+                  "fields": {}
+                },
+                "good": {
+                  "entry_exists": true,
+                  "fields": {
+                    "step": {
+                      "tensor": {
+                        "shape": [],
+                        "strides": [],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          1.0
+                        ]
+                      }
+                    },
+                    "exp_avg": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          2.25,
+                          -1.125,
+                          0.5625
+                        ]
+                      }
+                    },
+                    "exp_avg_sq": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 2,
+                        "values": [
+                          5.0625,
+                          1.265625,
+                          0.31640625
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "bad": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    2.0,
+                    3.0,
+                    4.0
+                  ]
+                },
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    1.8752771615982056,
+                    -0.8755530714988708,
+                    0.3761013150215149
+                  ]
+                }
+              },
+              "gradients": {
+                "bad": null,
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 2,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "bad": {
+                  "entry_exists": false,
+                  "fields": {}
+                },
+                "good": {
+                  "entry_exists": true,
+                  "fields": {
+                    "step": {
+                      "tensor": {
+                        "shape": [],
+                        "strides": [],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          1.0
+                        ]
+                      }
+                    },
+                    "exp_avg": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          2.25,
+                          -1.125,
+                          0.5625
+                        ]
+                      }
+                    },
+                    "exp_avg_sq": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 2,
+                        "values": [
+                          5.0625,
+                          1.265625,
+                          0.31640625
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "action": "optimizer step with one absent and one present-zero gradient",
+            "before": {
+              "parameters": {
+                "bad": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    2.0,
+                    3.0,
+                    4.0
+                  ]
+                },
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    1.8752771615982056,
+                    -0.8755530714988708,
+                    0.3761013150215149
+                  ]
+                }
+              },
+              "gradients": {
+                "bad": null,
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 2,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "bad": {
+                  "entry_exists": false,
+                  "fields": {}
+                },
+                "good": {
+                  "entry_exists": true,
+                  "fields": {
+                    "step": {
+                      "tensor": {
+                        "shape": [],
+                        "strides": [],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          1.0
+                        ]
+                      }
+                    },
+                    "exp_avg": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          2.25,
+                          -1.125,
+                          0.5625
+                        ]
+                      }
+                    },
+                    "exp_avg_sq": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 2,
+                        "values": [
+                          5.0625,
+                          1.265625,
+                          0.31640625
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "bad": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    2.0,
+                    3.0,
+                    4.0
+                  ]
+                },
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 2,
+                  "values": [
+                    1.799175500869751,
+                    -0.8005041480064392,
+                    0.30314502120018005
+                  ]
+                }
+              },
+              "gradients": {
+                "bad": null,
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 2,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "bad": {
+                  "entry_exists": false,
+                  "fields": {}
+                },
+                "good": {
+                  "entry_exists": true,
+                  "fields": {
+                    "step": {
+                      "tensor": {
+                        "shape": [],
+                        "strides": [],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 2,
+                        "values": [
+                          2.0
+                        ]
+                      }
+                    },
+                    "exp_avg": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 2,
+                        "values": [
+                          1.3594096899032593,
+                          -0.6719441413879395,
+                          0.32826268672943115
+                        ]
+                      }
+                    },
+                    "exp_avg_sq": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 4,
+                        "values": [
+                          3.851822853088379,
+                          0.961196780204773,
+                          0.23951487243175507
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "partial-backward-then-step-AdamW",
+      "status": "OBSERVED",
+      "observation": {
+        "optimizer": "AdamW",
+        "config": {
+          "lr": 0.125,
+          "betas": [
+            0.5,
+            0.75
+          ],
+          "eps": 0.01,
+          "weight_decay": 0.25,
+          "amsgrad": false,
+          "foreach": false,
+          "fused": false
+        },
+        "graph_creation_order": [
+          "bad*bad",
+          "good*good",
+          "add",
+          "sum"
+        ],
+        "mutation": {
+          "parameter": "bad",
+          "operation": "add_",
+          "scalar": 1.0
+        },
+        "actions": [
+          {
+            "action": "backward fails after newer independent branch",
+            "before": {
+              "parameters": {
+                "bad": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    2.0,
+                    3.0,
+                    4.0
+                  ]
+                },
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    2.0,
+                    -1.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "bad": null,
+                "good": null
+              },
+              "optimizer_state": {
+                "bad": {
+                  "entry_exists": false,
+                  "fields": {}
+                },
+                "good": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            },
+            "outcome": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "one of the variables needed for gradient computation has been modified by an inplace operation: [torch.FloatTensor [3]] is at version 1; expected version 0 instead. Hint: enable anomaly detection to find the operation that failed to compute its gradient, with torch.autograd.set_detect_anomaly(True, check_nan=False).",
+            "after": {
+              "parameters": {
+                "bad": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    2.0,
+                    3.0,
+                    4.0
+                  ]
+                },
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    2.0,
+                    -1.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "bad": null,
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 1,
+                  "values": [
+                    4.0,
+                    -2.0,
+                    1.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "bad": {
+                  "entry_exists": false,
+                  "fields": {}
+                },
+                "good": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            }
+          },
+          {
+            "action": "optimizer step skips only absent-gradient parameter",
+            "before": {
+              "parameters": {
+                "bad": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    2.0,
+                    3.0,
+                    4.0
+                  ]
+                },
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    2.0,
+                    -1.0,
+                    0.5
+                  ]
+                }
+              },
+              "gradients": {
+                "bad": null,
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 1,
+                  "values": [
+                    4.0,
+                    -2.0,
+                    1.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "bad": {
+                  "entry_exists": false,
+                  "fields": {}
+                },
+                "good": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "bad": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    2.0,
+                    3.0,
+                    4.0
+                  ]
+                },
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 2,
+                  "values": [
+                    1.8128117322921753,
+                    -0.8443719148635864,
+                    0.3606126308441162
+                  ]
+                }
+              },
+              "gradients": {
+                "bad": null,
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 1,
+                  "values": [
+                    4.0,
+                    -2.0,
+                    1.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "bad": {
+                  "entry_exists": false,
+                  "fields": {}
+                },
+                "good": {
+                  "entry_exists": true,
+                  "fields": {
+                    "step": {
+                      "tensor": {
+                        "shape": [],
+                        "strides": [],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          1.0
+                        ]
+                      }
+                    },
+                    "exp_avg": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          2.0,
+                          -1.0,
+                          0.5
+                        ]
+                      }
+                    },
+                    "exp_avg_sq": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 2,
+                        "values": [
+                          4.0,
+                          1.0,
+                          0.25
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "action": "zero_grad(False) preserves absent versus present distinction",
+            "before": {
+              "parameters": {
+                "bad": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    2.0,
+                    3.0,
+                    4.0
+                  ]
+                },
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 2,
+                  "values": [
+                    1.8128117322921753,
+                    -0.8443719148635864,
+                    0.3606126308441162
+                  ]
+                }
+              },
+              "gradients": {
+                "bad": null,
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 1,
+                  "values": [
+                    4.0,
+                    -2.0,
+                    1.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "bad": {
+                  "entry_exists": false,
+                  "fields": {}
+                },
+                "good": {
+                  "entry_exists": true,
+                  "fields": {
+                    "step": {
+                      "tensor": {
+                        "shape": [],
+                        "strides": [],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          1.0
+                        ]
+                      }
+                    },
+                    "exp_avg": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          2.0,
+                          -1.0,
+                          0.5
+                        ]
+                      }
+                    },
+                    "exp_avg_sq": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 2,
+                        "values": [
+                          4.0,
+                          1.0,
+                          0.25
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "bad": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    2.0,
+                    3.0,
+                    4.0
+                  ]
+                },
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 2,
+                  "values": [
+                    1.8128117322921753,
+                    -0.8443719148635864,
+                    0.3606126308441162
+                  ]
+                }
+              },
+              "gradients": {
+                "bad": null,
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 2,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "bad": {
+                  "entry_exists": false,
+                  "fields": {}
+                },
+                "good": {
+                  "entry_exists": true,
+                  "fields": {
+                    "step": {
+                      "tensor": {
+                        "shape": [],
+                        "strides": [],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          1.0
+                        ]
+                      }
+                    },
+                    "exp_avg": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          2.0,
+                          -1.0,
+                          0.5
+                        ]
+                      }
+                    },
+                    "exp_avg_sq": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 2,
+                        "values": [
+                          4.0,
+                          1.0,
+                          0.25
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "action": "optimizer step with one absent and one present-zero gradient",
+            "before": {
+              "parameters": {
+                "bad": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    2.0,
+                    3.0,
+                    4.0
+                  ]
+                },
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 2,
+                  "values": [
+                    1.8128117322921753,
+                    -0.8443719148635864,
+                    0.3606126308441162
+                  ]
+                }
+              },
+              "gradients": {
+                "bad": null,
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 2,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "bad": {
+                  "entry_exists": false,
+                  "fields": {}
+                },
+                "good": {
+                  "entry_exists": true,
+                  "fields": {
+                    "step": {
+                      "tensor": {
+                        "shape": [],
+                        "strides": [],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          1.0
+                        ]
+                      }
+                    },
+                    "exp_avg": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          2.0,
+                          -1.0,
+                          0.5
+                        ]
+                      }
+                    },
+                    "exp_avg_sq": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 2,
+                        "values": [
+                          4.0,
+                          1.0,
+                          0.25
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "bad": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 1,
+                  "values": [
+                    2.0,
+                    3.0,
+                    4.0
+                  ]
+                },
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 4,
+                  "values": [
+                    1.6927565336227417,
+                    -0.7548208236694336,
+                    0.28665417432785034
+                  ]
+                }
+              },
+              "gradients": {
+                "bad": null,
+                "good": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 2,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                }
+              },
+              "optimizer_state": {
+                "bad": {
+                  "entry_exists": false,
+                  "fields": {}
+                },
+                "good": {
+                  "entry_exists": true,
+                  "fields": {
+                    "step": {
+                      "tensor": {
+                        "shape": [],
+                        "strides": [],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 2,
+                        "values": [
+                          2.0
+                        ]
+                      }
+                    },
+                    "exp_avg": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 2,
+                        "values": [
+                          1.0,
+                          -0.5,
+                          0.25
+                        ]
+                      }
+                    },
+                    "exp_avg_sq": {
+                      "tensor": {
+                        "shape": [
+                          3
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 4,
+                        "values": [
+                          3.0,
+                          0.75,
+                          0.1875
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "empty-leaf-produced-gradient-is-present",
+      "status": "OBSERVED",
+      "observation": {
+        "optimizer": "AdamW",
+        "config": {
+          "lr": 0.125,
+          "betas": [
+            0.5,
+            0.75
+          ],
+          "eps": 0.01,
+          "weight_decay": 0.25,
+          "amsgrad": false,
+          "foreach": false,
+          "fused": false
+        },
+        "actions": [
+          {
+            "action": "zero_grad(False) while empty gradient absent",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    0
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": []
+                }
+              },
+              "gradients": {
+                "p": null
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    0
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": []
+                }
+              },
+              "gradients": {
+                "p": null
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            }
+          },
+          {
+            "action": "empty backward produces defined empty gradient",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    0
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": []
+                }
+              },
+              "gradients": {
+                "p": null
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    0
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": []
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    0
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 1,
+                  "values": []
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            }
+          },
+          {
+            "action": "AdamW step processes present empty gradient",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    0
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": []
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    0
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 1,
+                  "values": []
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    0
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 2,
+                  "values": []
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    0
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 1,
+                  "values": []
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": true,
+                  "fields": {
+                    "step": {
+                      "tensor": {
+                        "shape": [],
+                        "strides": [],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          1.0
+                        ]
+                      }
+                    },
+                    "exp_avg": {
+                      "tensor": {
+                        "shape": [
+                          0
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": []
+                      }
+                    },
+                    "exp_avg_sq": {
+                      "tensor": {
+                        "shape": [
+                          0
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 2,
+                        "values": []
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "action": "zero_grad(False) leaves defined empty gradient present",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    0
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 2,
+                  "values": []
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    0
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 1,
+                  "values": []
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": true,
+                  "fields": {
+                    "step": {
+                      "tensor": {
+                        "shape": [],
+                        "strides": [],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          1.0
+                        ]
+                      }
+                    },
+                    "exp_avg": {
+                      "tensor": {
+                        "shape": [
+                          0
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": []
+                      }
+                    },
+                    "exp_avg_sq": {
+                      "tensor": {
+                        "shape": [
+                          0
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 2,
+                        "values": []
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    0
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 2,
+                  "values": []
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    0
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 2,
+                  "values": []
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": true,
+                  "fields": {
+                    "step": {
+                      "tensor": {
+                        "shape": [],
+                        "strides": [],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": [
+                          1.0
+                        ]
+                      }
+                    },
+                    "exp_avg": {
+                      "tensor": {
+                        "shape": [
+                          0
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 1,
+                        "values": []
+                      }
+                    },
+                    "exp_avg_sq": {
+                      "tensor": {
+                        "shape": [
+                          0
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "version": 2,
+                        "values": []
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "nonleaf-and-produced-zero-gradient-presence",
+      "status": "OBSERVED",
+      "observation": {
+        "actions": [
+          {
+            "action": "backward produces zero leaf gradient, nonleaf remains unretained",
+            "before": {
+              "parameters": {
+                "x": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    -2.0,
+                    3.0
+                  ]
+                },
+                "constant": {
+                  "shape": [],
+                  "strides": [],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 0,
+                  "values": [
+                    0.0
+                  ]
+                },
+                "nonleaf": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    0.0,
+                    -0.0,
+                    0.0
+                  ]
+                }
+              },
+              "gradients": {
+                "x": null,
+                "constant": null,
+                "nonleaf": null
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "x": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    -2.0,
+                    3.0
+                  ]
+                },
+                "constant": {
+                  "shape": [],
+                  "strides": [],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 0,
+                  "values": [
+                    0.0
+                  ]
+                },
+                "nonleaf": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    0.0,
+                    -0.0,
+                    0.0
+                  ]
+                }
+              },
+              "gradients": {
+                "x": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "version": 0,
+                  "values": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ]
+                },
+                "constant": null,
+                "nonleaf": null
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "oracle_provenance": {
+    "status": "PASS",
+    "lock_path": "/home/runner/work/HeptaTorch/HeptaTorch/compatibility/pytorch-oracle-lock.json",
+    "lock_sha256": "ca2e54ce65083bbe0ab3d47b6878971271765ab35a9dd70725fa345fceed3944",
+    "expected": {
+      "distribution": "torch",
+      "version": "2.15.0+cpu",
+      "git_commit": "d0f2af8b66b20da4baa50644c0cd3f887a2eae2e",
+      "backend_versions": {
+        "cuda": null,
+        "hip": null,
+        "rocm": null,
+        "xpu": null
+      },
+      "python": {
+        "implementation": "cpython",
+        "version": [
+          3,
+          12
+        ]
+      },
+      "platform": {
+        "sys_platform": "linux",
+        "machine": "x86_64"
+      },
+      "wheel": {
+        "url": "https://download-r2.pytorch.org/whl/cpu/torch-2.15.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl",
+        "sha256": "0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3",
+        "filename": "torch-2.15.0+cpu-cp312-cp312-manylinux_2_28_x86_64.whl",
+        "python_tag": "cp312",
+        "abi_tag": "cp312",
+        "platform_tag": "manylinux_2_28_x86_64",
+        "metadata_sha256": "8bbf94c86c3be6cf586385861d476b78cb66d19b67fef49ece4f7d68ca428cc3"
+      },
+      "install_report": "build/pytorch-install.json"
+    },
+    "observed": {
+      "python": {
+        "implementation": "cpython",
+        "version": [
+          3,
+          12
+        ],
+        "full_version": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]"
+      },
+      "platform": {
+        "sys_platform": "linux",
+        "machine": "x86_64"
+      },
+      "version": "2.15.0+cpu",
+      "git_commit": "d0f2af8b66b20da4baa50644c0cd3f887a2eae2e",
+      "backend_versions": {
+        "cuda": null,
+        "hip": null,
+        "rocm": null,
+        "xpu": null
+      },
+      "distribution_version": "2.15.0+cpu",
+      "direct_url": {
+        "archive_info": {
+          "hash": "sha256=0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3",
+          "hashes": {
+            "sha256": "0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3"
+          }
+        },
+        "url": "https://download-r2.pytorch.org/whl/cpu/torch-2.15.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl"
+      },
+      "install_report": {
+        "path": "build/pytorch-install.json",
+        "pip_version": "24.0",
+        "download_info": {
+          "url": "https://download-r2.pytorch.org/whl/cpu/torch-2.15.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl",
+          "archive_info": {
+            "hash": "sha256=0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3",
+            "hashes": {
+              "sha256": "0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3"
+            }
+          }
+        },
+        "metadata_name": "torch",
+        "metadata_version": "2.15.0+cpu",
+        "requested": true
+      }
+    },
+    "checks": {
+      "python_matches": true,
+      "platform_matches": true,
+      "version_backend_matches": true,
+      "git_matches_oracle_build_pin": true,
+      "distribution_version_matches": true,
+      "direct_url_matches": true,
+      "direct_url_archive_sha256_matches": true,
+      "pip_report_url_matches": true,
+      "pip_report_archive_sha256_matches": true,
+      "pip_report_version_matches": true,
+      "pip_report_requested": true
+    },
+    "metadata_error": null,
+    "release_source_equivalence": {
+      "inventory_commit": "31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
+      "wheel_build_commit": "d0f2af8b66b20da4baa50644c0cd3f887a2eae2e",
+      "wheel_build_is_direct_parent_of_inventory_commit": true,
+      "torch_git_matches_upstream_pin": false,
+      "release_root_tree": "156b7013e253ac50abaa4de8a4d2e6dd7acbbb56",
+      "wheel_build_root_tree": "408badfd8e01265470f4efedfe22fa547b128351",
+      "root_entry_counts": {
+        "release": 74,
+        "wheel": 74
+      },
+      "root_trees_truncated": {
+        "release": false,
+        "wheel": false
+      },
+      "changed_paths": [
+        "pyproject.toml"
+      ],
+      "change": "The release commit adds five lines under [tool.ruff], setting target-version to py310 with explanatory comments. There are no deletions. Every other root entry and every source subtree is identical.",
+      "wheel_pyproject_blob": "6d2cb5e341729de25288267e24d76c20254288f8",
+      "release_pyproject_blob": "e7648b0fcb198697832a6aab3469719a9992a8ec",
+      "identical_subtrees": {
+        ".ci": "40279ceebccac57277fdaabf1fb8cb70b60850d6",
+        ".claude": "0075de12edc4d9bdbf28e567c5f54f3ac5e78201",
+        ".ctags.d": "3c8ba0dccbb55f2da51365a465144aa69c6025d0",
+        ".devcontainer": "6abd271cefad60b09bbfacb63e53325198cd5521",
+        ".github": "8ae0eeb95729b758872993f4a7fed6ffcefb286c",
+        ".spin": "ef791f9c9264cb8a8e13acce7ee418e0f9c956ac",
+        ".vscode": "ea91f344ac83b434b498fa28b4b8b555e68a9126",
+        "android": "d2ff3db5f9fac06b8ddce4b796409a09e8e5e8a8",
+        "aten": "742dba1bfe6135f3573e4eaac689742744628174",
+        "benchmarks": "ec19294aeabfaae61be43f8ea98c7bfe5e507b56",
+        "binaries": "f5249d171f1af6f07384c91418892a45d05fee22",
+        "c10": "bcd92827e525817818af6e44b77f64460823bef1",
+        "caffe2": "73f5fcafe72932ee5cbaab1b2bd879f8a634344e",
+        "cmake": "b622eeb5fe4620c3f58529c34cc52b4466af8519",
+        "docs": "5b3f3b84bd0c6597c7c926d221739ab4c9d4fc9f",
+        "functorch": "c559f838225b0971bc22fcb2672589c27ef01456",
+        "mypy_plugins": "f2f6231e180a450273107602eef43bd9433a51c0",
+        "scripts": "940b5e644e48b7eedc65292e19e56e4c7a9abb98",
+        "test": "9dcb79311a6209012b019fc6f20209d2804cca98",
+        "third_party": "60ad164358c335341c6a7840bb80256079e6dd8e",
+        "tools": "f35164cd2daf3f11baadcccc5551800e38392432",
+        "torch": "2877dbcda5441192b89ab6272c24bed424e53bd4",
+        "torchgen": "f5fb760a18c6d4c81a4b665ad7adef7348dba6a3"
+      },
+      "scope": "Only this exact official wheel SHA256/build commit and this exact inventory release commit. This is source equivalence for the recorded lint-only release change, not identity of the two Git commits or an allowance for other builds."
+    }
+  },
+  "probe_unchanged": true,
+  "reference_unchanged": true
+}

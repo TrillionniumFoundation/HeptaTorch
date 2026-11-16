@@ -1,0 +1,6329 @@
+{
+  "schema": "heptatorch.pinned-torch-backward-release-observations.v1",
+  "probe_sha256": "1192de6e175407756b01028278446067b22b70fe2d820f0045f6f5d623d46aa3",
+  "support_sha256": "ef8fe89aa7dbff4ee03f9d5762d2736a3648d9e48e97ad5df7bec615676f04ae",
+  "lock_sha256": "ca2e54ce65083bbe0ab3d47b6878971271765ab35a9dd70725fa345fceed3944",
+  "upstream_commit": "31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
+  "expected_cases": 36,
+  "case_names": [
+    "repeat-default-add-tensor",
+    "repeat-default-clone",
+    "repeat-default-view",
+    "repeat-default-transpose",
+    "repeat-default-cat",
+    "repeat-default-stack",
+    "repeat-default-mul-shared-input",
+    "repeat-default-mul-left-only",
+    "repeat-default-mul-empty",
+    "repeat-default-relu",
+    "repeat-default-index-select",
+    "repeat-default-gather",
+    "repeat-default-max-pool",
+    "repeat-default-avg-pool",
+    "repeat-default-scatter-source-grad",
+    "repeat-default-scatter-self-only",
+    "repeat-default-index-add-source-grad",
+    "repeat-default-index-add-self-only",
+    "repeat-default-conv2d",
+    "repeat-default-matmul-fold-copy",
+    "retain-true-true-false-true-sequence",
+    "implicit-default-releases-saved",
+    "no-saved-input-mutation-and-repeat",
+    "saved-mutation-rejection-before-release",
+    "failed-upstream-version-check-after-downstream-release",
+    "saved-freed-marker-with-public-data-still-alive",
+    "leaf-storage-held-by-AccumulateGrad-after-default-backward",
+    "nongrad-coefficient-released-by-default-backward",
+    "saved-output-weak-retain-then-default",
+    "external-unpacked-alias-keeps-storage-but-not-saved-validity",
+    "shared-subgraph-second-root-sees-freed-saved",
+    "unvisited-independent-node-keeps-its-saved",
+    "seed-shape-error-before-engine-preserves-saved",
+    "backward-gradient-shape-error-preserves-failing-node-saved",
+    "empty-index-select-still-has-saved-tensor-lifetime",
+    "leaf-backward-twice-without-grad-function"
+  ],
+  "target_execution": false,
+  "native_values_compared": 0,
+  "full_rewrite_complete": false,
+  "pytorch_api_denominator": 2590,
+  "scope": "Observed pinned Torch behavior; native compatibility not asserted by this probe.",
+  "status": "OBSERVED",
+  "cases": 36,
+  "probe_errors": 0,
+  "rows": [
+    {
+      "case": "repeat-default-add-tensor",
+      "status": "OBSERVED",
+      "observation": {
+        "output": {
+          "shape": [
+            2,
+            3
+          ],
+          "strides": [
+            3,
+            1
+          ],
+          "requires_grad": true,
+          "version": 0,
+          "values": [
+            1.5,
+            -3.0,
+            5.0,
+            4.5,
+            -1.5,
+            4.0
+          ]
+        },
+        "grad_fn": "AddBackward0",
+        "leaves": [
+          {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": true,
+            "version": 0,
+            "values": [
+              1.0,
+              -2.0,
+              3.0,
+              4.0,
+              -0.5,
+              2.0
+            ]
+          },
+          {
+            "shape": [
+              3
+            ],
+            "strides": [
+              1
+            ],
+            "requires_grad": true,
+            "version": 0,
+            "values": [
+              0.5,
+              -1.0,
+              2.0
+            ]
+          }
+        ],
+        "saved_before": {
+          "_saved_alpha": {
+            "status": "AVAILABLE",
+            "value": 1
+          }
+        },
+        "first": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0,
+              1.25,
+              1.5
+            ]
+          },
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 1,
+              "values": [
+                0.25,
+                0.5,
+                0.75,
+                1.0,
+                1.25,
+                1.5
+              ]
+            },
+            {
+              "shape": [
+                3
+              ],
+              "strides": [
+                1
+              ],
+              "requires_grad": false,
+              "version": 0,
+              "values": [
+                1.25,
+                1.75,
+                2.25
+              ]
+            }
+          ]
+        },
+        "saved_after_first": {
+          "_saved_alpha": {
+            "status": "AVAILABLE",
+            "value": 1
+          }
+        },
+        "second": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0,
+              1.25,
+              1.5
+            ]
+          },
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 2,
+              "values": [
+                0.5,
+                1.0,
+                1.5,
+                2.0,
+                2.5,
+                3.0
+              ]
+            },
+            {
+              "shape": [
+                3
+              ],
+              "strides": [
+                1
+              ],
+              "requires_grad": false,
+              "version": 1,
+              "values": [
+                2.5,
+                3.5,
+                4.5
+              ]
+            }
+          ]
+        },
+        "saved_after_second": {
+          "_saved_alpha": {
+            "status": "AVAILABLE",
+            "value": 1
+          }
+        }
+      }
+    },
+    {
+      "case": "repeat-default-clone",
+      "status": "OBSERVED",
+      "observation": {
+        "output": {
+          "shape": [
+            2,
+            3
+          ],
+          "strides": [
+            3,
+            1
+          ],
+          "requires_grad": true,
+          "version": 0,
+          "values": [
+            1.0,
+            -2.0,
+            3.0,
+            4.0,
+            -0.5,
+            2.0
+          ]
+        },
+        "grad_fn": "CloneBackward0",
+        "leaves": [
+          {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": true,
+            "version": 0,
+            "values": [
+              1.0,
+              -2.0,
+              3.0,
+              4.0,
+              -0.5,
+              2.0
+            ]
+          }
+        ],
+        "saved_before": {},
+        "first": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0,
+              1.25,
+              1.5
+            ]
+          },
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 1,
+              "values": [
+                0.25,
+                0.5,
+                0.75,
+                1.0,
+                1.25,
+                1.5
+              ]
+            }
+          ]
+        },
+        "saved_after_first": {},
+        "second": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0,
+              1.25,
+              1.5
+            ]
+          },
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 2,
+              "values": [
+                0.5,
+                1.0,
+                1.5,
+                2.0,
+                2.5,
+                3.0
+              ]
+            }
+          ]
+        },
+        "saved_after_second": {}
+      }
+    },
+    {
+      "case": "repeat-default-view",
+      "status": "OBSERVED",
+      "observation": {
+        "output": {
+          "shape": [
+            3,
+            2
+          ],
+          "strides": [
+            2,
+            1
+          ],
+          "requires_grad": true,
+          "version": 0,
+          "values": [
+            1.0,
+            -2.0,
+            3.0,
+            4.0,
+            -0.5,
+            2.0
+          ]
+        },
+        "grad_fn": "ViewBackward0",
+        "leaves": [
+          {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": true,
+            "version": 0,
+            "values": [
+              1.0,
+              -2.0,
+              3.0,
+              4.0,
+              -0.5,
+              2.0
+            ]
+          }
+        ],
+        "saved_before": {
+          "_saved_self_sym_sizes": {
+            "status": "AVAILABLE",
+            "value": [
+              2,
+              3
+            ]
+          }
+        },
+        "first": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              3,
+              2
+            ],
+            "strides": [
+              2,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0,
+              1.25,
+              1.5
+            ]
+          },
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 0,
+              "values": [
+                0.25,
+                0.5,
+                0.75,
+                1.0,
+                1.25,
+                1.5
+              ]
+            }
+          ]
+        },
+        "saved_after_first": {
+          "_saved_self_sym_sizes": {
+            "status": "AVAILABLE",
+            "value": [
+              2,
+              3
+            ]
+          }
+        },
+        "second": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              3,
+              2
+            ],
+            "strides": [
+              2,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0,
+              1.25,
+              1.5
+            ]
+          },
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 1,
+              "values": [
+                0.5,
+                1.0,
+                1.5,
+                2.0,
+                2.5,
+                3.0
+              ]
+            }
+          ]
+        },
+        "saved_after_second": {
+          "_saved_self_sym_sizes": {
+            "status": "AVAILABLE",
+            "value": [
+              2,
+              3
+            ]
+          }
+        }
+      }
+    },
+    {
+      "case": "repeat-default-transpose",
+      "status": "OBSERVED",
+      "observation": {
+        "output": {
+          "shape": [
+            3,
+            2
+          ],
+          "strides": [
+            1,
+            3
+          ],
+          "requires_grad": true,
+          "version": 0,
+          "values": [
+            1.0,
+            4.0,
+            -2.0,
+            -0.5,
+            3.0,
+            2.0
+          ]
+        },
+        "grad_fn": "TransposeBackward0",
+        "leaves": [
+          {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": true,
+            "version": 0,
+            "values": [
+              1.0,
+              -2.0,
+              3.0,
+              4.0,
+              -0.5,
+              2.0
+            ]
+          }
+        ],
+        "saved_before": {
+          "_saved_dim0": {
+            "status": "AVAILABLE",
+            "value": 0
+          },
+          "_saved_dim1": {
+            "status": "AVAILABLE",
+            "value": 1
+          }
+        },
+        "first": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              3,
+              2
+            ],
+            "strides": [
+              2,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0,
+              1.25,
+              1.5
+            ]
+          },
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 1,
+              "values": [
+                0.25,
+                0.75,
+                1.25,
+                0.5,
+                1.0,
+                1.5
+              ]
+            }
+          ]
+        },
+        "saved_after_first": {
+          "_saved_dim0": {
+            "status": "AVAILABLE",
+            "value": 0
+          },
+          "_saved_dim1": {
+            "status": "AVAILABLE",
+            "value": 1
+          }
+        },
+        "second": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              3,
+              2
+            ],
+            "strides": [
+              2,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0,
+              1.25,
+              1.5
+            ]
+          },
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 2,
+              "values": [
+                0.5,
+                1.5,
+                2.5,
+                1.0,
+                2.0,
+                3.0
+              ]
+            }
+          ]
+        },
+        "saved_after_second": {
+          "_saved_dim0": {
+            "status": "AVAILABLE",
+            "value": 0
+          },
+          "_saved_dim1": {
+            "status": "AVAILABLE",
+            "value": 1
+          }
+        }
+      }
+    },
+    {
+      "case": "repeat-default-cat",
+      "status": "OBSERVED",
+      "observation": {
+        "output": {
+          "shape": [
+            2,
+            6
+          ],
+          "strides": [
+            6,
+            1
+          ],
+          "requires_grad": true,
+          "version": 0,
+          "values": [
+            1.0,
+            -2.0,
+            3.0,
+            1.0,
+            -2.0,
+            3.0,
+            4.0,
+            -0.5,
+            2.0,
+            4.0,
+            -0.5,
+            2.0
+          ]
+        },
+        "grad_fn": "CatBackward0",
+        "leaves": [
+          {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": true,
+            "version": 0,
+            "values": [
+              1.0,
+              -2.0,
+              3.0,
+              4.0,
+              -0.5,
+              2.0
+            ]
+          }
+        ],
+        "saved_before": {
+          "_saved_dim": {
+            "status": "AVAILABLE",
+            "value": 1
+          }
+        },
+        "first": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              2,
+              6
+            ],
+            "strides": [
+              6,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0,
+              1.25,
+              1.5,
+              1.75,
+              2.0,
+              2.25,
+              2.5,
+              2.75,
+              3.0
+            ]
+          },
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 0,
+              "values": [
+                1.25,
+                1.75,
+                2.25,
+                4.25,
+                4.75,
+                5.25
+              ]
+            }
+          ]
+        },
+        "saved_after_first": {
+          "_saved_dim": {
+            "status": "AVAILABLE",
+            "value": 1
+          }
+        },
+        "second": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              2,
+              6
+            ],
+            "strides": [
+              6,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0,
+              1.25,
+              1.5,
+              1.75,
+              2.0,
+              2.25,
+              2.5,
+              2.75,
+              3.0
+            ]
+          },
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 1,
+              "values": [
+                2.5,
+                3.5,
+                4.5,
+                8.5,
+                9.5,
+                10.5
+              ]
+            }
+          ]
+        },
+        "saved_after_second": {
+          "_saved_dim": {
+            "status": "AVAILABLE",
+            "value": 1
+          }
+        }
+      }
+    },
+    {
+      "case": "repeat-default-stack",
+      "status": "OBSERVED",
+      "observation": {
+        "output": {
+          "shape": [
+            2,
+            2,
+            3
+          ],
+          "strides": [
+            6,
+            3,
+            1
+          ],
+          "requires_grad": true,
+          "version": 0,
+          "values": [
+            1.0,
+            -2.0,
+            3.0,
+            4.0,
+            -0.5,
+            2.0,
+            1.0,
+            -2.0,
+            3.0,
+            4.0,
+            -0.5,
+            2.0
+          ]
+        },
+        "grad_fn": "StackBackward0",
+        "leaves": [
+          {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": true,
+            "version": 0,
+            "values": [
+              1.0,
+              -2.0,
+              3.0,
+              4.0,
+              -0.5,
+              2.0
+            ]
+          }
+        ],
+        "saved_before": {
+          "_saved_dim": {
+            "status": "AVAILABLE",
+            "value": 0
+          }
+        },
+        "first": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              2,
+              2,
+              3
+            ],
+            "strides": [
+              6,
+              3,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0,
+              1.25,
+              1.5,
+              1.75,
+              2.0,
+              2.25,
+              2.5,
+              2.75,
+              3.0
+            ]
+          },
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 0,
+              "values": [
+                2.0,
+                2.5,
+                3.0,
+                3.5,
+                4.0,
+                4.5
+              ]
+            }
+          ]
+        },
+        "saved_after_first": {
+          "_saved_dim": {
+            "status": "AVAILABLE",
+            "value": 0
+          }
+        },
+        "second": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              2,
+              2,
+              3
+            ],
+            "strides": [
+              6,
+              3,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0,
+              1.25,
+              1.5,
+              1.75,
+              2.0,
+              2.25,
+              2.5,
+              2.75,
+              3.0
+            ]
+          },
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 1,
+              "values": [
+                4.0,
+                5.0,
+                6.0,
+                7.0,
+                8.0,
+                9.0
+              ]
+            }
+          ]
+        },
+        "saved_after_second": {
+          "_saved_dim": {
+            "status": "AVAILABLE",
+            "value": 0
+          }
+        }
+      }
+    },
+    {
+      "case": "repeat-default-mul-shared-input",
+      "status": "OBSERVED",
+      "observation": {
+        "output": {
+          "shape": [
+            2,
+            3
+          ],
+          "strides": [
+            3,
+            1
+          ],
+          "requires_grad": true,
+          "version": 0,
+          "values": [
+            1.0,
+            4.0,
+            9.0,
+            16.0,
+            0.25,
+            4.0
+          ]
+        },
+        "grad_fn": "MulBackward0",
+        "leaves": [
+          {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": true,
+            "version": 0,
+            "values": [
+              1.0,
+              -2.0,
+              3.0,
+              4.0,
+              -0.5,
+              2.0
+            ]
+          }
+        ],
+        "saved_before": {
+          "_saved_other": {
+            "status": "AVAILABLE",
+            "value": {
+              "tensor": {
+                "shape": [
+                  2,
+                  3
+                ],
+                "strides": [
+                  3,
+                  1
+                ],
+                "requires_grad": true,
+                "version": 0,
+                "values": [
+                  1.0,
+                  -2.0,
+                  3.0,
+                  4.0,
+                  -0.5,
+                  2.0
+                ]
+              }
+            }
+          },
+          "_saved_self": {
+            "status": "AVAILABLE",
+            "value": {
+              "tensor": {
+                "shape": [
+                  2,
+                  3
+                ],
+                "strides": [
+                  3,
+                  1
+                ],
+                "requires_grad": true,
+                "version": 0,
+                "values": [
+                  1.0,
+                  -2.0,
+                  3.0,
+                  4.0,
+                  -0.5,
+                  2.0
+                ]
+              }
+            }
+          }
+        },
+        "first": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0,
+              1.25,
+              1.5
+            ]
+          },
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 1,
+              "values": [
+                0.5,
+                -2.0,
+                4.5,
+                8.0,
+                -1.25,
+                6.0
+              ]
+            }
+          ]
+        },
+        "saved_after_first": {
+          "_saved_other": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          },
+          "_saved_self": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          }
+        },
+        "second": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0,
+              1.25,
+              1.5
+            ]
+          },
+          "outcome": "RAISED",
+          "exception_type": "RuntimeError",
+          "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward.",
+          "gradients_after_call": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 1,
+              "values": [
+                0.5,
+                -2.0,
+                4.5,
+                8.0,
+                -1.25,
+                6.0
+              ]
+            }
+          ]
+        },
+        "saved_after_second": {
+          "_saved_other": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          },
+          "_saved_self": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          }
+        }
+      }
+    },
+    {
+      "case": "repeat-default-mul-left-only",
+      "status": "OBSERVED",
+      "observation": {
+        "output": {
+          "shape": [
+            2,
+            3
+          ],
+          "strides": [
+            3,
+            1
+          ],
+          "requires_grad": true,
+          "version": 0,
+          "values": [
+            0.5,
+            2.0,
+            6.0,
+            2.0,
+            0.5,
+            4.0
+          ]
+        },
+        "grad_fn": "MulBackward0",
+        "leaves": [
+          {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": true,
+            "version": 0,
+            "values": [
+              1.0,
+              -2.0,
+              3.0,
+              4.0,
+              -0.5,
+              2.0
+            ]
+          },
+          {
+            "shape": [
+              3
+            ],
+            "strides": [
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.5,
+              -1.0,
+              2.0
+            ]
+          }
+        ],
+        "saved_before": {
+          "_saved_other": {
+            "status": "AVAILABLE",
+            "value": {
+              "tensor": {
+                "shape": [
+                  3
+                ],
+                "strides": [
+                  1
+                ],
+                "requires_grad": false,
+                "version": 0,
+                "values": [
+                  0.5,
+                  -1.0,
+                  2.0
+                ]
+              }
+            }
+          },
+          "_saved_self": {
+            "status": "AVAILABLE",
+            "value": null
+          }
+        },
+        "first": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0,
+              1.25,
+              1.5
+            ]
+          },
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 0,
+              "values": [
+                0.125,
+                -0.5,
+                1.5,
+                0.5,
+                -1.25,
+                3.0
+              ]
+            },
+            null
+          ]
+        },
+        "saved_after_first": {
+          "_saved_other": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          },
+          "_saved_self": {
+            "status": "AVAILABLE",
+            "value": null
+          }
+        },
+        "second": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0,
+              1.25,
+              1.5
+            ]
+          },
+          "outcome": "RAISED",
+          "exception_type": "RuntimeError",
+          "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward.",
+          "gradients_after_call": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 0,
+              "values": [
+                0.125,
+                -0.5,
+                1.5,
+                0.5,
+                -1.25,
+                3.0
+              ]
+            },
+            null
+          ]
+        },
+        "saved_after_second": {
+          "_saved_other": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          },
+          "_saved_self": {
+            "status": "AVAILABLE",
+            "value": null
+          }
+        }
+      }
+    },
+    {
+      "case": "repeat-default-mul-empty",
+      "status": "OBSERVED",
+      "observation": {
+        "output": {
+          "shape": [
+            0,
+            3
+          ],
+          "strides": [
+            3,
+            1
+          ],
+          "requires_grad": true,
+          "version": 0,
+          "values": []
+        },
+        "grad_fn": "MulBackward0",
+        "leaves": [
+          {
+            "shape": [
+              0,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": true,
+            "version": 0,
+            "values": []
+          }
+        ],
+        "saved_before": {
+          "_saved_other": {
+            "status": "AVAILABLE",
+            "value": {
+              "tensor": {
+                "shape": [
+                  0,
+                  3
+                ],
+                "strides": [
+                  3,
+                  1
+                ],
+                "requires_grad": true,
+                "version": 0,
+                "values": []
+              }
+            }
+          },
+          "_saved_self": {
+            "status": "AVAILABLE",
+            "value": {
+              "tensor": {
+                "shape": [
+                  0,
+                  3
+                ],
+                "strides": [
+                  3,
+                  1
+                ],
+                "requires_grad": true,
+                "version": 0,
+                "values": []
+              }
+            }
+          }
+        },
+        "first": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              0,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": []
+          },
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                0,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 1,
+              "values": []
+            }
+          ]
+        },
+        "saved_after_first": {
+          "_saved_other": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          },
+          "_saved_self": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          }
+        },
+        "second": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              0,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": []
+          },
+          "outcome": "RAISED",
+          "exception_type": "RuntimeError",
+          "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward.",
+          "gradients_after_call": [
+            {
+              "shape": [
+                0,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 1,
+              "values": []
+            }
+          ]
+        },
+        "saved_after_second": {
+          "_saved_other": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          },
+          "_saved_self": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          }
+        }
+      }
+    },
+    {
+      "case": "repeat-default-relu",
+      "status": "OBSERVED",
+      "observation": {
+        "output": {
+          "shape": [
+            2,
+            3
+          ],
+          "strides": [
+            3,
+            1
+          ],
+          "requires_grad": true,
+          "version": 0,
+          "values": [
+            1.0,
+            0.0,
+            3.0,
+            4.0,
+            0.0,
+            2.0
+          ]
+        },
+        "grad_fn": "ReluBackward0",
+        "leaves": [
+          {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": true,
+            "version": 0,
+            "values": [
+              1.0,
+              -2.0,
+              3.0,
+              4.0,
+              -0.5,
+              2.0
+            ]
+          }
+        ],
+        "saved_before": {
+          "_saved_result": {
+            "status": "AVAILABLE",
+            "value": {
+              "tensor": {
+                "shape": [
+                  2,
+                  3
+                ],
+                "strides": [
+                  3,
+                  1
+                ],
+                "requires_grad": true,
+                "version": 0,
+                "values": [
+                  1.0,
+                  0.0,
+                  3.0,
+                  4.0,
+                  0.0,
+                  2.0
+                ]
+              }
+            }
+          }
+        },
+        "first": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0,
+              1.25,
+              1.5
+            ]
+          },
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 0,
+              "values": [
+                0.25,
+                0.0,
+                0.75,
+                1.0,
+                0.0,
+                1.5
+              ]
+            }
+          ]
+        },
+        "saved_after_first": {
+          "_saved_result": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          }
+        },
+        "second": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0,
+              1.25,
+              1.5
+            ]
+          },
+          "outcome": "RAISED",
+          "exception_type": "RuntimeError",
+          "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward.",
+          "gradients_after_call": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 0,
+              "values": [
+                0.25,
+                0.0,
+                0.75,
+                1.0,
+                0.0,
+                1.5
+              ]
+            }
+          ]
+        },
+        "saved_after_second": {
+          "_saved_result": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          }
+        }
+      }
+    },
+    {
+      "case": "repeat-default-index-select",
+      "status": "OBSERVED",
+      "observation": {
+        "output": {
+          "shape": [
+            2,
+            3
+          ],
+          "strides": [
+            3,
+            1
+          ],
+          "requires_grad": true,
+          "version": 0,
+          "values": [
+            3.0,
+            1.0,
+            3.0,
+            2.0,
+            4.0,
+            2.0
+          ]
+        },
+        "grad_fn": "IndexSelectBackward0",
+        "leaves": [
+          {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": true,
+            "version": 0,
+            "values": [
+              1.0,
+              -2.0,
+              3.0,
+              4.0,
+              -0.5,
+              2.0
+            ]
+          }
+        ],
+        "saved_before": {
+          "_saved_dim": {
+            "status": "AVAILABLE",
+            "value": 1
+          },
+          "_saved_index": {
+            "status": "AVAILABLE",
+            "value": {
+              "tensor": {
+                "shape": [
+                  3
+                ],
+                "strides": [
+                  1
+                ],
+                "requires_grad": false,
+                "version": 0,
+                "values": [
+                  2,
+                  0,
+                  2
+                ]
+              }
+            }
+          },
+          "_saved_self_sym_sizes": {
+            "status": "AVAILABLE",
+            "value": [
+              2,
+              3
+            ]
+          }
+        },
+        "first": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0,
+              1.25,
+              1.5
+            ]
+          },
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 1,
+              "values": [
+                0.5,
+                0.0,
+                1.0,
+                1.25,
+                0.0,
+                2.5
+              ]
+            }
+          ]
+        },
+        "saved_after_first": {
+          "_saved_dim": {
+            "status": "AVAILABLE",
+            "value": 1
+          },
+          "_saved_index": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          },
+          "_saved_self_sym_sizes": {
+            "status": "AVAILABLE",
+            "value": [
+              2,
+              3
+            ]
+          }
+        },
+        "second": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0,
+              1.25,
+              1.5
+            ]
+          },
+          "outcome": "RAISED",
+          "exception_type": "RuntimeError",
+          "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward.",
+          "gradients_after_call": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 1,
+              "values": [
+                0.5,
+                0.0,
+                1.0,
+                1.25,
+                0.0,
+                2.5
+              ]
+            }
+          ]
+        },
+        "saved_after_second": {
+          "_saved_dim": {
+            "status": "AVAILABLE",
+            "value": 1
+          },
+          "_saved_index": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          },
+          "_saved_self_sym_sizes": {
+            "status": "AVAILABLE",
+            "value": [
+              2,
+              3
+            ]
+          }
+        }
+      }
+    },
+    {
+      "case": "repeat-default-gather",
+      "status": "OBSERVED",
+      "observation": {
+        "output": {
+          "shape": [
+            2,
+            2
+          ],
+          "strides": [
+            2,
+            1
+          ],
+          "requires_grad": true,
+          "version": 0,
+          "values": [
+            3.0,
+            1.0,
+            -0.5,
+            -0.5
+          ]
+        },
+        "grad_fn": "GatherBackward0",
+        "leaves": [
+          {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": true,
+            "version": 0,
+            "values": [
+              1.0,
+              -2.0,
+              3.0,
+              4.0,
+              -0.5,
+              2.0
+            ]
+          }
+        ],
+        "saved_before": {
+          "_saved_dim": {
+            "status": "AVAILABLE",
+            "value": 1
+          },
+          "_saved_index": {
+            "status": "AVAILABLE",
+            "value": {
+              "tensor": {
+                "shape": [
+                  2,
+                  2
+                ],
+                "strides": [
+                  2,
+                  1
+                ],
+                "requires_grad": false,
+                "version": 0,
+                "values": [
+                  2,
+                  0,
+                  1,
+                  1
+                ]
+              }
+            }
+          },
+          "_saved_self": {
+            "status": "AVAILABLE",
+            "value": {
+              "tensor": {
+                "shape": [
+                  2,
+                  3
+                ],
+                "strides": [
+                  3,
+                  1
+                ],
+                "requires_grad": true,
+                "version": 0,
+                "values": [
+                  1.0,
+                  -2.0,
+                  3.0,
+                  4.0,
+                  -0.5,
+                  2.0
+                ]
+              }
+            }
+          },
+          "_saved_sparse_grad": {
+            "status": "AVAILABLE",
+            "value": false
+          }
+        },
+        "first": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              2,
+              2
+            ],
+            "strides": [
+              2,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0
+            ]
+          },
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 1,
+              "values": [
+                0.5,
+                0.0,
+                0.25,
+                0.0,
+                1.75,
+                0.0
+              ]
+            }
+          ]
+        },
+        "saved_after_first": {
+          "_saved_dim": {
+            "status": "AVAILABLE",
+            "value": 1
+          },
+          "_saved_index": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          },
+          "_saved_self": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          },
+          "_saved_sparse_grad": {
+            "status": "AVAILABLE",
+            "value": false
+          }
+        },
+        "second": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              2,
+              2
+            ],
+            "strides": [
+              2,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0
+            ]
+          },
+          "outcome": "RAISED",
+          "exception_type": "RuntimeError",
+          "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward.",
+          "gradients_after_call": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 1,
+              "values": [
+                0.5,
+                0.0,
+                0.25,
+                0.0,
+                1.75,
+                0.0
+              ]
+            }
+          ]
+        },
+        "saved_after_second": {
+          "_saved_dim": {
+            "status": "AVAILABLE",
+            "value": 1
+          },
+          "_saved_index": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          },
+          "_saved_self": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          },
+          "_saved_sparse_grad": {
+            "status": "AVAILABLE",
+            "value": false
+          }
+        }
+      }
+    },
+    {
+      "case": "repeat-default-max-pool",
+      "status": "OBSERVED",
+      "observation": {
+        "output": {
+          "shape": [
+            1,
+            1,
+            2,
+            2
+          ],
+          "strides": [
+            4,
+            4,
+            2,
+            1
+          ],
+          "requires_grad": true,
+          "version": 0,
+          "values": [
+            5.0,
+            7.0,
+            13.0,
+            15.0
+          ]
+        },
+        "grad_fn": "MaxPool2DWithIndicesBackward0",
+        "leaves": [
+          {
+            "shape": [
+              1,
+              1,
+              4,
+              4
+            ],
+            "strides": [
+              16,
+              16,
+              4,
+              1
+            ],
+            "requires_grad": true,
+            "version": 0,
+            "values": [
+              0.0,
+              1.0,
+              2.0,
+              3.0,
+              4.0,
+              5.0,
+              6.0,
+              7.0,
+              8.0,
+              9.0,
+              10.0,
+              11.0,
+              12.0,
+              13.0,
+              14.0,
+              15.0
+            ]
+          }
+        ],
+        "saved_before": {
+          "_saved_ceil_mode": {
+            "status": "AVAILABLE",
+            "value": false
+          },
+          "_saved_dilation": {
+            "status": "AVAILABLE",
+            "value": [
+              1,
+              1
+            ]
+          },
+          "_saved_kernel_size": {
+            "status": "AVAILABLE",
+            "value": [
+              2,
+              2
+            ]
+          },
+          "_saved_padding": {
+            "status": "AVAILABLE",
+            "value": [
+              0,
+              0
+            ]
+          },
+          "_saved_result1": {
+            "status": "AVAILABLE",
+            "value": {
+              "tensor": {
+                "shape": [
+                  1,
+                  1,
+                  2,
+                  2
+                ],
+                "strides": [
+                  4,
+                  4,
+                  2,
+                  1
+                ],
+                "requires_grad": false,
+                "version": 0,
+                "values": [
+                  5,
+                  7,
+                  13,
+                  15
+                ]
+              }
+            }
+          },
+          "_saved_self": {
+            "status": "AVAILABLE",
+            "value": {
+              "tensor": {
+                "shape": [
+                  1,
+                  1,
+                  4,
+                  4
+                ],
+                "strides": [
+                  16,
+                  16,
+                  4,
+                  1
+                ],
+                "requires_grad": true,
+                "version": 0,
+                "values": [
+                  0.0,
+                  1.0,
+                  2.0,
+                  3.0,
+                  4.0,
+                  5.0,
+                  6.0,
+                  7.0,
+                  8.0,
+                  9.0,
+                  10.0,
+                  11.0,
+                  12.0,
+                  13.0,
+                  14.0,
+                  15.0
+                ]
+              }
+            }
+          },
+          "_saved_stride": {
+            "status": "AVAILABLE",
+            "value": []
+          }
+        },
+        "first": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              1,
+              1,
+              2,
+              2
+            ],
+            "strides": [
+              4,
+              4,
+              2,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0
+            ]
+          },
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                1,
+                1,
+                4,
+                4
+              ],
+              "strides": [
+                16,
+                16,
+                4,
+                1
+              ],
+              "requires_grad": false,
+              "version": 0,
+              "values": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.25,
+                0.0,
+                0.5,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.75,
+                0.0,
+                1.0
+              ]
+            }
+          ]
+        },
+        "saved_after_first": {
+          "_saved_ceil_mode": {
+            "status": "AVAILABLE",
+            "value": false
+          },
+          "_saved_dilation": {
+            "status": "AVAILABLE",
+            "value": [
+              1,
+              1
+            ]
+          },
+          "_saved_kernel_size": {
+            "status": "AVAILABLE",
+            "value": [
+              2,
+              2
+            ]
+          },
+          "_saved_padding": {
+            "status": "AVAILABLE",
+            "value": [
+              0,
+              0
+            ]
+          },
+          "_saved_result1": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          },
+          "_saved_self": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          },
+          "_saved_stride": {
+            "status": "AVAILABLE",
+            "value": []
+          }
+        },
+        "second": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              1,
+              1,
+              2,
+              2
+            ],
+            "strides": [
+              4,
+              4,
+              2,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0
+            ]
+          },
+          "outcome": "RAISED",
+          "exception_type": "RuntimeError",
+          "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward.",
+          "gradients_after_call": [
+            {
+              "shape": [
+                1,
+                1,
+                4,
+                4
+              ],
+              "strides": [
+                16,
+                16,
+                4,
+                1
+              ],
+              "requires_grad": false,
+              "version": 0,
+              "values": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.25,
+                0.0,
+                0.5,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.75,
+                0.0,
+                1.0
+              ]
+            }
+          ]
+        },
+        "saved_after_second": {
+          "_saved_ceil_mode": {
+            "status": "AVAILABLE",
+            "value": false
+          },
+          "_saved_dilation": {
+            "status": "AVAILABLE",
+            "value": [
+              1,
+              1
+            ]
+          },
+          "_saved_kernel_size": {
+            "status": "AVAILABLE",
+            "value": [
+              2,
+              2
+            ]
+          },
+          "_saved_padding": {
+            "status": "AVAILABLE",
+            "value": [
+              0,
+              0
+            ]
+          },
+          "_saved_result1": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          },
+          "_saved_self": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          },
+          "_saved_stride": {
+            "status": "AVAILABLE",
+            "value": []
+          }
+        }
+      }
+    },
+    {
+      "case": "repeat-default-avg-pool",
+      "status": "OBSERVED",
+      "observation": {
+        "output": {
+          "shape": [
+            1,
+            1,
+            2,
+            2
+          ],
+          "strides": [
+            4,
+            4,
+            2,
+            1
+          ],
+          "requires_grad": true,
+          "version": 0,
+          "values": [
+            2.5,
+            4.5,
+            10.5,
+            12.5
+          ]
+        },
+        "grad_fn": "AvgPool2DBackward0",
+        "leaves": [
+          {
+            "shape": [
+              1,
+              1,
+              4,
+              4
+            ],
+            "strides": [
+              16,
+              16,
+              4,
+              1
+            ],
+            "requires_grad": true,
+            "version": 0,
+            "values": [
+              0.0,
+              1.0,
+              2.0,
+              3.0,
+              4.0,
+              5.0,
+              6.0,
+              7.0,
+              8.0,
+              9.0,
+              10.0,
+              11.0,
+              12.0,
+              13.0,
+              14.0,
+              15.0
+            ]
+          }
+        ],
+        "saved_before": {
+          "_saved_ceil_mode": {
+            "status": "AVAILABLE",
+            "value": false
+          },
+          "_saved_count_include_pad": {
+            "status": "AVAILABLE",
+            "value": true
+          },
+          "_saved_divisor_override": {
+            "status": "AVAILABLE",
+            "value": null
+          },
+          "_saved_kernel_size": {
+            "status": "AVAILABLE",
+            "value": [
+              2,
+              2
+            ]
+          },
+          "_saved_padding": {
+            "status": "AVAILABLE",
+            "value": [
+              0,
+              0
+            ]
+          },
+          "_saved_self": {
+            "status": "AVAILABLE",
+            "value": {
+              "tensor": {
+                "shape": [
+                  1,
+                  1,
+                  4,
+                  4
+                ],
+                "strides": [
+                  16,
+                  16,
+                  4,
+                  1
+                ],
+                "requires_grad": true,
+                "version": 0,
+                "values": [
+                  0.0,
+                  1.0,
+                  2.0,
+                  3.0,
+                  4.0,
+                  5.0,
+                  6.0,
+                  7.0,
+                  8.0,
+                  9.0,
+                  10.0,
+                  11.0,
+                  12.0,
+                  13.0,
+                  14.0,
+                  15.0
+                ]
+              }
+            }
+          },
+          "_saved_stride": {
+            "status": "AVAILABLE",
+            "value": []
+          }
+        },
+        "first": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              1,
+              1,
+              2,
+              2
+            ],
+            "strides": [
+              4,
+              4,
+              2,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0
+            ]
+          },
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                1,
+                1,
+                4,
+                4
+              ],
+              "strides": [
+                16,
+                16,
+                4,
+                1
+              ],
+              "requires_grad": false,
+              "version": 0,
+              "values": [
+                0.0625,
+                0.0625,
+                0.125,
+                0.125,
+                0.0625,
+                0.0625,
+                0.125,
+                0.125,
+                0.1875,
+                0.1875,
+                0.25,
+                0.25,
+                0.1875,
+                0.1875,
+                0.25,
+                0.25
+              ]
+            }
+          ]
+        },
+        "saved_after_first": {
+          "_saved_ceil_mode": {
+            "status": "AVAILABLE",
+            "value": false
+          },
+          "_saved_count_include_pad": {
+            "status": "AVAILABLE",
+            "value": true
+          },
+          "_saved_divisor_override": {
+            "status": "AVAILABLE",
+            "value": null
+          },
+          "_saved_kernel_size": {
+            "status": "AVAILABLE",
+            "value": [
+              2,
+              2
+            ]
+          },
+          "_saved_padding": {
+            "status": "AVAILABLE",
+            "value": [
+              0,
+              0
+            ]
+          },
+          "_saved_self": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          },
+          "_saved_stride": {
+            "status": "AVAILABLE",
+            "value": []
+          }
+        },
+        "second": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              1,
+              1,
+              2,
+              2
+            ],
+            "strides": [
+              4,
+              4,
+              2,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0
+            ]
+          },
+          "outcome": "RAISED",
+          "exception_type": "RuntimeError",
+          "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward.",
+          "gradients_after_call": [
+            {
+              "shape": [
+                1,
+                1,
+                4,
+                4
+              ],
+              "strides": [
+                16,
+                16,
+                4,
+                1
+              ],
+              "requires_grad": false,
+              "version": 0,
+              "values": [
+                0.0625,
+                0.0625,
+                0.125,
+                0.125,
+                0.0625,
+                0.0625,
+                0.125,
+                0.125,
+                0.1875,
+                0.1875,
+                0.25,
+                0.25,
+                0.1875,
+                0.1875,
+                0.25,
+                0.25
+              ]
+            }
+          ]
+        },
+        "saved_after_second": {
+          "_saved_ceil_mode": {
+            "status": "AVAILABLE",
+            "value": false
+          },
+          "_saved_count_include_pad": {
+            "status": "AVAILABLE",
+            "value": true
+          },
+          "_saved_divisor_override": {
+            "status": "AVAILABLE",
+            "value": null
+          },
+          "_saved_kernel_size": {
+            "status": "AVAILABLE",
+            "value": [
+              2,
+              2
+            ]
+          },
+          "_saved_padding": {
+            "status": "AVAILABLE",
+            "value": [
+              0,
+              0
+            ]
+          },
+          "_saved_self": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          },
+          "_saved_stride": {
+            "status": "AVAILABLE",
+            "value": []
+          }
+        }
+      }
+    },
+    {
+      "case": "repeat-default-scatter-source-grad",
+      "status": "OBSERVED",
+      "observation": {
+        "output": {
+          "shape": [
+            2,
+            3
+          ],
+          "strides": [
+            3,
+            1
+          ],
+          "requires_grad": true,
+          "version": 0,
+          "values": [
+            0.0,
+            -2.0,
+            5.5,
+            4.75,
+            2.25,
+            2.0
+          ]
+        },
+        "grad_fn": "ScatterAddBackward0",
+        "leaves": [
+          {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": true,
+            "version": 0,
+            "values": [
+              1.0,
+              -2.0,
+              3.0,
+              4.0,
+              -0.5,
+              2.0
+            ]
+          },
+          {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": true,
+            "version": 0,
+            "values": [
+              0.5,
+              -1.0,
+              2.0,
+              3.0,
+              -0.25,
+              0.75
+            ]
+          }
+        ],
+        "saved_before": {
+          "_saved_dim": {
+            "status": "AVAILABLE",
+            "value": 1
+          },
+          "_saved_index": {
+            "status": "AVAILABLE",
+            "value": {
+              "tensor": {
+                "shape": [
+                  2,
+                  3
+                ],
+                "strides": [
+                  3,
+                  1
+                ],
+                "requires_grad": false,
+                "version": 0,
+                "values": [
+                  2,
+                  0,
+                  2,
+                  1,
+                  1,
+                  0
+                ]
+              }
+            }
+          }
+        },
+        "first": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0,
+              1.25,
+              1.5
+            ]
+          },
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 1,
+              "values": [
+                0.25,
+                0.5,
+                0.75,
+                1.0,
+                1.25,
+                1.5
+              ]
+            },
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 0,
+              "values": [
+                0.75,
+                0.25,
+                0.75,
+                1.25,
+                1.25,
+                1.0
+              ]
+            }
+          ]
+        },
+        "saved_after_first": {
+          "_saved_dim": {
+            "status": "AVAILABLE",
+            "value": 1
+          },
+          "_saved_index": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          }
+        },
+        "second": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0,
+              1.25,
+              1.5
+            ]
+          },
+          "outcome": "RAISED",
+          "exception_type": "RuntimeError",
+          "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward.",
+          "gradients_after_call": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 1,
+              "values": [
+                0.25,
+                0.5,
+                0.75,
+                1.0,
+                1.25,
+                1.5
+              ]
+            },
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 0,
+              "values": [
+                0.75,
+                0.25,
+                0.75,
+                1.25,
+                1.25,
+                1.0
+              ]
+            }
+          ]
+        },
+        "saved_after_second": {
+          "_saved_dim": {
+            "status": "AVAILABLE",
+            "value": 1
+          },
+          "_saved_index": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          }
+        }
+      }
+    },
+    {
+      "case": "repeat-default-scatter-self-only",
+      "status": "OBSERVED",
+      "observation": {
+        "output": {
+          "shape": [
+            2,
+            3
+          ],
+          "strides": [
+            3,
+            1
+          ],
+          "requires_grad": true,
+          "version": 0,
+          "values": [
+            0.0,
+            -2.0,
+            5.5,
+            4.75,
+            2.25,
+            2.0
+          ]
+        },
+        "grad_fn": "ScatterAddBackward0",
+        "leaves": [
+          {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": true,
+            "version": 0,
+            "values": [
+              1.0,
+              -2.0,
+              3.0,
+              4.0,
+              -0.5,
+              2.0
+            ]
+          },
+          {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.5,
+              -1.0,
+              2.0,
+              3.0,
+              -0.25,
+              0.75
+            ]
+          }
+        ],
+        "saved_before": {
+          "_saved_dim": {
+            "status": "AVAILABLE",
+            "value": 1
+          },
+          "_saved_index": {
+            "status": "AVAILABLE",
+            "value": null
+          }
+        },
+        "first": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0,
+              1.25,
+              1.5
+            ]
+          },
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 1,
+              "values": [
+                0.25,
+                0.5,
+                0.75,
+                1.0,
+                1.25,
+                1.5
+              ]
+            },
+            null
+          ]
+        },
+        "saved_after_first": {
+          "_saved_dim": {
+            "status": "AVAILABLE",
+            "value": 1
+          },
+          "_saved_index": {
+            "status": "AVAILABLE",
+            "value": null
+          }
+        },
+        "second": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0,
+              1.25,
+              1.5
+            ]
+          },
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 2,
+              "values": [
+                0.5,
+                1.0,
+                1.5,
+                2.0,
+                2.5,
+                3.0
+              ]
+            },
+            null
+          ]
+        },
+        "saved_after_second": {
+          "_saved_dim": {
+            "status": "AVAILABLE",
+            "value": 1
+          },
+          "_saved_index": {
+            "status": "AVAILABLE",
+            "value": null
+          }
+        }
+      }
+    },
+    {
+      "case": "repeat-default-index-add-source-grad",
+      "status": "OBSERVED",
+      "observation": {
+        "output": {
+          "shape": [
+            2,
+            3
+          ],
+          "strides": [
+            3,
+            1
+          ],
+          "requires_grad": true,
+          "version": 0,
+          "values": [
+            0.5,
+            -2.0,
+            3.25,
+            3.875,
+            -0.5,
+            3.5
+          ]
+        },
+        "grad_fn": "IndexAddBackward0",
+        "leaves": [
+          {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": true,
+            "version": 0,
+            "values": [
+              1.0,
+              -2.0,
+              3.0,
+              4.0,
+              -0.5,
+              2.0
+            ]
+          },
+          {
+            "shape": [
+              2,
+              2
+            ],
+            "strides": [
+              2,
+              1
+            ],
+            "requires_grad": true,
+            "version": 0,
+            "values": [
+              0.5,
+              -1.0,
+              3.0,
+              -0.25
+            ]
+          }
+        ],
+        "saved_before": {
+          "_saved_alpha": {
+            "status": "AVAILABLE",
+            "value": 0.5
+          },
+          "_saved_dim": {
+            "status": "AVAILABLE",
+            "value": 1
+          },
+          "_saved_index": {
+            "status": "AVAILABLE",
+            "value": {
+              "tensor": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "requires_grad": false,
+                "version": 0,
+                "values": [
+                  2,
+                  0
+                ]
+              }
+            }
+          },
+          "_saved_source": {
+            "status": "AVAILABLE",
+            "value": {
+              "tensor": {
+                "shape": [
+                  2,
+                  2
+                ],
+                "strides": [
+                  2,
+                  1
+                ],
+                "requires_grad": true,
+                "version": 0,
+                "values": [
+                  0.5,
+                  -1.0,
+                  3.0,
+                  -0.25
+                ]
+              }
+            }
+          },
+          "_saved_source_dim": {
+            "status": "AVAILABLE",
+            "value": 2
+          }
+        },
+        "first": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0,
+              1.25,
+              1.5
+            ]
+          },
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 1,
+              "values": [
+                0.25,
+                0.5,
+                0.75,
+                1.0,
+                1.25,
+                1.5
+              ]
+            },
+            {
+              "shape": [
+                2,
+                2
+              ],
+              "strides": [
+                2,
+                1
+              ],
+              "requires_grad": false,
+              "version": 0,
+              "values": [
+                0.375,
+                0.125,
+                0.75,
+                0.5
+              ]
+            }
+          ]
+        },
+        "saved_after_first": {
+          "_saved_alpha": {
+            "status": "AVAILABLE",
+            "value": 0.5
+          },
+          "_saved_dim": {
+            "status": "AVAILABLE",
+            "value": 1
+          },
+          "_saved_index": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          },
+          "_saved_source": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          },
+          "_saved_source_dim": {
+            "status": "AVAILABLE",
+            "value": 2
+          }
+        },
+        "second": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0,
+              1.25,
+              1.5
+            ]
+          },
+          "outcome": "RAISED",
+          "exception_type": "RuntimeError",
+          "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward.",
+          "gradients_after_call": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 1,
+              "values": [
+                0.25,
+                0.5,
+                0.75,
+                1.0,
+                1.25,
+                1.5
+              ]
+            },
+            {
+              "shape": [
+                2,
+                2
+              ],
+              "strides": [
+                2,
+                1
+              ],
+              "requires_grad": false,
+              "version": 0,
+              "values": [
+                0.375,
+                0.125,
+                0.75,
+                0.5
+              ]
+            }
+          ]
+        },
+        "saved_after_second": {
+          "_saved_alpha": {
+            "status": "AVAILABLE",
+            "value": 0.5
+          },
+          "_saved_dim": {
+            "status": "AVAILABLE",
+            "value": 1
+          },
+          "_saved_index": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          },
+          "_saved_source": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          },
+          "_saved_source_dim": {
+            "status": "AVAILABLE",
+            "value": 2
+          }
+        }
+      }
+    },
+    {
+      "case": "repeat-default-index-add-self-only",
+      "status": "OBSERVED",
+      "observation": {
+        "output": {
+          "shape": [
+            2,
+            3
+          ],
+          "strides": [
+            3,
+            1
+          ],
+          "requires_grad": true,
+          "version": 0,
+          "values": [
+            0.5,
+            -2.0,
+            3.25,
+            3.875,
+            -0.5,
+            3.5
+          ]
+        },
+        "grad_fn": "IndexAddBackward0",
+        "leaves": [
+          {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": true,
+            "version": 0,
+            "values": [
+              1.0,
+              -2.0,
+              3.0,
+              4.0,
+              -0.5,
+              2.0
+            ]
+          },
+          {
+            "shape": [
+              2,
+              2
+            ],
+            "strides": [
+              2,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.5,
+              -1.0,
+              3.0,
+              -0.25
+            ]
+          }
+        ],
+        "saved_before": {
+          "_saved_alpha": {
+            "status": "AVAILABLE",
+            "value": 0.5
+          },
+          "_saved_dim": {
+            "status": "AVAILABLE",
+            "value": 1
+          },
+          "_saved_index": {
+            "status": "AVAILABLE",
+            "value": null
+          },
+          "_saved_source": {
+            "status": "AVAILABLE",
+            "value": null
+          },
+          "_saved_source_dim": {
+            "status": "AVAILABLE",
+            "value": 2
+          }
+        },
+        "first": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0,
+              1.25,
+              1.5
+            ]
+          },
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 1,
+              "values": [
+                0.25,
+                0.5,
+                0.75,
+                1.0,
+                1.25,
+                1.5
+              ]
+            },
+            null
+          ]
+        },
+        "saved_after_first": {
+          "_saved_alpha": {
+            "status": "AVAILABLE",
+            "value": 0.5
+          },
+          "_saved_dim": {
+            "status": "AVAILABLE",
+            "value": 1
+          },
+          "_saved_index": {
+            "status": "AVAILABLE",
+            "value": null
+          },
+          "_saved_source": {
+            "status": "AVAILABLE",
+            "value": null
+          },
+          "_saved_source_dim": {
+            "status": "AVAILABLE",
+            "value": 2
+          }
+        },
+        "second": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0,
+              1.25,
+              1.5
+            ]
+          },
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 2,
+              "values": [
+                0.5,
+                1.0,
+                1.5,
+                2.0,
+                2.5,
+                3.0
+              ]
+            },
+            null
+          ]
+        },
+        "saved_after_second": {
+          "_saved_alpha": {
+            "status": "AVAILABLE",
+            "value": 0.5
+          },
+          "_saved_dim": {
+            "status": "AVAILABLE",
+            "value": 1
+          },
+          "_saved_index": {
+            "status": "AVAILABLE",
+            "value": null
+          },
+          "_saved_source": {
+            "status": "AVAILABLE",
+            "value": null
+          },
+          "_saved_source_dim": {
+            "status": "AVAILABLE",
+            "value": 2
+          }
+        }
+      }
+    },
+    {
+      "case": "repeat-default-conv2d",
+      "status": "OBSERVED",
+      "observation": {
+        "output": {
+          "shape": [
+            1,
+            1,
+            2,
+            2
+          ],
+          "strides": [
+            4,
+            4,
+            2,
+            1
+          ],
+          "requires_grad": true,
+          "version": 0,
+          "values": [
+            -1.0,
+            -0.25,
+            1.25,
+            2.0
+          ]
+        },
+        "grad_fn": "ConvolutionBackward0",
+        "leaves": [
+          {
+            "shape": [
+              1,
+              1,
+              3,
+              3
+            ],
+            "strides": [
+              9,
+              9,
+              3,
+              1
+            ],
+            "requires_grad": true,
+            "version": 0,
+            "values": [
+              0.0,
+              1.0,
+              2.0,
+              3.0,
+              4.0,
+              5.0,
+              6.0,
+              7.0,
+              8.0
+            ]
+          },
+          {
+            "shape": [
+              1,
+              1,
+              2,
+              2
+            ],
+            "strides": [
+              4,
+              4,
+              2,
+              1
+            ],
+            "requires_grad": true,
+            "version": 0,
+            "values": [
+              0.5,
+              1.0,
+              -1.0,
+              0.25
+            ]
+          }
+        ],
+        "saved_before": {
+          "_saved_bias_sym_sizes_opt": {
+            "status": "AVAILABLE",
+            "value": [
+              0
+            ]
+          },
+          "_saved_dilation": {
+            "status": "AVAILABLE",
+            "value": [
+              1,
+              1
+            ]
+          },
+          "_saved_groups": {
+            "status": "AVAILABLE",
+            "value": 1
+          },
+          "_saved_input": {
+            "status": "AVAILABLE",
+            "value": {
+              "tensor": {
+                "shape": [
+                  1,
+                  1,
+                  3,
+                  3
+                ],
+                "strides": [
+                  9,
+                  9,
+                  3,
+                  1
+                ],
+                "requires_grad": true,
+                "version": 0,
+                "values": [
+                  0.0,
+                  1.0,
+                  2.0,
+                  3.0,
+                  4.0,
+                  5.0,
+                  6.0,
+                  7.0,
+                  8.0
+                ]
+              }
+            }
+          },
+          "_saved_output_padding": {
+            "status": "AVAILABLE",
+            "value": [
+              0,
+              0
+            ]
+          },
+          "_saved_padding": {
+            "status": "AVAILABLE",
+            "value": [
+              0,
+              0
+            ]
+          },
+          "_saved_stride": {
+            "status": "AVAILABLE",
+            "value": [
+              1,
+              1
+            ]
+          },
+          "_saved_transposed": {
+            "status": "AVAILABLE",
+            "value": false
+          },
+          "_saved_weight": {
+            "status": "AVAILABLE",
+            "value": {
+              "tensor": {
+                "shape": [
+                  1,
+                  1,
+                  2,
+                  2
+                ],
+                "strides": [
+                  4,
+                  4,
+                  2,
+                  1
+                ],
+                "requires_grad": true,
+                "version": 0,
+                "values": [
+                  0.5,
+                  1.0,
+                  -1.0,
+                  0.25
+                ]
+              }
+            }
+          }
+        },
+        "first": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              1,
+              1,
+              2,
+              2
+            ],
+            "strides": [
+              4,
+              4,
+              2,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0
+            ]
+          },
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                1,
+                1,
+                3,
+                3
+              ],
+              "strides": [
+                9,
+                9,
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 0,
+              "values": [
+                0.125,
+                0.5,
+                0.5,
+                0.125,
+                0.8125,
+                1.125,
+                -0.75,
+                -0.8125,
+                0.25
+              ]
+            },
+            {
+              "shape": [
+                1,
+                1,
+                2,
+                2
+              ],
+              "strides": [
+                4,
+                4,
+                2,
+                1
+              ],
+              "requires_grad": false,
+              "version": 0,
+              "values": [
+                6.75,
+                9.25,
+                14.25,
+                16.75
+              ]
+            }
+          ]
+        },
+        "saved_after_first": {
+          "_saved_bias_sym_sizes_opt": {
+            "status": "AVAILABLE",
+            "value": [
+              0
+            ]
+          },
+          "_saved_dilation": {
+            "status": "AVAILABLE",
+            "value": [
+              1,
+              1
+            ]
+          },
+          "_saved_groups": {
+            "status": "AVAILABLE",
+            "value": 1
+          },
+          "_saved_input": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          },
+          "_saved_output_padding": {
+            "status": "AVAILABLE",
+            "value": [
+              0,
+              0
+            ]
+          },
+          "_saved_padding": {
+            "status": "AVAILABLE",
+            "value": [
+              0,
+              0
+            ]
+          },
+          "_saved_stride": {
+            "status": "AVAILABLE",
+            "value": [
+              1,
+              1
+            ]
+          },
+          "_saved_transposed": {
+            "status": "AVAILABLE",
+            "value": false
+          },
+          "_saved_weight": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          }
+        },
+        "second": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              1,
+              1,
+              2,
+              2
+            ],
+            "strides": [
+              4,
+              4,
+              2,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0
+            ]
+          },
+          "outcome": "RAISED",
+          "exception_type": "RuntimeError",
+          "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward.",
+          "gradients_after_call": [
+            {
+              "shape": [
+                1,
+                1,
+                3,
+                3
+              ],
+              "strides": [
+                9,
+                9,
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 0,
+              "values": [
+                0.125,
+                0.5,
+                0.5,
+                0.125,
+                0.8125,
+                1.125,
+                -0.75,
+                -0.8125,
+                0.25
+              ]
+            },
+            {
+              "shape": [
+                1,
+                1,
+                2,
+                2
+              ],
+              "strides": [
+                4,
+                4,
+                2,
+                1
+              ],
+              "requires_grad": false,
+              "version": 0,
+              "values": [
+                6.75,
+                9.25,
+                14.25,
+                16.75
+              ]
+            }
+          ]
+        },
+        "saved_after_second": {
+          "_saved_bias_sym_sizes_opt": {
+            "status": "AVAILABLE",
+            "value": [
+              0
+            ]
+          },
+          "_saved_dilation": {
+            "status": "AVAILABLE",
+            "value": [
+              1,
+              1
+            ]
+          },
+          "_saved_groups": {
+            "status": "AVAILABLE",
+            "value": 1
+          },
+          "_saved_input": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          },
+          "_saved_output_padding": {
+            "status": "AVAILABLE",
+            "value": [
+              0,
+              0
+            ]
+          },
+          "_saved_padding": {
+            "status": "AVAILABLE",
+            "value": [
+              0,
+              0
+            ]
+          },
+          "_saved_stride": {
+            "status": "AVAILABLE",
+            "value": [
+              1,
+              1
+            ]
+          },
+          "_saved_transposed": {
+            "status": "AVAILABLE",
+            "value": false
+          },
+          "_saved_weight": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          }
+        }
+      }
+    },
+    {
+      "case": "repeat-default-matmul-fold-copy",
+      "status": "OBSERVED",
+      "observation": {
+        "output": {
+          "shape": [
+            3,
+            2,
+            2
+          ],
+          "strides": [
+            4,
+            2,
+            1
+          ],
+          "requires_grad": true,
+          "version": 0,
+          "values": [
+            6.5,
+            -0.375,
+            33.5,
+            10.125,
+            15.5,
+            3.125,
+            42.5,
+            13.625,
+            24.5,
+            6.625,
+            51.5,
+            17.125
+          ]
+        },
+        "grad_fn": "UnsafeViewBackward0",
+        "leaves": [
+          {
+            "shape": [
+              3,
+              2,
+              4
+            ],
+            "strides": [
+              4,
+              12,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.0,
+              1.0,
+              2.0,
+              3.0,
+              12.0,
+              13.0,
+              14.0,
+              15.0,
+              4.0,
+              5.0,
+              6.0,
+              7.0,
+              16.0,
+              17.0,
+              18.0,
+              19.0,
+              8.0,
+              9.0,
+              10.0,
+              11.0,
+              20.0,
+              21.0,
+              22.0,
+              23.0
+            ]
+          },
+          {
+            "shape": [
+              4,
+              2
+            ],
+            "strides": [
+              2,
+              1
+            ],
+            "requires_grad": true,
+            "version": 0,
+            "values": [
+              0.5,
+              1.0,
+              -1.0,
+              0.25,
+              0.75,
+              -0.5,
+              2.0,
+              0.125
+            ]
+          }
+        ],
+        "saved_before": {
+          "_saved_self_sym_sizes": {
+            "status": "AVAILABLE",
+            "value": [
+              6,
+              2
+            ]
+          }
+        },
+        "first": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              3,
+              2,
+              2
+            ],
+            "strides": [
+              4,
+              2,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0,
+              1.25,
+              1.5,
+              1.75,
+              2.0,
+              2.25,
+              2.5,
+              2.75,
+              3.0
+            ]
+          },
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            null,
+            {
+              "shape": [
+                4,
+                2
+              ],
+              "strides": [
+                2,
+                1
+              ],
+              "requires_grad": false,
+              "version": 0,
+              "values": [
+                115.0,
+                130.0,
+                124.0,
+                140.5,
+                133.0,
+                151.0,
+                142.0,
+                161.5
+              ]
+            }
+          ]
+        },
+        "saved_after_first": {
+          "_saved_self_sym_sizes": {
+            "status": "AVAILABLE",
+            "value": [
+              6,
+              2
+            ]
+          }
+        },
+        "second": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              3,
+              2,
+              2
+            ],
+            "strides": [
+              4,
+              2,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              0.25,
+              0.5,
+              0.75,
+              1.0,
+              1.25,
+              1.5,
+              1.75,
+              2.0,
+              2.25,
+              2.5,
+              2.75,
+              3.0
+            ]
+          },
+          "outcome": "RAISED",
+          "exception_type": "RuntimeError",
+          "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward.",
+          "gradients_after_call": [
+            null,
+            {
+              "shape": [
+                4,
+                2
+              ],
+              "strides": [
+                2,
+                1
+              ],
+              "requires_grad": false,
+              "version": 0,
+              "values": [
+                115.0,
+                130.0,
+                124.0,
+                140.5,
+                133.0,
+                151.0,
+                142.0,
+                161.5
+              ]
+            }
+          ]
+        },
+        "saved_after_second": {
+          "_saved_self_sym_sizes": {
+            "status": "AVAILABLE",
+            "value": [
+              6,
+              2
+            ]
+          }
+        }
+      }
+    },
+    {
+      "case": "retain-true-true-false-true-sequence",
+      "status": "OBSERVED",
+      "observation": {
+        "steps": [
+          {
+            "retain_graph_argument": true,
+            "seed": {
+              "shape": [
+                3
+              ],
+              "strides": [
+                1
+              ],
+              "requires_grad": false,
+              "version": 0,
+              "values": [
+                0.5,
+                -1.0,
+                2.0
+              ]
+            },
+            "outcome": "SUCCEEDED",
+            "gradients_after_call": [
+              {
+                "shape": [
+                  3
+                ],
+                "strides": [
+                  1
+                ],
+                "requires_grad": false,
+                "version": 1,
+                "values": [
+                  1.0,
+                  4.0,
+                  12.0
+                ]
+              }
+            ],
+            "saved_after": {
+              "_saved_other": {
+                "status": "AVAILABLE",
+                "value": {
+                  "tensor": {
+                    "shape": [
+                      3
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "requires_grad": true,
+                    "version": 0,
+                    "values": [
+                      1.0,
+                      -2.0,
+                      3.0
+                    ]
+                  }
+                }
+              },
+              "_saved_self": {
+                "status": "AVAILABLE",
+                "value": {
+                  "tensor": {
+                    "shape": [
+                      3
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "requires_grad": true,
+                    "version": 0,
+                    "values": [
+                      1.0,
+                      -2.0,
+                      3.0
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          {
+            "retain_graph_argument": true,
+            "seed": {
+              "shape": [
+                3
+              ],
+              "strides": [
+                1
+              ],
+              "requires_grad": false,
+              "version": 0,
+              "values": [
+                0.5,
+                -1.0,
+                2.0
+              ]
+            },
+            "outcome": "SUCCEEDED",
+            "gradients_after_call": [
+              {
+                "shape": [
+                  3
+                ],
+                "strides": [
+                  1
+                ],
+                "requires_grad": false,
+                "version": 2,
+                "values": [
+                  2.0,
+                  8.0,
+                  24.0
+                ]
+              }
+            ],
+            "saved_after": {
+              "_saved_other": {
+                "status": "AVAILABLE",
+                "value": {
+                  "tensor": {
+                    "shape": [
+                      3
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "requires_grad": true,
+                    "version": 0,
+                    "values": [
+                      1.0,
+                      -2.0,
+                      3.0
+                    ]
+                  }
+                }
+              },
+              "_saved_self": {
+                "status": "AVAILABLE",
+                "value": {
+                  "tensor": {
+                    "shape": [
+                      3
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "requires_grad": true,
+                    "version": 0,
+                    "values": [
+                      1.0,
+                      -2.0,
+                      3.0
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          {
+            "retain_graph_argument": false,
+            "seed": {
+              "shape": [
+                3
+              ],
+              "strides": [
+                1
+              ],
+              "requires_grad": false,
+              "version": 0,
+              "values": [
+                0.5,
+                -1.0,
+                2.0
+              ]
+            },
+            "outcome": "SUCCEEDED",
+            "gradients_after_call": [
+              {
+                "shape": [
+                  3
+                ],
+                "strides": [
+                  1
+                ],
+                "requires_grad": false,
+                "version": 3,
+                "values": [
+                  3.0,
+                  12.0,
+                  36.0
+                ]
+              }
+            ],
+            "saved_after": {
+              "_saved_other": {
+                "status": "RAISED",
+                "exception_type": "RuntimeError",
+                "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+              },
+              "_saved_self": {
+                "status": "RAISED",
+                "exception_type": "RuntimeError",
+                "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+              }
+            }
+          },
+          {
+            "retain_graph_argument": true,
+            "seed": {
+              "shape": [
+                3
+              ],
+              "strides": [
+                1
+              ],
+              "requires_grad": false,
+              "version": 0,
+              "values": [
+                0.5,
+                -1.0,
+                2.0
+              ]
+            },
+            "outcome": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward.",
+            "gradients_after_call": [
+              {
+                "shape": [
+                  3
+                ],
+                "strides": [
+                  1
+                ],
+                "requires_grad": false,
+                "version": 3,
+                "values": [
+                  3.0,
+                  12.0,
+                  36.0
+                ]
+              }
+            ],
+            "saved_after": {
+              "_saved_other": {
+                "status": "RAISED",
+                "exception_type": "RuntimeError",
+                "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+              },
+              "_saved_self": {
+                "status": "RAISED",
+                "exception_type": "RuntimeError",
+                "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "implicit-default-releases-saved",
+      "status": "OBSERVED",
+      "observation": {
+        "first": {
+          "retain_graph_argument": "OMITTED",
+          "seed": null,
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                3
+              ],
+              "strides": [
+                1
+              ],
+              "requires_grad": false,
+              "version": 1,
+              "values": [
+                2.0,
+                -4.0,
+                6.0
+              ]
+            }
+          ]
+        },
+        "saved_after_default": {
+          "_saved_other": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          },
+          "_saved_self": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          }
+        },
+        "second": {
+          "retain_graph_argument": true,
+          "seed": null,
+          "outcome": "RAISED",
+          "exception_type": "RuntimeError",
+          "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward.",
+          "gradients_after_call": [
+            {
+              "shape": [
+                3
+              ],
+              "strides": [
+                1
+              ],
+              "requires_grad": false,
+              "version": 1,
+              "values": [
+                2.0,
+                -4.0,
+                6.0
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "case": "no-saved-input-mutation-and-repeat",
+      "status": "OBSERVED",
+      "observation": {
+        "first": {
+          "retain_graph_argument": "OMITTED",
+          "seed": null,
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                3
+              ],
+              "strides": [
+                1
+              ],
+              "requires_grad": false,
+              "version": 1,
+              "values": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            }
+          ]
+        },
+        "second": {
+          "retain_graph_argument": "OMITTED",
+          "seed": null,
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                3
+              ],
+              "strides": [
+                1
+              ],
+              "requires_grad": false,
+              "version": 2,
+              "values": [
+                2.0,
+                2.0,
+                2.0
+              ]
+            }
+          ]
+        },
+        "input_after_mutation": {
+          "shape": [
+            3
+          ],
+          "strides": [
+            1
+          ],
+          "requires_grad": true,
+          "version": 1,
+          "values": [
+            5.0,
+            2.0,
+            7.0
+          ]
+        },
+        "saved": {
+          "_saved_alpha": {
+            "status": "AVAILABLE",
+            "value": 1
+          }
+        }
+      }
+    },
+    {
+      "case": "saved-mutation-rejection-before-release",
+      "status": "OBSERVED",
+      "observation": {
+        "saved_before": {
+          "_saved_other": {
+            "status": "AVAILABLE",
+            "value": {
+              "tensor": {
+                "shape": [
+                  3
+                ],
+                "strides": [
+                  1
+                ],
+                "requires_grad": false,
+                "version": 0,
+                "values": [
+                  2.0,
+                  3.0,
+                  4.0
+                ]
+              }
+            }
+          },
+          "_saved_self": {
+            "status": "AVAILABLE",
+            "value": null
+          }
+        },
+        "first": {
+          "retain_graph_argument": true,
+          "seed": null,
+          "outcome": "RAISED",
+          "exception_type": "RuntimeError",
+          "message": "one of the variables needed for gradient computation has been modified by an inplace operation: [torch.FloatTensor [3]] is at version 1; expected version 0 instead. Hint: enable anomaly detection to find the operation that failed to compute its gradient, with torch.autograd.set_detect_anomaly(True, check_nan=False).",
+          "gradients_after_call": [
+            null,
+            null
+          ]
+        },
+        "saved_after_first": {
+          "_saved_other": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "one of the variables needed for gradient computation has been modified by an inplace operation: [torch.FloatTensor [3]] is at version 1; expected version 0 instead. Hint: enable anomaly detection to find the operation that failed to compute its gradient, with torch.autograd.set_detect_anomaly(True, check_nan=False)."
+          },
+          "_saved_self": {
+            "status": "AVAILABLE",
+            "value": null
+          }
+        },
+        "second": {
+          "retain_graph_argument": false,
+          "seed": null,
+          "outcome": "RAISED",
+          "exception_type": "RuntimeError",
+          "message": "one of the variables needed for gradient computation has been modified by an inplace operation: [torch.FloatTensor [3]] is at version 1; expected version 0 instead. Hint: enable anomaly detection to find the operation that failed to compute its gradient, with torch.autograd.set_detect_anomaly(True, check_nan=False).",
+          "gradients_after_call": [
+            null,
+            null
+          ]
+        },
+        "saved_after_second": {
+          "_saved_other": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "one of the variables needed for gradient computation has been modified by an inplace operation: [torch.FloatTensor [3]] is at version 1; expected version 0 instead. Hint: enable anomaly detection to find the operation that failed to compute its gradient, with torch.autograd.set_detect_anomaly(True, check_nan=False)."
+          },
+          "_saved_self": {
+            "status": "AVAILABLE",
+            "value": null
+          }
+        }
+      }
+    },
+    {
+      "case": "failed-upstream-version-check-after-downstream-release",
+      "status": "OBSERVED",
+      "observation": {
+        "before": {
+          "upstream": {
+            "_saved_other": {
+              "status": "AVAILABLE",
+              "value": {
+                "tensor": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    2.0,
+                    3.0
+                  ]
+                }
+              }
+            },
+            "_saved_self": {
+              "status": "AVAILABLE",
+              "value": {
+                "tensor": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    2.0,
+                    3.0
+                  ]
+                }
+              }
+            }
+          },
+          "downstream": {
+            "_saved_other": {
+              "status": "AVAILABLE",
+              "value": {
+                "tensor": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    4.0,
+                    9.0
+                  ]
+                }
+              }
+            },
+            "_saved_self": {
+              "status": "AVAILABLE",
+              "value": {
+                "tensor": {
+                  "shape": [
+                    3
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "requires_grad": true,
+                  "version": 0,
+                  "values": [
+                    1.0,
+                    4.0,
+                    9.0
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "call": {
+          "retain_graph_argument": false,
+          "seed": null,
+          "outcome": "RAISED",
+          "exception_type": "RuntimeError",
+          "message": "one of the variables needed for gradient computation has been modified by an inplace operation: [torch.FloatTensor [3]] is at version 1; expected version 0 instead. Hint: enable anomaly detection to find the operation that failed to compute its gradient, with torch.autograd.set_detect_anomaly(True, check_nan=False).",
+          "gradients_after_call": [
+            null
+          ]
+        },
+        "upstream_after_failure": {
+          "_saved_other": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "one of the variables needed for gradient computation has been modified by an inplace operation: [torch.FloatTensor [3]] is at version 1; expected version 0 instead. Hint: enable anomaly detection to find the operation that failed to compute its gradient, with torch.autograd.set_detect_anomaly(True, check_nan=False)."
+          },
+          "_saved_self": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "one of the variables needed for gradient computation has been modified by an inplace operation: [torch.FloatTensor [3]] is at version 1; expected version 0 instead. Hint: enable anomaly detection to find the operation that failed to compute its gradient, with torch.autograd.set_detect_anomaly(True, check_nan=False)."
+          }
+        },
+        "downstream_after_failure": {
+          "_saved_other": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          },
+          "_saved_self": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          }
+        },
+        "retry": {
+          "retain_graph_argument": true,
+          "seed": null,
+          "outcome": "RAISED",
+          "exception_type": "RuntimeError",
+          "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward.",
+          "gradients_after_call": [
+            null
+          ]
+        },
+        "native_transaction_comparison": "Native whole-frame rollback is a distinct contract; do not require these partial Torch side effects."
+      }
+    },
+    {
+      "case": "saved-freed-marker-with-public-data-still-alive",
+      "status": "OBSERVED",
+      "observation": {
+        "first": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              3
+            ],
+            "strides": [
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          },
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                3
+              ],
+              "strides": [
+                1
+              ],
+              "requires_grad": false,
+              "version": 0,
+              "values": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            }
+          ]
+        },
+        "public_output_after": {
+          "shape": [
+            3
+          ],
+          "strides": [
+            1
+          ],
+          "requires_grad": true,
+          "version": 0,
+          "values": [
+            1.0,
+            2.0,
+            3.0
+          ]
+        },
+        "saved_after": {
+          "_saved_result": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          }
+        },
+        "second": {
+          "retain_graph_argument": true,
+          "seed": {
+            "shape": [
+              3
+            ],
+            "strides": [
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          },
+          "outcome": "RAISED",
+          "exception_type": "RuntimeError",
+          "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward.",
+          "gradients_after_call": [
+            {
+              "shape": [
+                3
+              ],
+              "strides": [
+                1
+              ],
+              "requires_grad": false,
+              "version": 0,
+              "values": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "case": "leaf-storage-held-by-AccumulateGrad-after-default-backward",
+      "status": "OBSERVED",
+      "observation": {
+        "expired_after_public_drop": false,
+        "call": {
+          "retain_graph_argument": "OMITTED",
+          "seed": null,
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": []
+        },
+        "expired_after_default_backward": false,
+        "expired_after_root_drop": true
+      }
+    },
+    {
+      "case": "nongrad-coefficient-released-by-default-backward",
+      "status": "OBSERVED",
+      "observation": {
+        "expired_after_public_drop": false,
+        "call": {
+          "retain_graph_argument": "OMITTED",
+          "seed": null,
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                3
+              ],
+              "strides": [
+                1
+              ],
+              "requires_grad": false,
+              "version": 0,
+              "values": [
+                2.0,
+                3.0,
+                4.0
+              ]
+            }
+          ]
+        },
+        "expired_after_default_backward": true
+      }
+    },
+    {
+      "case": "saved-output-weak-retain-then-default",
+      "status": "OBSERVED",
+      "observation": {
+        "expired_after_public_drop": false,
+        "retained": {
+          "retain_graph_argument": true,
+          "seed": null,
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                3
+              ],
+              "strides": [
+                1
+              ],
+              "requires_grad": false,
+              "version": 0,
+              "values": [
+                -0.6396999359130859,
+                0.0,
+                0.6396999359130859
+              ]
+            }
+          ]
+        },
+        "expired_after_retained": false,
+        "default": {
+          "retain_graph_argument": "OMITTED",
+          "seed": null,
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                3
+              ],
+              "strides": [
+                1
+              ],
+              "requires_grad": false,
+              "version": 1,
+              "values": [
+                -1.2793998718261719,
+                0.0,
+                1.2793998718261719
+              ]
+            }
+          ]
+        },
+        "expired_after_default": true
+      }
+    },
+    {
+      "case": "external-unpacked-alias-keeps-storage-but-not-saved-validity",
+      "status": "OBSERVED",
+      "observation": {
+        "call": {
+          "retain_graph_argument": "OMITTED",
+          "seed": null,
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                3
+              ],
+              "strides": [
+                1
+              ],
+              "requires_grad": false,
+              "version": 0,
+              "values": [
+                -0.7268619537353516,
+                0.4604543447494507,
+                0.6396999359130859
+              ]
+            }
+          ]
+        },
+        "saved_after": {
+          "_saved_other": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          },
+          "_saved_self": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          }
+        },
+        "expired_with_external_alias": false,
+        "external_values": {
+          "shape": [
+            3
+          ],
+          "strides": [
+            1
+          ],
+          "requires_grad": false,
+          "version": 0,
+          "values": [
+            -0.46211716532707214,
+            0.24491865932941437,
+            0.7615941762924194
+          ]
+        },
+        "expired_after_external_alias_drop": true,
+        "retry": {
+          "retain_graph_argument": true,
+          "seed": null,
+          "outcome": "RAISED",
+          "exception_type": "RuntimeError",
+          "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward.",
+          "gradients_after_call": [
+            {
+              "shape": [
+                3
+              ],
+              "strides": [
+                1
+              ],
+              "requires_grad": false,
+              "version": 0,
+              "values": [
+                -0.7268619537353516,
+                0.4604543447494507,
+                0.6396999359130859
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "case": "shared-subgraph-second-root-sees-freed-saved",
+      "status": "OBSERVED",
+      "observation": {
+        "left": {
+          "retain_graph_argument": "OMITTED",
+          "seed": null,
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                3
+              ],
+              "strides": [
+                1
+              ],
+              "requires_grad": false,
+              "version": 1,
+              "values": [
+                2.0,
+                4.0,
+                6.0
+              ]
+            }
+          ]
+        },
+        "saved_after_left": {
+          "_saved_other": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          },
+          "_saved_self": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          }
+        },
+        "right": {
+          "retain_graph_argument": "OMITTED",
+          "seed": null,
+          "outcome": "RAISED",
+          "exception_type": "RuntimeError",
+          "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward.",
+          "gradients_after_call": [
+            {
+              "shape": [
+                3
+              ],
+              "strides": [
+                1
+              ],
+              "requires_grad": false,
+              "version": 1,
+              "values": [
+                2.0,
+                4.0,
+                6.0
+              ]
+            }
+          ]
+        },
+        "public_intermediate": {
+          "shape": [
+            3
+          ],
+          "strides": [
+            1
+          ],
+          "requires_grad": true,
+          "version": 0,
+          "values": [
+            1.0,
+            4.0,
+            9.0
+          ]
+        }
+      }
+    },
+    {
+      "case": "unvisited-independent-node-keeps-its-saved",
+      "status": "OBSERVED",
+      "observation": {
+        "first": {
+          "retain_graph_argument": "OMITTED",
+          "seed": null,
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                3
+              ],
+              "strides": [
+                1
+              ],
+              "requires_grad": false,
+              "version": 1,
+              "values": [
+                2.0,
+                4.0,
+                6.0
+              ]
+            }
+          ]
+        },
+        "unvisited_saved_after_first": {
+          "_saved_other": {
+            "status": "AVAILABLE",
+            "value": {
+              "tensor": {
+                "shape": [
+                  3
+                ],
+                "strides": [
+                  1
+                ],
+                "requires_grad": true,
+                "version": 0,
+                "values": [
+                  1.0,
+                  2.0,
+                  3.0
+                ]
+              }
+            }
+          },
+          "_saved_self": {
+            "status": "AVAILABLE",
+            "value": {
+              "tensor": {
+                "shape": [
+                  3
+                ],
+                "strides": [
+                  1
+                ],
+                "requires_grad": true,
+                "version": 0,
+                "values": [
+                  1.0,
+                  2.0,
+                  3.0
+                ]
+              }
+            }
+          }
+        },
+        "second": {
+          "retain_graph_argument": "OMITTED",
+          "seed": null,
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                3
+              ],
+              "strides": [
+                1
+              ],
+              "requires_grad": false,
+              "version": 2,
+              "values": [
+                4.0,
+                8.0,
+                12.0
+              ]
+            }
+          ]
+        },
+        "saved_after_own_backward": {
+          "_saved_other": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          },
+          "_saved_self": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          }
+        }
+      }
+    },
+    {
+      "case": "seed-shape-error-before-engine-preserves-saved",
+      "status": "OBSERVED",
+      "observation": {
+        "invalid_seed_call": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              1,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          },
+          "outcome": "RAISED",
+          "exception_type": "RuntimeError",
+          "message": "Mismatch in shape: grad_output[0] has a shape of torch.Size([1, 3]) and output[0] has a shape of torch.Size([3]).",
+          "gradients_after_call": [
+            null
+          ]
+        },
+        "saved_after_invalid_seed": {
+          "_saved_other": {
+            "status": "AVAILABLE",
+            "value": {
+              "tensor": {
+                "shape": [
+                  3
+                ],
+                "strides": [
+                  1
+                ],
+                "requires_grad": true,
+                "version": 0,
+                "values": [
+                  1.0,
+                  2.0,
+                  3.0
+                ]
+              }
+            }
+          },
+          "_saved_self": {
+            "status": "AVAILABLE",
+            "value": {
+              "tensor": {
+                "shape": [
+                  3
+                ],
+                "strides": [
+                  1
+                ],
+                "requires_grad": true,
+                "version": 0,
+                "values": [
+                  1.0,
+                  2.0,
+                  3.0
+                ]
+              }
+            }
+          }
+        },
+        "valid_seed_call": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              3
+            ],
+            "strides": [
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          },
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                3
+              ],
+              "strides": [
+                1
+              ],
+              "requires_grad": false,
+              "version": 1,
+              "values": [
+                2.0,
+                4.0,
+                6.0
+              ]
+            }
+          ]
+        },
+        "saved_after_valid_seed": {
+          "_saved_other": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          },
+          "_saved_self": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          }
+        }
+      }
+    },
+    {
+      "case": "backward-gradient-shape-error-preserves-failing-node-saved",
+      "status": "OBSERVED",
+      "observation": {
+        "source_shape": [
+          2,
+          3
+        ],
+        "index_shape": [
+          2,
+          2
+        ],
+        "first": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          },
+          "outcome": "RAISED",
+          "exception_type": "RuntimeError",
+          "message": "Function ScatterAddBackward0 returned an invalid gradient at index 1 - got [2, 2] but expected shape compatible with [2, 3]",
+          "gradients_after_call": [
+            null,
+            null
+          ]
+        },
+        "saved_after_failed_apply": {
+          "_saved_dim": {
+            "status": "AVAILABLE",
+            "value": 1
+          },
+          "_saved_index": {
+            "status": "AVAILABLE",
+            "value": {
+              "tensor": {
+                "shape": [
+                  2,
+                  2
+                ],
+                "strides": [
+                  2,
+                  1
+                ],
+                "requires_grad": false,
+                "version": 0,
+                "values": [
+                  0,
+                  1,
+                  1,
+                  2
+                ]
+              }
+            }
+          }
+        },
+        "second": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": [
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          },
+          "outcome": "RAISED",
+          "exception_type": "RuntimeError",
+          "message": "Function ScatterAddBackward0 returned an invalid gradient at index 1 - got [2, 2] but expected shape compatible with [2, 3]",
+          "gradients_after_call": [
+            null,
+            null
+          ]
+        },
+        "saved_after_second": {
+          "_saved_dim": {
+            "status": "AVAILABLE",
+            "value": 1
+          },
+          "_saved_index": {
+            "status": "AVAILABLE",
+            "value": {
+              "tensor": {
+                "shape": [
+                  2,
+                  2
+                ],
+                "strides": [
+                  2,
+                  1
+                ],
+                "requires_grad": false,
+                "version": 0,
+                "values": [
+                  0,
+                  1,
+                  1,
+                  2
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "empty-index-select-still-has-saved-tensor-lifetime",
+      "status": "OBSERVED",
+      "observation": {
+        "first": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              2,
+              0
+            ],
+            "strides": [
+              1,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": []
+          },
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 1,
+              "values": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            }
+          ]
+        },
+        "saved_after_first": {
+          "_saved_dim": {
+            "status": "AVAILABLE",
+            "value": 1
+          },
+          "_saved_index": {
+            "status": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward."
+          },
+          "_saved_self_sym_sizes": {
+            "status": "AVAILABLE",
+            "value": [
+              2,
+              3
+            ]
+          }
+        },
+        "second": {
+          "retain_graph_argument": false,
+          "seed": {
+            "shape": [
+              2,
+              0
+            ],
+            "strides": [
+              1,
+              1
+            ],
+            "requires_grad": false,
+            "version": 0,
+            "values": []
+          },
+          "outcome": "RAISED",
+          "exception_type": "RuntimeError",
+          "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward.",
+          "gradients_after_call": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "requires_grad": false,
+              "version": 1,
+              "values": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            }
+          ]
+        },
+        "output": {
+          "shape": [
+            2,
+            0
+          ],
+          "strides": [
+            1,
+            1
+          ],
+          "requires_grad": true,
+          "version": 0,
+          "values": []
+        }
+      }
+    },
+    {
+      "case": "leaf-backward-twice-without-grad-function",
+      "status": "OBSERVED",
+      "observation": {
+        "grad_fn_is_none": true,
+        "first": {
+          "retain_graph_argument": "OMITTED",
+          "seed": null,
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [],
+              "strides": [],
+              "requires_grad": false,
+              "version": 1,
+              "values": [
+                1.0
+              ]
+            }
+          ]
+        },
+        "second": {
+          "retain_graph_argument": "OMITTED",
+          "seed": null,
+          "outcome": "SUCCEEDED",
+          "gradients_after_call": [
+            {
+              "shape": [],
+              "strides": [],
+              "requires_grad": false,
+              "version": 2,
+              "values": [
+                2.0
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "oracle_provenance": {
+    "status": "PASS",
+    "lock_path": "/home/runner/work/HeptaTorch/HeptaTorch/compatibility/pytorch-oracle-lock.json",
+    "lock_sha256": "ca2e54ce65083bbe0ab3d47b6878971271765ab35a9dd70725fa345fceed3944",
+    "expected": {
+      "distribution": "torch",
+      "version": "2.15.0+cpu",
+      "git_commit": "d0f2af8b66b20da4baa50644c0cd3f887a2eae2e",
+      "backend_versions": {
+        "cuda": null,
+        "hip": null,
+        "rocm": null,
+        "xpu": null
+      },
+      "python": {
+        "implementation": "cpython",
+        "version": [
+          3,
+          12
+        ]
+      },
+      "platform": {
+        "sys_platform": "linux",
+        "machine": "x86_64"
+      },
+      "wheel": {
+        "url": "https://download-r2.pytorch.org/whl/cpu/torch-2.15.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl",
+        "sha256": "0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3",
+        "filename": "torch-2.15.0+cpu-cp312-cp312-manylinux_2_28_x86_64.whl",
+        "python_tag": "cp312",
+        "abi_tag": "cp312",
+        "platform_tag": "manylinux_2_28_x86_64",
+        "metadata_sha256": "8bbf94c86c3be6cf586385861d476b78cb66d19b67fef49ece4f7d68ca428cc3"
+      },
+      "install_report": "build/pytorch-install.json"
+    },
+    "observed": {
+      "python": {
+        "implementation": "cpython",
+        "version": [
+          3,
+          12
+        ],
+        "full_version": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]"
+      },
+      "platform": {
+        "sys_platform": "linux",
+        "machine": "x86_64"
+      },
+      "version": "2.15.0+cpu",
+      "git_commit": "d0f2af8b66b20da4baa50644c0cd3f887a2eae2e",
+      "backend_versions": {
+        "cuda": null,
+        "hip": null,
+        "rocm": null,
+        "xpu": null
+      },
+      "distribution_version": "2.15.0+cpu",
+      "direct_url": {
+        "archive_info": {
+          "hash": "sha256=0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3",
+          "hashes": {
+            "sha256": "0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3"
+          }
+        },
+        "url": "https://download-r2.pytorch.org/whl/cpu/torch-2.15.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl"
+      },
+      "install_report": {
+        "path": "build/pytorch-install.json",
+        "pip_version": "24.0",
+        "download_info": {
+          "url": "https://download-r2.pytorch.org/whl/cpu/torch-2.15.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl",
+          "archive_info": {
+            "hash": "sha256=0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3",
+            "hashes": {
+              "sha256": "0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3"
+            }
+          }
+        },
+        "metadata_name": "torch",
+        "metadata_version": "2.15.0+cpu",
+        "requested": true
+      }
+    },
+    "checks": {
+      "python_matches": true,
+      "platform_matches": true,
+      "version_backend_matches": true,
+      "git_matches_oracle_build_pin": true,
+      "distribution_version_matches": true,
+      "direct_url_matches": true,
+      "direct_url_archive_sha256_matches": true,
+      "pip_report_url_matches": true,
+      "pip_report_archive_sha256_matches": true,
+      "pip_report_version_matches": true,
+      "pip_report_requested": true
+    },
+    "metadata_error": null,
+    "release_source_equivalence": {
+      "inventory_commit": "31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
+      "wheel_build_commit": "d0f2af8b66b20da4baa50644c0cd3f887a2eae2e",
+      "wheel_build_is_direct_parent_of_inventory_commit": true,
+      "torch_git_matches_upstream_pin": false,
+      "release_root_tree": "156b7013e253ac50abaa4de8a4d2e6dd7acbbb56",
+      "wheel_build_root_tree": "408badfd8e01265470f4efedfe22fa547b128351",
+      "root_entry_counts": {
+        "release": 74,
+        "wheel": 74
+      },
+      "root_trees_truncated": {
+        "release": false,
+        "wheel": false
+      },
+      "changed_paths": [
+        "pyproject.toml"
+      ],
+      "change": "The release commit adds five lines under [tool.ruff], setting target-version to py310 with explanatory comments. There are no deletions. Every other root entry and every source subtree is identical.",
+      "wheel_pyproject_blob": "6d2cb5e341729de25288267e24d76c20254288f8",
+      "release_pyproject_blob": "e7648b0fcb198697832a6aab3469719a9992a8ec",
+      "identical_subtrees": {
+        ".ci": "40279ceebccac57277fdaabf1fb8cb70b60850d6",
+        ".claude": "0075de12edc4d9bdbf28e567c5f54f3ac5e78201",
+        ".ctags.d": "3c8ba0dccbb55f2da51365a465144aa69c6025d0",
+        ".devcontainer": "6abd271cefad60b09bbfacb63e53325198cd5521",
+        ".github": "8ae0eeb95729b758872993f4a7fed6ffcefb286c",
+        ".spin": "ef791f9c9264cb8a8e13acce7ee418e0f9c956ac",
+        ".vscode": "ea91f344ac83b434b498fa28b4b8b555e68a9126",
+        "android": "d2ff3db5f9fac06b8ddce4b796409a09e8e5e8a8",
+        "aten": "742dba1bfe6135f3573e4eaac689742744628174",
+        "benchmarks": "ec19294aeabfaae61be43f8ea98c7bfe5e507b56",
+        "binaries": "f5249d171f1af6f07384c91418892a45d05fee22",
+        "c10": "bcd92827e525817818af6e44b77f64460823bef1",
+        "caffe2": "73f5fcafe72932ee5cbaab1b2bd879f8a634344e",
+        "cmake": "b622eeb5fe4620c3f58529c34cc52b4466af8519",
+        "docs": "5b3f3b84bd0c6597c7c926d221739ab4c9d4fc9f",
+        "functorch": "c559f838225b0971bc22fcb2672589c27ef01456",
+        "mypy_plugins": "f2f6231e180a450273107602eef43bd9433a51c0",
+        "scripts": "940b5e644e48b7eedc65292e19e56e4c7a9abb98",
+        "test": "9dcb79311a6209012b019fc6f20209d2804cca98",
+        "third_party": "60ad164358c335341c6a7840bb80256079e6dd8e",
+        "tools": "f35164cd2daf3f11baadcccc5551800e38392432",
+        "torch": "2877dbcda5441192b89ab6272c24bed424e53bd4",
+        "torchgen": "f5fb760a18c6d4c81a4b665ad7adef7348dba6a3"
+      },
+      "scope": "Only this exact official wheel SHA256/build commit and this exact inventory release commit. This is source equivalence for the recorded lint-only release change, not identity of the two Git commits or an allowance for other builds."
+    }
+  },
+  "probe_unchanged": true,
+  "reference_unchanged": true
+}

@@ -1,0 +1,135 @@
+{
+  "schema": "heptatorch.default-backward-native.v1",
+  "status": "FAIL",
+  "native_sha256": "066e04acfeca62735c845efc253c5ee3ac8720b930124b0ddb797af6e0d3d3ae",
+  "script_sha256": "7a1f26b8c33a56901227f291d54cac2de84fdffed37b3b708b97a332a1e77384",
+  "protocol_sha256": "5b99b0e508c2093fe830e509fffbb46b709f65e85b669ab6d79a32d425aa95ac",
+  "cases": [
+    {
+      "name": "saved-output-freed-and-legacy-reentry-refused",
+      "status": "PASS",
+      "frames": 18,
+      "rollback_bytes": 1190464,
+      "detail": {
+        "expected_leaf_gradient": [
+          0,
+          2,
+          6
+        ],
+        "remaining_holds": "one descriptor page plus persistent leaf gradient"
+      },
+      "stdin_open_before_every_response": true
+    },
+    {
+      "name": "add-clone-transpose-repeat-after-work-release",
+      "status": "PASS",
+      "frames": 18,
+      "rollback_bytes": 0,
+      "detail": {
+        "backward_calls": 5,
+        "expected_leaf_gradient": [
+          5,
+          5,
+          5,
+          5
+        ],
+        "no_saved_graph_reallocated_work": true
+      },
+      "stdin_open_before_every_response": true
+    },
+    {
+      "name": "leaf-only-repeated-backward",
+      "status": "PASS",
+      "frames": 8,
+      "rollback_bytes": 0,
+      "detail": {
+        "leaf_accumulator_persisted": true
+      },
+      "stdin_open_before_every_response": true
+    },
+    {
+      "name": "retained-coefficient-then-default-release",
+      "status": "PASS",
+      "frames": 18,
+      "rollback_bytes": 595232,
+      "detail": {
+        "retain_sequence": [
+          true,
+          true,
+          false,
+          true
+        ],
+        "final_call_status": 10,
+        "expected_gradient": [
+          9,
+          12
+        ]
+      },
+      "stdin_open_before_every_response": true
+    },
+    {
+      "name": "public-saved-remains-after-private-release",
+      "status": "PASS",
+      "frames": 16,
+      "rollback_bytes": 892848,
+      "detail": {
+        "public_saved_independent_of_AD_release": true
+      },
+      "stdin_open_before_every_response": true
+    },
+    {
+      "name": "indexed-add-self-only-no-saved-repeat",
+      "status": "PASS",
+      "frames": 14,
+      "rollback_bytes": 0,
+      "detail": {
+        "opcodes": [
+          36,
+          37
+        ],
+        "self_only_second_backward_succeeded_after_index_storage_release": true
+      },
+      "stdin_open_before_every_response": true
+    },
+    {
+      "name": "empty-saved-index-roles-still-release",
+      "status": "PASS",
+      "frames": 12,
+      "rollback_bytes": 595232,
+      "detail": {
+        "empty_index_select_and_scatter_source_saved_roles_rejected_second_call": true
+      },
+      "stdin_open_before_every_response": true
+    },
+    {
+      "name": "shared-and-unvisited-roots",
+      "status": "PASS",
+      "frames": 16,
+      "rollback_bytes": 297616,
+      "detail": {
+        "shared_saved_spent": true,
+        "unvisited_saved_remained_usable": true
+      },
+      "stdin_open_before_every_response": true
+    },
+    {
+      "name": "entire-frame-release-and-gradient-rollback",
+      "status": "PASS",
+      "frames": 12,
+      "rollback_bytes": 1190464,
+      "detail": {
+        "successful_release_then_later_frame_error_rolled_back": true
+      },
+      "stdin_open_before_every_response": true
+    },
+    {
+      "name": "work-rehydration-allocation-failure-and-recovery",
+      "status": "FAIL",
+      "error": "AssertionError((3, []))",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/scratch/d26699e25fea/backward-release-extension/test_release.py\", line 28, in case\n    rollback,detail=body(s)\n                    ^^^^^^^\n  File \"/workspace/scratch/d26699e25fea/backward-release-extension/test_release.py\", line 158, in allocation\n    s.run([full((512,1024),0)])\n  File \"/workspace/scratch/d26699e25fea/owned-tensor-object-extension/portable-test-layout/tools/tensor_objects/protocol.py\", line 92, in run\n    assert status == 0 and len(records) == len(commands), (status, records)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: (3, [])\n"
+    }
+  ],
+  "frames": 132,
+  "rollback_bytes": 4761856,
+  "pytorch_executed": false
+}

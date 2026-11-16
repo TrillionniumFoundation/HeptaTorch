@@ -1,0 +1,52 @@
+{
+  "schema": "heptatorch.tensor-rng-native-qualification.v1",
+  "status": "FAIL",
+  "executable_sha256": "cdcaebb2785639585de7fd2a4e1f98d41a56e885f1657c3485ce5f187f89d726",
+  "build_receipt_sha256": "df88046fca7c6033bf82e9ae96ae500ed40159651365b6b874714dd7c2ba5313",
+  "torch_observation_sha256": "098899a6085d4b8645aec515bb94dfe7c2a1b1fc79c263ab5aa7842332684dd7",
+  "actual_torch_reexecuted_here": false,
+  "host_tensor_or_rng_production_runtime": false,
+  "mathematical_reference": "std::mt19937 seed state + CPython MT + exact signed-dyadic FMA/RNE",
+  "cases": [
+    {
+      "name": "exact-fma-and-actual-torch-recorded-corpus",
+      "status": "PASS",
+      "frames": 60,
+      "ranges": 30,
+      "actual_pinned_torch_bit_hashes_matched": 30,
+      "fused_pipeline": true
+    },
+    {
+      "name": "all-observed-layouts-and-alias-versions",
+      "status": "PASS",
+      "frames": 72,
+      "layouts": 12,
+      "exact_actual_torch_layouts": 12,
+      "empty_offset_999": true
+    },
+    {
+      "name": "empty-range-no-grad-and-version-boundaries",
+      "status": "FAIL",
+      "error": "AssertionError((0, 7))",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/scratch/d26699e25fea/tensor-rng-extension/package/tools/tensor_rng/qualify.py\", line 63, in case\n    detail=fn(s) or {};s.finish();row.update(status='PASS',frames=s.frames,**detail);report['frames']+=s.frames\n           ^^^^^\n  File \"/workspace/scratch/d26699e25fea/tensor-rng-extension/package/tools/tensor_rng/qualify.py\", line 119, in bounds\n    rollback(s,[(68,empty,g,lo,hi)],7)\n  File \"/workspace/scratch/d26699e25fea/tensor-rng-extension/package/tools/tensor_rng/qualify.py\", line 59, in rollback\n    s.error(commands,error);report['whole_owner_rollbacks']+=1\n    ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/d26699e25fea/tensor-rng-extension/package/tools/tensor_rng/protocol.py\", line 99, in error\n    assert status == expected and not records, (status, expected)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: (0, 7)\n"
+    }
+  ],
+  "frames": 132,
+  "exact_values": 30870,
+  "full_mt_states": 45,
+  "whole_owner_rollbacks": 8,
+  "source_sha256": {
+    "build.py": "dc20f6d5cff0222ce650cf0671d57674f76f90db120aa1e02a126ed93a923553",
+    "pytorch_uniform_probe.py": "a27756cc3be9603dbaa6b21465a3258d148f6ff3fde1f5df9ed7c8b0d93f9876",
+    "reference.py": "a942a26c3f0a3286ec32e361aeff201574cadc0c52a855726ba52fe65f17b8b8",
+    "protocol.py": "7a30d7bca140e3a4cc9d63a3e6930b92d2ffd60ad4503895419d8a63e67c8bd9",
+    "owner_client.py": "dee3e4cb25ee1e5e06513e2f33478fbe274d9510ce2aaab9525815c72312946b",
+    "reference_fp.py": "e8e2d99d10d71311ac90f015300c9413312ba0fab241fc59bbec29922b26071d",
+    "test_composition.py": "2f7c291dba8519072b35d91fca618369184704297345580cc00331ea200be492",
+    "rebuild.py": "b3c4a2d699a2509d585e5321555a11790f7bb8190f54db08e1c9c384c2d21021",
+    "build_handoff.py": "a5057968c2c7aedaa32916f668ac294a063dc0ff9872387ed30137b47a7e800a",
+    "test_entry.py": "ed8670d8516b96bc3c8f72dffb0e0bd93dd1f7ca31eeb0ff31e864a88518d001",
+    "test_handoff.py": "ac1223492520e6b74cfe74d29e466313aeeac053d69d1b6f648d716a2e506d8a",
+    "qualify.py": "9dc4b919bade52c6f7fd130aa09157093d1e10deb45fe5c0cdde11a8417fcf73"
+  }
+}
