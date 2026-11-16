@@ -230,3 +230,13 @@ third_party/pytorch/      上游许可证与通知
 `make test-cpu-distributions` 先实际执行冻结的 5 套原子资格和 6 套后继资格，再核对两份 37／28 文件清单、全部 11 个子报告和完整原始归档。CI 另外要求最终后继映像运行原样 32 组 live PyTorch 联合对照和 35 组 Tensor 回归，不修改其数值期望、容差或 11 项来源检查。构建方式与精确源码／映像身份见[构建说明](docs/build.md#native-cpu-bernoulli-and-dropout)。
 
 剩余 **18 OPEN** 是 8 组 float64 概率 Tensor、2 组 int64 概率 Tensor 和 8 组独立 `native_dropout` 布尔 mask 接口观测；双精度标量不等于双精度 Tensor。普通梯度模式下非叶原地操作的完整自动微分、与 kind-8 Optimizer／公开梯度对象的共同运行时及其他分布仍开放。组件状态保持 **PARTIAL**，整个 PyTorch 验收保持 **HOLD**；全部 RNG、dtype 和全量重写完成标志仍为 false，2,590 项分母不变。
+
+## 同一 owner 内的 Adam 与 CPU 分布
+
+[新的共同原生配置](tools/adam_distributions/README.md)将前两节冻结的 Adam02 和分布 partial01 接入同一个实际 owner。参数、真实 `step`／moment Tensor、Generator、梯度、Saved 和计算图共享同一套受检查的对象存储；原有两个独立配置及其历史结果保持不变。新源码包含 **378 个函数、4,971 个块、18,539 条指令**，以 **8 个完整 HIA 单元**通过原生编译和全调用图栈门禁，绑定源码 `5d3a3c04…` 与 ELF `3fc59ab7…`。八 kind 的迁移、Optimizer 私有引用和前向梯度边捕获继续使用 Adam 实现。
+
+[独立交叉资格](validation/adam-distributions-review/README.md)已实际通过 **6 组／462 帧**：Bernoulli 图与 Optimizer／AccumulateGrad 分别持有参数、dropout noise 和真实 state 的 Saved／别名寿命、Adam 更新后命令 86／87 的晚错误提交，以及 Adam／AdamW 各四轮 dropout、反向、更新、清除与图回收。检查包含 249 个逐位 binary32 值、22 份完整 Generator 状态和 4,892,928 字节整 owner 回滚。首轮测试期望丢失负零符号的 FAIL、对应真实 PyTorch 观察、修正和全部原始帧均保留；原生源码和映像没有为该测试修正而变化。
+
+`make adam-distributions test-adam-distributions` 重建该共同映像并执行根资格入口；[构建说明](docs/build.md#combined-owned-adam-and-cpu-distributions)列出两个前驱、严格复现及报告路径。CI 新增原生资格、原样 32 组 live PyTorch 和原样 35 组 Tensor 三个步骤，均绑定最终共同 ELF；新映像的这两份 live 结果尚待实际执行。既有 21 份报告及其步骤不变，报告收集器从工作流自动得到新增后的 24 份完整报告要求。
+
+同一份固定 183 组参考在旧原子接口上仍保留 161 PASS／4 个事务差异／18 OPEN，在显式错误接口上为 165 PASS／18 OPEN；24 组 Optimizer 参考仍是 22 组在已暴露范围内通过、1 组部分覆盖、1 组公开梯度对象开放。旧原子负控曾将 86／87 视为未知命令，其原始失败单独保留，新增准入检查不冒称旧负控原样通过。共同配置没有增加新的上游 API 覆盖，也未接入公开 `.grad` 对象后继；完整 RNG、dtype、优化器模式及整个 PyTorch 的 2,590 条 schema／17 项门禁继续保持未闭合。

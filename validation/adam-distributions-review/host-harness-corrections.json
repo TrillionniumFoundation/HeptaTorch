@@ -1,0 +1,69 @@
+{
+  "schema": "heptatorch.adam-distributions.independent-harness-corrections.v1",
+  "target_source_changed": false,
+  "target_image_changed": false,
+  "native_regression_fixed": false,
+  "first_test_source_sha256": "01f50b1b355e317c38167a52666c9f4283c16f014fb2b50b19dc348ede93ab7e",
+  "final_test_source_sha256": "bba48f2b6f2c2f87b9626bf6cc084a7ffef9a63de8c8d8fb07bb09252b8838f6",
+  "exact_test_inverse_only_expected_forward_signed_zero": true,
+  "first_native_report_sha256": "fed4f14b9c2c384f3ceb3810dbfa9b1374c22e8d45dbddb364e3d752dc66b29e",
+  "first_status": "FAIL",
+  "first_cases": [
+    {
+      "name": "op41-private-optimizer-and-accumulator-roots",
+      "status": "PASS",
+      "frames": 63
+    },
+    {
+      "name": "dropout-Saved-noise-and-real-state-alias-lifetimes",
+      "status": "PASS",
+      "frames": 53
+    },
+    {
+      "name": "Adam-step-then86-state-write-prefix-and-rollback",
+      "status": "PASS",
+      "frames": 39
+    },
+    {
+      "name": "AdamW-step-then87-leaf-and-state-view-errors",
+      "status": "PASS",
+      "frames": 57
+    },
+    {
+      "name": "Adam-dropout-clear-step-reset-four-updates",
+      "status": "FAIL",
+      "frames": 8
+    },
+    {
+      "name": "AdamW-dropout-clear-step-reset-four-updates",
+      "status": "FAIL",
+      "frames": 8
+    }
+  ],
+  "final_status": "PASS",
+  "original_actual_reference_sha256": "c624f5c4762b1c71e7053aba9af55aaa3d8bbaae5aa100b0a6df5f44f58da467",
+  "actual_evidence": {
+    "row_index": 74,
+    "name": "dropout-layout-contiguous",
+    "input_words": [
+      3219128320,
+      3217031168,
+      3214934016,
+      3212836864,
+      3208642560,
+      3204448256
+    ],
+    "output_words": [
+      2147483648,
+      3221824658,
+      3219427914,
+      3216431982,
+      2147483648,
+      3208043374
+    ]
+  },
+  "explanation": "The test used exact rational multiplication for dropout forward values. Fraction has no signed zero, so negative parameter times positive zero was wrongly expected as +0. The native -0 was correct and also appears in the frozen actual PyTorch reference. The one expectation expression now multiplies dyadic binary64 operands, exactly preserving sign and magnitude before raw binary32 comparison. No assertion, tolerance, request, value input, mode or target body changed.",
+  "source_audit_first_sha256": "1b7db171842f19a62a7e7dac104ac37f6596c555114fbafc49e83a5f3652318b",
+  "source_audit_final_sha256": "ef2d0a8746392e96d0910b618e36307a9a7d588c09262f6c75a54c96c03ffa42",
+  "source_audit_failure": "Host literal-count assumption conflated descriptor offset40 with opcode comparison bound40. Corrected to exact SSA comparison instruction and reran; no native execution at this stage."
+}

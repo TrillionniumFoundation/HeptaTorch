@@ -363,6 +363,31 @@ test-cpu-distributions: cpu-distributions-partial
 	  --build "$(CURDIR)/build/cpu-distributions-partial" --atomic-review "$$review/atomic" --review "$$review/partial" \
 	  --output build/hosted-cpu-distributions-native.json
 
+ADAM_DISTRIBUTION_INPUTS := $(wildcard tools/adam_distributions/* tools/adam_distributions/evidence/* tests/adam_distributions_review/* validation/adam-distributions/evidence/archive-parts/*) validation/adam-distributions/evidence/archive-parts.json tools/restore_frozen_archive.py validation/adam-distributions-package.sha256 validation/adam-distributions-review-package.sha256 tests/qualify_adam_distributions.py Makefile
+
+.PHONY: adam-distributions test-adam-distributions
+adam-distributions: build/adam-distributions/reproduction.json
+
+build/adam-distributions/reproduction.json: build/owned-adam/reproduction.json build/cpu-distributions-partial/reproduction.json $(ADAM_DISTRIBUTION_INPUTS) | build
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.adam-distributions.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	python3 -I -S -B tools/restore_frozen_archive.py --manifest validation/adam-distributions/evidence/archive-parts.json; \
+	sha256sum -c validation/adam-distributions-package.sha256; \
+	python3 -I -S -B tools/adam_distributions/rebuild.py --adam-build "$(CURDIR)/build/owned-adam" \
+	  --distribution-build "$(CURDIR)/build/cpu-distributions-partial" --upstream "$(HEPTA_SOURCE_ROOT)" \
+	  --stack-build "$(HEPTA_STACK_BUILD)" --output "$$tmp/native"; \
+	mkdir -p build/adam-distributions; cp -a --remove-destination "$$tmp/native/." build/adam-distributions/
+
+test-adam-distributions: adam-distributions
+	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/.adam-distributions-review.XXXXXX"); \
+	printf '%s\n' "Adam and distribution review: $$review"; \
+	python3 -I -S -B tools/restore_frozen_archive.py --manifest validation/adam-distributions/evidence/archive-parts.json; \
+	sha256sum -c validation/adam-distributions-package.sha256 validation/adam-distributions-review-package.sha256; \
+	python3 -I -S -B tests/qualify_adam_distributions.py --build "$(CURDIR)/build/adam-distributions" \
+	  --adam-build "$(CURDIR)/build/owned-adam" --atomic-build "$(CURDIR)/build/cpu-distributions" \
+	  --distribution-build "$(CURDIR)/build/cpu-distributions-partial" --stack-build "$(HEPTA_STACK_BUILD)" \
+	  --output "$$review/observed"; \
+	cp "$$review/observed/report.json" build/hosted-adam-distributions-native.json
+
 check-compiler:
 	@compiler=$$(command -v "$(HEPTA_COMPILER)") || { echo 'Set HEPTA_COMPILER to the pinned native HIA compiler; see docs/build.md.' >&2; exit 1; }; \
 	printf '%s  %s\n' '$(COMPILER_SHA256)' "$$compiler" | sha256sum -c -

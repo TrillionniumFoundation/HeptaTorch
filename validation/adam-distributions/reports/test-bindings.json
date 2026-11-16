@@ -1,0 +1,162 @@
+{
+  "changed_expected_values": false,
+  "changed_input_packets": false,
+  "changed_tolerances": false,
+  "explicit_derivative_changes_only_opcode86_87_empty_argument_errors": true,
+  "explicit_new_command_admission_derivative": {
+    "adapted_sha256": "e6e501c98ee45f2e3af030115aa7096968423cdb55ac2011be2be408ef4e62dc",
+    "changed_error_expectations": [
+      {
+        "arguments": [],
+        "new": 1,
+        "old": 4,
+        "opcode": 86
+      },
+      {
+        "arguments": [],
+        "new": 1,
+        "old": 4,
+        "opcode": 87
+      }
+    ],
+    "changed_expected_values": false,
+    "changed_input_packets": false,
+    "exact_edits": [
+      {
+        "after": "for opcode in (86, 87, 88, 89):\n            rollback(session, [(opcode,)], 1 if opcode in (86, 87) else 4)",
+        "before": "for opcode in (86, 87, 88, 89):\n            rollback(session, [(opcode,)], 4)",
+        "count": 1
+      },
+      {
+        "after": "'unsupported_reserved_opcodes': 2, 'new_partial_empty_arguments_type_errors': 2,",
+        "before": "'unsupported_reserved_opcodes': 4,",
+        "count": 1
+      }
+    ],
+    "inverse_byte_identical": true,
+    "name": "atomic_controls_extended.py",
+    "old_script_current_result_expected": "FAIL",
+    "old_script_retained": true,
+    "predecessor": "atomic_controls.py",
+    "predecessor_sha256": "188895520f166fd8ebe77e2cdb1509518ff5b924de4f7df96bb573c967afabac",
+    "reason": "these opcodes are newly defined by frozen partial01; empty arguments are invalid typed Tensor handles"
+  },
+  "primary_bindings_changed_error_or_commit_expectations": false,
+  "schema": "heptatorch.adam-distributions.test-binding.v1",
+  "scope": "eight primary bindings change only profile tags, executable basename, and receipt field names; a separate explicitly named derivative changes two newly-defined command errors",
+  "scripts": [
+    {
+      "adapted_sha256": "188895520f166fd8ebe77e2cdb1509518ff5b924de4f7df96bb573c967afabac",
+      "exact_edits": [
+        {
+          "after": "b'HTADIST1'",
+          "before": "b'HTDIST01'",
+          "count": 1
+        },
+        {
+          "after": "b'HTOADIS1'",
+          "before": "b'HTODIST1'",
+          "count": 1
+        }
+      ],
+      "inverse_byte_identical": true,
+      "name": "atomic_controls.py",
+      "original_sha256": "908dff3b128a15d6dc4559bdde9483517f13696c981122e5cd46fbe1bd9990f3"
+    },
+    {
+      "adapted_sha256": "b465348dd10d1a455bd1531f6112296684c1849f022f8dca8e41642409e897bd",
+      "exact_edits": [
+        {
+          "after": "tensor-adam-distributions-session",
+          "before": "tensor-distributions-session",
+          "count": 1
+        }
+      ],
+      "inverse_byte_identical": true,
+      "name": "partial_controls.py",
+      "original_sha256": "8ecd64a172405b21faa614f054284ebc2c8bdd6659050a8bd4580fc3515d22fa"
+    },
+    {
+      "adapted_sha256": "d891567484cdb3b6134f8f9242e29bc204fcb8c332a2df7cb69471f31b880e33",
+      "exact_edits": [
+        {
+          "after": "tensor-adam-distributions-session",
+          "before": "tensor-distributions-session",
+          "count": 1
+        }
+      ],
+      "inverse_byte_identical": true,
+      "name": "owned_entry.py",
+      "original_sha256": "7438d562ffbcf7bd3e52ffbb13194ab84167cc57e5ff80c79b2cbf2c1124b19b"
+    },
+    {
+      "adapted_sha256": "a7eaf58fa8e70cba2a2ba929722d9e9fd8fd3780d5655fd40b02649314ca2294",
+      "exact_edits": [
+        {
+          "after": "tensor-adam-distributions-session",
+          "before": "tensor-distributions-session",
+          "count": 1
+        },
+        {
+          "after": "b'HTADIST1'",
+          "before": "b'HTDIST02'",
+          "count": 1
+        }
+      ],
+      "inverse_byte_identical": true,
+      "name": "typed_handoffs.py",
+      "original_sha256": "a7b063f75696f1049360d0e3ed3e09bbf731e988e89d17f2ad3de454fe137a3e"
+    },
+    {
+      "adapted_sha256": "a942a26c3f0a3286ec32e361aeff201574cadc0c52a855726ba52fe65f17b8b8",
+      "exact_edits": [],
+      "inverse_byte_identical": true,
+      "name": "reference.py",
+      "original_sha256": "a942a26c3f0a3286ec32e361aeff201574cadc0c52a855726ba52fe65f17b8b8"
+    },
+    {
+      "adapted_sha256": "ae4c85edbbff520590b1a1174bcc673a200dcade121d183521261433c4cf9982",
+      "exact_edits": [],
+      "inverse_byte_identical": true,
+      "name": "adam_controls.py",
+      "original_sha256": "ae4c85edbbff520590b1a1174bcc673a200dcade121d183521261433c4cf9982"
+    },
+    {
+      "adapted_sha256": "f7473f172243845e984b444a071e6e5e50e03d87eea1dd25f250973fcbfc2221",
+      "exact_edits": [
+        {
+          "after": "build['executable_sha256']",
+          "before": "build['native_sha256']",
+          "count": 2
+        },
+        {
+          "after": "build['runtime_source_sha256']",
+          "before": "build['source_sha256']",
+          "count": 2
+        }
+      ],
+      "inverse_byte_identical": true,
+      "name": "adam_guards.py",
+      "original_sha256": "6a88abc2eb91962f2d829bf8cae41b21cfe0acd38cdaa8cbc8a14e4f95faa5be"
+    },
+    {
+      "adapted_sha256": "e43f0dfbe3562538abb13d19d5fdb4a3bf2ca410c20e7fd20ef6d81e2c3fe937",
+      "exact_edits": [
+        {
+          "after": "build['executable_sha256']",
+          "before": "build['native_sha256']",
+          "count": 2
+        },
+        {
+          "after": "build['runtime_source_sha256']",
+          "before": "build['source_sha256']",
+          "count": 2
+        }
+      ],
+      "inverse_byte_identical": true,
+      "name": "adam_step_counter.py",
+      "original_sha256": "19f653fa769f91bb2a208f4bb242d45ac0dbaafb946d712594182c75893ed104"
+    }
+  ],
+  "status": "PASS"
+}

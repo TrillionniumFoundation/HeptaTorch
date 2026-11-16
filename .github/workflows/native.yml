@@ -564,6 +564,13 @@ jobs:
             HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget"
           python3 -I -S -B tools/emit_ci_report.py build/hosted-cpu-distributions-native.json
 
+      - name: Reproduce and qualify one owned Adam and CPU distribution runtime
+        run: |
+          make adam-distributions test-adam-distributions \
+            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
+            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget"
+          python3 -I -S -B tools/emit_ci_report.py build/hosted-adam-distributions-native.json
+
       - name: Reproduce and qualify persistent native CPU Generator objects
         run: |
           make cpu-generators test-cpu-generators \
@@ -660,6 +667,19 @@ jobs:
             --expected-source-sha256 55ed0c6e16317add03974c01ffd85e38684fc535a3e5cb6423ed043f4217f05b \
             --repo . --output build/pytorch-cpu-distributions-backward.json > build/pytorch-cpu-distributions-backward.stdout || status=$?
           python3 -I -S -B tools/emit_ci_report.py build/pytorch-cpu-distributions-backward.json
+          exit "$status"
+
+      - name: Regress combined Adam and distributions against the unchanged live joint oracle (32 cases)
+        run: |
+          echo '554671168c7a4a408dc1e1df89a19db15c3efcefcf4ae1a300af1b6dcae40160  tests/pytorch_tensor_rng_backward_oracle.py' | sha256sum -c -
+          status=0
+          python3 tests/pytorch_tensor_rng_backward_oracle.py \
+            --native build/adam-distributions/tensor-adam-distributions-session \
+            --source build/adam-distributions/runtime.hepta \
+            --expected-native-sha256 3fc59ab7ed9c32dd75ff440ef9bfbec31756f50edd77715d665bdac098cc3f22 \
+            --expected-source-sha256 5d3a3c047d024a3880d257a317a04c2166a2e87bbc6b248bef62649a88546873 \
+            --repo . --output build/pytorch-adam-distributions-backward.json > build/pytorch-adam-distributions-backward.stdout || status=$?
+          python3 -I -S -B tools/emit_ci_report.py build/pytorch-adam-distributions-backward.json
           exit "$status"
 
       - name: Compare persistent CPU Generators with fixed real PyTorch (24 cases)
@@ -871,6 +891,19 @@ jobs:
             --lock compatibility/pytorch-oracle-lock.json --repo . \
             --expected-native-sha256 bb4c25e35a170f08276d464db6b630cf03765ff816e6a9ca9aa1651360a1ccf4 || status=$?
           python3 -I -S -B tools/emit_ci_report.py build/pytorch-cpu-distributions-frozen35.json
+          exit "$status"
+
+      - name: Regress combined Adam and distributions against the unchanged 35 Tensor cases
+        run: |
+          echo '149b41c455444edeb8d25d0ad98045e29683e780f37f7e210e7985242d359597  tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py' | sha256sum -c -
+          status=0
+          python3 tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py \
+            build/adam-distributions/tensor-adam-distributions-session build/pytorch-adam-distributions-frozen35.json \
+            --owned-reference tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py \
+            --session-reference tests/pytorch_session_oracle.py --reference tests/pytorch_oracle.py \
+            --lock compatibility/pytorch-oracle-lock.json --repo . \
+            --expected-native-sha256 3fc59ab7ed9c32dd75ff440ef9bfbec31756f50edd77715d665bdac098cc3f22 || status=$?
+          python3 -I -S -B tools/emit_ci_report.py build/pytorch-adam-distributions-frozen35.json
           exit "$status"
 
       - name: Index complete original CI reports and checkout identity
