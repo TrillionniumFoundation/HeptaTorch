@@ -176,7 +176,9 @@ Source-gradient compatibility and delayed index refusals are part of the
 operator contract, not floating-point tolerance adjustments. See
 [Scatter add and index add](protocol.md#scatter-add-and-index-add) for the
 forward-success/backward-refusal cases and gradient preflight behavior. The
-new combined main oracle is configured for 268 cases, run separately against
-the default module-linked image and the single-unit reference image. No
-successful hosted result for that complete current gate is asserted here until
-its receipt has been recorded.
+combined main oracle passed 268 cases and 12,932 value comparisons separately
+against the default module-linked image and the single-unit reference image.
+All 11 provenance checks passed for each build in
+[run 43788929713](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43788929713).
+[The complete hosted receipt](../validation/hosted-tensor-composition.json)
+preserves per-case tolerances, discrepancies and both executable identities.

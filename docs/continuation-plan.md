@@ -34,13 +34,15 @@ identities are recorded in `validation/`.
 | Native module compilation | True external declarations, borrowed buffer signatures, effects and lifetime checks, symbolic ELF relocations, two-unit execution and 69/204/19/18 boundary suites | General owned-resource ABI, allocation and resource results; persistent storage and whole-program resource bounds |
 | Tensor composition | Native `cat` and `stack`, variable-parent reverse AD, empty shapes, layout selection, version checks and graph reset | Complete dtype/device/layout variants, mutation/out forms and full upstream schema qualification |
 | Indexed accumulation | Native `scatter_add` and `index_add`, exact integer index payloads, duplicate accumulation, alpha rounding and reverse AD preflight | Complete dtype/device/layout variants, mutation/out forms and full upstream schema qualification |
-| Qualification | Preserve all 159 prior oracle cases and add 109 cases for a total of 268; both native build paths pass 461 packet pairs | Execute both new 268-case pinned PyTorch gates and preserve their exact observed outcomes; component success must not close the whole-project gates |
+| Qualification | Both actual builds pass 461 packet pairs and 268 pinned PyTorch cases each, with 12,932 compared values and 11 provenance checks per build; all 159 prior case functions remain unchanged | Extend source-bound qualification with every new implementation; component success does not close the whole-project gates |
 
 `validation/hosted-boundary-observations.json` contains actual pinned PyTorch
 observations used to establish empty, index, alpha and layout behavior. Those
-observations alone do not qualify the changed native runtime. A new hosted
-runtime result must bind the new source, executable, oracle and test inventory.
-Historical 159-case receipts keep their original identities.
+observations alone do not qualify the changed native runtime.
+`validation/hosted-tensor-composition.json` records the successful actual
+dual-build run 43788929713 at commit
+`724cbf2eb19d2ef8d400615d7196f5397cb402f6`, binding the new source, both executables,
+oracle and fixture inventory. Historical 159-case receipts keep their identities.
 
 The borrowed module barrier is now implemented; it does not establish owned
 resource transfer, general allocation or a general public tensor object ABI.

@@ -276,10 +276,13 @@ The oracle checks real PyTorch forward results, autograd gradients and optimizer
 updates against each already-built HIA executable. The current gate has 268
 cases: the preceding 159 plus 35 cat/stack and 74 indexed-addition cases. It
 records the wheel's source URL, archive hash and Git revision and verifies that
-the native executable is unchanged by the test. A successful complete current
-hosted run must be recorded in `validation/hosted-tensor-composition.json`;
-it is pending at this handoff. Historical 159-case receipts and actual current
-boundary probes retain their distinct identities.
+the native executable is unchanged by the test. Both builds passed all 268
+cases, 12,932 value comparisons and 11 provenance checks in
+[run 43788929713](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43788929713),
+at commit `724cbf2eb19d2ef8d400615d7196f5397cb402f6`.
+[The complete receipt](../validation/hosted-tensor-composition.json) includes
+the actual toolchain/module gates, both 461-pair suites and both full oracle
+reports. Historical 159-case receipts and boundary probes keep their identities.
 
 PyTorch is used only for this independent oracle. Python also supports initial
 toolchain authoring/bootstrap, source partitioning, build transport and audit

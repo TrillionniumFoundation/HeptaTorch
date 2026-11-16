@@ -362,3 +362,22 @@ leaves owned-resource transfer, allocation, resource results, arbitrary foreign
 pointer provenance, machine-code authenticity and whole-program stack cost
 unqualified. These finite suites do not close the full resource-ABI gate or any
 whole-PyTorch acceptance gate.
+
+## Observed dual-build tensor-composition result
+
+**PASS:** [Run 43788929713](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43788929713)
+tested commit `724cbf2eb19d2ef8d400615d7196f5397cb402f6`. The native-linked and
+monolithic builds each passed all 461 production packet pairs, all 268 uniquely
+named real-PyTorch cases and 12,932 value comparisons, with zero failed cases.
+All 11 exact oracle-provenance checks passed for each build, and both executable
+hashes were unchanged during the run. Compiler reproduction, the historical
+legacy witness, the 16 capacity cases and the 69/204/19/18 module suites passed.
+
+`hosted-tensor-composition.json` contains both complete oracle reports, actual
+build/module gate results, step conclusions and exact source/oracle/fixture
+identities. Re-serializing each captured report reproduces its hosted file
+SHA-256. It adds the actual hosted outcome after the earlier native-review
+receipt, which continues to record that its own main-oracle execution was
+NOT_RUN at assembly time. Historical failed and successful receipts are not
+rebound to this source. This evidence update changes no runtime, compiler,
+workflow, numerical case, tolerance or fixture bytes.

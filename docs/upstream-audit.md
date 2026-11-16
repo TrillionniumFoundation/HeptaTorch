@@ -485,12 +485,15 @@ bind the actual final replay, component identities and preserved failures.
 The main hosted oracle is configured for 268 uniquely named cases:
 159 preceding cases with unchanged inputs/tolerances, 35 cat/stack cases and
 74 indexed-addition cases, including late-zero shape admission. The same cases
-are run separately against both runtime images. At this
-documentation handoff, a successful full 268-case execution has not yet been
-recorded. The individual real boundary observations and native replays above
-do not substitute for that gate. A fresh
-`validation/hosted-tensor-composition.json` receipt must bind its eventual
-observed result to the tested source.
+passed separately against both runtime images in
+[hosted run 43788929713](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43788929713),
+which tested commit `724cbf2eb19d2ef8d400615d7196f5397cb402f6`. Each build passed
+268 cases, 12,932 value comparisons and all 11 exact oracle-provenance checks,
+with no failures and no executable change during comparison. Both 461-pair
+native suites, compiler reproduction and module gates also passed.
+[The complete receipt](../validation/hosted-tensor-composition.json) records
+both source-bound results and their original hosted report hashes. Historical
+boundary observations and earlier runtime receipts retain their identities.
 
 This batch retains conservative version checks, first-order reverse AD,
 binary32 CPU values, rank at most four, bounded one-request storage and the
