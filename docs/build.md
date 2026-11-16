@@ -1,5 +1,17 @@
 # Reproducible native build
 
+The large frozen Adam/distribution observation archive is stored as two
+byte-exact parts so each connector write fits its request-size limit.
+`tools/restore_frozen_archive.py` verifies both parts and reconstructs the original
+15,066,536-byte gzip file with SHA-256
+`0ec89d5c56f5bd3a39db09bf3a9ed56a2c13e759648327f8388488ec0f25a907`.
+The native Make targets restore it before checking the unchanged frozen package
+manifest. Direct package-manifest checks need the same command first:
+`python3 -I -S -B tools/restore_frozen_archive.py --manifest validation/adam-distributions/evidence/archive-parts.json`.
+Original archive bytes, members and frozen manifests are preserved. The restored
+file is ignored by Git because its exact contents are represented by the tracked
+parts and their manifest.
+
 ## Complete hosted report export
 
 The native workflow exports the original top-level `build/*.json` report files
@@ -873,3 +885,98 @@ interface (eight). The seven-kind owner also has not yet been composed with the
 kind-8 Optimizer or public-gradient-object successor. Full RNG, dtype and
 PyTorch-rewrite flags remain false and the original 2,590-schema denominator is
 unchanged.
+
+## Combined owned Adam and CPU distributions
+
+The combined profile consumes the complete frozen Adam02 and explicit partial
+distribution01 builds. Its single native owner contains the actual Tensor,
+Generator, graph, gradient, Saved and Optimizer objects. It has 378 core
+functions, 4,971 blocks and 18,539 instructions across eight actual native units.
+The unchanged ABI3 compiler checks each complete unit and the native linker
+checks their real interfaces, resource contracts and whole-program stack bound.
+
+```sh
+make adam-distributions test-adam-distributions \
+  HEPTA_SOURCE_ROOT=/path/to/pinned-hepta \
+  HEPTA_STACK_BUILD=/path/to/stack-tools
+```
+
+`adam-distributions` depends on both
+`build/owned-adam/reproduction.json` and
+`build/cpu-distributions-partial/reproduction.json`. Their existing dependency
+chains provide the exact source and authoring inputs first. The new recipe
+verifies `validation/adam-distributions-package.sha256`, calls the frozen
+`tools/adam_distributions/rebuild.py` in a fresh temporary directory, and copies
+the result only after successful reproduction. The producer checks its input
+and imported upstream source closure before authoring and again after execution.
+
+The resulting `build/adam-distributions/` contains
+`tensor-adam-distributions-session`, `runtime.hepta`, all eight real unit
+sources/objects, `build.json`, `partition.json` and `reproduction.json`. The
+expected complete identities are:
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Combined runtime source | `5d3a3c047d024a3880d257a317a04c2166a2e87bbc6b248bef62649a88546873` |
+| Combined native ELF | `3fc59ab7ed9c32dd75ff440ef9bfbec31756f50edd77715d665bdac098cc3f22` |
+| ABI3 native compiler | `b1c851a0896fa6071f800e1146c3c27d0c6cf85059e9a6281b46d42908a3f59f` |
+| ABI3 native session linker | `aae650e8822ef0b1e74d15108ad1d0f17ec791205ed5a158ec60b709f48f0e16` |
+
+The private state tags are `HTADIST1` and `HTOADIS1`; they deliberately
+distinguish this eight-kind state from both frozen predecessors. Public framing
+remains `HTOWNR01` / `HTOWNS01`, with the existing `HTORCH03` / `HTORSP03`
+application protocol. The native checked `step` and `close` ownership signatures
+are unchanged. See [the shared-owner protocol](../tools/adam_distributions/PROTOCOL.md)
+for operation-error prefix commits and ordinary full-frame rollback.
+
+The root qualification CLI is:
+
+```sh
+python3 -I -S -B tests/qualify_adam_distributions.py \
+  --build build/adam-distributions \
+  --adam-build build/owned-adam \
+  --atomic-build build/cpu-distributions \
+  --distribution-build build/cpu-distributions-partial \
+  --stack-build /path/to/stack-tools \
+  --output build/adam-distributions-qualified
+```
+
+`test-adam-distributions` verifies both the component and independent-review
+package manifests, runs that CLI in a new directory, and copies its aggregate
+report to `build/hosted-adam-distributions-native.json`. The printed
+`.adam-distributions-review.*` path retains the executed subreports and raw
+evidence. Stored reference reports are inputs to real execution, not a
+substitute for running the native image.
+
+The frozen component qualification replays the original 183 distribution rows
+through both interfaces and the original optimizer recipes. It keeps the
+161/4/18 atomic and165/18 explicit partitions, and the 22 qualified/1 partial/1
+open optimizer ledger. The old atomic negative control expected unknown-opcode
+status 4 for 86/87; the successor correctly reaches typed admission and returns 1
+for its empty arguments. That original FAIL is retained, while a separately
+identified derivative checks the new command contract. The qualification must
+not count the old control as an unchanged pass.
+
+The [independent review](../validation/adam-distributions-review/README.md)
+checks exact source inheritance and six additional mixed-owner contracts. Its
+actual 462 interactive frames compare state identity, captured edges, final
+strong-reference release, full RNG states and full-owner rollback. Two short
+training paths execute real dropout, backward, Adam or AdamW, gradient clearing
+and graph reset. These are finite native source/model contracts; they do not
+increase the number of hosted PyTorch observations or implemented schemas.
+
+CI adds three steps: the new root native qualification, the unchanged 32-case
+live joint oracle, and the unchanged 35-case Tensor oracle against the exact
+combined ELF. The latter reports are
+`build/pytorch-adam-distributions-backward.json` and
+`build/pytorch-adam-distributions-frozen35.json`. Their results require actual
+hosted execution; passing predecessor reports do not qualify this new image.
+Every previous workflow step and its 21 literal report-envelope paths remain
+unchanged. The existing artifact collector discovers the three new paths from
+the workflow and consequently requires 24 original JSON reports, without
+reserializing their bytes.
+
+The public-gradient-object successor, remaining dtype/distribution cases,
+general optimizer modes and exception behavior, higher-order differentiation
+and all other full-rewrite gates remain open. The component stays PARTIAL and
+the whole-project decision stays HOLD with the same 2,590-schema denominator.

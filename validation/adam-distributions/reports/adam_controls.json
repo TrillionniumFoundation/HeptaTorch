@@ -1,0 +1,60 @@
+{
+  "schema": "heptatorch.owned-adam-native-controls.v1",
+  "status": "PASS",
+  "source_sha256": "5d3a3c047d024a3880d257a317a04c2166a2e87bbc6b248bef62649a88546873",
+  "native_sha256": "3fc59ab7ed9c32dd75ff440ef9bfbec31756f50edd77715d665bdac098cc3f22",
+  "native_executed": true,
+  "Torch_executed_here": false,
+  "cases": [
+    {
+      "case": "lazy-state-real-counter-public-alias-and-reset",
+      "status": "PASS",
+      "frames": 66,
+      "exact_values": 16,
+      "rollback_bytes": 917424,
+      "all_responses_before_stdin_eof": true,
+      "details": {
+        "true_scalar_step_and_moment_objects": true,
+        "None_skips_all_fields": true,
+        "float32_step_is_actual_counter": true,
+        "fractional_resume_explicitly_refused": true,
+        "public_reset_tokens_fresh_same_objects": true
+      }
+    },
+    {
+      "case": "duplicate-shared-state-and-cross-algorithm-parameter",
+      "status": "PASS",
+      "frames": 41,
+      "exact_values": 14,
+      "rollback_bytes": 0,
+      "all_responses_before_stdin_eof": true,
+      "details": {
+        "one_shared_Adam_state_per_key_before_functional_loop": true,
+        "ordered_duplicate_updates": true,
+        "SGD_and_Adam_share_parameter_without_state_coalescing": true
+      }
+    },
+    {
+      "case": "strided-physical-state-empty-and-shared-Version",
+      "status": "PASS",
+      "frames": 41,
+      "exact_values": 25,
+      "rollback_bytes": 0,
+      "all_responses_before_stdin_eof": true,
+      "details": {
+        "strided_moment_physical_layout_and_no_grad_add": true,
+        "AdamW_nonzero_decay_two_versions_negative_zero_one": true,
+        "defined_empty_participates_None_empty_skips": true
+      }
+    }
+  ],
+  "frames": 148,
+  "exact_values": 55,
+  "rollback_bytes": 917424,
+  "inputs_sha256": {
+    "/dev/shm/heptatorch-d26699e25fea/composition/portable-qualification-02/adapted-tests/adam_controls.py": "ae4c85edbbff520590b1a1174bcc673a200dcade121d183521261433c4cf9982",
+    "/dev/shm/heptatorch-d26699e25fea/composition/cold-rebuild-02/tensor-adam-distributions-session": "3fc59ab7ed9c32dd75ff440ef9bfbec31756f50edd77715d665bdac098cc3f22",
+    "/dev/shm/heptatorch-d26699e25fea/composition/cold-rebuild-02/runtime.hepta": "5d3a3c047d024a3880d257a317a04c2166a2e87bbc6b248bef62649a88546873",
+    "/workspace/scratch/d26699e25fea/HeptaTorch-cpu-distributions/tools/tensor_objects/protocol.py": "5b99b0e508c2093fe830e509fffbb46b709f65e85b669ab6d79a32d425aa95ac"
+  }
+}
