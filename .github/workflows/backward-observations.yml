@@ -3,7 +3,7 @@ on:
   push:
     branches: ["feature/native-tensor-objects", "feature/native-backward-release", "feature/native-backward-partial", "feature/native-cpu-generators", "feature/native-gradient-none", "feature/native-optimizer-objects"]
   pull_request:
-    paths: ["tests/pytorch_backward_release_probe.py", "tests/pytorch_backward_partial_probe.py", "tests/pytorch_gradient_presence_probe.py", "tests/pytorch_gradient_signed_zero_probe.py", "tests/pytorch_grad_clear_probe.py", "tests/pytorch_optimizer_object_probe.py", "tests/pytorch_requires_grad_probe.py", "tests/pytorch_accumulator_lifetime_probe.py", "tests/pytorch_bernoulli_dropout_probe.py", "tests/pytorch_uniform_probe.py", "tests/pytorch_uniform_range_probe.py", ".github/workflows/backward-observations.yml"]
+    paths: ["tests/pytorch_backward_release_probe.py", "tests/pytorch_backward_partial_probe.py", "tests/pytorch_gradient_presence_probe.py", "tests/pytorch_gradient_signed_zero_probe.py", "tests/pytorch_grad_clear_probe.py", "tests/pytorch_optimizer_object_probe.py", "tests/pytorch_requires_grad_probe.py", "tests/pytorch_accumulator_lifetime_probe.py", "tests/pytorch_gradient_object_probe.py", "tests/pytorch_bernoulli_dropout_probe.py", "tests/pytorch_uniform_probe.py", "tests/pytorch_uniform_range_probe.py", ".github/workflows/backward-observations.yml"]
   workflow_dispatch:
 permissions:
   contents: read
@@ -39,6 +39,7 @@ jobs:
           echo 'f69340170dc2e55886bca73a8d37265ba2c95a8c793c7633c7e8a22234cfa386  tests/pytorch_optimizer_object_probe.py' | sha256sum -c -
           echo 'aeccf1ed21501682df772bbc9e05ccdaf821e93bb243a6f2a045c05035e56ad3  tests/pytorch_requires_grad_probe.py' | sha256sum -c -
           echo '1597219302665e79a840305f2ead58bdfd5472ddca97b0a4092c8d0dd8de96e2  tests/pytorch_accumulator_lifetime_probe.py' | sha256sum -c -
+          echo 'e69b849b3521ceae35a835f84b76eca8c472253acd2c6ec20869f7f7bc2e3e62  tests/pytorch_gradient_object_probe.py' | sha256sum -c -
           echo 'db00efdf0cca14b3b3f25545e8a59a27308ca128d861e04086c18bd1edb6d3a4  tests/pytorch_bernoulli_dropout_probe.py' | sha256sum -c -
       - name: Observe default Saved release and repeat backward
         run: |
@@ -106,3 +107,9 @@ jobs:
             --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
             --repo . --output build/torch-accumulator-lifetime.json > build/torch-accumulator-lifetime.stdout
           python3 -I -S -B tools/emit_ci_report.py build/torch-accumulator-lifetime.json
+      - name: Observe actual public gradient Tensor identity Version assignment and aliases
+        run: |
+          python3 tests/pytorch_gradient_object_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/torch-gradient-objects.json > build/torch-gradient-objects.stdout
+          python3 -I -S -B tools/emit_ci_report.py build/torch-gradient-objects.json
