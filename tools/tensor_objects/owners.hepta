@@ -1,0 +1,128 @@
+hia-asm.v1 hepta.hia.program.v8 owned_tensor_objects
+exports(step,close)
+fn init_state(w:mutbuf,slots:u64,pool:u64) -> (u64) effects(read,write,trap) external()
+fn clone_state(s:readbuf,w:mutbuf,slots:u64,pool:u64) -> (u64) effects(read,write,trap) external()
+fn object_size(slots:u64,pool:u64) -> (u64) effects(read,write,trap) external()
+fn state_header(w:mutbuf) -> (u64) effects(read,write,trap) external()
+fn getw(w:mutbuf,at:u64) -> (u64) effects(read,write,trap) external()
+fn so_uget(w:mutbuf,at:u64) -> (u64) effects(read,write,trap) external()
+fn entry(s:readbuf,o:mutbuf,w:mutbuf) -> (u32) effects(read,write,trap) external()
+fn frame_valid(s:readbuf) -> (u64) effects(read,write,trap) external()
+fn reply_error(o:mutbuf,status:u64) -> (u64) effects(read,write,trap) external()
+fn make_trial(state:buffer,slots:u64,pool:u64) -> (buffer,buffer,u64) effects(alloc,read,write,trap) entry(b0)
+block b0(state:buffer,slots:u64,pool:u64)
+  capacity:u64 = call(slots,pool) {"function":"object_size"}
+  amount:usize = int.cast(capacity) {"mode":"wrap"}
+  trial:buffer,ok:bool = buffer.try_new(amount)
+  branch ok allocated(state,trial,slots,pool) no_allocation(state,trial)
+block no_allocation(s0:buffer,t0:buffer)
+  failed:u64 = const() {"value":3}
+  ret(s0,t0,failed)
+block allocated(s1:buffer,t1:buffer,slots1:u64,pool1:u64)
+  size:usize = buffer.len(s1)
+  zero:usize = const() {"value":0}
+  empty:bool = compare.eq(size,zero)
+  branch empty initialize(s1,t1,slots1,pool1) clone(s1,t1,slots1,pool1)
+block initialize(s2:buffer,t2:buffer,slots2:u64,pool2:u64)
+  m2:mutbuf = borrow.mut(t2)
+  initialized:u64 = call(m2,slots2,pool2) {"function":"init_state"}
+  _ = loan.end(m2)
+  good2:u64 = const() {"value":0}
+  ret(s2,t2,good2)
+block clone(s3:buffer,t3:buffer,slots3:u64,pool3:u64)
+  source3:readbuf = borrow.read(s3)
+  target3:mutbuf = borrow.mut(t3)
+  good3:u64 = call(source3,target3,slots3,pool3) {"function":"clone_state"}
+  _ = loan.end(target3)
+  _ = loan.end(source3)
+  ret(s3,t3,good3)
+end
+fn step(s:readbuf,o:mutbuf,state:buffer) -> (buffer,u32) effects(alloc,read,write,trap) entry(b0)
+block b0(s:readbuf,o:mutbuf,state:buffer)
+  output_size:usize = buffer.len(o)
+  minimum:usize = const() {"value":32}
+  short:bool = compare.lt(output_size,minimum)
+  branch short no_output(state) envelope(s,o,state)
+block no_output(st0:buffer)
+  zero0:u32 = const() {"value":0}
+  ret(st0,zero0)
+block envelope(s1:readbuf,o1:mutbuf,st1:buffer)
+  status1:u64 = call(s1) {"function":"frame_valid"}
+  zero1:u64 = const() {"value":0}
+  valid1:bool = compare.eq(status1,zero1)
+  branch valid1 start(s1,o1,st1) invalid(o1,st1,status1)
+block invalid(o2:mutbuf,st2:buffer,error2:u64)
+  size2:u64 = call(o2,error2) {"function":"reply_error"}
+  result2:u32 = int.cast(size2) {"mode":"wrap"}
+  ret(st2,result2)
+block start(s3:readbuf,o3:mutbuf,st3:buffer)
+  loan3:mutbuf = borrow.mut(st3)
+  admitted3:u64 = call(loan3) {"function":"state_header"}
+  _ = loan.end(loan3)
+  normal3:u64 = const() {"value":0}
+  valid3:bool = compare.eq(admitted3,normal3)
+  branch valid3 state_capacity(s3,o3,st3) invalid(o3,st3,admitted3)
+block state_capacity(s4:readbuf,o4:mutbuf,st4:buffer)
+  size4:usize = buffer.len(st4)
+  zero4:usize = const() {"value":0}
+  empty4:bool = compare.eq(size4,zero4)
+  branch empty4 initial(s4,o4,st4) existing(s4,o4,st4)
+block initial(s5:readbuf,o5:mutbuf,st5:buffer)
+  slots5:u64 = const() {"value":64}
+  pool5:u64 = const() {"value":131072}
+  jump attempt(s5,o5,st5,slots5,pool5)
+block existing(s6:readbuf,o6:mutbuf,st6:buffer)
+  m6:mutbuf = borrow.mut(st6)
+  slots_at6:u64 = const() {"value":16}
+  pool_at6:u64 = const() {"value":24}
+  slots6:u64 = call(m6,slots_at6) {"function":"so_uget"}
+  pool6:u64 = call(m6,pool_at6) {"function":"so_uget"}
+  _ = loan.end(m6)
+  jump attempt(s6,o6,st6,slots6,pool6)
+block attempt(s7:readbuf,o7:mutbuf,st7:buffer,slots7:u64,pool7:u64)
+  original7:buffer,trial7:buffer,status7:u64 = call(st7,slots7,pool7) {"function":"make_trial"}
+  zero7:u64 = const() {"value":0}
+  allocated7:bool = compare.eq(status7,zero7)
+  branch allocated7 execute(s7,o7,original7,trial7,slots7,pool7) failed(o7,original7,trial7,status7)
+block execute(s8:readbuf,o8:mutbuf,original8:buffer,trial8:buffer,slots8:u64,pool8:u64)
+  m8:mutbuf = borrow.mut(trial8)
+  returned8:u32 = call(s8,o8,m8) {"function":"entry"}
+  slots_at8:u64 = const() {"value":48}
+  pool_at8:u64 = const() {"value":56}
+  hint_slots8:u64 = call(m8,slots_at8) {"function":"getw"}
+  hint_pool8:u64 = call(m8,pool_at8) {"function":"getw"}
+  _ = loan.end(m8)
+  status_at8:u64 = const() {"value":24}
+  status8:u64 = call(o8,status_at8) {"function":"getw"}
+  zero8:u64 = const() {"value":0}
+  success8:bool = compare.eq(status8,zero8)
+  branch success8 commit(original8,trial8,returned8) refusal(s8,o8,original8,trial8,slots8,pool8,hint_slots8,hint_pool8,status8)
+block commit(original9:buffer,trial9:buffer,returned9:u32)
+  _ = owner.drop(original9)
+  ret(trial9,returned9)
+block refusal(s10:readbuf,o10:mutbuf,original10:buffer,trial10:buffer,slots10:u64,pool10:u64,hs10:u64,hp10:u64,status10:u64)
+  space10:u64 = const() {"value":3}
+  allocation10:bool = compare.eq(status10,space10)
+  more_slots10:bool = compare.gt(hs10,slots10)
+  more_pool10:bool = compare.gt(hp10,pool10)
+  more10:bool = bool.or(more_slots10,more_pool10)
+  retry10:bool = bool.and(allocation10,more10)
+  branch retry10 retry(s10,o10,original10,trial10,slots10,pool10,hs10,hp10) failed(o10,original10,trial10,status10)
+block retry(s11:readbuf,o11:mutbuf,original11:buffer,trial11:buffer,slots11:u64,pool11:u64,hs11:u64,hp11:u64)
+  _ = owner.drop(trial11)
+  more_slots11:bool = compare.gt(hs11,slots11)
+  more_pool11:bool = compare.gt(hp11,pool11)
+  ns11:u64 = select(more_slots11,hs11,slots11)
+  np11:u64 = select(more_pool11,hp11,pool11)
+  jump attempt(s11,o11,original11,ns11,np11)
+block failed(of:mutbuf,originalf:buffer,trialf:buffer,statusf:u64)
+  _ = owner.drop(trialf)
+  sizef:u64 = call(of,statusf) {"function":"reply_error"}
+  resultf:u32 = int.cast(sizef) {"mode":"wrap"}
+  ret(originalf,resultf)
+end
+fn close(state:buffer) -> () effects(alloc,trap) entry(b0)
+block b0(state:buffer)
+  _ = owner.drop(state)
+  ret()
+end

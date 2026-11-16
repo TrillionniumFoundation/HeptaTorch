@@ -92,6 +92,14 @@ cmp build/train.response build/train.expected
 
 当前 **151 函数**的数值 Tensor 程序经该配置重新编译和链接，所有模块源文件、函数体及链接后的数值机器码保持逐字一致。最长调用路径实际为 **61,488 字节**，另预留 4,096 字节。原生资格包含 **86 项**栈边界／真实深调用／保护页／退出清理／工作区复用／元数据攻击检查，以及另外编写的 **9 项**直接调用与栈帧伪造复验；随后执行同一份数值 Tensor 回归。[完整本地证据](validation/native-stack-budget.json)保留早期错误接纳及修复后的原始结果，[构建说明](docs/build.md#guarded-stack-and-native-call-path-admission)提供复现入口。[实际 CI](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43803875841) 在实现提交 `e1bc9ba5407a4c5b811b7376e9d1c44a8450f358` 上通过全部 **40 步**，新栈映像通过未改动的 **28 项 PyTorch 严格回归、6,233 帧、2,590,207 个数值比较和 11 项来源检查**，参数绝对版本差异为 0。[完整托管回执](validation/hosted-stack-budget.json)保留全部新资格报告与原始差分结果；momentum 状态的 283 项生命周期观察仍开放，全量 17 项子系统验收仍开放。
 
+## 数值 Tensor 独立对象候选
+
+[独立对象实现](tools/tensor_objects/README.md)把已有 binary32 数值内核接到独立的 Tensor、Storage、Version、Weak、Saved 和 Hold 记录。`.data` 共享存储而使用独立版本；clone 保留已验证的稠密转置及空张量步长；求导按实际保存的数据选择版本检查，矩阵乘法的折叠和广播复制使用真实的私有存储。公开 Tensor 句柄可撤销，梯度叶节点的内部持有独立管理。载荷可回收复用，池迁移和失败事务仍由原生 owner 执行。
+
+237 个 HIA 核心函数与 3 个 owner 入口分成 5 个编译单元。ABI2 和带保护栈的 ABI3 已在新目录复现冻结映像，两者 ELF 的代码载荷逐字一致；143 个规范函数中 99 个函数体逐字未变，44 个变更均有完整源码映射和差分。每种映像实际执行 **731 帧原生检查、38,056,912 字节完整 owner 回滚比较**，并通过另外 **6 项／19 帧**协议桥接检查。冻结包及历史失败保存在 [来源清单](validation/tensor-object-package.json)、[独立审查](validation/tensor-object-independent-history.json)和 [PyTorch 测试来源](validation/tensor-object-oracle-package.json)。
+
+新增 CI 为两种映像分别执行 **35 项**真实 PyTorch 对照，其中原有 28 项数值测试的输入、数值断言、容差及绝对参数版本断言保持不变，另外 7 项检查对象生命周期。此处尚未声明托管对照通过。默认 backward 后自动释放 Saved 数据仍未实现，当前候选保留图直到显式释放或 reset；该差异被明确观察为 OPEN。CPU binary32、rank 0–4 和池／表容量等限制仍存在。完整目标仍是 2,590 个上游 schema，17 项全量子系统门禁仍开放。
+
 ## 跨请求持久会话
 
 会话进程读取 `HTOSES01` 外层帧，执行其中的 `HTORCH01` 请求，在 stdin 仍打开时立即输出 `HTOSRP01` 响应帧，然后读取下一帧。每个完整请求在 shadow 工作区执行；成功才提交，失败返回保留原错误码的 32 字节、零记录响应，并保持已提交状态不变。外层格式、EOF／EINTR／断管处理及边界见 [会话合同](tools/session/CONTRACT.md)。

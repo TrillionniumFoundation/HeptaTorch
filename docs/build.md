@@ -475,3 +475,43 @@ producer. It is not a general verifier for arbitrary substituted x86 code,
 asynchronous signal recovery, or every future compiler backend. The original
 matrix-only false-admission witnesses are retained in the validation history;
 the new implementation reconstructs actual calls before accepting the matrix.
+
+## Independent numerical Tensor objects
+
+After reproducing the owned-session and ABI3 toolchains, build and execute both
+object profiles with:
+
+```sh
+make tensor-objects test-tensor-objects \
+  HEPTA_SOURCE_ROOT=/absolute/path/to/pinned/hepta \
+  HEPTA_OWNED_COMPILER=/absolute/path/to/owned-module-build/native/owned-module-compiler \
+  HEPTA_OWNED_SESSION_BUILD=/absolute/path/to/owned-session-tools \
+  HEPTA_STACK_BUILD=/absolute/path/to/stack-budget-tools
+```
+
+The two executables are `build/tensor-objects/abi2/tensor-object-session` and
+`build/tensor-objects/abi3/tensor-object-session`. Their SHA256 values are
+`4bd22ab115a5428be6ee1ab77fd31a1e20baf14a80756eb38f000574cbad531f` and
+`2b39ff1a5a258c5fae7be1fbca5dcf0764787b43fa72ad8fdc3ab6fd119e2a91`.
+The qualification verifies 61 implementation files, 9 independent review files,
+39 oracle files and the complete historical independent receipt before and after
+execution. It reruns all six native suites and the native bridge smoke separately
+on each executable. Full current observations are written to
+`build/hosted-tensor-object-native.json`; this report does not claim Torch ran.
+
+The frozen real-PyTorch runner is
+`tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py`. Its positional
+arguments are the native executable and an output JSON path; pass
+`--owned-reference tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py`,
+`--session-reference tests/pytorch_session_oracle.py`,
+`--reference tests/pytorch_oracle.py`,
+`--lock compatibility/pytorch-oracle-lock.json`, `--repo .` and the exact
+`--expected-native-sha256`. The same 35 cases run on both profiles in CI. The
+28 older numerical case bodies and assertions are frozen, and the transport
+adaptation is checked by reversible AST and packet proofs. Native object IDs
+come from actual responses or explicit same-request references. The bridge does
+not compute target numerical outputs, gradients or version counters.
+
+The full-scope acceptance gates remain open. In particular this candidate keeps
+Saved data until explicit graph release/reset, and its internal logical
+reference counts do not claim parity with PyTorch intrusive pointer use counts.

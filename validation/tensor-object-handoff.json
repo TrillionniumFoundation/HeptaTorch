@@ -1,0 +1,79 @@
+{
+  "schema": "heptatorch.tensor-objects-handoff.v1",
+  "status": "READY_FOR_INTEGRATION",
+  "package_directory": "/workspace/scratch/d26699e25fea/owned-tensor-object-extension/package",
+  "manifest": "/workspace/scratch/d26699e25fea/owned-tensor-object-extension/package-manifest.json",
+  "manifest_sha256": "6844366a3b21b87589bb1f4b6ff549a7e2dea2ff3620b9e26d6e570f4a743a27",
+  "file_count": 61,
+  "source_sha256": "4e2cc7f7612c826ec35280432be527cf98075af7d0f2c35a560df67e35c3904e",
+  "build_cli": "python3 -I -S -B tools/tensor_objects/build.py --repository REPO --source-root PINNED_HIA --baseline V2_BUILD --compiler PINNED_COMPILER --linker PINNED_LINKER --output FRESH_OUTPUT [--stack-profile]",
+  "native_rebuilds": {
+    "abi2": "/workspace/scratch/d26699e25fea/owned-tensor-object-extension/final-portable-abi2",
+    "abi3": "/workspace/scratch/d26699e25fea/owned-tensor-object-extension/final-portable-abi3"
+  },
+  "profiles": [
+    {
+      "profile": "abi2",
+      "executable_sha256": "4bd22ab115a5428be6ee1ab77fd31a1e20baf14a80756eb38f000574cbad531f",
+      "native_build": "PASS",
+      "native_suites": "PASS",
+      "interactive_frames": 731,
+      "independent_model_cases": 13,
+      "boundary_cases": 3,
+      "hosted_matmul_replay_cases": 6,
+      "aux_lifetime_cases": 11,
+      "request_reference_groups": 5,
+      "independent_exact_fields": 3771,
+      "aux_exact_binary32_values": 87,
+      "reference_exact_numeric_payload_values": 16410,
+      "old_exact_scalar_results": 894,
+      "entire_owner_rollback_bytes": 38056912,
+      "receipt_sha256": {
+        "model": "f36275c67fb8bdf9c5244cc830fe302c52dac6bb2aa8e244c47f5b23b239dee0",
+        "boundaries": "7a724608ab6468cf135bcf7fc6256a0a46e6f4f6a22f29a8281132c6fd19b259",
+        "matmul": "b3db51b43a5e5584a0b30d90c8aafe227b105d65c0e90946e44215738834e9ec",
+        "aux": "cd3fc8ede14ec42d66f14c706f721eac667ab8ccdb9ed64a8612923a61a37ca9",
+        "references": "cbeeb9bf22f213451fb9493fd226254b8990ec0509acc29966da5f7b10437b08",
+        "scalars": "ceb3d99f73af196feff47b7dd12548fcffc8d58491faa39564e6129b9e155c45"
+      }
+    },
+    {
+      "profile": "abi3",
+      "executable_sha256": "2b39ff1a5a258c5fae7be1fbca5dcf0764787b43fa72ad8fdc3ab6fd119e2a91",
+      "native_build": "PASS",
+      "native_suites": "PASS",
+      "interactive_frames": 731,
+      "independent_model_cases": 13,
+      "boundary_cases": 3,
+      "hosted_matmul_replay_cases": 6,
+      "aux_lifetime_cases": 11,
+      "request_reference_groups": 5,
+      "independent_exact_fields": 3771,
+      "aux_exact_binary32_values": 87,
+      "reference_exact_numeric_payload_values": 16410,
+      "old_exact_scalar_results": 894,
+      "entire_owner_rollback_bytes": 38056912,
+      "receipt_sha256": {
+        "model": "b93114580b8f3221e46335f27b21b7ec1bbc79e96f792143342d4d80c0a78231",
+        "boundaries": "ac97d0fd57eb85c2441fe5d873d4edac7f97f2f5c9c37c330bfcf125107465b4",
+        "matmul": "57c7d7847df884f5794f25f935f78f5ad340ebc531f6fadca521f5ce039c3199",
+        "aux": "dc9c53388212acf7a39519667605e212e0199f4582ac24c96bbc321b74a0125b",
+        "references": "cb06805341459c0dc5a922c90f7259375b7b44ee39e108cdf216b1008170072d",
+        "scalars": "7731e5a5fcd322b05808db16ca7133a943d462bcc04a894355c64c9d393afaa4"
+      }
+    }
+  ],
+  "required_ci_suites": [
+    "test_aux_lifetimes.py",
+    "test_request_references.py",
+    "test_scalar_compatibility.py",
+    "independent review_native_objects.py",
+    "independent review_object_boundaries.py --object-state-base139264",
+    "independent replay_matmul_observations.py --observations HOSTED_FILE",
+    "independent true Torch v3 adapter (28 inherited plus 7 lifetime), separately supplied by pytorch_scope"
+  ],
+  "peer_handoff_manifest_sha256": "f95a83d699124d4dd45d99784a50d924f8f4556fbc6ff38b60b97749263f057e",
+  "pytorch_v3_oracle_directory": "/workspace/scratch/d26699e25fea/owned-tensor-v3-oracle-extension",
+  "canonical_repository_changed": false,
+  "full_rewrite_complete": false
+}
