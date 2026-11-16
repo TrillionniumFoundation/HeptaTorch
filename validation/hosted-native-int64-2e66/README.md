@@ -23,10 +23,14 @@ metadata and the completed source-specific admission. Its archive SHA-256 is
 `d392f964441d8bc20c6d9884a2bb4248522e4565d5ba7d547ca9dd6089809042`.
 The complete eleven original artifact ZIPs (185,608,714 bytes) are externally
 indexed by exact artifact IDs, sizes and SHA-256 values inside that checkpoint;
-they are not duplicated in its small archive. The [independent Mac custody receipt](mac-custody/receipt.json) now records
-all eleven ZIPs copied and separately read back with their full hashes, sizes
-and modes. ZIP CRC checks also passed. The single original transfer job
-completed successfully; this backup does not constitute native execution.
+they are not duplicated in its small archive. The [independent Mac custody receipt](mac-custody/receipt-v2.json) now records
+all eleven ZIPs copied and separately read back with identical full hashes
+and sizes. The outer backup files deliberately use private mode 0600; the
+Cloud originals use 0644. Original ZIP bytes and embedded member modes are
+unchanged. The first receipt is preserved; its misleading field name that
+included outer-mode equality is corrected in the separate v2 receipt. ZIP CRC
+checks also passed. The single original transfer job completed successfully;
+this backup does not constitute native execution.
 
 This admission covers the bounded standalone native HIA lane kernel and the
 unchanged existing regression profiles. General integer Tensor behavior and
