@@ -507,6 +507,14 @@ jobs:
             HEPTA_OWNED_SESSION_BUILD="$RUNNER_TEMP/hepta-owned-session-tools" \
             HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget"
 
+      - name: Build and qualify independent Tensor Storage and Version objects on both native ABIs
+        run: |
+          make tensor-objects test-tensor-objects \
+            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
+            HEPTA_OWNED_COMPILER="$RUNNER_TEMP/hepta-owned-modules/native/owned-module-compiler" \
+            HEPTA_OWNED_SESSION_BUILD="$RUNNER_TEMP/hepta-owned-session-tools" \
+            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget"
+
       - name: Install the independent pinned PyTorch CPU oracle
         shell: bash
         run: |
@@ -639,3 +647,36 @@ jobs:
             --reference tests/pytorch_oracle.py \
             --lock compatibility/pytorch-oracle-lock.json --repo . \
             --expected-native-sha256 e172bc81dfbe9ee2c9853cf9221ebf7236e8099a207947bccff66b0b01dc1f5f
+
+      - name: Observe pinned PyTorch default backward and retain_graph release boundaries
+        run: |
+          echo '1192de6e175407756b01028278446067b22b70fe2d820f0045f6f5d623d46aa3  tests/pytorch_backward_release_probe.py' | sha256sum -c -
+          python3 tests/pytorch_backward_release_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/pytorch-backward-release-observations.json
+          cat build/pytorch-backward-release-observations.json
+
+      - name: Compare ABI2 Tensor objects with unchanged strict numeric cases and new lifetimes
+        run: |
+          status=0
+          python3 tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py \
+            build/tensor-objects/abi2/tensor-object-session build/pytorch-tensor-objects-abi2.json \
+            --owned-reference tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py \
+            --session-reference tests/pytorch_session_oracle.py --reference tests/pytorch_oracle.py \
+            --lock compatibility/pytorch-oracle-lock.json --repo . \
+            --expected-native-sha256 4bd22ab115a5428be6ee1ab77fd31a1e20baf14a80756eb38f000574cbad531f || status=$?
+          python3 -I -S -B tools/emit_ci_report.py build/pytorch-tensor-objects-abi2.json
+          exit "$status"
+
+      - name: Compare guarded ABI3 Tensor objects with the same 35 frozen cases
+        run: |
+          status=0
+          python3 tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py \
+            build/tensor-objects/abi3/tensor-object-session build/pytorch-tensor-objects-abi3.json \
+            --owned-reference tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py \
+            --session-reference tests/pytorch_session_oracle.py --reference tests/pytorch_oracle.py \
+            --lock compatibility/pytorch-oracle-lock.json --repo . \
+            --expected-native-sha256 2b39ff1a5a258c5fae7be1fbca5dcf0764787b43fa72ad8fdc3ab6fd119e2a91 || status=$?
+          python3 -I -S -B tools/emit_ci_report.py build/pytorch-tensor-objects-abi3.json
+          exit "$status"
+

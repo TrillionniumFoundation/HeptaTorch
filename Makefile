@@ -131,6 +131,31 @@ test-stack-tensors: stack-tensors all
 	  --application-build "$(CURDIR)/build/stack-tensors" --review "$$review/native" \
 	  --root-review "$$review/independent" --output build/hosted-stack-budget.json
 
+TENSOR_OBJECT_INPUTS := $(wildcard tools/tensor_objects/*) tests/qualify_tensor_objects.py $(wildcard validation/tensor-object-*.json) Makefile
+
+.PHONY: tensor-objects test-tensor-objects
+tensor-objects: build/tensor-objects/abi2/build.json build/tensor-objects/abi3/build.json
+
+build/tensor-objects/abi2/build.json: build/owned-tensors/build.json $(TENSOR_OBJECT_INPUTS) | build
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.tensor-objects-abi2.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	python3 -I -S -B tools/tensor_objects/build.py --repository "$(CURDIR)" --source-root "$(HEPTA_SOURCE_ROOT)" \
+	  --baseline "$(CURDIR)/build/owned-tensors" --compiler "$$(command -v "$(HEPTA_OWNED_COMPILER)")" \
+	  --linker "$$(command -v "$(HEPTA_OWNED_SESSION_LINKER)")" --output "$$tmp/native"; \
+	mkdir -p build/tensor-objects/abi2; cp -a --remove-destination "$$tmp/native/." build/tensor-objects/abi2/
+
+build/tensor-objects/abi3/build.json: build/owned-tensors/build.json $(TENSOR_OBJECT_INPUTS) | build
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.tensor-objects-abi3.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	python3 -I -S -B tools/tensor_objects/build.py --repository "$(CURDIR)" --source-root "$(HEPTA_SOURCE_ROOT)" \
+	  --baseline "$(CURDIR)/build/owned-tensors" --compiler "$(HEPTA_STACK_BUILD)/native/stack-module-compiler" \
+	  --linker "$(HEPTA_STACK_BUILD)/native/stack-linker-session" --stack-profile --output "$$tmp/native"; \
+	mkdir -p build/tensor-objects/abi3; cp -a --remove-destination "$$tmp/native/." build/tensor-objects/abi3/
+
+test-tensor-objects: tensor-objects
+	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/.tensor-objects-review.XXXXXX"); \
+	python3 -I -S -B tests/qualify_tensor_objects.py --abi2 "$(CURDIR)/build/tensor-objects/abi2" \
+	  --abi3 "$(CURDIR)/build/tensor-objects/abi3" --output "$$review/observed"; \
+	cp "$$review/observed/report.json" build/hosted-tensor-object-native.json
+
 check-compiler:
 	@compiler=$$(command -v "$(HEPTA_COMPILER)") || { echo 'Set HEPTA_COMPILER to the pinned native HIA compiler; see docs/build.md.' >&2; exit 1; }; \
 	printf '%s  %s\n' '$(COMPILER_SHA256)' "$$compiler" | sha256sum -c -

@@ -1,0 +1,887 @@
+{
+  "schema": "heptatorch.native-replay-hosted-matmul-lifetimes.v1",
+  "status": "PASS",
+  "native_executable_sha256": "2b39ff1a5a258c5fae7be1fbca5dcf0764787b43fa72ad8fdc3ab6fd119e2a91",
+  "source_hashes": {
+    "replay_matmul_observations.py": "8256f6b2cd2f8688fca2ffa0693ef1abda5e06193b633216a0c86fcfe0824339",
+    "review_native_objects.py": "215b7b01daea8750d8fc5d7880a6ffe83c9da818e3db28cd244b9d44f01deb59",
+    "review_object_boundaries.py": "6cb84b45beb22c02525b6f9db799337459002bb1c7cc8a6093baa477d652e2a7",
+    "reference_model.py": "cb148b23c7af1e6590dd4750d2c5f10f83b03edbb8e1be19f862805a2aa1931b",
+    "client.py": "dee3e4cb25ee1e5e06513e2f33478fbe274d9510ce2aaab9525815c72312946b",
+    "lifetime-observations.json": "43aadde8aef7f6406b6d0bd96f7b72fc724583e9bdcee823fa971ef8558f4d0c"
+  },
+  "hosted_observations_sha256": "43aadde8aef7f6406b6d0bd96f7b72fc724583e9bdcee823fa971ef8558f4d0c",
+  "source_of_reference": "Previously executed exact pinned Torch report; all 11 provenance checks retained.",
+  "pinned_pytorch_executed_during_this_replay": false,
+  "native_target_executed": true,
+  "mutation_interface": "N native single-element set commands reproduce one Torch add_ value change; absolute mutation counts are not compared.",
+  "cases": 6,
+  "passed": 6,
+  "rows": [
+    {
+      "case": "matmul-mm-mutated-unsaved-left",
+      "status": "PASS",
+      "actual_hosted_outcome": "BACKWARD_SUCCEEDED",
+      "actual_hosted_exception": null,
+      "frames": [
+        {
+          "frame": 1,
+          "action_index": -1,
+          "label": "A",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "85158a170f94c726d431bf69256a9c0156cca3946f82c1e43e46984f14196ecb",
+          "response_sha256": "ad51d27674aa864b4312a4718e12a105c4c7c9b2f02687125028a1eeee2a90b1",
+          "commands": 1,
+          "response_bytes": 64
+        },
+        {
+          "frame": 2,
+          "action_index": -1,
+          "label": "B",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "262969800e864a2a736ba246dc988d55501ccc95381d9f4dcd9a7c9914085f8d",
+          "response_sha256": "d39a47df51646344f7cbf85014209463598f9486ee353849b67441516f5eafc9",
+          "commands": 1,
+          "response_bytes": 64
+        },
+        {
+          "frame": 3,
+          "action_index": -1,
+          "label": "original A",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "760c9395287c0b284f1e5d9966c3ce670d4331ecb59df51ef4375ef398ad0be8",
+          "response_sha256": "e00e3a37782156e3ae347b83697cb15d1e65e4e681eee90554eab35c3b15febd",
+          "commands": 2,
+          "response_bytes": 240
+        },
+        {
+          "frame": 4,
+          "action_index": -1,
+          "label": "original B",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "9b5bca8f820f6aae3cd50eb2ad0313ff2cf0454a598447d3ddc4526139d07819",
+          "response_sha256": "28a06527f4f9c629f11238d4ebce827b06adbe0d0e13de6b4cfd4e4396bf5364",
+          "commands": 2,
+          "response_bytes": 240
+        },
+        {
+          "frame": 5,
+          "action_index": -1,
+          "label": "matmul",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "f19bb1fd987788fbd2f0922c7824a24104a6e38820a2834e2c85b34e1860ad83",
+          "response_sha256": "0c9f0b834ad488ae80816c531c40e52da2ba79fe98e56a3f5398839aff69b6b8",
+          "commands": 1,
+          "response_bytes": 64
+        },
+        {
+          "frame": 6,
+          "action_index": -1,
+          "label": "forward output",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "8367acea952a02a9935c9f8b37a7c2f575bf37f48062cec655169f24db67b473",
+          "response_sha256": "bc10a98193b1fc0d2fddfd86d257fd7ce7e47c4d8942f80be24da1acd2d64e72",
+          "commands": 1,
+          "response_bytes": 80
+        },
+        {
+          "frame": 7,
+          "action_index": -1,
+          "label": "same changed values via explicit element writes",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "5a331868dbd6d61965e9aca6af39e75c77d6f28787561f82a74c056e426293d6",
+          "response_sha256": "c5f38290acaf8726cb329d93d7e69ce8b64b5f2a2b874d3a4cca1665a94fecb0",
+          "commands": 4,
+          "response_bytes": 160
+        },
+        {
+          "frame": 8,
+          "action_index": -1,
+          "label": "mutated operand",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "56095f247b8242dc74ad86adb0c9b1f8471d27e9e9158c1c0196d17a3d2a536f",
+          "response_sha256": "980aec3c8fa77d8f84715d02520db4c8ca576212e510e976c13a6003bd6c3576",
+          "commands": 1,
+          "response_bytes": 80
+        },
+        {
+          "frame": 9,
+          "action_index": -1,
+          "label": "sum for backward",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "9faa21ef87fe19e19ce2cc9818da0ff441fd9b7e2b7f153ea3bf6326ef86611c",
+          "response_sha256": "c8f70c3abd41caef741f2da9146b8f05399a3f9193568cfcf8061c410e3a8ea8",
+          "commands": 1,
+          "response_bytes": 64
+        },
+        {
+          "frame": 10,
+          "action_index": -1,
+          "label": "actual pinned Torch backward outcome",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "4fe6858831c4d00c90312451b690012912c2b7b254ef09c5c5e961e92f0a3451",
+          "response_sha256": "b9c6cfc9a2f5bb6c8601c6ec26121faa2fa58f7c53802555ea783683085e3f03",
+          "commands": 1,
+          "response_bytes": 64
+        },
+        {
+          "frame": 11,
+          "action_index": -1,
+          "label": "gradient A",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "fe8e8835053ad4abd48fafa4c838e8f1261da49203b01dfca661da1f923f0099",
+          "response_sha256": "4c65c54bba8d19ac4aeacb7e9e6b97134a73b5e290cdde7acf1d88d06de2604a",
+          "commands": 1,
+          "response_bytes": 80
+        },
+        {
+          "frame": 12,
+          "action_index": -1,
+          "label": "matmul replay audit",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "ae276b71e75dcf71e6d489071031c0e0305178400e3d9e2fb4d19481111840d8",
+          "response_sha256": "7004b03afc4c1f82e866ac5dce96d432dcb3933841a087e0dd48e35cdcf7dbde",
+          "commands": 1,
+          "response_bytes": 64
+        }
+      ],
+      "exact_scalar_or_binary32_fields": 39,
+      "entire_owner_rollback_bytes": 0
+    },
+    {
+      "case": "matmul-mm-mutated-saved-right",
+      "status": "PASS",
+      "actual_hosted_outcome": "BACKWARD_RAISED",
+      "actual_hosted_exception": {
+        "type": "RuntimeError",
+        "message": "one of the variables needed for gradient computation has been modified by an inplace operation: [torch.FloatTensor [2, 2]] is at version 1; expected version 0 instead. Hint: enable anomaly detection to find the operation that failed to compute its gradient, with torch.autograd.set_detect_anomaly(True, check_nan=False)."
+      },
+      "frames": [
+        {
+          "frame": 1,
+          "action_index": -1,
+          "label": "A",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "85158a170f94c726d431bf69256a9c0156cca3946f82c1e43e46984f14196ecb",
+          "response_sha256": "ad51d27674aa864b4312a4718e12a105c4c7c9b2f02687125028a1eeee2a90b1",
+          "commands": 1,
+          "response_bytes": 64
+        },
+        {
+          "frame": 2,
+          "action_index": -1,
+          "label": "B",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "262969800e864a2a736ba246dc988d55501ccc95381d9f4dcd9a7c9914085f8d",
+          "response_sha256": "d39a47df51646344f7cbf85014209463598f9486ee353849b67441516f5eafc9",
+          "commands": 1,
+          "response_bytes": 64
+        },
+        {
+          "frame": 3,
+          "action_index": -1,
+          "label": "original A",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "760c9395287c0b284f1e5d9966c3ce670d4331ecb59df51ef4375ef398ad0be8",
+          "response_sha256": "e00e3a37782156e3ae347b83697cb15d1e65e4e681eee90554eab35c3b15febd",
+          "commands": 2,
+          "response_bytes": 240
+        },
+        {
+          "frame": 4,
+          "action_index": -1,
+          "label": "original B",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "9b5bca8f820f6aae3cd50eb2ad0313ff2cf0454a598447d3ddc4526139d07819",
+          "response_sha256": "28a06527f4f9c629f11238d4ebce827b06adbe0d0e13de6b4cfd4e4396bf5364",
+          "commands": 2,
+          "response_bytes": 240
+        },
+        {
+          "frame": 5,
+          "action_index": -1,
+          "label": "matmul",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "f19bb1fd987788fbd2f0922c7824a24104a6e38820a2834e2c85b34e1860ad83",
+          "response_sha256": "0c9f0b834ad488ae80816c531c40e52da2ba79fe98e56a3f5398839aff69b6b8",
+          "commands": 1,
+          "response_bytes": 64
+        },
+        {
+          "frame": 6,
+          "action_index": -1,
+          "label": "forward output",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "8367acea952a02a9935c9f8b37a7c2f575bf37f48062cec655169f24db67b473",
+          "response_sha256": "bc10a98193b1fc0d2fddfd86d257fd7ce7e47c4d8942f80be24da1acd2d64e72",
+          "commands": 1,
+          "response_bytes": 80
+        },
+        {
+          "frame": 7,
+          "action_index": -1,
+          "label": "same changed values via explicit element writes",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "ba63b5088fe84fae8e8c38c6848cbe7eb305fd5b390c3ed541a0673d21796bf6",
+          "response_sha256": "c5f38290acaf8726cb329d93d7e69ce8b64b5f2a2b874d3a4cca1665a94fecb0",
+          "commands": 4,
+          "response_bytes": 160
+        },
+        {
+          "frame": 8,
+          "action_index": -1,
+          "label": "mutated operand",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "3a19f7c0079e8effd4da5f1891a65345304f1569a9aac96f46d284325ee9dd1f",
+          "response_sha256": "971e6398a5d3229885f6cde8fb82d7c7ebe3d5f4e7f7482a76350ddfd93fb691",
+          "commands": 1,
+          "response_bytes": 80
+        },
+        {
+          "frame": 9,
+          "action_index": -1,
+          "label": "sum for backward",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "9faa21ef87fe19e19ce2cc9818da0ff441fd9b7e2b7f153ea3bf6326ef86611c",
+          "response_sha256": "c8f70c3abd41caef741f2da9146b8f05399a3f9193568cfcf8061c410e3a8ea8",
+          "commands": 1,
+          "response_bytes": 64
+        },
+        {
+          "frame": 10,
+          "action_index": -1,
+          "label": "actual pinned Torch backward outcome",
+          "expected_status": 6,
+          "observed_status": 6,
+          "request_sha256": "4fe6858831c4d00c90312451b690012912c2b7b254ef09c5c5e961e92f0a3451",
+          "response_sha256": "3a1a5aaed254abc4649aa6664757cc3cfb0520901c1ee986ef74e3cb26505697",
+          "commands": 1,
+          "response_bytes": 32,
+          "whole_owner_unchanged": true,
+          "owner_bytes": 297616,
+          "owner_sha256": "6582de728c24ce8874dba575e3bf90059a41f22a4005e7841eb56250ec404618",
+          "same_owner_pointer": true
+        },
+        {
+          "frame": 11,
+          "action_index": -1,
+          "label": "matmul replay audit",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "ae276b71e75dcf71e6d489071031c0e0305178400e3d9e2fb4d19481111840d8",
+          "response_sha256": "7004b03afc4c1f82e866ac5dce96d432dcb3933841a087e0dd48e35cdcf7dbde",
+          "commands": 1,
+          "response_bytes": 64
+        }
+      ],
+      "exact_scalar_or_binary32_fields": 33,
+      "entire_owner_rollback_bytes": 297616
+    },
+    {
+      "case": "matmul-folded-view-mutated-saved-left",
+      "status": "PASS",
+      "actual_hosted_outcome": "BACKWARD_RAISED",
+      "actual_hosted_exception": {
+        "type": "RuntimeError",
+        "message": "one of the variables needed for gradient computation has been modified by an inplace operation: [torch.FloatTensor [6, 4]] is at version 1; expected version 0 instead. Hint: enable anomaly detection to find the operation that failed to compute its gradient, with torch.autograd.set_detect_anomaly(True, check_nan=False)."
+      },
+      "frames": [
+        {
+          "frame": 1,
+          "action_index": -1,
+          "label": "A",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "affd5d1d5fcd28044f314c73683fb061515be6474162d7a16f3f1ba7ba120d6b",
+          "response_sha256": "ad51d27674aa864b4312a4718e12a105c4c7c9b2f02687125028a1eeee2a90b1",
+          "commands": 1,
+          "response_bytes": 64
+        },
+        {
+          "frame": 2,
+          "action_index": -1,
+          "label": "B",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "455f27cfee7048e6911646cbc116a7a436f8793167fb816492a0e0f044251578",
+          "response_sha256": "d39a47df51646344f7cbf85014209463598f9486ee353849b67441516f5eafc9",
+          "commands": 1,
+          "response_bytes": 64
+        },
+        {
+          "frame": 3,
+          "action_index": -1,
+          "label": "original A",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "760c9395287c0b284f1e5d9966c3ce670d4331ecb59df51ef4375ef398ad0be8",
+          "response_sha256": "d729d18dcdf26206649eca3a4985821f5d418ad2b6c545b18c1be6794796fd98",
+          "commands": 2,
+          "response_bytes": 320
+        },
+        {
+          "frame": 4,
+          "action_index": -1,
+          "label": "original B",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "9b5bca8f820f6aae3cd50eb2ad0313ff2cf0454a598447d3ddc4526139d07819",
+          "response_sha256": "84d0ff68972a1deacdbd9bde5207b5b4ce3f22e03e084ab50206fb3e2302d279",
+          "commands": 2,
+          "response_bytes": 256
+        },
+        {
+          "frame": 5,
+          "action_index": -1,
+          "label": "matmul",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "f19bb1fd987788fbd2f0922c7824a24104a6e38820a2834e2c85b34e1860ad83",
+          "response_sha256": "0c9f0b834ad488ae80816c531c40e52da2ba79fe98e56a3f5398839aff69b6b8",
+          "commands": 1,
+          "response_bytes": 64
+        },
+        {
+          "frame": 6,
+          "action_index": -1,
+          "label": "forward output",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "8367acea952a02a9935c9f8b37a7c2f575bf37f48062cec655169f24db67b473",
+          "response_sha256": "572da92fb4855f51fdc6ec473cf2407d063f5691616718e0d6203cc5fb074843",
+          "commands": 1,
+          "response_bytes": 112
+        },
+        {
+          "frame": 7,
+          "action_index": -1,
+          "label": "same changed values via explicit element writes",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "336f941a8de427669b7a17b5aec0f937df08f70509c9167da7f8c1d4190d8893",
+          "response_sha256": "369eb3adb6b23daf8f3139f016c08aeb631abfd40ee3bbbb30e91ad9714641c7",
+          "commands": 24,
+          "response_bytes": 800
+        },
+        {
+          "frame": 8,
+          "action_index": -1,
+          "label": "mutated operand",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "56095f247b8242dc74ad86adb0c9b1f8471d27e9e9158c1c0196d17a3d2a536f",
+          "response_sha256": "19453e5ba0eccc5e6847faefeefbc5b81342c0d0ce4d3d2e9fcf59959801c17c",
+          "commands": 1,
+          "response_bytes": 160
+        },
+        {
+          "frame": 9,
+          "action_index": -1,
+          "label": "sum for backward",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "9faa21ef87fe19e19ce2cc9818da0ff441fd9b7e2b7f153ea3bf6326ef86611c",
+          "response_sha256": "c8f70c3abd41caef741f2da9146b8f05399a3f9193568cfcf8061c410e3a8ea8",
+          "commands": 1,
+          "response_bytes": 64
+        },
+        {
+          "frame": 10,
+          "action_index": -1,
+          "label": "actual pinned Torch backward outcome",
+          "expected_status": 6,
+          "observed_status": 6,
+          "request_sha256": "4fe6858831c4d00c90312451b690012912c2b7b254ef09c5c5e961e92f0a3451",
+          "response_sha256": "3a1a5aaed254abc4649aa6664757cc3cfb0520901c1ee986ef74e3cb26505697",
+          "commands": 1,
+          "response_bytes": 32,
+          "whole_owner_unchanged": true,
+          "owner_bytes": 297616,
+          "owner_sha256": "f0abb45c26b3b280403f48d070e292afb4656701e0de19a98a9201addb99150e",
+          "same_owner_pointer": true
+        },
+        {
+          "frame": 11,
+          "action_index": -1,
+          "label": "matmul replay audit",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "ae276b71e75dcf71e6d489071031c0e0305178400e3d9e2fb4d19481111840d8",
+          "response_sha256": "7004b03afc4c1f82e866ac5dce96d432dcb3933841a087e0dd48e35cdcf7dbde",
+          "commands": 1,
+          "response_bytes": 64
+        }
+      ],
+      "exact_scalar_or_binary32_fields": 87,
+      "entire_owner_rollback_bytes": 297616
+    },
+    {
+      "case": "matmul-folded-copy-mutated-original-left",
+      "status": "PASS",
+      "actual_hosted_outcome": "BACKWARD_SUCCEEDED",
+      "actual_hosted_exception": null,
+      "frames": [
+        {
+          "frame": 1,
+          "action_index": -1,
+          "label": "pre-transpose A",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "affd5d1d5fcd28044f314c73683fb061515be6474162d7a16f3f1ba7ba120d6b",
+          "response_sha256": "ad51d27674aa864b4312a4718e12a105c4c7c9b2f02687125028a1eeee2a90b1",
+          "commands": 1,
+          "response_bytes": 64
+        },
+        {
+          "frame": 2,
+          "action_index": -1,
+          "label": "exact noncontiguous A layout",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "29f9dfda1e7b87ef3b43bc20e21bf878f0bbc8c1f0260d6bdcc97b54f79fb46d",
+          "response_sha256": "ff38cd6bf45d9620987bf524852b16d6ebe5ce276a62dc7410be83f53b78835f",
+          "commands": 1,
+          "response_bytes": 64
+        },
+        {
+          "frame": 3,
+          "action_index": -1,
+          "label": "B",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "455f27cfee7048e6911646cbc116a7a436f8793167fb816492a0e0f044251578",
+          "response_sha256": "908023289642066d1e12edc72e3b22ef5798c541a745024b77965cc786e8cff3",
+          "commands": 1,
+          "response_bytes": 64
+        },
+        {
+          "frame": 4,
+          "action_index": -1,
+          "label": "original A",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "9b5bca8f820f6aae3cd50eb2ad0313ff2cf0454a598447d3ddc4526139d07819",
+          "response_sha256": "60eabd75e806eeb92b9ae61e578704991b4f9c781eccb7e4ff39a14e001ffb1b",
+          "commands": 2,
+          "response_bytes": 320
+        },
+        {
+          "frame": 5,
+          "action_index": -1,
+          "label": "original B",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "26a6e7c05992a80ebb99ea0d32a1459f4a10d544d76e796af2e5a39e299d9cac",
+          "response_sha256": "363514ae17fb7192cc31ceebe6d479e72ba22039dcbda001ed447441372d6eda",
+          "commands": 2,
+          "response_bytes": 256
+        },
+        {
+          "frame": 6,
+          "action_index": -1,
+          "label": "matmul",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "0f0734f246fc189ce00302dc37acba157898d87c00527568a2b8fb98616bfb3a",
+          "response_sha256": "3fb4769d12d781e81244f30cb384f67e5c078b66bec4c4fb90dbb513759e8f3a",
+          "commands": 1,
+          "response_bytes": 64
+        },
+        {
+          "frame": 7,
+          "action_index": -1,
+          "label": "forward output",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "55889c9ca081d2b454918fb095ab9761eb9d47760a447eb15ece2a28164250a8",
+          "response_sha256": "1d3d9a0246eba6ee35d1f2c6471a8317837308bbd7fc7f6eebdb7b531b5f9f12",
+          "commands": 1,
+          "response_bytes": 112
+        },
+        {
+          "frame": 8,
+          "action_index": -1,
+          "label": "same changed values via explicit element writes",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "0d86f5abfaac41916842305e9d9ba02c923f005a90e76f45ad46d92a458812ac",
+          "response_sha256": "369eb3adb6b23daf8f3139f016c08aeb631abfd40ee3bbbb30e91ad9714641c7",
+          "commands": 24,
+          "response_bytes": 800
+        },
+        {
+          "frame": 9,
+          "action_index": -1,
+          "label": "mutated operand",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "3a19f7c0079e8effd4da5f1891a65345304f1569a9aac96f46d284325ee9dd1f",
+          "response_sha256": "075a29aac44e4bca6bcb436d3284ee941e5933b81d60a5627cb833e6d4236fae",
+          "commands": 1,
+          "response_bytes": 160
+        },
+        {
+          "frame": 10,
+          "action_index": -1,
+          "label": "sum for backward",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "65c39452177de43d7b3d2b485ebf43a838930e594a8cab27d035ff61b6a01bf8",
+          "response_sha256": "a0e41beccb16fd23bf82fa422eee3385e4c253df53de7b44e5c40bf54ce357dd",
+          "commands": 1,
+          "response_bytes": 64
+        },
+        {
+          "frame": 11,
+          "action_index": -1,
+          "label": "actual pinned Torch backward outcome",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "da0c012ba4059ec6cb79487f8f95cc07ad2a0bbabdd7b96b6f87558b0d5e2dbc",
+          "response_sha256": "b9c6cfc9a2f5bb6c8601c6ec26121faa2fa58f7c53802555ea783683085e3f03",
+          "commands": 1,
+          "response_bytes": 64
+        },
+        {
+          "frame": 12,
+          "action_index": -1,
+          "label": "gradient B",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "6101ecb7cadb0de1d01a6ca55e1803ca734640e35e25c48a3a681cb1170beb91",
+          "response_sha256": "162b19a6bdc359d0c28c1054a22646aa60e27938cedca13d010a15471ff38d52",
+          "commands": 1,
+          "response_bytes": 96
+        },
+        {
+          "frame": 13,
+          "action_index": -1,
+          "label": "matmul replay audit",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "ae276b71e75dcf71e6d489071031c0e0305178400e3d9e2fb4d19481111840d8",
+          "response_sha256": "7004b03afc4c1f82e866ac5dce96d432dcb3933841a087e0dd48e35cdcf7dbde",
+          "commands": 1,
+          "response_bytes": 64
+        }
+      ],
+      "exact_scalar_or_binary32_fields": 97,
+      "entire_owner_rollback_bytes": 0
+    },
+    {
+      "case": "matmul-broadcast-reshape-copy-mutated-original-left",
+      "status": "PASS",
+      "actual_hosted_outcome": "BACKWARD_SUCCEEDED",
+      "actual_hosted_exception": null,
+      "frames": [
+        {
+          "frame": 1,
+          "action_index": -1,
+          "label": "A",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "c4ce4e4aecb342f0cbd84e81921bdfa78b26f3ec632423b80facab480aa949fc",
+          "response_sha256": "ad51d27674aa864b4312a4718e12a105c4c7c9b2f02687125028a1eeee2a90b1",
+          "commands": 1,
+          "response_bytes": 64
+        },
+        {
+          "frame": 2,
+          "action_index": -1,
+          "label": "B",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "2afea079c6ac80f04964700d81b0de31ff66097a82aa3918111649bc82a6162a",
+          "response_sha256": "d39a47df51646344f7cbf85014209463598f9486ee353849b67441516f5eafc9",
+          "commands": 1,
+          "response_bytes": 64
+        },
+        {
+          "frame": 3,
+          "action_index": -1,
+          "label": "original A",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "760c9395287c0b284f1e5d9966c3ce670d4331ecb59df51ef4375ef398ad0be8",
+          "response_sha256": "15c313b8789a1e6ba32452d2968d40749b42c4803a2c931d474f01de7cf25475",
+          "commands": 2,
+          "response_bytes": 320
+        },
+        {
+          "frame": 4,
+          "action_index": -1,
+          "label": "original B",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "9b5bca8f820f6aae3cd50eb2ad0313ff2cf0454a598447d3ddc4526139d07819",
+          "response_sha256": "c1e8e399f3f4cc76d545f6d79f638bc2a45c3093a06b36f92b4a5fb5e9497617",
+          "commands": 2,
+          "response_bytes": 288
+        },
+        {
+          "frame": 5,
+          "action_index": -1,
+          "label": "matmul",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "f19bb1fd987788fbd2f0922c7824a24104a6e38820a2834e2c85b34e1860ad83",
+          "response_sha256": "0c9f0b834ad488ae80816c531c40e52da2ba79fe98e56a3f5398839aff69b6b8",
+          "commands": 1,
+          "response_bytes": 64
+        },
+        {
+          "frame": 6,
+          "action_index": -1,
+          "label": "forward output",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "8367acea952a02a9935c9f8b37a7c2f575bf37f48062cec655169f24db67b473",
+          "response_sha256": "7cb782c34f03b517931c2311a8a44c0e190b1dac7139f79150d4b95bc18fee31",
+          "commands": 1,
+          "response_bytes": 160
+        },
+        {
+          "frame": 7,
+          "action_index": -1,
+          "label": "same changed values via explicit element writes",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "336f941a8de427669b7a17b5aec0f937df08f70509c9167da7f8c1d4190d8893",
+          "response_sha256": "369eb3adb6b23daf8f3139f016c08aeb631abfd40ee3bbbb30e91ad9714641c7",
+          "commands": 24,
+          "response_bytes": 800
+        },
+        {
+          "frame": 8,
+          "action_index": -1,
+          "label": "mutated operand",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "56095f247b8242dc74ad86adb0c9b1f8471d27e9e9158c1c0196d17a3d2a536f",
+          "response_sha256": "19453e5ba0eccc5e6847faefeefbc5b81342c0d0ce4d3d2e9fcf59959801c17c",
+          "commands": 1,
+          "response_bytes": 160
+        },
+        {
+          "frame": 9,
+          "action_index": -1,
+          "label": "sum for backward",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "9faa21ef87fe19e19ce2cc9818da0ff441fd9b7e2b7f153ea3bf6326ef86611c",
+          "response_sha256": "c8f70c3abd41caef741f2da9146b8f05399a3f9193568cfcf8061c410e3a8ea8",
+          "commands": 1,
+          "response_bytes": 64
+        },
+        {
+          "frame": 10,
+          "action_index": -1,
+          "label": "actual pinned Torch backward outcome",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "4fe6858831c4d00c90312451b690012912c2b7b254ef09c5c5e961e92f0a3451",
+          "response_sha256": "b9c6cfc9a2f5bb6c8601c6ec26121faa2fa58f7c53802555ea783683085e3f03",
+          "commands": 1,
+          "response_bytes": 64
+        },
+        {
+          "frame": 11,
+          "action_index": -1,
+          "label": "gradient B",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "e03821f580fe8efebe629edbe9a310165ad7c3c3c5c89b3592d2399185b67ed2",
+          "response_sha256": "04e4dadeee369f7f70a69fc9d9f0a44607e4af248294c868fcaff3576b2ebdf3",
+          "commands": 1,
+          "response_bytes": 128
+        },
+        {
+          "frame": 12,
+          "action_index": -1,
+          "label": "matmul replay audit",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "ae276b71e75dcf71e6d489071031c0e0305178400e3d9e2fb4d19481111840d8",
+          "response_sha256": "7004b03afc4c1f82e866ac5dce96d432dcb3933841a087e0dd48e35cdcf7dbde",
+          "commands": 1,
+          "response_bytes": 64
+        }
+      ],
+      "exact_scalar_or_binary32_fields": 131,
+      "entire_owner_rollback_bytes": 0
+    },
+    {
+      "case": "matmul-mm-noncontiguous-mutated-saved-left",
+      "status": "PASS",
+      "actual_hosted_outcome": "BACKWARD_RAISED",
+      "actual_hosted_exception": {
+        "type": "RuntimeError",
+        "message": "one of the variables needed for gradient computation has been modified by an inplace operation: [torch.FloatTensor [2, 3]] is at version 1; expected version 0 instead. Hint: enable anomaly detection to find the operation that failed to compute its gradient, with torch.autograd.set_detect_anomaly(True, check_nan=False)."
+      },
+      "frames": [
+        {
+          "frame": 1,
+          "action_index": -1,
+          "label": "pre-transpose A",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "39e4bf12ba79687004c61a923e8163002f05b96887e26c5e5d5b2c141738ce7f",
+          "response_sha256": "ad51d27674aa864b4312a4718e12a105c4c7c9b2f02687125028a1eeee2a90b1",
+          "commands": 1,
+          "response_bytes": 64
+        },
+        {
+          "frame": 2,
+          "action_index": -1,
+          "label": "exact noncontiguous A layout",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "29f9dfda1e7b87ef3b43bc20e21bf878f0bbc8c1f0260d6bdcc97b54f79fb46d",
+          "response_sha256": "ff38cd6bf45d9620987bf524852b16d6ebe5ce276a62dc7410be83f53b78835f",
+          "commands": 1,
+          "response_bytes": 64
+        },
+        {
+          "frame": 3,
+          "action_index": -1,
+          "label": "B",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "52e2719ef0daf86ecbf0992d92598acd9431a6086725f53ab67546b035094466",
+          "response_sha256": "908023289642066d1e12edc72e3b22ef5798c541a745024b77965cc786e8cff3",
+          "commands": 1,
+          "response_bytes": 64
+        },
+        {
+          "frame": 4,
+          "action_index": -1,
+          "label": "original A",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "9b5bca8f820f6aae3cd50eb2ad0313ff2cf0454a598447d3ddc4526139d07819",
+          "response_sha256": "554e2bd963aacd1536e1ae434b315d4525378a1df2dcc03f4d670c8c6a4e0d89",
+          "commands": 2,
+          "response_bytes": 248
+        },
+        {
+          "frame": 5,
+          "action_index": -1,
+          "label": "original B",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "26a6e7c05992a80ebb99ea0d32a1459f4a10d544d76e796af2e5a39e299d9cac",
+          "response_sha256": "7d39b238b30ccacf2f1ea94519ca79e6c10dc24c611b893b6ee0888dfe974e4b",
+          "commands": 2,
+          "response_bytes": 248
+        },
+        {
+          "frame": 6,
+          "action_index": -1,
+          "label": "matmul",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "0f0734f246fc189ce00302dc37acba157898d87c00527568a2b8fb98616bfb3a",
+          "response_sha256": "3fb4769d12d781e81244f30cb384f67e5c078b66bec4c4fb90dbb513759e8f3a",
+          "commands": 1,
+          "response_bytes": 64
+        },
+        {
+          "frame": 7,
+          "action_index": -1,
+          "label": "forward output",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "55889c9ca081d2b454918fb095ab9761eb9d47760a447eb15ece2a28164250a8",
+          "response_sha256": "9d3b495c9f0700745a04de7ec9e35287e3e84749a2e8c3f24f7f15d38a368950",
+          "commands": 1,
+          "response_bytes": 80
+        },
+        {
+          "frame": 8,
+          "action_index": -1,
+          "label": "same changed values via explicit element writes",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "a29a5d7c75de0491f43a417f5b3e750a40d8604e3856f116b382520302041c5d",
+          "response_sha256": "c6614741c5c4ddae01d51bc2c116518cc7c8386b2130c2075ec40b01e1e8dfb1",
+          "commands": 6,
+          "response_bytes": 224
+        },
+        {
+          "frame": 9,
+          "action_index": -1,
+          "label": "mutated operand",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "3a19f7c0079e8effd4da5f1891a65345304f1569a9aac96f46d284325ee9dd1f",
+          "response_sha256": "91185382e4ab7f4733f720701a8c00beda18f22b5f95ba3a74554e43ba68b6c1",
+          "commands": 1,
+          "response_bytes": 88
+        },
+        {
+          "frame": 10,
+          "action_index": -1,
+          "label": "sum for backward",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "65c39452177de43d7b3d2b485ebf43a838930e594a8cab27d035ff61b6a01bf8",
+          "response_sha256": "a0e41beccb16fd23bf82fa422eee3385e4c253df53de7b44e5c40bf54ce357dd",
+          "commands": 1,
+          "response_bytes": 64
+        },
+        {
+          "frame": 11,
+          "action_index": -1,
+          "label": "actual pinned Torch backward outcome",
+          "expected_status": 6,
+          "observed_status": 6,
+          "request_sha256": "da0c012ba4059ec6cb79487f8f95cc07ad2a0bbabdd7b96b6f87558b0d5e2dbc",
+          "response_sha256": "3a1a5aaed254abc4649aa6664757cc3cfb0520901c1ee986ef74e3cb26505697",
+          "commands": 1,
+          "response_bytes": 32,
+          "whole_owner_unchanged": true,
+          "owner_bytes": 297616,
+          "owner_sha256": "c0badb48d6d036fae17bfea091592406f95fef2c5916a59e3e6206b749fed86b",
+          "same_owner_pointer": true
+        },
+        {
+          "frame": 12,
+          "action_index": -1,
+          "label": "matmul replay audit",
+          "expected_status": 0,
+          "observed_status": 0,
+          "request_sha256": "ae276b71e75dcf71e6d489071031c0e0305178400e3d9e2fb4d19481111840d8",
+          "response_sha256": "7004b03afc4c1f82e866ac5dce96d432dcb3933841a087e0dd48e35cdcf7dbde",
+          "commands": 1,
+          "response_bytes": 64
+        }
+      ],
+      "exact_scalar_or_binary32_fields": 39,
+      "entire_owner_rollback_bytes": 297616
+    }
+  ],
+  "frames": 71,
+  "exact_scalar_or_binary32_fields": 426,
+  "entire_owner_rollback_bytes": 892848
+}

@@ -1,0 +1,2688 @@
+{
+  "schema": "heptatorch.pinned-torch-lifetime-observations.v1",
+  "probe_sha256": "15c3f5f230a4cd30a42fe987b71078aa74c422b7e14b099e269bd80fede6c93a",
+  "support_sha256": "ef8fe89aa7dbff4ee03f9d5762d2736a3648d9e48e97ad5df7bec615676f04ae",
+  "lock_sha256": "ca2e54ce65083bbe0ab3d47b6878971271765ab35a9dd70725fa345fceed3944",
+  "upstream_commit": "31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
+  "expected_cases": 22,
+  "case_names": [
+    "view-detach-clone-data-storage-and-version-identities",
+    "empty-transpose-clone-preserve-format",
+    "add-input-mutation",
+    "clone-input-mutation",
+    "mul-required-input-mutation-when-only-that-input-needs-grad",
+    "mul-nongrad-coefficient-mutation",
+    "relu-input-mutation",
+    "relu-output-mutation",
+    "gather-input-mutation",
+    "avg-pool-input-mutation",
+    "index-add-source-mutation",
+    "scatter-add-source-mutation",
+    "nonleaf-storage-not-needed-by-later-derivative",
+    "saved-output-storage-retain-and-default-backward",
+    "leaf-storage-retained-by-accumulate-grad",
+    "nongrad-coefficient-storage-retained-only-by-saved-value",
+    "matmul-mm-mutated-unsaved-left",
+    "matmul-mm-mutated-saved-right",
+    "matmul-folded-view-mutated-saved-left",
+    "matmul-folded-copy-mutated-original-left",
+    "matmul-broadcast-reshape-copy-mutated-original-left",
+    "matmul-mm-noncontiguous-mutated-saved-left"
+  ],
+  "target_execution": false,
+  "native_values_compared": 0,
+  "scope": "Pinned real PyTorch observations only; no native compatibility claim.",
+  "status": "OBSERVED",
+  "cases": 22,
+  "probe_errors": 0,
+  "rows": [
+    {
+      "case": "view-detach-clone-data-storage-and-version-identities",
+      "status": "OBSERVED",
+      "observation": {
+        "before": {
+          "base": {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": true,
+            "is_leaf": true,
+            "values": [
+              1.0,
+              2.0,
+              3.0,
+              4.0,
+              5.0,
+              6.0
+            ]
+          },
+          "transpose": {
+            "shape": [
+              3,
+              2
+            ],
+            "strides": [
+              1,
+              3
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": true,
+            "is_leaf": false,
+            "values": [
+              1.0,
+              4.0,
+              2.0,
+              5.0,
+              3.0,
+              6.0
+            ]
+          },
+          "detach": {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": false,
+            "is_leaf": true,
+            "values": [
+              1.0,
+              2.0,
+              3.0,
+              4.0,
+              5.0,
+              6.0
+            ]
+          },
+          "data": {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": false,
+            "is_leaf": true,
+            "values": [
+              1.0,
+              2.0,
+              3.0,
+              4.0,
+              5.0,
+              6.0
+            ]
+          },
+          "clone": {
+            "shape": [
+              3,
+              2
+            ],
+            "strides": [
+              1,
+              3
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": true,
+            "is_leaf": false,
+            "values": [
+              1.0,
+              4.0,
+              2.0,
+              5.0,
+              3.0,
+              6.0
+            ]
+          }
+        },
+        "shares_base_storage": {
+          "transpose": true,
+          "detach": true,
+          "data": true,
+          "clone": false
+        },
+        "after_detach_mutation_versions": {
+          "base": 1,
+          "transpose": 1,
+          "detach": 1,
+          "data": 0,
+          "clone": 0
+        },
+        "after_data_mutation": {
+          "base": {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "offset_elements": 0,
+            "version": 1,
+            "requires_grad": true,
+            "is_leaf": true,
+            "values": [
+              111.0,
+              112.0,
+              113.0,
+              114.0,
+              115.0,
+              116.0
+            ]
+          },
+          "transpose": {
+            "shape": [
+              3,
+              2
+            ],
+            "strides": [
+              1,
+              3
+            ],
+            "offset_elements": 0,
+            "version": 1,
+            "requires_grad": true,
+            "is_leaf": false,
+            "values": [
+              111.0,
+              114.0,
+              112.0,
+              115.0,
+              113.0,
+              116.0
+            ]
+          },
+          "detach": {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "offset_elements": 0,
+            "version": 1,
+            "requires_grad": false,
+            "is_leaf": true,
+            "values": [
+              111.0,
+              112.0,
+              113.0,
+              114.0,
+              115.0,
+              116.0
+            ]
+          },
+          "data": {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "offset_elements": 0,
+            "version": 1,
+            "requires_grad": false,
+            "is_leaf": true,
+            "values": [
+              111.0,
+              112.0,
+              113.0,
+              114.0,
+              115.0,
+              116.0
+            ]
+          },
+          "clone": {
+            "shape": [
+              3,
+              2
+            ],
+            "strides": [
+              1,
+              3
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": true,
+            "is_leaf": false,
+            "values": [
+              1.0,
+              4.0,
+              2.0,
+              5.0,
+              3.0,
+              6.0
+            ]
+          }
+        }
+      }
+    },
+    {
+      "case": "empty-transpose-clone-preserve-format",
+      "status": "OBSERVED",
+      "observation": {
+        "input": {
+          "shape": [
+            0,
+            3,
+            2
+          ],
+          "strides": [
+            6,
+            1,
+            3
+          ],
+          "offset_elements": 0,
+          "version": 0,
+          "requires_grad": true,
+          "is_leaf": false,
+          "values": []
+        },
+        "clone": {
+          "shape": [
+            0,
+            3,
+            2
+          ],
+          "strides": [
+            6,
+            1,
+            3
+          ],
+          "offset_elements": 0,
+          "version": 0,
+          "requires_grad": true,
+          "is_leaf": false,
+          "values": []
+        },
+        "shares_storage": false
+      }
+    },
+    {
+      "case": "add-input-mutation",
+      "status": "OBSERVED",
+      "observation": {
+        "configuration": {
+          "operator": "add"
+        },
+        "before": {
+          "leaves": [
+            {
+              "shape": [
+                3
+              ],
+              "strides": [
+                1
+              ],
+              "offset_elements": 0,
+              "version": 0,
+              "requires_grad": true,
+              "is_leaf": true,
+              "values": [
+                -2.0,
+                1.0,
+                3.0
+              ]
+            }
+          ],
+          "output": {
+            "shape": [
+              3
+            ],
+            "strides": [
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": true,
+            "is_leaf": false,
+            "values": [
+              0.0,
+              3.0,
+              5.0
+            ]
+          },
+          "changed": {
+            "shape": [
+              3
+            ],
+            "strides": [
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": true,
+            "is_leaf": true,
+            "values": [
+              -2.0,
+              1.0,
+              3.0
+            ]
+          }
+        },
+        "after_changed": {
+          "shape": [
+            3
+          ],
+          "strides": [
+            1
+          ],
+          "offset_elements": 0,
+          "version": 1,
+          "requires_grad": true,
+          "is_leaf": true,
+          "values": [
+            2.0,
+            5.0,
+            7.0
+          ]
+        },
+        "outcome": "BACKWARD_SUCCEEDED",
+        "exception": null,
+        "gradients": [
+          [
+            1.0,
+            1.0,
+            1.0
+          ]
+        ]
+      }
+    },
+    {
+      "case": "clone-input-mutation",
+      "status": "OBSERVED",
+      "observation": {
+        "configuration": {
+          "operator": "clone"
+        },
+        "before": {
+          "leaves": [
+            {
+              "shape": [
+                3
+              ],
+              "strides": [
+                1
+              ],
+              "offset_elements": 0,
+              "version": 0,
+              "requires_grad": true,
+              "is_leaf": true,
+              "values": [
+                -2.0,
+                1.0,
+                3.0
+              ]
+            }
+          ],
+          "output": {
+            "shape": [
+              3
+            ],
+            "strides": [
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": true,
+            "is_leaf": false,
+            "values": [
+              -2.0,
+              1.0,
+              3.0
+            ]
+          },
+          "changed": {
+            "shape": [
+              3
+            ],
+            "strides": [
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": true,
+            "is_leaf": true,
+            "values": [
+              -2.0,
+              1.0,
+              3.0
+            ]
+          }
+        },
+        "after_changed": {
+          "shape": [
+            3
+          ],
+          "strides": [
+            1
+          ],
+          "offset_elements": 0,
+          "version": 1,
+          "requires_grad": true,
+          "is_leaf": true,
+          "values": [
+            2.0,
+            5.0,
+            7.0
+          ]
+        },
+        "outcome": "BACKWARD_SUCCEEDED",
+        "exception": null,
+        "gradients": [
+          [
+            1.0,
+            1.0,
+            1.0
+          ]
+        ]
+      }
+    },
+    {
+      "case": "mul-required-input-mutation-when-only-that-input-needs-grad",
+      "status": "OBSERVED",
+      "observation": {
+        "configuration": {
+          "operator": "mul",
+          "requires": [
+            true,
+            false
+          ]
+        },
+        "before": {
+          "leaves": [
+            {
+              "shape": [
+                3
+              ],
+              "strides": [
+                1
+              ],
+              "offset_elements": 0,
+              "version": 0,
+              "requires_grad": true,
+              "is_leaf": true,
+              "values": [
+                1.0,
+                2.0,
+                3.0
+              ]
+            },
+            {
+              "shape": [
+                3
+              ],
+              "strides": [
+                1
+              ],
+              "offset_elements": 0,
+              "version": 0,
+              "requires_grad": false,
+              "is_leaf": true,
+              "values": [
+                2.0,
+                -1.0,
+                4.0
+              ]
+            }
+          ],
+          "output": {
+            "shape": [
+              3
+            ],
+            "strides": [
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": true,
+            "is_leaf": false,
+            "values": [
+              2.0,
+              -2.0,
+              12.0
+            ]
+          },
+          "changed": {
+            "shape": [
+              3
+            ],
+            "strides": [
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": true,
+            "is_leaf": true,
+            "values": [
+              1.0,
+              2.0,
+              3.0
+            ]
+          }
+        },
+        "after_changed": {
+          "shape": [
+            3
+          ],
+          "strides": [
+            1
+          ],
+          "offset_elements": 0,
+          "version": 1,
+          "requires_grad": true,
+          "is_leaf": true,
+          "values": [
+            5.0,
+            6.0,
+            7.0
+          ]
+        },
+        "outcome": "BACKWARD_SUCCEEDED",
+        "exception": null,
+        "gradients": [
+          [
+            2.0,
+            -1.0,
+            4.0
+          ],
+          null
+        ]
+      }
+    },
+    {
+      "case": "mul-nongrad-coefficient-mutation",
+      "status": "OBSERVED",
+      "observation": {
+        "configuration": {
+          "operator": "mul",
+          "requires": [
+            true,
+            false
+          ]
+        },
+        "before": {
+          "leaves": [
+            {
+              "shape": [
+                3
+              ],
+              "strides": [
+                1
+              ],
+              "offset_elements": 0,
+              "version": 0,
+              "requires_grad": true,
+              "is_leaf": true,
+              "values": [
+                1.0,
+                2.0,
+                3.0
+              ]
+            },
+            {
+              "shape": [
+                3
+              ],
+              "strides": [
+                1
+              ],
+              "offset_elements": 0,
+              "version": 0,
+              "requires_grad": false,
+              "is_leaf": true,
+              "values": [
+                2.0,
+                -1.0,
+                4.0
+              ]
+            }
+          ],
+          "output": {
+            "shape": [
+              3
+            ],
+            "strides": [
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": true,
+            "is_leaf": false,
+            "values": [
+              2.0,
+              -2.0,
+              12.0
+            ]
+          },
+          "changed": {
+            "shape": [
+              3
+            ],
+            "strides": [
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": false,
+            "is_leaf": true,
+            "values": [
+              2.0,
+              -1.0,
+              4.0
+            ]
+          }
+        },
+        "after_changed": {
+          "shape": [
+            3
+          ],
+          "strides": [
+            1
+          ],
+          "offset_elements": 0,
+          "version": 1,
+          "requires_grad": false,
+          "is_leaf": true,
+          "values": [
+            6.0,
+            3.0,
+            8.0
+          ]
+        },
+        "outcome": "BACKWARD_RAISED",
+        "exception": {
+          "type": "RuntimeError",
+          "message": "one of the variables needed for gradient computation has been modified by an inplace operation: [torch.FloatTensor [3]] is at version 1; expected version 0 instead. Hint: enable anomaly detection to find the operation that failed to compute its gradient, with torch.autograd.set_detect_anomaly(True, check_nan=False)."
+        },
+        "gradients": [
+          null,
+          null
+        ]
+      }
+    },
+    {
+      "case": "relu-input-mutation",
+      "status": "OBSERVED",
+      "observation": {
+        "configuration": {
+          "operator": "relu"
+        },
+        "before": {
+          "leaves": [
+            {
+              "shape": [
+                3
+              ],
+              "strides": [
+                1
+              ],
+              "offset_elements": 0,
+              "version": 0,
+              "requires_grad": true,
+              "is_leaf": true,
+              "values": [
+                -2.0,
+                1.0,
+                3.0
+              ]
+            }
+          ],
+          "output": {
+            "shape": [
+              3
+            ],
+            "strides": [
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": true,
+            "is_leaf": false,
+            "values": [
+              0.0,
+              1.0,
+              3.0
+            ]
+          },
+          "changed": {
+            "shape": [
+              3
+            ],
+            "strides": [
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": true,
+            "is_leaf": true,
+            "values": [
+              -2.0,
+              1.0,
+              3.0
+            ]
+          }
+        },
+        "after_changed": {
+          "shape": [
+            3
+          ],
+          "strides": [
+            1
+          ],
+          "offset_elements": 0,
+          "version": 1,
+          "requires_grad": true,
+          "is_leaf": true,
+          "values": [
+            2.0,
+            5.0,
+            7.0
+          ]
+        },
+        "outcome": "BACKWARD_SUCCEEDED",
+        "exception": null,
+        "gradients": [
+          [
+            0.0,
+            1.0,
+            1.0
+          ]
+        ]
+      }
+    },
+    {
+      "case": "relu-output-mutation",
+      "status": "OBSERVED",
+      "observation": {
+        "configuration": {
+          "operator": "relu"
+        },
+        "before": {
+          "leaves": [
+            {
+              "shape": [
+                3
+              ],
+              "strides": [
+                1
+              ],
+              "offset_elements": 0,
+              "version": 0,
+              "requires_grad": true,
+              "is_leaf": true,
+              "values": [
+                -2.0,
+                1.0,
+                3.0
+              ]
+            }
+          ],
+          "output": {
+            "shape": [
+              3
+            ],
+            "strides": [
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": true,
+            "is_leaf": false,
+            "values": [
+              0.0,
+              1.0,
+              3.0
+            ]
+          },
+          "changed": {
+            "shape": [
+              3
+            ],
+            "strides": [
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": true,
+            "is_leaf": false,
+            "values": [
+              0.0,
+              1.0,
+              3.0
+            ]
+          }
+        },
+        "after_changed": {
+          "shape": [
+            3
+          ],
+          "strides": [
+            1
+          ],
+          "offset_elements": 0,
+          "version": 1,
+          "requires_grad": true,
+          "is_leaf": false,
+          "values": [
+            4.0,
+            5.0,
+            7.0
+          ]
+        },
+        "outcome": "BACKWARD_RAISED",
+        "exception": {
+          "type": "RuntimeError",
+          "message": "one of the variables needed for gradient computation has been modified by an inplace operation: [torch.FloatTensor [3]], which is output 0 of Relu, is at version 1; expected version 0 instead. Hint: enable anomaly detection to find the operation that failed to compute its gradient, with torch.autograd.set_detect_anomaly(True, check_nan=False)."
+        },
+        "gradients": [
+          null
+        ]
+      }
+    },
+    {
+      "case": "gather-input-mutation",
+      "status": "OBSERVED",
+      "observation": {
+        "configuration": {
+          "operator": "gather",
+          "index": [
+            [
+              2,
+              0
+            ],
+            [
+              1,
+              1
+            ]
+          ]
+        },
+        "before": {
+          "leaves": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                3,
+                1
+              ],
+              "offset_elements": 0,
+              "version": 0,
+              "requires_grad": true,
+              "is_leaf": true,
+              "values": [
+                1.0,
+                2.0,
+                3.0,
+                4.0,
+                5.0,
+                6.0
+              ]
+            }
+          ],
+          "output": {
+            "shape": [
+              2,
+              2
+            ],
+            "strides": [
+              2,
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": true,
+            "is_leaf": false,
+            "values": [
+              3.0,
+              1.0,
+              5.0,
+              5.0
+            ]
+          },
+          "changed": {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              3,
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": true,
+            "is_leaf": true,
+            "values": [
+              1.0,
+              2.0,
+              3.0,
+              4.0,
+              5.0,
+              6.0
+            ]
+          }
+        },
+        "after_changed": {
+          "shape": [
+            2,
+            3
+          ],
+          "strides": [
+            3,
+            1
+          ],
+          "offset_elements": 0,
+          "version": 1,
+          "requires_grad": true,
+          "is_leaf": true,
+          "values": [
+            5.0,
+            6.0,
+            7.0,
+            8.0,
+            9.0,
+            10.0
+          ]
+        },
+        "outcome": "BACKWARD_RAISED",
+        "exception": {
+          "type": "RuntimeError",
+          "message": "one of the variables needed for gradient computation has been modified by an inplace operation: [torch.FloatTensor [2, 3]] is at version 1; expected version 0 instead. Hint: enable anomaly detection to find the operation that failed to compute its gradient, with torch.autograd.set_detect_anomaly(True, check_nan=False)."
+        },
+        "gradients": [
+          null
+        ]
+      }
+    },
+    {
+      "case": "avg-pool-input-mutation",
+      "status": "OBSERVED",
+      "observation": {
+        "configuration": {
+          "operator": "avg_pool2d",
+          "kernel": 2
+        },
+        "before": {
+          "leaves": [
+            {
+              "shape": [
+                1,
+                1,
+                2,
+                2
+              ],
+              "strides": [
+                4,
+                4,
+                2,
+                1
+              ],
+              "offset_elements": 0,
+              "version": 0,
+              "requires_grad": true,
+              "is_leaf": true,
+              "values": [
+                1.0,
+                2.0,
+                3.0,
+                4.0
+              ]
+            }
+          ],
+          "output": {
+            "shape": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "strides": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": true,
+            "is_leaf": false,
+            "values": [
+              2.5
+            ]
+          },
+          "changed": {
+            "shape": [
+              1,
+              1,
+              2,
+              2
+            ],
+            "strides": [
+              4,
+              4,
+              2,
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": true,
+            "is_leaf": true,
+            "values": [
+              1.0,
+              2.0,
+              3.0,
+              4.0
+            ]
+          }
+        },
+        "after_changed": {
+          "shape": [
+            1,
+            1,
+            2,
+            2
+          ],
+          "strides": [
+            4,
+            4,
+            2,
+            1
+          ],
+          "offset_elements": 0,
+          "version": 1,
+          "requires_grad": true,
+          "is_leaf": true,
+          "values": [
+            5.0,
+            6.0,
+            7.0,
+            8.0
+          ]
+        },
+        "outcome": "BACKWARD_RAISED",
+        "exception": {
+          "type": "RuntimeError",
+          "message": "one of the variables needed for gradient computation has been modified by an inplace operation: [torch.FloatTensor [1, 1, 2, 2]] is at version 1; expected version 0 instead. Hint: enable anomaly detection to find the operation that failed to compute its gradient, with torch.autograd.set_detect_anomaly(True, check_nan=False)."
+        },
+        "gradients": [
+          null
+        ]
+      }
+    },
+    {
+      "case": "index-add-source-mutation",
+      "status": "OBSERVED",
+      "observation": {
+        "configuration": {
+          "operator": "index_add",
+          "index": [
+            1,
+            0
+          ]
+        },
+        "before": {
+          "leaves": [
+            {
+              "shape": [
+                2,
+                2
+              ],
+              "strides": [
+                2,
+                1
+              ],
+              "offset_elements": 0,
+              "version": 0,
+              "requires_grad": true,
+              "is_leaf": true,
+              "values": [
+                1.0,
+                2.0,
+                3.0,
+                4.0
+              ]
+            },
+            {
+              "shape": [
+                2,
+                2
+              ],
+              "strides": [
+                2,
+                1
+              ],
+              "offset_elements": 0,
+              "version": 0,
+              "requires_grad": true,
+              "is_leaf": true,
+              "values": [
+                0.5,
+                1.0,
+                2.0,
+                -1.0
+              ]
+            }
+          ],
+          "output": {
+            "shape": [
+              2,
+              2
+            ],
+            "strides": [
+              2,
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": true,
+            "is_leaf": false,
+            "values": [
+              2.0,
+              1.5,
+              3.25,
+              4.5
+            ]
+          },
+          "changed": {
+            "shape": [
+              2,
+              2
+            ],
+            "strides": [
+              2,
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": true,
+            "is_leaf": true,
+            "values": [
+              0.5,
+              1.0,
+              2.0,
+              -1.0
+            ]
+          }
+        },
+        "after_changed": {
+          "shape": [
+            2,
+            2
+          ],
+          "strides": [
+            2,
+            1
+          ],
+          "offset_elements": 0,
+          "version": 1,
+          "requires_grad": true,
+          "is_leaf": true,
+          "values": [
+            4.5,
+            5.0,
+            6.0,
+            3.0
+          ]
+        },
+        "outcome": "BACKWARD_RAISED",
+        "exception": {
+          "type": "RuntimeError",
+          "message": "one of the variables needed for gradient computation has been modified by an inplace operation: [torch.FloatTensor [2, 2]] is at version 1; expected version 0 instead. Hint: enable anomaly detection to find the operation that failed to compute its gradient, with torch.autograd.set_detect_anomaly(True, check_nan=False)."
+        },
+        "gradients": [
+          null,
+          null
+        ]
+      }
+    },
+    {
+      "case": "scatter-add-source-mutation",
+      "status": "OBSERVED",
+      "observation": {
+        "configuration": {
+          "operator": "scatter_add",
+          "index": [
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ]
+          ]
+        },
+        "before": {
+          "leaves": [
+            {
+              "shape": [
+                2,
+                2
+              ],
+              "strides": [
+                2,
+                1
+              ],
+              "offset_elements": 0,
+              "version": 0,
+              "requires_grad": true,
+              "is_leaf": true,
+              "values": [
+                1.0,
+                2.0,
+                3.0,
+                4.0
+              ]
+            },
+            {
+              "shape": [
+                2,
+                2
+              ],
+              "strides": [
+                2,
+                1
+              ],
+              "offset_elements": 0,
+              "version": 0,
+              "requires_grad": true,
+              "is_leaf": true,
+              "values": [
+                0.5,
+                1.0,
+                2.0,
+                -1.0
+              ]
+            }
+          ],
+          "output": {
+            "shape": [
+              2,
+              2
+            ],
+            "strides": [
+              2,
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": true,
+            "is_leaf": false,
+            "values": [
+              1.0,
+              3.0,
+              5.5,
+              3.0
+            ]
+          },
+          "changed": {
+            "shape": [
+              2,
+              2
+            ],
+            "strides": [
+              2,
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": true,
+            "is_leaf": true,
+            "values": [
+              0.5,
+              1.0,
+              2.0,
+              -1.0
+            ]
+          }
+        },
+        "after_changed": {
+          "shape": [
+            2,
+            2
+          ],
+          "strides": [
+            2,
+            1
+          ],
+          "offset_elements": 0,
+          "version": 1,
+          "requires_grad": true,
+          "is_leaf": true,
+          "values": [
+            4.5,
+            5.0,
+            6.0,
+            3.0
+          ]
+        },
+        "outcome": "BACKWARD_SUCCEEDED",
+        "exception": null,
+        "gradients": [
+          [
+            [
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0
+            ]
+          ],
+          [
+            [
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "case": "nonleaf-storage-not-needed-by-later-derivative",
+      "status": "OBSERVED",
+      "observation": {
+        "alive_while_public": true,
+        "expired_after_public_drop": true,
+        "expired_after_backward": true,
+        "gradient": [
+          2.0,
+          2.0,
+          2.0
+        ]
+      }
+    },
+    {
+      "case": "saved-output-storage-retain-and-default-backward",
+      "status": "OBSERVED",
+      "observation": {
+        "expired_after_public_drop": false,
+        "expired_after_retained_backward": false,
+        "expired_after_default_backward": true,
+        "gradient_after_two_backwards": [
+          -1.2793998718261719,
+          0.0,
+          1.2793998718261719
+        ]
+      }
+    },
+    {
+      "case": "leaf-storage-retained-by-accumulate-grad",
+      "status": "OBSERVED",
+      "observation": {
+        "expired_after_public_drop": false,
+        "expired_after_default_backward_with_root_alive": false,
+        "expired_after_root_drop": true
+      }
+    },
+    {
+      "case": "nongrad-coefficient-storage-retained-only-by-saved-value",
+      "status": "OBSERVED",
+      "observation": {
+        "expired_after_public_drop": false,
+        "expired_after_default_backward_with_root_alive": true,
+        "gradient": [
+          2.0,
+          3.0,
+          4.0
+        ]
+      }
+    },
+    {
+      "case": "matmul-mm-mutated-unsaved-left",
+      "status": "OBSERVED",
+      "observation": {
+        "configuration": {
+          "operator": "matmul",
+          "mode": 0,
+          "grad_fn": "MmBackward0"
+        },
+        "before": {
+          "leaves": [
+            {
+              "shape": [
+                2,
+                2
+              ],
+              "strides": [
+                2,
+                1
+              ],
+              "offset_elements": 0,
+              "version": 0,
+              "requires_grad": true,
+              "is_leaf": true,
+              "values": [
+                1.0,
+                2.0,
+                3.0,
+                4.0
+              ]
+            },
+            {
+              "shape": [
+                2,
+                2
+              ],
+              "strides": [
+                2,
+                1
+              ],
+              "offset_elements": 0,
+              "version": 0,
+              "requires_grad": false,
+              "is_leaf": true,
+              "values": [
+                0.5,
+                -1.0,
+                2.0,
+                1.0
+              ]
+            }
+          ],
+          "output": {
+            "shape": [
+              2,
+              2
+            ],
+            "strides": [
+              2,
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": true,
+            "is_leaf": false,
+            "values": [
+              4.5,
+              1.0,
+              9.5,
+              1.0
+            ]
+          },
+          "changed": {
+            "shape": [
+              2,
+              2
+            ],
+            "strides": [
+              2,
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": true,
+            "is_leaf": true,
+            "values": [
+              1.0,
+              2.0,
+              3.0,
+              4.0
+            ]
+          }
+        },
+        "after_changed": {
+          "shape": [
+            2,
+            2
+          ],
+          "strides": [
+            2,
+            1
+          ],
+          "offset_elements": 0,
+          "version": 1,
+          "requires_grad": true,
+          "is_leaf": true,
+          "values": [
+            5.0,
+            6.0,
+            7.0,
+            8.0
+          ]
+        },
+        "outcome": "BACKWARD_SUCCEEDED",
+        "exception": null,
+        "gradients": [
+          [
+            [
+              -0.5,
+              3.0
+            ],
+            [
+              -0.5,
+              3.0
+            ]
+          ],
+          null
+        ]
+      }
+    },
+    {
+      "case": "matmul-mm-mutated-saved-right",
+      "status": "OBSERVED",
+      "observation": {
+        "configuration": {
+          "operator": "matmul",
+          "mode": 1,
+          "grad_fn": "MmBackward0"
+        },
+        "before": {
+          "leaves": [
+            {
+              "shape": [
+                2,
+                2
+              ],
+              "strides": [
+                2,
+                1
+              ],
+              "offset_elements": 0,
+              "version": 0,
+              "requires_grad": true,
+              "is_leaf": true,
+              "values": [
+                1.0,
+                2.0,
+                3.0,
+                4.0
+              ]
+            },
+            {
+              "shape": [
+                2,
+                2
+              ],
+              "strides": [
+                2,
+                1
+              ],
+              "offset_elements": 0,
+              "version": 0,
+              "requires_grad": false,
+              "is_leaf": true,
+              "values": [
+                0.5,
+                -1.0,
+                2.0,
+                1.0
+              ]
+            }
+          ],
+          "output": {
+            "shape": [
+              2,
+              2
+            ],
+            "strides": [
+              2,
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": true,
+            "is_leaf": false,
+            "values": [
+              4.5,
+              1.0,
+              9.5,
+              1.0
+            ]
+          },
+          "changed": {
+            "shape": [
+              2,
+              2
+            ],
+            "strides": [
+              2,
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": false,
+            "is_leaf": true,
+            "values": [
+              0.5,
+              -1.0,
+              2.0,
+              1.0
+            ]
+          }
+        },
+        "after_changed": {
+          "shape": [
+            2,
+            2
+          ],
+          "strides": [
+            2,
+            1
+          ],
+          "offset_elements": 0,
+          "version": 1,
+          "requires_grad": false,
+          "is_leaf": true,
+          "values": [
+            4.5,
+            3.0,
+            6.0,
+            5.0
+          ]
+        },
+        "outcome": "BACKWARD_RAISED",
+        "exception": {
+          "type": "RuntimeError",
+          "message": "one of the variables needed for gradient computation has been modified by an inplace operation: [torch.FloatTensor [2, 2]] is at version 1; expected version 0 instead. Hint: enable anomaly detection to find the operation that failed to compute its gradient, with torch.autograd.set_detect_anomaly(True, check_nan=False)."
+        },
+        "gradients": [
+          null,
+          null
+        ]
+      }
+    },
+    {
+      "case": "matmul-folded-view-mutated-saved-left",
+      "status": "OBSERVED",
+      "observation": {
+        "configuration": {
+          "operator": "matmul",
+          "mode": 2,
+          "grad_fn": "UnsafeViewBackward0"
+        },
+        "before": {
+          "leaves": [
+            {
+              "shape": [
+                2,
+                3,
+                4
+              ],
+              "strides": [
+                12,
+                4,
+                1
+              ],
+              "offset_elements": 0,
+              "version": 0,
+              "requires_grad": false,
+              "is_leaf": true,
+              "values": [
+                0.0,
+                1.0,
+                2.0,
+                3.0,
+                4.0,
+                5.0,
+                6.0,
+                7.0,
+                8.0,
+                9.0,
+                10.0,
+                11.0,
+                12.0,
+                13.0,
+                14.0,
+                15.0,
+                16.0,
+                17.0,
+                18.0,
+                19.0,
+                20.0,
+                21.0,
+                22.0,
+                23.0
+              ]
+            },
+            {
+              "shape": [
+                4,
+                2
+              ],
+              "strides": [
+                2,
+                1
+              ],
+              "offset_elements": 0,
+              "version": 0,
+              "requires_grad": true,
+              "is_leaf": true,
+              "values": [
+                1.0,
+                2.0,
+                3.0,
+                4.0,
+                -1.0,
+                1.0,
+                0.5,
+                -0.5
+              ]
+            }
+          ],
+          "output": {
+            "shape": [
+              2,
+              3,
+              2
+            ],
+            "strides": [
+              6,
+              2,
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": true,
+            "is_leaf": false,
+            "values": [
+              2.5,
+              4.5,
+              16.5,
+              30.5,
+              30.5,
+              56.5,
+              44.5,
+              82.5,
+              58.5,
+              108.5,
+              72.5,
+              134.5
+            ]
+          },
+          "changed": {
+            "shape": [
+              2,
+              3,
+              4
+            ],
+            "strides": [
+              12,
+              4,
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": false,
+            "is_leaf": true,
+            "values": [
+              0.0,
+              1.0,
+              2.0,
+              3.0,
+              4.0,
+              5.0,
+              6.0,
+              7.0,
+              8.0,
+              9.0,
+              10.0,
+              11.0,
+              12.0,
+              13.0,
+              14.0,
+              15.0,
+              16.0,
+              17.0,
+              18.0,
+              19.0,
+              20.0,
+              21.0,
+              22.0,
+              23.0
+            ]
+          }
+        },
+        "after_changed": {
+          "shape": [
+            2,
+            3,
+            4
+          ],
+          "strides": [
+            12,
+            4,
+            1
+          ],
+          "offset_elements": 0,
+          "version": 1,
+          "requires_grad": false,
+          "is_leaf": true,
+          "values": [
+            4.0,
+            5.0,
+            6.0,
+            7.0,
+            8.0,
+            9.0,
+            10.0,
+            11.0,
+            12.0,
+            13.0,
+            14.0,
+            15.0,
+            16.0,
+            17.0,
+            18.0,
+            19.0,
+            20.0,
+            21.0,
+            22.0,
+            23.0,
+            24.0,
+            25.0,
+            26.0,
+            27.0
+          ]
+        },
+        "outcome": "BACKWARD_RAISED",
+        "exception": {
+          "type": "RuntimeError",
+          "message": "one of the variables needed for gradient computation has been modified by an inplace operation: [torch.FloatTensor [6, 4]] is at version 1; expected version 0 instead. Hint: enable anomaly detection to find the operation that failed to compute its gradient, with torch.autograd.set_detect_anomaly(True, check_nan=False)."
+        },
+        "gradients": [
+          null,
+          null
+        ]
+      }
+    },
+    {
+      "case": "matmul-folded-copy-mutated-original-left",
+      "status": "OBSERVED",
+      "observation": {
+        "configuration": {
+          "operator": "matmul",
+          "mode": 3,
+          "grad_fn": "UnsafeViewBackward0"
+        },
+        "before": {
+          "leaves": [
+            {
+              "shape": [
+                3,
+                2,
+                4
+              ],
+              "strides": [
+                4,
+                12,
+                1
+              ],
+              "offset_elements": 0,
+              "version": 0,
+              "requires_grad": false,
+              "is_leaf": true,
+              "values": [
+                0.0,
+                1.0,
+                2.0,
+                3.0,
+                12.0,
+                13.0,
+                14.0,
+                15.0,
+                4.0,
+                5.0,
+                6.0,
+                7.0,
+                16.0,
+                17.0,
+                18.0,
+                19.0,
+                8.0,
+                9.0,
+                10.0,
+                11.0,
+                20.0,
+                21.0,
+                22.0,
+                23.0
+              ]
+            },
+            {
+              "shape": [
+                4,
+                2
+              ],
+              "strides": [
+                2,
+                1
+              ],
+              "offset_elements": 0,
+              "version": 0,
+              "requires_grad": true,
+              "is_leaf": true,
+              "values": [
+                1.0,
+                2.0,
+                3.0,
+                4.0,
+                -1.0,
+                1.0,
+                0.5,
+                -0.5
+              ]
+            }
+          ],
+          "output": {
+            "shape": [
+              3,
+              2,
+              2
+            ],
+            "strides": [
+              4,
+              2,
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": true,
+            "is_leaf": false,
+            "values": [
+              2.5,
+              4.5,
+              44.5,
+              82.5,
+              16.5,
+              30.5,
+              58.5,
+              108.5,
+              30.5,
+              56.5,
+              72.5,
+              134.5
+            ]
+          },
+          "changed": {
+            "shape": [
+              3,
+              2,
+              4
+            ],
+            "strides": [
+              4,
+              12,
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": false,
+            "is_leaf": true,
+            "values": [
+              0.0,
+              1.0,
+              2.0,
+              3.0,
+              12.0,
+              13.0,
+              14.0,
+              15.0,
+              4.0,
+              5.0,
+              6.0,
+              7.0,
+              16.0,
+              17.0,
+              18.0,
+              19.0,
+              8.0,
+              9.0,
+              10.0,
+              11.0,
+              20.0,
+              21.0,
+              22.0,
+              23.0
+            ]
+          }
+        },
+        "after_changed": {
+          "shape": [
+            3,
+            2,
+            4
+          ],
+          "strides": [
+            4,
+            12,
+            1
+          ],
+          "offset_elements": 0,
+          "version": 1,
+          "requires_grad": false,
+          "is_leaf": true,
+          "values": [
+            4.0,
+            5.0,
+            6.0,
+            7.0,
+            16.0,
+            17.0,
+            18.0,
+            19.0,
+            8.0,
+            9.0,
+            10.0,
+            11.0,
+            20.0,
+            21.0,
+            22.0,
+            23.0,
+            12.0,
+            13.0,
+            14.0,
+            15.0,
+            24.0,
+            25.0,
+            26.0,
+            27.0
+          ]
+        },
+        "outcome": "BACKWARD_SUCCEEDED",
+        "exception": null,
+        "gradients": [
+          null,
+          [
+            [
+              60.0,
+              60.0
+            ],
+            [
+              66.0,
+              66.0
+            ],
+            [
+              72.0,
+              72.0
+            ],
+            [
+              78.0,
+              78.0
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "case": "matmul-broadcast-reshape-copy-mutated-original-left",
+      "status": "OBSERVED",
+      "observation": {
+        "configuration": {
+          "operator": "matmul",
+          "mode": 4,
+          "grad_fn": "UnsafeViewBackward0"
+        },
+        "before": {
+          "leaves": [
+            {
+              "shape": [
+                2,
+                1,
+                3,
+                4
+              ],
+              "strides": [
+                12,
+                12,
+                4,
+                1
+              ],
+              "offset_elements": 0,
+              "version": 0,
+              "requires_grad": false,
+              "is_leaf": true,
+              "values": [
+                0.0,
+                1.0,
+                2.0,
+                3.0,
+                4.0,
+                5.0,
+                6.0,
+                7.0,
+                8.0,
+                9.0,
+                10.0,
+                11.0,
+                12.0,
+                13.0,
+                14.0,
+                15.0,
+                16.0,
+                17.0,
+                18.0,
+                19.0,
+                20.0,
+                21.0,
+                22.0,
+                23.0
+              ]
+            },
+            {
+              "shape": [
+                1,
+                2,
+                4,
+                2
+              ],
+              "strides": [
+                16,
+                8,
+                2,
+                1
+              ],
+              "offset_elements": 0,
+              "version": 0,
+              "requires_grad": true,
+              "is_leaf": true,
+              "values": [
+                0.0,
+                1.0,
+                2.0,
+                3.0,
+                4.0,
+                5.0,
+                6.0,
+                7.0,
+                8.0,
+                9.0,
+                10.0,
+                11.0,
+                12.0,
+                13.0,
+                14.0,
+                15.0
+              ]
+            }
+          ],
+          "output": {
+            "shape": [
+              2,
+              2,
+              3,
+              2
+            ],
+            "strides": [
+              12,
+              6,
+              2,
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": true,
+            "is_leaf": false,
+            "values": [
+              28.0,
+              34.0,
+              76.0,
+              98.0,
+              124.0,
+              162.0,
+              76.0,
+              82.0,
+              252.0,
+              274.0,
+              428.0,
+              466.0,
+              172.0,
+              226.0,
+              220.0,
+              290.0,
+              268.0,
+              354.0,
+              604.0,
+              658.0,
+              780.0,
+              850.0,
+              956.0,
+              1042.0
+            ]
+          },
+          "changed": {
+            "shape": [
+              2,
+              1,
+              3,
+              4
+            ],
+            "strides": [
+              12,
+              12,
+              4,
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": false,
+            "is_leaf": true,
+            "values": [
+              0.0,
+              1.0,
+              2.0,
+              3.0,
+              4.0,
+              5.0,
+              6.0,
+              7.0,
+              8.0,
+              9.0,
+              10.0,
+              11.0,
+              12.0,
+              13.0,
+              14.0,
+              15.0,
+              16.0,
+              17.0,
+              18.0,
+              19.0,
+              20.0,
+              21.0,
+              22.0,
+              23.0
+            ]
+          }
+        },
+        "after_changed": {
+          "shape": [
+            2,
+            1,
+            3,
+            4
+          ],
+          "strides": [
+            12,
+            12,
+            4,
+            1
+          ],
+          "offset_elements": 0,
+          "version": 1,
+          "requires_grad": false,
+          "is_leaf": true,
+          "values": [
+            4.0,
+            5.0,
+            6.0,
+            7.0,
+            8.0,
+            9.0,
+            10.0,
+            11.0,
+            12.0,
+            13.0,
+            14.0,
+            15.0,
+            16.0,
+            17.0,
+            18.0,
+            19.0,
+            20.0,
+            21.0,
+            22.0,
+            23.0,
+            24.0,
+            25.0,
+            26.0,
+            27.0
+          ]
+        },
+        "outcome": "BACKWARD_SUCCEEDED",
+        "exception": null,
+        "gradients": [
+          null,
+          [
+            [
+              [
+                [
+                  60.0,
+                  60.0
+                ],
+                [
+                  66.0,
+                  66.0
+                ],
+                [
+                  72.0,
+                  72.0
+                ],
+                [
+                  78.0,
+                  78.0
+                ]
+              ],
+              [
+                [
+                  60.0,
+                  60.0
+                ],
+                [
+                  66.0,
+                  66.0
+                ],
+                [
+                  72.0,
+                  72.0
+                ],
+                [
+                  78.0,
+                  78.0
+                ]
+              ]
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "case": "matmul-mm-noncontiguous-mutated-saved-left",
+      "status": "OBSERVED",
+      "observation": {
+        "configuration": {
+          "operator": "matmul",
+          "mode": 5,
+          "grad_fn": "MmBackward0"
+        },
+        "before": {
+          "leaves": [
+            {
+              "shape": [
+                2,
+                3
+              ],
+              "strides": [
+                1,
+                2
+              ],
+              "offset_elements": 0,
+              "version": 0,
+              "requires_grad": false,
+              "is_leaf": true,
+              "values": [
+                0.0,
+                2.0,
+                4.0,
+                1.0,
+                3.0,
+                5.0
+              ]
+            },
+            {
+              "shape": [
+                3,
+                2
+              ],
+              "strides": [
+                2,
+                1
+              ],
+              "offset_elements": 0,
+              "version": 0,
+              "requires_grad": true,
+              "is_leaf": true,
+              "values": [
+                1.0,
+                -1.0,
+                2.0,
+                3.0,
+                4.0,
+                0.5
+              ]
+            }
+          ],
+          "output": {
+            "shape": [
+              2,
+              2
+            ],
+            "strides": [
+              2,
+              1
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": true,
+            "is_leaf": false,
+            "values": [
+              20.0,
+              8.0,
+              27.0,
+              10.5
+            ]
+          },
+          "changed": {
+            "shape": [
+              2,
+              3
+            ],
+            "strides": [
+              1,
+              2
+            ],
+            "offset_elements": 0,
+            "version": 0,
+            "requires_grad": false,
+            "is_leaf": true,
+            "values": [
+              0.0,
+              2.0,
+              4.0,
+              1.0,
+              3.0,
+              5.0
+            ]
+          }
+        },
+        "after_changed": {
+          "shape": [
+            2,
+            3
+          ],
+          "strides": [
+            1,
+            2
+          ],
+          "offset_elements": 0,
+          "version": 1,
+          "requires_grad": false,
+          "is_leaf": true,
+          "values": [
+            4.0,
+            6.0,
+            8.0,
+            5.0,
+            7.0,
+            9.0
+          ]
+        },
+        "outcome": "BACKWARD_RAISED",
+        "exception": {
+          "type": "RuntimeError",
+          "message": "one of the variables needed for gradient computation has been modified by an inplace operation: [torch.FloatTensor [2, 3]] is at version 1; expected version 0 instead. Hint: enable anomaly detection to find the operation that failed to compute its gradient, with torch.autograd.set_detect_anomaly(True, check_nan=False)."
+        },
+        "gradients": [
+          null,
+          null
+        ]
+      }
+    }
+  ],
+  "oracle_provenance": {
+    "status": "PASS",
+    "lock_path": "/home/runner/work/HeptaTorch/HeptaTorch/compatibility/pytorch-oracle-lock.json",
+    "lock_sha256": "ca2e54ce65083bbe0ab3d47b6878971271765ab35a9dd70725fa345fceed3944",
+    "expected": {
+      "distribution": "torch",
+      "version": "2.15.0+cpu",
+      "git_commit": "d0f2af8b66b20da4baa50644c0cd3f887a2eae2e",
+      "backend_versions": {
+        "cuda": null,
+        "hip": null,
+        "rocm": null,
+        "xpu": null
+      },
+      "python": {
+        "implementation": "cpython",
+        "version": [
+          3,
+          12
+        ]
+      },
+      "platform": {
+        "sys_platform": "linux",
+        "machine": "x86_64"
+      },
+      "wheel": {
+        "url": "https://download-r2.pytorch.org/whl/cpu/torch-2.15.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl",
+        "sha256": "0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3",
+        "filename": "torch-2.15.0+cpu-cp312-cp312-manylinux_2_28_x86_64.whl",
+        "python_tag": "cp312",
+        "abi_tag": "cp312",
+        "platform_tag": "manylinux_2_28_x86_64",
+        "metadata_sha256": "8bbf94c86c3be6cf586385861d476b78cb66d19b67fef49ece4f7d68ca428cc3"
+      },
+      "install_report": "build/pytorch-install.json"
+    },
+    "observed": {
+      "python": {
+        "implementation": "cpython",
+        "version": [
+          3,
+          12
+        ],
+        "full_version": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]"
+      },
+      "platform": {
+        "sys_platform": "linux",
+        "machine": "x86_64"
+      },
+      "version": "2.15.0+cpu",
+      "git_commit": "d0f2af8b66b20da4baa50644c0cd3f887a2eae2e",
+      "backend_versions": {
+        "cuda": null,
+        "hip": null,
+        "rocm": null,
+        "xpu": null
+      },
+      "distribution_version": "2.15.0+cpu",
+      "direct_url": {
+        "archive_info": {
+          "hash": "sha256=0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3",
+          "hashes": {
+            "sha256": "0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3"
+          }
+        },
+        "url": "https://download-r2.pytorch.org/whl/cpu/torch-2.15.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl"
+      },
+      "install_report": {
+        "path": "build/pytorch-install.json",
+        "pip_version": "24.0",
+        "download_info": {
+          "url": "https://download-r2.pytorch.org/whl/cpu/torch-2.15.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl",
+          "archive_info": {
+            "hash": "sha256=0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3",
+            "hashes": {
+              "sha256": "0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3"
+            }
+          }
+        },
+        "metadata_name": "torch",
+        "metadata_version": "2.15.0+cpu",
+        "requested": true
+      }
+    },
+    "checks": {
+      "python_matches": true,
+      "platform_matches": true,
+      "version_backend_matches": true,
+      "git_matches_oracle_build_pin": true,
+      "distribution_version_matches": true,
+      "direct_url_matches": true,
+      "direct_url_archive_sha256_matches": true,
+      "pip_report_url_matches": true,
+      "pip_report_archive_sha256_matches": true,
+      "pip_report_version_matches": true,
+      "pip_report_requested": true
+    },
+    "metadata_error": null,
+    "release_source_equivalence": {
+      "inventory_commit": "31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
+      "wheel_build_commit": "d0f2af8b66b20da4baa50644c0cd3f887a2eae2e",
+      "wheel_build_is_direct_parent_of_inventory_commit": true,
+      "torch_git_matches_upstream_pin": false,
+      "release_root_tree": "156b7013e253ac50abaa4de8a4d2e6dd7acbbb56",
+      "wheel_build_root_tree": "408badfd8e01265470f4efedfe22fa547b128351",
+      "root_entry_counts": {
+        "release": 74,
+        "wheel": 74
+      },
+      "root_trees_truncated": {
+        "release": false,
+        "wheel": false
+      },
+      "changed_paths": [
+        "pyproject.toml"
+      ],
+      "change": "The release commit adds five lines under [tool.ruff], setting target-version to py310 with explanatory comments. There are no deletions. Every other root entry and every source subtree is identical.",
+      "wheel_pyproject_blob": "6d2cb5e341729de25288267e24d76c20254288f8",
+      "release_pyproject_blob": "e7648b0fcb198697832a6aab3469719a9992a8ec",
+      "identical_subtrees": {
+        ".ci": "40279ceebccac57277fdaabf1fb8cb70b60850d6",
+        ".claude": "0075de12edc4d9bdbf28e567c5f54f3ac5e78201",
+        ".ctags.d": "3c8ba0dccbb55f2da51365a465144aa69c6025d0",
+        ".devcontainer": "6abd271cefad60b09bbfacb63e53325198cd5521",
+        ".github": "8ae0eeb95729b758872993f4a7fed6ffcefb286c",
+        ".spin": "ef791f9c9264cb8a8e13acce7ee418e0f9c956ac",
+        ".vscode": "ea91f344ac83b434b498fa28b4b8b555e68a9126",
+        "android": "d2ff3db5f9fac06b8ddce4b796409a09e8e5e8a8",
+        "aten": "742dba1bfe6135f3573e4eaac689742744628174",
+        "benchmarks": "ec19294aeabfaae61be43f8ea98c7bfe5e507b56",
+        "binaries": "f5249d171f1af6f07384c91418892a45d05fee22",
+        "c10": "bcd92827e525817818af6e44b77f64460823bef1",
+        "caffe2": "73f5fcafe72932ee5cbaab1b2bd879f8a634344e",
+        "cmake": "b622eeb5fe4620c3f58529c34cc52b4466af8519",
+        "docs": "5b3f3b84bd0c6597c7c926d221739ab4c9d4fc9f",
+        "functorch": "c559f838225b0971bc22fcb2672589c27ef01456",
+        "mypy_plugins": "f2f6231e180a450273107602eef43bd9433a51c0",
+        "scripts": "940b5e644e48b7eedc65292e19e56e4c7a9abb98",
+        "test": "9dcb79311a6209012b019fc6f20209d2804cca98",
+        "third_party": "60ad164358c335341c6a7840bb80256079e6dd8e",
+        "tools": "f35164cd2daf3f11baadcccc5551800e38392432",
+        "torch": "2877dbcda5441192b89ab6272c24bed424e53bd4",
+        "torchgen": "f5fb760a18c6d4c81a4b665ad7adef7348dba6a3"
+      },
+      "scope": "Only this exact official wheel SHA256/build commit and this exact inventory release commit. This is source equivalence for the recorded lint-only release change, not identity of the two Git commits or an allowance for other builds."
+    }
+  }
+}
