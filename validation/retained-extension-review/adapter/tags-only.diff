@@ -1,0 +1,13 @@
+--- frozen-428
++++ retained-446-tags
+@@ -200,8 +200,8 @@
+         eq(one(s,53)['value'],1,'native graph Storage Version Gradient Generator Optimizer audit')
+         raw=s.owner()['bytes']
+         u=lambda at:struct.unpack_from('<Q',raw,at)[0]
+-        eq(raw[64:72],b'HTGAD002','exact combined numeric state tag')
+-        eq(raw[139264:139272],b'HTOGAD02','exact combined backing state tag')
++        eq(raw[64:72],b'HTRET001','exact combined numeric state tag')
++        eq(raw[139264:139272],b'HTORET01','exact combined backing state tag')
+         eq([u(i) for i in (112,3968,3976,3984,3992,4000,4008)],[0]*7,'all committed derivative/GC/staging controls cleared')
+         slots=u(139264+16)
+         poolbase=139264+144+552*slots

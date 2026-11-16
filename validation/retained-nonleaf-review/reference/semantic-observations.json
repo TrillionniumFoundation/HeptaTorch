@@ -1,0 +1,6104 @@
+{
+  "schema": "heptatorch.retained-nonleaf-independent-actual-summary.v1",
+  "status": "OBSERVED_REFERENCE_FROZEN",
+  "actual_sha256": "ca8b5d3a7c679dcc5ad9a3d7b2bbd38f664c90e6474cf3e3c28496d5b716d1b3",
+  "actual_bytes": 722720,
+  "probe_sha256": "7cdb53f7a95c48acd1b85d93d90c693d4caa97ada72a54a4021bb616d098fcba",
+  "families": 8,
+  "variants": 12,
+  "probe_errors": 0,
+  "provenance_checks": {
+    "python_matches": true,
+    "platform_matches": true,
+    "version_backend_matches": true,
+    "git_matches_oracle_build_pin": true,
+    "distribution_version_matches": true,
+    "direct_url_matches": true,
+    "direct_url_archive_sha256_matches": true,
+    "pip_report_url_matches": true,
+    "pip_report_archive_sha256_matches": true,
+    "pip_report_version_matches": true,
+    "pip_report_requested": true
+  },
+  "source_files_unchanged": true,
+  "native_executed_by_this_reader": false,
+  "torch_executed_by_this_reader": false,
+  "identity_policy": "Compare opaque identity equality relations within a live recipe; never compare process addresses or conflate Tensor with Storage identity.",
+  "version_policy": "Version counters are exact. Equal counters do not prove shared Version identity.",
+  "exception_policy": "Command 58 exposes committed retain prehook effects before a runtime error. Legacy atomic backward is a separate contract.",
+  "numeric_policy": "All binary32 words exact except pre-existing Adam parameter/moment tolerance rtol=4e-5, atol=5e-6; always preserve raw word observations.",
+  "diagnostic_only": [
+    "Python wrapper weakref lifetime",
+    "Python warning objects",
+    "Python exception message spelling",
+    "exact Python grad_fn class name"
+  ],
+  "scope": "These twelve first-order CPU binary32 retained-gradient variants; not complete PyTorch closure.",
+  "rows": [
+    {
+      "case": "admission-leaf-noop-and-idempotence",
+      "variant": "default",
+      "json_pointer": "/rows/0/observation",
+      "events": [
+        {
+          "json_pointer": "/rows/0/observation/events/0",
+          "action": "leaf retain is a no-op",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "leaf": 0,
+              "nonleaf": 0,
+              "inert": 0
+            },
+            "retains_flags": {
+              "leaf": false,
+              "nonleaf": false,
+              "inert": false
+            },
+            "gradients": {
+              "leaf": null,
+              "nonleaf": null,
+              "inert": null
+            }
+          },
+          "after": {
+            "tensor_versions": {
+              "leaf": 0,
+              "nonleaf": 0,
+              "inert": 0
+            },
+            "retains_flags": {
+              "leaf": false,
+              "nonleaf": false,
+              "inert": false
+            },
+            "gradients": {
+              "leaf": null,
+              "nonleaf": null,
+              "inert": null
+            }
+          }
+        },
+        {
+          "json_pointer": "/rows/0/observation/events/1",
+          "action": "requires-false retain request",
+          "outcome": "RAISED",
+          "exception_type": "RuntimeError",
+          "message": "can't retain_grad on Tensor that has requires_grad=False",
+          "before": {
+            "tensor_versions": {
+              "leaf": 0,
+              "nonleaf": 0,
+              "inert": 0
+            },
+            "retains_flags": {
+              "leaf": false,
+              "nonleaf": false,
+              "inert": false
+            },
+            "gradients": {
+              "leaf": null,
+              "nonleaf": null,
+              "inert": null
+            }
+          },
+          "after": {
+            "tensor_versions": {
+              "leaf": 0,
+              "nonleaf": 0,
+              "inert": 0
+            },
+            "retains_flags": {
+              "leaf": false,
+              "nonleaf": false,
+              "inert": false
+            },
+            "gradients": {
+              "leaf": null,
+              "nonleaf": null,
+              "inert": null
+            }
+          }
+        },
+        {
+          "json_pointer": "/rows/0/observation/events/2",
+          "action": "nonleaf optimizer before retain",
+          "outcome": "RAISED",
+          "exception_type": "ValueError",
+          "message": "can't optimize a non-leaf Tensor"
+        },
+        {
+          "json_pointer": "/rows/0/observation/events/3",
+          "action": "first nonleaf retain",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "leaf": 0,
+              "nonleaf": 0,
+              "inert": 0
+            },
+            "retains_flags": {
+              "leaf": false,
+              "nonleaf": false,
+              "inert": false
+            },
+            "gradients": {
+              "leaf": null,
+              "nonleaf": null,
+              "inert": null
+            }
+          },
+          "after": {
+            "tensor_versions": {
+              "leaf": 0,
+              "nonleaf": 0,
+              "inert": 0
+            },
+            "retains_flags": {
+              "leaf": false,
+              "nonleaf": true,
+              "inert": false
+            },
+            "gradients": {
+              "leaf": null,
+              "nonleaf": null,
+              "inert": null
+            }
+          }
+        },
+        {
+          "json_pointer": "/rows/0/observation/events/4",
+          "action": "repeated nonleaf retain",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "leaf": 0,
+              "nonleaf": 0,
+              "inert": 0
+            },
+            "retains_flags": {
+              "leaf": false,
+              "nonleaf": true,
+              "inert": false
+            },
+            "gradients": {
+              "leaf": null,
+              "nonleaf": null,
+              "inert": null
+            }
+          },
+          "after": {
+            "tensor_versions": {
+              "leaf": 0,
+              "nonleaf": 0,
+              "inert": 0
+            },
+            "retains_flags": {
+              "leaf": false,
+              "nonleaf": true,
+              "inert": false
+            },
+            "gradients": {
+              "leaf": null,
+              "nonleaf": null,
+              "inert": null
+            }
+          }
+        },
+        {
+          "json_pointer": "/rows/0/observation/events/5",
+          "action": "nonleaf optimizer after retain",
+          "outcome": "SUCCEEDED"
+        }
+      ]
+    },
+    {
+      "case": "retained-gradient-replacement-clear-and-old-saved-alias",
+      "variant": "default",
+      "json_pointer": "/rows/1/observation",
+      "events": [
+        {
+          "json_pointer": "/rows/1/observation/events/0",
+          "action": "first retained backward",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "seed1": 0,
+              "seed2": 0,
+              "seed3": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "seed3": false
+            },
+            "gradients": {
+              "x": null,
+              "q": null,
+              "seed1": null,
+              "seed2": null,
+              "seed3": null
+            }
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "seed1": 0,
+              "seed2": 0,
+              "seed3": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "seed3": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  2147483648,
+                  1082130432
+                ],
+                "tensor_identity": "958855408",
+                "storage_identity": "926019920",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  2147483648,
+                  1073741824
+                ],
+                "tensor_identity": "951228608",
+                "storage_identity": "960023504",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null,
+              "seed3": null
+            }
+          }
+        },
+        {
+          "json_pointer": "/rows/1/observation/events/1",
+          "action": "second retained backward",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "seed1": 0,
+              "seed2": 0,
+              "seed3": 0,
+              "held_gradient1": 0,
+              "saved_guard_parameter": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "seed3": false,
+              "held_gradient1": false,
+              "saved_guard_parameter": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  2147483648,
+                  1082130432
+                ],
+                "tensor_identity": "958855408",
+                "storage_identity": "926019920",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  2147483648,
+                  1073741824
+                ],
+                "tensor_identity": "951228608",
+                "storage_identity": "960023504",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null,
+              "seed3": null,
+              "held_gradient1": null,
+              "saved_guard_parameter": null
+            }
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "seed1": 0,
+              "seed2": 0,
+              "seed3": 0,
+              "held_gradient1": 0,
+              "saved_guard_parameter": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "seed3": false,
+              "held_gradient1": false,
+              "saved_guard_parameter": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [
+                  1073741824,
+                  0
+                ],
+                "tensor_identity": "958855408",
+                "storage_identity": "926019920",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1065353216,
+                  0
+                ],
+                "tensor_identity": "961373952",
+                "storage_identity": "958616320",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null,
+              "seed3": null,
+              "held_gradient1": null,
+              "saved_guard_parameter": null
+            }
+          }
+        },
+        {
+          "json_pointer": "/rows/1/observation/events/2",
+          "action": "backward through saved old gradient",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "seed1": 0,
+              "seed2": 0,
+              "seed3": 0,
+              "held_gradient1": 0,
+              "saved_guard_parameter": 0,
+              "held_gradient2": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "seed3": false,
+              "held_gradient1": false,
+              "saved_guard_parameter": false,
+              "held_gradient2": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [
+                  1073741824,
+                  0
+                ],
+                "tensor_identity": "958855408",
+                "storage_identity": "926019920",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1065353216,
+                  0
+                ],
+                "tensor_identity": "961373952",
+                "storage_identity": "958616320",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null,
+              "seed3": null,
+              "held_gradient1": null,
+              "saved_guard_parameter": null,
+              "held_gradient2": null
+            }
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "seed1": 0,
+              "seed2": 0,
+              "seed3": 0,
+              "held_gradient1": 0,
+              "saved_guard_parameter": 0,
+              "held_gradient2": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "seed3": false,
+              "held_gradient1": false,
+              "saved_guard_parameter": false,
+              "held_gradient2": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [
+                  1073741824,
+                  0
+                ],
+                "tensor_identity": "958855408",
+                "storage_identity": "926019920",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1065353216,
+                  0
+                ],
+                "tensor_identity": "961373952",
+                "storage_identity": "958616320",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null,
+              "seed3": null,
+              "held_gradient1": null,
+              "saved_guard_parameter": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  2147483648,
+                  1073741824
+                ],
+                "tensor_identity": "958941392",
+                "storage_identity": "937418608",
+                "retains_grad": false
+              },
+              "held_gradient2": null
+            }
+          }
+        },
+        {
+          "json_pointer": "/rows/1/observation/events/3",
+          "action": "clear retained gradient reference",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "seed1": 0,
+              "seed2": 0,
+              "seed3": 0,
+              "held_gradient1": 0,
+              "saved_guard_parameter": 0,
+              "held_gradient2": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "seed3": false,
+              "held_gradient1": false,
+              "saved_guard_parameter": false,
+              "held_gradient2": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [
+                  1073741824,
+                  0
+                ],
+                "tensor_identity": "958855408",
+                "storage_identity": "926019920",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1065353216,
+                  0
+                ],
+                "tensor_identity": "961373952",
+                "storage_identity": "958616320",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null,
+              "seed3": null,
+              "held_gradient1": null,
+              "saved_guard_parameter": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  2147483648,
+                  1073741824
+                ],
+                "tensor_identity": "958941392",
+                "storage_identity": "937418608",
+                "retains_grad": false
+              },
+              "held_gradient2": null
+            }
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "seed1": 0,
+              "seed2": 0,
+              "seed3": 0,
+              "held_gradient1": 0,
+              "saved_guard_parameter": 0,
+              "held_gradient2": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "seed3": false,
+              "held_gradient1": false,
+              "saved_guard_parameter": false,
+              "held_gradient2": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [
+                  1073741824,
+                  0
+                ],
+                "tensor_identity": "958855408",
+                "storage_identity": "926019920",
+                "retains_grad": false
+              },
+              "q": null,
+              "seed1": null,
+              "seed2": null,
+              "seed3": null,
+              "held_gradient1": null,
+              "saved_guard_parameter": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  2147483648,
+                  1073741824
+                ],
+                "tensor_identity": "958941392",
+                "storage_identity": "937418608",
+                "retains_grad": false
+              },
+              "held_gradient2": null
+            }
+          }
+        },
+        {
+          "json_pointer": "/rows/1/observation/events/4",
+          "action": "first materialization again including negative zero",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "seed1": 0,
+              "seed2": 0,
+              "seed3": 0,
+              "held_gradient1": 0,
+              "saved_guard_parameter": 0,
+              "held_gradient2": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "seed3": false,
+              "held_gradient1": false,
+              "saved_guard_parameter": false,
+              "held_gradient2": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [
+                  1073741824,
+                  0
+                ],
+                "tensor_identity": "958855408",
+                "storage_identity": "926019920",
+                "retains_grad": false
+              },
+              "q": null,
+              "seed1": null,
+              "seed2": null,
+              "seed3": null,
+              "held_gradient1": null,
+              "saved_guard_parameter": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  2147483648,
+                  1073741824
+                ],
+                "tensor_identity": "958941392",
+                "storage_identity": "937418608",
+                "retains_grad": false
+              },
+              "held_gradient2": null
+            }
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "seed1": 0,
+              "seed2": 0,
+              "seed3": 0,
+              "held_gradient1": 0,
+              "saved_guard_parameter": 0,
+              "held_gradient2": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "seed3": false,
+              "held_gradient1": false,
+              "saved_guard_parameter": false,
+              "held_gradient2": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 2,
+                "binary32_words": [
+                  1073741824,
+                  0
+                ],
+                "tensor_identity": "958855408",
+                "storage_identity": "926019920",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  2147483648,
+                  2147483648
+                ],
+                "tensor_identity": "960155568",
+                "storage_identity": "958569936",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null,
+              "seed3": null,
+              "held_gradient1": null,
+              "saved_guard_parameter": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  2147483648,
+                  1073741824
+                ],
+                "tensor_identity": "958941392",
+                "storage_identity": "937418608",
+                "retains_grad": false
+              },
+              "held_gradient2": null
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case": "transpose-incoming-and-assigned-gradient-layout",
+      "variant": "default",
+      "json_pointer": "/rows/2/observation",
+      "events": [
+        {
+          "json_pointer": "/rows/2/observation/events/0",
+          "action": "first retain clones contiguous despite strided seed",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "held_strided_seed": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "held_strided_seed": false
+            },
+            "gradients": {
+              "x": null,
+              "q": null,
+              "held_strided_seed": null
+            }
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "held_strided_seed": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "held_strided_seed": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2,
+                  3
+                ],
+                "strides": [
+                  3,
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1065353216,
+                  1077936128,
+                  1084227584,
+                  1073741824,
+                  1082130432,
+                  1086324736
+                ],
+                "tensor_identity": "959896864",
+                "storage_identity": "926046688",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  3,
+                  2
+                ],
+                "strides": [
+                  2,
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1065353216,
+                  1073741824,
+                  1077936128,
+                  1082130432,
+                  1084227584,
+                  1086324736
+                ],
+                "tensor_identity": "959047008",
+                "storage_identity": "960151408",
+                "retains_grad": false
+              },
+              "held_strided_seed": null
+            }
+          }
+        },
+        {
+          "json_pointer": "/rows/2/observation/events/1",
+          "action": "assign actual strided gradient",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "held_strided_seed": 0,
+              "held_first_gradient": 0,
+              "assigned_gradient": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "held_strided_seed": false,
+              "held_first_gradient": false,
+              "assigned_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2,
+                  3
+                ],
+                "strides": [
+                  3,
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1065353216,
+                  1077936128,
+                  1084227584,
+                  1073741824,
+                  1082130432,
+                  1086324736
+                ],
+                "tensor_identity": "959896864",
+                "storage_identity": "926046688",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  3,
+                  2
+                ],
+                "strides": [
+                  2,
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1065353216,
+                  1073741824,
+                  1077936128,
+                  1082130432,
+                  1084227584,
+                  1086324736
+                ],
+                "tensor_identity": "959047008",
+                "storage_identity": "960151408",
+                "retains_grad": false
+              },
+              "held_strided_seed": null,
+              "held_first_gradient": null,
+              "assigned_gradient": null
+            }
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "held_strided_seed": 0,
+              "held_first_gradient": 0,
+              "assigned_gradient": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "held_strided_seed": false,
+              "held_first_gradient": false,
+              "assigned_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2,
+                  3
+                ],
+                "strides": [
+                  3,
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1065353216,
+                  1077936128,
+                  1084227584,
+                  1073741824,
+                  1082130432,
+                  1086324736
+                ],
+                "tensor_identity": "959896864",
+                "storage_identity": "926046688",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  3,
+                  2
+                ],
+                "strides": [
+                  1,
+                  3
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1048576000,
+                  1056964608,
+                  1061158912,
+                  1065353216,
+                  1067450368,
+                  1069547520
+                ],
+                "tensor_identity": "960155568",
+                "storage_identity": "958814368",
+                "retains_grad": false
+              },
+              "held_strided_seed": null,
+              "held_first_gradient": null,
+              "assigned_gradient": null
+            }
+          }
+        },
+        {
+          "json_pointer": "/rows/2/observation/events/2",
+          "action": "later retain uses out-of-place gradient addition",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "held_strided_seed": 0,
+              "held_first_gradient": 0,
+              "assigned_gradient": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "held_strided_seed": false,
+              "held_first_gradient": false,
+              "assigned_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2,
+                  3
+                ],
+                "strides": [
+                  3,
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1065353216,
+                  1077936128,
+                  1084227584,
+                  1073741824,
+                  1082130432,
+                  1086324736
+                ],
+                "tensor_identity": "959896864",
+                "storage_identity": "926046688",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  3,
+                  2
+                ],
+                "strides": [
+                  1,
+                  3
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1048576000,
+                  1056964608,
+                  1061158912,
+                  1065353216,
+                  1067450368,
+                  1069547520
+                ],
+                "tensor_identity": "960155568",
+                "storage_identity": "958814368",
+                "retains_grad": false
+              },
+              "held_strided_seed": null,
+              "held_first_gradient": null,
+              "assigned_gradient": null
+            }
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "held_strided_seed": 1,
+              "held_first_gradient": 0,
+              "assigned_gradient": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "held_strided_seed": false,
+              "held_first_gradient": false,
+              "assigned_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2,
+                  3
+                ],
+                "strides": [
+                  3,
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [
+                  1073741824,
+                  1086324736,
+                  1092616192,
+                  1082130432,
+                  1090519040,
+                  1094713344
+                ],
+                "tensor_identity": "959896864",
+                "storage_identity": "926046688",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  3,
+                  2
+                ],
+                "strides": [
+                  1,
+                  3
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1067450368,
+                  1075838976,
+                  1081081856,
+                  1084227584,
+                  1086849024,
+                  1089470464
+                ],
+                "tensor_identity": "958478688",
+                "storage_identity": "958616320",
+                "retains_grad": false
+              },
+              "held_strided_seed": null,
+              "held_first_gradient": null,
+              "assigned_gradient": null
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case": "empty-retained-gradient-replacement",
+      "variant": "default",
+      "json_pointer": "/rows/3/observation",
+      "events": [
+        {
+          "json_pointer": "/rows/3/observation/events/0",
+          "action": "first empty retained backward",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "held_empty_seed": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "held_empty_seed": false
+            },
+            "gradients": {
+              "x": null,
+              "q": null,
+              "held_empty_seed": null
+            }
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "held_empty_seed": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "held_empty_seed": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2,
+                  0,
+                  3
+                ],
+                "strides": [
+                  3,
+                  3,
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [],
+                "tensor_identity": "951228608",
+                "storage_identity": "958616320",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  3,
+                  0,
+                  2
+                ],
+                "strides": [
+                  2,
+                  2,
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [],
+                "tensor_identity": "960304016",
+                "storage_identity": "958870912",
+                "retains_grad": false
+              },
+              "held_empty_seed": null
+            }
+          }
+        },
+        {
+          "json_pointer": "/rows/3/observation/events/1",
+          "action": "second empty retained backward",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "held_empty_seed": 0,
+              "held_empty_gradient": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "held_empty_seed": false,
+              "held_empty_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2,
+                  0,
+                  3
+                ],
+                "strides": [
+                  3,
+                  3,
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [],
+                "tensor_identity": "951228608",
+                "storage_identity": "958616320",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  3,
+                  0,
+                  2
+                ],
+                "strides": [
+                  2,
+                  2,
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [],
+                "tensor_identity": "960304016",
+                "storage_identity": "958870912",
+                "retains_grad": false
+              },
+              "held_empty_seed": null,
+              "held_empty_gradient": null
+            }
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "held_empty_seed": 0,
+              "held_empty_gradient": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "held_empty_seed": false,
+              "held_empty_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2,
+                  0,
+                  3
+                ],
+                "strides": [
+                  3,
+                  3,
+                  1
+                ],
+                "version": 2,
+                "binary32_words": [],
+                "tensor_identity": "951228608",
+                "storage_identity": "958616320",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  3,
+                  0,
+                  2
+                ],
+                "strides": [
+                  2,
+                  2,
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [],
+                "tensor_identity": "961405952",
+                "storage_identity": "960023504",
+                "retains_grad": false
+              },
+              "held_empty_seed": null,
+              "held_empty_gradient": null
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case": "retained-nonleaf-owned-optimizer-state",
+      "variant": "SGD",
+      "json_pointer": "/rows/4/observation/variants/0",
+      "events": [
+        {
+          "json_pointer": "/rows/4/observation/variants/0/events/0",
+          "action": "skip before any retained gradient",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "seed1": 0,
+              "seed2": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false
+            },
+            "gradients": {
+              "x": null,
+              "q": null,
+              "seed1": null,
+              "seed2": null
+            },
+            "optimizer_state_entries": 0,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958478688",
+                "entry_exists": false,
+                "fields": {}
+              }
+            ]
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "seed1": 0,
+              "seed2": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false
+            },
+            "gradients": {
+              "x": null,
+              "q": null,
+              "seed1": null,
+              "seed2": null
+            },
+            "optimizer_state_entries": 0,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958478688",
+                "entry_exists": false,
+                "fields": {}
+              }
+            ]
+          }
+        },
+        {
+          "json_pointer": "/rows/4/observation/variants/0/events/1",
+          "action": "materialize retained gradient",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "seed1": 0,
+              "seed2": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false
+            },
+            "gradients": {
+              "x": null,
+              "q": null,
+              "seed1": null,
+              "seed2": null
+            },
+            "optimizer_state_entries": 0,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958478688",
+                "entry_exists": false,
+                "fields": {}
+              }
+            ]
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "seed1": 0,
+              "seed2": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "958212672",
+                "storage_identity": "958646080",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1073741824,
+                  3212836864
+                ],
+                "tensor_identity": "958959504",
+                "storage_identity": "959001360",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null
+            },
+            "optimizer_state_entries": 0,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958478688",
+                "entry_exists": false,
+                "fields": {}
+              }
+            ]
+          }
+        },
+        {
+          "json_pointer": "/rows/4/observation/variants/0/events/2",
+          "action": "first owned-state step",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "seed1": 0,
+              "seed2": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "958212672",
+                "storage_identity": "958646080",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1073741824,
+                  3212836864
+                ],
+                "tensor_identity": "958959504",
+                "storage_identity": "959001360",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null
+            },
+            "optimizer_state_entries": 0,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958478688",
+                "entry_exists": false,
+                "fields": {}
+              }
+            ]
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 1,
+              "seed1": 0,
+              "seed2": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "958212672",
+                "storage_identity": "958646080",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1073741824,
+                  3212836864
+                ],
+                "tensor_identity": "958959504",
+                "storage_identity": "959001360",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958478688",
+                "entry_exists": true,
+                "fields": {
+                  "momentum_buffer": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 0,
+                    "binary32_words": [
+                      1075838976,
+                      3221225472
+                    ],
+                    "tensor_identity": "961337520",
+                    "storage_identity": "958555792",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "json_pointer": "/rows/4/observation/variants/0/events/3",
+          "action": "optimizer zero False",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 1,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "958212672",
+                "storage_identity": "958646080",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1073741824,
+                  3212836864
+                ],
+                "tensor_identity": "958959504",
+                "storage_identity": "959001360",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958478688",
+                "entry_exists": true,
+                "fields": {
+                  "momentum_buffer": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 0,
+                    "binary32_words": [
+                      1075838976,
+                      3221225472
+                    ],
+                    "tensor_identity": "961337520",
+                    "storage_identity": "958555792",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 1,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "958212672",
+                "storage_identity": "958646080",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [
+                  0,
+                  0
+                ],
+                "tensor_identity": "958959504",
+                "storage_identity": "959001360",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958478688",
+                "entry_exists": true,
+                "fields": {
+                  "momentum_buffer": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 0,
+                    "binary32_words": [
+                      1075838976,
+                      3221225472
+                    ],
+                    "tensor_identity": "961337520",
+                    "storage_identity": "958555792",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "json_pointer": "/rows/4/observation/variants/0/events/4",
+          "action": "defined zero gradient is consumed",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 1,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "958212672",
+                "storage_identity": "958646080",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [
+                  0,
+                  0
+                ],
+                "tensor_identity": "958959504",
+                "storage_identity": "959001360",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958478688",
+                "entry_exists": true,
+                "fields": {
+                  "momentum_buffer": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 0,
+                    "binary32_words": [
+                      1075838976,
+                      3221225472
+                    ],
+                    "tensor_identity": "961337520",
+                    "storage_identity": "958555792",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 2,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "958212672",
+                "storage_identity": "958646080",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [
+                  0,
+                  0
+                ],
+                "tensor_identity": "958959504",
+                "storage_identity": "959001360",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958478688",
+                "entry_exists": true,
+                "fields": {
+                  "momentum_buffer": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 2,
+                    "binary32_words": [
+                      1070989312,
+                      3220701184
+                    ],
+                    "tensor_identity": "961337520",
+                    "storage_identity": "958555792",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "json_pointer": "/rows/4/observation/variants/0/events/5",
+          "action": "optimizer zero True",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 2,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "958212672",
+                "storage_identity": "958646080",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [
+                  0,
+                  0
+                ],
+                "tensor_identity": "958959504",
+                "storage_identity": "959001360",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958478688",
+                "entry_exists": true,
+                "fields": {
+                  "momentum_buffer": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 2,
+                    "binary32_words": [
+                      1070989312,
+                      3220701184
+                    ],
+                    "tensor_identity": "961337520",
+                    "storage_identity": "958555792",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 2,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "958212672",
+                "storage_identity": "958646080",
+                "retains_grad": false
+              },
+              "q": null,
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958478688",
+                "entry_exists": true,
+                "fields": {
+                  "momentum_buffer": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 2,
+                    "binary32_words": [
+                      1070989312,
+                      3220701184
+                    ],
+                    "tensor_identity": "961337520",
+                    "storage_identity": "958555792",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "json_pointer": "/rows/4/observation/variants/0/events/6",
+          "action": "None preserves existing parameter and state",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 2,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "958212672",
+                "storage_identity": "958646080",
+                "retains_grad": false
+              },
+              "q": null,
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958478688",
+                "entry_exists": true,
+                "fields": {
+                  "momentum_buffer": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 2,
+                    "binary32_words": [
+                      1070989312,
+                      3220701184
+                    ],
+                    "tensor_identity": "961337520",
+                    "storage_identity": "958555792",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 2,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "958212672",
+                "storage_identity": "958646080",
+                "retains_grad": false
+              },
+              "q": null,
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958478688",
+                "entry_exists": true,
+                "fields": {
+                  "momentum_buffer": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 2,
+                    "binary32_words": [
+                      1070989312,
+                      3220701184
+                    ],
+                    "tensor_identity": "961337520",
+                    "storage_identity": "958555792",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "json_pointer": "/rows/4/observation/variants/0/events/7",
+          "action": "rebuild retained gradient after parameter mutation",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 2,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "958212672",
+                "storage_identity": "958646080",
+                "retains_grad": false
+              },
+              "q": null,
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958478688",
+                "entry_exists": true,
+                "fields": {
+                  "momentum_buffer": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 2,
+                    "binary32_words": [
+                      1070989312,
+                      3220701184
+                    ],
+                    "tensor_identity": "961337520",
+                    "storage_identity": "958555792",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 2,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [
+                  1077936128,
+                  3217031168
+                ],
+                "tensor_identity": "958212672",
+                "storage_identity": "958646080",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  3204448256,
+                  1048576000
+                ],
+                "tensor_identity": "958941392",
+                "storage_identity": "926019920",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958478688",
+                "entry_exists": true,
+                "fields": {
+                  "momentum_buffer": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 2,
+                    "binary32_words": [
+                      1070989312,
+                      3220701184
+                    ],
+                    "tensor_identity": "961337520",
+                    "storage_identity": "958555792",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "json_pointer": "/rows/4/observation/variants/0/events/8",
+          "action": "resume with existing owned state",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 2,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [
+                  1077936128,
+                  3217031168
+                ],
+                "tensor_identity": "958212672",
+                "storage_identity": "958646080",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  3204448256,
+                  1048576000
+                ],
+                "tensor_identity": "958941392",
+                "storage_identity": "926019920",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958478688",
+                "entry_exists": true,
+                "fields": {
+                  "momentum_buffer": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 2,
+                    "binary32_words": [
+                      1070989312,
+                      3220701184
+                    ],
+                    "tensor_identity": "961337520",
+                    "storage_identity": "958555792",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 3,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [
+                  1077936128,
+                  3217031168
+                ],
+                "tensor_identity": "958212672",
+                "storage_identity": "958646080",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  3204448256,
+                  1048576000
+                ],
+                "tensor_identity": "958941392",
+                "storage_identity": "926019920",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958478688",
+                "entry_exists": true,
+                "fields": {
+                  "momentum_buffer": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 4,
+                    "binary32_words": [
+                      1060413440,
+                      3217833984
+                    ],
+                    "tensor_identity": "961337520",
+                    "storage_identity": "958555792",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "retained-nonleaf-owned-optimizer-state",
+      "variant": "Adam",
+      "json_pointer": "/rows/4/observation/variants/1",
+      "events": [
+        {
+          "json_pointer": "/rows/4/observation/variants/1/events/0",
+          "action": "skip before any retained gradient",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "seed1": 0,
+              "seed2": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false
+            },
+            "gradients": {
+              "x": null,
+              "q": null,
+              "seed1": null,
+              "seed2": null
+            },
+            "optimizer_state_entries": 0,
+            "optimizer_state": [
+              {
+                "parameter_identity": "960213072",
+                "entry_exists": false,
+                "fields": {}
+              }
+            ]
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "seed1": 0,
+              "seed2": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false
+            },
+            "gradients": {
+              "x": null,
+              "q": null,
+              "seed1": null,
+              "seed2": null
+            },
+            "optimizer_state_entries": 0,
+            "optimizer_state": [
+              {
+                "parameter_identity": "960213072",
+                "entry_exists": false,
+                "fields": {}
+              }
+            ]
+          }
+        },
+        {
+          "json_pointer": "/rows/4/observation/variants/1/events/1",
+          "action": "materialize retained gradient",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "seed1": 0,
+              "seed2": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false
+            },
+            "gradients": {
+              "x": null,
+              "q": null,
+              "seed1": null,
+              "seed2": null
+            },
+            "optimizer_state_entries": 0,
+            "optimizer_state": [
+              {
+                "parameter_identity": "960213072",
+                "entry_exists": false,
+                "fields": {}
+              }
+            ]
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "seed1": 0,
+              "seed2": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "958478688",
+                "storage_identity": "958826160",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1073741824,
+                  3212836864
+                ],
+                "tensor_identity": "958992496",
+                "storage_identity": "958826464",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null
+            },
+            "optimizer_state_entries": 0,
+            "optimizer_state": [
+              {
+                "parameter_identity": "960213072",
+                "entry_exists": false,
+                "fields": {}
+              }
+            ]
+          }
+        },
+        {
+          "json_pointer": "/rows/4/observation/variants/1/events/2",
+          "action": "first owned-state step",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "seed1": 0,
+              "seed2": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "958478688",
+                "storage_identity": "958826160",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1073741824,
+                  3212836864
+                ],
+                "tensor_identity": "958992496",
+                "storage_identity": "958826464",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null
+            },
+            "optimizer_state_entries": 0,
+            "optimizer_state": [
+              {
+                "parameter_identity": "960213072",
+                "entry_exists": false,
+                "fields": {}
+              }
+            ]
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 1,
+              "seed1": 0,
+              "seed2": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "958478688",
+                "storage_identity": "958826160",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1073741824,
+                  3212836864
+                ],
+                "tensor_identity": "958992496",
+                "storage_identity": "958826464",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "960213072",
+                "entry_exists": true,
+                "fields": {
+                  "step": {
+                    "shape": [],
+                    "strides": [],
+                    "version": 1,
+                    "binary32_words": [
+                      1065353216
+                    ],
+                    "tensor_identity": "960020192",
+                    "storage_identity": "959063504",
+                    "retains_grad": false
+                  },
+                  "exp_avg": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 1,
+                    "binary32_words": [
+                      1067450368,
+                      3212836864
+                    ],
+                    "tensor_identity": "960016896",
+                    "storage_identity": "958564160",
+                    "retains_grad": false
+                  },
+                  "exp_avg_sq": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 2,
+                    "binary32_words": [
+                      1070071808,
+                      1065353216
+                    ],
+                    "tensor_identity": "951228608",
+                    "storage_identity": "958870912",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "json_pointer": "/rows/4/observation/variants/1/events/3",
+          "action": "optimizer zero False",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 1,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "958478688",
+                "storage_identity": "958826160",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1073741824,
+                  3212836864
+                ],
+                "tensor_identity": "958992496",
+                "storage_identity": "958826464",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "960213072",
+                "entry_exists": true,
+                "fields": {
+                  "step": {
+                    "shape": [],
+                    "strides": [],
+                    "version": 1,
+                    "binary32_words": [
+                      1065353216
+                    ],
+                    "tensor_identity": "960020192",
+                    "storage_identity": "959063504",
+                    "retains_grad": false
+                  },
+                  "exp_avg": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 1,
+                    "binary32_words": [
+                      1067450368,
+                      3212836864
+                    ],
+                    "tensor_identity": "960016896",
+                    "storage_identity": "958564160",
+                    "retains_grad": false
+                  },
+                  "exp_avg_sq": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 2,
+                    "binary32_words": [
+                      1070071808,
+                      1065353216
+                    ],
+                    "tensor_identity": "951228608",
+                    "storage_identity": "958870912",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 1,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "958478688",
+                "storage_identity": "958826160",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [
+                  0,
+                  0
+                ],
+                "tensor_identity": "958992496",
+                "storage_identity": "958826464",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "960213072",
+                "entry_exists": true,
+                "fields": {
+                  "step": {
+                    "shape": [],
+                    "strides": [],
+                    "version": 1,
+                    "binary32_words": [
+                      1065353216
+                    ],
+                    "tensor_identity": "960020192",
+                    "storage_identity": "959063504",
+                    "retains_grad": false
+                  },
+                  "exp_avg": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 1,
+                    "binary32_words": [
+                      1067450368,
+                      3212836864
+                    ],
+                    "tensor_identity": "960016896",
+                    "storage_identity": "958564160",
+                    "retains_grad": false
+                  },
+                  "exp_avg_sq": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 2,
+                    "binary32_words": [
+                      1070071808,
+                      1065353216
+                    ],
+                    "tensor_identity": "951228608",
+                    "storage_identity": "958870912",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "json_pointer": "/rows/4/observation/variants/1/events/4",
+          "action": "defined zero gradient is consumed",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 1,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "958478688",
+                "storage_identity": "958826160",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [
+                  0,
+                  0
+                ],
+                "tensor_identity": "958992496",
+                "storage_identity": "958826464",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "960213072",
+                "entry_exists": true,
+                "fields": {
+                  "step": {
+                    "shape": [],
+                    "strides": [],
+                    "version": 1,
+                    "binary32_words": [
+                      1065353216
+                    ],
+                    "tensor_identity": "960020192",
+                    "storage_identity": "959063504",
+                    "retains_grad": false
+                  },
+                  "exp_avg": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 1,
+                    "binary32_words": [
+                      1067450368,
+                      3212836864
+                    ],
+                    "tensor_identity": "960016896",
+                    "storage_identity": "958564160",
+                    "retains_grad": false
+                  },
+                  "exp_avg_sq": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 2,
+                    "binary32_words": [
+                      1070071808,
+                      1065353216
+                    ],
+                    "tensor_identity": "951228608",
+                    "storage_identity": "958870912",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 2,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "958478688",
+                "storage_identity": "958826160",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [
+                  0,
+                  0
+                ],
+                "tensor_identity": "958992496",
+                "storage_identity": "958826464",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "960213072",
+                "entry_exists": true,
+                "fields": {
+                  "step": {
+                    "shape": [],
+                    "strides": [],
+                    "version": 2,
+                    "binary32_words": [
+                      1073741824
+                    ],
+                    "tensor_identity": "960020192",
+                    "storage_identity": "959063504",
+                    "retains_grad": false
+                  },
+                  "exp_avg": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 2,
+                    "binary32_words": [
+                      1062994964,
+                      3212576024
+                    ],
+                    "tensor_identity": "960016896",
+                    "storage_identity": "958564160",
+                    "retains_grad": false
+                  },
+                  "exp_avg_sq": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 4,
+                    "binary32_words": [
+                      1067256053,
+                      1065096431
+                    ],
+                    "tensor_identity": "951228608",
+                    "storage_identity": "958870912",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "json_pointer": "/rows/4/observation/variants/1/events/5",
+          "action": "optimizer zero True",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 2,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "958478688",
+                "storage_identity": "958826160",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [
+                  0,
+                  0
+                ],
+                "tensor_identity": "958992496",
+                "storage_identity": "958826464",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "960213072",
+                "entry_exists": true,
+                "fields": {
+                  "step": {
+                    "shape": [],
+                    "strides": [],
+                    "version": 2,
+                    "binary32_words": [
+                      1073741824
+                    ],
+                    "tensor_identity": "960020192",
+                    "storage_identity": "959063504",
+                    "retains_grad": false
+                  },
+                  "exp_avg": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 2,
+                    "binary32_words": [
+                      1062994964,
+                      3212576024
+                    ],
+                    "tensor_identity": "960016896",
+                    "storage_identity": "958564160",
+                    "retains_grad": false
+                  },
+                  "exp_avg_sq": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 4,
+                    "binary32_words": [
+                      1067256053,
+                      1065096431
+                    ],
+                    "tensor_identity": "951228608",
+                    "storage_identity": "958870912",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 2,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "958478688",
+                "storage_identity": "958826160",
+                "retains_grad": false
+              },
+              "q": null,
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "960213072",
+                "entry_exists": true,
+                "fields": {
+                  "step": {
+                    "shape": [],
+                    "strides": [],
+                    "version": 2,
+                    "binary32_words": [
+                      1073741824
+                    ],
+                    "tensor_identity": "960020192",
+                    "storage_identity": "959063504",
+                    "retains_grad": false
+                  },
+                  "exp_avg": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 2,
+                    "binary32_words": [
+                      1062994964,
+                      3212576024
+                    ],
+                    "tensor_identity": "960016896",
+                    "storage_identity": "958564160",
+                    "retains_grad": false
+                  },
+                  "exp_avg_sq": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 4,
+                    "binary32_words": [
+                      1067256053,
+                      1065096431
+                    ],
+                    "tensor_identity": "951228608",
+                    "storage_identity": "958870912",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "json_pointer": "/rows/4/observation/variants/1/events/6",
+          "action": "None preserves existing parameter and state",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 2,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "958478688",
+                "storage_identity": "958826160",
+                "retains_grad": false
+              },
+              "q": null,
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "960213072",
+                "entry_exists": true,
+                "fields": {
+                  "step": {
+                    "shape": [],
+                    "strides": [],
+                    "version": 2,
+                    "binary32_words": [
+                      1073741824
+                    ],
+                    "tensor_identity": "960020192",
+                    "storage_identity": "959063504",
+                    "retains_grad": false
+                  },
+                  "exp_avg": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 2,
+                    "binary32_words": [
+                      1062994964,
+                      3212576024
+                    ],
+                    "tensor_identity": "960016896",
+                    "storage_identity": "958564160",
+                    "retains_grad": false
+                  },
+                  "exp_avg_sq": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 4,
+                    "binary32_words": [
+                      1067256053,
+                      1065096431
+                    ],
+                    "tensor_identity": "951228608",
+                    "storage_identity": "958870912",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 2,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "958478688",
+                "storage_identity": "958826160",
+                "retains_grad": false
+              },
+              "q": null,
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "960213072",
+                "entry_exists": true,
+                "fields": {
+                  "step": {
+                    "shape": [],
+                    "strides": [],
+                    "version": 2,
+                    "binary32_words": [
+                      1073741824
+                    ],
+                    "tensor_identity": "960020192",
+                    "storage_identity": "959063504",
+                    "retains_grad": false
+                  },
+                  "exp_avg": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 2,
+                    "binary32_words": [
+                      1062994964,
+                      3212576024
+                    ],
+                    "tensor_identity": "960016896",
+                    "storage_identity": "958564160",
+                    "retains_grad": false
+                  },
+                  "exp_avg_sq": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 4,
+                    "binary32_words": [
+                      1067256053,
+                      1065096431
+                    ],
+                    "tensor_identity": "951228608",
+                    "storage_identity": "958870912",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "json_pointer": "/rows/4/observation/variants/1/events/7",
+          "action": "rebuild retained gradient after parameter mutation",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 2,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "958478688",
+                "storage_identity": "958826160",
+                "retains_grad": false
+              },
+              "q": null,
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "960213072",
+                "entry_exists": true,
+                "fields": {
+                  "step": {
+                    "shape": [],
+                    "strides": [],
+                    "version": 2,
+                    "binary32_words": [
+                      1073741824
+                    ],
+                    "tensor_identity": "960020192",
+                    "storage_identity": "959063504",
+                    "retains_grad": false
+                  },
+                  "exp_avg": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 2,
+                    "binary32_words": [
+                      1062994964,
+                      3212576024
+                    ],
+                    "tensor_identity": "960016896",
+                    "storage_identity": "958564160",
+                    "retains_grad": false
+                  },
+                  "exp_avg_sq": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 4,
+                    "binary32_words": [
+                      1067256053,
+                      1065096431
+                    ],
+                    "tensor_identity": "951228608",
+                    "storage_identity": "958870912",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 2,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [
+                  1077936128,
+                  3217031168
+                ],
+                "tensor_identity": "958478688",
+                "storage_identity": "958826160",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  3204448256,
+                  1048576000
+                ],
+                "tensor_identity": "959896864",
+                "storage_identity": "959281840",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "960213072",
+                "entry_exists": true,
+                "fields": {
+                  "step": {
+                    "shape": [],
+                    "strides": [],
+                    "version": 2,
+                    "binary32_words": [
+                      1073741824
+                    ],
+                    "tensor_identity": "960020192",
+                    "storage_identity": "959063504",
+                    "retains_grad": false
+                  },
+                  "exp_avg": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 2,
+                    "binary32_words": [
+                      1062994964,
+                      3212576024
+                    ],
+                    "tensor_identity": "960016896",
+                    "storage_identity": "958564160",
+                    "retains_grad": false
+                  },
+                  "exp_avg_sq": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 4,
+                    "binary32_words": [
+                      1067256053,
+                      1065096431
+                    ],
+                    "tensor_identity": "951228608",
+                    "storage_identity": "958870912",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "json_pointer": "/rows/4/observation/variants/1/events/8",
+          "action": "resume with existing owned state",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 2,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [
+                  1077936128,
+                  3217031168
+                ],
+                "tensor_identity": "958478688",
+                "storage_identity": "958826160",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  3204448256,
+                  1048576000
+                ],
+                "tensor_identity": "959896864",
+                "storage_identity": "959281840",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "960213072",
+                "entry_exists": true,
+                "fields": {
+                  "step": {
+                    "shape": [],
+                    "strides": [],
+                    "version": 2,
+                    "binary32_words": [
+                      1073741824
+                    ],
+                    "tensor_identity": "960020192",
+                    "storage_identity": "959063504",
+                    "retains_grad": false
+                  },
+                  "exp_avg": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 2,
+                    "binary32_words": [
+                      1062994964,
+                      3212576024
+                    ],
+                    "tensor_identity": "960016896",
+                    "storage_identity": "958564160",
+                    "retains_grad": false
+                  },
+                  "exp_avg_sq": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 4,
+                    "binary32_words": [
+                      1067256053,
+                      1065096431
+                    ],
+                    "tensor_identity": "951228608",
+                    "storage_identity": "958870912",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 3,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [
+                  1077936128,
+                  3217031168
+                ],
+                "tensor_identity": "958478688",
+                "storage_identity": "958826160",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  3204448256,
+                  1048576000
+                ],
+                "tensor_identity": "959896864",
+                "storage_identity": "959281840",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "960213072",
+                "entry_exists": true,
+                "fields": {
+                  "step": {
+                    "shape": [],
+                    "strides": [],
+                    "version": 3,
+                    "binary32_words": [
+                      1077936128
+                    ],
+                    "tensor_identity": "960020192",
+                    "storage_identity": "959063504",
+                    "retains_grad": false
+                  },
+                  "exp_avg": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 3,
+                    "binary32_words": [
+                      1053727515,
+                      3210120614
+                    ],
+                    "tensor_identity": "960016896",
+                    "storage_identity": "958564160",
+                    "retains_grad": false
+                  },
+                  "exp_avg_sq": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 6,
+                    "binary32_words": [
+                      1064024677,
+                      1062973344
+                    ],
+                    "tensor_identity": "951228608",
+                    "storage_identity": "958870912",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "retained-nonleaf-owned-optimizer-state",
+      "variant": "AdamW",
+      "json_pointer": "/rows/4/observation/variants/2",
+      "events": [
+        {
+          "json_pointer": "/rows/4/observation/variants/2/events/0",
+          "action": "skip before any retained gradient",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "seed1": 0,
+              "seed2": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false
+            },
+            "gradients": {
+              "x": null,
+              "q": null,
+              "seed1": null,
+              "seed2": null
+            },
+            "optimizer_state_entries": 0,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958889520",
+                "entry_exists": false,
+                "fields": {}
+              }
+            ]
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "seed1": 0,
+              "seed2": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false
+            },
+            "gradients": {
+              "x": null,
+              "q": null,
+              "seed1": null,
+              "seed2": null
+            },
+            "optimizer_state_entries": 0,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958889520",
+                "entry_exists": false,
+                "fields": {}
+              }
+            ]
+          }
+        },
+        {
+          "json_pointer": "/rows/4/observation/variants/2/events/1",
+          "action": "materialize retained gradient",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "seed1": 0,
+              "seed2": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false
+            },
+            "gradients": {
+              "x": null,
+              "q": null,
+              "seed1": null,
+              "seed2": null
+            },
+            "optimizer_state_entries": 0,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958889520",
+                "entry_exists": false,
+                "fields": {}
+              }
+            ]
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "seed1": 0,
+              "seed2": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "960155568",
+                "storage_identity": "926046688",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1073741824,
+                  3212836864
+                ],
+                "tensor_identity": "959041952",
+                "storage_identity": "960151408",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null
+            },
+            "optimizer_state_entries": 0,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958889520",
+                "entry_exists": false,
+                "fields": {}
+              }
+            ]
+          }
+        },
+        {
+          "json_pointer": "/rows/4/observation/variants/2/events/2",
+          "action": "first owned-state step",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "seed1": 0,
+              "seed2": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "960155568",
+                "storage_identity": "926046688",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1073741824,
+                  3212836864
+                ],
+                "tensor_identity": "959041952",
+                "storage_identity": "960151408",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null
+            },
+            "optimizer_state_entries": 0,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958889520",
+                "entry_exists": false,
+                "fields": {}
+              }
+            ]
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 2,
+              "seed1": 0,
+              "seed2": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "960155568",
+                "storage_identity": "926046688",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1073741824,
+                  3212836864
+                ],
+                "tensor_identity": "959041952",
+                "storage_identity": "960151408",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958889520",
+                "entry_exists": true,
+                "fields": {
+                  "step": {
+                    "shape": [],
+                    "strides": [],
+                    "version": 1,
+                    "binary32_words": [
+                      1065353216
+                    ],
+                    "tensor_identity": "961373952",
+                    "storage_identity": "958263184",
+                    "retains_grad": false
+                  },
+                  "exp_avg": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 1,
+                    "binary32_words": [
+                      1065353216,
+                      3204448256
+                    ],
+                    "tensor_identity": "960304016",
+                    "storage_identity": "960023504",
+                    "retains_grad": false
+                  },
+                  "exp_avg_sq": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 2,
+                    "binary32_words": [
+                      1065353216,
+                      1048576000
+                    ],
+                    "tensor_identity": "958826272",
+                    "storage_identity": "958616320",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "json_pointer": "/rows/4/observation/variants/2/events/3",
+          "action": "optimizer zero False",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 2,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "960155568",
+                "storage_identity": "926046688",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1073741824,
+                  3212836864
+                ],
+                "tensor_identity": "959041952",
+                "storage_identity": "960151408",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958889520",
+                "entry_exists": true,
+                "fields": {
+                  "step": {
+                    "shape": [],
+                    "strides": [],
+                    "version": 1,
+                    "binary32_words": [
+                      1065353216
+                    ],
+                    "tensor_identity": "961373952",
+                    "storage_identity": "958263184",
+                    "retains_grad": false
+                  },
+                  "exp_avg": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 1,
+                    "binary32_words": [
+                      1065353216,
+                      3204448256
+                    ],
+                    "tensor_identity": "960304016",
+                    "storage_identity": "960023504",
+                    "retains_grad": false
+                  },
+                  "exp_avg_sq": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 2,
+                    "binary32_words": [
+                      1065353216,
+                      1048576000
+                    ],
+                    "tensor_identity": "958826272",
+                    "storage_identity": "958616320",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 2,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "960155568",
+                "storage_identity": "926046688",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [
+                  0,
+                  0
+                ],
+                "tensor_identity": "959041952",
+                "storage_identity": "960151408",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958889520",
+                "entry_exists": true,
+                "fields": {
+                  "step": {
+                    "shape": [],
+                    "strides": [],
+                    "version": 1,
+                    "binary32_words": [
+                      1065353216
+                    ],
+                    "tensor_identity": "961373952",
+                    "storage_identity": "958263184",
+                    "retains_grad": false
+                  },
+                  "exp_avg": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 1,
+                    "binary32_words": [
+                      1065353216,
+                      3204448256
+                    ],
+                    "tensor_identity": "960304016",
+                    "storage_identity": "960023504",
+                    "retains_grad": false
+                  },
+                  "exp_avg_sq": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 2,
+                    "binary32_words": [
+                      1065353216,
+                      1048576000
+                    ],
+                    "tensor_identity": "958826272",
+                    "storage_identity": "958616320",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "json_pointer": "/rows/4/observation/variants/2/events/4",
+          "action": "defined zero gradient is consumed",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 2,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "960155568",
+                "storage_identity": "926046688",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [
+                  0,
+                  0
+                ],
+                "tensor_identity": "959041952",
+                "storage_identity": "960151408",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958889520",
+                "entry_exists": true,
+                "fields": {
+                  "step": {
+                    "shape": [],
+                    "strides": [],
+                    "version": 1,
+                    "binary32_words": [
+                      1065353216
+                    ],
+                    "tensor_identity": "961373952",
+                    "storage_identity": "958263184",
+                    "retains_grad": false
+                  },
+                  "exp_avg": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 1,
+                    "binary32_words": [
+                      1065353216,
+                      3204448256
+                    ],
+                    "tensor_identity": "960304016",
+                    "storage_identity": "960023504",
+                    "retains_grad": false
+                  },
+                  "exp_avg_sq": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 2,
+                    "binary32_words": [
+                      1065353216,
+                      1048576000
+                    ],
+                    "tensor_identity": "958826272",
+                    "storage_identity": "958616320",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 4,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "960155568",
+                "storage_identity": "926046688",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [
+                  0,
+                  0
+                ],
+                "tensor_identity": "959041952",
+                "storage_identity": "960151408",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958889520",
+                "entry_exists": true,
+                "fields": {
+                  "step": {
+                    "shape": [],
+                    "strides": [],
+                    "version": 2,
+                    "binary32_words": [
+                      1073741824
+                    ],
+                    "tensor_identity": "961373952",
+                    "storage_identity": "958263184",
+                    "retains_grad": false
+                  },
+                  "exp_avg": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 2,
+                    "binary32_words": [
+                      1056964608,
+                      3196059648
+                    ],
+                    "tensor_identity": "960304016",
+                    "storage_identity": "960023504",
+                    "retains_grad": false
+                  },
+                  "exp_avg_sq": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 4,
+                    "binary32_words": [
+                      1061158912,
+                      1044381696
+                    ],
+                    "tensor_identity": "958826272",
+                    "storage_identity": "958616320",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "json_pointer": "/rows/4/observation/variants/2/events/5",
+          "action": "optimizer zero True",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 4,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "960155568",
+                "storage_identity": "926046688",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [
+                  0,
+                  0
+                ],
+                "tensor_identity": "959041952",
+                "storage_identity": "960151408",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958889520",
+                "entry_exists": true,
+                "fields": {
+                  "step": {
+                    "shape": [],
+                    "strides": [],
+                    "version": 2,
+                    "binary32_words": [
+                      1073741824
+                    ],
+                    "tensor_identity": "961373952",
+                    "storage_identity": "958263184",
+                    "retains_grad": false
+                  },
+                  "exp_avg": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 2,
+                    "binary32_words": [
+                      1056964608,
+                      3196059648
+                    ],
+                    "tensor_identity": "960304016",
+                    "storage_identity": "960023504",
+                    "retains_grad": false
+                  },
+                  "exp_avg_sq": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 4,
+                    "binary32_words": [
+                      1061158912,
+                      1044381696
+                    ],
+                    "tensor_identity": "958826272",
+                    "storage_identity": "958616320",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 4,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "960155568",
+                "storage_identity": "926046688",
+                "retains_grad": false
+              },
+              "q": null,
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958889520",
+                "entry_exists": true,
+                "fields": {
+                  "step": {
+                    "shape": [],
+                    "strides": [],
+                    "version": 2,
+                    "binary32_words": [
+                      1073741824
+                    ],
+                    "tensor_identity": "961373952",
+                    "storage_identity": "958263184",
+                    "retains_grad": false
+                  },
+                  "exp_avg": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 2,
+                    "binary32_words": [
+                      1056964608,
+                      3196059648
+                    ],
+                    "tensor_identity": "960304016",
+                    "storage_identity": "960023504",
+                    "retains_grad": false
+                  },
+                  "exp_avg_sq": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 4,
+                    "binary32_words": [
+                      1061158912,
+                      1044381696
+                    ],
+                    "tensor_identity": "958826272",
+                    "storage_identity": "958616320",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "json_pointer": "/rows/4/observation/variants/2/events/6",
+          "action": "None preserves existing parameter and state",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 4,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "960155568",
+                "storage_identity": "926046688",
+                "retains_grad": false
+              },
+              "q": null,
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958889520",
+                "entry_exists": true,
+                "fields": {
+                  "step": {
+                    "shape": [],
+                    "strides": [],
+                    "version": 2,
+                    "binary32_words": [
+                      1073741824
+                    ],
+                    "tensor_identity": "961373952",
+                    "storage_identity": "958263184",
+                    "retains_grad": false
+                  },
+                  "exp_avg": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 2,
+                    "binary32_words": [
+                      1056964608,
+                      3196059648
+                    ],
+                    "tensor_identity": "960304016",
+                    "storage_identity": "960023504",
+                    "retains_grad": false
+                  },
+                  "exp_avg_sq": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 4,
+                    "binary32_words": [
+                      1061158912,
+                      1044381696
+                    ],
+                    "tensor_identity": "958826272",
+                    "storage_identity": "958616320",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 4,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "960155568",
+                "storage_identity": "926046688",
+                "retains_grad": false
+              },
+              "q": null,
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958889520",
+                "entry_exists": true,
+                "fields": {
+                  "step": {
+                    "shape": [],
+                    "strides": [],
+                    "version": 2,
+                    "binary32_words": [
+                      1073741824
+                    ],
+                    "tensor_identity": "961373952",
+                    "storage_identity": "958263184",
+                    "retains_grad": false
+                  },
+                  "exp_avg": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 2,
+                    "binary32_words": [
+                      1056964608,
+                      3196059648
+                    ],
+                    "tensor_identity": "960304016",
+                    "storage_identity": "960023504",
+                    "retains_grad": false
+                  },
+                  "exp_avg_sq": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 4,
+                    "binary32_words": [
+                      1061158912,
+                      1044381696
+                    ],
+                    "tensor_identity": "958826272",
+                    "storage_identity": "958616320",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "json_pointer": "/rows/4/observation/variants/2/events/7",
+          "action": "rebuild retained gradient after parameter mutation",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 4,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3221225472
+                ],
+                "tensor_identity": "960155568",
+                "storage_identity": "926046688",
+                "retains_grad": false
+              },
+              "q": null,
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958889520",
+                "entry_exists": true,
+                "fields": {
+                  "step": {
+                    "shape": [],
+                    "strides": [],
+                    "version": 2,
+                    "binary32_words": [
+                      1073741824
+                    ],
+                    "tensor_identity": "961373952",
+                    "storage_identity": "958263184",
+                    "retains_grad": false
+                  },
+                  "exp_avg": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 2,
+                    "binary32_words": [
+                      1056964608,
+                      3196059648
+                    ],
+                    "tensor_identity": "960304016",
+                    "storage_identity": "960023504",
+                    "retains_grad": false
+                  },
+                  "exp_avg_sq": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 4,
+                    "binary32_words": [
+                      1061158912,
+                      1044381696
+                    ],
+                    "tensor_identity": "958826272",
+                    "storage_identity": "958616320",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 4,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [
+                  1077936128,
+                  3217031168
+                ],
+                "tensor_identity": "960155568",
+                "storage_identity": "926046688",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  3204448256,
+                  1048576000
+                ],
+                "tensor_identity": "958992496",
+                "storage_identity": "959063504",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958889520",
+                "entry_exists": true,
+                "fields": {
+                  "step": {
+                    "shape": [],
+                    "strides": [],
+                    "version": 2,
+                    "binary32_words": [
+                      1073741824
+                    ],
+                    "tensor_identity": "961373952",
+                    "storage_identity": "958263184",
+                    "retains_grad": false
+                  },
+                  "exp_avg": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 2,
+                    "binary32_words": [
+                      1056964608,
+                      3196059648
+                    ],
+                    "tensor_identity": "960304016",
+                    "storage_identity": "960023504",
+                    "retains_grad": false
+                  },
+                  "exp_avg_sq": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 4,
+                    "binary32_words": [
+                      1061158912,
+                      1044381696
+                    ],
+                    "tensor_identity": "958826272",
+                    "storage_identity": "958616320",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "json_pointer": "/rows/4/observation/variants/2/events/8",
+          "action": "resume with existing owned state",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 4,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [
+                  1077936128,
+                  3217031168
+                ],
+                "tensor_identity": "960155568",
+                "storage_identity": "926046688",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  3204448256,
+                  1048576000
+                ],
+                "tensor_identity": "958992496",
+                "storage_identity": "959063504",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958889520",
+                "entry_exists": true,
+                "fields": {
+                  "step": {
+                    "shape": [],
+                    "strides": [],
+                    "version": 2,
+                    "binary32_words": [
+                      1073741824
+                    ],
+                    "tensor_identity": "961373952",
+                    "storage_identity": "958263184",
+                    "retains_grad": false
+                  },
+                  "exp_avg": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 2,
+                    "binary32_words": [
+                      1056964608,
+                      3196059648
+                    ],
+                    "tensor_identity": "960304016",
+                    "storage_identity": "960023504",
+                    "retains_grad": false
+                  },
+                  "exp_avg_sq": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 4,
+                    "binary32_words": [
+                      1061158912,
+                      1044381696
+                    ],
+                    "tensor_identity": "958826272",
+                    "storage_identity": "958616320",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 6,
+              "seed1": 0,
+              "seed2": 0,
+              "held_gradient": 1
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed1": false,
+              "seed2": false,
+              "held_gradient": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [
+                  1077936128,
+                  3217031168
+                ],
+                "tensor_identity": "960155568",
+                "storage_identity": "926046688",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  3204448256,
+                  1048576000
+                ],
+                "tensor_identity": "958992496",
+                "storage_identity": "959063504",
+                "retains_grad": false
+              },
+              "seed1": null,
+              "seed2": null,
+              "held_gradient": null
+            },
+            "optimizer_state_entries": 1,
+            "optimizer_state": [
+              {
+                "parameter_identity": "958889520",
+                "entry_exists": true,
+                "fields": {
+                  "step": {
+                    "shape": [],
+                    "strides": [],
+                    "version": 3,
+                    "binary32_words": [
+                      1077936128
+                    ],
+                    "tensor_identity": "961373952",
+                    "storage_identity": "958263184",
+                    "retains_grad": false
+                  },
+                  "exp_avg": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 3,
+                    "binary32_words": [
+                      0,
+                      0
+                    ],
+                    "tensor_identity": "960304016",
+                    "storage_identity": "960023504",
+                    "retains_grad": false
+                  },
+                  "exp_avg_sq": {
+                    "shape": [
+                      2
+                    ],
+                    "strides": [
+                      1
+                    ],
+                    "version": 6,
+                    "binary32_words": [
+                      1059061760,
+                      1042284544
+                    ],
+                    "tensor_identity": "958826272",
+                    "storage_identity": "958616320",
+                    "retains_grad": false
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "retained-hook-before-own-saved-version-failure",
+      "variant": "default",
+      "json_pointer": "/rows/5/observation",
+      "events": [
+        {
+          "json_pointer": "/rows/5/observation/events/0",
+          "action": "retained prehook before own version failure",
+          "outcome": "RAISED",
+          "exception_type": "RuntimeError",
+          "message": "one of the variables needed for gradient computation has been modified by an inplace operation: [torch.FloatTensor []] is at version 1; expected version 0 instead. Hint: enable anomaly detection to find the operation that failed to compute its gradient, with torch.autograd.set_detect_anomaly(True, check_nan=False).",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "coefficient": 1,
+              "q": 0,
+              "seed": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "coefficient": false,
+              "q": true,
+              "seed": false
+            },
+            "gradients": {
+              "x": null,
+              "coefficient": null,
+              "q": null,
+              "seed": null
+            }
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "coefficient": 1,
+              "q": 0,
+              "seed": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "coefficient": false,
+              "q": true,
+              "seed": false
+            },
+            "gradients": {
+              "x": null,
+              "coefficient": null,
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1065353216,
+                  1065353216
+                ],
+                "tensor_identity": "958992496",
+                "storage_identity": "958646080",
+                "retains_grad": false
+              },
+              "seed": null
+            }
+          }
+        },
+        {
+          "json_pointer": "/rows/5/observation/events/1",
+          "action": "retry still reaches retained prehook",
+          "outcome": "RAISED",
+          "exception_type": "RuntimeError",
+          "message": "one of the variables needed for gradient computation has been modified by an inplace operation: [torch.FloatTensor []] is at version 1; expected version 0 instead. Hint: enable anomaly detection to find the operation that failed to compute its gradient, with torch.autograd.set_detect_anomaly(True, check_nan=False).",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "coefficient": 1,
+              "q": 0,
+              "seed": 0,
+              "held_gradient_after_failure": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "coefficient": false,
+              "q": true,
+              "seed": false,
+              "held_gradient_after_failure": false
+            },
+            "gradients": {
+              "x": null,
+              "coefficient": null,
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1065353216,
+                  1065353216
+                ],
+                "tensor_identity": "958992496",
+                "storage_identity": "958646080",
+                "retains_grad": false
+              },
+              "seed": null,
+              "held_gradient_after_failure": null
+            }
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "coefficient": 1,
+              "q": 0,
+              "seed": 0,
+              "held_gradient_after_failure": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "coefficient": false,
+              "q": true,
+              "seed": false,
+              "held_gradient_after_failure": false
+            },
+            "gradients": {
+              "x": null,
+              "coefficient": null,
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1073741824,
+                  1073741824
+                ],
+                "tensor_identity": "960016896",
+                "storage_identity": "926046688",
+                "retains_grad": false
+              },
+              "seed": null,
+              "held_gradient_after_failure": null
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case": "retained-hook-before-own-released-saved-failure",
+      "variant": "default",
+      "json_pointer": "/rows/6/observation",
+      "events": [
+        {
+          "json_pointer": "/rows/6/observation/events/0",
+          "action": "successful default releases Saved tensors",
+          "outcome": "SUCCEEDED",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "seed": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed": false
+            },
+            "gradients": {
+              "x": null,
+              "q": null,
+              "seed": null
+            }
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "seed": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [
+                  1082130432,
+                  1073741824
+                ],
+                "tensor_identity": "958478688",
+                "storage_identity": "958555792",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1073741824,
+                  3204448256
+                ],
+                "tensor_identity": "951228608",
+                "storage_identity": "959063504",
+                "retains_grad": false
+              },
+              "seed": null
+            }
+          }
+        },
+        {
+          "json_pointer": "/rows/6/observation/events/1",
+          "action": "retained prehook before own released-Saved failure",
+          "outcome": "RAISED",
+          "exception_type": "RuntimeError",
+          "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward.",
+          "before": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "seed": 0,
+              "held_gradient_before_retry": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed": false,
+              "held_gradient_before_retry": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [
+                  1082130432,
+                  1073741824
+                ],
+                "tensor_identity": "958478688",
+                "storage_identity": "958555792",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1073741824,
+                  3204448256
+                ],
+                "tensor_identity": "951228608",
+                "storage_identity": "959063504",
+                "retains_grad": false
+              },
+              "seed": null,
+              "held_gradient_before_retry": null
+            }
+          },
+          "after": {
+            "tensor_versions": {
+              "x": 0,
+              "q": 0,
+              "seed": 0,
+              "held_gradient_before_retry": 0
+            },
+            "retains_flags": {
+              "x": false,
+              "q": true,
+              "seed": false,
+              "held_gradient_before_retry": false
+            },
+            "gradients": {
+              "x": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 1,
+                "binary32_words": [
+                  1082130432,
+                  1073741824
+                ],
+                "tensor_identity": "958478688",
+                "storage_identity": "958555792",
+                "retains_grad": false
+              },
+              "q": {
+                "shape": [
+                  2
+                ],
+                "strides": [
+                  1
+                ],
+                "version": 0,
+                "binary32_words": [
+                  1082130432,
+                  3212836864
+                ],
+                "tensor_identity": "958212672",
+                "storage_identity": "958263184",
+                "retains_grad": false
+              },
+              "seed": null,
+              "held_gradient_before_retry": null
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case": "weak-retention-versus-optimizer-strong-root",
+      "variant": "never-materialized",
+      "json_pointer": "/rows/7/observation/variants/0",
+      "events": [],
+      "after_drop": {
+        "q_storage_expired": true,
+        "python_q_wrapper_alive": false,
+        "held_gradient_storage_expired": null
+      },
+      "q_storage_expired_after_backward": true
+    },
+    {
+      "case": "weak-retention-versus-optimizer-strong-root",
+      "variant": "materialized-and-held",
+      "json_pointer": "/rows/7/observation/variants/1",
+      "events": [],
+      "after_drop": {
+        "q_storage_expired": true,
+        "python_q_wrapper_alive": false,
+        "held_gradient_storage_expired": false
+      },
+      "q_storage_expired_after_backward": true
+    },
+    {
+      "case": "weak-retention-versus-optimizer-strong-root",
+      "variant": "optimizer-is-the-only-strong-parameter-root",
+      "json_pointer": "/rows/7/observation/variants/2",
+      "events": [],
+      "after_public_drop": {
+        "x_storage_expired": false,
+        "q_storage_expired": false,
+        "x_gradient_storage_expired": false,
+        "held_gradient_storage_expired": false,
+        "python_x_wrapper_alive": true,
+        "python_q_wrapper_alive": true
+      },
+      "after_optimizer_drop": {
+        "x_storage_expired": true,
+        "q_storage_expired": true,
+        "x_gradient_storage_expired": true,
+        "held_gradient_storage_expired": false,
+        "python_x_wrapper_alive": false,
+        "python_q_wrapper_alive": false
+      },
+      "after_final_gradient_drop": {
+        "x_storage_expired": true,
+        "q_storage_expired": true,
+        "x_gradient_storage_expired": true,
+        "held_gradient_storage_expired": true,
+        "python_x_wrapper_alive": false,
+        "python_q_wrapper_alive": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+"""Cold-reproduce public-gradient HIA and execute the separate fixed suites.
+
+Reports remain separate; their case/value counts are never summed into a count
+of unique upstream tests. Hosted references are replayed, not generated here.
+"""
+from pathlib import Path
+import argparse, hashlib, json, subprocess, sys
+
+HERE=Path(__file__).resolve().parent
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+
+def main():
+    p=argparse.ArgumentParser(description=__doc__)
+    for name in ('repository','baseline','source-root','compiler','linker','output'):
+        p.add_argument('--'+name,type=Path,required=True)
+    a=p.parse_args();out=a.output.resolve();out.mkdir(parents=True,exist_ok=False)
+    repo=a.repository.resolve();base=a.baseline.resolve();upstream=a.source_root.resolve()
+    compiler=a.compiler.resolve();linker=a.linker.resolve();root=HERE.parents[1]
+    tests=root/'tests/gradient_objects';reference=root/'validation/gradient-objects/reference'
+    manifest_path=HERE/'package-manifest.json';manifest=json.loads(manifest_path.read_bytes())
+    manifest_raw=manifest_path.read_bytes();profile=json.loads((HERE/'profile.json').read_bytes())
+    def custody():
+        assert manifest_path.read_bytes()==manifest_raw
+        for name,pin in manifest['files'].items():
+            path=root/name;assert path.is_file() and sha(path.read_bytes())==pin,('package input changed',name)
+    custody()
+    report={'schema':'heptatorch.gradient-objects-cold-qualification.v1','status':'RUNNING',
+        'source_sha256':profile['source_sha256'],'native_sha256':profile['native_sha256'],
+        'package_manifest_sha256':sha(manifest_raw),'steps':[],'suite_reports':{},
+        'reference_execution':'Fixed genuine hosted PyTorch observations with all eleven provenance checks are replayed. No Torch is installed or simulated by this qualifier.',
+        'scope':'Public gradient objects and qualified first-order incoming Storage/Version transfer on the owned SGD baseline.',
+        'Adam_distribution_composition_qualified':False,'full_35_case_live_Torch_executed_here':False,
+        'full_rewrite_complete':False,'pytorch_api_denominator':2590}
+    def save():(out/'report.json').write_text(json.dumps(report,indent=2)+'\n')
+    def run(name,script,args,expected_report=None):
+        command=[sys.executable,'-I','-S','-B',str(script),*[str(v) for v in args]]
+        completed=subprocess.run(command,capture_output=True,timeout=600)
+        (out/(name+'.stdout')).write_bytes(completed.stdout);(out/(name+'.stderr')).write_bytes(completed.stderr)
+        step={'name':name,'exit_code':completed.returncode,'stdout_sha256':sha(completed.stdout),
+            'stderr_sha256':sha(completed.stderr),'command':command}
+        report['steps'].append(step);save()
+        assert completed.returncode==0,(name,completed.returncode,completed.stderr.decode(errors='replace')[-3000:])
+        if expected_report is not None:
+            data=expected_report.read_bytes();result=json.loads(data)
+            step.update(report_sha256=sha(data),report_path=expected_report.relative_to(out).as_posix(),report_status=result['status'])
+            report['suite_reports'][name]={'path':step['report_path'],'sha256':step['report_sha256']}
+            save();return result
+    try:
+        native=out/'native'
+        cold=run('cold-HIA-overlay-build',HERE/'build.py',[
+            '--baseline',base,'--compiler',compiler,'--linker',linker,'--output',native],native/'build.json')
+        assert cold['source_sha256']==profile['source_sha256'] and cold['native_sha256']==profile['native_sha256']
+        public=out/'public-foundation'
+        stage=run('author-public-foundation',HERE/'authoring/public/build.py',[
+            '--baseline',base,'--repository',repo,'--upstream',upstream,'--compiler',compiler,'--linker',linker,'--output',public],public/'build.json')
+        assert stage['source_sha256']=='07c2fb69ea61d48466a57e47b80d4cf85be8ad88c9c12a2f771e0402cc319dcc'
+        assert stage['native_sha256']=='ea405bd0832650b8dba00f50a5458720a088b622c7e637addc781af86406ef49'
+        authored=out/'authored-incoming'
+        stage=run('reproduce-full-authoring-lineage',HERE/'authoring/incoming/build.py',[
+            '--foundation',public,'--foundation-authoring',HERE/'authoring/public','--repository',repo,
+            '--upstream',upstream,'--compiler',compiler,'--linker',linker,'--output',authored],authored/'build.json')
+        assert stage['source_sha256']==profile['source_sha256'] and stage['native_sha256']==profile['native_sha256']
+        assert (authored/'runtime.hepta').read_bytes()==(native/'runtime.hepta').read_bytes()
+        assert (authored/'tensor-gradient-incoming-session').read_bytes()==(native/'tensor-gradient-object-session').read_bytes()
+        binary=native/'tensor-gradient-object-session';source=native/'runtime.hepta'
+        common=['--binary',binary,'--source',source,'--controls',tests/'native_release_controls.py',
+            '--expected-sha256',profile['native_sha256'],'--expected-source-sha256',profile['source_sha256']]
+        object_common=common+['--observer',tests/'client.py','--base-replay',tests/'base_replay.py','--layout-adapter',tests/'materialization_replay.py']
+        ten=run('original-public-ten',tests/'replay_original_ten.py',object_common+[
+            '--observations',reference/'torch-gradient-objects.json','--output',out/'original-public-ten'],out/'original-public-ten/report.json')
+        assert (ten['qualified_groups'],ten['partial_groups'],ten['failed_groups'])==(9,1,0)
+        materialization=run('incoming-25-observations',tests/'materialization_replay.py',common+[
+            '--observer',tests/'client.py','--base-replay',tests/'base_replay.py',
+            '--state-format','HTGRAD02','--backing-format','HTOGRAD2','--descriptor-bytes','576',
+            '--observations',reference/'torch-gradient-materialization.json','--output',out/'incoming-25'],out/'incoming-25/report.json')
+        assert (materialization['executed_variants'],materialization['qualified_variants'],materialization['unrepresented_variants'],materialization['failed_variants'])==(22,22,3,0)
+        aliases=run('alias-edge-12-observations',tests/'replay_alias_edges.py',object_common+[
+            '--observations',reference/'torch-gradient-alias-edge.json','--output',out/'alias-edge-12'],out/'alias-edge-12/report.json')
+        assert aliases['qualified_variants']==12 and aliases['failed_variants']==0
+        lifetime=run('native-ownership-lifetimes',tests/'test_native_lifetimes.py',common+[
+            '--observer',tests/'client.py','--output',out/'native-lifetimes'],out/'native-lifetimes/report.json')
+        assert lifetime['cases']==lifetime['passed']==5
+        typed=run('typed-result-references',tests/'test_gradient_references.py',common+[
+            '--observer',tests/'client.py','--output',out/'typed-references'],out/'typed-references/report.json')
+        assert typed['status']=='PASS' and typed['refusal_cases']==12
+        inherited=common+['--transport-observer',tests/'client.py']
+        for label,script,ref in (
+            ('signed-zero-13','replay_signed_zero.py','torch-gradient-signed-zero.json'),
+            ('partial-16','replay_partial.py','torch-backward-partial.json'),
+            ('presence-8','replay_presence.py','torch-gradient-presence.json'),
+            ('gradient-clear-10','replay_grad_clear.py','torch-grad-clear.json')):
+            result=run(label,tests/script,inherited+['--observations',reference/ref,'--output',out/label],out/label/'report.json')
+            if label=='signed-zero-13':assert (result['cases'],result['passed'],result['failed'])==(13,13,0)
+            elif label=='partial-16':assert result['cases']==result['passed']==16
+            elif label=='presence-8':
+                assert result['parameter_values_versions_gradient_presence_and_skip_passed']==8 and result['unexpected_failures']==0
+                assert (result['state_version_difference_observations'],result['state_creation_difference_observations'])==(8,65)
+                assert result['adam_compared_values_with_different_bits']==0
+            else:
+                assert result['qualified']==10 and result['unexpected_failures']==0
+                assert (result['state_version_difference_observations'],result['state_creation_difference_observations'],result['native_step_Tensor_absence_observations'])==(11,9,30)
+                assert result['Adam_different_bits']==6
+        for name,old,pin,tag in (
+            ('optimizer',base,profile['baseline_source_sha256'],'HTOPT002'),
+            ('public-foundation',public,'07c2fb69ea61d48466a57e47b80d4cf85be8ad88c9c12a2f771e0402cc319dcc','HTGRAD01')):
+            gate=out/('handoff-'+name+'-build')
+            built=run('build-handoff-'+name,HERE/'build_state_handoff.py',[
+                '--old',old,'--new',native,'--old-source-sha256',pin,'--new-source-sha256',profile['source_sha256'],
+                '--old-tag',tag,'--new-tag','HTGRAD02','--controller',HERE/'state_handoff.hepta',
+                '--compiler',compiler,'--linker',linker,'--output',gate],gate/'report.json')
+            result=run('execute-handoff-'+name,HERE/'test_state_handoff.py',[
+                '--executable',gate/'state-handoff-session','--build-receipt',gate/'report.json',
+                '--protocol',repo/'tools/tensor_objects/protocol.py','--output',out/('handoff-'+name+'-native')],out/('handoff-'+name+'-native/report.json'))
+            assert result['cases']==2 and result['frames']==50
+        custody();report.update(status='PASS',step_count=len(report['steps']),
+            'cold_overlay_and_full_authoring_image_identical':True,'all_package_sources_unchanged':True)
+        save();print(json.dumps({k:v for k,v in report.items() if k not in ('steps','suite_reports')},indent=2))
+        return 0
+    except Exception as error:
+        report.update(status='FAIL',error=repr(error));save();raise
+
+if __name__=='__main__':raise SystemExit(main())

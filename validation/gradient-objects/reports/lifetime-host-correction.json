@@ -1,0 +1,10 @@
+{
+  "schema": "heptatorch.native-lifetime-host-invariant-correction.v1",
+  "target_native_unchanged": true,
+  "original_runner_sha256": "f8304b9b5d2ea720aa4e644382b498452ca89e83e035f45b552e959bad47d1d6",
+  "corrected_runner_sha256": "87928f18ea7a0d6d48f2b027c740e4c683fc81a05e14632fc4daafd5c706ccf1",
+  "original_report_preserved": "native-lifetimes-05/report.json",
+  "reason": "The source-bound inherited descriptor creates a private work Hold at requires_grad construction before any backward. Requiring p160/p256 zero on every constructed node was not the declared runtime invariant. Require a valid pointer/Hold pair for preexisting caches, all incoming owner fields zero, and exact work-cache release on the nodes whose backward just completed.",
+  "numerical_inputs_expectations_or_reference_changed": false,
+  "fixture_steps_unchanged": true
+}

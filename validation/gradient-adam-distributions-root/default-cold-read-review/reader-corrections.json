@@ -1,0 +1,22 @@
+{
+  "schema": "heptatorch.read-review-harness-correction.v1",
+  "status": "RECORDED",
+  "target_aggregate_sha256": "a753d00c5053f0da3d5a146ee3e98587fcb132548c5b36ec1a7872ffba631df8",
+  "target_script_sha256": "42295619cdd761b9bc16837aef612285c8defc6a788df06e8d4f4e3cc125baa9",
+  "target_source_or_inputs_changed": false,
+  "native_or_Torch_executed_by_reader": false,
+  "first_reader_refusal": {
+    "report_sha256": "1d741e496dbcad72d7f1e51e243160bfd578ef8288db6eacdabc276c8508df35",
+    "reason": "The independent byte splitter counted fn ... external() declarations as definitions in its global exact-once test.",
+    "correction": "Recognize external declarations and retain only real entry-block function definitions."
+  },
+  "second_reader_refusal": {
+    "report_sha256": "73aa27dd728fecd10e2ab83fe2bb0f781e9b867ade0d531d48936f63523c3d48",
+    "reason": "The byte reader counted identically named private helpers in the separately scoped frozen RNG unit against current-core exact-once coverage.",
+    "correction": "Require every core body exactly once among the seven actual runtime partition units; still hash all nine native units including RNG/owners. Require the core-unit set to equal all units minus the two frozen independent modules."
+  },
+  "final_reader_sha256": "4f72e72c5fcebb479254c3adb2cbf75d9832232332c9b16c3537153c41715876",
+  "final_report_sha256": "22dc9aec69002f647df1a54d262c2656968eeda6fb3d4083e411f7850e748bff",
+  "observed_status": "PASS_READ_ONLY_REVIEW",
+  "checks_are_not_API_cases": true
+}

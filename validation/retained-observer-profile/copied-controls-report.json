@@ -1,0 +1,428 @@
+{
+  "schema": "heptatorch.pr28.private-node-observer-independent-negative-controls.v1",
+  "status": "PASS_OBSERVER_CONTROLS_ONLY",
+  "controls_sha256": "00bcb0dc32e9a6a7424dc5fa1d407106f39703e8e77dbc8410458773683b5ce0",
+  "observer_sha256": "281f1ea437046a9cd884de2c8da34f38649a3b6482ade23123ac4aa992faed64",
+  "native_executed": false,
+  "Torch_executed": false,
+  "native_memory_read": false,
+  "native_memory_written": false,
+  "expected_outcomes_come_from_named_invariants_not_target_return_values": true,
+  "input_files": {
+    "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/native-controls446-01/owners/1970e908c208e33c/events.json": {
+      "sha256": "a7b9ed068afd7de51fdc46b79ede60e88ff6657b44d255b154a7dc90f0852136",
+      "bytes": 3974
+    },
+    "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/native-controls446-01/owners/1970e908c208e33c/snapshots.jsonl.gz": {
+      "sha256": "5fb6ecbad0aa5984353a28519d24ba06321e3e5d1c23fbbbd5c756f719f5cbb1",
+      "bytes": 2895
+    },
+    "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/native-controls446-01/owners/7b32c9730e17b464/events.json": {
+      "sha256": "8cc269a1eb58b9f92b4b3cb757ba0bad6c835a80b4fe2a216c95cb069773f377",
+      "bytes": 4827
+    },
+    "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/native-controls446-01/owners/7b32c9730e17b464/snapshots.jsonl.gz": {
+      "sha256": "0b58d576a1d966d661148444725192d1d2fa58a5730283546d7000cbcf6786b4",
+      "bytes": 3020
+    }
+  },
+  "positive_rows": [
+    {
+      "case": "compound-construction",
+      "status": "PASS",
+      "journal": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/native-controls446-01/owners/1970e908c208e33c/events.json",
+      "event": 0,
+      "result": {
+        "status": "PASS",
+        "failed_frame": false,
+        "created_program_nodes": 10,
+        "created_private_G": 0,
+        "private_G_incarnations": [],
+        "native_incarnation_delta": 10,
+        "native_node_high_water": 10,
+        "live_nodes": 10,
+        "live_gradient_nodes": 0,
+        "reset_count": 0
+      },
+      "input_sha256": "09d497e940ac4a20b24872ea8da18bff53dc035a2bec8af4fa19773c5c197cd9"
+    },
+    {
+      "case": "materialization",
+      "status": "PASS",
+      "journal": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/native-controls446-01/owners/1970e908c208e33c/events.json",
+      "event": 1,
+      "result": {
+        "status": "PASS",
+        "failed_frame": false,
+        "created_program_nodes": 0,
+        "created_private_G": 3,
+        "private_G_incarnations": [
+          11,
+          12,
+          13
+        ],
+        "native_incarnation_delta": 3,
+        "native_node_high_water": 13,
+        "live_nodes": 13,
+        "live_gradient_nodes": 3,
+        "reset_count": 0
+      },
+      "input_sha256": "10b0bc0203fc2ea6f5bf0d14236cc3d66a92e3ed64d1a1320b0d30becbf7c853"
+    },
+    {
+      "case": "reset-with-private-gradient",
+      "status": "PASS",
+      "journal": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/native-controls446-01/owners/7b32c9730e17b464/events.json",
+      "event": 2,
+      "result": {
+        "status": "PASS",
+        "failed_frame": false,
+        "created_program_nodes": 0,
+        "created_private_G": 0,
+        "private_G_incarnations": [],
+        "native_incarnation_delta": 0,
+        "native_node_high_water": 5,
+        "live_nodes": 3,
+        "live_gradient_nodes": 1,
+        "reset_count": 1
+      },
+      "input_sha256": "1806735c2481fd482fbffcede9bd26c2ad4f1fc2f59eee51e0b958204d369b0a"
+    },
+    {
+      "case": "failed-frame-rollback",
+      "status": "PASS",
+      "journal": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/native-controls446-01/owners/7b32c9730e17b464/events.json",
+      "event": 4,
+      "result": {
+        "status": "PASS",
+        "failed_frame": true,
+        "created_program_nodes": 0,
+        "created_private_G": 0
+      },
+      "input_sha256": "0ce91bbbc71c2f126cc6f848fdb9d1ec110ae0154ecdc0548905cf766b9541f0"
+    }
+  ],
+  "negative_rows": [
+    {
+      "case": "extra-incarnation-not-attributed",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "unexplained-incarnation-delta",
+      "actual_rule": "unexplained-incarnation-delta",
+      "details": {
+        "observer_rule": "unexplained-incarnation-delta",
+        "actual": 4,
+        "program": 0,
+        "private_gradients": 3
+      },
+      "input_sha256": "e5afe112b43b65113d0b19ef0951b7a12efa8958431b2d02e674f5d5b5f5a289",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/native-controls446-01/owners/1970e908c208e33c/events.json",
+        "event": 1
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/copied-controls446-01/negative-inputs/extra-incarnation-not-attributed.json.gz",
+      "compressed_sha256": "9c6c7345eec593ab3604f5b4f0366988336b03d4cf104afcdd482dbafe8f186d"
+    },
+    {
+      "case": "wrong-gradient-incarnation",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "gradient-incarnation",
+      "actual_rule": "gradient-incarnation",
+      "details": {
+        "observer_rule": "gradient-incarnation",
+        "node": 1,
+        "gradient": 11
+      },
+      "input_sha256": "b4b6c9de216e764d9e5564a0ec2984f374169061587baeb545e106f7cf102754",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/native-controls446-01/owners/1970e908c208e33c/events.json",
+        "event": 1
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/copied-controls446-01/negative-inputs/wrong-gradient-incarnation.json.gz",
+      "compressed_sha256": "96a18a882b080265ba5ea44559cca44e41310b515f903577bf69bb3000ad17b6"
+    },
+    {
+      "case": "wrong-gradient-incoming-reference-count",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "gradient-reference-count",
+      "actual_rule": "gradient-reference-count",
+      "details": {
+        "observer_rule": "gradient-reference-count",
+        "node": 11
+      },
+      "input_sha256": "241b760e9336671b4d688736b2ae75fe79c29cf61fa75636c58e904ccb9ef668",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/native-controls446-01/owners/1970e908c208e33c/events.json",
+        "event": 1
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/copied-controls446-01/negative-inputs/wrong-gradient-incoming-reference-count.json.gz",
+      "compressed_sha256": "099fcd5a4dd6d7cd0ad4bf3d374ab630cb84e67a99ada29bdaa78106ac29bde4"
+    },
+    {
+      "case": "wrong-node-reference-count",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "node-reference-count",
+      "actual_rule": "node-reference-count",
+      "details": {
+        "observer_rule": "node-reference-count",
+        "node": 1,
+        "observed": 2,
+        "expected": 1
+      },
+      "input_sha256": "18a359e402520c198138e31a3bed6a35e003be10ee9bc6f48c2e992fdedb5fa7",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/native-controls446-01/owners/1970e908c208e33c/events.json",
+        "event": 1
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/copied-controls446-01/negative-inputs/wrong-node-reference-count.json.gz",
+      "compressed_sha256": "222dbc7f077edf26fcc29b87687208c5f246d6ab15f7e35d1ca7ea7f26163ab4"
+    },
+    {
+      "case": "wrong-accumulator-reference-count",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "accumulator-reference-count",
+      "actual_rule": "accumulator-reference-count",
+      "details": {
+        "observer_rule": "accumulator-reference-count",
+        "node": 1
+      },
+      "input_sha256": "de0ce1bde755fa87444af07a1a5801d63ec1cc91d4849cdb7877f1f37cef52e3",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/native-controls446-01/owners/1970e908c208e33c/events.json",
+        "event": 1
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/copied-controls446-01/negative-inputs/wrong-accumulator-reference-count.json.gz",
+      "compressed_sha256": "ce770439793a0481c7e8a15b06b53fb55aa1eb4d0eca927dbf5f1f0bf35e2951"
+    },
+    {
+      "case": "private-gradient-incorrectly-public",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "unexpected-public-or-nonleaf-gradient",
+      "actual_rule": "unexpected-public-or-nonleaf-gradient",
+      "details": {
+        "observer_rule": "unexpected-public-or-nonleaf-gradient",
+        "gradient": 11
+      },
+      "input_sha256": "194fffa3e37f0e253a00db1cc092d606a1144d585fa1b6056a517c03d8ef2f79",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/native-controls446-01/owners/1970e908c208e33c/events.json",
+        "event": 1
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/copied-controls446-01/negative-inputs/private-gradient-incorrectly-public.json.gz",
+      "compressed_sha256": "38f2c8e804e4dd89cf850cec8a399cb32980c6daa89124dcad0a46dddb2b2d50"
+    },
+    {
+      "case": "gradient-binding-without-presence",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "gradient-not-defined",
+      "actual_rule": "gradient-not-defined",
+      "details": {
+        "observer_rule": "gradient-not-defined",
+        "node": 1
+      },
+      "input_sha256": "ec514b107cbce9e26c1472da0a01b8232c7febb5a35a6fc69dd2e9c256f9cf51",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/native-controls446-01/owners/1970e908c208e33c/events.json",
+        "event": 1
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/copied-controls446-01/negative-inputs/gradient-binding-without-presence.json.gz",
+      "compressed_sha256": "b0fa51b00cf39e5f3dd0ec183249ca2a90f96a43290a9ec41cc1bffd3d3731f6"
+    },
+    {
+      "case": "gradient-T-record-points-to-wrong-node",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "T-row-node-mapping",
+      "actual_rule": "T-row-node-mapping",
+      "details": {
+        "observer_rule": "T-row-node-mapping",
+        "node": 11
+      },
+      "input_sha256": "8ff4dc7e752c9edf5a21f4a407c64f6c6929c3ef61234dddaff6b2857782832b",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/native-controls446-01/owners/1970e908c208e33c/events.json",
+        "event": 1
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/copied-controls446-01/negative-inputs/gradient-T-record-points-to-wrong-node.json.gz",
+      "compressed_sha256": "52f014487193e57d822e81525c755517941a5ee74aa5b8d97761c48a73b1192c"
+    },
+    {
+      "case": "committed-incoming-temporary-not-cleared",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "descriptor-transient",
+      "actual_rule": "descriptor-transient",
+      "details": {
+        "observer_rule": "descriptor-transient",
+        "node": 1,
+        "field": 448
+      },
+      "input_sha256": "029dfde2e0ff82fce265cbdcd91b9fbb8da94382d8e36f7edd16c89c4bd2b150",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/native-controls446-01/owners/1970e908c208e33c/events.json",
+        "event": 1
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/copied-controls446-01/negative-inputs/committed-incoming-temporary-not-cleared.json.gz",
+      "compressed_sha256": "d04572bc2e98cfa45e434e31fd3d194e10823f7fa3083f90072bbdbb296d3bf6"
+    },
+    {
+      "case": "hidden-gradient-node-entry",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "node-index-coverage",
+      "actual_rule": "node-index-coverage",
+      "details": {
+        "observer_rule": "node-index-coverage"
+      },
+      "input_sha256": "5574af23bc0838999d45c88f7893b01b8df94323d6997e7120fe35747cb24b9a",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/native-controls446-01/owners/1970e908c208e33c/events.json",
+        "event": 1
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/copied-controls446-01/negative-inputs/hidden-gradient-node-entry.json.gz",
+      "compressed_sha256": "6a731e7bb7578be129b8652b98a339deedee2d45e21dcc6962576b351e1104c8"
+    },
+    {
+      "case": "duplicate-live-node-incarnation",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "node-incarnation-unique",
+      "actual_rule": "node-incarnation-unique",
+      "details": {
+        "observer_rule": "node-incarnation-unique",
+        "node": 11,
+        "incarnation": 1
+      },
+      "input_sha256": "ac88b330882c88afb519f7fa047cfec557753da2621f1660a392bdaea628c3c7",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/native-controls446-01/owners/1970e908c208e33c/events.json",
+        "event": 1
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/copied-controls446-01/negative-inputs/duplicate-live-node-incarnation.json.gz",
+      "compressed_sha256": "969a8e90cd089693561076cc6b47bc27bb4f30cfa71e620557dde998757c0531"
+    },
+    {
+      "case": "extra-unrooted-live-gradient-cannot-explain-allocation",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "anonymous-live-node",
+      "actual_rule": "anonymous-live-node",
+      "details": {
+        "observer_rule": "anonymous-live-node",
+        "missing": [
+          11
+        ]
+      },
+      "input_sha256": "4558cd83ccfe04ec6bc0183c60ee3a66d227f5cbe2b7f6211aa443e5abd53ef7",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/native-controls446-01/owners/1970e908c208e33c/events.json",
+        "event": 1
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/copied-controls446-01/negative-inputs/extra-unrooted-live-gradient-cannot-explain-allocation.json.gz",
+      "compressed_sha256": "3c239f3726fa8675f597f712dd723eab15df84b3422fabc2ce1fabc411ce673a"
+    },
+    {
+      "case": "compound-three-constructors-miscounted-as-one",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "unexplained-incarnation-delta",
+      "actual_rule": "unexplained-incarnation-delta",
+      "details": {
+        "observer_rule": "unexplained-incarnation-delta",
+        "actual": 10,
+        "program": 8,
+        "private_gradients": 0
+      },
+      "input_sha256": "b3f3acd03acf400dd40b54fcb5ce96f7b0b2b5b0c703694d962d50121a646e52",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/native-controls446-01/owners/1970e908c208e33c/events.json",
+        "event": 0
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/copied-controls446-01/negative-inputs/compound-three-constructors-miscounted-as-one.json.gz",
+      "compressed_sha256": "54e0d4e594c79e36b440387a78884a0de8f8d96354123e545d25fe6587c9495b"
+    },
+    {
+      "case": "duplicate-program-creation-ticket",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "duplicate-creation-ticket",
+      "actual_rule": "duplicate-creation-ticket",
+      "details": {
+        "observer_rule": "duplicate-creation-ticket"
+      },
+      "input_sha256": "baf2ff9c7d8e089ee9249d603862f2092dca6de7a01bdaa715ce37a6e377b20b",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/native-controls446-01/owners/1970e908c208e33c/events.json",
+        "event": 0
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/copied-controls446-01/negative-inputs/duplicate-program-creation-ticket.json.gz",
+      "compressed_sha256": "d422c97b16c25337702af5f9bfd63fe75ec024cdd0bae08b6de9fc7f476ee35c"
+    },
+    {
+      "case": "reset-high-water-includes-unexplained-dead-slot",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "reset-high-water",
+      "actual_rule": "reset-high-water",
+      "details": {
+        "observer_rule": "reset-high-water",
+        "observed": 7,
+        "expected": 6
+      },
+      "input_sha256": "4368222814af13bab2c105e35ffa544a5ad79eb03b5be05e9a3d3785607eba4e",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/native-controls446-01/owners/7b32c9730e17b464/events.json",
+        "event": 2
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/copied-controls446-01/negative-inputs/reset-high-water-includes-unexplained-dead-slot.json.gz",
+      "compressed_sha256": "e53dc897322394dd5ee4065d47fdba4a8621b8d8a0a294195b8fb6ceb3980704"
+    },
+    {
+      "case": "unrequested-generation-change",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "unrequested-reset",
+      "actual_rule": "unrequested-reset",
+      "details": {
+        "observer_rule": "unrequested-reset"
+      },
+      "input_sha256": "995ccc07f4466c9aa5e4d1e9ef85ff6dfd4f88cae28ce8b854f8d527474a966b",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/native-controls446-01/owners/1970e908c208e33c/events.json",
+        "event": 1
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/copied-controls446-01/negative-inputs/unrequested-generation-change.json.gz",
+      "compressed_sha256": "469b30f5ad80a0e41125004f5a7f46a077e910fb8bb2d35e02615f293e6cbb11"
+    },
+    {
+      "case": "failed-frame-raw-owner-digest-changed",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "failed-frame-full-owner-rollback",
+      "actual_rule": "failed-frame-full-owner-rollback",
+      "details": {
+        "observer_rule": "failed-frame-full-owner-rollback"
+      },
+      "input_sha256": "7995906771d22fbcfc2b68e26144c5471ecd8c9ae5548fa337a7b835ca4d9adc",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/native-controls446-01/owners/7b32c9730e17b464/events.json",
+        "event": 4
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/copied-controls446-01/negative-inputs/failed-frame-raw-owner-digest-changed.json.gz",
+      "compressed_sha256": "4d0b6047143f4e67991e7a6239dca98deddadd05cd9dd0bb89a2264bd1aa7413"
+    },
+    {
+      "case": "failed-frame-owner-pointer-changed",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "failed-frame-structural-rollback",
+      "actual_rule": "failed-frame-structural-rollback",
+      "details": {
+        "observer_rule": "failed-frame-structural-rollback"
+      },
+      "input_sha256": "15a83b52cc4092dac269f6270a66dd4ed470f05466d664489e18d39973eda650",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/native-controls446-01/owners/7b32c9730e17b464/events.json",
+        "event": 4
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/retained-observer-extension/copied-controls446-01/negative-inputs/failed-frame-owner-pointer-changed.json.gz",
+      "compressed_sha256": "fbba59aa178947a515a5a9fa91d4a7db11d7274271f97224d52e8b4fc64869b7"
+    }
+  ],
+  "scope": "Observer admission only, using copies of committed owner snapshots; no native or API qualification is claimed.",
+  "expected_profile": "retained-gradients-446",
+  "selection_policy": "First actual eligible event of each fixed category; event result is only a selector, never a substitute for baseline verification.",
+  "positive_cases": 4,
+  "negative_cases": 18,
+  "original_journals_unchanged": true,
+  "observer_source_unchanged": true,
+  "failures": 0
+}

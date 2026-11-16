@@ -388,6 +388,77 @@ test-adam-distributions: adam-distributions
 	  --output "$$review/observed"; \
 	cp "$$review/observed/report.json" build/hosted-adam-distributions-native.json
 
+GRADIENT_OBJECT_INPUTS := $(wildcard tools/gradient_objects/* tools/gradient_objects/authoring/incoming/* tools/gradient_objects/authoring/public/* tools/gradient_objects/authoring/public/baseline-authoring/* tests/gradient_objects/* validation/gradient-objects/reference/*) tests/check_gradient_object_reports.py Makefile
+
+.PHONY: gradient-objects test-gradient-objects
+gradient-objects: build/gradient-objects/build.json
+
+build/gradient-objects/build.json: build/owned-optimizers/reproduction.json $(GRADIENT_OBJECT_INPUTS) | build
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.gradient-objects.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	python3 -I -S -B tools/gradient_objects/build.py --baseline "$(CURDIR)/build/owned-optimizers" \
+	  --compiler "$(HEPTA_STACK_BUILD)/native/stack-module-compiler" --linker "$(HEPTA_STACK_BUILD)/native/stack-linker-session" \
+	  --output "$$tmp/native"; \
+	mkdir -p build/gradient-objects; cp -a --remove-destination "$$tmp/native/." build/gradient-objects/
+
+test-gradient-objects: owned-optimizers
+	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/.gradient-object-review.XXXXXX"); \
+	python3 -I -S -B tools/gradient_objects/qualify.py --repository "$(CURDIR)" \
+	  --baseline "$(CURDIR)/build/owned-optimizers" --source-root "$(HEPTA_SOURCE_ROOT)" \
+	  --compiler "$(HEPTA_STACK_BUILD)/native/stack-module-compiler" --linker "$(HEPTA_STACK_BUILD)/native/stack-linker-session" \
+	  --output "$$review/observed"; \
+	python3 -I -S -B tests/check_gradient_object_reports.py --build "$$review/observed/native" \
+	  --review "$$review/observed" --output build/hosted-gradient-objects-native.json; \
+	mkdir -p build/gradient-objects; cp -a --remove-destination "$$review/observed/native/." build/gradient-objects/
+
+GRADIENT_ADAM_DISTRIBUTION_INPUTS := $(wildcard tools/gradient_adam_distributions/* tests/gradient_adam_distributions_review/* tests/gradient_composition_review/* tests/adam_distributions_gradient_review/* validation/gradient-adam-distributions/reference/*) tests/qualify_gradient_adam_distributions.py Makefile
+
+.PHONY: gradient-adam-distributions test-gradient-adam-distributions
+gradient-adam-distributions: build/gradient-adam-distributions/build.json
+
+build/gradient-adam-distributions/build.json: build/gradient-objects/build.json build/adam-distributions/reproduction.json $(GRADIENT_ADAM_DISTRIBUTION_INPUTS) | build
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.gradient-adam-distributions.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	python3 -I -S -B tools/gradient_adam_distributions/build.py --gradient-build "$(CURDIR)/build/gradient-objects" \
+	  --adam-distribution-build "$(CURDIR)/build/adam-distributions" \
+	  --compiler "$(HEPTA_STACK_BUILD)/native/stack-module-compiler" --linker "$(HEPTA_STACK_BUILD)/native/stack-linker-session" \
+	  --output "$$tmp/native"; \
+	mkdir -p build/gradient-adam-distributions; cp -a --remove-destination "$$tmp/native/." build/gradient-adam-distributions/
+
+test-gradient-adam-distributions: gradient-objects adam-distributions
+	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/.gradient-adam-distribution-review.XXXXXX"); \
+	python3 -I -S -B tests/qualify_gradient_adam_distributions.py \
+	  --gradient-build "$(CURDIR)/build/gradient-objects" --adam-distribution-build "$(CURDIR)/build/adam-distributions" \
+	  --stack-build "$(HEPTA_STACK_BUILD)" --output "$$review/observed"; \
+	cp "$$review/observed/report.json" build/hosted-gradient-adam-distributions-native.json; \
+	mkdir -p build/gradient-adam-distributions; cp -a --remove-destination "$$review/observed/producer/native/." build/gradient-adam-distributions/
+
+
+RETAINED_GRADIENT_INPUTS := $(wildcard tools/retained_gradients/* tests/retained_gradient_regression/* tests/retained_nonleaf_review/* tests/retained_resource_review/* tests/retained_extension_review/*) tests/qualify_retained_gradients.py Makefile
+
+.PHONY: retained-gradients test-retained-gradients
+retained-gradients: build/retained-gradients/build.json
+
+build/retained-gradients/build.json: build/gradient-adam-distributions/build.json $(RETAINED_GRADIENT_INPUTS) | build
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.retained-gradients.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	python3 -I -S -B tools/retained_gradients/build.py --parent-build "$(CURDIR)/build/gradient-adam-distributions" \
+	  --compiler "$(HEPTA_STACK_BUILD)/native/stack-module-compiler" --linker "$(HEPTA_STACK_BUILD)/native/stack-linker-session" \
+	  --output "$$tmp/native"; \
+	mkdir -p build/retained-gradients; cp -a --remove-destination "$$tmp/native/." build/retained-gradients/
+
+test-retained-gradients: gradient-adam-distributions
+	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/.retained-gradient-review.XXXXXX"); status=0; \
+	python3 -I -S -B tests/qualify_retained_gradients.py --repo "$(CURDIR)" \
+	  --parent-build "$(CURDIR)/build/gradient-adam-distributions" \
+	  --compiler "$(HEPTA_STACK_BUILD)/native/stack-module-compiler" --linker "$(HEPTA_STACK_BUILD)/native/stack-linker-session" \
+	  --stack-build "$(HEPTA_STACK_BUILD)" --output "$$review/observed" || status=$$?; \
+	if [ -f "$$review/observed/report.json" ]; then cp "$$review/observed/report.json" build/hosted-retained-gradients-native.json; fi; \
+	if [ -f "$$review/observed/evidence-manifest.json" ]; then cp "$$review/observed/evidence-manifest.json" build/retained-gradients-ci-raw-manifest.json; fi; \
+	if [ -f "$$review/observed/raw-evidence.tar.xz" ]; then cp "$$review/observed/raw-evidence.tar.xz" build/retained-gradients-ci-raw.tar.xz; fi; \
+	test "$$status" -eq 0 || exit "$$status"; \
+	test -f build/hosted-retained-gradients-native.json; \
+	test -f build/retained-gradients-ci-raw-manifest.json; test -f build/retained-gradients-ci-raw.tar.xz; \
+	mkdir -p build/retained-gradients; cp -a --remove-destination "$$review/observed/producer/native/." build/retained-gradients/
+
+
 check-compiler:
 	@compiler=$$(command -v "$(HEPTA_COMPILER)") || { echo 'Set HEPTA_COMPILER to the pinned native HIA compiler; see docs/build.md.' >&2; exit 1; }; \
 	printf '%s  %s\n' '$(COMPILER_SHA256)' "$$compiler" | sha256sum -c -

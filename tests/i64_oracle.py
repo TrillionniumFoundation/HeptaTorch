@@ -72,11 +72,16 @@ def main():
     compiler=a.compiler.resolve()
     assert SHA(original_source)==SOURCE_SHA
     assert SHA(compiler.read_bytes())==COMPILER_SHA
+    observer_path=Path(__file__).with_name('integer_byte_evidence.py')
+    assert SHA(observer_path.read_bytes())=='6a5ff8a8a6f920f8734f9c5a26533ba26d71965d8de4fbbf1e7f7aa1c631f453'
+    evidence=runpy.run_path(str(observer_path),run_name='integer_byte_observer')['Evidence'](
+        out,'i64',a.reference,a.source,compiler,Path(__file__),Path.cwd())
     binary=[]
     for generation in range(2):
         run=subprocess.run([str(compiler)],input=original_source,capture_output=True,
                            timeout=30,env={'PATH':''})
         (out / f'compiler-{generation}.stderr').write_bytes(run.stderr)
+        evidence.compile_result(generation,run)
         assert run.returncode==0 and not run.stderr and run.stdout.startswith(b'\x7fELF')
         binary.append(run.stdout)
     assert binary[0]==binary[1] and SHA(binary[0])==IMAGE_SHA
@@ -98,31 +103,37 @@ def main():
         torch.set_num_threads(1)
 
     def run_native(wire):
+        evidence.request(wire)
         run=subprocess.run([str(exe)],input=wire,capture_output=True,
                            timeout=45,env={'PATH':''})
+        evidence.native_result(run)
         assert run.returncode==0 and not run.stderr,(run.returncode,run.stderr[:100])
         return run.stdout
 
     rows=[]
     for name,mode,pairs in corpus():
         row={'case':name,'mode':mode,'count':len(pairs),'status':'FAIL','mismatches':[]}
+        evidence.begin_case(name)
         try:
             wire=as_wire(mode,pairs)
             response=run_native(wire)
             assert len(response)==4+8*len(pairs) and response[:4]==bytes(4), (len(response),response[:16].hex())
             want=source_reference(mode,pairs)
+            evidence.reference_bytes('cpython',b''.join(struct.pack('<Q',v) for v in want))
             if torch is not None and pairs:
                 lhs=torch.tensor([signed(a) for a,b in pairs],dtype=torch.int64)
                 rhs=torch.tensor([signed(b) for a,b in pairs],dtype=torch.int64)
                 op=(lambda a,b:a+b,lambda a,b:a-b,lambda a,b:a*b,
                     torch.bitwise_and,torch.bitwise_or,torch.bitwise_xor)[mode]
                 want_t=[v&MASK for v in op(lhs,rhs).tolist()]
+                evidence.reference_bytes('pytorch',b''.join(struct.pack('<Q',v) for v in want_t))
                 if want_t!=want:
                     row['reference_crosscheck_errors']=[{'index':i,'cpython':x,'torch':y}
                         for i,(x,y) in enumerate(zip(want,want_t)) if x!=y][:8]
                     raise AssertionError('CPython and PyTorch independent references disagree')
                 want=want_t
             raw_expected=b''.join(struct.pack('<Q',v) for v in want)
+            evidence.expected_bytes(raw_expected,'payload','pytorch' if torch is not None and pairs else ('cpython' if torch is None else 'empty-no-framework-operation'))
             raw_actual=response[4:]
             if raw_actual!=raw_expected:
                 got=struct.unpack('<'+str(len(pairs))+'Q',raw_actual) if pairs else []
@@ -146,6 +157,8 @@ def main():
     ]
     for name,wire in refusals:
         row={'case':'refuse-'+name,'status':'FAIL'}
+        evidence.begin_case('refuse-'+name)
+        evidence.expected_bytes(b'\x01\0\0\0','full-response','protocol-literal')
         try:
             response=run_native(wire)
             assert response==b'\x01\0\0\0',response[:32].hex()
@@ -165,6 +178,7 @@ def main():
             'scope':'bounded contiguous CPU int64 elementwise add/sub/mul/bitwise; no general Tensor dispatcher, shapes, broadcasting or full upstream schema',
             'rows':rows}
     (out/'report.json').write_text(json.dumps(report,indent=2,allow_nan=False)+'\n')
+    evidence.finalize(out/'report.json')
     print(json.dumps({k:v for k,v in report.items() if k not in ('rows','oracle_provenance')},sort_keys=True))
     return 0 if passed else 1
 

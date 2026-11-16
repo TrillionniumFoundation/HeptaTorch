@@ -3,7 +3,7 @@ on:
   push:
     branches: ["feature/native-int64-elementwise"]
   pull_request:
-    paths: ["tools/native-i64/**", "tests/i64_oracle.py", ".github/workflows/native-i64.yml"]
+    paths: ["tools/native-i64/**", "tests/i64_oracle.py", ".github/workflows/native-i64.yml", "tests/integer_byte_evidence.py", "tests/check_integer_byte_evidence.py"]
   workflow_dispatch:
 permissions:
   contents: read
@@ -96,6 +96,12 @@ jobs:
           dest.write_text(json.dumps(report,indent=2)+'\n')
           print(json.dumps(report,sort_keys=True))
           PY
+      - name: Preserve and verify complete original integer byte evidence
+        if: always()
+        run: |
+          tar -cJf build/i64-original-byte-evidence.tar.xz -C build i64-cpython i64-pytorch
+          python3 -I -S -B tests/check_integer_byte_evidence.py             --profile i64 --reference cpython --directory build/i64-cpython             --output build/i64-byte-review-cpython.json
+          python3 -I -S -B tests/check_integer_byte_evidence.py             --profile i64 --reference pytorch --directory build/i64-pytorch             --output build/i64-byte-review-pytorch.json
       - name: Upload original independent reports
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -106,5 +112,8 @@ jobs:
             build/i64-cpython/report.json
             build/i64-pytorch/report.json
             build/i64-pytorch/provenance-report.json
+            build/i64-original-byte-evidence.tar.xz
+            build/i64-byte-review-cpython.json
+            build/i64-byte-review-pytorch.json
           if-no-files-found: error
           retention-days: 30

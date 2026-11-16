@@ -1,0 +1,74 @@
+{
+  "schema": "heptatorch.retained-gradient-resource-plan.v1",
+  "status": "READY_FOR_NATIVE_EXECUTION",
+  "candidate_source_sha256": "666230f05cc6942470006d1f184135321d8cbc26a6c6ba0bf7e3cf9857fe515b",
+  "candidate_image_sha256": "7568c0a4ec40d82d3a0b46d1e8a27499dd96e8fe3fd15433523131a196da89b5",
+  "reference_sha256": "ca8b5d3a7c679dcc5ad9a3d7b2bbd38f664c90e6474cf3e3c28496d5b716d1b3",
+  "state_format": "HTRET001",
+  "backing_format": "HTORET01",
+  "descriptor_bytes": 576,
+  "actual_reference_replay_owner": "autograd_extension; this review does not rerun that full12 matrix",
+  "source_findings": [
+    {
+      "fact": "retained bit0 at Tensor row+56 adds no node reference; temporary bit1 is coupled to one node208 reference and protected against Tensor-row GC",
+      "obligation": "Every committed active Tensor row is flag0/1; temporary nodes above the output ordinal must be cleaned on both success and structured error."
+    },
+    {
+      "fact": "partial retain hook precedes own Saved/version validation",
+      "obligation": "58 may bind a fresh retained G before error6/10 even with completed node count0. Ordinary7/29/57 frame failure still preserves the entire original owner."
+    },
+    {
+      "fact": "fresh reservation is allocated before execution and queue table lives in a real private Hold",
+      "obligation": "OOM does not expose reservations or double-commit prefix state; unused slots, Storage, Version and Holds do not survive."
+    },
+    {
+      "fact": "tensor_row_release/publish_tensor are wrapped; module-private old helpers remain exact renamed bodies",
+      "obligation": "Public weak expiry and same-Tensor republication preserve their distinct root semantics; new aliases start clear."
+    }
+  ],
+  "cases": [
+    {
+      "name": "weak-retain-never-materialized",
+      "purpose": "Flag registration adds no208/312/400 root; after public q drop, q Storage expires despite graph metadata, backward computes only surviving leaf G."
+    },
+    {
+      "name": "weak-retain-with-held-old-gradient",
+      "purpose": "Held G outlives q; expired weak q is not recreated or rebound by backward."
+    },
+    {
+      "name": "version-error-prefix-and-unvisited-reserves",
+      "purpose": "58 commits q prehook then error6 with zero completed applies; earlier retained ancestor G staysNone; suffix skips; all high-ordinal unused reservations and flags clear."
+    },
+    {
+      "name": "released-error-prefix-and-unvisited-reserves",
+      "purpose": "After successful default release, retry prehook replaces only visited q G before10; ancestor/leaf G are unchanged and all unexecuted fresh G nodes are released."
+    },
+    {
+      "name": "ordinary-whole-owner-rollback",
+      "purpose": "7/29/57 and successful58 followed by ordinary error preserve pointer,length,fullbytes; no reservation persists."
+    },
+    {
+      "name": "real-ENOMEM-and-recovery",
+      "purpose": "Own-child RLIMIT_AS allows a normal same-capacity frame but forbids growth after filling free extents; native3 preserves fullowner and mapping set; restored limit allows fresh G."
+    },
+    {
+      "name": "optimizer-strong-root-growth-reset-release",
+      "purpose": "Only real Optimizer root keeps retained q/parent graph alive across table/page growth and graph_reset; flag survives same-Tensor republication; final drop releases graph while held G remains."
+    },
+    {
+      "name": "empty-fresh-gradient-cleanup",
+      "purpose": "Defined zero-element G differs fromNone and receives fresh T/S/V on replacement without retained temporary roots."
+    }
+  ],
+  "typed_handoff_plan": "Compile real renamed old05/new01 HIA units into checked ABI3 driver; create valid states on each side, wrong-step refusal must return exact original owner, return to original step and recover, then consume/close; no serialized pointers or owner memcpy.",
+  "known_inherited_negative_test_conflict": {
+    "script": "tests/gradient_adam_distributions_review/test_native_lifetimes.py",
+    "old93_94": "unknown opcode4",
+    "new93_94_empty": "invalid Tensor1",
+    "resolution": "preserve old original FAIL; producer owns a separately recorded exact reversible admission adaptation, no changes to actual12"
+  },
+  "native_executed_by_plan": false,
+  "whole_project_readiness": "HOLD",
+  "full_rewrite_complete": false,
+  "pytorch_api_denominator": 2590
+}
