@@ -1,5 +1,18 @@
 # Reproducible native build
 
+## Complete hosted report export
+
+The native workflow exports the original top-level `build/*.json` report files
+as an Actions artifact, in addition to the existing compressed log envelopes.
+`ci-report-manifest.json` records each original file's byte length and SHA-256,
+the checkout commit and tree, the workflow and collector hashes, and the actual
+run, attempt, event and source-head identity. Collection never parses or
+reserializes report contents, including unsigned 64-bit state observations.
+A successful job must contain every report named by the existing envelope
+steps and have an unchanged tracked checkout. Failed jobs can export partial
+evidence, explicitly marked with the prior job status and missing report names.
+Artifact transport does not qualify a report or change any numerical gate.
+
 ## Target and toolchain
 
 The executable target is Linux x86-64. The canonical implementation is
@@ -720,3 +733,143 @@ The source-bound qualifier verifies all frozen implementation and independent re
 A cold rebuild must match source `7c68a96b08aa9a21a52e2fd12be912c5f47dbde889e462f9a0dbb38cb3c09edf` and ELF `b6634158e079512e797d8237cca12d65052db18df23b12b8414adeb8d0b4b0e1`. Full aggregate host-authoring admission is not claimed: its actual refusal remains recorded. Complete production modules and the actual linked call graph pass the unchanged native checkers. Hosted CI additionally runs the unchanged live32 and frozen35 oracles on this image.
 
 The formal result is scoped to exposed SGD, ownership and leaf flags. The 24-case reference is recorded as 18 qualified, one partial and five open, never as 24 native passes. Full optimizer, public-gradient-object and PyTorch completion gates stay open.
+
+## Owned Adam and AdamW state Tensors
+
+The frozen Adam component consumes the exact reproduced Optimizer08 source.
+It creates actual owned step, first-moment and second-moment Tensors, retaining
+the same guarded ABI3 compiler/linker and the existing SGD algorithm. Build and
+qualify it after the prerequisite stack tools are available:
+
+```sh
+make owned-adam test-owned-adam \
+  HEPTA_SOURCE_ROOT=/path/to/pinned/Hepta \
+  HEPTA_STACK_BUILD=/path/to/stack-build
+```
+
+`owned-adam` depends on `build/owned-optimizers/reproduction.json`, so the
+existing Tensor/object, partial-backward, nullable-gradient and RNG dependency
+chain remains explicit. The target invokes the frozen
+`tools/owned_adam/rebuild.py` with the predecessor, repository, pinned upstream
+source root and both native tools. It produces
+`build/owned-adam/tensor-adam-session`, `runtime.hepta`, all eight complete
+module sources/objects, `build.json` and `reproduction.json`. Source pins are
+checked before and after the producer. The exact identities are:
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Generated core | `253438648a437a75ef2dbc77138eca74cb5fe6a6e2ea322c7c38e5a535e5d2a6` |
+| Final executable | `fa92356954dbb9e0c454f2a58c2f78aa33950103d377c57e7b659ec9904183af` |
+| ABI3 compiler | `b1c851a0896fa6071f800e1146c3c27d0c6cf85059e9a6281b46d42908a3f59f` |
+| ABI3 session linker | `aae650e8822ef0b1e74d15108ad1d0f17ec791205ed5a158ec60b709f48f0e16` |
+
+The assembled document contains 352 functions, 4,598 blocks and 17,185
+instructions. 308 of the 315 predecessor function bodies remain byte-identical.
+The native checker admits each complete module, and the linker checks the
+actual whole-program call graph and stack bound. This does not claim that the
+aggregate host authoring document fits the single-document budget or that
+those upstream limits were increased.
+
+The root qualification driver can also be run directly with a fresh output
+directory:
+
+```sh
+python3 -I -S -B tests/qualify_owned_adam.py \
+  --build build/owned-adam \
+  --baseline build/owned-optimizers \
+  --stack-build /path/to/stack-build \
+  --output build/owned-adam-qualified
+```
+
+It verifies both frozen package manifests, all dependencies, source/object/ELF
+identities and before/after source custody. Its 19 reports cover the independent
+old 19 recipes and new four Adam recipes from the unchanged 24-case report;
+6 flag and 3 accumulator-lifetime cases; private-root migration; native
+ownership, admission and actual float32-counter boundaries; unchanged legacy
+SGD and 13/16/8/10 backward replays; both RNG joint suites; and a real old/new
+owner handoff executable. The two accumulator-observer tag edits are exactly
+reversible. Numerical inputs, tolerances and original report identities are
+preserved. The Make target copies the final result to
+`build/hosted-owned-adam-native.json` for lossless CI emission.
+
+[The root native receipt](../validation/owned-adam-root-native.json) records a
+successful cold build and all 19 actual qualification reports. The original
+24-case reference now has 22 cases qualified within exposed scope, one partial
+retained-nonleaf recipe and one unexecuted public-gradient-object recipe.
+The old 18/1/5 report is unchanged. These are recipe results, not a count of
+fully closed PyTorch schemas.
+
+CI adds three steps: native reproduction/qualification, the unchanged 32-case
+live joint oracle on the final Adam ELF, and the unchanged 35-case Tensor
+oracle on the same ELF. The new reports are
+`build/pytorch-owned-adam-backward.json` and
+`build/pytorch-owned-adam-frozen35.json`. Those two new-image hosted runs are
+pending; earlier executables' passes are not transferred to this one.
+
+For command layouts, ownership and remaining exponent/mode boundaries, see
+[the component description](owned-adam.md) and
+[the frozen protocol](../tools/owned_adam/PROTOCOL.md). The private tags
+`HTADAM01` / `HTOADAM1` deliberately reject nonempty predecessor state; the
+external `HTORCH03` / `HTORSP03` wire protocol is retained. Production state is
+created and transferred through checked native owner calls. No user pointer or
+copied owner descriptor is introduced.
+
+## Native CPU Bernoulli and dropout
+
+The distribution targets use the reproduced nullable Tensor/RNG predecessor,
+the common and gradient-materialization authoring layers, and the unchanged
+pinned ABI3 compiler/linker:
+
+```sh
+make cpu-distributions cpu-distributions-partial test-cpu-distributions \
+  HEPTA_SOURCE_ROOT=/path/to/pinned-hepta \
+  HEPTA_STACK_BUILD=/path/to/stack-tools
+```
+
+The dependency chain first provides `build/tensor-rng-nullable`,
+`build/tensor-rng-composition/native/overlay-authoring.py` and
+`build/gradient-materialization/overlay-authoring.py`. The atomic producer
+compiles seven real units into
+`build/cpu-distributions/tensor-distributions-session`; the successor consumes
+that exact build and produces
+`build/cpu-distributions-partial/tensor-distributions-session`. Each recipe
+checks its frozen package manifest, authors into an isolated temporary
+directory, verifies source/object/image identities and copies the successful
+result into its build directory. Exact pins and state barriers are listed in
+[the component contract](cpu-distributions.md).
+
+`test-cpu-distributions` executes both frozen qualification drivers, in order:
+five atomic suites and six successor suites. It does not substitute stored
+PASS reports for native execution. Only after both finish does
+`tests/check_cpu_distribution_reports.py` bind their eleven reports to the
+actual builds and write `build/hosted-cpu-distributions-native.json`. Raw suite
+outputs remain under the printed `.cpu-distributions-review.*` build directory.
+
+The checker verifies both 37-file and 28-file frozen manifests; complete HIA,
+unit-object and ELF identities; each concrete report's source/image or
+qualification-only identity; typed-peer source bindings; all 183 reference
+indices, names, families and status counts; the exact 18 unrepresented indices;
+and every member's bytes, SHA256 and mode in both historical archives. The
+original checker and its earlier accepted source-mismatch/truncated-row
+witnesses are preserved separately in the integration history. No production
+or frozen qualification file was changed to strengthen report admission.
+
+The original commands retain 161 PASS, four explicit transaction differences
+and 18 unrepresented observations. Commands 86/87 strictly match 165 of the same
+183 observations, closing only zero-based indices 101, 103, 105 and 179. This
+scoped native qualification returns success while its compatibility status
+stays PARTIAL; it does not turn HOLD into whole-PyTorch acceptance.
+
+CI adds one step for both rebuilds and all eleven native suites. After the
+locked PyTorch wheel is installed, two further steps run the unchanged live
+32-case joint oracle and frozen 35-case Tensor oracle on the final partial
+image. Their reports use separate `pytorch-cpu-distributions-*` filenames.
+All previous steps and historical reports remain unchanged. These added live
+runs are required gates, not results inferred from the fixed-observation replay.
+
+The remaining 18 observations require float64 probability Tensors (eight),
+int64 probability Tensors (two), or the distinct `native_dropout` boolean-mask
+interface (eight). The seven-kind owner also has not yet been composed with the
+kind-8 Optimizer or public-gradient-object successor. Full RNG, dtype and
+PyTorch-rewrite flags remain false and the original 2,590-schema denominator is
+unchanged.

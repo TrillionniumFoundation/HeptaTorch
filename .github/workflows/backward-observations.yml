@@ -3,7 +3,7 @@ on:
   push:
     branches: ["feature/native-tensor-objects", "feature/native-backward-release", "feature/native-backward-partial", "feature/native-cpu-generators", "feature/native-gradient-none", "feature/native-optimizer-objects"]
   pull_request:
-    paths: ["tests/pytorch_backward_release_probe.py", "tests/pytorch_backward_partial_probe.py", "tests/pytorch_gradient_presence_probe.py", "tests/pytorch_gradient_signed_zero_probe.py", "tests/pytorch_grad_clear_probe.py", "tests/pytorch_optimizer_object_probe.py", "tests/pytorch_requires_grad_probe.py", "tests/pytorch_accumulator_lifetime_probe.py", "tests/pytorch_gradient_object_probe.py", "tests/pytorch_bernoulli_dropout_probe.py", "tests/pytorch_uniform_probe.py", "tests/pytorch_uniform_range_probe.py", ".github/workflows/backward-observations.yml"]
+    paths: ["tests/pytorch_backward_release_probe.py", "tests/pytorch_backward_partial_probe.py", "tests/pytorch_gradient_presence_probe.py", "tests/pytorch_gradient_signed_zero_probe.py", "tests/pytorch_grad_clear_probe.py", "tests/pytorch_optimizer_object_probe.py", "tests/pytorch_requires_grad_probe.py", "tests/pytorch_accumulator_lifetime_probe.py", "tests/pytorch_gradient_object_probe.py", "tests/pytorch_bernoulli_dropout_probe.py", "tests/pytorch_uniform_probe.py", "tests/pytorch_uniform_range_probe.py", "tests/pytorch_gradient_materialization_probe.py", "tests/pytorch_gradient_alias_edge_probe.py", "tests/pytorch_bernoulli_gradient_layout_probe.py", ".github/workflows/backward-observations.yml"]
   workflow_dispatch:
 permissions:
   contents: read
@@ -153,3 +153,37 @@ jobs:
         run: |
           test -f build/torch-gradient-alias-edge.json
           python3 -I -S -B tools/emit_ci_report.py build/torch-gradient-alias-edge.json
+      - name: Verify fixed Bernoulli gradient layout and alias source
+        run: |
+          echo 'f43ba1d1cc220c76279e3c8f96fb1358ce421e9f309d209bcdb5a5dbc554f718  tests/pytorch_bernoulli_gradient_layout_probe.py' | sha256sum -c -
+          python3 -I -S -B -m py_compile tests/pytorch_bernoulli_gradient_layout_probe.py
+      - name: Prepare Bernoulli gradient layout and alias observation plan
+        run: |
+          python3 -I -S -B tests/pytorch_bernoulli_gradient_layout_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/torch-bernoulli-gradient-layout-prepared.json --prepare-only
+          python3 -I -S -B tools/emit_ci_report.py build/torch-bernoulli-gradient-layout-prepared.json
+      - name: Observe Bernoulli gradient materialization layouts and alias lifetimes
+        run: |
+          python3 tests/pytorch_bernoulli_gradient_layout_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/torch-bernoulli-gradient-layout.json
+      - name: Preserve complete Bernoulli gradient layout observations including failures
+        if: always()
+        run: |
+          test -f build/torch-bernoulli-gradient-layout.json
+          python3 -I -S -B tools/emit_ci_report.py build/torch-bernoulli-gradient-layout.json
+      - name: Index original reference reports and checkout identity
+        if: always()
+        env:
+          HEPTATORCH_SOURCE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: python3 -I -S -B tools/collect_ci_reports.py --workflow .github/workflows/backward-observations.yml --job-status '${{ job.status }}'
+      - name: Export original reference observations as a lossless artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: reference-observations-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+          path: build/*.json
+          if-no-files-found: error
+          compression-level: 9
+          retention-days: 30

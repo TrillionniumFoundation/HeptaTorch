@@ -1,0 +1,263 @@
+{
+  "schema": "heptatorch.independent-owned-adam-source-audit.v1",
+  "status": "PASS",
+  "baseline_source_sha256": "7c68a96b08aa9a21a52e2fd12be912c5f47dbde889e462f9a0dbb38cb3c09edf",
+  "previous_source_sha256": "bd38b67c9f39859ddb81f304d9043af625bdcf3305d60e98ba988a6208e42885",
+  "current_source_sha256": "253438648a437a75ef2dbc77138eca74cb5fe6a6e2ea322c7c38e5a535e5d2a6",
+  "candidate01_to02_changed_functions": [
+    "owned_adam_initialize"
+  ],
+  "two_initializer_call_names_only": true,
+  "new_allocator_body_exact_renaming_of_frozen_zeros_like_parameter_helper": true,
+  "allocator_sha256": "b275e6d7f5bb3638726e287cc8293d70520adbc1a37db4f2a12686e762e91e69",
+  "frozen_scalar_numerical_function_sha256": "c4c0b566b978a57deca386ba8452d19dac7fa5ce9cab08f060ca6b9721fd1f4a",
+  "new_scalar_function_sha256": "34bcbaf56e12f2bd01565294cafb9c7ace33913ce47ff744a8cdbb11ed291e75",
+  "four_access_changes_and_name_inverse_byte_identical": true,
+  "floating_operations_unchanged": true,
+  "baseline_functions": 315,
+  "baseline_functions_unchanged": 308,
+  "baseline_changes": [
+    "entry",
+    "state_header",
+    "init_state",
+    "so_state_init",
+    "so_state_header",
+    "owned_optimizer_command",
+    "optimizer_audit_record"
+  ],
+  "original_SGD_command_and_audit_bodies_retained_by_exact_rename": true,
+  "immutable_modules": {
+    "rng03.hepta": "a3fa507339b40435285dc1fa65e3cd519b6a0921a4c93bccf6ea834bb24763a3",
+    "owners.hepta": "9c02b75c44eee8459c476049f4d9ebe10935d9d9ed8b27f5842c699f8e6a0884"
+  },
+  "primary_sources": {
+    "adam.py": {
+      "sha256": "5ecb37579ebbec6cdcf4aa69b394136b98d425144a549d679c6369f9c76146b8",
+      "bytes": 40308,
+      "git_blob_sha1": "c02815ca78876771cadc4e74651ff3d87229212e",
+      "url": "https://github.com/pytorch/pytorch/blob/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/torch/optim/adam.py"
+    },
+    "adamw.py": {
+      "sha256": "b9cbfb1e2112b61d7aa88b0f8e2a777ddae9cca5e348e231256f1e39f06f1d92",
+      "bytes": 7535,
+      "git_blob_sha1": "031f8540357d2c62c82b7111cd8b0924e6041510",
+      "url": "https://github.com/pytorch/pytorch/blob/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/torch/optim/adamw.py"
+    },
+    "optimizer.py": {
+      "sha256": "4b0ecf48fa034f60e6ac1e5055846bbc907ec63c2f174b1bb81472354593075b",
+      "bytes": 52695,
+      "git_blob_sha1": "8dcac001b5690a3c0d1ae1df58a338124caebcfd",
+      "url": "https://github.com/pytorch/pytorch/blob/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/torch/optim/optimizer.py"
+    },
+    "MemoryOverlap.cpp": {
+      "sha256": "eaa96f7e06abe6274adeb5d2bec717bb2844fb99ea524c0e2ad19913f8ed04d6",
+      "bytes": 4415,
+      "git_blob_sha1": "5ed1f67d9c9f4bd11914a964e2d158eea3793fb0",
+      "url": "https://github.com/pytorch/pytorch/blob/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/aten/src/ATen/MemoryOverlap.cpp"
+    }
+  },
+  "read_only_review": [
+    {
+      "functions": [
+        "owned_adam_plan_group",
+        "owned_adam_initialize",
+        "owned_adam_key"
+      ],
+      "finding": "Only defined gradients realize state; the ordered group planning pass initializes one state per repeated Tensor key before numeric updates."
+    },
+    {
+      "functions": [
+        "owned_adam_step_exponent",
+        "owned_adam_apply"
+      ],
+      "finding": "Increment is actual binary32 Tensor arithmetic; admitted exponent is derived from the incremented value. Positive integral values below2^32 pass; no independent integer step counter exists."
+    },
+    {
+      "functions": [
+        "owned_adam_versions_ready",
+        "owned_adam_apply"
+      ],
+      "finding": "Version capacity is checked for parameter, step and both moment Tensors before writes. The existing actual-version helper remains byte-identical."
+    },
+    {
+      "functions": [
+        "owned_adam_fill_group",
+        "owned_adam_initialize",
+        "owned_adam_drop"
+      ],
+      "finding": "Membership retains each occurrence, realized first keys retain one further parameter root and three real state Tensors; drop removes matching obligations before graph collection."
+    },
+    {
+      "functions": [
+        "owned_adam_create",
+        "owned_adam_group_payload",
+        "owned_adam_add_group"
+      ],
+      "finding": "Counts are bounded before size arithmetic:1024 groups,4096 total occurrences. New group blob copies scalar IDs/offsets and carries existing logical roots; no native owner descriptor is copied into bytes."
+    },
+    {
+      "functions": [
+        "owned_adam_command",
+        "owned_adam_group_inventory"
+      ],
+      "finding": "Payload output capacity is checked before inventory writes; entry protects its record header. Unknown fields, widths, flags and offsets retain ordinary frame-atomic failure."
+    }
+  ],
+  "source_locations": {
+    "owned_adam_blob": {
+      "first_line": 1,
+      "last_line": 15,
+      "normalized_ast_sha256": "a8854d280704921e9180b098e1b78099ef41a61050a05392376ff8b334ed0b14"
+    },
+    "owned_adam_group_at": {
+      "first_line": 17,
+      "last_line": 20,
+      "normalized_ast_sha256": "592a035e2db52384c9ac70bda4e1a83d7e2112195856a4417a503c67aa47b37f"
+    },
+    "owned_adam_entry_at": {
+      "first_line": 22,
+      "last_line": 23,
+      "normalized_ast_sha256": "8c956c242d9e234a4e08846e4673f8f62b4f86a2a738ec792e543b8430942984"
+    },
+    "owned_adam_occurrence": {
+      "first_line": 25,
+      "last_line": 34,
+      "normalized_ast_sha256": "a27dcd99e6daa2f4783bc9b42d5a72428a88fb5482b424c83b9719e9697cc204"
+    },
+    "owned_adam_key": {
+      "first_line": 36,
+      "last_line": 43,
+      "normalized_ast_sha256": "ea879a6973e6883c1185c7b61966b638ef5f9af258c4f15000683e463519c991"
+    },
+    "owned_adam_word": {
+      "first_line": 45,
+      "last_line": 54,
+      "normalized_ast_sha256": "086c465ef5dd988065b0801d4150dcd01f9b14c702c1efdbc4d1dd9857a40146"
+    },
+    "owned_adam_defaults": {
+      "first_line": 56,
+      "last_line": 73,
+      "normalized_ast_sha256": "b610fa44488ef8770c553da391fa10eb137875d812f3b11145185507ad95b3f8"
+    },
+    "owned_adam_group_payload": {
+      "first_line": 75,
+      "last_line": 93,
+      "normalized_ast_sha256": "eac55952351dab68fc27d2a15e629a9a690fc5756ea2240c994c3378fb5e5c2e"
+    },
+    "owned_adam_fill_group": {
+      "first_line": 95,
+      "last_line": 139,
+      "normalized_ast_sha256": "5215ddbbcfbc0a846d5b152956ed62e3c6ca25a2b906b2d6d3956531bd109473"
+    },
+    "owned_adam_create": {
+      "first_line": 141,
+      "last_line": 197,
+      "normalized_ast_sha256": "c845a2dc852525595ab384e1e523ad7cf3d1b2f7beb811ccbce45feae4c3bf40"
+    },
+    "owned_adam_add_group": {
+      "first_line": 199,
+      "last_line": 228,
+      "normalized_ast_sha256": "2450dbbab3164f5ff9152835eecf5f030fef8fbc67c53ff5631e3ad1a08face2"
+    },
+    "owned_adam_drop": {
+      "first_line": 230,
+      "last_line": 253,
+      "normalized_ast_sha256": "629f46f1d258a903fdfb84edb54f1b27b22493e946dc0f64a1a6071471006c14"
+    },
+    "owned_adam_zero": {
+      "first_line": 255,
+      "last_line": 274,
+      "normalized_ast_sha256": "2ae86d1b64f2cfe440e87d71fc315c420a8dcf6afd72500ef8e3e68b8f625a36"
+    },
+    "owned_adam_new_step": {
+      "first_line": 276,
+      "last_line": 284,
+      "normalized_ast_sha256": "121754c4cbb2c6dd2fe653c574754ef7e579bf90585777f5f706e75b9af2729f"
+    },
+    "owned_adam_initialize": {
+      "first_line": 286,
+      "last_line": 308,
+      "normalized_ast_sha256": "b53e20bac73c24a9c392e8c8e52d03a33b87df1e2798adec4652c3d1d6730ebb"
+    },
+    "owned_adam_plan_group": {
+      "first_line": 310,
+      "last_line": 325,
+      "normalized_ast_sha256": "2ff905138a6c2bd0c70c494f601412c21f0f7b80e6d0df596690a1dc2dad1d80"
+    },
+    "owned_adam_step_exponent": {
+      "first_line": 327,
+      "last_line": 338,
+      "normalized_ast_sha256": "51b201bc7f727656ae059a79c5be1851de130f11a9e753331c0dbcef90db71f9"
+    },
+    "owned_adam_config": {
+      "first_line": 340,
+      "last_line": 349,
+      "normalized_ast_sha256": "6ce649e4fbe1250f24bf3750ed98fae6b9c113b203159382fe8c7cffb1fd1d6b"
+    },
+    "owned_optimizer_gradient_value": {
+      "first_line": 351,
+      "last_line": 352,
+      "normalized_ast_sha256": "c5f0da4bde20aba0e3e8c5da2be5adc89453422d704d73bb5d37255ae97cdcda"
+    },
+    "owned_adam_gradient": {
+      "first_line": 354,
+      "last_line": 357,
+      "normalized_ast_sha256": "fe0e881eb692484c52f1c3a31ac93a3f67602d300069fafb2ab136b5fee1a50a"
+    },
+    "owned_adam_versions_ready": {
+      "first_line": 359,
+      "last_line": 373,
+      "normalized_ast_sha256": "9be87e749c2de21314495cd05a4603d4c5d8951c879d2721dd73d8a7310a2d30"
+    },
+    "owned_adam_apply": {
+      "first_line": 375,
+      "last_line": 402,
+      "normalized_ast_sha256": "79e7b3efd67bd287f86a98e2b923acc48a9cebfe60177135abd8a13267327960"
+    },
+    "owned_adam_step": {
+      "first_line": 404,
+      "last_line": 420,
+      "normalized_ast_sha256": "150370948a0240fa2426bbcff9f970f7ea48dba6d67381741929852b3acb7866"
+    },
+    "owned_adam_group_inventory": {
+      "first_line": 422,
+      "last_line": 448,
+      "normalized_ast_sha256": "f98cf57e62a578f6d4892ec176ae9c559d0cb4782f71622dc8a8f4b2b5fa39ad"
+    },
+    "owned_adam_state_inventory": {
+      "first_line": 450,
+      "last_line": 466,
+      "normalized_ast_sha256": "f01b934cb76e67c852883be793a8d9dbe5da3880c9d47b5819c95edd0e5faede"
+    },
+    "owned_adam_command": {
+      "first_line": 468,
+      "last_line": 544,
+      "normalized_ast_sha256": "41515674a2f8f9a27873a4df5633178ac7d5312546633a4257bed8860561b5b0"
+    },
+    "owned_optimizer_command": {
+      "first_line": 546,
+      "last_line": 560,
+      "normalized_ast_sha256": "d5d4a2b5fdb90d74b6c52e93b78d67243ff18f5aa14a7c9f8cbebc9280ce3614"
+    }
+  },
+  "general_real_exponent_not_implemented": true,
+  "arbitrary_forged_owned_state认证_claimed": false,
+  "arbitrary_python_optimizer_exception_effects_claimed": false,
+  "native_execution_established_by_separate_replay_not_this_source_audit": true,
+  "source_custody_after": true,
+  "inputs": {
+    "/workspace/scratch/d26699e25fea/optimizer-owned-extension/candidate-08/runtime.hepta": "7c68a96b08aa9a21a52e2fd12be912c5f47dbde889e462f9a0dbb38cb3c09edf",
+    "/workspace/scratch/d26699e25fea/owned-adam-extension/candidate-01/runtime.hepta": "bd38b67c9f39859ddb81f304d9043af625bdcf3305d60e98ba988a6208e42885",
+    "/workspace/scratch/d26699e25fea/owned-adam-extension/candidate-02/runtime.hepta": "253438648a437a75ef2dbc77138eca74cb5fe6a6e2ea322c7c38e5a535e5d2a6",
+    "/workspace/scratch/d26699e25fea/optimizer-owned-extension/candidate-08/rng03.hepta": "a3fa507339b40435285dc1fa65e3cd519b6a0921a4c93bccf6ea834bb24763a3",
+    "/workspace/scratch/d26699e25fea/owned-adam-extension/candidate-02/rng03.hepta": "a3fa507339b40435285dc1fa65e3cd519b6a0921a4c93bccf6ea834bb24763a3",
+    "/workspace/scratch/d26699e25fea/optimizer-owned-extension/candidate-08/owners.hepta": "9c02b75c44eee8459c476049f4d9ebe10935d9d9ed8b27f5842c699f8e6a0884",
+    "/workspace/scratch/d26699e25fea/owned-adam-extension/candidate-02/owners.hepta": "9c02b75c44eee8459c476049f4d9ebe10935d9d9ed8b27f5842c699f8e6a0884",
+    "/workspace/scratch/d26699e25fea/owned-adam-extension/upstream/source-custody.json": "cf27a8b2fa0dd4c068920aa86ff7d6afc5d610b5a16c24059273fc3263267191",
+    "/workspace/scratch/d26699e25fea/owned-adam-extension/upstream/adam.py": "5ecb37579ebbec6cdcf4aa69b394136b98d425144a549d679c6369f9c76146b8",
+    "/workspace/scratch/d26699e25fea/owned-adam-extension/upstream/adamw.py": "b9cbfb1e2112b61d7aa88b0f8e2a777ddae9cca5e348e231256f1e39f06f1d92",
+    "/workspace/scratch/d26699e25fea/owned-adam-extension/upstream/optimizer.py": "4b0ecf48fa034f60e6ac1e5055846bbc907ec63c2f174b1bb81472354593075b",
+    "/workspace/scratch/d26699e25fea/owned-adam-extension/upstream/MemoryOverlap.cpp": "eaa96f7e06abe6274adeb5d2bec717bb2844fb99ea524c0e2ad19913f8ed04d6",
+    "/workspace/scratch/d26699e25fea/owned-adam-extension/candidate-02/adam-authoring.py": "2c3507933ce44b0bf4b40cf9f2430f07811a933ffea37b1c9d11af09d36a873f"
+  }
+}

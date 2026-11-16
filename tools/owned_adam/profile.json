@@ -1,0 +1,111 @@
+{
+  "schema": "heptatorch.owned-adam-native-profile.v1",
+  "profile": "owned-cpu-binary32-adam-adamw",
+  "baseline_source_sha256": "7c68a96b08aa9a21a52e2fd12be912c5f47dbde889e462f9a0dbb38cb3c09edf",
+  "baseline_authoring_sha256": "687d2c4e5e76848a86f824459bcc55d7e4ed9fcdce236e9570c5e8ec0f3d66cc",
+  "source_sha256": "253438648a437a75ef2dbc77138eca74cb5fe6a6e2ea322c7c38e5a535e5d2a6",
+  "native_sha256": "fa92356954dbb9e0c454f2a58c2f78aa33950103d377c57e7b659ec9904183af",
+  "compiler_sha256": "b1c851a0896fa6071f800e1146c3c27d0c6cf85059e9a6281b46d42908a3f59f",
+  "linker_sha256": "aae650e8822ef0b1e74d15108ad1d0f17ec791205ed5a158ec60b709f48f0e16",
+  "state_format": "HTADAM01",
+  "backing_format": "HTOADAM1",
+  "request": "HTORCH03",
+  "response": "HTORSP03",
+  "functions": 352,
+  "blocks": 4598,
+  "instructions": 17185,
+  "baseline_functions_unchanged": 308,
+  "module_count": 8,
+  "authoring_sha256": {
+    "adam.py": "2c3507933ce44b0bf4b40cf9f2430f07811a933ffea37b1c9d11af09d36a873f",
+    "audit.py": "875e9a6d3191940be6ac0f3ee535b8aedc41bdb8706829f5d7d7c9977e89befc",
+    "mutation.py": "49bef02cbddb5cad1757a2d454aee04e1939698eb8193340d34119ff961fd077",
+    "compact_functions.py": "36730b55b58c29b210d921a426c62eab50d9f579ad5d7a1e4199b38799218f37"
+  },
+  "units": [
+    {
+      "name": "rng03",
+      "source_sha256": "a3fa507339b40435285dc1fa65e3cd519b6a0921a4c93bccf6ea834bb24763a3",
+      "object_sha256": "cd7371a9bfe71110ba64defcc5fd7d9c48374e1e14600aa9015a1c140b7867ec",
+      "functions": 17,
+      "blocks": 77,
+      "instructions": 471
+    },
+    {
+      "name": "adam_00",
+      "source_sha256": "1b70bad9a3ca4c61f9a347999fb7c64ab74151f300a3c7f39e06ec65f63a0f56",
+      "object_sha256": "52c0579c3f22114d001b2180ae87f720b49316e0337dcfb6fe8a0121a00ed6d3",
+      "functions": 65,
+      "blocks": 482,
+      "instructions": 1976
+    },
+    {
+      "name": "adam_01",
+      "source_sha256": "8c3e35e6e31548ea25a7028b51149de47a7cc5a671f05afc8ef204d7c80883e0",
+      "object_sha256": "28be9c24a1bb7077f001ec75301e02d8ed7ca8d763025b9e4627baf289f5047c",
+      "functions": 65,
+      "blocks": 715,
+      "instructions": 3048
+    },
+    {
+      "name": "adam_02",
+      "source_sha256": "cf2f010cdc8010311cb3cd5af5fa868eb7ed88be8df08f819ee0bc376083a7d5",
+      "object_sha256": "21c74feee44093925c1d606c3b8ec4bf8c00232cd13f2cf4331555b5bbbc1909",
+      "functions": 60,
+      "blocks": 965,
+      "instructions": 3557
+    },
+    {
+      "name": "adam_03",
+      "source_sha256": "0dc689f088f408929b05ada2e2ee170b186b8284f1bfefc84f3d36938adf8e82",
+      "object_sha256": "8994bfd152a5130dbf725a7e2ee07c9bdc884d869d9fce96ae5a4b7fa4df9429",
+      "functions": 65,
+      "blocks": 989,
+      "instructions": 3272
+    },
+    {
+      "name": "adam_04",
+      "source_sha256": "dcd35649fd9d44bef29d87f1d69e0b33e18118a67ad7df790bf91939095109cd",
+      "object_sha256": "fb23dbbf3068ee52378120529d286ef9eba1f4b467433cc91a7f47d3106ae967",
+      "functions": 65,
+      "blocks": 962,
+      "instructions": 3600
+    },
+    {
+      "name": "adam_05",
+      "source_sha256": "a589fddd7cb183938b4862c49020595847b570f3205a556f76436f3f1536e9fd",
+      "object_sha256": "cc73867c36d9677a2951cd5defece8acf500366d06cc3fa5a7e47c0d29bc2c75",
+      "functions": 32,
+      "blocks": 485,
+      "instructions": 1732
+    },
+    {
+      "name": "owners",
+      "source_sha256": "9c02b75c44eee8459c476049f4d9ebe10935d9d9ed8b27f5842c699f8e6a0884",
+      "object_sha256": "da1c2c940f125a54c4ee83a0667a4b014432357965fe3d651a61143e5a15be30",
+      "functions": 4,
+      "blocks": 25,
+      "instructions": 85
+    }
+  ],
+  "handoff_sha256": "f9d0e3a1a3a5b8b783b87efea627b5e5a1e1026777858e870ce10f9ebc0d0357",
+  "limits": {
+    "groups_per_optimizer": 1024,
+    "occurrences_per_optimizer": 4096,
+    "numel_per_tensor": 16777216,
+    "descriptor_ordinals": 65535,
+    "request_bytes": 1048576,
+    "step_exponent": "actual binary32 increment must be a positive integer below 2^32"
+  },
+  "open": [
+    "real-exponent bias corrections",
+    "AMSGrad",
+    "differentiable/capturable/foreach/fused/sparse/complex and other dtypes",
+    "public gradient Tensor branch not yet composed",
+    "optimizer hooks/serialization/state-map replacement",
+    "general optimizer exception partial effects",
+    "full public in-place autograd semantics"
+  ],
+  "full_rewrite_complete": false,
+  "pytorch_api_denominator": 2590
+}

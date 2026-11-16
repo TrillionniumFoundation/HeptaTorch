@@ -1,0 +1,90 @@
+hia-asm.v1 hepta.hia.program.v8 state_handoff_qualification
+exports(step,close)
+fn old_step(s:readbuf,o:mutbuf,state:buffer) -> (buffer,u32) effects(alloc,read,write,trap) external()
+fn new_step(s:readbuf,o:mutbuf,state:buffer) -> (buffer,u32) effects(alloc,read,write,trap) external()
+fn old_close(state:buffer) -> () effects(alloc,trap) external()
+fn new_close(state:buffer) -> () effects(alloc,trap) external()
+fn old_getr(s:readbuf,at:u64) -> (u64) effects(read,write,trap) external()
+fn old_reply_error(o:mutbuf,status:u64) -> (u64) effects(read,write,trap) external()
+fn step(s:readbuf,o:mutbuf,state:buffer) -> (buffer,u32) effects(alloc,read,write,trap) entry(b0)
+block b0(s:readbuf,o:mutbuf,state:buffer)
+  output_size:usize = buffer.len(o)
+  minimum:usize = const() {"value":32}
+  short_output:bool = compare.lt(output_size,minimum)
+  branch short_output no_output(state) envelope(s,o,state)
+block no_output(st0:buffer)
+  length0:u32 = const() {"value":0}
+  ret(st0,length0)
+block envelope(s1:readbuf,o1:mutbuf,st1:buffer)
+  size1:usize = buffer.len(s1)
+  prefix1:usize = const() {"value":8}
+  short1:bool = compare.lt(size1,prefix1)
+  bad1:u64 = const() {"value":100}
+  branch short1 invalid(o1,st1,bad1) select_route(s1,o1,st1,size1)
+block invalid(o2:mutbuf,st2:buffer,status2:u64)
+  count2:u64 = call(o2,status2) {"function":"old_reply_error"}
+  length2:u32 = int.cast(count2) {"mode":"wrap"}
+  ret(st2,length2)
+block select_route(s3:readbuf,o3:mutbuf,st3:buffer,size3:usize)
+  zero3:u64 = const() {"value":0}
+  route3:u64 = call(s3,zero3) {"function":"old_getr"}
+  maximum3:u64 = const() {"value":3}
+  unknown3:bool = compare.gt(route3,maximum3)
+  bad3:u64 = const() {"value":7}
+  branch unknown3 invalid(o3,st3,bad3) dispatch(s3,o3,st3,size3,route3)
+block dispatch(s4:readbuf,o4:mutbuf,st4:buffer,size4:usize,route4:u64)
+  first_close4:u64 = const() {"value":2}
+  closing4:bool = compare.ge(route4,first_close4)
+  branch closing4 close_choice(o4,st4,route4) allocate_request(s4,o4,st4,size4,route4)
+block close_choice(o5:mutbuf,st5:buffer,route5:u64)
+  old_route5:u64 = const() {"value":2}
+  use_old5:bool = compare.eq(route5,old_route5)
+  branch use_old5 close_old(o5,st5) close_new(o5,st5)
+block close_old(o6:mutbuf,st6:buffer)
+  _ = call(st6) {"function":"old_close"}
+  jump closed(o6)
+block close_new(o7:mutbuf,st7:buffer)
+  _ = call(st7) {"function":"new_close"}
+  jump closed(o7)
+block closed(o8:mutbuf)
+  zero8:usize = const() {"value":0}
+  empty8:buffer = buffer.new(zero8)
+  success8:u64 = const() {"value":0}
+  size8:u64 = call(o8,success8) {"function":"old_reply_error"}
+  length8:u32 = int.cast(size8) {"mode":"wrap"}
+  ret(empty8,length8)
+block allocate_request(s9:readbuf,o9:mutbuf,st9:buffer,size9:usize,route9:u64)
+  prefix9:usize = const() {"value":8}
+  payload9:usize = int.sub.wrap(size9,prefix9)
+  request9:buffer,ok9:bool = buffer.try_new(payload9)
+  branch ok9 copy_request(s9,o9,st9,request9,payload9,route9) no_allocation(o9,st9,request9)
+block no_allocation(o10:mutbuf,st10:buffer,request10:buffer)
+  _ = owner.drop(request10)
+  status10:u64 = const() {"value":3}
+  jump invalid(o10,st10,status10)
+block copy_request(s11:readbuf,o11:mutbuf,st11:buffer,request11:buffer,payload11:usize,route11:u64)
+  target11:mutbuf = borrow.mut(request11)
+  zero11:usize = const() {"value":0}
+  source11:usize = const() {"value":8}
+  _ = buffer.copy_range(target11,s11,zero11,source11,payload11)
+  _ = loan.end(target11)
+  input11:readbuf = borrow.read(request11)
+  old_route11:u64 = const() {"value":0}
+  use_old11:bool = compare.eq(route11,old_route11)
+  branch use_old11 invoke_old(input11,o11,st11,request11) invoke_new(input11,o11,st11,request11)
+block invoke_old(input12:readbuf,o12:mutbuf,st12:buffer,request12:buffer)
+  returned12:buffer,length12:u32 = call(input12,o12,st12) {"function":"old_step"}
+  _ = loan.end(input12)
+  _ = owner.drop(request12)
+  ret(returned12,length12)
+block invoke_new(input13:readbuf,o13:mutbuf,st13:buffer,request13:buffer)
+  returned13:buffer,length13:u32 = call(input13,o13,st13) {"function":"new_step"}
+  _ = loan.end(input13)
+  _ = owner.drop(request13)
+  ret(returned13,length13)
+end
+fn close(state:buffer) -> () effects(alloc,trap) entry(b0)
+block b0(state:buffer)
+  _ = call(state) {"function":"old_close"}
+  ret()
+end

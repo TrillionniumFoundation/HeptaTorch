@@ -1,0 +1,31 @@
+{
+  "original_function_sha256": "c4c0b566b978a57deca386ba8452d19dac7fa5ce9cab08f060ca6b9721fd1f4a",
+  "new_function_sha256": "34bcbaf56e12f2bd01565294cafb9c7ace33913ce47ff744a8cdbb11ed291e75",
+  "function_rename": [
+    "adam_element",
+    "owned_adam_element"
+  ],
+  "patches": [
+    {
+      "before": "  v15:u64 = call(v0,v14) {\"function\":\"get4\"}",
+      "after": "  v15:u64 = call(v0,v1,v4) {\"function\":\"owned_optimizer_gradient_value\"}"
+    },
+    {
+      "before": "  v16:u64 = call(v0,v7,v15,v5) {\"function\":\"adam_gradient\"}",
+      "after": "  v16:u64 = call(v0,v7,v15,v5) {\"function\":\"owned_adam_gradient\"}"
+    },
+    {
+      "before": "  v21:u64 = int.add.wrap(v20,v13)",
+      "after": "  v21:u64 = call(v0,v2,v4) {\"function\":\"taddr\"}"
+    },
+    {
+      "before": "  v25:u64 = int.add.wrap(v24,v13)",
+      "after": "  v25:u64 = call(v0,v3,v4) {\"function\":\"taddr\"}"
+    }
+  ],
+  "exact_inverse_restores_original_bytes": true,
+  "floating_arithmetic_unchanged": true,
+  "gradient_source": "tgrad via owned_optimizer_gradient_value",
+  "moment_address_source": "taddr logical indexing",
+  "maximize": "owned_adam_gradient before legacy adam_gradient"
+}

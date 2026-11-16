@@ -1,0 +1,60 @@
+{
+  "schema": "heptatorch.owned-adam-native-controls.v1",
+  "status": "PASS",
+  "source_sha256": "253438648a437a75ef2dbc77138eca74cb5fe6a6e2ea322c7c38e5a535e5d2a6",
+  "native_sha256": "fa92356954dbb9e0c454f2a58c2f78aa33950103d377c57e7b659ec9904183af",
+  "native_executed": true,
+  "Torch_executed_here": false,
+  "cases": [
+    {
+      "case": "lazy-state-real-counter-public-alias-and-reset",
+      "status": "PASS",
+      "frames": 66,
+      "exact_values": 16,
+      "rollback_bytes": 917424,
+      "all_responses_before_stdin_eof": true,
+      "details": {
+        "true_scalar_step_and_moment_objects": true,
+        "None_skips_all_fields": true,
+        "float32_step_is_actual_counter": true,
+        "fractional_resume_explicitly_refused": true,
+        "public_reset_tokens_fresh_same_objects": true
+      }
+    },
+    {
+      "case": "duplicate-shared-state-and-cross-algorithm-parameter",
+      "status": "PASS",
+      "frames": 41,
+      "exact_values": 14,
+      "rollback_bytes": 0,
+      "all_responses_before_stdin_eof": true,
+      "details": {
+        "one_shared_Adam_state_per_key_before_functional_loop": true,
+        "ordered_duplicate_updates": true,
+        "SGD_and_Adam_share_parameter_without_state_coalescing": true
+      }
+    },
+    {
+      "case": "strided-physical-state-empty-and-shared-Version",
+      "status": "PASS",
+      "frames": 41,
+      "exact_values": 25,
+      "rollback_bytes": 0,
+      "all_responses_before_stdin_eof": true,
+      "details": {
+        "strided_moment_physical_layout_and_no_grad_add": true,
+        "AdamW_nonzero_decay_two_versions_negative_zero_one": true,
+        "defined_empty_participates_None_empty_skips": true
+      }
+    }
+  ],
+  "frames": 148,
+  "exact_values": 55,
+  "rollback_bytes": 917424,
+  "inputs_sha256": {
+    "/workspace/scratch/d26699e25fea/owned-adam-extension/test_native.py": "ae4c85edbbff520590b1a1174bcc673a200dcade121d183521261433c4cf9982",
+    "/workspace/scratch/d26699e25fea/owned-adam-extension/candidate-02/tensor-adam-session": "fa92356954dbb9e0c454f2a58c2f78aa33950103d377c57e7b659ec9904183af",
+    "/workspace/scratch/d26699e25fea/owned-adam-extension/candidate-02/runtime.hepta": "253438648a437a75ef2dbc77138eca74cb5fe6a6e2ea322c7c38e5a535e5d2a6",
+    "/workspace/scratch/d26699e25fea/owned-tensor-object-extension/portable-test-layout/tools/tensor_objects/protocol.py": "5b99b0e508c2093fe830e509fffbb46b709f65e85b669ab6d79a32d425aa95ac"
+  }
+}
