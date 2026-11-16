@@ -286,6 +286,28 @@ test-gradient-none: tensor-rng-nullable
 	  --materialization "$(CURDIR)/build/gradient-materialization" --stack-build "$(HEPTA_STACK_BUILD)" --output "$$review/observed"; \
 	cp "$$review/observed/report.json" build/hosted-gradient-none-native.json
 
+OWNED_OPTIMIZER_INPUTS := $(wildcard tools/owned_optimizers/* tools/owned_optimizers/evidence/* tests/optimizer_object_review/*) validation/owned-optimizer-package.json validation/optimizer-object-replay-package.json validation/accumulator-lifetime-replay-package.json tests/qualify_owned_optimizers.py Makefile
+
+.PHONY: owned-optimizers test-owned-optimizers
+owned-optimizers: build/owned-optimizers/reproduction.json
+
+build/owned-optimizers/reproduction.json: build/tensor-rng-nullable/reproduction.json $(HEPTA_TENSOR_OBJECT_BASELINE)/build.json $(OWNED_OPTIMIZER_INPUTS) | build
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.owned-optimizers.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	python3 -I -S -B tools/owned_optimizers/rebuild.py --baseline "$(CURDIR)/build/tensor-rng-nullable" \
+	  --objects "$(HEPTA_TENSOR_OBJECT_BASELINE)" --common-authoring "$(CURDIR)/build/tensor-rng-composition/native/overlay-authoring.py" \
+	  --nullable-authoring "$(CURDIR)/build/gradient-none/overlay-authoring.py" --partial-authoring "$(CURDIR)/build/backward-partial/overlay-authoring.py" \
+	  --materialization-authoring "$(CURDIR)/build/gradient-materialization/overlay-authoring.py" \
+	  --repository "$(CURDIR)" --source-root "$(HEPTA_SOURCE_ROOT)" \
+	  --compiler "$(HEPTA_STACK_BUILD)/native/stack-module-compiler" --linker "$(HEPTA_STACK_BUILD)/native/stack-linker-session" \
+	  --output "$$tmp/native"; \
+	mkdir -p build/owned-optimizers; cp -a --remove-destination "$$tmp/native/." build/owned-optimizers/
+
+test-owned-optimizers: owned-optimizers
+	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/.owned-optimizer-review.XXXXXX"); \
+	python3 -I -S -B tests/qualify_owned_optimizers.py --build "$(CURDIR)/build/owned-optimizers" \
+	  --nullable-build "$(CURDIR)/build/tensor-rng-nullable" --stack-build "$(HEPTA_STACK_BUILD)" --output "$$review/observed"; \
+	cp "$$review/observed/report.json" build/hosted-owned-optimizers-native.json
+
 check-compiler:
 	@compiler=$$(command -v "$(HEPTA_COMPILER)") || { echo 'Set HEPTA_COMPILER to the pinned native HIA compiler; see docs/build.md.' >&2; exit 1; }; \
 	printf '%s  %s\n' '$(COMPILER_SHA256)' "$$compiler" | sha256sum -c -

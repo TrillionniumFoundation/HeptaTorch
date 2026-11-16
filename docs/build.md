@@ -710,3 +710,13 @@ observations. The older eight presence recipes retain their separate 8/65
 observations. Repeated execution does not add API coverage. Public gradient
 Tensor identity/Version, externally retained gradient aliases and true
 Optimizer-owned state remain open.
+
+## Owned SGD objects and captured gradient edges
+
+`make owned-optimizers test-owned-optimizers HEPTA_SOURCE_ROOT=/path/to/pinned/Hepta HEPTA_STACK_BUILD=/path/to/stack-build` builds on the existing ABI3 Tensor, partial-backward, gradient-materialization and nullable-RNG prerequisites. It writes `build/owned-optimizers/tensor-optimizer-session`.
+
+The source-bound qualifier verifies all frozen implementation and independent replay manifests, all seven module sources and objects, the ELF and compiler/linker identities before and after execution. Its 19 reports include the 24/6/3 actual-reference suites, independent private-root migration controls, native payload/allocation guards, the unchanged 13/16/8/10 backward replays, joint RNG regressions and four directions of real owner transfer. It also extracts the source-pinned historical candidate06 and reproduces both known native failures with expected exit 1; these failures remain separate from candidate08 qualification.
+
+A cold rebuild must match source `7c68a96b08aa9a21a52e2fd12be912c5f47dbde889e462f9a0dbb38cb3c09edf` and ELF `b6634158e079512e797d8237cca12d65052db18df23b12b8414adeb8d0b4b0e1`. Full aggregate host-authoring admission is not claimed: its actual refusal remains recorded. Complete production modules and the actual linked call graph pass the unchanged native checkers. Hosted CI additionally runs the unchanged live32 and frozen35 oracles on this image.
+
+The formal result is scoped to exposed SGD, ownership and leaf flags. The 24-case reference is recorded as 18 qualified, one partial and five open, never as 24 native passes. Full optimizer, public-gradient-object and PyTorch completion gates stay open.
