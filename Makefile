@@ -197,6 +197,33 @@ test-backward-release: backward-release
 	  --baseline "$(HEPTA_TENSOR_OBJECT_BASELINE)" --stack-build "$(HEPTA_STACK_BUILD)" --output "$$review/observed"; \
 	cp "$$review/observed/report.json" build/hosted-backward-release-native.json
 
+BACKWARD_PARTIAL_INPUTS := $(wildcard tools/backward_partial/* tools/backward_partial/evidence/*) validation/backward-partial-package.json Makefile
+GRADIENT_MATERIALIZATION_INPUTS := $(wildcard tools/gradient_materialization/* tools/gradient_materialization/evidence/*) validation/gradient-materialization-package.json tests/qualify_gradient_materialization.py Makefile
+
+.PHONY: backward-partial gradient-materialization test-gradient-materialization
+backward-partial: build/backward-partial/build.json
+gradient-materialization: build/gradient-materialization/build.json
+
+build/backward-partial/build.json: build/backward-release/build.json $(HEPTA_TENSOR_OBJECT_BASELINE)/build.json $(BACKWARD_PARTIAL_INPUTS) | build
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.backward-partial.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	python3 -I -S -B tools/backward_partial/build.py --repository "$(CURDIR)" --source-root "$(HEPTA_SOURCE_ROOT)" \
+	  --baseline "$(CURDIR)/build/backward-release" --tensor-objects "$(HEPTA_TENSOR_OBJECT_BASELINE)" \
+	  --compiler "$(HEPTA_STACK_BUILD)/native/stack-module-compiler" --linker "$(HEPTA_STACK_BUILD)/native/stack-linker-session" --output "$$tmp/native"; \
+	mkdir -p build/backward-partial; cp -a --remove-destination "$$tmp/native/." build/backward-partial/
+
+build/gradient-materialization/build.json: build/backward-partial/build.json $(GRADIENT_MATERIALIZATION_INPUTS) | build
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.gradient-materialization.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	python3 -I -S -B tools/gradient_materialization/build.py --repository "$(CURDIR)" --source-root "$(HEPTA_SOURCE_ROOT)" \
+	  --baseline "$(CURDIR)/build/backward-partial" --compiler "$(HEPTA_STACK_BUILD)/native/stack-module-compiler" \
+	  --linker "$(HEPTA_STACK_BUILD)/native/stack-linker-session" --output "$$tmp/native"; \
+	mkdir -p build/gradient-materialization; cp -a --remove-destination "$$tmp/native/." build/gradient-materialization/
+
+test-gradient-materialization: gradient-materialization
+	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/.gradient-materialization-review.XXXXXX"); \
+	python3 -I -S -B tests/qualify_gradient_materialization.py --build "$(CURDIR)/build/gradient-materialization" \
+	  --partial-build "$(CURDIR)/build/backward-partial" --output "$$review/observed"; \
+	cp "$$review/observed/report.json" build/hosted-gradient-materialization-native.json
+
 check-compiler:
 	@compiler=$$(command -v "$(HEPTA_COMPILER)") || { echo 'Set HEPTA_COMPILER to the pinned native HIA compiler; see docs/build.md.' >&2; exit 1; }; \
 	printf '%s  %s\n' '$(COMPILER_SHA256)' "$$compiler" | sha256sum -c -

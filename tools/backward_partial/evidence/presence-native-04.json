@@ -1,0 +1,165 @@
+{
+  "schema": "heptatorch.gradient-presence-and-partial-bounds.v1",
+  "status": "PASS",
+  "native_sha256": "8f1fae7cc6a9181d788ef80c82a43e24c3ba526e77d01f8a761ea5d9913be4ae",
+  "native_executed": true,
+  "pytorch_executed": false,
+  "inputs": {
+    "/workspace/scratch/d26699e25fea/backward-partial-extension/test_presence_bounds.py": "c0781c967b4c5fccae172795d06fe34be66c24ad9b741a746f71229024c8ac4a",
+    "/workspace/scratch/d26699e25fea/backward-partial-extension/candidate-04/tensor-partial-session": "8f1fae7cc6a9181d788ef80c82a43e24c3ba526e77d01f8a761ea5d9913be4ae",
+    "/workspace/scratch/d26699e25fea/owned-tensor-object-extension/portable-test-layout/tools/tensor_objects/protocol.py": "5b99b0e508c2093fe830e509fffbb46b709f65e85b669ab6d79a32d425aa95ac"
+  },
+  "rows": [
+    {
+      "case": "initial-None-and-zero-valued-grad-across-all-backward-entries",
+      "status": "PASS",
+      "frames": 58,
+      "rollback_bytes": 0,
+      "details": {
+        "backward_entrypoints_marked_real_zero_gradients": [
+          7,
+          29,
+          57,
+          58
+        ],
+        "zero_grad_does_not_create_or_remove_presence": true
+      },
+      "all_responses_before_eof": true
+    },
+    {
+      "case": "empty-grad-reset-reuse-and-owner-migration",
+      "status": "PASS",
+      "frames": 14,
+      "rollback_bytes": 0,
+      "details": {
+        "empty_leaf_grad_is_present": true,
+        "presence_survives_reset_and_pool_growth": true,
+        "new_reused_node_starts_absent": true
+      },
+      "all_responses_before_eof": true
+    },
+    {
+      "case": "partial-leaf-presence-controls-SGD-update",
+      "status": "PASS",
+      "frames": 19,
+      "rollback_bytes": 0,
+      "details": {
+        "unready_leaf_presence": 0,
+        "ready_leaf_presence": 1,
+        "unready_parameter_unchanged": 2,
+        "ready_parameter_after_SGD": 2.125,
+        "parameter_versions": [
+          0,
+          1
+        ]
+      },
+      "all_responses_before_eof": true
+    },
+    {
+      "case": "None-skips-SGD-momentum-Adam-and-AdamW",
+      "status": "PASS",
+      "frames": 36,
+      "rollback_bytes": 595232,
+      "details": {
+        "all_four_optimizers_skip_None": true,
+        "nonzero_state_preserved": [
+          0.5,
+          0.25
+        ],
+        "versions_unchanged": [
+          0,
+          0,
+          0
+        ],
+        "invalid_configuration_not_hidden_by_None": true
+      },
+      "all_responses_before_eof": true
+    },
+    {
+      "case": "present-zero-gradient-is-not-None",
+      "status": "PASS",
+      "frames": 53,
+      "rollback_bytes": 0,
+      "details": {
+        "present_zero_gradient_still_updates_and_decays": [
+          {
+            "optimizer": "sgd",
+            "parameter": 2,
+            "versions": [
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "optimizer": "momentum",
+            "parameter": 1.9375,
+            "versions": [
+              1,
+              1,
+              0
+            ]
+          },
+          {
+            "optimizer": "adam",
+            "parameter": 1.9375,
+            "versions": [
+              1,
+              1,
+              2
+            ]
+          },
+          {
+            "optimizer": "adamw",
+            "parameter": 1.9375,
+            "versions": [
+              2,
+              1,
+              2
+            ]
+          }
+        ]
+      },
+      "all_responses_before_eof": true
+    },
+    {
+      "case": "presence-is-transactional-and-typed",
+      "status": "PASS",
+      "frames": 10,
+      "rollback_bytes": 892848,
+      "details": {
+        "presence_rolls_back_with_rejected_frame": true,
+        "invalid_public_handle_rejected": true
+      },
+      "all_responses_before_eof": true
+    },
+    {
+      "case": "short-result-capacity-before-execution",
+      "status": "PASS",
+      "frames": 8,
+      "rollback_bytes": 297616,
+      "details": {
+        "record_header_fits_but_32_byte_execution_payload_does_not": true,
+        "Saved_and_gradient_presence_unchanged_on_refusal": true
+      },
+      "all_responses_before_eof": true
+    },
+    {
+      "case": "real-OOM-before-execution-then-recovery",
+      "status": "PASS",
+      "frames": 18,
+      "rollback_bytes": 8555152,
+      "details": {
+        "actual_RLIMIT_AS_bytes": 33554432,
+        "work_allocation_failed_before_node_execution": true,
+        "entire_owner_unchanged": true,
+        "recovered_after_free": true,
+        "gradient_values_compared": 262144
+      },
+      "all_responses_before_eof": true
+    }
+  ],
+  "frames": 216,
+  "rollback_bytes": 10340848,
+  "cases": 8
+}

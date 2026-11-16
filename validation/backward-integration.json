@@ -1,0 +1,44 @@
+{
+  "schema": "heptatorch.backward-integration-progress.v1",
+  "status": "QUALIFIED_COMPONENTS_WITH_OPEN_STATE_LIFECYCLE",
+  "release_build_sha256": "1ea1b01c0f97a48cacce68fdfee360ff18d5f259ca3fcc4c6a52e37f81afdd71",
+  "release_native_report_sha256": "3dee4e8733f6be3c717b94988912a3f7a62c9f9a0f301573d60e40854996c204",
+  "partial04_build_sha256": "3afa7528e45ba42835fffd50c92251a60c2c83d19c93e79dd4a8ab0de543a793",
+  "partial04_signed_zero_failure_report_sha256": "2aa8449d9a4560962a50b2c832f48b252e4b97aee38311107ee031c70bb9ab26",
+  "root_reproduced_original_failure": {
+    "cases": 13,
+    "passed": 4,
+    "failed": 9,
+    "different_words": 15,
+    "exit_status": 1
+  },
+  "integration_invocation_history": [
+    {
+      "error": "The first replay invocation used -I, which removed the frozen sibling controls from the Python import search path.",
+      "correction": "Run unchanged frozen host replay with -B; all native and helper sources remain pinned."
+    },
+    {
+      "error": "Shared filesystem returned ENOSPC before mktemp could create the build directory. No target build ran in that attempt.",
+      "correction": "Archive 2084 obsolete task-owned build files losslessly, verify every original byte and SHA256, then reclaim loose files. The frozen package, toolchain and failure evidence are unchanged.",
+      "archive_sha256": "f8a896fa39ea12b89a459214c6a7793626e34c0091e127d15feb7ca9af554008"
+    },
+    {
+      "error": "A first root replay invocation used the nonexistent filename tensor-gradient-session; no child native image ran.",
+      "correction": "Use the frozen builder output tensor-partial-session; the unchanged replay passed all 13 strict signed-zero cases."
+    }
+  ],
+  "full_rewrite_complete": false,
+  "gradient05_native_executable_sha256": "4a62b796d38317e630381b7e2e57e8e7824d78c1f721e3d69bd59f59e04ca894",
+  "gradient05_core_sha256": "9feab47afea6723284e15a2ad6c9071dc8c5bdc27b572d2eef4ab4628ed1aea9",
+  "root_make_qualification_report_sha256": "9918fd7fe598f6d148e493aa554e6a091f6f1212bd90b40d3361d2011dbb6464",
+  "root_make_result": {
+    "gradient_materialization_contracts": "PASS",
+    "signed_zero_cases": 13,
+    "partial_error_cases": 16,
+    "presence_cases": 8,
+    "open_state_version_observations": 8,
+    "open_lazy_state_creation_observations": 65,
+    "original04_signed_zero_exit_status": 1,
+    "pytorch_executed_during_native_replay": false
+  }
+}

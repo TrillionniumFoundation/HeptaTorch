@@ -1,0 +1,198 @@
+{
+  "schema": "heptatorch.partial-backward-native.v1",
+  "status": "PASS",
+  "native_sha256": "8f1fae7cc6a9181d788ef80c82a43e24c3ba526e77d01f8a761ea5d9913be4ae",
+  "native_executed": true,
+  "pytorch_executed": false,
+  "actual_observations_sha256": "83bc3a03a51c5e2eb9499fb24ad73b9ab73da7452eb8ff4dc5b57e18a3958c7d",
+  "inputs": {
+    "/workspace/scratch/d26699e25fea/backward-partial-extension/test_partial.py": "6079cc0d32fd65b73ab8c83e0258b9ebd4b24c9d32b779a12b58cbf7168a0cc6",
+    "/workspace/scratch/d26699e25fea/backward-partial-extension/candidate-04/tensor-partial-session": "8f1fae7cc6a9181d788ef80c82a43e24c3ba526e77d01f8a761ea5d9913be4ae",
+    "/workspace/scratch/d26699e25fea/owned-tensor-object-extension/portable-test-layout/tools/tensor_objects/protocol.py": "5b99b0e508c2093fe830e509fffbb46b709f65e85b669ab6d79a32d425aa95ac",
+    "/workspace/scratch/d26699e25fea/tensor-objects-ci-cc56/backward-release-observations.json": "83bc3a03a51c5e2eb9499fb24ad73b9ab73da7452eb8ff4dc5b57e18a3958c7d"
+  },
+  "rows": [
+    {
+      "case": "actual-upstream-version-after-downstream-release",
+      "status": "PASS",
+      "frames": 12,
+      "details": {
+        "actual_Torch_error_codes": [
+          6,
+          10
+        ],
+        "native_payloads": [
+          [
+            6,
+            2,
+            0,
+            3
+          ],
+          [
+            10,
+            1,
+            0,
+            3
+          ]
+        ],
+        "leaf_presence_limit": "Existing protocol exposes allocated zeros, not a grad-None object.",
+        "downstream_private_saved_released": 2,
+        "legacy57_spent_status": 10
+      },
+      "rollback_bytes": 297616,
+      "all_responses_before_eof": true
+    },
+    {
+      "case": "leaf-ready-before-lower-sequence-error",
+      "status": "PASS",
+      "frames": 14,
+      "details": {
+        "good_branch_created_later": true,
+        "shared_leaf": false,
+        "payload": [
+          6,
+          5,
+          1,
+          3
+        ],
+        "expected_good_leaf_gradient": 7,
+        "reference": "Independent dependency/ready-priority contract from pinned Engine; new live Torch branch probe pending."
+      },
+      "rollback_bytes": 0,
+      "all_responses_before_eof": true
+    },
+    {
+      "case": "higher-sequence-error-prevents-leaf-ready",
+      "status": "PASS",
+      "frames": 14,
+      "details": {
+        "good_branch_created_later": false,
+        "shared_leaf": false,
+        "payload": [
+          6,
+          3,
+          0,
+          3
+        ],
+        "expected_good_leaf_gradient": 0,
+        "reference": "Independent dependency/ready-priority contract from pinned Engine; new live Torch branch probe pending."
+      },
+      "rollback_bytes": 0,
+      "all_responses_before_eof": true
+    },
+    {
+      "case": "shared-leaf-waits-for-all-parent-edges",
+      "status": "PASS",
+      "frames": 12,
+      "details": {
+        "good_branch_created_later": true,
+        "shared_leaf": true,
+        "payload": [
+          6,
+          4,
+          0,
+          3
+        ],
+        "expected_good_leaf_gradient": 0,
+        "reference": "Independent dependency/ready-priority contract from pinned Engine; new live Torch branch probe pending."
+      },
+      "rollback_bytes": 0,
+      "all_responses_before_eof": true
+    },
+    {
+      "case": "duplicate-binary-and-variadic-parent-dependencies",
+      "status": "PASS",
+      "frames": 13,
+      "details": {
+        "duplicate_binary_and_variadic_edges_counted_individually": true,
+        "leaf_applies_once_per_pass": true
+      },
+      "rollback_bytes": 0,
+      "all_responses_before_eof": true
+    },
+    {
+      "case": "retained-and-default-execution-lifetimes",
+      "status": "PASS",
+      "frames": 19,
+      "details": {
+        "retain_sequence": [
+          1,
+          1,
+          0,
+          1
+        ],
+        "final_gradient": [
+          12,
+          15
+        ]
+      },
+      "rollback_bytes": 297616,
+      "all_responses_before_eof": true
+    },
+    {
+      "case": "runtime-error-stops-frame-and-commits-completed-work",
+      "status": "PASS",
+      "frames": 11,
+      "details": {
+        "runtime_error_committed_preceding_write": 9,
+        "later_write_and_unknown_opcode_not_executed": true,
+        "response_record_count": 2,
+        "input_record_count": 4,
+        "legacy57_whole_frame_rollback_preserved": true
+      },
+      "rollback_bytes": 297616,
+      "all_responses_before_eof": true
+    },
+    {
+      "case": "admission-errors-remain-frame-atomic",
+      "status": "PASS",
+      "frames": 13,
+      "details": {
+        "all_admission_failures_unchanged": true,
+        "Saved_remained_usable": true
+      },
+      "rollback_bytes": 1488080,
+      "all_responses_before_eof": true
+    },
+    {
+      "case": "invalid-produced-gradient-retains-failing-node",
+      "status": "PASS",
+      "frames": 11,
+      "details": {
+        "failing_node_not_released": true,
+        "gradient_shape_error_repeat": [
+          5,
+          5
+        ]
+      },
+      "rollback_bytes": 0,
+      "all_responses_before_eof": true
+    },
+    {
+      "case": "wide-ready-heap-and-page-boundary",
+      "status": "PASS",
+      "frames": 8,
+      "details": {
+        "simultaneously_ready_leaf_nodes": 300,
+        "heap_crosses_old_descriptor_boundary": true,
+        "leaf_values_compared": 600
+      },
+      "rollback_bytes": 0,
+      "all_responses_before_eof": true
+    },
+    {
+      "case": "root-leaf-and-legacy-work-rehydration",
+      "status": "PASS",
+      "frames": 9,
+      "details": {
+        "root_leaf_ready_immediately": true,
+        "legacy_rehydration_after58": true
+      },
+      "rollback_bytes": 0,
+      "all_responses_before_eof": true
+    }
+  ],
+  "frames": 136,
+  "rollback_bytes": 2380928,
+  "cases": 11
+}
