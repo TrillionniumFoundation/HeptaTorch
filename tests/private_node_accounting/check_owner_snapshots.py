@@ -118,8 +118,13 @@ def main():
             if w(material['after']['nodes'][g],320)>material['before']['header']['incarnation'])
         def run(name,base,mutate,expected_rule):
             original=chosen[base]
-            changed=copy.deepcopy(original)
+            # Content-addressed journals may share the same dict for equal
+            # before/after snapshots. JSON round-trip makes the two sides
+            # independent; deepcopy would preserve that alias.
+            changed=json.loads(canonical(original))
+            assert changed['before'] is not changed['after']
             mutate(changed)
+            assert canonical(changed['before'])==canonical(original['before']), 'mutation changed before snapshot'
             assert canonical(changed)!=canonical(original)
             location=args.output/'negative-inputs'/ (name+'.json.gz')
             location.parent.mkdir(exist_ok=True)
