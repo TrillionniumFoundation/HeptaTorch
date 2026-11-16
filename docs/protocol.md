@@ -22,8 +22,8 @@ The 32-byte request header is:
 Exactly that many 64-byte command records follow, then optional payload bytes.
 Each record has eight words: `opcode, a, b, c, d, e, f, g`. Unused fields should
 be zero. Tensor payload offsets are absolute request-byte offsets, four-byte
-aligned, and at or after the end of the command records. Optimizer configuration
-offsets are similarly bounded and eight-byte aligned.
+aligned, and at or after the end of the command records. Optimizer, tensor-list
+and index-configuration offsets are similarly bounded and eight-byte aligned.
 
 The 32-byte response header contains literal bytes `HTORSP01`, version `1`, the
 number of completed command responses, and the final status. Each command
@@ -73,6 +73,10 @@ before appending another command response, with final status 3.
 | 31 | Gather | input, axis, index_config_offset | Tensor ID |
 | 32 | General matrix multiply | left, right | Tensor ID |
 | 33 | Reclaim training graph | retained_prefix_count | 1 |
+| 34 | Concatenate | axis, tensor_list_config_offset | Tensor ID |
+| 35 | Stack | axis, tensor_list_config_offset | Tensor ID |
+| 36 | Scatter add | self, source, axis, index_config_offset | Tensor ID |
+| 37 | Index add | self, source, axis, index_config_offset, alpha_bits | Tensor ID |
 
 Binary operation IDs are 1 add, 2 sub, 3 mul, 4 div. Unary IDs are 5 ReLU,
 6 neg, 11 sqrt, 12 exp, 13 log, 14 sigmoid, 15 tanh. Full reductions are 7 sum
@@ -118,7 +122,18 @@ native entry program. The fixture packets document concrete examples.
 
 Metadata payloads contain 13 words: rank, numel, requires_grad, four dimensions,
 four strides, storage-owner ID, and that owner's current version. Values are
-read in logical row-major order even when a tensor uses transposed strides.
+read in logical row-major order even when a tensor uses transposed or
+channels-last strides. Commands 34–37 each allocate one output descriptor.
+
+All dimensions are checked against the per-dimension limit before computing
+numel. If any dimension is zero, numel is zero; a large prefix before that zero
+does not cause a false element-count refusal. Nonempty tensors still obey the
+262,144-element limit. Ordinary contiguous strides are constructed from the
+last dimension using `stride *= max(dimension, 1)`. Thus shape `[2,0,3]` has
+strides `[3,3,1]`, and `[262144,262144,0,262144]` is a legal empty shape with
+strides `[68719476736,262144,262144,1]`. An illegal dimension remains an error
+even in an otherwise empty shape. At rank at most four, these empty stride
+products are bounded by `2^54` and fit in the metadata words.
 
 ## Autograd and storage
 
@@ -143,6 +158,11 @@ values into new storage while preserving a differentiable connection. A leaf
 write or optimizer update increments the shared owner's version. Backward
 preflights the reachable graph, checking saved parent versions and newly owned
 output versions before altering gradients. This validation is conservative.
+For concatenation and stacking, every saved input occurrence is checked,
+including repeated inputs, skipped `(0,)` tensors and inputs without gradients.
+The indexed-addition checks below can also reject a source derivative during
+preflight, even when its forward operation succeeded. Such a backward refusal
+does not clear work buffers or change existing leaf gradients.
 
 ## Training graph reclamation
 
@@ -251,6 +271,116 @@ Both operations produce new storage. Repeated indices add their gradients to
 the same input location, and transposed inputs propagate through their original
 view graph. Mutating a saved source or output still fails the backward version
 preflight.
+
+## Concatenation and stacking
+
+Commands 34 and 35 read a tensor-list configuration: one u64 input count,
+followed by exactly that many full u64 tensor IDs. The count and the complete
+list must fit the request. A zero count returns status 7. The list may repeat
+an ID and must retain the generation bits used after command 33. Invalid or
+discarded IDs return status 1; malformed alignment, offsets or truncated lists
+return status 100. The saved-list and result-storage requirements are checked
+together before allocation.
+
+Concatenation accepts rank 1–4 tensors of equal rank and equal dimensions away
+from the selected axis, adding their extents along that axis. A tensor whose
+exact shape is `(0,)` is skipped for rank/shape and axis-length matching. Other
+empty shapes still participate in those checks. If every input has shape
+`(0,)`, the result has shape `(0,)` and any signed 64-bit axis is accepted,
+including `INT64_MIN` and `INT64_MAX`. Otherwise, the axis is normalized against
+the first non-skipped tensor. Scalar inputs are rejected with status 2.
+
+Stacking requires exactly equal input shapes and inserts the input count as a
+new dimension. It accepts input ranks 0–3, so its output remains within rank
+four. The axis is normalized against `input_rank + 1`; scalar stacking accepts
+0 or -1. Stack does not apply concatenation's `(0,)` skip rule. Both commands
+check every output dimension and use the zero-aware numel rule above.
+
+Input values are read through their actual strides. Cat selects channels-last
+output strides for rank-four results only when every input suggests that
+format under the pinned PyTorch stride-selection rule. Singleton dimensions
+can make this distinction depend on exact strides even when both layouts are
+contiguous. A skipped `(0,)` input or an input whose suggested format is ordinary
+contiguous makes the mixed output ordinary contiguous. Stack's
+last-axis insertion for rank-three inputs applies that same rule to the virtual
+unsqueezed inputs; other supported stack paths produce ordinary contiguous
+output. These strides describe the actual output storage: forward writes use
+physical tensor addresses. They are not metadata-only changes, and they do not
+add a general memory-format conversion command.
+
+Each occurrence contributes its slice or selected cotangent back to its input.
+Repeated IDs and shared graph ancestors accumulate through the existing work
+buffers. Backward buffers use logical element order independently of output
+layout. The private saved-parent list is reclaimed with the operation during
+graph reset; it cannot keep a discarded generation alive. In-place and `out=`
+variants, dtype promotion and higher-order differentiation remain outside this
+protocol's scope.
+
+## Scatter add and index add
+
+Commands 36 and 37 take binary32 `self` and `source` tensors and return new
+owned storage with self's shape. Both inputs remain available. Their index
+configuration uses the same framing as command 31: a u64 rank, that many u64
+dimensions, and the resulting number of signed-i64 index values in logical
+row-major order. Rank zero contains one index. No float-to-index conversion or
+integer tensor descriptor is introduced. Saved indices are copied into the
+graph's arena and reclaimed with that graph.
+
+### Scatter add
+
+Command 36 accepts index ranks 0–4. For nonempty indices, self, source and index
+have equal effective ranks; scalars have effective rank one and size one.
+Every index dimension must fit the corresponding source dimension, and every
+nonselected index dimension must fit self. Negative indices and indices at or
+above self's selected extent return status 7. Empty indices skip these shape
+checks after axis, local rank, dimension-capacity and payload checks. A rank
+above four is still outside this local profile.
+
+The output begins as a copy of self, then adds source values at the selected
+index coordinates. Repeated destinations accumulate. The self derivative is
+the incoming cotangent. The source derivative gathers from that cotangent and,
+where permitted, reduces to the original source shape.
+
+Consequently, some source/index shape pairs are valid for forward but not for
+source backward. If source requires gradients, its rank must not exceed the
+index rank, and each right-aligned source dimension must equal the index
+dimension or be one. An incompatible returned source derivative produces
+status 5 during graph preflight. If source does not require gradients, self's
+identity derivative remains available. This includes empty inputs and the
+observed scalar/vector distinction; forward success does not promise that an
+incompatible source derivative will be accepted.
+
+### Index add
+
+Command 37 accepts an index configuration of rank zero or one. Self and source
+must have equal literal ranks, equal dimensions away from the selected axis,
+and an index count equal to source's selected extent. Scalar/scalar inputs
+accept a scalar or length-one vector index; a scalar/non-scalar pair is
+rejected. Empty indices do not bypass these shape checks.
+
+The `alpha_bits` field must contain a binary32 encoding with its upper 32 bits
+zero; nonzero upper bits return status 7. To request the default mathematical
+coefficient one, encode `0x3f800000` explicitly. Zero, signed zero, infinities
+and NaNs are admitted coefficients. The forward update adds
+`alpha * source` at each selected destination. The pinned CPU profile uses
+software fused multiply-add for rank above one and separately rounded
+multiply/add for rank zero or one, as qualified in [Numerics](numerics.md).
+
+For an empty multidimensional self, the pinned CPU forward path returns before
+checking index values. This operation may therefore succeed with saved
+out-of-range indices. If source requires gradients, its subsequent index-select
+derivative checks those values, and the HIA graph preflight returns status 7
+before gradient changes. If only self requires gradients, its empty identity
+derivative succeeds. Nonempty updates reject invalid indices before execution.
+
+Both operations save the full self/source IDs and owner versions. Shared
+inputs receive both identity and source contributions, and repeated backward
+calls accumulate them. A mutation still triggers the existing saved-version
+refusal. The indexed-addition work check is
+`self.numel + max(self.rank, 1) * actual_updates <= 16,777,216`; scatter uses
+index count for updates, and index_add uses source numel unless its empty-self
+path skips the updates. Checked division precedes multiplication. The current
+tensor and index limits already impose a smaller attainable workload.
 
 ## Limits and errors
 

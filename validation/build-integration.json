@@ -1,0 +1,35 @@
+{
+  "schema": "heptatorch.build-integration.v1",
+  "status": "PASS",
+  "source_sha256": "264e9c5c4e8ea1834724cc0d8d859952016daffe4af330a8daa7745e7a5e5233",
+  "native_tools": {
+    "module-compiler": "e250d93bc0b2a5ff878d2188c95780abf7e7ebaf186e4531b136fa2735b2af59",
+    "module-linker": "1ba40ffe025abfcc2edd8d69f1ad689817598571138c11806af7aa60047fc7b8"
+  },
+  "canonical_adapters_and_native_three_generation_rebuild": "PASS",
+  "canonical_make_builds": [
+    {
+      "executable": "heptatorch",
+      "sha256": "cf78556c3c512227ffe123635b76e5a6af97697606e8ba3535c56f5101f4f80d",
+      "fixture_pairs": 461,
+      "status": "PASS"
+    },
+    {
+      "executable": "heptatorch-monolithic",
+      "sha256": "5b992e5f07fe1167aacf31d9fd07a053b3b02fc1bd1149c06f8ccd164ef96bb0",
+      "fixture_pairs": 461,
+      "status": "PASS"
+    }
+  ],
+  "initial_fixture_transport_failure": {
+    "exit_status": 3,
+    "request": "tests/fixtures/index_saved_indices_arena_bound.input.hex",
+    "encoded_bytes": 2000481,
+    "cause": "Hex text exceeded the unchanged native unhex 1 MiB input wrapper; binary packet was within the tensor input limit.",
+    "correction": "Remove the same four admitted whitespace characters and decode complete hex-byte-pair chunks with the unchanged native HIA decoder, then concatenate decoded bytes.",
+    "fixture_bytes_changed": false,
+    "runtime_bytes_changed": false
+  },
+  "host_numerical_execution": false,
+  "whole_pytorch_rewrite_complete": false
+}

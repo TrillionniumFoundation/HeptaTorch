@@ -211,6 +211,30 @@ class Program:
         self.next_id += 1
         return self.handle(result)
 
+    def join(self, values, axis=0, stack=False):
+        at = self.command(35 if stack else 34, axis, 0)
+        body = struct.pack('<' + str(len(values) + 1) + 'Q', len(values), *values)
+        self.extra.append((at, 2, body))
+        result = self.next_id
+        self.next_id += 1
+        return self.handle(result)
+
+    def _indexed_add(self, code, value, axis, index, source, alpha):
+        index = torch.as_tensor(index, dtype=torch.int64, device='cpu')
+        at = self.command(code, value, source, axis, 0, bits(alpha))
+        body = struct.pack('<' + str(index.ndim + 1) + 'Q', index.ndim, *index.shape)
+        body += struct.pack('<' + str(index.numel()) + 'q', *index.reshape(-1).tolist())
+        self.extra.append((at, 4, body))
+        result = self.next_id
+        self.next_id += 1
+        return self.handle(result)
+
+    def scatter_add(self, value, axis, index, source):
+        return self._indexed_add(36, value, axis, index, source, 1.)
+
+    def index_add(self, value, axis, index, source, alpha=1.):
+        return self._indexed_add(37, value, axis, index, source, alpha)
+
     def encode(self):
         offset = 32 + 64 * len(self.commands)
         payload, commands = bytearray(), [row.copy() for row in self.commands]
@@ -596,6 +620,379 @@ def training_sessions():
     compare('session-empty-kept-tensor', p, expected)
 
 
+def compare_join_metadata(name, program, expected_metadata, empty_reads=()):
+    row={'case':name,'status':'PASS','rtol':0.,'atol':0.,'compared_values':0,
+         'max_absolute_error':0.,'max_relative_error_scaled_by_atol':0.,'mismatches':0}
+    try:
+        result=subprocess.run([str(EXE)],input=program.encode(),capture_output=True,
+                              timeout=120,env={'PATH':''})
+        assert result.returncode==0 and not result.stderr
+        raw=result.stdout
+        assert struct.unpack_from('<8sQQQ',raw)==(b'HTORSP01',1,len(program.commands),0)
+        at=32
+        for index,command in enumerate(program.commands):
+            code,error,value,size=struct.unpack_from('<4Q',raw,at);at+=32
+            payload=raw[at:at+size];at+=size
+            assert code==command[0] and error==0 and len(payload)==size
+            if index in expected_metadata:
+                reference=expected_metadata[index]
+                shape=tuple(reference.shape);stride=tuple(reference.stride())
+                wanted=(reference.ndim,reference.numel(),int(reference.requires_grad),
+                        *shape,*([0]*(4-len(shape))),*stride,*([0]*(4-len(stride))))
+                actual=struct.unpack('<13Q',payload)
+                assert actual[:11]==wanted,(index,actual[:11],wanted)
+                row['compared_values']+=11
+            if index in empty_reads:
+                assert value==0 and size==0
+        assert at==len(raw)
+    except Exception as exc:
+        row.update(status='FAIL',error=str(exc)[:2000])
+    ROWS.append(row)
+
+def concatenation():
+    def values(shape,offset=0):
+        return (torch.arange(math.prod(shape),dtype=torch.float32).reshape(shape)+offset-3)/8
+    specs=[
+        ('cat-vector',[values((0,)),values((3,)),values((2,),1)],False,-1),
+        ('cat-matrix-axis0',[values((2,3)),values((0,3)),values((1,3),1)],False,0),
+        ('cat-matrix-axis1',[values((2,1)),values((2,3),1)],False,1),
+        ('cat-rank3',[values((2,1,3)),values((2,2,3),1)],False,-2),
+        ('cat-rank4',[values((2,1,1,3)),values((2,1,2,3),1)],False,-2),
+        ('cat-other-empty',[values((2,0,3)),values((3,0,3),1)],False,0),
+        ('stack-scalars',[values(()),values((),1)],True,-1),
+        ('stack-vector',[values((3,)),values((3,),1)],True,-1),
+        ('stack-matrix',[values((2,3)),values((2,3),1)],True,1),
+        ('stack-rank3',[values((2,1,3)),values((2,1,3),1)],True,0),
+        ('stack-empty',[values((2,0,3)),values((2,0,3),1)],True,-1),
+    ]
+    for name,data,stack,axis in specs:
+        operation=torch.stack if stack else torch.cat
+        function_case(name,data,
+                      lambda *args,operation=operation,axis=axis:operation(args,dim=axis),
+                      lambda p,*ids,stack=stack,axis=axis:p.join(ids,axis,stack))
+    function_case('cat-strided',[values((2,3)),values((2,3),1)],
+                  lambda a,b:torch.cat([a.t(),b.t()],dim=-1),
+                  lambda p,a,b:p.join([p.transpose(a),p.transpose(b)],-1))
+    function_case('cat-skipped-only-grad',[torch.empty(0),values((2,3))],
+                  lambda empty,x:torch.cat([empty,x,empty],dim=1),
+                  lambda p,empty,x:p.join([empty,x,empty],1),requires=[True,False])
+    for stack in (False,True):
+        operation=torch.stack if stack else torch.cat
+        function_case(('stack' if stack else 'cat')+'-shared-view-square',[values((2,2))],
+                      lambda x,operation=operation:operation([x,x.t(),x*x],dim=1),
+                      lambda p,x,stack=stack:p.join([x,p.transpose(x),p.binary(3,x,x)],1,stack))
+    for axis in (-(1<<63),-999,-2,-1,0,1,999,(1<<63)-1):
+        p=Program()
+        leaf=torch.empty(0,requires_grad=True);constant=torch.empty(0)
+        a,b=p.tensor(leaf,True),p.tensor(constant)
+        reference=torch.cat([leaf,constant,leaf],dim=axis)
+        output=p.join([a,b,a],axis)
+        reference.backward(torch.empty_like(reference))
+        assert leaf.grad is not None and leaf.grad.numel()==0
+        p.seeded(output,p.tensor(torch.empty_like(reference)))
+        meta=p.command(13,output)
+        reads=[p.read(output),p.read(a,True)]
+        compare_join_metadata('cat-all-empty-axis-'+str(axis),p,{meta:reference},reads)
+    p=Program();expected={};empty_reads=[]
+    for shape in ((2,0,3),(0,2,3),(2,3,0),
+                  (0,262144,262144,262144),(262144,0,262144,262144),
+                  (262144,262144,0,262144),(262144,262144,262144,0)):
+        reference=torch.empty(shape)
+        native=p.tensor(reference)
+        expected[p.command(13,native)]=reference
+        empty_reads.append(p.read(native))
+    for shape in ((2,0,3),(0,2),(512,512,0)):
+        a=torch.empty(shape,requires_grad=True);b=torch.empty(shape,requires_grad=True)
+        ai,bi=p.tensor(a,True),p.tensor(b,True)
+        for stack,axis in ((False,0),(False,-1),(True,0),(True,-1)):
+            reference=(torch.stack if stack else torch.cat)([a,b],dim=axis)
+            native=p.join([ai,bi],axis,stack)
+            expected[p.command(13,native)]=reference
+            empty_reads.append(p.read(native))
+    compare_join_metadata('concat-empty-shape-and-stride-metadata',p,expected,empty_reads)
+    for stack in (False,True):
+        p=Program();expected={}
+        leaf=values((2,2)).requires_grad_();native=p.tensor(leaf,True)
+        lr=f32(2**-7)
+        for step in range(12):
+            p.zero(native);leaf.grad=None
+            square=p.binary(3,native,native)
+            output=p.join([native,p.transpose(native),square],1,stack)
+            reference=(torch.stack if stack else torch.cat)([leaf,leaf.t(),leaf*leaf],dim=1)
+            seed=(torch.arange(reference.numel(),dtype=torch.float32).reshape(reference.shape)%9-4)/16
+            reference.backward(seed)
+            p.seeded(output,p.tensor(seed))
+            expected[p.read(output)]=reference.detach().clone()
+            expected[p.read(native,True)]=leaf.grad.clone()
+            p.sgd(native,lr)
+            with torch.no_grad():leaf.sub_(lr*leaf.grad)
+            p.reset_graph(1)
+            expected[p.read(native)]=leaf.detach().clone()
+        compare(('stack' if stack else 'cat')+'-training-12-resets',p,expected)
+    p=Program();leaf=torch.tensor([2.],requires_grad=True)
+    a=p.tensor(leaf,True);out=p.join([a]*256,0)
+    reference=torch.cat([leaf]*256,dim=0);reference.sum().backward()
+    p.seeded(out,p.tensor(torch.ones_like(reference)))
+    compare('cat-256-repeated-parents',p,{p.read(out):reference.detach(),p.read(a,True):leaf.grad.clone()})
+
+def _indexed_case(name, operation, av, bv, index, dim=0, alpha=1.,
+                  requires=(True, True), shared=False, transposed=False,
+                  repeat=1):
+    av = torch.as_tensor(av, dtype=torch.float32)
+    bv = torch.as_tensor(bv, dtype=torch.float32)
+    index = torch.as_tensor(index, dtype=torch.int64)
+    if transposed:
+        av, bv = av.transpose(0, 1).contiguous(), bv.transpose(0, 1).contiguous()
+    a = av.detach().clone().requires_grad_(requires[0])
+    b = a if shared else bv.detach().clone().requires_grad_(requires[1])
+    p = Program()
+    ai = p.tensor(a, requires[0])
+    bi = ai if shared else p.tensor(b, requires[1])
+    aa, bb, aio, bio = a, b, ai, bi
+    if transposed:
+        aa, bb = a.transpose(0, 1), b.transpose(0, 1)
+        aio = p.transpose(ai)
+        bio = aio if shared else p.transpose(bi)
+        if index.ndim == 2:
+            index = index.transpose(0, 1).contiguous().transpose(0, 1)
+    if operation == 'scatter_add':
+        result = torch.scatter_add(aa, dim, index, bb)
+        output = p.scatter_add(aio, dim, index, bio)
+    else:
+        result = torch.index_add(aa, dim, index, bb, alpha=alpha)
+        output = p.index_add(aio, dim, index, bio, alpha)
+    seed = ((torch.arange(result.numel(), dtype=torch.float32) % 13 - 6) / 4).reshape(result.shape)
+    seed_id = p.tensor(seed)
+    for _ in range(repeat):
+        result.backward(seed, retain_graph=True)
+        p.seeded(output, seed_id)
+    expected = {p.read(output): result.detach().clone()}
+    if requires[0]:
+        expected[p.read(ai, True)] = a.grad.detach().clone()
+    if requires[1] and not shared:
+        expected[p.read(bi, True)] = b.grad.detach().clone()
+    compare('indexed-' + name, p, expected, rtol=4e-5, atol=5e-6)
+
+def _indexed_reject(name, operation, ashape, bshape, index, dim, phase, status):
+    row = {'case': 'indexed-reject-' + name, 'status': 'PASS', 'compared_values': 0,
+           'expected_native_status': status, 'expected_phase': phase,
+           'self_shape': list(ashape), 'source_shape': list(bshape),
+           'index_shape': list(index.shape), 'max_absolute_error': 0.,
+           'max_relative_error_scaled_by_atol': 0., 'mismatches': 0}
+    try:
+        a = torch.zeros(ashape, dtype=torch.float32, requires_grad=True)
+        b = torch.ones(bshape, dtype=torch.float32, requires_grad=True)
+        observed = None
+        try:
+            out = (torch.scatter_add(a, dim, index, b) if operation == 'scatter_add'
+                   else torch.index_add(a, dim, index, b, alpha=.25))
+        except (RuntimeError, IndexError) as exc:
+            observed = {'phase': 'forward', 'type': type(exc).__name__, 'message': str(exc)}
+        if observed is None and phase == 'backward':
+            try:
+                out.backward(torch.ones_like(out))
+            except (RuntimeError, IndexError) as exc:
+                observed = {'phase': 'backward', 'type': type(exc).__name__, 'message': str(exc)}
+        assert observed is not None and observed['phase'] == phase, observed
+        row['pytorch_exception'] = observed
+        row['pytorch_gradient_shapes'] = {'self': None if a.grad is None else list(a.grad.shape),
+                                         'source': None if b.grad is None else list(b.grad.shape)}
+        p = Program()
+        ai, bi = p.tensor(a, True), p.tensor(b, True)
+        output = (p.scatter_add(ai, dim, index, bi) if operation == 'scatter_add'
+                  else p.index_add(ai, dim, index, bi, .25))
+        expected = {}
+        if phase == 'backward':
+            expected[p.read(output)] = out.detach().clone()
+            p.seeded(output, p.tensor(torch.ones_like(out)))
+        result = subprocess.run([str(EXE)], input=p.encode(), capture_output=True,
+                                timeout=120, env={'PATH': ''})
+        assert result.returncode == 0 and not result.stderr
+        raw = result.stdout
+        magic, version, count, error = struct.unpack_from('<8sQQQ', raw)
+        assert (magic, version, count, error) == (b'HTORSP01', 1, len(p.commands), status)
+        offset = 32
+        for i in range(count):
+            code, error, value, size = struct.unpack_from('<4Q', raw, offset)
+            offset += 32
+            payload = raw[offset:offset + size]
+            offset += size
+            assert code == p.commands[i][0] and len(payload) == size
+            assert error == (status if i == count - 1 else 0)
+            if i in expected:
+                actual = torch.tensor(struct.unpack('<' + str(value) + 'f', payload))
+                target = expected[i].reshape(-1)
+                assert actual.shape == target.shape and torch.equal(actual, target)
+                row['compared_values'] += target.numel()
+        assert offset == len(raw)
+    except Exception as exc:
+        row.update(status='FAIL', error=type(exc).__name__ + ': ' + str(exc))
+    ROWS.append(row)
+
+def scatter_index_extensions():
+    start = len(ROWS)
+    generator = torch.Generator().manual_seed(1847)
+    for rank in range(1, 5):
+        for dim in range(rank):
+            shape = [2] * rank
+            shape[dim] = 3
+            a = torch.randn(shape, generator=generator)
+            b = torch.randn(shape, generator=generator)
+            index = torch.randint(3, shape, generator=generator)
+            _indexed_case(f'scatter-rank{rank}-axis{dim}', 'scatter_add', a, b, index, dim - rank, repeat=2)
+            _indexed_case(f'index-rank{rank}-axis{dim}', 'index_add', a, b, torch.tensor([2, 0, 2]), dim - rank, -.25)
+    for operation in ('scatter_add', 'index_add'):
+        a = torch.tensor([[1., -2., 3.], [0., 4., -1.]])
+        b = torch.tensor([[3., 1., 2.], [-1., 0., 5.]])
+        index = torch.tensor([[2, 0, 2], [1, 1, 0]]) if operation == 'scatter_add' else torch.tensor([2, 0, 2])
+        _indexed_case(operation + '-noncontiguous', operation, a, b, index, -1, -.5, transposed=True)
+        _indexed_case(operation + '-shared', operation, a, a, index, 1, .25, shared=True, repeat=3)
+        _indexed_case(operation + '-shared-transpose', operation, a, a, index, 1, .5, shared=True, transposed=True)
+        _indexed_case(operation + '-scalar', operation, 2., 4., torch.tensor(0), -1, .25)
+        _indexed_case(operation + '-scalar-vector-index', operation, 2., 4., torch.tensor([0]), 0, -.5)
+    _indexed_case('scatter-scalar-source', 'scatter_add', [1., 2.], 4., torch.tensor([1]))
+    _indexed_case('scatter-empty-broadcast', 'scatter_add', torch.zeros(2, 3), torch.ones(1, 3), torch.empty(0, 3, dtype=torch.int64))
+    _indexed_case('scatter-empty-rank4-scalar', 'scatter_add', torch.zeros(2, 3), 4., torch.empty(0, 2, 3, 4, dtype=torch.int64))
+    _indexed_case('scatter-empty-rank4-self-only', 'scatter_add', torch.zeros(2, 3), torch.ones(4, 5), torch.empty(0, 2, 3, 4, dtype=torch.int64), requires=(True, False))
+    _indexed_case('scatter-smaller-index-self-only', 'scatter_add', torch.ones(2, 3), torch.ones(3, 4), torch.tensor([[0, 1, 0], [1, 0, 1]]), requires=(True, False))
+    _indexed_case('index-empty-indices', 'index_add', torch.ones(2, 3), torch.empty(0, 3), torch.empty(0, dtype=torch.int64), alpha=-.5)
+    _indexed_case('index-empty-other-axis', 'index_add', torch.empty(2, 0), torch.empty(3, 0), torch.tensor([1, 0, 1]), alpha=-.5)
+    _indexed_case('index-empty-bad-indices-self-only', 'index_add', torch.empty(2, 0), torch.empty(3, 0), torch.tensor([99, -1, 44]), requires=(True, False))
+    for i, alpha in enumerate((0., -0., 1., -1., .25, 3.5)):
+        _indexed_case(f'index-alpha-{i}', 'index_add', [1., -2., 3.], [2., 4., -1., 3.], torch.tensor([1, 0, 1, 1]), alpha=alpha)
+    for i, (shape, dim) in enumerate([((), 0), ((1,), 0), ((33,), 0), ((1, 1), 0), ((1, 33), 0), ((33, 1), 1)]):
+        index = torch.arange(shape[dim] if shape else 1)
+        _indexed_case(f'index-alpha-overflow-cancellation-{i}', 'index_add', torch.full(shape, -2e38), torch.full(shape, 2e38), index, dim, 2.)
+    for operation in ('scatter_add', 'index_add'):
+        p = Program()
+        a = torch.tensor([1., 2.], requires_grad=True)
+        b = torch.tensor([3., 4.], requires_grad=True)
+        ai, bi = p.tensor(a, True), p.tensor(b, True)
+        expected = {}
+        index = torch.tensor([1, 0])
+        for _ in range(3):
+            p.reset_graph(2)
+            if operation == 'scatter_add':
+                out, output = torch.scatter_add(a, 0, index, b), p.scatter_add(ai, 0, index, bi)
+            else:
+                out, output = torch.index_add(a, 0, index, b, alpha=.5), p.index_add(ai, 0, index, bi, .5)
+            seed = torch.tensor([1., -2.])
+            out.backward(seed)
+            p.seeded(output, p.tensor(seed))
+            expected[p.read(output)] = out.detach().clone()
+            expected[p.read(ai, True)], expected[p.read(bi, True)] = a.grad.clone(), b.grad.clone()
+        compare('indexed-' + operation + '-reset-accumulation', p, expected)
+    for operation in ('scatter_add', 'index_add'):
+        _indexed_case(operation + '-special-values', operation, [1., float('inf'), 3.],
+                      [float('nan'), -float('inf'), 5.], torch.tensor([0, 1, 2]), alpha=-.5)
+        _indexed_case(operation + '-source-only', operation, [1., 2.], [3., 4.], torch.tensor([1, 1]), alpha=.25, requires=(False, True))
+    _indexed_case('index-zero-alpha-nonfinite', 'index_add', [1., 2.], [float('inf'), float('nan')], torch.tensor([0, 1]), alpha=0.)
+    for operation in ('scatter_add', 'index_add'):
+        p = Program()
+        a = torch.tensor([[1., 2.], [-1., 3.]], requires_grad=True)
+        b = torch.tensor([[2., 0.], [1., -1.]], requires_grad=True)
+        ai, bi = p.tensor(a, True), p.tensor(b, True)
+        matrix, mid = a @ b, p.matmul(ai, bi)
+        index = torch.tensor([[1, 0], [1, 1]]) if operation == 'scatter_add' else torch.tensor([1, 1])
+        out = (torch.scatter_add(matrix, 1, index, matrix) if operation == 'scatter_add'
+               else torch.index_add(matrix, 1, index, matrix, alpha=.25))
+        oid = (p.scatter_add(mid, 1, index, mid) if operation == 'scatter_add'
+               else p.index_add(mid, 1, index, mid, .25))
+        seed = torch.tensor([[1., -2.], [.5, 3.]])
+        out.backward(seed)
+        p.seeded(oid, p.tensor(seed))
+        compare('indexed-' + operation + '-matmul-shared-chain', p,
+                {p.read(oid): out.detach(), p.read(ai, True): a.grad, p.read(bi, True): b.grad})
+    bad = [
+        ('scatter-smaller-index', 'scatter_add', (2, 3), (3, 4), torch.tensor([[0, 1, 0], [1, 0, 1]]), 0, 'backward', 5),
+        ('scatter-scalar-index-vector-source', 'scatter_add', (), (1,), torch.tensor(0), 0, 'backward', 5),
+        ('scatter-empty-rank-mismatch', 'scatter_add', (2, 3), (4, 5), torch.empty(0, dtype=torch.int64), 0, 'backward', 5),
+        ('scatter-negative-index', 'scatter_add', (2,), (1,), torch.tensor([-1]), 0, 'forward', 7),
+        ('scatter-source-rank', 'scatter_add', (2, 3), (6,), torch.zeros(2, 3, dtype=torch.int64), 0, 'forward', 2),
+        ('scatter-empty-axis', 'scatter_add', (2, 3), (0, 3), torch.empty(0, dtype=torch.int64), 2, 'forward', 2),
+        ('index-empty-other-axis', 'index_add', (2, 0), (3, 0), torch.tensor([99, -1, (1 << 63) - 1]), 0, 'backward', 7),
+        ('index-empty-selected-axis', 'index_add', (0, 3), (2, 3), torch.tensor([0, 1]), 0, 'backward', 7),
+        ('index-rank2-empty', 'index_add', (2, 3), (0, 3), torch.empty(0, 2, dtype=torch.int64), 0, 'forward', 2),
+        ('index-scalar-vector-source', 'index_add', (), (1,), torch.tensor([0]), 0, 'forward', 2),
+        ('index-vector-scalar-source', 'index_add', (1,), (), torch.tensor([0]), 0, 'forward', 2),
+        ('index-empty-shape', 'index_add', (2, 3), (0, 4), torch.empty(0, dtype=torch.int64), 0, 'forward', 2),
+        ('index-count', 'index_add', (2, 3), (1, 3), torch.empty(0, dtype=torch.int64), 0, 'forward', 2),
+        ('index-large-i64', 'index_add', (2,), (1,), torch.tensor([(1 << 63) - 1]), 0, 'forward', 7),
+    ]
+    for arguments in bad:
+        _indexed_reject(*arguments)
+    _indexed_case('scatter-late-zero-large-extents', 'scatter_add', torch.arange(1, 7, dtype=torch.float32).reshape(2, 3), 4., torch.empty((262144, 262144, 0, 262144), dtype=torch.int64))
+    assert len(ROWS) - start == 74, len(ROWS) - start
+
+def compare_join_layout(name, program, expected_values, expected_metadata):
+    row={'case':name,'status':'PASS','rtol':0.,'atol':0.,'compared_values':0,
+         'max_absolute_error':0.,'max_relative_error_scaled_by_atol':0.,'mismatches':0}
+    try:
+        result=subprocess.run([str(EXE)],input=program.encode(),capture_output=True,
+                              timeout=120,env={'PATH':''})
+        assert result.returncode==0 and not result.stderr
+        raw=result.stdout
+        assert struct.unpack_from('<8sQQQ',raw)==(b'HTORSP01',1,len(program.commands),0)
+        offset=32
+        for index,command in enumerate(program.commands):
+            code,error,value,size=struct.unpack_from('<4Q',raw,offset);offset+=32
+            payload=raw[offset:offset+size];offset+=size
+            assert code==command[0] and error==0 and len(payload)==size
+            if index in expected_values:
+                assert size==value*4
+                actual=torch.tensor(struct.unpack('<'+str(value)+'f',payload),dtype=torch.float32)
+                reference=expected_values[index].detach().reshape(-1).to(dtype=torch.float32,device='cpu')
+                torch.testing.assert_close(actual,reference,rtol=0,atol=0)
+                row['compared_values']+=reference.numel()
+            if index in expected_metadata:
+                reference=expected_metadata[index]
+                shape=tuple(reference.shape);strides=tuple(reference.stride())
+                wanted=(reference.ndim,reference.numel(),int(reference.requires_grad),
+                        *shape,*([0]*(4-len(shape))),*strides,*([0]*(4-len(strides))))
+                actual=struct.unpack('<13Q',payload)
+                assert actual[:11]==wanted,(index,actual[:11],wanted)
+                row['compared_values']+=11
+        assert offset==len(raw)
+    except Exception as exc:
+        row.update(status='FAIL',error=str(exc)[:2000])
+    ROWS.append(row)
+
+def concatenation_layouts():
+    specs=[('cat-channels',1),('cat-channels',3),('cat-mixed-empty',1),
+           ('cat-mixed-row',1),('cat-singletons',1),
+           ('stack-singletons',3),('stack-singletons',1),('stack-nontrivial',3)]
+    for kind,axis in specs:
+        p=Program();expected={};stack=kind.startswith('stack')
+        if kind in ('cat-channels','cat-mixed-empty','cat-mixed-row'):
+            leaf=(torch.arange(120,dtype=torch.float32).reshape(2,3,4,5)/8).requires_grad_()
+            native=p.tensor(leaf,True)
+            reference=leaf.transpose(1,3).transpose(2,3)
+            view=p.transpose(p.transpose(native,1,3),2,3)
+        elif kind=='cat-singletons':
+            leaf=(torch.arange(6,dtype=torch.float32).reshape(2,3,1,1)/8).requires_grad_()
+            native=p.tensor(leaf,True);reference=leaf.transpose(1,2);view=p.transpose(native,1,2)
+        else:
+            shape=(2,3,4) if kind=='stack-nontrivial' else (2,3,1)
+            leaf=(torch.arange(math.prod(shape),dtype=torch.float32).reshape(shape)/8).requires_grad_()
+            native=p.tensor(leaf,True);reference=leaf.transpose(1,2);view=p.transpose(native,1,2)
+        ids=[view,view];values=[reference,reference]
+        other=None;other_id=0
+        if kind=='cat-mixed-empty':
+            other=torch.empty(0,requires_grad=True);other_id=p.tensor(other,True)
+            ids=[other_id,view];values=[other,reference]
+        if kind=='cat-mixed-row':
+            other=(reference.detach().contiguous()+1).requires_grad_();other_id=p.tensor(other,True)
+            ids=[view,other_id];values=[reference,other]
+        output=p.join(ids,axis,stack)
+        result=(torch.stack if stack else torch.cat)(values,dim=axis)
+        seed=(torch.arange(result.numel(),dtype=torch.float32).reshape(result.shape)%7-3)/8
+        result.backward(seed)
+        p.seeded(output,p.tensor(seed))
+        expected[p.read(output)]=result.detach().clone()
+        expected[p.read(native,True)]=leaf.grad.clone()
+        if other is not None:expected[p.read(other_id,True)]=other.grad.clone()
+        compare_join_layout('layout-'+kind+'-axis'+str(axis),p,expected,{p.command(13,output):result})
+
 def main():
     started = time.monotonic()
     sha = hashlib.sha256(EXE.read_bytes()).hexdigest()
@@ -608,11 +1005,14 @@ def main():
         training_result = training()
         extensions()
         training_sessions()
+        concatenation()
+        concatenation_layouts()
+        scatter_index_extensions()
     except Exception as exc:
         setup_error = type(exc).__name__ + ': ' + str(exc)
     changed = sha != hashlib.sha256(EXE.read_bytes()).hexdigest()
     failed = sum(row['status'] == 'FAIL' for row in ROWS)
-    passed = setup_error is None and not changed and failed == 0 and len(ROWS) == 159 and len({row["case"] for row in ROWS}) == 159 and PROVENANCE['status'] == 'PASS'
+    passed = setup_error is None and not changed and failed == 0 and len(ROWS) == 268 and len({row["case"] for row in ROWS}) == 268 and PROVENANCE['status'] == 'PASS'
     report = {'schema': 'heptatorch.live-pytorch-differential.v1', 'status': 'PASS' if passed else 'FAIL',
               'oracle': 'real pinned CPU PyTorch forward, autograd and torch.optim; no copied derivative formulas',
               'torch_version': torch.__version__, 'torch_git_version': torch.version.git_version,
@@ -621,7 +1021,7 @@ def main():
               'torch_git_matches_oracle_build_pin': torch.version.git_version == EXPECTED['git_commit'],
               'oracle_provenance': PROVENANCE,
               'native_executable_sha256': sha, 'native_unchanged_during_run': not changed,
-              'seed': 1729, 'expected_cases': 159, 'cases': len(ROWS), 'failed_cases': failed, 'setup_error': setup_error,
+              'seed': 1729, 'expected_cases': 268, 'cases': len(ROWS), 'failed_cases': failed, 'setup_error': setup_error,
               'compared_values': sum(row['compared_values'] for row in ROWS), 'rows': ROWS,
               'training': training_result, 'wall_seconds': time.monotonic() - started}
     emit(report)

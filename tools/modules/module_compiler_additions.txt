@@ -1,0 +1,157 @@
+def module_signature(w:mutbuf, fb:u64) -> u64:
+    if get(w, fb + 184) > 1 or (get(w, fb + 176) & 1) != 0:
+        return fail(w, 69)
+    if get(w, fb + 184) == 1 and scalar_type(get(w, fb + 32)) == 0:
+        return fail(w, 69)
+    i = 0
+    while i < get(w, fb + 24):
+        t = get(w, fb + 48 + i * 8)
+        if t == 8 or t == 9 or t == 16 or t == 0:
+            return fail(w, 69)
+        i = i + 1
+    return 0
+
+def module_symbol(o:mutbuf, w:mutbuf, fb:u64, index:u64, string:u64, imported:u64) -> u64:
+    put(w, fb + 288, index)
+    if imported == 1:
+        emit8(o, w, 77309411328 + string)
+        emit8(o, w, 0)
+        emit8(o, w, 0)
+    else:
+        emit8(o, w, 281552286121984 + string)
+        emit8(o, w, get(w, fb) - 64)
+        emit8(o, w, get(w, fb + 280))
+    return string + get(w, fb + 248) + 1
+
+def module_name(s:readbuf, o:mutbuf, w:mutbuf, fb:u64) -> u64:
+    i = 0
+    while i < get(w, fb + 248):
+        emit(o, w, byte(s, get(w, fb + 240) + i))
+        i = i + 1
+    emit(o, w, 0)
+    return 0
+
+def module_interface(o:mutbuf, w:mutbuf, fb:u64, imported:u64) -> u64:
+    emit8(o, w, get(w, fb + 288))
+    emit8(o, w, imported)
+    emit8(o, w, get(w, fb + 24))
+    emit8(o, w, get(w, fb + 184))
+    emit8(o, w, get(w, fb + 176))
+    emit8(o, w, get(w, fb + 32))
+    i = 0
+    while i < 16:
+        value = 0
+        if i < get(w, fb + 24):
+            value = get(w, fb + 48 + i * 8)
+        emit8(o, w, value)
+        i = i + 1
+    i = 0
+    while i < 10:
+        emit8(o, w, 0)
+        i = i + 1
+    return 0
+
+def module_relocations(o:mutbuf, w:mutbuf) -> u64:
+    i = 0
+    if get(w, 48) == 1:
+        while i < get(w, 344):
+            emit8(o, w, 0)
+            emit8(o, w, 0)
+            emit8(o, w, 0)
+            i = i + 1
+    else:
+        while i < get(w, 224):
+            record = FIXBASE + i * 24
+            if get(w, record + 8) == 3:
+                emit8(o, w, get(w, record) - 64)
+                target = FBASE + get(w, record + 16) * FSTRIDE
+                emit8(o, w, (get(w, target + 288) << 32) | 4)
+                emit8(o, w, 18446744073709551612)
+            i = i + 1
+    return 0
+
+def exports_finish(s:readbuf, o:mutbuf, w:mutbuf) -> u64:
+    if get(w, 48) == 0:
+        return 0
+    count = get(w, 648)
+    imports = 0
+    i = 0
+    while i < get(w, 64):
+        if get(w, FBASE + i * FSTRIDE + 272) == 1:
+            imports = imports + 1
+        i = i + 1
+    text = get(w, 56) - 64
+    align8(o, w)
+    symbols = get(w, 56)
+    emit8(o, w, 0)
+    emit8(o, w, 0)
+    emit8(o, w, 0)
+    emit8(o, w, 281487861612544)
+    emit8(o, w, 0)
+    emit8(o, w, 0)
+    string_size = 1
+    i = 0
+    while i < count:
+        record = EXPORT_BASE + i * 48
+        fb = FBASE + get(w, record + 24) * FSTRIDE
+        string_size = module_symbol(o, w, fb, i + 2, string_size, 0)
+        i = i + 1
+    ordinal = count + 2
+    i = 0
+    while i < get(w, 64):
+        fb = FBASE + i * FSTRIDE
+        if get(w, fb + 272) == 1:
+            string_size = module_symbol(o, w, fb, ordinal, string_size, 1)
+            ordinal = ordinal + 1
+        i = i + 1
+    strings = get(w, 56)
+    emit(o, w, 0)
+    i = 0
+    while i < count:
+        record = EXPORT_BASE + i * 48
+        module_name(s, o, w, FBASE + get(w, record + 24) * FSTRIDE)
+        i = i + 1
+    i = 0
+    while i < get(w, 64):
+        fb = FBASE + i * FSTRIDE
+        if get(w, fb + 272) == 1:
+            module_name(s, o, w, fb)
+        i = i + 1
+    names = get(w, 56)
+    MODULE_SECTION_NAMES
+    align8(o, w)
+    relocs = get(w, 56)
+    module_relocations(o, w)
+    metadata = get(w, 56)
+    emit8(o, w, MODULE_MAGIC)
+    emit8(o, w, 1)
+    emit8(o, w, count + imports)
+    emit8(o, w, get(w, 64))
+    emit8(o, w, count)
+    emit8(o, w, imports)
+    emit8(o, w, 256)
+    emit8(o, w, 0)
+    i = 0
+    while i < count:
+        record = EXPORT_BASE + i * 48
+        module_interface(o, w, FBASE + get(w, record + 24) * FSTRIDE, 0)
+        i = i + 1
+    i = 0
+    while i < get(w, 64):
+        fb = FBASE + i * FSTRIDE
+        if get(w, fb + 272) == 1:
+            module_interface(o, w, fb, 1)
+        i = i + 1
+    headers = get(w, 56)
+    if get(w, 48) == 2:
+        put(o, 40, headers)
+        write4(o, 60, 262152)
+    elf_section(o, w, 0, 0, 0, 0, 0, 0, 0)
+    elf_section(o, w, 4294967297, 6, 64, text, 0, 16, 0)
+    elf_section(o, w, 8589934599, 0, symbols, (count + imports + 2) * 24, 8589934595, 8, 24)
+    elf_section(o, w, 12884901903, 0, strings, string_size, 0, 1, 0)
+    elf_section(o, w, 12884901911, 0, names, MODULE_NAMES_LENGTH, 0, 1, 0)
+    elf_section(o, w, 4294967329, 0, names + MODULE_NAMES_LENGTH, 0, 0, 1, 0)
+    elf_section(o, w, 17179869233, 0, relocs, get(w, 344) * 24, 4294967298, 8, 24)
+    elf_section(o, w, 4294967356, 0, metadata, 64 + (count + imports) * 256, 0, 8, 0)
+    return 0

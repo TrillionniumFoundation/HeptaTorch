@@ -16,7 +16,8 @@
     "dense contiguous",
     "strided layouts produced by transpose",
     "contiguous shared view",
-    "detached shared storage"
+    "detached shared storage",
+    "owned channels-last output selected by cat and rank-three last-axis stack"
   ],
   "maximum_tensor_descriptors": 255,
   "buffer_capacity_bytes": 1048576,
@@ -84,7 +85,7 @@
         "clone",
         "detach"
       ],
-      "scope": "shared owner/version; view only for contiguous layouts and explicit dimensions",
+      "scope": "shared owner/version; view only for contiguous layouts and explicit dimensions; ordinary empty strides use max(dim,1); zero-aware numel admission validates every dimension first",
       "forward": "implemented",
       "backward": "implemented where mathematically applicable",
       "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
@@ -97,7 +98,7 @@
         "backward_seed",
         "zero_grad"
       ],
-      "scope": "implicit unit seed for one-element outputs or exact-shape explicit binary32 seed; strided/empty seeds; retained graph, accumulated leaf gradients and version preflight; no forward/higher-order AD",
+      "scope": "implicit unit seed for one-element outputs or exact-shape explicit binary32 seed; strided/empty seeds; retained graph, accumulated leaf gradients and conservative version preflight; variable cat/stack parents and delayed indexed source-gradient checks; no forward/higher-order AD",
       "forward": "implemented",
       "backward": "implemented where mathematically applicable",
       "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
@@ -237,10 +238,98 @@
       "backward": "retained leaves accept new graphs across generations",
       "qualification": "native regressions and independent long-training, handle and whole-workspace failure-atomicity checks; hosted real PyTorch comparison recorded separately",
       "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "cat",
+      "hia_functions": [
+        "cat",
+        "tensor_join",
+        "concat_layout",
+        "mark_concat",
+        "back_concat"
+      ],
+      "scope": "rank 1..4 binary32 tensors; signed axes; strided inputs; skip only exact (0,) for shape matching; all-(0,) accepts any signed64 axis; repeated parent VJP accumulation; rank-four channels-last selected from exact input stride suggestions; no out/inplace/promotion variants",
+      "forward": "implemented",
+      "backward": "first-order slice-and-accumulate, with conservative full saved-parent ID/version preflight",
+      "qualification": "merged native 81-case cat/stack review and 16 refusal-atomicity cases; actual hosted empty/layout observations replayed separately; combined main hosted gate pending",
+      "full_upstream_schema_qualified": false,
+      "evidence": [
+        "validation/tensor-composition-native.json",
+        "validation/hosted-boundary-observations.json"
+      ]
+    },
+    {
+      "name": "stack",
+      "hia_functions": [
+        "stack",
+        "tensor_join",
+        "concat_layout",
+        "mark_concat",
+        "back_concat"
+      ],
+      "scope": "equal-shape rank 0..3 inputs, rank 1..4 output; signed insertion axes; strided inputs and empty dimensions; last-axis rank-three path follows virtual-unsqueeze layout selection; no out/promotion variants",
+      "forward": "implemented",
+      "backward": "first-order select-and-accumulate, including repeated or shared parents; conservative version preflight",
+      "qualification": "merged native cat/stack review, exact strides and VJP; actual hosted layout observations replayed; combined main hosted gate pending",
+      "full_upstream_schema_qualified": false,
+      "evidence": [
+        "validation/tensor-composition-native.json",
+        "validation/hosted-boundary-observations.json"
+      ]
+    },
+    {
+      "name": "scatter-add",
+      "hia_functions": [
+        "indexed_add",
+        "indexed_add_validate",
+        "indexed_add_forward",
+        "indexed_add_backward_check",
+        "back_indexed_add"
+      ],
+      "scope": "rank 0..4 binary32 self/source and exact signed-i64 shaped index config; effective scalar rank one; strided values, repeated indices, shared parents and empty-index shape fast path; new storage; no inplace/out/dtype variants",
+      "forward": "implemented",
+      "backward": "identity self derivative plus gathered source derivative when it reduces to source shape; incompatible tracked source shape returns status 5 during preflight before gradient/work changes",
+      "qualification": "merged 100-case indexed review, 9 supplemental cases and shared composition; actual hosted boundary observation replay; combined main hosted gate pending",
+      "full_upstream_schema_qualified": false,
+      "evidence": [
+        "validation/tensor-composition-native.json",
+        "validation/hosted-boundary-observations.json"
+      ]
+    },
+    {
+      "name": "index-add",
+      "hia_functions": [
+        "indexed_add",
+        "indexed_add_validate",
+        "indexed_add_forward",
+        "indexed_add_backward_check",
+        "back_indexed_add"
+      ],
+      "scope": "rank 0..4 equal-rank binary32 self/source; scalar or vector signed-i64 index config; exact off-axis shape match; explicit binary32 alpha with zero upper32 bits; strided/shared inputs, duplicates and empty dimensions; no inplace/out/promotion variants",
+      "forward": "implemented; rank above one uses software fmaf for alpha update, rank zero/one uses separately rounded multiply/add for the pinned tested CPU/ISA profile",
+      "backward": "identity self derivative plus selected, alpha-scaled source derivative; saved out-of-range indices skipped by empty multidimensional forward return status 7 in preflight when source requires gradients",
+      "qualification": "merged indexed review and 6 actual hosted alpha observations / 102 values; actual boundary replay and shared composition; combined main hosted gate pending; no all-ISA bitwise claim",
+      "full_upstream_schema_qualified": false,
+      "evidence": [
+        "validation/tensor-composition-native.json",
+        "validation/hosted-boundary-observations.json"
+      ]
+    },
+    {
+      "name": "native-borrowed-modules",
+      "hia_functions": [],
+      "scope": "separate profile extension; independent native compilation and HIA static linking of same-compiler scalar/readbuf/mutbuf interfaces, scalar/unit results, native signature/effect/borrowing and module-DAG checks; authoritative 143-function source partitioned into 63 kernel and 80 runtime functions with 52 imports",
+      "forward": "implemented default native module compilation/admission/linking; linked runtime passed 461 packet fixtures; monolithic reference retained",
+      "backward": "existing HIA reverse graph executes through the linked function partition; no new AD mode",
+      "qualification": "native linked runtime and independent module-boundary checks, identities recorded separately from single-unit executable",
+      "full_upstream_schema_qualified": false,
+      "evidence": [
+        "validation/native-modules.json"
+      ]
     }
   ],
   "unimplemented_subsystems": [
-    "scalable native module/linking and resource-bearing public ABI",
+    "general module ABI, owned resource transfer/returns, cross-boundary allocation and arbitrary foreign-language tensor interfaces",
     "other dtypes and type promotion",
     "arbitrary as_strided and general indexing",
     "sparse/compressed/nested/complex/quantized layouts",
@@ -260,15 +349,16 @@
   "maximum_pooling_terms": 16777216,
   "maximum_matmul_terms": 16777216,
   "native_compilation_unit": {
-    "functions": 121,
-    "blocks": 1439,
-    "instructions": 5751,
+    "functions": 143,
+    "blocks": 1783,
+    "instructions": 7064,
     "maximum_functions": 256,
     "maximum_blocks": 2560,
     "maximum_instructions": 8192,
     "general_module_linking": false,
     "compiler_workspace_bytes": 2097152,
-    "profile": "heptatorch.hia.compiler.f256-b2560-w2m.v1"
+    "profile": "heptatorch.hia.compiler.f256-b2560-w2m.v1",
+    "bounded_borrowed_module_linking": true
   },
   "tensor_descriptor_limit_scope": "255 simultaneously live slots; command33 reclaims transient graph slots within the current request",
   "tensor_handles": {
@@ -278,5 +368,124 @@
     "transient_ids": "(generation << 8) | slot",
     "wrong_generation": "rejected with status1",
     "scope": "one bounded request; no cross-request persistence"
+  },
+  "maximum_tensor_dimension": 262144,
+  "maximum_tensor_numel": 262144,
+  "empty_shape_admission": {
+    "all_dimensions_validated_first": true,
+    "zero_dimension_makes_numel_zero": true,
+    "ordinary_contiguous_stride_rule": "multiply by max(dimension, 1) from the last dimension",
+    "maximum_empty_stride_product": 18014398509481984,
+    "large_prefix_before_zero": "admitted if every dimension and rank are within the profile",
+    "invalid_dimension_in_empty_shape": "still rejected with status 3"
+  },
+  "native_module_profile": {
+    "profile": "heptatorch.hia.borrowed-modules.v1",
+    "native_compilation_and_linking_executed": true,
+    "formal_build_integration": "default build/heptatorch uses module compiler/linker; monolithic and test-monolithic retain the ordinary compiler reference",
+    "authoritative_source": "src/heptatorch.hepta",
+    "source_sha256": "264e9c5c4e8ea1834724cc0d8d859952016daffe4af330a8daa7745e7a5e5233",
+    "linked_executable_sha256": "cf78556c3c512227ffe123635b76e5a6af97697606e8ba3535c56f5101f4f80d",
+    "partitions": [
+      {
+        "name": "ht_kernel",
+        "functions": 63,
+        "imports": 0,
+        "exports": 52
+      },
+      {
+        "name": "ht_runtime",
+        "functions": 80,
+        "imports": 52,
+        "exports": 1
+      }
+    ],
+    "function_bodies_preserved": true,
+    "admitted_boundary_parameters": [
+      "exact scalar types",
+      "readbuf",
+      "mutbuf"
+    ],
+    "admitted_boundary_results": "zero or one scalar/unit",
+    "owned_resource_boundary": false,
+    "borrowed_resource_return": false,
+    "arbitrary_foreign_pointer_provenance": false,
+    "general_module_abi_complete": false,
+    "evidence": "validation/native-modules.json",
+    "build_variables": {
+      "HEPTA_COMPILER": "ordinary expanded compiler c5a9c2b95a3061e080a21298f5b26000936ed9dac519690d845b0699a15744c6",
+      "HEPTA_MODULE_COMPILER": "module compiler e250d93bc0b2a5ff878d2188c95780abf7e7ebaf186e4531b136fa2735b2af59",
+      "HEPTA_MODULE_LINKER": "module linker 1ba40ffe025abfcc2edd8d69f1ad689817598571138c11806af7aa60047fc7b8"
+    }
+  },
+  "composition_protocol": {
+    "34": {
+      "operation": "cat",
+      "fields": [
+        "signed_axis",
+        "tensor_list_config_offset"
+      ],
+      "config": "u64 count, count full u64 tensor IDs; count must be positive"
+    },
+    "35": {
+      "operation": "stack",
+      "fields": [
+        "signed_axis",
+        "tensor_list_config_offset"
+      ],
+      "config": "same as command 34"
+    },
+    "36": {
+      "operation": "scatter_add",
+      "fields": [
+        "self",
+        "source",
+        "signed_axis",
+        "index_config_offset"
+      ],
+      "config": "u64 rank 0..4, rank u64 dimensions, zero-aware numel signed-i64 values"
+    },
+    "37": {
+      "operation": "index_add",
+      "fields": [
+        "self",
+        "source",
+        "signed_axis",
+        "index_config_offset",
+        "alpha_binary32_bits"
+      ],
+      "config": "u64 rank 0 or 1, dimensions, signed-i64 values; alpha upper32 bits must be zero"
+    },
+    "config_alignment_bytes": 8,
+    "saved_payload_lifetime": "private arena storage reclaimed with the operation by graph_reset",
+    "output_descriptors_per_command": 1
+  },
+  "full_project_acceptance": {
+    "ledger": "compatibility/full-acceptance.json",
+    "gates": 17,
+    "fully_closed_gates": 0,
+    "status": "HOLD"
+  },
+  "current_composition_qualification": {
+    "source_sha256": "264e9c5c4e8ea1834724cc0d8d859952016daffe4af330a8daa7745e7a5e5233",
+    "single_unit_executable_sha256": "5b992e5f07fe1167aacf31d9fd07a053b3b02fc1bd1149c06f8ccd164ef96bb0",
+    "independent_native_reviews": "PASS; see source-bound component and merged records",
+    "native_evidence": "validation/tensor-composition-native.json",
+    "regression_fixture_pairs": 461,
+    "combined_fixture_replay": "linked image PASS: 461 pairs; monolithic replay is recorded separately",
+    "hosted_boundary_observations": "validation/hosted-boundary-observations.json",
+    "hosted_main_oracle": {
+      "expected_cases": 268,
+      "preceding_cases": 159,
+      "new_cat_stack_cases": 35,
+      "new_indexed_cases": 74,
+      "status": "PENDING",
+      "planned_receipt": "validation/hosted-tensor-composition.json",
+      "execution_targets": [
+        "default linked executable",
+        "monolithic reference executable"
+      ]
+    },
+    "default_linked_executable_sha256": "cf78556c3c512227ffe123635b76e5a6af97697606e8ba3535c56f5101f4f80d"
   }
 }

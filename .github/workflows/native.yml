@@ -34,6 +34,18 @@ jobs:
             examples/hia_bootstrap
             docs
 
+      - name: Check out the fixed historical legacy-compiler witness
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: TrillionniumFoundation/HeptaTorch
+          ref: 31d5b1483714b32254730ba56787884c5c76e2fb
+          path: .toolchain/heptatorch-legacy
+          persist-credentials: false
+          fetch-depth: 1
+          sparse-checkout-cone-mode: true
+          sparse-checkout: |
+            src
+
       - name: Check that the complete upstream target remains recorded
         run: |
           python3 -I -S -B tools/check_acceptance.py
@@ -147,41 +159,220 @@ jobs:
           assert digest(expanded) == profile['generated']['native_compiler']['sha256']
           assert json.loads((generated / 'adaptation.json').read_text()) == recorded['source_adaptation']
           assert json.loads((generated / 'packer-authoring.json').read_text()) == recorded['packer_authoring']
-          for name in ('heptatorch', 'unhex'):
-              source = Path('src/heptatorch.hepta' if name == 'heptatorch' else 'tools/unhex.hepta').read_bytes()
+          # The original 128-function compiler cannot compile the current
+          # runtime. Keep its byte witness at the exact previously qualified main.
+          historical = Path('.toolchain/heptatorch-legacy').resolve()
+          historical_commit = '31d5b1483714b32254730ba56787884c5c76e2fb'
+          assert subprocess.check_output(['git', '-C', str(historical), 'rev-parse', 'HEAD'], text=True).strip() == historical_commit
+          historical_source = historical / 'src/heptatorch.hepta'
+          historical_source_sha = '4c1d17240dd8616798e238cdd54641ee6f2e42c02635c82b3bdeea0a530b5ca5'
+          historical_image_sha = 'ecca265b088e0688df8ad963613f6bdf460efd324d0c480e6395e4ef67372779'
+          assert digest(historical_source) == historical_source_sha
+          comparisons = []
+          for name, source_path in [('historical-runtime', historical_source), ('current-unhex', Path('tools/unhex.hepta'))]:
+              source = source_path.read_bytes()
               outputs = [subprocess.run([str(compiler)], input=source, capture_output=True,
                                         timeout=30, env={'PATH': ''}) for compiler in (legacy, expanded)]
               assert all(p.returncode == 0 and not p.stderr for p in outputs)
               assert outputs[0].stdout == outputs[1].stdout
-          print(json.dumps({'schema': 'heptatorch.hosted-compiler-profile.v1', 'status': 'PASS',
+              image_sha = hashlib.sha256(outputs[0].stdout).hexdigest()
+              if name == 'historical-runtime':
+                  assert image_sha == historical_image_sha
+              comparisons.append({'witness': name, 'source_sha256': digest(source_path),
+                                  'image_sha256': image_sha, 'byte_identical': True})
+          capacity = json.loads((temporary / 'hepta-capacity-review/summary.json').read_text())
+          assert capacity['pass'] and capacity['passed'] == capacity['total'] == 16
+          print(json.dumps({'schema': 'heptatorch.hosted-compiler-profile.v2', 'status': 'PASS',
                             'profile': profile['profile'], 'native_compiler_sha256': digest(expanded),
                             'native_fixed_point_generations': 4,
-                            'adaptation_receipts_match': True, 'application_images_identical': True,
-                            'capacity_review': json.loads((temporary / 'hepta-capacity-review/summary.json').read_text())}))
+                            'adaptation_receipts_match': True,
+                            'legacy_runtime_witness_commit': historical_commit,
+                            'legacy_comparisons': comparisons, 'capacity_review': capacity}))
           PROFILE
 
-      - name: Build and test the HIA implementation
+      - name: Verify the pinned module adaptation inputs
         shell: bash
         run: |
-          make HEPTA_COMPILER="$RUNNER_TEMP/hepta-expanded/hia-native-compiler"
-          make test HEPTA_COMPILER="$RUNNER_TEMP/hepta-expanded/hia-native-compiler"
+          python3 -I -S -B - <<'MODULE_INPUTS'
+          from pathlib import Path
+          import hashlib
+          import json
+          recorded = json.loads(Path('validation/native-modules.json').read_text())
+          assert recorded['status'] == 'PASS'
+          for path, expected in recorded['packaged_tools_sha256'].items():
+              assert hashlib.sha256(Path(path).read_bytes()).hexdigest() == expected, path
+          profile = json.loads(Path('tools/modules/profile.json').read_text())
+          assert profile['profile'] == recorded['profile'] == 'heptatorch.hia.borrowed-modules.v1'
+          assert profile['upstream_commit'] == recorded['upstream_commit'] == 'f33d8da316de8fdf27b504371f1a5310997ff548'
+          print('PASS: exact module adaptation, native authoring additions and test-source pins')
+          MODULE_INPUTS
+
+      - name: Author and reproduce three native module-compiler generations
+        shell: bash
+        run: |
+          python3 -I -S -B tools/modules/build_module_compiler.py \
+            --source-root "$GITHUB_WORKSPACE/.toolchain/hepta" \
+            --capacity-adaptation "$RUNNER_TEMP/hepta-profile-sources/adaptation.json" \
+            --output "$RUNNER_TEMP/hepta-modules-sources"
+          python3 -I -S -B tools/modules/build_module_linker.py \
+            --source-root "$GITHUB_WORKSPACE/.toolchain/hepta" \
+            --capacity-adaptation "$RUNNER_TEMP/hepta-profile-sources/adaptation.json" \
+            --output "$RUNNER_TEMP/hepta-modules-sources"
+          cp "$RUNNER_TEMP/hepta-profile-sources/compiler-packer.hepta" \
+            "$RUNNER_TEMP/hepta-modules-sources/compiler-packer.hepta"
+          bash tools/modules/rebuild.sh \
+            "$RUNNER_TEMP/hepta-expanded/hia-native-compiler" \
+            "$RUNNER_TEMP/hepta-modules-sources" \
+            "$RUNNER_TEMP/hepta-modules-native"
+          python3 -I -S -B - <<'MODULE_REPRODUCTION'
+          from pathlib import Path
+          import hashlib
+          import json
+          import os
+          temporary = Path(os.environ['RUNNER_TEMP'])
+          sources = temporary / 'hepta-modules-sources'
+          native = temporary / 'hepta-modules-native'
+          recorded = json.loads(Path('validation/native-modules.json').read_text())
+          digest = lambda p: hashlib.sha256(Path(p).read_bytes()).hexdigest()
+          assert json.loads((sources / 'compiler-adaptation.json').read_text()) == recorded['compiler_authoring']
+          assert json.loads((sources / 'linker-authoring.json').read_text()) == recorded['linker_authoring']
+          assert digest(native / 'module-compiler') == recorded['compiler_executable_sha256']
+          assert digest(native / 'module-linker') == recorded['linker_executable_sha256']
+          generations = []
+          for generation in range(3):
+              generations.append({'generation': generation,
+                                  'flat_sha256': digest(native / ('M' + str(generation) + '.image')),
+                                  'executable_sha256': digest(native / ('compiler-' + str(generation)))})
+          assert generations == recorded['native_reproduction']['generations']
+          print(json.dumps({'schema': 'heptatorch.hosted-module-reproduction.v1', 'status': 'PASS',
+                            'profile': recorded['profile'], 'native_generations': generations,
+                            'compiler_authoring_closure_files': len(recorded['compiler_authoring']['upstream_source_files_verified_before_and_after']),
+                            'linker_authoring_closure_files': len(recorded['linker_authoring']['upstream_source_files_verified_before_and_after'])}))
+          MODULE_REPRODUCTION
+
+      - name: Compile and natively link the complete current runtime as modules
+        shell: bash
+        run: |
+          python3 -I -S -B tools/modules/split_runtime.py \
+            --source src/heptatorch.hepta --output "$RUNNER_TEMP/hepta-runtime-units"
+          bash tools/modules/compile_link.sh \
+            "$RUNNER_TEMP/hepta-modules-native/module-compiler" \
+            "$RUNNER_TEMP/hepta-modules-native/module-linker" \
+            "$RUNNER_TEMP/hepta-runtime-native" entry \
+            "$RUNNER_TEMP/hepta-runtime-units/ht_runtime.hepta" \
+            "$RUNNER_TEMP/hepta-runtime-units/ht_kernel.hepta"
+          python3 -I -S -B tools/modules/tests/equivalence.py \
+            --baseline-compiler "$RUNNER_TEMP/hepta-expanded/hia-native-compiler" \
+            --module-compiler "$RUNNER_TEMP/hepta-modules-native/module-compiler" \
+            --output "$RUNNER_TEMP/hepta-module-review/ordinary" \
+            src/heptatorch.hepta tools/unhex.hepta
+
+      - name: Exercise native module contracts, alias lifetimes and guarded ABI
+        shell: bash
+        run: |
+          python3 -I -S -B tools/modules/tests/boundaries.py \
+            --compiler "$RUNNER_TEMP/hepta-modules-native/module-compiler" \
+            --linker "$RUNNER_TEMP/hepta-modules-native/module-linker" \
+            --legacy-compiler "$RUNNER_TEMP/hepta-expanded/hia-native-compiler" \
+            --output "$RUNNER_TEMP/hepta-module-review/boundaries"
+          python3 -I -S -B tools/modules/tests/contracts.py \
+            --compiler "$RUNNER_TEMP/hepta-modules-native/module-compiler" \
+            --linker "$RUNNER_TEMP/hepta-modules-native/module-linker" \
+            --output "$RUNNER_TEMP/hepta-module-review/contracts"
+          python3 -I -S -B tools/modules/tests/capabilities.py \
+            --compiler "$RUNNER_TEMP/hepta-modules-native/module-compiler" \
+            --linker "$RUNNER_TEMP/hepta-modules-native/module-linker" \
+            --output "$RUNNER_TEMP/hepta-module-review/capabilities"
+          python3 -I -S -B tools/modules/tests/abi.py \
+            --compiler-image "$RUNNER_TEMP/hepta-modules-native/M2.image" \
+            --linker-image "$RUNNER_TEMP/hepta-modules-native/module-linker.image" \
+            --boundary-output "$RUNNER_TEMP/hepta-module-review/boundaries" \
+            --runtime-request "$RUNNER_TEMP/hepta-runtime-native/link-request.bin" \
+            --runtime-executable "$RUNNER_TEMP/hepta-runtime-native/application" \
+            --output "$RUNNER_TEMP/hepta-module-review/abi"
+          python3 -I -S -B - <<'MODULE_GATES'
+          from pathlib import Path
+          import hashlib
+          import json
+          import os
+          temporary = Path(os.environ['RUNNER_TEMP'])
+          review = temporary / 'hepta-module-review'
+          recorded = json.loads(Path('validation/native-modules.json').read_text())
+          suites = [('boundary_tests', 'boundaries/report.json', 69),
+                    ('independent_contract_tests', 'contracts/report.json', 204),
+                    ('independent_capability_tests', 'capabilities/external-capability-review.json', 19),
+                    ('guarded_flat_abi_tests', 'abi/report.json', 18)]
+          results = []
+          for key, relative, count in suites:
+              observed = json.loads((review / relative).read_text())
+              assert observed['status'] == 'PASS'
+              assert observed['cases'] == recorded['suite_counts'][key] == count
+              assert all(row['status'] == 'PASS' for row in observed['rows'])
+              assert {row['case'] for row in observed['rows']} == {row['case'] for row in recorded['reports'][key]['rows']}
+              results.append({'suite': key, 'cases': count, 'status': 'PASS'})
+          partition = json.loads((temporary / 'hepta-runtime-units/split-manifest.json').read_text())
+          assert partition == recorded['current_runtime']['source_partition']
+          digest = lambda p: hashlib.sha256(Path(p).read_bytes()).hexdigest()
+          native = temporary / 'hepta-runtime-native'
+          assert digest(native / 'application') == recorded['current_runtime']['linked_executable_sha256']
+          assert digest(native / 'link-request.bin') == recorded['current_runtime']['link_request_sha256']
+          for index, expected in enumerate(recorded['current_runtime']['objects']):
+              assert digest(native / ('unit-' + str(index) + '.o')) == expected['object_sha256']
+          ordinary = json.loads((review / 'ordinary/report.json').read_text())
+          assert ordinary == recorded['reports']['ordinary_mode_equivalence']
+          print(json.dumps({'schema': 'heptatorch.hosted-native-module-gates.v1', 'status': 'PASS',
+                            'source_sha256': partition['source_sha256'], 'suites': results,
+                            'complete_source_partition_identical': True,
+                            'linked_executable_sha256': digest(native / 'application'),
+                            'current_complete_source_and_unhex_byte_identical': True}))
+          MODULE_GATES
+
+      - name: Build and test native-linked and monolithic HIA runtimes
+        shell: bash
+        run: |
+          make all monolithic \
+            HEPTA_COMPILER="$RUNNER_TEMP/hepta-expanded/hia-native-compiler" \
+            HEPTA_MODULE_COMPILER="$RUNNER_TEMP/hepta-modules-native/module-compiler" \
+            HEPTA_MODULE_LINKER="$RUNNER_TEMP/hepta-modules-native/module-linker"
+          cmp build/heptatorch "$RUNNER_TEMP/hepta-runtime-native/application"
+          make test \
+            HEPTA_COMPILER="$RUNNER_TEMP/hepta-expanded/hia-native-compiler" \
+            HEPTA_MODULE_COMPILER="$RUNNER_TEMP/hepta-modules-native/module-compiler" \
+            HEPTA_MODULE_LINKER="$RUNNER_TEMP/hepta-modules-native/module-linker" | tee build/native-linked-fixtures.log
+          make test-monolithic \
+            HEPTA_COMPILER="$RUNNER_TEMP/hepta-expanded/hia-native-compiler" \
+            HEPTA_MODULE_COMPILER="$RUNNER_TEMP/hepta-modules-native/module-compiler" \
+            HEPTA_MODULE_LINKER="$RUNNER_TEMP/hepta-modules-native/module-linker" | tee build/monolithic-fixtures.log
           python3 -I -S -B - <<'MANIFEST'
           import hashlib
           import json
+          import os
           from pathlib import Path
 
           digest = lambda p: hashlib.sha256(Path(p).read_bytes()).hexdigest()
           manifest = json.loads(Path('validation/fixture-manifest.json').read_text())
-          evidence = json.loads(Path('validation/session-native.json').read_text())
-          assert manifest['source_sha256'] == digest('src/heptatorch.hepta') == evidence['source_sha256']
-          assert evidence['executable_sha256'] == digest('build/heptatorch')
+          evidence = json.loads(Path('validation/native-modules.json').read_text())
+          assert manifest['source_sha256'] == digest('src/heptatorch.hepta') == evidence['current_runtime']['source_partition']['source_sha256']
+          assert manifest['executables_sha256']['linked'] == digest('build/heptatorch') == evidence['current_runtime']['linked_executable_sha256']
+          assert manifest['executables_sha256']['monolithic'] == digest('build/heptatorch-monolithic')
+          ordinary = json.loads((Path(os.environ['RUNNER_TEMP']) / 'hepta-module-review/ordinary/report.json').read_text())
+          assert ordinary['rows'][0]['image_sha256'] == digest('build/heptatorch-monolithic')
+          assert ordinary['rows'][1]['image_sha256'] == digest('build/unhex')
           paths = {entry['path'] for entry in manifest['files']}
+          assert len(paths) == len(manifest['files'])
           assert paths == {str(p) for p in Path('tests/fixtures').glob('*.hex')}
-          assert manifest['fixture_pairs'] == len(paths) // 2 == 275
+          assert manifest['fixture_pairs'] == len(paths) // 2 == 461
+          assert evidence['reports']['current_runtime_fixtures']['cases'] == 461
           for entry in manifest['files']:
               assert Path(entry['path']).stat().st_size == entry['bytes']
               assert digest(entry['path']) == entry['sha256']
-          print('PASS: exact native source, image and 275 fixture-pair manifest')
+          for mode in ('native-linked', 'monolithic'):
+              log = Path('build/' + mode + '-fixtures.log').read_text()
+              assert 'PASS: 461 native packet regression fixtures' in log
+          print(json.dumps({'schema': 'heptatorch.hosted-dual-build-fixtures.v1', 'status': 'PASS',
+                            'source_sha256': manifest['source_sha256'], 'fixture_pairs_per_build': 461,
+                            'native_linked_sha256': digest('build/heptatorch'),
+                            'monolithic_sha256': digest('build/heptatorch-monolithic')}))
           MANIFEST
 
       - name: Install the independent pinned PyTorch CPU oracle
@@ -216,10 +407,66 @@ jobs:
       - name: Observe pinned PyTorch layout-selection semantics
         run: python3 tests/pytorch_layout_semantics.py build/layout-semantics.json
 
-      - name: Compare native HIA with real PyTorch forward, autograd and optimizers
+      - name: Compare native-linked HIA with pinned real PyTorch (268 cases)
+        run: python3 tests/pytorch_oracle.py build/heptatorch build/pytorch-native-linked.json
+
+      - name: Compare monolithic HIA with pinned real PyTorch (268 cases)
+        run: python3 tests/pytorch_oracle.py build/heptatorch-monolithic build/pytorch-monolithic.json
+
+      - name: Summarize both current PyTorch oracle builds without changing historical receipts
         shell: bash
         run: |
-          python3 tests/pytorch_oracle.py build/heptatorch build/pytorch-differential.json
+          python3 -I -S -B - <<'DUAL_ORACLE'
+          from pathlib import Path
+          import hashlib
+          import json
+          import os
+          digest = lambda p: hashlib.sha256(Path(p).read_bytes()).hexdigest()
+          reports = []
+          names = None
+          expected_checks = {'python_matches', 'platform_matches', 'version_backend_matches',
+                             'git_matches_oracle_build_pin', 'distribution_version_matches',
+                             'direct_url_matches', 'direct_url_archive_sha256_matches',
+                             'pip_report_url_matches', 'pip_report_archive_sha256_matches',
+                             'pip_report_version_matches', 'pip_report_requested'}
+          for mode, executable, report_file in (
+              ('native-linked', 'build/heptatorch', 'build/pytorch-native-linked.json'),
+              ('monolithic', 'build/heptatorch-monolithic', 'build/pytorch-monolithic.json')):
+              report = json.loads(Path(report_file).read_text())
+              assert report['status'] == 'PASS' and report['failed_cases'] == 0
+              assert report['expected_cases'] == report['cases'] == len(report['rows']) == 268
+              assert report['native_unchanged_during_run']
+              assert report['native_executable_sha256'] == digest(executable)
+              provenance = report['oracle_provenance']
+              assert provenance['status'] == 'PASS' and provenance['metadata_error'] is None
+              assert set(provenance['checks']) == expected_checks
+              assert all(value is True for value in provenance['checks'].values())
+              assert provenance['lock_sha256'] == digest('compatibility/pytorch-oracle-lock.json')
+              case_names = {row['case'] for row in report['rows']}
+              assert len(case_names) == 268 and all(row['status'] == 'PASS' for row in report['rows'])
+              if names is not None:
+                  assert case_names == names
+              names = case_names
+              reports.append({'build': mode, 'status': 'PASS', 'cases': report['cases'],
+                              'compared_values': report['compared_values'],
+                              'native_executable_sha256': report['native_executable_sha256'],
+                              'oracle_provenance_checks': len(expected_checks),
+                              'oracle_lock_sha256': provenance['lock_sha256'],
+                              'report_path': report_file, 'report_sha256': digest(report_file)})
+          summary = {'schema': 'heptatorch.hosted-tensor-composition-summary.v1', 'status': 'PASS',
+                     'source_sha256': digest('src/heptatorch.hepta'),
+                     'oracle_script_sha256': digest('tests/pytorch_oracle.py'), 'builds': reports,
+                     'historical_159_case_receipts_modified': False}
+          Path('build/hosted-tensor-composition.json').write_text(json.dumps(summary, indent=2) + '\n')
+          print(json.dumps(summary, indent=2))
+          with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a') as output:
+              output.write('### Current HIA runtime and pinned PyTorch\n\n')
+              output.write('| Build | Native fixtures | PyTorch cases | Provenance checks | Executable SHA-256 |\n')
+              output.write('| --- | ---: | ---: | ---: | --- |\n')
+              for report in reports:
+                  output.write('| ' + report['build'] + ' | 461 | 268 | 11 | `' + report['native_executable_sha256'] + '` |\n')
+              output.write('\nHistorical 159-case receipts remain unchanged. Current reports are recorded separately for each build.\n')
+          DUAL_ORACLE
 
       - name: Observe pinned PyTorch indexed-accumulation boundary semantics
         run: python3 tests/pytorch_index_semantics.py build/index-semantics.json compatibility/pytorch-oracle-lock.json

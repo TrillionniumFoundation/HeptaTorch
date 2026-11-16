@@ -19,20 +19,35 @@ work and use expected-head leases when publishing a concurrent branch.
 evidence only for the exact cases and source it executed. It cannot close an
 entire subsystem or a complete upstream schema by itself.
 
-## Work in progress
+## Current implementation and next work
 
-| Workstream | Concrete next implementation | Required evidence |
+The tensor-composition source is `264e9c5c4e8ea1834724cc0d8d859952016daffe4af330a8daa7745e7a5e5233`.
+It contains 143 HIA functions, 1,783 blocks and 7,064 instructions. The default
+native build compiles two complete source units independently and resolves 1,108
+symbolic call relocations with the HIA linker. The monolithic build remains an
+independently compiled comparison. Both actual build paths pass all 461 native
+packet pairs, including 186 new pairs. Their source, compiler and executable
+identities are recorded in `validation/`.
+
+| Workstream | Implemented and locally qualified | Remaining next work |
 | --- | --- | --- |
-| Native module compilation | True external HIA declarations, borrowed buffer signatures, effects and lifetime checks, symbolic ELF relocations, separate tensor/numerical compilation units | Execute the actual linked HeptaTorch; reject mismatched symbols/signatures/effects/loans and unresolved or cyclic dependencies; classify host build checks separately from native checks |
-| Tensor composition | Native `cat` and `stack`, including variable parent lists in reverse AD | Pinned PyTorch shape/empty semantics, noncontiguous values, shared parents, version checks, repeated backward and graph reclamation |
-| Indexed accumulation | Native `scatter_add` and `index_add` with exact integer index payloads | Duplicate indices, alpha, source/index shape rules, empty/scalar cases, shared operands and reverse gradients against real pinned PyTorch |
-| Qualification | Keep the executable PyTorch oracle in `tests/pytorch_oracle.py`, preserve previous cases and tolerances, add independently derived new cases | Reproducible native compilation, full existing packet corpus, exact pinned wheel provenance, actual new hosted results and retained failures |
+| Native module compilation | True external declarations, borrowed buffer signatures, effects and lifetime checks, symbolic ELF relocations, two-unit execution and 69/204/19/18 boundary suites | General owned-resource ABI, allocation and resource results; persistent storage and whole-program resource bounds |
+| Tensor composition | Native `cat` and `stack`, variable-parent reverse AD, empty shapes, layout selection, version checks and graph reset | Complete dtype/device/layout variants, mutation/out forms and full upstream schema qualification |
+| Indexed accumulation | Native `scatter_add` and `index_add`, exact integer index payloads, duplicate accumulation, alpha rounding and reverse AD preflight | Complete dtype/device/layout variants, mutation/out forms and full upstream schema qualification |
+| Qualification | Preserve all 159 prior oracle cases and add 109 cases for a total of 268; both native build paths pass 461 packet pairs | Execute both new 268-case pinned PyTorch gates and preserve their exact observed outcomes; component success must not close the whole-project gates |
 
-The module effort must first remove the real cross-compilation-unit barrier.
-The expanded compiler profile alone does not provide module linking, large-model
-allocation or a general public resource ABI. Borrowed-only module support must
-explicitly reject unsupported owned-resource signatures and retain that remaining
-work in the full target.
+`validation/hosted-boundary-observations.json` contains actual pinned PyTorch
+observations used to establish empty, index, alpha and layout behavior. Those
+observations alone do not qualify the changed native runtime. A new hosted
+runtime result must bind the new source, executable, oracle and test inventory.
+Historical 159-case receipts keep their original identities.
+
+The borrowed module barrier is now implemented; it does not establish owned
+resource transfer, general allocation or a general public tensor object ABI.
+The next foundation work is explicit native storage ownership and allocation,
+followed by persistent execution state and dtype/layout services. Independent
+operator and AD work may continue without treating restricted packet features
+as complete upstream schema coverage.
 
 ## Dependency order
 
