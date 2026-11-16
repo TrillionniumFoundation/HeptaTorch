@@ -1,0 +1,119 @@
+{
+  "schema": "heptatorch.dtype-inherited-coordinator-adaptation.v1",
+  "original_sha256": "276b029163fc57d9f26752817562dc0da57f6dc63c81dcef174b723bcd4424ae",
+  "adapted_sha256": "e3124c82665bcab77f6f754f0465371220a75c954e89c9d361b370b3e6f65503",
+  "inverse_exact": true,
+  "edits": [
+    {
+      "before": "for name in ('parent-build','parent-package','compiler','linker','output'):",
+      "after": "for name in ('native-build','parent-package','retained-package','adapters','output'):"
+    },
+    {
+      "before": "local_package=HERE.parents[1]",
+      "after": "local_package=a.retained_package.resolve()"
+    },
+    {
+      "before": "profile=json.loads((HERE/'profile.json').read_bytes())",
+      "after": "profile=json.loads((a.native_build/'build.json').read_bytes())\n    assert profile['status']=='PASS' and profile['descriptor_bytes']==640\n    native_path=a.native_build/'tensor-dtype-dropout-session'\n    assert sha(native_path.read_bytes())==profile['native_sha256']\n    assert sha((a.native_build/'runtime.hepta').read_bytes())==profile['source_sha256']"
+    },
+    {
+      "before": "'schema':'heptatorch.retained-gradient-cold-qualification.v1'",
+      "after": "'schema':'heptatorch.dtype-inherited-command-qualification.v1'"
+    },
+    {
+      "before": "'scope':'Cold retained native rebuild and inherited commands. Actual retained12 and resource/owner gates are separately recorded.'",
+      "after": "'scope':'Existing separately compiled dtype native receipt plus inherited commands, with exact inverse tag/descriptor-stride observer adaptations. No cold build or new live Torch is claimed here.'"
+    },
+    {
+      "before": "    def run(name,script,arguments,expected_report):\n        command=",
+      "after": "    def run(name,script,arguments,expected_report):\n        replacement=a.adapters/script.name\n        if replacement.exists():\n            script=replacement\n        command="
+    },
+    {
+      "before": "        native=out/'native'\n        cold=run('cold-native-build',HERE/'build.py',[\n            '--parent-build',a.parent_build.resolve(),'--compiler',a.compiler.resolve(),'--linker',a.linker.resolve(),\n            '--output',native],native/'build.json')",
+      "after": "        native=a.native_build.resolve()\n        cold=json.loads((native/'build.json').read_bytes())"
+    },
+    {
+      "before": "binary, source = native / 'tensor-retained-session', native / 'runtime.hepta'",
+      "after": "binary, source = native / 'tensor-dtype-dropout-session', native / 'runtime.hepta'"
+    },
+    {
+      "before": "'--descriptor-bytes', '576'",
+      "after": "'--descriptor-bytes', '640'"
+    },
+    {
+      "before": "native_build_reproduced_exactly=True,",
+      "after": "native_build_reproduced_exactly=False, existing_native_build_receipt_verified=True,"
+    },
+    {
+      "before": "own_manifest_file=HERE/'package-manifest.json'",
+      "after": "own_manifest_file=local_package/'tools/retained_gradients/package-manifest.json'"
+    }
+  ],
+  "observer_adaptations": [
+    {
+      "file": "test_native_lifetimes.py",
+      "original_path": "retained-gradient-extension/handoff-01/tests/retained_gradient_regression/test_native_lifetimes.py",
+      "original_sha256": "ab79c0a6e57eaf85d26d2d16d42eb34daa6b578e1081ba02909564c584822321",
+      "adapted_sha256": "83136e03008016f38fa0da24a662c3967e77d8e91767809af2669c1fdbc69d5a",
+      "edits": [
+        {
+          "before": "HTRET001",
+          "after": "HTDTYP02",
+          "count": 1
+        },
+        {
+          "before": "HTORET01",
+          "after": "HTODTY02",
+          "count": 1
+        },
+        {
+          "before": ")*576",
+          "after": ")*640",
+          "count": 3
+        }
+      ],
+      "inverse_exact": true,
+      "all_numeric_and_lifetime_assertions_unchanged": true
+    },
+    {
+      "file": "replay_grad_clear.py",
+      "original_path": "retained-gradient-extension/handoff-01/tests/retained_gradient_regression/replay_grad_clear.py",
+      "original_sha256": "a87c381cc428ccb6d9295c99e769b3145f88ecb437367d9bd4fcfa7f1a923bf3",
+      "adapted_sha256": "7ea806ddd8b4183545bedc0920694980522cef88eef2c77e029c29d6a24ab083",
+      "edits": [
+        {
+          "before": "HTRET001",
+          "after": "HTDTYP02",
+          "count": 1
+        },
+        {
+          "before": "HTORET01",
+          "after": "HTODTY02",
+          "count": 1
+        },
+        {
+          "before": ")*576",
+          "after": ")*640",
+          "count": 1
+        }
+      ],
+      "inverse_exact": true,
+      "all_numeric_and_lifetime_assertions_unchanged": true
+    },
+    {
+      "file": "test_preserve_storage_lifetimes.py",
+      "original_path": "gradient-adam-distributions-extension/handoff-05/tests/gradient_adam_distributions_review/test_preserve_storage_lifetimes.py",
+      "original_sha256": "133de4e4a4ad05ac8132a82131a19224ba3c7e8039b8626b37cd0578b18500d5",
+      "adapted_sha256": "a613da172875489e39c45f9a186b06c7e9bed178c80c660377bc2a1e4ec9bb71",
+      "edits": [
+        {
+          "before": ") * 576",
+          "after": ") * 640",
+          "count": 1
+        }
+      ],
+      "inverse_exact": true,
+      "all_numeric_and_lifetime_assertions_unchanged": true
+    }
+  ]
+}

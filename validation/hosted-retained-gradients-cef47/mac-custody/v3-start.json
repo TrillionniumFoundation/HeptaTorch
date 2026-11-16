@@ -1,0 +1,34 @@
+{
+  "audit_recorded": true,
+  "job": {
+    "args": [
+      "-c",
+      "import sys,json,hashlib,urllib.request,urllib.parse,zipfile,io\nfrom pathlib import Path,PurePosixPath\nfrom concurrent.futures import ThreadPoolExecutor\np=json.load(sys.stdin)\nroot=Path(p['root']);root.mkdir(parents=True,exist_ok=True)\ndef save(path,raw):\n path.parent.mkdir(parents=True,exist_ok=True)\n if path.exists():\n  assert path.read_bytes()==raw,('existing artifact mismatch',str(path))\n else:\n  with path.open('xb') as f:f.write(raw)\nfor group,meta in p['metadata'].items():\n for name,raw in meta.items():save(root/group/name,raw.encode())\ndef download(a):\n path=root/a['group']/a['file_name']\n if path.exists():raw=path.read_bytes()\n else:\n  host=urllib.parse.urlparse(a['url']).hostname\n  assert host and host.endswith('.oaiusercontent.com')\n  raw=urllib.request.urlopen(a['url'],timeout=120).read()\n assert len(raw)==a['bytes'] and hashlib.sha256(raw).hexdigest()==a['sha256']\n with zipfile.ZipFile(io.BytesIO(raw)) as z:\n  assert z.testzip() is None\n  for m in z.infolist():\n   name=PurePosixPath(m.filename);assert not name.is_absolute() and '..' not in name.parts\n  members=sum(not m.is_dir() for m in z.infolist())\n save(path,raw)\n return {k:v for k,v in a.items() if k!='url'}|{'members':members}\nwith ThreadPoolExecutor(max_workers=3) as ex:rows=list(ex.map(download,p['artifacts']))\nreport={'schema':'heptatorch.pr31-official-artifact-custody.v1','status':'ORIGINAL_ARTIFACTS_PRESERVED','source_head':'cef47b8fc36e4afefad4b4c4e53625f8f62e0a57','original_metadata_bytes_preserved':True,'archives':rows,'native_executed':False,'Torch_executed':False,'hosted_admission_not_inferred':True}\nsave(root/'custody.json',(json.dumps(report,indent=2)+'\\n').encode())\nprint(json.dumps({'status':report['status'],'source_head':report['source_head'],'archives':len(rows),'bytes':sum(x['bytes']for x in rows),'path':str(root)}))\n"
+    ],
+    "created_unix_ms": 1794837897107,
+    "cwd": "/Users/qianqi/heptatorch-pr28-validation-20261116",
+    "env_keys": [],
+    "executable": "/opt/homebrew/bin/python3.14",
+    "execution_mode": "operator",
+    "host": "mac",
+    "id": "1a1e4acdf93-392-37a4",
+    "idempotency_key": "heptatorch-pr31-cef47-original-artifacts-mac-20261116-v3",
+    "launch_error": null,
+    "launch_state": "launched",
+    "remote_job_dir": "/Users/qianqi/.local/state/hepta-runtime-mac-worker/jobs/1a1e4acdf93-392-37a4",
+    "request_digest": "52079020edc78c8c3a9cbe28421d61907d76605204ef6b47903af555084516ed",
+    "request_fingerprint": 5910851507049696396,
+    "ssh_target": "hepta-mac-local",
+    "system_jobctl": false,
+    "unit": "hepta-runtime-job-1a1e4acdf93-392-37a4"
+  },
+  "launch": {
+    "backend": "detached",
+    "launcher_pid": 74385,
+    "ok": true,
+    "systemd_error": "systemd user units unavailable on this platform",
+    "unit": "hepta-runtime-job-1a1e4acdf93-392-37a4"
+  },
+  "local_record_pending": false,
+  "reused": false
+}

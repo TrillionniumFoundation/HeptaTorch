@@ -1,0 +1,87 @@
+--- executed-coordinator-cdb325ab.py
++++ qualify_native_dropout.py
+@@ -24,6 +24,7 @@
+ PARENT_IMAGE='7568c0a4ec40d82d3a0b46d1e8a27499dd96e8fe3fd15433523131a196da89b5'
+ COMPILER='b1c851a0896fa6071f800e1146c3c27d0c6cf85059e9a6281b46d42908a3f59f'
+ LINKER='aae650e8822ef0b1e74d15108ad1d0f17ec791205ed5a158ec60b709f48f0e16'
++RUNTIME_LINKER='0c5176e3aa968631ae592b887c5dc3cf1e8e3f48f73593f076e9d7965ffacfd7'
+ FLAT='c5a9c2b95a3061e080a21298f5b26000936ed9dac519690d845b0699a15744c6'
+ MANIFESTS=(
+  ('validation/native-dropout/production-handoff-manifest.json','5210dfd212d9c81bdbc00780dab0c7eef27fa5ff717223825f7004466f9e3d33',123),
+@@ -173,12 +174,19 @@
+             with tar.extractfile(member) as f:
+                 for b in iter(lambda:f.read(1024*1024),b''):h.update(b)
+             require(h.hexdigest()==pin['sha256'] and digest(relative(out,member.name))==pin['sha256'],'archive exact bytes')
++    container_hash=hashlib.sha256();container_bytes=0
++    with lzma.open(archive,'rb') as stream:
++        for block in iter(lambda:stream.read(1024*1024),b''):
++            container_hash.update(block);container_bytes+=len(block)
+     result={'schema':'heptatorch.native-dropout-fresh-raw-evidence.v1','status':'VERIFIED','source_sha256':SOURCE,'native_sha256':IMAGE,
+       'members':len(files),'uncompressed_bytes':sum(x['bytes'] for x in files.values()),'archive_sha256':digest(archive),'archive_bytes':archive.stat().st_size,
+-      'all_member_bytes_modes_sizes_verified':True,'scope':'Byte custody; this status is not suite admission.','files':files}
++      'all_member_bytes_modes_sizes_verified':True,'xz_stream_verified_through_EOF':True,
++      'decompressed_tar_bytes':container_bytes,'decompressed_tar_sha256':container_hash.hexdigest(),
++      'scope':'Byte custody; this status is not suite admission.','files':files}
+     dump(out/'evidence-manifest.json',result)
+     return {'archive':'raw-evidence.tar.xz','archive_sha256':result['archive_sha256'],'archive_bytes':result['archive_bytes'],
+-      'manifest':'evidence-manifest.json','manifest_sha256':digest(out/'evidence-manifest.json'),'members':result['members'],'all_members_verified':True}
++      'manifest':'evidence-manifest.json','manifest_sha256':digest(out/'evidence-manifest.json'),'members':result['members'],'all_members_verified':True,
++      'xz_stream_verified_through_EOF':True}
+ 
+ 
+ def main():
+@@ -187,20 +195,33 @@
+     a=p.parse_args();repo=a.repo.resolve();out=a.output.resolve();out.mkdir(parents=True,exist_ok=False)
+     parent=a.parent_build.resolve();stack=a.stack_build.resolve();custody=Custody()
+     report={'schema':'heptatorch.native-dropout-native-integration.v1','status':'RUNNING','source_sha256':SOURCE,'native_sha256':IMAGE,
+-      'producer_mode':'FRESH_COLD_REQUIRED','producer_executed_this_invocation':False,'Torch_executed_here':False,'commands':[],
++      'producer_mode':'FRESH_COLD_REQUIRED','producer_executed_this_invocation':False,'producer_completed_this_invocation':False,'Torch_executed_here':False,'commands':[],
+       'counting_boundary':'Named suites overlap and remain separately counted, not unique upstream tests or APIs.',
+       'full_pytorch_rewrite_complete':False,'pytorch_api_denominator':2590,'closed_schema_count':0,'whole_pytorch_gate':'HOLD'}
+     def save():dump(out/'report.json',report)
+     def execute(name,argv,receipt):
+         require(not receipt.exists(),('fresh child output required',name))
+         custody.bind(argv[3] if argv[1:3]==['-I','-B'] else argv[4])
+-        row={'name':name,'argv':[str(x) for x in argv],'status':'RUNNING'};report['commands'].append(row)
++        row={'name':name,'argv':[str(x) for x in argv],'status':'STARTING','launch_attempted':True,
++             'process_started':False,'process_completed':False};report['commands'].append(row)
+         dump(out/(name+'.argv.json'),row['argv']);save()
+-        with (out/(name+'.stdout')).open('wb') as so,(out/(name+'.stderr')).open('wb') as se:
+-            proc=subprocess.run(row['argv'],cwd=repo,stdout=so,stderr=se,timeout=1200)
+-        row['exit_code']=proc.returncode
+-        for suffix in ('stdout','stderr'):
+-            f=out/(name+'.'+suffix);row[suffix]={'bytes':f.stat().st_size,'sha256':digest(f)}
++        try:
++            with (out/(name+'.stdout')).open('wb') as so,(out/(name+'.stderr')).open('wb') as se:
++                proc=subprocess.Popen(row['argv'],cwd=repo,stdout=so,stderr=se)
++                row.update(status='RUNNING',process_started=True,pid=proc.pid)
++                if name=='producer13':report['producer_executed_this_invocation']=True
++                save()
++                try:proc.wait(timeout=1200)
++                except subprocess.TimeoutExpired:
++                    proc.kill();proc.wait();row.update(status='TIMEOUT',exit_code=proc.returncode)
++                    raise
++                row.update(process_completed=True,exit_code=proc.returncode)
++                if name=='producer13':report['producer_completed_this_invocation']=True
++        finally:
++            for suffix in ('stdout','stderr'):
++                f=out/(name+'.'+suffix)
++                if f.is_file():row[suffix]={'bytes':f.stat().st_size,'sha256':digest(f)}
++            save()
+         if receipt.is_file():
+             child=decode(receipt);row.update(report=str(receipt.relative_to(out)),report_sha256=digest(receipt),status=child.get('status'))
+         else:child={};row['status']='MISSING_REPORT'
+@@ -212,12 +233,12 @@
+         require(profile['source_sha256']==SOURCE and profile['native_sha256']==IMAGE,'frozen profile')
+         custody.bind(a.compiler,COMPILER);custody.bind(a.linker,LINKER);custody.bind(a.flat_compiler,FLAT)
+         require(a.compiler.resolve()==(stack/'native/stack-module-compiler').resolve() and a.linker.resolve()==(stack/'native/stack-linker-session').resolve(),'same explicit stack tools')
++        custody.bind(stack/'native/stack-linker-runtime',RUNTIME_LINKER)
+         report['parent_build']=build_identity(parent,parent_profile,custody,True)
+         producer=out/'producer'
+         execute('producer13',[sys.executable,'-I','-S','-B',repo/'tools/native_dropout/qualify.py',
+           '--parent',parent,'--repository',repo,'--upstream',a.upstream.resolve(),'--compiler',a.compiler.resolve(),
+           '--linker',a.linker.resolve(),'--flat-compiler',a.flat_compiler.resolve(),'--output',producer],producer/'report.json')
+-        report['producer_executed_this_invocation']=True
+         report['producer_admission']=producer_identity(producer,custody)
+         native=producer/'native';report['new_build']=build_identity(native,profile,custody)
+         identity=out/'actual-identity9'

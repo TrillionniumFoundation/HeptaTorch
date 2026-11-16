@@ -21,29 +21,55 @@ entire subsystem or a complete upstream schema by itself.
 
 ## Current implementation and next work
 
-The latest combined owner is now the 428-core-function public-gradient / Adam /
-CPU-distribution profile documented in
-[gradient-objects-and-composition.md](gradient-objects-and-composition.md).
-Its source is `1fed8ea7ba5bf755a9df9ca1e61d34cfd4712cc2fd66e0728493091c81c24dae`
-and executable is
-`6773485896d961b6c2e62784ebb66320290df47128bd1331aecc0c8b7f6611fe`.
-It is built from the exact 355-function public-gradient and 378-function
-Adam/distribution parents. Root cold qualification has completed the original
-16-step gradient-parent and 17-step combined runs. Each new image must also
-complete its own unchanged hosted live32/frozen35 regressions; a predecessor's
-PASS is not transferred. The 378 parent has already passed both68-step jobs and
-is merged at `e4cf7b6d3645b5a340ec3b47489ecc326e908c13`.
+The latest merged combined owner is the 446-core-function retained-gradient
+profile, source
+`666230f05cc6942470006d1f184135321d8cbc26a6c6ba0bf7e3cf9857fe515b` and ELF
+`7568c0a4ec40d82d3a0b46d1e8a27499dd96e8fe3fd15433523131a196da89b5`.
+PR #31 is merged at `e0ea769c979236b0542af4b258890726cd01a99a`. Its exact
+source tree passed both 80-step native jobs, all three 13-step observer jobs,
+its own unchanged live32/frozen35 tests and 106,570 independent offline checks.
+[Complete admission and original failure history](../validation/hosted-retained-gradients-cef47/)
+binds the source, actual jobs, original reports and six original artifact ZIPs.
 
-Immediate semantic work is retained nonleaf `retain_grad`: actual first-gradient
-contiguous materialization, out-of-place subsequent accumulation, hook timing on
-node failure, weak lifetime and Optimizer acceptance. Freeze actual pinned Torch
-observations before binding new HIA behavior. Keep the original Optimizer24
-mapping at23 qualified plus one partial until that subobservation is executed.
-The distribution18 missing dtype/mask observations, general dtype/layout and
-all other full-system requirements remain in scope. Do not close a whole gate
-for these bounded recipes. The older baseline table below describes retained
-build paths and historical milestones; current source-bound successor receipts
-take precedence for the active implementation.
+The standalone int64 lane foundation is now merged through PR #29 at
+`7e157f7b1cfa4f77e004fa118a06892f255116b0`, with the tested tree
+`51b2bf3b1d15e8662253668c0f6ee458885dd3de`. Its 33-case, 351,174-value
+dedicated gates passed actual CPython and fixed PyTorch execution, both full
+Native jobs passed eighty steps, and all eleven GitHub checks succeeded.
+Independent original-artifact reads passed 106,633 checks for each Native run;
+the PR report was separately reproduced with identical bytes. The
+[complete checkpoint and merge receipt](../validation/hosted-native-int64-2e66/)
+retain the original failures and source identities. The int8 branch
+is being integrated with this admitted main and requires its own new CI.
+
+The current separately qualified successor has 523 core functions, 11 native
+units and a 640-byte descriptor. Source
+`6ffe509afce28ff15705b4c7b269eaef8f8f89f9d8b2486d4d9fa45b6be66ef3` and ELF
+`830f0b4ef8d6ad8c6a105be56d383628b45c84e3e43905fee6812c7c52d35a51` implement
+actual one-byte bool Storage, native_dropout mask Tensor identity, immutable
+captured AD history, actual detach_ and bool logical_not_. Its cold producer
+qualifies thirteen named steps. Independent actual9, actual26, typed-owner,
+short-output and finite640 accounting checks remain distinct.
+[Successor scope and evidence](native-dropout-history.md) describes the exact
+claims and preserved failures. The integrated cold coordinator passes all six
+independent gates. Actual locked ROG execution passes its own unchanged
+live32 and complete frozen35 with exact 640-byte accounting, all eleven
+provenance checks and the original EOF/post-close Version gates. Full original
+bytes and both earlier observer failures are preserved under
+`validation/dtype-frozen35-accounting/evidence/`. The new GitHub source
+combination still requires its own actual CI and artifact admission.
+
+Complete this successor's current-tree GitHub integration before treating
+that CI gate as qualified. Finish the int8 packet kernel's new combined-tree
+byte-preserving differential CI and serial main integration. The merged int64
+lane kernel and pending int8 kernel do not implement general Tensor dispatch.
+Then extend actual Tensor dtype/promotion, layouts, operator families and
+frontends against the fixed upstream inventory. Preserve the original183
+distribution report, including its18OPEN classifications; additive replays are
+recorded separately. Full-system gates remain open until their complete native
+behavior and executable acceptance contracts are qualified. Historical baseline
+entries below identify earlier build paths; source-bound successor receipts
+take precedence for current work.
 
 The tensor-composition source is `264e9c5c4e8ea1834724cc0d8d859952016daffe4af330a8daa7745e7a5e5233`.
 It contains 143 HIA functions, 1,783 blocks and 7,064 instructions. The default

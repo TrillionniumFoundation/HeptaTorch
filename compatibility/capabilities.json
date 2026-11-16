@@ -546,7 +546,7 @@
     }
   },
   "native_retained_gradient_profile": {
-    "status": "LOCAL_SCOPED_QUALIFIED_HOSTED_PENDING",
+    "status": "HOSTED_SCOPED_QUALIFIED",
     "source_sha256": "666230f05cc6942470006d1f184135321d8cbc26a6c6ba0bf7e3cf9857fe515b",
     "executable_sha256": "7568c0a4ec40d82d3a0b46d1e8a27499dd96e8fe3fd15433523131a196da89b5",
     "functions": 446,
@@ -571,7 +571,11 @@
     "live32_and_frozen35_on_this_image": "NOT_YET_EXECUTED_AT_PACKAGE_CREATION",
     "newly_closed_full_upstream_schemas": 0,
     "full_autodiff_complete": false,
-    "full_optimizer_API_complete": false
+    "full_optimizer_API_complete": false,
+    "subsequent_hosted_qualification": "validation/hosted-retained-gradients-cef47/qualification.json",
+    "live32_and_frozen35_current_status": "PASS_SOURCE_CEF47_AFTER_ORIGINAL_PACKAGE_CREATION",
+    "source_commit": "cef47b8fc36e4afefad4b4c4e53625f8f62e0a57",
+    "merged_commit": "e0ea769c979236b0542af4b258890726cd01a99a"
   },
   "public_gradient_and_distribution_hosted_qualification": {
     "status": "PASS_FOR_RECORDED_SCOPE",
@@ -586,5 +590,67 @@
     "quick_successful_steps_per_profile": 13,
     "independent_offline_checks": 59251,
     "full_schema_parity": 0
+  },
+  "native_dropout_dtype_history_profile": {
+    "status": "LOCAL_AND_ROG_SCOPED_QUALIFIED_GITHUB_PENDING",
+    "source_sha256": "6ffe509afce28ff15705b4c7b269eaef8f8f89f9d8b2486d4d9fa45b6be66ef3",
+    "executable_sha256": "830f0b4ef8d6ad8c6a105be56d383628b45c84e3e43905fee6812c7c52d35a51",
+    "functions": 523,
+    "blocks": 6881,
+    "instructions": 25112,
+    "native_modules": 11,
+    "descriptor_bytes": 640,
+    "state_format": "HTDTYP03",
+    "backing_format": "HTODTY03",
+    "supported_dtypes": [
+      "IEEE binary32",
+      "bool: actual one-byte Storage"
+    ],
+    "native_operations": {
+      "96": "dtype and actual identity metadata",
+      "97": "typed Tensor construction",
+      "98": "typed logical raw-byte read",
+      "99": "native_dropout with actual mask Tensor",
+      "100": "typed fill",
+      "101": "actual detach_",
+      "102": "actual bool logical_not_"
+    },
+    "captured_history": "Immutable captured AD edges and actual AccumulateGrad targets; explicit strong-cycle ownership and detach_ release",
+    "source_inputs": "tools/native_dropout/package-manifest.json",
+    "protocol": "tools/native_dropout/PROTOCOL.md",
+    "producer_qualification": "validation/native-dropout/qualification.json",
+    "independent_actual9_qualification": "validation/native-dropout-identity9/qualification.json",
+    "independent_resource_qualification": "validation/dtype-resource-review/cli.json",
+    "owner_accounting_package": "validation/dtype-owner-accounting/package-manifest.json",
+    "old_183_reference_report_unchanged": true,
+    "original_native_dropout8_additive_qualification": true,
+    "full_523_live32_and_frozen35": "PASS_ACTUAL_LOCKED_ROG_REFERENCE_EXECUTION",
+    "full_generic_dtype_promotion_complete": false,
+    "full_python_surface_parity": false,
+    "newly_closed_full_upstream_schemas": 0,
+    "whole_pytorch_rewrite_complete": false,
+    "integrated_cold_qualification": {
+      "report": "validation/native-dropout/integration-final/report.json",
+      "sha256": "69887f9611db4d74218032879f302bf0afbcaf151782452ad6978c5cbb2eec67",
+      "independent_gates": 6,
+      "fresh_native_build": true
+    },
+    "full_523_reference_execution": {
+      "report": "validation/dtype-frozen35-accounting/evidence/qualification-summary.json",
+      "sha256": "07aaf151c190069aa3f384c5bbf52453b34c39df55c4e0c913bf411ffa02d226",
+      "live_cases": 32,
+      "frozen_cases": 35,
+      "frozen_frames": 6344,
+      "frozen_compared_values": 2590274,
+      "provenance_checks": 11,
+      "explicit_state_absolute_version_differences": 283,
+      "direct_parameter_absolute_version_mismatches": 0,
+      "original_EOF_and_post_close_Version_gates_executed": true,
+      "native_rebuilt_for_reference_runs": false,
+      "github_source_CI_executed": false,
+      "original_failures_preserved": true,
+      "remote_raw_members": 450,
+      "supplemental_raw_members": 328
+    }
   }
 }

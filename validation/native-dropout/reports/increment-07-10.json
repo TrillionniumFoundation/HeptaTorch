@@ -1,0 +1,44 @@
+{
+  "schema": "heptatorch.native-dropout-optimizer-member-increment.v1",
+  "status": "PASS",
+  "previous_source_sha256": "7b8f597f6734722e38679163e2aea1058ae0d04c46c876bd682a19a319f76f26",
+  "source_sha256": "5776a9d02f8dfc551361727ccb3dd35e02bee084fe05fbadf23a5f1e23c0a0ce",
+  "unchanged_functions": 515,
+  "changed_functions": [
+    {
+      "name": "optimizer_zero",
+      "before_sha256": "5a9b281ac71446938f2c41867eeeebcbe2c98e15e6b8b8de739918c32a83b9d6",
+      "after_sha256": "33992ee61cd991c863e8cb95a0586e4809b76be6408830be59d914d03a4d3dc3"
+    },
+    {
+      "name": "optimizer_audit_entry",
+      "before_sha256": "efd1a2167a42f47a956556832a24d4d53d97c2edc65e9f9abb81eab29f36e109",
+      "after_sha256": "f7a2f19b689486cbb7bdc8101e7a085534e89057cada80dff206f5d533a40809"
+    },
+    {
+      "name": "owned_adam_zero",
+      "before_sha256": "2c9be13de9d7b3b54a370108c8312c698df3c0b6b7b1afabe21e0585a0984859",
+      "after_sha256": "4c5df6c5dd89dbc5d5206bbb6b5a525695351df7bb2d320758e78da9ea670fed"
+    },
+    {
+      "name": "owned_adam_audit_entry",
+      "before_sha256": "a11369772e9290877a91449c61c9021a79fa371655e6f34e50683c719fc93e80",
+      "after_sha256": "cdb181e7691aa777cd29a706ae58294fd26fa7089209ea75da2472bae277099a"
+    }
+  ],
+  "added_functions": [
+    {
+      "name": "history_member_zero_grad",
+      "sha256": "35d19cb29c3f0904ab20b0e3d12589b0b8730d41131fc773c280ce599d1073e2"
+    },
+    {
+      "name": "history_member_zero_grad_none",
+      "sha256": "c4d85f60974eb52645bc8f387c8e40416ab291a2f35471cb8b2e7fda7916ea68"
+    }
+  ],
+  "fields_or_state_format_changed": false,
+  "constructor_71_79_admission_unchanged": true,
+  "public_zero_8_70_unchanged": true,
+  "meaning": "Creation-time differentiable-leaf/retains_grad admission remains exact; existing Optimizer members remain real F32 private Tensor roots after same-T history replacement. Private zero loops access the already-owned gradient object without re-running creation-time admission. Existing key, tensor incarnation, shape, dtype and all reference-count checks stay in place.",
+  "native_semantics_qualified_by_this_receipt": false
+}

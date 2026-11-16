@@ -1,0 +1,27 @@
+{
+  "schema": "heptatorch.bool-logical-not-authoring-increment.v1",
+  "parent_builder_sha256": "dce5a66299ee602c7a589e0c78450fa7d303c95c4dac79a9928e2226dace7373",
+  "builder_sha256": "53c3b3fdc116686bd5198d8e91cee7a93a15a710f34e5d33a5b5bbc9ab0e6a54",
+  "edits": [
+    {
+      "before": "('build_identity.py', 'identity.py'",
+      "after": "('build_logical_not.py', 'logical_not.py', 'identity.py'"
+    },
+    {
+      "before": "    admission = '''",
+      "after": "    typed_author = once(typed_author, 'if code < 96 or code > 101:', 'if code < 96 or code > 102:')\n    typed_author = once(typed_author, 'if code == 101 and (b != 0 or c != 0):',\n        'if (code == 101 or code == 102) and (b != 0 or c != 0):')\n    typed_author = once(typed_author, '                if code == 101:\\n',\n        '                if code == 102:\\n                    if bool_logical_not(w,t) != 0:\\n                        result = publish_tensor(w,t)\\n'\n        '                if code == 101:\\n')\n    patches['entry'] = once(patches['entry'], 'code >= 96 and code <= 101', 'code >= 96 and code <= 102')\n    admission = '''"
+    },
+    {
+      "before": "+ own['identity.py'].decode() + admission",
+      "after": "+ own['identity.py'].decode() + '\\n\\n' + own['logical_not.py'].decode() + admission"
+    }
+  ],
+  "inverse_exact": true,
+  "old_06_unchanged": true,
+  "new_persistent_fields": false,
+  "state_formats_unchanged": [
+    "HTDTYP03",
+    "HTODTY03"
+  ],
+  "native_executed": false
+}

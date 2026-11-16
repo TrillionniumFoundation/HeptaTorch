@@ -459,6 +459,35 @@ test-retained-gradients: gradient-adam-distributions
 	mkdir -p build/retained-gradients; cp -a --remove-destination "$$review/observed/producer/native/." build/retained-gradients/
 
 
+NATIVE_DROPOUT_INPUTS := $(wildcard tools/native_dropout/* tests/native_dropout_review/* tests/native_dropout_review/*/* tests/native_dropout_identity9/* tests/dtype_resource_review/* tests/dtype_owner_accounting/* validation/native-dropout/reference/*) tests/qualify_native_dropout.py Makefile
+
+.PHONY: native-dropout test-native-dropout
+native-dropout: build/native-dropout/build.json
+
+build/native-dropout/build.json: build/retained-gradients/build.json $(NATIVE_DROPOUT_INPUTS) | build
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.native-dropout.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	python3 -I -S -B tools/native_dropout/build.py --parent "$(CURDIR)/build/retained-gradients" \
+	  --repository "$(CURDIR)" --upstream "$(HEPTA_SOURCE_ROOT)" \
+	  --compiler "$(HEPTA_STACK_BUILD)/native/stack-module-compiler" --linker "$(HEPTA_STACK_BUILD)/native/stack-linker-session" \
+	  --output "$$tmp/native"; \
+	mkdir -p build/native-dropout; cp -a --remove-destination "$$tmp/native/." build/native-dropout/
+
+test-native-dropout: retained-gradients
+	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/.native-dropout-review.XXXXXX"); status=0; \
+	python3 -I -S -B tests/qualify_native_dropout.py --repo "$(CURDIR)" \
+	  --parent-build "$(CURDIR)/build/retained-gradients" --upstream "$(HEPTA_SOURCE_ROOT)" \
+	  --compiler "$(HEPTA_STACK_BUILD)/native/stack-module-compiler" --linker "$(HEPTA_STACK_BUILD)/native/stack-linker-session" \
+	  --flat-compiler "$$(command -v "$(HEPTA_COMPILER)")" --stack-build "$(HEPTA_STACK_BUILD)" \
+	  --output "$$review/observed" || status=$$?; \
+	if [ -f "$$review/observed/report.json" ]; then cp "$$review/observed/report.json" build/hosted-native-dropout-native.json; fi; \
+	if [ -f "$$review/observed/evidence-manifest.json" ]; then cp "$$review/observed/evidence-manifest.json" build/native-dropout-ci-raw-manifest.json; fi; \
+	if [ -f "$$review/observed/raw-evidence.tar.xz" ]; then cp "$$review/observed/raw-evidence.tar.xz" build/native-dropout-ci-raw.tar.xz; fi; \
+	test "$$status" -eq 0 || exit "$$status"; \
+	test -f build/hosted-native-dropout-native.json; \
+	test -f build/native-dropout-ci-raw-manifest.json; test -f build/native-dropout-ci-raw.tar.xz; \
+	mkdir -p build/native-dropout; cp -a --remove-destination "$$review/observed/producer/native/." build/native-dropout/
+
+
 check-compiler:
 	@compiler=$$(command -v "$(HEPTA_COMPILER)") || { echo 'Set HEPTA_COMPILER to the pinned native HIA compiler; see docs/build.md.' >&2; exit 1; }; \
 	printf '%s  %s\n' '$(COMPILER_SHA256)' "$$compiler" | sha256sum -c -
