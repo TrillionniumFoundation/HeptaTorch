@@ -139,3 +139,15 @@ Successful mathematical qualification reports `status: PARTIAL` and a separate
 `whole_pytorch_rewrite_complete: false`. The stronger fixed-backend bitwise
 target remains open. This component does not insert input-specific corrections
 to imitate the observed MKL outputs.
+
+## Executed hosted component qualification
+
+Run [43805617936](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43805617936)
+executed all 55 cases on commit `7fb3e34e833a91fc4a8d2eb0cdf5500978cde0a4`.
+The full receipt is `validation/hosted-native-f64.json`: 236,892 finite positive
+square-root inputs pass both native integer RNE checks and the strict reference
+HA bound; all eleven oracle provenance checks pass. All 4,008 mismatches are
+retained individually. The original strict oracle still exits 1 with four failing
+groups. The separate Native HIA workflow on the same commit passed all 40 steps.
+Neither the reference accuracy qualification nor the workflow success closes the
+fixed-backend bitwise gate or the complete dtype subsystem.
