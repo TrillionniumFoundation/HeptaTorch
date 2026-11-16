@@ -120,7 +120,7 @@ def main():
         result = subprocess.run([str(compiler)], input=source, capture_output=True,
                                 timeout=30, env={'PATH': ''})
         (a.output / f'compile-{generation}.stderr').write_bytes(result.stderr)
-        assert result.returncode == 0 and not result.stderr and result.stdout.startswith(b'\x7fELF')
+        assert result.returncode == 0 and not result.stderr and result.stdout.startswith(b'\x7fELF'), (result.returncode, result.stderr.decode(errors='replace'), result.stdout[:128].hex())
         images.append(result.stdout)
     assert images[0] == images[1] and (IMAGE_SHA is None or sha(images[0]) == IMAGE_SHA)
     executable = a.output / 'float8_e4m3fnuz-native'
