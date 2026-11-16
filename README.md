@@ -124,7 +124,15 @@ cmp build/train.response build/train.expected
 
 [独立默认反向组件](tools/backward_release/README.md)增加命令 57，支持成功反向后的 Saved 数据释放与显式 `retain_graph`。它会释放已消费的保存值和临时工作区，保留叶梯度及 AccumulateGrad 的存储义务；无需保存数据的图仍能重复反向。两套完整 HIA 实现之间的合法 owner 交接测试验证内部状态格式互拒、原字节不变、原实现继续执行及实际释放。
 
-该组件的原生合同通过 10 组／144 帧、14 项独立控制／207 帧和双向交接 28 帧验证。对实际固定 PyTorch 的 36 项观测，35 项匹配；命令 57 保留整帧失败回滚，因此还有 **1 项明确的部分失败副作用差异**。这一结果始终记录为 `QUALIFIED_WITH_OPEN_DIFFERENCE`，不是完整反向兼容。后继部分失败执行、梯度存在标记、首次写入和 Tensor RNG 的组合正在独立构建与验收。
+该组件的原生合同通过 10 组／144 帧、14 项独立控制／207 帧和双向交接 28 帧验证。对实际固定 PyTorch 的 36 项观测，35 项匹配；命令 57 保留整帧失败回滚，因此还有 **1 项明确的部分失败副作用差异**。这一结果始终记录为 `QUALIFIED_WITH_OPEN_DIFFERENCE`，不是完整反向兼容。[实际托管回执](validation/hosted-backward-release.json)保留来源提交、完整 47 步 CI 和逐字压缩的原始报告。
+
+## 部分反向失败、首次梯度与 Tensor RNG 组合
+
+[部分执行组件](tools/backward_partial/README.md)的命令 58 按依赖和就绪顺序执行节点，在反向运行时错误后保留已经完成的节点和帧内前缀，并跳过后缀；命令 59 读取真实梯度存在状态。[首次梯度组件](tools/gradient_materialization/README.md)区分首次赋值与已有梯度相加，并保留 gather 等归约的零初始化行为。原有 13 组逐位测试在旧版中为 4 通过／9 失败，新版用同一脚本全部通过；实际 16 组部分失败观测也全部匹配。正式资格检查重新执行旧失败并保留退出码 1。8 组梯度存在／优化器配方仍明确保留 8 项状态版本和 65 项惰性状态创建差异。
+
+[联合原生实现](tools/tensor_rng_composition/README.md)把完整首次梯度组件与 Tensor 均匀填充、独立 Generator 表放进同一个 HIA 可执行文件和真实 owner。命令 58 失败时只保留前缀的随机消费；命令 57 和普通命令错误仍整帧回滚。7 个原生单元重建得到固定映像 `cdcaebb2785639585de7fd2a4e1f98d41a56e885f1657c3485ce5f187f89d726`，原生交叉事务、增长重放、两种反向入口的训练轨迹及四种前驱状态交接均通过。接近 binary32 最大值的区间接纳按真实 PyTorch 的 binary64 减法判断，88 项实际观测逐项匹配；旧 RNG03 的严格拒绝失败与独立测试输入适配记录均保留。
+
+主审独立的 **32 组 live PyTorch 联合测试**及原样 **35 组 Tensor 回归**已接入 CI，当前仍等待这些新增托管结果。32 组测试检查参数和梯度逐位结果、绝对版本、梯度存在、实际 Storage 字节数／偏移，以及完整 5,056 字节 Generator 状态。`validation/tensor-rng-backward-oracle-preparation.json` 保持 `NOT_RUN` 的准备身份，不能当作执行通过记录。完整 Python API、其他 dtype/device、其他分布、非叶原地随机操作的完整自动微分和优化器对象生命周期仍开放。
 
 ## 跨请求持久会话
 

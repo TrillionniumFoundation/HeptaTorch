@@ -620,3 +620,50 @@ reference tests, including the preserved signed-zero failure. The lightweight
 reference workflow also observes sparse uniform interval-admission boundaries
 using the exact fixed wheel. Reference observations remain distinct from target
 execution and are not accepted as a full subsystem closure.
+
+## Partial backward and common Tensor RNG execution
+
+The following targets use the same pinned HIA source checkout and reproduced ABI3
+stack tools as the default-release foundation:
+
+```sh
+make gradient-materialization test-gradient-materialization \
+  HEPTA_SOURCE_ROOT=/path/to/pinned-hepta \
+  HEPTA_STACK_BUILD=/path/to/stack-tools
+make tensor-rng-composition test-tensor-rng-composition \
+  HEPTA_SOURCE_ROOT=/path/to/pinned-hepta \
+  HEPTA_STACK_BUILD=/path/to/stack-tools
+```
+
+`HEPTA_TENSOR_OBJECT_BASELINE` defaults to `build/tensor-objects/abi3`; it may
+point to an already reproduced, exact Tensor09 build. The dependency chain
+rebuilds release04, partial04, materialization05 and the common image. The
+standalone Tensor-RNG03 build remains separate for the real cross-profile owner
+handoff. No previously frozen producer or oracle is edited.
+
+The materialization gate requires the original partial04 signed-zero replay to
+exit 1 with its exact nine failing cases, then requires the successor to pass
+all thirteen. It also executes nineteen native partial/presence contracts,
+fourteen legacy57 controls, four independent58 controls, all sixteen actual
+partial-error recipes, eight actual presence recipes, four raw-gradient tests
+and read-only committed-owner staging checks. The eight presence recipes retain
+their eight state-Version and sixty-five lazy-state-creation differences.
+
+The common image is `build/tensor-rng-composition/native/tensor-rng-session`.
+Its frozen38-file package is bound by
+`validation/tensor-rng-composition-package.sha256`; core and final image SHA256
+are recorded in its profile and reproduction receipt. The integrated gate
+reexecutes the explicit RNG admission adaptation, exact actual88 range checks,
+entry/work bounds, three joint transaction/growth recipes, 12-step training
+through both57 and58, eight legal cross-profile owner directions and the
+unchanged thirteen/sixteen/eight gradient replays.
+
+CI additionally installs the original locked PyTorch wheel and requires the new
+independent32-case live comparison and original frozen35-case Tensor oracle on
+this same image. Their numerical assertions, original tolerances and eleven
+wheel-provenance checks remain mandatory. The standalone reference observation
+workflow does not substitute for these live differential runs.
+
+The preparation report is intentionally `NOT_RUN`; native replay reports state
+that they consume actual hosted observations rather than execute Torch locally.
+All full subsystem gates and the original2590-schema denominator remain open.

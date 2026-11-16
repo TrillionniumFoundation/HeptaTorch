@@ -11,7 +11,7 @@ permissions:
 jobs:
   native:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - name: Check out HeptaTorch
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -529,6 +529,13 @@ jobs:
             HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget"
           python3 -I -S -B tools/emit_ci_report.py build/hosted-gradient-materialization-native.json
 
+      - name: Reproduce one owner for Tensor RNG and partial backward execution
+        run: |
+          make tensor-rng-composition test-tensor-rng-composition \
+            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
+            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget"
+          python3 -I -S -B tools/emit_ci_report.py build/hosted-tensor-rng-composition-native.json
+
       - name: Reproduce and qualify persistent native CPU Generator objects
         run: |
           make cpu-generators test-cpu-generators \
@@ -561,6 +568,19 @@ jobs:
                           '--index-url', 'https://download.pytorch.org/whl/cpu',
                           '--report', str(report), wheel], check=True)
           PYTORCH_INSTALL
+
+      - name: Compare combined Tensor RNG backward and SGD against live PyTorch (32 cases)
+        run: |
+          echo '554671168c7a4a408dc1e1df89a19db15c3efcefcf4ae1a300af1b6dcae40160  tests/pytorch_tensor_rng_backward_oracle.py' | sha256sum -c -
+          status=0
+          python3 tests/pytorch_tensor_rng_backward_oracle.py \
+            --native build/tensor-rng-composition/native/tensor-rng-session \
+            --source build/tensor-rng-composition/native/runtime.hepta \
+            --expected-native-sha256 cdcaebb2785639585de7fd2a4e1f98d41a56e885f1657c3485ce5f187f89d726 \
+            --expected-source-sha256 7447c169d3b2cad1e55cb7b1b8970d67f4103c5866f6db0a60c0b4d05d02cc0b \
+            --repo . --output build/pytorch-tensor-rng-backward.json > build/pytorch-tensor-rng-backward.stdout || status=$?
+          python3 -I -S -B tools/emit_ci_report.py build/pytorch-tensor-rng-backward.json
+          exit "$status"
 
       - name: Compare persistent CPU Generators with fixed real PyTorch (24 cases)
         run: |
@@ -710,5 +730,17 @@ jobs:
             --lock compatibility/pytorch-oracle-lock.json --repo . \
             --expected-native-sha256 2b39ff1a5a258c5fae7be1fbca5dcf0764787b43fa72ad8fdc3ab6fd119e2a91 || status=$?
           python3 -I -S -B tools/emit_ci_report.py build/pytorch-tensor-objects-abi3.json
+          exit "$status"
+
+      - name: Regress combined Tensor RNG image against the unchanged 35 Tensor cases
+        run: |
+          status=0
+          python3 tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py \
+            build/tensor-rng-composition/native/tensor-rng-session build/pytorch-tensor-rng-frozen35.json \
+            --owned-reference tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py \
+            --session-reference tests/pytorch_session_oracle.py --reference tests/pytorch_oracle.py \
+            --lock compatibility/pytorch-oracle-lock.json --repo . \
+            --expected-native-sha256 cdcaebb2785639585de7fd2a4e1f98d41a56e885f1657c3485ce5f187f89d726 || status=$?
+          python3 -I -S -B tools/emit_ci_report.py build/pytorch-tensor-rng-frozen35.json
           exit "$status"
 
