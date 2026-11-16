@@ -64,6 +64,12 @@ cmp build/train.response build/train.expected
 
 [实际托管独立资格](validation/hosted-native-f64.json)重新执行完整 55 项语料，保留非 sqrt 的全部精确断言和原报告的逐流哈希，并对 236,892 个有限正 sqrt 输入使用两种精确整数方法检查 HIA 最近偶数舍入，同时验证固定 MKL 参考的严格小于 1 ULP 误差界。本轮两类错误计数均为零，11 项参考来源检查全部通过。结果明确记录 **PARTIAL／组件资格 PASS**，原版严格门禁的实际退出码仍为 1，完整 dtype 门禁和固定后端逐位兼容仍开放；Tensor dtype、提升规则和设备路径尚未接入。
 
+## 原生 CPU 随机数基础
+
+[HIA MT19937 与均匀变换](tools/rng-cpu/README.md)实现完整 5,056 字节 CPU RNG 状态、seed、raw32/raw64、binary32/binary64/half/bfloat16 的单位区间值、int64 半开区间及 discard。生成、状态规范化、消费计数和数值变换全部由原生 HIA 执行。原始 MT19937 与固定 PyTorch 源码及许可声明均保留。
+
+本地独立参考资格已通过 **74 项／110 次原生调用／718,619 个精确值／434,816 字节完整状态比较**，另有 **35 项独立原生边界检查**通过。短输出缓冲区的实际失败及修复复测原样保留；原有 74 项请求和响应结果未变。[实际托管 PyTorch 对照](validation/hosted-native-rng.json)已通过 **76 项／114 次原生调用／719,337 个精确值／455,040 字节状态比较／11 项来源检查**。持久 Generator、默认全局状态、Tensor 填充、normal/dropout 等其他分布、并发和加速设备仍待实现。
+
 ## 原生资源所有权
 
 独立的 ABI2 工具链支持 `buffer`／`chain` 在线性调用中消费、返回和释放，允许最多三个标量／owner 返回值，并由 HIA 原生程序执行接口接纳与链接。分配和回收直接调用 Linux `mmap`／`munmap`；零长度、溢出、真实分配失败、借用未结束时的移动／释放，以及错误效果声明都有明确检查。源码、接口和分配合同见 [owned 模块说明](tools/owned_modules/CONTRACT.md)。
