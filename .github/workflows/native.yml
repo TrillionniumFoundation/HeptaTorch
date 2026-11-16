@@ -432,6 +432,31 @@ jobs:
             --review "$RUNNER_TEMP/hepta-session-review" \
             --output build/hosted-persistent-session-native.json
 
+      - name: Reproduce the owned-resource ABI2 compiler and native syscall allocator
+        shell: bash
+        run: |
+          sha256sum -c validation/owned-module-package.sha256
+          python3 -I -S -B tools/owned_modules/rebuild.py \
+            --source-root "$GITHUB_WORKSPACE/.toolchain/hepta" \
+            --capacity-adaptation "$RUNNER_TEMP/hepta-profile-sources/adaptation.json" \
+            --borrowed-tools "$RUNNER_TEMP/hepta-modules-native" \
+            --output "$RUNNER_TEMP/hepta-owned-modules"
+
+      - name: Qualify native owner transfer, release, refusal and runtime equivalence
+        shell: bash
+        run: |
+          python3 -I -S -B tools/owned_modules/qualify.py \
+            --build "$RUNNER_TEMP/hepta-owned-modules" \
+            --source-root "$GITHUB_WORKSPACE/.toolchain/hepta" \
+            --borrowed-tools "$RUNNER_TEMP/hepta-modules-native" \
+            --baseline-compiler "$RUNNER_TEMP/hepta-expanded/hia-native-compiler" \
+            --repo-root "$GITHUB_WORKSPACE" \
+            --output "$RUNNER_TEMP/hepta-owned-review"
+          python3 -I -S -B tests/check_owned_module_reports.py \
+            --build "$RUNNER_TEMP/hepta-owned-modules" \
+            --review "$RUNNER_TEMP/hepta-owned-review" \
+            --output build/hosted-owned-module-gates.json
+
       - name: Install the independent pinned PyTorch CPU oracle
         shell: bash
         run: |

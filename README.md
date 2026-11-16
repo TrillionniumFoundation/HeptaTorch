@@ -19,7 +19,7 @@ HIA 原生张量、自动微分和神经网络训练运行时。核心实现由 
 | 优化器 | SGD、momentum、Nesterov、Adam、AdamW；显式状态张量与版本失效检查 |
 | 训练生命周期 | 保留参数／状态的图回收、工作区复用、带代际信息的张量 ID、旧句柄拒绝；可选持久会话支持跨帧训练及完整帧失败回滚 |
 | 执行接口 | 有边界检查的二进制命令协议、明确错误状态、原生 HIA 十六进制解码工具，以及逐帧读写的原生持久会话 |
-| 原生模块 | 同一编译器配置下的借用缓冲区模块编译、签名／效果检查和 HIA 静态链接；通用资源所有权 ABI 仍未完成 |
+| 原生模块 | 独立借用 ABI1 与 owned ABI2 配置；原生签名／效果／线性所有权检查、buffer/chain 资源传递和 HIA 静态链接；通用张量对象 ABI 仍未完成 |
 
 本次实现使用软件浮点算术。运行时无 Python、PyTorch、NumPy、libm 或 libc 依赖。HIA 编译器的初始 bootstrap 使用其上游 Python 实现和 GNU ld，随后由 HIA 编译器自行重建；构建与运行依赖见 [构建说明](docs/build.md)。
 
@@ -57,6 +57,14 @@ cmp build/train.response build/train.expected
 ```
 
 命令流最小化平方损失，每一步执行前向、反向、参数更新和图回收。参数保持原 ID，临时图复用描述符与工作区。原有的两层 ReLU／18 步 Adam 训练夹具也保留在回归集中。
+
+## 原生资源所有权
+
+独立的 ABI2 工具链支持 `buffer`／`chain` 在线性调用中消费、返回和释放，允许最多三个标量／owner 返回值，并由 HIA 原生程序执行接口接纳与链接。分配和回收直接调用 Linux `mmap`／`munmap`；零长度、溢出、真实分配失败、借用未结束时的移动／释放，以及错误效果声明都有明确检查。源码、接口和分配合同见 [owned 模块说明](tools/owned_modules/CONTRACT.md)。
+
+该编译器自身有 8,229 条指令，通过两个合法编译单元完成原生重建，保留单元容量限制和全部既有 ownership checker。三代 ABI2 重建字节一致；正式源码重新构建与 **385 项**原生资格检查通过，并为当前完整 runtime 和 unhex 生成与已有构建逐字相同的映像。[资格证据](validation/native-owned-modules.json)包含 315 项接口攻击、资源生命周期和独立跨模块执行。托管 CI 对这一配置另行运行重建与资格门禁。
+
+这是原生所有权基础。当前张量内核和 borrowed 持久会话仍使用有界 arena；可增长 Tensor／Storage／Version 对象、强弱引用和 owned 交互入口需要继续集成。此处不把复制 owner 的两个机器字解释为合法所有权复制，也不接纳任意外部指针。
 
 ## 跨请求持久会话
 
@@ -98,7 +106,7 @@ make session session-monolithic test-session test-session-monolithic \
 
 本轮在此前矩阵、VJP、图回收和 Adam 舍入修正基础上，实现了 cat/stack 与 scatter_add/index_add，并修复通用空张量的连续步长和晚出现零维度的形状接纳。cat 的 channels-last 是实际存储布局；index_add 的 alpha 舍入按已测固定 CPU 路径区分 rank 0/1 和更高 rank，不代表所有 ISA 都采用同一路径。具体行为见 [协议](docs/protocol.md)与 [数值说明](docs/numerics.md)。
 
-当前权威源码使用 143／256 个函数名额、1,783／2,560 个基本块及 7,064／8,192 条指令。已运行的借用缓冲区模块桥接推进了独立原生编译与链接；通用 owned resource、资源返回值、分配所有权、可增长存储、任意外部 ABI 和规模化生命周期仍需实现和验收。会话当前仅保存有界 arena 状态，不持有 arena 外部的 heap owner。具体证据及完整目标见 [审计更新](docs/upstream-audit.md#tensor-composition-and-indexed-addition-audit)。
+当前权威源码使用 143／256 个函数名额、1,783／2,560 个基本块及 7,064／8,192 条指令。已运行的借用缓冲区模块桥接推进了独立原生编译与链接；独立 owned ABI2 已实现资源传递、返回及原生 syscall 分配；可增长张量存储、任意外部 ABI 和规模化对象生命周期仍需实现和验收。会话当前仅保存有界 arena 状态，不持有 arena 外部的 heap owner。具体证据及完整目标见 [审计更新](docs/upstream-audit.md#tensor-composition-and-indexed-addition-audit)。
 
 完整目标尚包括：完整 dtype/layout/promotion 语义、其余算子及重载、高阶和前向自动微分、CUDA/ROCm/MPS/XPU、分布式、图捕获与编译优化、数据加载、RNG、完整 checkpoint/serialization、Python/C++ 前端兼容和跨平台构建。[上游审计](docs/upstream-audit.md)列出这些目标的验收条件。
 

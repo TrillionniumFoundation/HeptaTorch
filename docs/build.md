@@ -304,3 +304,25 @@ exercises both sessions. It separately compares each image with 21 real pinned
 PyTorch cross-frame cases. The existing 270-case ordinary-request gate and 461
 fixture pairs remain required. Native source and pre/post producer hashes bind
 each build; no Python or upstream tensor runtime executes production requests.
+
+## Reproducing the owned-resource ABI2 profile
+
+Run the ordinary `make all monolithic` build first. The owned qualification
+compares its actual linked output against `build/heptatorch` and its ordinary
+output against the corresponding pinned binaries; a fresh checkout without
+those artifacts cannot perform that comparison.
+
+[tools/owned_modules/README.md](../tools/owned_modules/README.md) supplies the
+exact `rebuild.py` and `qualify.py` commands. Use the existing fixed upstream
+checkout, capacity adaptation receipt and borrowed native tool directory.
+Each output directory must be new. The compiler is split into two legal units,
+then bootstrap ABI1 and three ABI2 generations are compiled and linked by native
+HIA. The 1 MiB application startup and 2 MiB compiler startup are separately
+pinned. `tests/check_owned_module_reports.py` binds the 385-case campaign, full
+source partition and current runtime byte equality to the original receipts.
+
+CI runs this owned profile after the ordinary runtime exists. It keeps the
+existing borrowed toolchain pins and both ordinary and interactive PyTorch
+oracle gates. The public entry of this owned-module profile remains the
+three-borrowed-buffer entry; an owned persistent-state entry needs a separate
+bridge and qualification.
