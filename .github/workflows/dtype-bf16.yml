@@ -60,9 +60,11 @@ jobs:
         run: |
           python3 - <<'PY'
           import json,platform,subprocess,sys
+          from pathlib import Path
           x=json.load(open('compatibility/pytorch-oracle-lock.json'))['oracle']
           assert list(sys.version_info[:2])==x['python']['version'] and platform.machine()=='x86_64'
           url=x['wheel']['url']+'#sha256='+x['wheel']['sha256']
+          Path(x['install_report']).parent.mkdir(parents=True,exist_ok=True)
           subprocess.run([sys.executable,'-m','pip','install','--disable-pip-version-check','--force-reinstall',
              '--index-url','https://download.pytorch.org/whl/cpu','--report',x['install_report'],url],check=True)
           PY

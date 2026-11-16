@@ -5,15 +5,15 @@ block b0(v0:readbuf,v1:mutbuf,v2:mutbuf)
   v4:u64 = int.cast(v3) {"mode":"wrap"}
   v5:u64 = const() {"value":8}
   v6:bool = compare.lt(v4,v5)
-  branch v6 b_bad(v1) b_header(v0,v1,v4)
-block b_bad(v7:mutbuf)
+  branch v6 b1(v1) b2(v0,v1,v4)
+block b1(v7:mutbuf)
   v8:u64 = const() {"value":0}
   v9:u64 = const() {"value":1}
   v10:u64 = call(v7,v8,v9) {"function":"put4"}
   v11:u64 = const() {"value":4}
   v12:u32 = int.cast(v11) {"mode":"wrap"}
   ret(v12)
-block b_header(v13:readbuf,v14:mutbuf,v15:u64)
+block b2(v13:readbuf,v14:mutbuf,v15:u64)
   v16:u64 = const() {"value":0}
   v17:u64 = const() {"value":4}
   v18:u64 = call(v13,v16) {"function":"load4"}
@@ -23,12 +23,12 @@ block b_header(v13:readbuf,v14:mutbuf,v15:u64)
   v22:u64 = const() {"value":1}
   v23:bool = compare.gt(v18,v22)
   v24:bool = bool.or(v21,v23)
-  branch v24 b_bad(v14) b_dispatch(v13,v14,v15,v19,v18)
-block b_dispatch(v25:readbuf,v26:mutbuf,v27:u64,v28:u64,v29:u64)
+  branch v24 b1(v14) b3(v13,v14,v15,v19,v18)
+block b3(v25:readbuf,v26:mutbuf,v27:u64,v28:u64,v29:u64)
   v30:u64 = const() {"value":0}
   v31:bool = compare.eq(v29,v30)
-  branch v31 b_forward_check(v25,v26,v27,v28) b_reverse_check(v25,v26,v27,v28)
-block b_forward_check(v32:readbuf,v33:mutbuf,v34:u64,v35:u64)
+  branch v31 b4(v25,v26,v27,v28) b8(v25,v26,v27,v28)
+block b4(v32:readbuf,v33:mutbuf,v34:u64,v35:u64)
   v36:u64 = const() {"value":4}
   v37:u64 = const() {"value":2}
   v38:u64 = const() {"value":8}
@@ -42,15 +42,15 @@ block b_forward_check(v32:readbuf,v33:mutbuf,v34:u64,v35:u64)
   v46:bool = compare.ne(v34,v41)
   v47:bool = compare.gt(v43,v45)
   v48:bool = bool.or(v46,v47)
-  branch v48 b_bad(v33) b_forward_init(v32,v33,v35,v43)
-block b_forward_init(v49:readbuf,v50:mutbuf,v51:u64,v52:u64)
+  branch v48 b1(v33) b5(v32,v33,v35,v43)
+block b5(v49:readbuf,v50:mutbuf,v51:u64,v52:u64)
   v53:u64 = const() {"value":0}
   v54:u64 = call(v50,v53,v53) {"function":"put4"}
-  jump b_forward_loop(v49,v50,v51,v53,v52)
-block b_forward_loop(v55:readbuf,v56:mutbuf,v57:u64,v58:u64,v59:u64)
+  jump b6(v49,v50,v51,v53,v52)
+block b6(v55:readbuf,v56:mutbuf,v57:u64,v58:u64,v59:u64)
   v60:bool = compare.lt(v58,v57)
-  branch v60 b_forward_body(v55,v56,v57,v58,v59) b_done(v59)
-block b_forward_body(v61:readbuf,v62:mutbuf,v63:u64,v64:u64,v65:u64)
+  branch v60 b7(v55,v56,v57,v58,v59) b12(v59)
+block b7(v61:readbuf,v62:mutbuf,v63:u64,v64:u64,v65:u64)
   v66:u64 = const() {"value":8}
   v67:u64 = const() {"value":4}
   v68:u64 = int.mul.wrap(v64,v67)
@@ -64,8 +64,8 @@ block b_forward_body(v61:readbuf,v62:mutbuf,v63:u64,v64:u64,v65:u64)
   v76:u64 = call(v62,v75,v71) {"function":"put2"}
   v77:u64 = const() {"value":1}
   v78:u64 = int.add.wrap(v64,v77)
-  jump b_forward_loop(v61,v62,v63,v78,v65)
-block b_reverse_check(v79:readbuf,v80:mutbuf,v81:u64,v82:u64)
+  jump b6(v61,v62,v63,v78,v65)
+block b8(v79:readbuf,v80:mutbuf,v81:u64,v82:u64)
   v83:u64 = const() {"value":2}
   v84:u64 = const() {"value":4}
   v85:u64 = const() {"value":8}
@@ -79,15 +79,15 @@ block b_reverse_check(v79:readbuf,v80:mutbuf,v81:u64,v82:u64)
   v93:bool = compare.ne(v81,v88)
   v94:bool = compare.gt(v90,v92)
   v95:bool = bool.or(v93,v94)
-  branch v95 b_bad(v80) b_reverse_init(v79,v80,v82,v90)
-block b_reverse_init(v96:readbuf,v97:mutbuf,v98:u64,v99:u64)
+  branch v95 b1(v80) b9(v79,v80,v82,v90)
+block b9(v96:readbuf,v97:mutbuf,v98:u64,v99:u64)
   v100:u64 = const() {"value":0}
   v101:u64 = call(v97,v100,v100) {"function":"put4"}
-  jump b_reverse_loop(v96,v97,v98,v100,v99)
-block b_reverse_loop(v102:readbuf,v103:mutbuf,v104:u64,v105:u64,v106:u64)
+  jump b10(v96,v97,v98,v100,v99)
+block b10(v102:readbuf,v103:mutbuf,v104:u64,v105:u64,v106:u64)
   v107:bool = compare.lt(v105,v104)
-  branch v107 b_reverse_body(v102,v103,v104,v105,v106) b_done(v106)
-block b_reverse_body(v108:readbuf,v109:mutbuf,v110:u64,v111:u64,v112:u64)
+  branch v107 b11(v102,v103,v104,v105,v106) b12(v106)
+block b11(v108:readbuf,v109:mutbuf,v110:u64,v111:u64,v112:u64)
   v113:u64 = const() {"value":8}
   v114:u64 = const() {"value":2}
   v115:u64 = int.mul.wrap(v111,v114)
@@ -102,8 +102,8 @@ block b_reverse_body(v108:readbuf,v109:mutbuf,v110:u64,v111:u64,v112:u64)
   v124:u64 = call(v109,v123,v119) {"function":"put4"}
   v125:u64 = const() {"value":1}
   v126:u64 = int.add.wrap(v111,v125)
-  jump b_reverse_loop(v108,v109,v110,v126,v112)
-block b_done(v127:u64)
+  jump b10(v108,v109,v110,v126,v112)
+block b12(v127:u64)
   v128:u32 = int.cast(v127) {"mode":"wrap"}
   ret(v128)
 end
