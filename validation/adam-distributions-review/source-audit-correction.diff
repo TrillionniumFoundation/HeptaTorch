@@ -1,0 +1,14 @@
+--- first/source_audit.py
++++ final/source_audit.py
+@@ -62,8 +62,9 @@
+         b'fn partial_apply_node_adam(', b'fn partial_apply_node(', 1
+     ) == before['partial_apply_node']
+     assert now['gradient_direct'] == dist['gradient_direct']
+-    assert before['gradient_direct'].count(b'{"value":40}') == 1
+-    assert before['gradient_direct'].replace(b'{"value":40}', b'{"value":41}') == now['gradient_direct']
++    bound = b'  v115:u64 = const() {"value":40}\n'
++    assert before['gradient_direct'].count(bound) == 1
++    assert before['gradient_direct'].replace(bound, bound.replace(b':40}', b':41}')) == now['gradient_direct']
+     for name in tags:
+         old, new = ((b'HTADAM01', b'HTADIST1') if name in ('init_state', 'state_header')
+                     else (b'HTOADAM1', b'HTOADIS1'))

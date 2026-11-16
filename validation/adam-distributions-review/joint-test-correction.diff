@@ -1,0 +1,14 @@
+--- first/executed-test.py
++++ final/executed-test.py
+@@ -442,7 +442,10 @@
+             eq(one(s, 59, p)['value'], 0, 'actual gradient cleared to None before next draw')
+             noise = rng.dropout_half(4)
+             root = one(s, 83, p, g, 0x3fe0000000000000, 1, 0)['value']
+-            check_words(s, root, [x * n for x, n in zip(expected, noise)])
++            # Fractions intentionally have no signed zero. IEEE multiplication
++            # must preserve the sign of a negative parameter times a zero mask.
++            # These dyadic products are exact in binary64 before encoding f32.
++            check_words(s, root, [float(x) * n for x, n in zip(expected, noise)])
+             seed_id = s.run([wire.full((4,), 1)])[0]['value']
+             one(s, 57, root, seed_id, 0)
+             check_words(s, p, noise, gradient=True)

@@ -1,0 +1,287 @@
+{
+  "schema": "heptatorch.adam-distributions.independent-joint-contracts.v1",
+  "status": "PASS",
+  "runtime_source_sha256": "5d3a3c047d024a3880d257a317a04c2166a2e87bbc6b248bef62649a88546873",
+  "executable_sha256": "3fc59ab7ed9c32dd75ff440ef9bfbec31756f50edd77715d665bdac098cc3f22",
+  "native_executed": true,
+  "Torch_executed_here": false,
+  "host_numerics_are_test_oracles_only": true,
+  "whole_PyTorch_complete": false,
+  "frozen_references": {
+    "distribution_183": "c624f5c4762b1c71e7053aba9af55aaa3d8bbaae5aa100b0a6df5f44f58da467",
+    "optimizer_24": "7ad0a2e718300a33c91a9212f14ada3c0c7997be7fc77f64bb557c2ecd858160"
+  },
+  "qualification_unit": "new finite cross-feature native contracts, not new APIs or new hosted Torch cases",
+  "independent_MT_calibration_against_actual_Torch": [
+    {
+      "actual_case": "scalar-consumption-n0-p0.0",
+      "raw32_draws": 0,
+      "state_before_sha256": "d3df52183c5b2249058c501891d619493a6cc1cdb9454019398092ea4dcada26",
+      "state_after_sha256": "d3df52183c5b2249058c501891d619493a6cc1cdb9454019398092ea4dcada26"
+    },
+    {
+      "actual_case": "scalar-consumption-n1-p0.0",
+      "raw32_draws": 2,
+      "state_before_sha256": "d3df52183c5b2249058c501891d619493a6cc1cdb9454019398092ea4dcada26",
+      "state_after_sha256": "6c12cd021ea6bbc08f1ac14c10a49f367f8f193e70a96f66d595273cc81c3e99"
+    },
+    {
+      "actual_case": "tensor-consumption-n1-torch.float32",
+      "raw32_draws": 1,
+      "state_before_sha256": "d3df52183c5b2249058c501891d619493a6cc1cdb9454019398092ea4dcada26",
+      "state_after_sha256": "4b11356e5bbb42998ec3923baf81afb5d9688cc7918d10d4f5e90ecb4ebc7f81"
+    },
+    {
+      "actual_case": "scalar-consumption-n2-p0.0",
+      "raw32_draws": 4,
+      "state_before_sha256": "d3df52183c5b2249058c501891d619493a6cc1cdb9454019398092ea4dcada26",
+      "state_after_sha256": "a6e0e695f3ec1474e1a73e1947c2a7db0b27905d2429097a4e1a241a4d88ab9d"
+    },
+    {
+      "actual_case": "scalar-consumption-n7-p0.0",
+      "raw32_draws": 14,
+      "state_before_sha256": "d3df52183c5b2249058c501891d619493a6cc1cdb9454019398092ea4dcada26",
+      "state_after_sha256": "a08daa6e0a7a0240a628af0e89497667588f36b554163d6c3ae2b4cc29d04f10"
+    }
+  ],
+  "cases": [
+    {
+      "name": "op41-private-optimizer-and-accumulator-roots",
+      "status": "PASS",
+      "frames": 63,
+      "exact_assertions": 43,
+      "exact_float32_words": 15,
+      "complete_MT_state_comparisons": 3,
+      "complete_MT_bytes_compared": 15168,
+      "rollback_bytes_compared": 1223232,
+      "rollbacks": [
+        {
+          "status": 1,
+          "owner_bytes": 305808,
+          "before_sha256": "8fd93f7b084ae37ffc08f579e29b3639a37defeefbc17fdaf0e65e3a0334a302",
+          "after_sha256": "8fd93f7b084ae37ffc08f579e29b3639a37defeefbc17fdaf0e65e3a0334a302",
+          "pointer_and_length_unchanged": true
+        },
+        {
+          "status": 1,
+          "owner_bytes": 305808,
+          "before_sha256": "6afae35214bb7b67e214782901c4453a97922d0d94679751e012b725da772b92",
+          "after_sha256": "6afae35214bb7b67e214782901c4453a97922d0d94679751e012b725da772b92",
+          "pointer_and_length_unchanged": true
+        },
+        {
+          "status": 6,
+          "owner_bytes": 305808,
+          "before_sha256": "e266ec923ff52ea6ab65b0bb9ab48ff1eeb59324ef069e9e22c71dfc03405b69",
+          "after_sha256": "e266ec923ff52ea6ab65b0bb9ab48ff1eeb59324ef069e9e22c71dfc03405b69",
+          "pointer_and_length_unchanged": true
+        },
+        {
+          "status": 6,
+          "owner_bytes": 305808,
+          "before_sha256": "07fb3831fdd5546558c3d46d203348181d3d9dd289834d69ab287a60ae9b15a7",
+          "after_sha256": "07fb3831fdd5546558c3d46d203348181d3d9dd289834d69ab287a60ae9b15a7",
+          "pointer_and_length_unchanged": true
+        }
+      ],
+      "contract": {
+        "op41_has_no_Saved_probability_dependency": true,
+        "nonfinite_incoming_still_positive_zero_gradient": true,
+        "private_optimizer_and_AccumulateGrad_roots_are_independent": true,
+        "graph_reset_revokes_public_tokens_preserving_real_private_T_S_V": true
+      }
+    },
+    {
+      "name": "dropout-Saved-noise-and-real-state-alias-lifetimes",
+      "status": "PASS",
+      "frames": 53,
+      "exact_assertions": 35,
+      "exact_float32_words": 14,
+      "complete_MT_state_comparisons": 2,
+      "complete_MT_bytes_compared": 10112,
+      "rollback_bytes_compared": 1223232,
+      "rollbacks": [
+        {
+          "status": 6,
+          "owner_bytes": 305808,
+          "before_sha256": "5289f5ab737446fc2accf2e6d68e15a7ffe19efb40140a8918305ec9253a65c3",
+          "after_sha256": "5289f5ab737446fc2accf2e6d68e15a7ffe19efb40140a8918305ec9253a65c3",
+          "pointer_and_length_unchanged": true
+        },
+        {
+          "status": 6,
+          "owner_bytes": 305808,
+          "before_sha256": "e597d1c8ea785a138f277e191a461fd09d22e9ae4ad36b5b62ceca850c2ad183",
+          "after_sha256": "e597d1c8ea785a138f277e191a461fd09d22e9ae4ad36b5b62ceca850c2ad183",
+          "pointer_and_length_unchanged": true
+        },
+        {
+          "status": 6,
+          "owner_bytes": 305808,
+          "before_sha256": "c2605803d720be99a1afb5e45500ca13d1b934950a11e88703d7458113220f82",
+          "after_sha256": "c2605803d720be99a1afb5e45500ca13d1b934950a11e88703d7458113220f82",
+          "pointer_and_length_unchanged": true
+        },
+        {
+          "status": 6,
+          "owner_bytes": 305808,
+          "before_sha256": "58e4f55257459ce1e75ccf31047e7f00c1e6462faa8eaae8c9417b00d454d09f",
+          "after_sha256": "58e4f55257459ce1e75ccf31047e7f00c1e6462faa8eaae8c9417b00d454d09f",
+          "pointer_and_length_unchanged": true
+        }
+      ],
+      "contract": {
+        "dropout_noise_saved_alias_and_Adam_state_have_independent_S_V": true,
+        "public_Saved_survives_graph_reset_and_optimizer_drop": true,
+        "state_alias_and_stale_Saved_retain_actual_payload_until_last_release": true
+      }
+    },
+    {
+      "name": "Adam-step-then86-state-write-prefix-and-rollback",
+      "status": "PASS",
+      "frames": 39,
+      "exact_assertions": 39,
+      "exact_float32_words": 22,
+      "complete_MT_state_comparisons": 3,
+      "complete_MT_bytes_compared": 15168,
+      "rollback_bytes_compared": 1223232,
+      "rollbacks": [
+        {
+          "status": 6,
+          "owner_bytes": 305808,
+          "before_sha256": "b3b9840a2e54cf3d6762e77eb8c853d816d4cd6a23881c932f80212f4976a648",
+          "after_sha256": "b3b9840a2e54cf3d6762e77eb8c853d816d4cd6a23881c932f80212f4976a648",
+          "pointer_and_length_unchanged": true
+        },
+        {
+          "status": 7,
+          "owner_bytes": 305808,
+          "before_sha256": "b3b9840a2e54cf3d6762e77eb8c853d816d4cd6a23881c932f80212f4976a648",
+          "after_sha256": "b3b9840a2e54cf3d6762e77eb8c853d816d4cd6a23881c932f80212f4976a648",
+          "pointer_and_length_unchanged": true
+        },
+        {
+          "status": 4,
+          "owner_bytes": 305808,
+          "before_sha256": "5c04c288b38522ba1d7f6a1798e9c1de57ba12085eef4872f3446b178484ba4b",
+          "after_sha256": "5c04c288b38522ba1d7f6a1798e9c1de57ba12085eef4872f3446b178484ba4b",
+          "pointer_and_length_unchanged": true
+        },
+        {
+          "status": 6,
+          "owner_bytes": 305808,
+          "before_sha256": "614ad7c896cdc3ae0d9257664da12fea9300bd558f696a7c0dc6750019205cda",
+          "after_sha256": "614ad7c896cdc3ae0d9257664da12fea9300bd558f696a7c0dc6750019205cda",
+          "pointer_and_length_unchanged": true
+        }
+      ],
+      "contract": {
+        "Adam72_and_actual_state_Tensor_prefix_writes_committed": true,
+        "suffix_step_mutation_and_Optimizer_drop_stopped": true,
+        "ordinary_admission_and_post_success_errors_restore_entire_owner": true,
+        "Saved_sees_changed_values_without_unperformed_Version_bump": true
+      }
+    },
+    {
+      "name": "AdamW-step-then87-leaf-and-state-view-errors",
+      "status": "PASS",
+      "frames": 57,
+      "exact_assertions": 47,
+      "exact_float32_words": 22,
+      "complete_MT_state_comparisons": 4,
+      "complete_MT_bytes_compared": 20224,
+      "rollback_bytes_compared": 611616,
+      "rollbacks": [
+        {
+          "status": 6,
+          "owner_bytes": 305808,
+          "before_sha256": "fe7d2a06527a6b012c93aca5350af4c0ae93bf992d4b563574285c6f8a808bc5",
+          "after_sha256": "fe7d2a06527a6b012c93aca5350af4c0ae93bf992d4b563574285c6f8a808bc5",
+          "pointer_and_length_unchanged": true
+        },
+        {
+          "status": 4,
+          "owner_bytes": 305808,
+          "before_sha256": "145662bf695667050fdf8f244314b73781f1f73c1c494ea0d81b741294a68f86",
+          "after_sha256": "145662bf695667050fdf8f244314b73781f1f73c1c494ea0d81b741294a68f86",
+          "pointer_and_length_unchanged": true
+        }
+      ],
+      "contract": {
+        "AdamW_lazily_created_real_state_commits_before_late_leaf_error": true,
+        "expanded_moment_alias_late_error_preserves_moment_and_consumes_noise_RNG": true,
+        "temporary_noise_reclaimed_without_releasing_optimizer_states": true,
+        "reset_and_later_ordinary_rollback_preserve_committed_partial_history": true
+      }
+    },
+    {
+      "name": "Adam-dropout-clear-step-reset-four-updates",
+      "status": "PASS",
+      "frames": 125,
+      "exact_assertions": 85,
+      "exact_float32_words": 88,
+      "complete_MT_state_comparisons": 5,
+      "complete_MT_bytes_compared": 25280,
+      "rollback_bytes_compared": 305808,
+      "rollbacks": [
+        {
+          "status": 6,
+          "owner_bytes": 305808,
+          "before_sha256": "5c379862781bef4fb2b787936e7a9fb437d5a56b2a9100e0763bd3084e4ead31",
+          "after_sha256": "5c379862781bef4fb2b787936e7a9fb437d5a56b2a9100e0763bd3084e4ead31",
+          "pointer_and_length_unchanged": true
+        }
+      ],
+      "contract": {
+        "algorithm": "Adam",
+        "updates": 4,
+        "real_dropout_forward_backward_state_step_clear_reset_in_one_owner": true,
+        "exact_math": "beta1=beta2=0; eps=2; noise in {0,2}; update is 0 or 1/16; AdamW factor31/32",
+        "source_model_contract_not_new_hosted_Torch_case": true
+      }
+    },
+    {
+      "name": "AdamW-dropout-clear-step-reset-four-updates",
+      "status": "PASS",
+      "frames": 125,
+      "exact_assertions": 85,
+      "exact_float32_words": 88,
+      "complete_MT_state_comparisons": 5,
+      "complete_MT_bytes_compared": 25280,
+      "rollback_bytes_compared": 305808,
+      "rollbacks": [
+        {
+          "status": 6,
+          "owner_bytes": 305808,
+          "before_sha256": "78606748bf1cc37ed357f94d04a5f7a4b89aa841f0c8bcb3b4b8c2d60711845d",
+          "after_sha256": "78606748bf1cc37ed357f94d04a5f7a4b89aa841f0c8bcb3b4b8c2d60711845d",
+          "pointer_and_length_unchanged": true
+        }
+      ],
+      "contract": {
+        "algorithm": "AdamW",
+        "updates": 4,
+        "real_dropout_forward_backward_state_step_clear_reset_in_one_owner": true,
+        "exact_math": "beta1=beta2=0; eps=2; noise in {0,2}; update is 0 or 1/16; AdamW factor31/32",
+        "source_model_contract_not_new_hosted_Torch_case": true
+      }
+    }
+  ],
+  "frames_before_EOF": 462,
+  "exact_assertions": 334,
+  "exact_float32_words": 249,
+  "complete_MT_state_comparisons": 22,
+  "complete_MT_bytes_compared": 111232,
+  "rollback_bytes_compared": 4892928,
+  "inputs_sha256": {
+    "/workspace/scratch/d26699e25fea/adam-distributions-composition-extension/candidate-02/tensor-adam-distributions-session": "3fc59ab7ed9c32dd75ff440ef9bfbec31756f50edd77715d665bdac098cc3f22",
+    "/workspace/scratch/d26699e25fea/adam-distributions-composition-extension/candidate-02/runtime.hepta": "5d3a3c047d024a3880d257a317a04c2166a2e87bbc6b248bef62649a88546873",
+    "/workspace/scratch/d26699e25fea/cpu-distributions-extension/protocol.py": "7a30d7bca140e3a4cc9d63a3e6930b92d2ffd60ad4503895419d8a63e67c8bd9",
+    "/workspace/scratch/d26699e25fea/cpu-distributions-extension/owner_client.py": "dee3e4cb25ee1e5e06513e2f33478fbe274d9510ce2aaab9525815c72312946b",
+    "/workspace/scratch/d26699e25fea/cpu-distributions-extension/package-03/tools/cpu_distributions/evidence/torch-bernoulli-dropout.json": "c624f5c4762b1c71e7053aba9af55aaa3d8bbaae5aa100b0a6df5f44f58da467",
+    "/workspace/scratch/d26699e25fea/optimizer-object-review/hosted-optimizer-object-observations.json": "7ad0a2e718300a33c91a9212f14ada3c0c7997be7fc77f64bb557c2ecd858160",
+    "/workspace/scratch/d26699e25fea/adam-distributions-independent-review/test_joint_contracts.py": "bba48f2b6f2c2f87b9626bf6cc084a7ffef9a63de8c8d8fb07bb09252b8838f6"
+  },
+  "input_custody_after": true,
+  "case_count": 6
+}
