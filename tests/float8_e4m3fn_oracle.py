@@ -17,7 +17,7 @@ import traceback
 
 ROOT = Path(__file__).resolve().parents[1]
 COMPILER_SHA = '87c247e4d1c3c9a449d2947fd4227fdc186d519bffd203a04cafce7861a4ed54'
-IMAGE_SHA = None
+IMAGE_SHA = '08c68e076b8bed0093e1dcced8d6b93681ab24e3a13d2d3859ffff978a8b2000'
 REFERENCE_SHA = 'ef8fe89aa7dbff4ee03f9d5762d2736a3648d9e48e97ad5df7bec615676f04ae'
 sha = lambda data: hashlib.sha256(data).hexdigest()
 
