@@ -172,7 +172,7 @@ block special(s1:u64,f1:u64)
   is_inf1:bool = compare.eq(f1,zero1)
   branch is_inf1 infinity(s1) nan(s1,f1)
 block infinity(s2:u64)
-  inf2:u64 = const() {"value":127}
+  inf2:u64 = const() {"value":128}
   result2:u64 = bit.or(s2,inf2)
   ret(result2)
 block nan(s3:u64,f3:u64)
@@ -200,7 +200,7 @@ block normal(s6:u64,e6:u64,f6:u64)
   ten6:u64 = const() {"value":3}
   exponent_bits6:u64 = int.shl.checked(exponent6,ten6)
   magnitude6:u64 = int.add.wrap(exponent_bits6,fraction6)
-  last6:u64 = const() {"value":127}
+  last6:u64 = const() {"value":128}
   invalid6:bool = compare.ge(magnitude6,last6)
   admitted6:u64 = select(invalid6,last6,magnitude6)
   result6:u64 = bit.or(s6,admitted6)

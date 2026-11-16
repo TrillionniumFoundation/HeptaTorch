@@ -85,11 +85,11 @@ def cpython_expected(mode, values):
         exponent = (value >> 23) & 255
         fraction = value & 0x7fffff
         if exponent == 255:
-            result.append((sign | 0x7f) if fraction == 0 else 0x80)
+            result.append(0x80)
             continue
         number = abs(struct.unpack('<f', struct.pack('<I', value))[0])
-        if number > 248.:
-            result.append(sign | 0x7f)
+        if number >= 248.:
+            result.append(0x80)
             continue
         i = bisect.bisect_left(FINITE, number)
         if i == 0: index = 0
