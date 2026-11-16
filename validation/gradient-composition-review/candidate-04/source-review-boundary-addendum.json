@@ -1,0 +1,44 @@
+{
+  "actual_torch_executed_here": false,
+  "earlier_source_review_sha256": "890c00ce222ba2e928ce3638e6cec9366a5ba2351c9127dcc6a14e066801e626",
+  "executable_sha256": "4ed8d68613fcec6b9b236ecdad47ea79b651988a8848b360da1d39fa2f5723be",
+  "mechanism": "Pinned TensorIterator compute_strides scales the element stride by element size before should_swap reads signed int64 byte strides. The HIA comparator directly orders unsigned element strides. A size-one axis can carry an accepted stride below 2^63 without enlarging the storage; scaling by four can cross the signed byte-stride boundary or wrap to zero. Actual fixed backend behavior must be observed before choosing a successor change.",
+  "minimal_case": {
+    "backing_elements_each": 6,
+    "operation": "functional add",
+    "other_shape": [
+      1,
+      2,
+      3
+    ],
+    "other_strides": [
+      6,
+      3,
+      1
+    ],
+    "shape": [
+      1,
+      2,
+      3
+    ],
+    "strides": [
+      2305843009213693952,
+      1,
+      2
+    ]
+  },
+  "native_failure_observed_for_this_boundary": false,
+  "prepared_receipt_sha256": "2ecfa99b998d6f384880bdd3b59bc1e6a81bf8dbbe81848e280ee7b78848d27d",
+  "reference_probe_sha256": "568ece8996db71f5d1a16b6dfb71efd963a258f457e73cfdc738f7d60e226f89",
+  "scalar_add_95_source_review_changed": false,
+  "schema": "heptatorch.gradient-composition.source-review-boundary.v1",
+  "scope_clarification": "The no-blocker pointwise conclusion is restricted to nonnegative byte strides representable in int64. It does not certify every element stride currently accepted by the public view command. This addendum narrows that conclusion and preserves the earlier receipt unchanged.",
+  "source_locations": {
+    "current": "rng_strided_view admits stride <2^63; size-one axes add zero to the checked physical extent. pointwise_compare_axes compares element strides.",
+    "upstream": "TensorIterator.cpp lines 1245-1261 and 249-281, SHA a71a7ec9ba0532bf1380aa8ebc92975e4acb31414cd4b8eeeba650afe9e4490c"
+  },
+  "source_sha256": "3e6e879444e2795d824ec074b2bc8ded4ff058c68382c6752e1af13c5a432401",
+  "status": "OPEN_PENDING_FIXED_TORCH_OBSERVATION",
+  "three_native_gate_results_changed": false,
+  "whole_pytorch_rewrite_complete": false
+}

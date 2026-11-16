@@ -11,7 +11,7 @@ permissions:
 jobs:
   native:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 40
     steps:
       - name: Check out HeptaTorch
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -571,6 +571,20 @@ jobs:
             HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget"
           python3 -I -S -B tools/emit_ci_report.py build/hosted-adam-distributions-native.json
 
+      - name: Reproduce public gradient Tensor objects and incoming ownership
+        run: |
+          make test-gradient-objects \
+            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
+            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget"
+          python3 -I -S -B tools/emit_ci_report.py build/hosted-gradient-objects-native.json
+
+      - name: Reproduce shared public gradients Adam and CPU distributions
+        run: |
+          make test-gradient-adam-distributions \
+            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
+            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget"
+          python3 -I -S -B tools/emit_ci_report.py build/hosted-gradient-adam-distributions-native.json
+
       - name: Reproduce and qualify persistent native CPU Generator objects
         run: |
           make cpu-generators test-cpu-generators \
@@ -904,6 +918,58 @@ jobs:
             --lock compatibility/pytorch-oracle-lock.json --repo . \
             --expected-native-sha256 3fc59ab7ed9c32dd75ff440ef9bfbec31756f50edd77715d665bdac098cc3f22 || status=$?
           python3 -I -S -B tools/emit_ci_report.py build/pytorch-adam-distributions-frozen35.json
+          exit "$status"
+
+      - name: Compare public gradient owner with the unchanged live joint oracle (32 cases)
+        run: |
+          echo '554671168c7a4a408dc1e1df89a19db15c3efcefcf4ae1a300af1b6dcae40160  tests/pytorch_tensor_rng_backward_oracle.py' | sha256sum -c -
+          status=0
+          python3 tests/pytorch_tensor_rng_backward_oracle.py \
+            --native build/gradient-objects/tensor-gradient-object-session \
+            --source build/gradient-objects/runtime.hepta \
+            --expected-native-sha256 be18ab877f38a4027a527783db80a1418a137c7d6da91e5bc39e2af8c044cb6b \
+            --expected-source-sha256 1b18da2cf9791e1b20982f9706434c1359ea194dd983dc6c66eb005f152e77b5 \
+            --repo . --output build/pytorch-gradient-objects-backward.json > build/pytorch-gradient-objects-backward.stdout || status=$?
+          python3 -I -S -B tools/emit_ci_report.py build/pytorch-gradient-objects-backward.json
+          exit "$status"
+
+      - name: Regress public gradient owner against the unchanged 35 Tensor cases
+        run: |
+          echo '149b41c455444edeb8d25d0ad98045e29683e780f37f7e210e7985242d359597  tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py' | sha256sum -c -
+          status=0
+          python3 tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py \
+            build/gradient-objects/tensor-gradient-object-session build/pytorch-gradient-objects-frozen35.json \
+            --owned-reference tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py \
+            --session-reference tests/pytorch_session_oracle.py --reference tests/pytorch_oracle.py \
+            --lock compatibility/pytorch-oracle-lock.json --repo . \
+            --expected-native-sha256 be18ab877f38a4027a527783db80a1418a137c7d6da91e5bc39e2af8c044cb6b || status=$?
+          python3 -I -S -B tools/emit_ci_report.py build/pytorch-gradient-objects-frozen35.json
+          exit "$status"
+
+      - name: Compare shared gradient Adam distribution owner with unchanged live oracle (32 cases)
+        run: |
+          echo '554671168c7a4a408dc1e1df89a19db15c3efcefcf4ae1a300af1b6dcae40160  tests/pytorch_tensor_rng_backward_oracle.py' | sha256sum -c -
+          status=0
+          python3 tests/pytorch_tensor_rng_backward_oracle.py \
+            --native build/gradient-adam-distributions/tensor-gradient-adam-distributions-session \
+            --source build/gradient-adam-distributions/runtime.hepta \
+            --expected-native-sha256 6773485896d961b6c2e62784ebb66320290df47128bd1331aecc0c8b7f6611fe \
+            --expected-source-sha256 1fed8ea7ba5bf755a9df9ca1e61d34cfd4712cc2fd66e0728493091c81c24dae \
+            --repo . --output build/pytorch-gradient-adam-distributions-backward.json > build/pytorch-gradient-adam-distributions-backward.stdout || status=$?
+          python3 -I -S -B tools/emit_ci_report.py build/pytorch-gradient-adam-distributions-backward.json
+          exit "$status"
+
+      - name: Regress shared gradient Adam distribution owner against unchanged 35 Tensor cases
+        run: |
+          echo '149b41c455444edeb8d25d0ad98045e29683e780f37f7e210e7985242d359597  tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py' | sha256sum -c -
+          status=0
+          python3 tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py \
+            build/gradient-adam-distributions/tensor-gradient-adam-distributions-session build/pytorch-gradient-adam-distributions-frozen35.json \
+            --owned-reference tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py \
+            --session-reference tests/pytorch_session_oracle.py --reference tests/pytorch_oracle.py \
+            --lock compatibility/pytorch-oracle-lock.json --repo . \
+            --expected-native-sha256 6773485896d961b6c2e62784ebb66320290df47128bd1331aecc0c8b7f6611fe || status=$?
+          python3 -I -S -B tools/emit_ci_report.py build/pytorch-gradient-adam-distributions-frozen35.json
           exit "$status"
 
       - name: Index complete original CI reports and checkout identity

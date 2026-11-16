@@ -1,0 +1,32 @@
+{
+  "schema": "heptatorch.signed-byte-stride-source-delta.v1",
+  "status": "SOURCE_DELTA_VERIFIED_NATIVE_QUALIFICATION_SEPARATE",
+  "previous_source_sha256": "3e6e879444e2795d824ec074b2bc8ded4ff058c68382c6752e1af13c5a432401",
+  "source_sha256": "1fed8ea7ba5bf755a9df9ca1e61d34cfd4712cc2fd66e0728493091c81c24dae",
+  "previous_native_sha256": "4ed8d68613fcec6b9b236ecdad47ea79b651988a8848b360da1d39fa2f5723be",
+  "native_sha256": "6773485896d961b6c2e62784ebb66320290df47128bd1331aecc0c8b7f6611fe",
+  "functions": 428,
+  "unchanged_functions": 427,
+  "changed_function": "pointwise_compare_axes",
+  "old_body_sha256": "f843681c86a29e59babb3970899385f2216dd9c8fe88c46a08c05b263fdfa6bd",
+  "new_body_sha256": "ad7af836bdcb17a6e9b49629489a7e3414612fb180685a0fa5903caca5abcb4f",
+  "upstream": {
+    "commit": "31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
+    "path": "aten/src/ATen/TensorIterator.cpp",
+    "sha256": "a71a7ec9ba0532bf1380aa8ebc92975e4acb31414cd4b8eeeba650afe9e4490c",
+    "relevant_functions": [
+      "compute_strides",
+      "reorder_dimensions"
+    ]
+  },
+  "observations_sha256": "2de8fbd82d10fc16b0640684f4b36ae958a5a0455773401f82092210967137c8",
+  "rule": "Convert both element strides to wrapped 64-bit binary32 byte strides before the zero test; compare the nonzero values as signed int64 using a sign-bit xor and unsigned comparison. Preserve operand priority, equal-stride shape tie and every fast-layout path.",
+  "admission_unchanged": true,
+  "physical_addressing_unchanged": true,
+  "all_25_distribution_bodies_unchanged": true,
+  "profile_layout_and_owned_state_unchanged": true,
+  "test_expectations_unchanged": true,
+  "scope": "Pinned CPU implementation and actual eight extreme size-one stride observations; not a language-level claim that signed overflow is portable.",
+  "full_rewrite_complete": false,
+  "pytorch_api_denominator": 2590
+}

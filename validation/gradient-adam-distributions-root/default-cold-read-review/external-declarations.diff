@@ -1,0 +1,19 @@
+--- before.py
++++ after.py
+@@ -81,8 +81,14 @@
+ 
+     def functions(raw):
+         starts = list(re.finditer(rb'^fn ([A-Za-z0-9_]+)\(', raw, re.M))
+-        return {m.group(1).decode(): raw[m.start():starts[i + 1].start() if i + 1 < len(starts) else len(raw)]
+-                for i, m in enumerate(starts)}
++        definitions = {}
++        for i, match in enumerate(starts):
++            header = raw[match.start():raw.index(b'\n', match.start())]
++            if header.endswith(b' external()'):
++                continue
++            check(b' entry(' in header, 'definition has a real entry block')
++            definitions[match.group(1).decode()] = raw[match.start():starts[i + 1].start() if i + 1 < len(starts) else len(raw)]
++        return definitions
+ 
+     try:
+         aggregate = read(report_file, AGGREGATE)

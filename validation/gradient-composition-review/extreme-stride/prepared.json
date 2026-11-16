@@ -1,0 +1,65 @@
+{
+  "schema": "heptatorch.pinned-torch-extreme-stride-observations.v1",
+  "probe_sha256": "568ece8996db71f5d1a16b6dfb71efd963a258f457e73cfdc738f7d60e226f89",
+  "reference_support_sha256": "ef8fe89aa7dbff4ee03f9d5762d2736a3648d9e48e97ad5df7bec615676f04ae",
+  "lock_sha256": "ca2e54ce65083bbe0ab3d47b6878971271765ab35a9dd70725fa345fceed3944",
+  "reference_source_commit": "31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
+  "expected_cases": 8,
+  "case_plan": [
+    {
+      "case": "largest-positive-byte-stride",
+      "stride": 2305843009213693951,
+      "reverse_inputs": false
+    },
+    {
+      "case": "byte-sign-boundary",
+      "stride": 2305843009213693952,
+      "reverse_inputs": false
+    },
+    {
+      "case": "byte-sign-boundary-reversed",
+      "stride": 2305843009213693952,
+      "reverse_inputs": true
+    },
+    {
+      "case": "above-byte-sign-boundary",
+      "stride": 2305843009213693953,
+      "reverse_inputs": false
+    },
+    {
+      "case": "byte-wrap-zero",
+      "stride": 4611686018427387904,
+      "reverse_inputs": false
+    },
+    {
+      "case": "byte-wrap-zero-reversed",
+      "stride": 4611686018427387904,
+      "reverse_inputs": true
+    },
+    {
+      "case": "below-byte-wrap-zero",
+      "stride": 4611686018427387903,
+      "reverse_inputs": false
+    },
+    {
+      "case": "largest-signed-element-stride",
+      "stride": 9223372036854775807,
+      "reverse_inputs": false
+    }
+  ],
+  "native_executed": false,
+  "native_values_compared": 0,
+  "comparison_policy": "Observe exact accepted shape/element strides, raw binary32 words, output Version and fresh-storage relations; never pre-normalize or predict byte-stride overflow.",
+  "not_covered": [
+    "other dtypes or devices",
+    "all compiler or ISA dispatches",
+    "negative element strides",
+    "arbitrary high-rank layouts",
+    "native equality is not established by this observation-only probe"
+  ],
+  "full_rewrite_complete": false,
+  "pytorch_api_denominator": 2590,
+  "status": "PREPARED_NOT_RUN",
+  "cases": 0,
+  "torch_executed": false
+}

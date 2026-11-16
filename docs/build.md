@@ -980,3 +980,15 @@ The public-gradient-object successor, remaining dtype/distribution cases,
 general optimizer modes and exception behavior, higher-order differentiation
 and all other full-rewrite gates remain open. The component stays PARTIAL and
 the whole-project decision stays HOLD with the same 2,590-schema denominator.
+
+
+## Public gradient objects and combined owner
+
+The new `test-gradient-objects` and `test-gradient-adam-distributions` targets
+cold-build the exact355-function public-gradient and428-function combined
+profiles, respectively. Their root qualification preserves all original
+reference and failure evidence. See
+[public gradients and composition](gradient-objects-and-composition.md) for
+commands, source/image identities, the separate suites, the six new hosted gates
+and the remaining boundaries. These profiles do not replace the older frozen
+builds or close a complete PyTorch subsystem.

@@ -1,0 +1,53 @@
+"""Native typed and request-local reference controls for commands 91/92."""
+from pathlib import Path
+import argparse,hashlib,importlib.util,json,struct
+
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def main():
+    p=argparse.ArgumentParser(description=__doc__)
+    for name in ('binary','source','controls','observer','output'):p.add_argument('--'+name,type=Path,required=True)
+    p.add_argument('--expected-sha256',required=True);p.add_argument('--expected-source-sha256',required=True)
+    a=p.parse_args();out=a.output.resolve();out.mkdir(parents=True,exist_ok=False)
+    inputs={q.resolve():q.read_bytes() for q in (Path(__file__),a.binary,a.source,a.controls,a.observer)}
+    assert sha(a.binary.read_bytes())==a.expected_sha256 and sha(a.source.read_bytes())==a.expected_source_sha256
+    def load(name,path,pin):
+        assert sha(path.read_bytes())==pin
+        spec=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
+    b=load('gradient_reference_controls',a.controls,'43fbb5a3abb62125191266f7eec9d020717ae9f6388c171edbda6957dda255a8')
+    observer=load('gradient_reference_observer',a.observer,'dee3e4cb25ee1e5e06513e2f33478fbe274d9510ce2aaab9525815c72312946b')
+    s=observer.OwnerSession(a.binary.resolve(),directory=out/'raw',address_limit=64<<20);c=b.Check(s)
+    report={'schema':'heptatorch.gradient-object-typed-result-references.v1','status':'RUNNING',
+        'native_sha256':a.expected_sha256,'source_sha256':a.expected_source_sha256,
+        'inputs_sha256':{str(p):sha(raw) for p,raw in inputs.items()},'native_executed':True,'Torch_executed_here':False}
+    try:
+        r=c.run([b.tensor([2],[1.,2.],True),b.tensor([2],[3.,4.]),
+            (92,0xfe000001,0xfe000002),(91,0xfe000001),(10,0xfe000004)])
+        parameter,gradient=r[0]['value'],r[1]['value']
+        assert r[2]['value']==1 and r[3]['value']==gradient and r[4]['payload']==struct.pack('<2f',3.,4.)
+        c.comparisons+=4
+        oldmeta=b.words(c.one(13,gradient));c.one(41,gradient)
+        r=c.run([(91,parameter),(10,0xfe000001)]);renewed=r[0]['value']
+        assert renewed!=gradient and r[1]['payload']==struct.pack('<2f',3.,4.)
+        assert b.words(c.one(13,renewed))==oldmeta;c.comparisons+=3
+        weak=c.make(42,renewed)
+        refusals=[([(13,gradient)],1), ([(91,weak)],1), ([(92,parameter,weak)],1),
+            ([(91,0xfe000001)],1), ([(91,parameter),(92,parameter,0xfe000003)],1),
+            ([(92,parameter,renewed),(13,0xfe000001)],1),
+            ([(91,parameter),(41,0xfe000001),(10,0xfe000001)],1),
+            ([(91,parameter,1)],7), ([(92,parameter,renewed,1)],7),
+            ([(93,parameter)],4), ([(94,parameter)],4)]
+        for commands,status in refusals:c.run(commands,status=status,label='typed/reference admission retains entire owner')
+        assert c.make(91,parameter)==renewed
+        c.one(92,parameter,0);assert c.make(91,parameter)==0
+        c.run([(91,parameter),(13,0xfe000001)],status=1,label='None getter result is not a Tensor capability')
+        c.values(renewed,[3.,4.]);c.one(41,renewed);c.expiry(weak,True);c.one(44,weak);c.audit()
+        report.update(status='PASS',refusal_cases=len(refusals)+1,
+            real_Tensor_results_can_be_used_later_in_same_frame=True,scalar_setter_result_and_None_are_not_Tensor_capabilities=True,
+            stale_and_future_and_wrong_kind_references_rejected=True,republication_preserves_Storage_Version_and_layout=True)
+    except Exception as error:report.update(status='FAIL',error=repr(error));raise
+    finally:
+        report.update(frames=s.frames,exact_checks=c.comparisons,rollback_bytes=c.rollback_bytes,frame_records=c.frames)
+        report['transport']=s.finish();assert all(q.read_bytes()==raw for q,raw in inputs.items())
+        (out/'report.json').write_text(json.dumps(report,indent=2)+'\n')
+    print(json.dumps({k:v for k,v in report.items() if k not in ('inputs_sha256','frame_records','transport')},indent=2))
+if __name__=='__main__':main()

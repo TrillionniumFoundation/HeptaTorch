@@ -1,0 +1,535 @@
+{
+  "schema": "heptatorch.gradient-owner-final-ci-command-review.v1",
+  "status": "PASS_EXECUTED_PREPARATION_AND_READ_ONLY_SOURCE_REVIEW",
+  "repository_head_at_read": "518ea280a263f9d3d3d3c6f4b315b723ba445e3a",
+  "comparison_base": "e4cf7b6d3645b5a340ec3b47489ecc326e908c13",
+  "workflow_sha256": "e4e8c9d55633c0609f5facdeb967d1661d3cb7b75aa014e1947242e7c062857a",
+  "Makefile_sha256": "852dc35c56acb093d5fa7116a5526f90568ae5b9c090b44f33ff4619ae02a34a",
+  "prior_517_report_preserved_sha256": "4f79d61c09e07f1ae270ac37c68786f755ecc8f9d798f359a7eb1ff198015454",
+  "root_cli_correction_receipt_sha256": "8eb80dec19dfdd7849aa2ea39f8095fd96b67fe9fb074167c1c04a34d4c02d78",
+  "old_declared_steps": 63,
+  "new_declared_steps": 69,
+  "hosted_prior_68_step_receipt_not_reexecuted_here": true,
+  "old_step_bytes_and_order_unchanged": true,
+  "timeout_minutes": [
+    20,
+    40
+  ],
+  "envelope_counts": [
+    24,
+    30
+  ],
+  "added_envelope_reports": [
+    "build/hosted-gradient-adam-distributions-native.json",
+    "build/hosted-gradient-objects-native.json",
+    "build/pytorch-gradient-adam-distributions-backward.json",
+    "build/pytorch-gradient-adam-distributions-frozen35.json",
+    "build/pytorch-gradient-objects-backward.json",
+    "build/pytorch-gradient-objects-frozen35.json"
+  ],
+  "oracle_commands": [
+    {
+      "step": "Compare public gradient owner with the unchanged live joint oracle (32 cases)",
+      "entire_original_shell_block": "echo '554671168c7a4a408dc1e1df89a19db15c3efcefcf4ae1a300af1b6dcae40160  tests/pytorch_tensor_rng_backward_oracle.py' | sha256sum -c -\nstatus=0\npython3 tests/pytorch_tensor_rng_backward_oracle.py \\\n  --native build/gradient-objects/tensor-gradient-object-session \\\n  --source build/gradient-objects/runtime.hepta \\\n  --expected-native-sha256 be18ab877f38a4027a527783db80a1418a137c7d6da91e5bc39e2af8c044cb6b \\\n  --expected-source-sha256 1b18da2cf9791e1b20982f9706434c1359ea194dd983dc6c66eb005f152e77b5 \\\n  --repo . --output build/pytorch-gradient-objects-backward.json > build/pytorch-gradient-objects-backward.stdout || status=$?\npython3 -I -S -B tools/emit_ci_report.py build/pytorch-gradient-objects-backward.json\nexit \"$status\"\n",
+      "original_oracle_argv": [
+        "python3",
+        "tests/pytorch_tensor_rng_backward_oracle.py",
+        "--native",
+        "build/gradient-objects/tensor-gradient-object-session",
+        "--source",
+        "build/gradient-objects/runtime.hepta",
+        "--expected-native-sha256",
+        "be18ab877f38a4027a527783db80a1418a137c7d6da91e5bc39e2af8c044cb6b",
+        "--expected-source-sha256",
+        "1b18da2cf9791e1b20982f9706434c1359ea194dd983dc6c66eb005f152e77b5",
+        "--repo",
+        ".",
+        "--output",
+        "build/pytorch-gradient-objects-backward.json"
+      ],
+      "executed_argv": [
+        "python3",
+        "tests/pytorch_tensor_rng_backward_oracle.py",
+        "--native",
+        "build/gradient-objects/tensor-gradient-object-session",
+        "--source",
+        "build/gradient-objects/runtime.hepta",
+        "--expected-native-sha256",
+        "be18ab877f38a4027a527783db80a1418a137c7d6da91e5bc39e2af8c044cb6b",
+        "--expected-source-sha256",
+        "1b18da2cf9791e1b20982f9706434c1359ea194dd983dc6c66eb005f152e77b5",
+        "--repo",
+        ".",
+        "--output",
+        "build/pytorch-gradient-objects-backward.json",
+        "--prepare-only"
+      ],
+      "only_extra_argument": "--prepare-only",
+      "cwd": "/workspace/scratch/d26699e25fea/gradient-owner-final-integration-review/review-01/cli-worktree",
+      "exit_code": 0,
+      "report_path": "build/pytorch-gradient-objects-backward.json",
+      "report_sha256": "2d35185d4ce56a9003679276cd7f2b11cef45ba3956e6c0172bfaa9642f816d2",
+      "stdout_sha256": "120c1aa10f3b090bc0ee2f3e7b5ac88234f656fc8e196ae23d92de6439e0f0a0",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "step": "Regress public gradient owner against the unchanged 35 Tensor cases",
+      "entire_original_shell_block": "echo '149b41c455444edeb8d25d0ad98045e29683e780f37f7e210e7985242d359597  tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py' | sha256sum -c -\nstatus=0\npython3 tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py \\\n  build/gradient-objects/tensor-gradient-object-session build/pytorch-gradient-objects-frozen35.json \\\n  --owned-reference tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py \\\n  --session-reference tests/pytorch_session_oracle.py --reference tests/pytorch_oracle.py \\\n  --lock compatibility/pytorch-oracle-lock.json --repo . \\\n  --expected-native-sha256 be18ab877f38a4027a527783db80a1418a137c7d6da91e5bc39e2af8c044cb6b || status=$?\npython3 -I -S -B tools/emit_ci_report.py build/pytorch-gradient-objects-frozen35.json\nexit \"$status\"\n",
+      "original_oracle_argv": [
+        "python3",
+        "tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py",
+        "build/gradient-objects/tensor-gradient-object-session",
+        "build/pytorch-gradient-objects-frozen35.json",
+        "--owned-reference",
+        "tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py",
+        "--session-reference",
+        "tests/pytorch_session_oracle.py",
+        "--reference",
+        "tests/pytorch_oracle.py",
+        "--lock",
+        "compatibility/pytorch-oracle-lock.json",
+        "--repo",
+        ".",
+        "--expected-native-sha256",
+        "be18ab877f38a4027a527783db80a1418a137c7d6da91e5bc39e2af8c044cb6b"
+      ],
+      "executed_argv": [
+        "python3",
+        "tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py",
+        "build/gradient-objects/tensor-gradient-object-session",
+        "build/pytorch-gradient-objects-frozen35.json",
+        "--owned-reference",
+        "tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py",
+        "--session-reference",
+        "tests/pytorch_session_oracle.py",
+        "--reference",
+        "tests/pytorch_oracle.py",
+        "--lock",
+        "compatibility/pytorch-oracle-lock.json",
+        "--repo",
+        ".",
+        "--expected-native-sha256",
+        "be18ab877f38a4027a527783db80a1418a137c7d6da91e5bc39e2af8c044cb6b",
+        "--prepare-only"
+      ],
+      "only_extra_argument": "--prepare-only",
+      "cwd": "/workspace/scratch/d26699e25fea/gradient-owner-final-integration-review/review-01/cli-worktree",
+      "exit_code": 0,
+      "report_path": "build/pytorch-gradient-objects-frozen35.json",
+      "report_sha256": "f897fe004d60819645a18f8172adbb5d2e7d72fef849578983845e880bdb439e",
+      "stdout_sha256": "1c4094f21d0afd18649171defafd762d173ebc6c5a8361cf617a1e3206b71fe6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "step": "Compare shared gradient Adam distribution owner with unchanged live oracle (32 cases)",
+      "entire_original_shell_block": "echo '554671168c7a4a408dc1e1df89a19db15c3efcefcf4ae1a300af1b6dcae40160  tests/pytorch_tensor_rng_backward_oracle.py' | sha256sum -c -\nstatus=0\npython3 tests/pytorch_tensor_rng_backward_oracle.py \\\n  --native build/gradient-adam-distributions/tensor-gradient-adam-distributions-session \\\n  --source build/gradient-adam-distributions/runtime.hepta \\\n  --expected-native-sha256 6773485896d961b6c2e62784ebb66320290df47128bd1331aecc0c8b7f6611fe \\\n  --expected-source-sha256 1fed8ea7ba5bf755a9df9ca1e61d34cfd4712cc2fd66e0728493091c81c24dae \\\n  --repo . --output build/pytorch-gradient-adam-distributions-backward.json > build/pytorch-gradient-adam-distributions-backward.stdout || status=$?\npython3 -I -S -B tools/emit_ci_report.py build/pytorch-gradient-adam-distributions-backward.json\nexit \"$status\"\n",
+      "original_oracle_argv": [
+        "python3",
+        "tests/pytorch_tensor_rng_backward_oracle.py",
+        "--native",
+        "build/gradient-adam-distributions/tensor-gradient-adam-distributions-session",
+        "--source",
+        "build/gradient-adam-distributions/runtime.hepta",
+        "--expected-native-sha256",
+        "6773485896d961b6c2e62784ebb66320290df47128bd1331aecc0c8b7f6611fe",
+        "--expected-source-sha256",
+        "1fed8ea7ba5bf755a9df9ca1e61d34cfd4712cc2fd66e0728493091c81c24dae",
+        "--repo",
+        ".",
+        "--output",
+        "build/pytorch-gradient-adam-distributions-backward.json"
+      ],
+      "executed_argv": [
+        "python3",
+        "tests/pytorch_tensor_rng_backward_oracle.py",
+        "--native",
+        "build/gradient-adam-distributions/tensor-gradient-adam-distributions-session",
+        "--source",
+        "build/gradient-adam-distributions/runtime.hepta",
+        "--expected-native-sha256",
+        "6773485896d961b6c2e62784ebb66320290df47128bd1331aecc0c8b7f6611fe",
+        "--expected-source-sha256",
+        "1fed8ea7ba5bf755a9df9ca1e61d34cfd4712cc2fd66e0728493091c81c24dae",
+        "--repo",
+        ".",
+        "--output",
+        "build/pytorch-gradient-adam-distributions-backward.json",
+        "--prepare-only"
+      ],
+      "only_extra_argument": "--prepare-only",
+      "cwd": "/workspace/scratch/d26699e25fea/gradient-owner-final-integration-review/review-01/cli-worktree",
+      "exit_code": 0,
+      "report_path": "build/pytorch-gradient-adam-distributions-backward.json",
+      "report_sha256": "33b753e35664eb5e359070b104a8de9e81344ed4e3cfea75eb8c19d3f0d38859",
+      "stdout_sha256": "120c1aa10f3b090bc0ee2f3e7b5ac88234f656fc8e196ae23d92de6439e0f0a0",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "step": "Regress shared gradient Adam distribution owner against unchanged 35 Tensor cases",
+      "entire_original_shell_block": "echo '149b41c455444edeb8d25d0ad98045e29683e780f37f7e210e7985242d359597  tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py' | sha256sum -c -\nstatus=0\npython3 tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py \\\n  build/gradient-adam-distributions/tensor-gradient-adam-distributions-session build/pytorch-gradient-adam-distributions-frozen35.json \\\n  --owned-reference tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py \\\n  --session-reference tests/pytorch_session_oracle.py --reference tests/pytorch_oracle.py \\\n  --lock compatibility/pytorch-oracle-lock.json --repo . \\\n  --expected-native-sha256 6773485896d961b6c2e62784ebb66320290df47128bd1331aecc0c8b7f6611fe || status=$?\npython3 -I -S -B tools/emit_ci_report.py build/pytorch-gradient-adam-distributions-frozen35.json\nexit \"$status\"\n",
+      "original_oracle_argv": [
+        "python3",
+        "tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py",
+        "build/gradient-adam-distributions/tensor-gradient-adam-distributions-session",
+        "build/pytorch-gradient-adam-distributions-frozen35.json",
+        "--owned-reference",
+        "tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py",
+        "--session-reference",
+        "tests/pytorch_session_oracle.py",
+        "--reference",
+        "tests/pytorch_oracle.py",
+        "--lock",
+        "compatibility/pytorch-oracle-lock.json",
+        "--repo",
+        ".",
+        "--expected-native-sha256",
+        "6773485896d961b6c2e62784ebb66320290df47128bd1331aecc0c8b7f6611fe"
+      ],
+      "executed_argv": [
+        "python3",
+        "tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py",
+        "build/gradient-adam-distributions/tensor-gradient-adam-distributions-session",
+        "build/pytorch-gradient-adam-distributions-frozen35.json",
+        "--owned-reference",
+        "tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py",
+        "--session-reference",
+        "tests/pytorch_session_oracle.py",
+        "--reference",
+        "tests/pytorch_oracle.py",
+        "--lock",
+        "compatibility/pytorch-oracle-lock.json",
+        "--repo",
+        ".",
+        "--expected-native-sha256",
+        "6773485896d961b6c2e62784ebb66320290df47128bd1331aecc0c8b7f6611fe",
+        "--prepare-only"
+      ],
+      "only_extra_argument": "--prepare-only",
+      "cwd": "/workspace/scratch/d26699e25fea/gradient-owner-final-integration-review/review-01/cli-worktree",
+      "exit_code": 0,
+      "report_path": "build/pytorch-gradient-adam-distributions-frozen35.json",
+      "report_sha256": "a9c5e5ef4d4a394103b25da892d12d9ef276b519f49259197ef4dec9c625f39d",
+      "stdout_sha256": "1c4094f21d0afd18649171defafd762d173ebc6c5a8361cf617a1e3206b71fe6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "make_cli_help": [
+    {
+      "path": "tools/gradient_objects/build.py",
+      "sha256": "ac0378f5872a5e1b3947a646d5d9a0fe71627b9de51f8380d3bfb1b37431ec44",
+      "help_exit": 0,
+      "required_options": [
+        "--baseline",
+        "--compiler",
+        "--linker",
+        "--output"
+      ]
+    },
+    {
+      "path": "tools/gradient_objects/qualify.py",
+      "sha256": "c15d78b6f496ab0f091d812b655c56ab21459cc8103c8c421e6b53e57bf9b1c9",
+      "help_exit": 0,
+      "required_options": [
+        "--repository",
+        "--baseline",
+        "--source-root",
+        "--compiler",
+        "--linker",
+        "--output"
+      ]
+    },
+    {
+      "path": "tests/check_gradient_object_reports.py",
+      "sha256": "eb51575a34cd92863da7b032f11f201763b328355f848d72f0f67156bd71e4b8",
+      "help_exit": 0,
+      "required_options": [
+        "--build",
+        "--review",
+        "--output"
+      ]
+    },
+    {
+      "path": "tools/gradient_adam_distributions/build.py",
+      "sha256": "508f259107b5fb84ec077d8a5664d13084d044334ce138222deeb30046212708",
+      "help_exit": 0,
+      "required_options": [
+        "--gradient-build",
+        "--adam-distribution-build",
+        "--compiler",
+        "--linker",
+        "--output"
+      ]
+    },
+    {
+      "path": "tools/gradient_adam_distributions/qualify.py",
+      "sha256": "ee3f9fea92c941beb6ba63140f86659b68149318e59b94bc5d08406ad3744891",
+      "help_exit": 0,
+      "required_options": [
+        "--gradient-build",
+        "--adam-distribution-build",
+        "--compiler",
+        "--linker",
+        "--output"
+      ]
+    }
+  ],
+  "original_bad_355_command_exit": 2,
+  "original_bad_355_command_executed_argv": [
+    "python3",
+    "tests/pytorch_tensor_rng_backward_oracle.py",
+    "--native",
+    "build/gradient-objects/tensor-gradient-object-session",
+    "--source",
+    "build/gradient-objects/runtime.hepta",
+    "--support",
+    "tests/pytorch_oracle.py",
+    "--lock",
+    "compatibility/pytorch-oracle-lock.json",
+    "--expected-native-sha256",
+    "be18ab877f38a4027a527783db80a1418a137c7d6da91e5bc39e2af8c044cb6b",
+    "--repo",
+    ".",
+    "--output",
+    "build/pytorch-gradient-objects-backward.json",
+    "--prepare-only"
+  ],
+  "four_real_argparse_and_prepare_calls_executed": true,
+  "same_workflow_relative_paths_in_private_cli_workspace": true,
+  "root_files_modified": false,
+  "root_builds_run": false,
+  "Torch_executed": false,
+  "native_executable_run": false,
+  "semantic_test_cases_executed": 0,
+  "new_428_aggregate_qualifier_review": "PENDING independent author final source and executed result; Make expects --gradient-build --adam-distribution-build --stack-build --output and producer/native",
+  "all_checked_inputs_unchanged": true,
+  "source_custody": {
+    "/dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/.github/workflows/native.yml": {
+      "bytes": 60617,
+      "sha256": "e4e8c9d55633c0609f5facdeb967d1661d3cb7b75aa014e1947242e7c062857a"
+    },
+    "/dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/Makefile": {
+      "bytes": 40272,
+      "sha256": "852dc35c56acb093d5fa7116a5526f90568ae5b9c090b44f33ff4619ae02a34a"
+    },
+    "/dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/tools/collect_ci_reports.py": {
+      "bytes": 3015,
+      "sha256": "22b7e0113197b74f20177fbacd160618ad75737b7d524e63027edc4c5aeee75a"
+    },
+    "/dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/tests/pytorch_tensor_rng_backward_oracle.py": {
+      "bytes": 22577,
+      "sha256": "554671168c7a4a408dc1e1df89a19db15c3efcefcf4ae1a300af1b6dcae40160"
+    },
+    "/dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py": {
+      "bytes": 9008,
+      "sha256": "149b41c455444edeb8d25d0ad98045e29683e780f37f7e210e7985242d359597"
+    },
+    "/dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/tests/tensor_object_oracle/bridge.py": {
+      "bytes": 17360,
+      "sha256": "c2888687f8876ad3505f0e13c9aecddc45695eff22bfdd9fa16d760f9aa3dac5"
+    },
+    "/dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/tests/tensor_object_oracle/lifecycle.py": {
+      "bytes": 10543,
+      "sha256": "4a195d07772123342ac3a33aa878aab1663ce0d0d1dbd8ea5ddb110438fd278c"
+    },
+    "/dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py": {
+      "bytes": 28375,
+      "sha256": "ee3cf72154ac9dfa31055557b3facab8fdd3e14aad03ef6000ced55ccd75ed88"
+    },
+    "/dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/tests/pytorch_session_oracle.py": {
+      "bytes": 20796,
+      "sha256": "35fa5fa3e1b740f901c11d46dca484079b77805004586c03ae42b35be2265577"
+    },
+    "/dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/tests/pytorch_oracle.py": {
+      "bytes": 61783,
+      "sha256": "ef8fe89aa7dbff4ee03f9d5762d2736a3648d9e48e97ad5df7bec615676f04ae"
+    },
+    "/dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/compatibility/pytorch-oracle-lock.json": {
+      "bytes": 5018,
+      "sha256": "ca2e54ce65083bbe0ab3d47b6878971271765ab35a9dd70725fa345fceed3944"
+    },
+    "/dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/tools/emit_ci_report.py": {
+      "bytes": 979,
+      "sha256": "606bc698e052eaf70a059e3a218d9942718aeb6c4ece23bcaf574718880e1198"
+    },
+    "/dev/shm/heptatorch-d26699e25fea/gradient-objects-root-cold-01/native/runtime.hepta": {
+      "bytes": 1185918,
+      "sha256": "1b18da2cf9791e1b20982f9706434c1359ea194dd983dc6c66eb005f152e77b5"
+    },
+    "/dev/shm/heptatorch-d26699e25fea/gradient-objects-root-cold-01/native/tensor-gradient-object-session": {
+      "bytes": 1839104,
+      "sha256": "be18ab877f38a4027a527783db80a1418a137c7d6da91e5bc39e2af8c044cb6b"
+    },
+    "/dev/shm/heptatorch-d26699e25fea/gradient-objects-root-cold-01/native/build.json": {
+      "bytes": 5433,
+      "sha256": "df2ca18da65fe5920386be4ac92bb044fd6f7447af75e20ada2f8569b5d46038"
+    },
+    "/dev/shm/heptatorch-d26699e25fea/gradient-adam-distributions-root-cold-05/native/runtime.hepta": {
+      "bytes": 1460221,
+      "sha256": "1fed8ea7ba5bf755a9df9ca1e61d34cfd4712cc2fd66e0728493091c81c24dae"
+    },
+    "/dev/shm/heptatorch-d26699e25fea/gradient-adam-distributions-root-cold-05/native/tensor-gradient-adam-distributions-session": {
+      "bytes": 2277376,
+      "sha256": "6773485896d961b6c2e62784ebb66320290df47128bd1331aecc0c8b7f6611fe"
+    },
+    "/dev/shm/heptatorch-d26699e25fea/gradient-adam-distributions-root-cold-05/native/build.json": {
+      "bytes": 6840,
+      "sha256": "b770dc1cf3a78304eb791771771213a8b14db359abc1f635ba6731e6793a9891"
+    },
+    "/workspace/scratch/d26699e25fea/gradient-objects-integration-review/review-01/report.json": {
+      "bytes": 98244,
+      "sha256": "4f79d61c09e07f1ae270ac37c68786f755ecc8f9d798f359a7eb1ff198015454"
+    },
+    "/workspace/scratch/d26699e25fea/gradient-objects-integration-review/review-01/reviewed-source/.github/workflows/native.yml": {
+      "bytes": 58191,
+      "sha256": "0a295b97c683c8baeeb7fbc038c482a85f0e7fa8ede9846cc771c7eb2edd9343"
+    },
+    "/dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/validation/gradient-objects-root/ci-cli-correction-01.json": {
+      "bytes": 1282,
+      "sha256": "8eb80dec19dfdd7849aa2ea39f8095fd96b67fe9fb074167c1c04a34d4c02d78"
+    },
+    "/dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/validation/gradient-objects-root/live32-prepared-01.json": {
+      "bytes": 1853,
+      "sha256": "2d35185d4ce56a9003679276cd7f2b11cef45ba3956e6c0172bfaa9642f816d2"
+    },
+    "/dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/validation/gradient-adam-distributions-root/live32-prepared-01.json": {
+      "bytes": 1853,
+      "sha256": "33b753e35664eb5e359070b104a8de9e81344ed4e3cfea75eb8c19d3f0d38859"
+    },
+    "/dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/tools/gradient_objects/build.py": {
+      "bytes": 8190,
+      "sha256": "ac0378f5872a5e1b3947a646d5d9a0fe71627b9de51f8380d3bfb1b37431ec44"
+    },
+    "/dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/tools/gradient_objects/qualify.py": {
+      "bytes": 9982,
+      "sha256": "c15d78b6f496ab0f091d812b655c56ab21459cc8103c8c421e6b53e57bf9b1c9"
+    },
+    "/dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/tests/check_gradient_object_reports.py": {
+      "bytes": 9739,
+      "sha256": "eb51575a34cd92863da7b032f11f201763b328355f848d72f0f67156bd71e4b8"
+    },
+    "/dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/tools/gradient_adam_distributions/build.py": {
+      "bytes": 10670,
+      "sha256": "508f259107b5fb84ec077d8a5664d13084d044334ce138222deeb30046212708"
+    },
+    "/dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/tools/gradient_adam_distributions/qualify.py": {
+      "bytes": 12913,
+      "sha256": "ee3f9fea92c941beb6ba63140f86659b68149318e59b94bc5d08406ad3744891"
+    }
+  },
+  "checks": [
+    "all six new steps are present exactly once",
+    "all original declared steps keep exact parsed bodies and order",
+    "63 previous declared steps plus six new steps",
+    "timeout increases exactly from twenty to forty minutes",
+    "byte-exact original workflow after six-step removal and timeout reversal",
+    "twenty-four prior envelopes and thirty final envelopes",
+    "all original envelopes retained",
+    "six separate new report paths",
+    "unchanged report collector",
+    "native job still exports every original JSON report",
+    "collector still uses native workflow by default",
+    "Make change is exactly the two new target blocks",
+    "Make rule gradient-objects: build/gradient-objects/build.json",
+    "Make rule build/gradient-objects/build.json: build/owned-optimizers/reproduction.json $(GRADIENT_OBJECT_INPUTS) | build",
+    "Make rule test-gradient-objects: owned-optimizers",
+    "Make rule gradient-adam-distributions: build/gradient-adam-distributions/build.json",
+    "Make rule build/gradient-adam-distributions/build.json: build/gradient-objects/build.json build/adam-distributions/reproduction.json $(GRADIENT_ADAM_DISTRIBUTION_INPUTS) | build",
+    "Make rule test-gradient-adam-distributions: gradient-objects adam-distributions",
+    "Make output mapping \"$$review/observed/native/.\" build/gradient-objects/",
+    "Make output mapping \"$$review/observed/producer/native/.\" build/gradient-adam-distributions/",
+    "Make output mapping --output build/hosted-gradient-objects-native.json",
+    "Make output mapping \"$$review/observed/report.json\" build/hosted-gradient-adam-distributions-native.json",
+    "source root and stack toolchain configured for Reproduce public gradient Tensor objects and incoming ownership",
+    "source root and stack toolchain configured for Reproduce shared public gradients Adam and CPU distributions",
+    "original frozen input unchanged tests/pytorch_tensor_rng_backward_oracle.py",
+    "original frozen input unchanged tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py",
+    "original frozen input unchanged tests/tensor_object_oracle/bridge.py",
+    "original frozen input unchanged tests/tensor_object_oracle/lifecycle.py",
+    "original frozen input unchanged tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py",
+    "original frozen input unchanged tests/pytorch_session_oracle.py",
+    "original frozen input unchanged tests/pytorch_oracle.py",
+    "original frozen input unchanged compatibility/pytorch-oracle-lock.json",
+    "original frozen input unchanged tools/emit_ci_report.py",
+    "live32 exact script hash",
+    "frozen35 exact script hash",
+    "cold input pin gradient-objects/runtime.hepta",
+    "cold input pin gradient-objects/tensor-gradient-object-session",
+    "cold build success gradient-objects",
+    "cold input pin gradient-adam-distributions/runtime.hepta",
+    "cold input pin gradient-adam-distributions/tensor-gradient-adam-distributions-session",
+    "cold build success gradient-adam-distributions",
+    "exact source verification present in Compare public gradient owner with the unchanged live joint oracle (32 cases)",
+    "correct native hash in Compare public gradient owner with the unchanged live joint oracle (32 cases)",
+    "correct source hash and absence of unsupported flags in Compare public gradient owner with the unchanged live joint oracle (32 cases)",
+    "output has its own envelope Compare public gradient owner with the unchanged live joint oracle (32 cases)",
+    "actual prepare-only exit zero Compare public gradient owner with the unchanged live joint oracle (32 cases)",
+    "no Torch or native cases executed by Compare public gradient owner with the unchanged live joint oracle (32 cases)",
+    "correct prepared native identity Compare public gradient owner with the unchanged live joint oracle (32 cases)",
+    "correct prepared source identity Compare public gradient owner with the unchanged live joint oracle (32 cases)",
+    "exact source verification present in Regress public gradient owner against the unchanged 35 Tensor cases",
+    "correct native hash in Regress public gradient owner against the unchanged 35 Tensor cases",
+    "output has its own envelope Regress public gradient owner against the unchanged 35 Tensor cases",
+    "actual prepare-only exit zero Regress public gradient owner against the unchanged 35 Tensor cases",
+    "no Torch or native cases executed by Regress public gradient owner against the unchanged 35 Tensor cases",
+    "correct prepared native identity Regress public gradient owner against the unchanged 35 Tensor cases",
+    "original frozen AST/custody preparation passed Regress public gradient owner against the unchanged 35 Tensor cases",
+    "exact source verification present in Compare shared gradient Adam distribution owner with unchanged live oracle (32 cases)",
+    "correct native hash in Compare shared gradient Adam distribution owner with unchanged live oracle (32 cases)",
+    "correct source hash and absence of unsupported flags in Compare shared gradient Adam distribution owner with unchanged live oracle (32 cases)",
+    "output has its own envelope Compare shared gradient Adam distribution owner with unchanged live oracle (32 cases)",
+    "actual prepare-only exit zero Compare shared gradient Adam distribution owner with unchanged live oracle (32 cases)",
+    "no Torch or native cases executed by Compare shared gradient Adam distribution owner with unchanged live oracle (32 cases)",
+    "correct prepared native identity Compare shared gradient Adam distribution owner with unchanged live oracle (32 cases)",
+    "correct prepared source identity Compare shared gradient Adam distribution owner with unchanged live oracle (32 cases)",
+    "exact source verification present in Regress shared gradient Adam distribution owner against unchanged 35 Tensor cases",
+    "correct native hash in Regress shared gradient Adam distribution owner against unchanged 35 Tensor cases",
+    "output has its own envelope Regress shared gradient Adam distribution owner against unchanged 35 Tensor cases",
+    "actual prepare-only exit zero Regress shared gradient Adam distribution owner against unchanged 35 Tensor cases",
+    "no Torch or native cases executed by Regress shared gradient Adam distribution owner against unchanged 35 Tensor cases",
+    "correct prepared native identity Regress shared gradient Adam distribution owner against unchanged 35 Tensor cases",
+    "original frozen AST/custody preparation passed Regress shared gradient Adam distribution owner against unchanged 35 Tensor cases",
+    "both live32 case plans identical",
+    "both frozen35 case plans and tolerances identical",
+    "original 517 report preserved",
+    "correction explicitly records omitted required source hash and unsupported flags",
+    "original root correction preparation bytes validation/gradient-objects-root/live32-prepared-01.json",
+    "original root correction preparation bytes validation/gradient-adam-distributions-root/live32-prepared-01.json",
+    "original erroneous argv remains different and unmodified",
+    "original 355 bad CLI actually rejected by unchanged argparse",
+    "actual Make program help accepted tools/gradient_objects/build.py",
+    "actual Make program help accepted tools/gradient_objects/qualify.py",
+    "actual Make program help accepted tests/check_gradient_object_reports.py",
+    "actual Make program help accepted tools/gradient_adam_distributions/build.py",
+    "actual Make program help accepted tools/gradient_adam_distributions/qualify.py",
+    "unchanged final input /dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/.github/workflows/native.yml",
+    "unchanged final input /dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/Makefile",
+    "unchanged final input /dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/tools/collect_ci_reports.py",
+    "unchanged final input /dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/tests/pytorch_tensor_rng_backward_oracle.py",
+    "unchanged final input /dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py",
+    "unchanged final input /dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/tests/tensor_object_oracle/bridge.py",
+    "unchanged final input /dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/tests/tensor_object_oracle/lifecycle.py",
+    "unchanged final input /dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py",
+    "unchanged final input /dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/tests/pytorch_session_oracle.py",
+    "unchanged final input /dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/tests/pytorch_oracle.py",
+    "unchanged final input /dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/compatibility/pytorch-oracle-lock.json",
+    "unchanged final input /dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/tools/emit_ci_report.py",
+    "unchanged final input /dev/shm/heptatorch-d26699e25fea/gradient-objects-root-cold-01/native/runtime.hepta",
+    "unchanged final input /dev/shm/heptatorch-d26699e25fea/gradient-objects-root-cold-01/native/tensor-gradient-object-session",
+    "unchanged final input /dev/shm/heptatorch-d26699e25fea/gradient-objects-root-cold-01/native/build.json",
+    "unchanged final input /dev/shm/heptatorch-d26699e25fea/gradient-adam-distributions-root-cold-05/native/runtime.hepta",
+    "unchanged final input /dev/shm/heptatorch-d26699e25fea/gradient-adam-distributions-root-cold-05/native/tensor-gradient-adam-distributions-session",
+    "unchanged final input /dev/shm/heptatorch-d26699e25fea/gradient-adam-distributions-root-cold-05/native/build.json",
+    "unchanged final input /workspace/scratch/d26699e25fea/gradient-objects-integration-review/review-01/report.json",
+    "unchanged final input /workspace/scratch/d26699e25fea/gradient-objects-integration-review/review-01/reviewed-source/.github/workflows/native.yml",
+    "unchanged final input /dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/validation/gradient-objects-root/ci-cli-correction-01.json",
+    "unchanged final input /dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/validation/gradient-objects-root/live32-prepared-01.json",
+    "unchanged final input /dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/validation/gradient-adam-distributions-root/live32-prepared-01.json",
+    "unchanged final input /dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/tools/gradient_objects/build.py",
+    "unchanged final input /dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/tools/gradient_objects/qualify.py",
+    "unchanged final input /dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/tests/check_gradient_object_reports.py",
+    "unchanged final input /dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/tools/gradient_adam_distributions/build.py",
+    "unchanged final input /dev/shm/heptatorch-d26699e25fea/HeptaTorch-gradient-adam-distributions/tools/gradient_adam_distributions/qualify.py"
+  ],
+  "check_count": 112,
+  "full_rewrite_complete": false
+}

@@ -237,6 +237,19 @@ third_party/pytorch/      上游许可证与通知
 
 [独立交叉资格](validation/adam-distributions-review/README.md)已实际通过 **6 组／462 帧**：Bernoulli 图与 Optimizer／AccumulateGrad 分别持有参数、dropout noise 和真实 state 的 Saved／别名寿命、Adam 更新后命令 86／87 的晚错误提交，以及 Adam／AdamW 各四轮 dropout、反向、更新、清除与图回收。检查包含 249 个逐位 binary32 值、22 份完整 Generator 状态和 4,892,928 字节整 owner 回滚。首轮测试期望丢失负零符号的 FAIL、对应真实 PyTorch 观察、修正和全部原始帧均保留；原生源码和映像没有为该测试修正而变化。
 
-`make adam-distributions test-adam-distributions` 重建该共同映像并执行根资格入口；[构建说明](docs/build.md#combined-owned-adam-and-cpu-distributions)列出两个前驱、严格复现及报告路径。CI 新增原生资格、原样 32 组 live PyTorch 和原样 35 组 Tensor 三个步骤，均绑定最终共同 ELF；新映像的这两份 live 结果尚待实际执行。既有 21 份报告及其步骤不变，报告收集器从工作流自动得到新增后的 24 份完整报告要求。
+`make adam-distributions test-adam-distributions` 重建该共同映像并执行根资格入口；[构建说明](docs/build.md#combined-owned-adam-and-cpu-distributions)列出两个前驱、严格复现及报告路径。该配置已在实现提交 `3e75b3aa…` 的两条 Native CI 中各通过全部 **68 步**，并合入 `e4cf7b6d…`。同一 ELF 的原样 **32 组 live PyTorch** 和 **35 组 Tensor** 均通过，所有 11 项来源检查通过，零参数绝对 Version 差异；原有 283 项显式状态生命周期差异保留。[完整托管证据](validation/hosted-adam-distributions-3e75b3a/)保存原始 ZIP、50 份报告、24 份 envelope、主审及独立逐字审查。后续新映像继续单独运行这些门禁。
 
 同一份固定 183 组参考在旧原子接口上仍保留 161 PASS／4 个事务差异／18 OPEN，在显式错误接口上为 165 PASS／18 OPEN；24 组 Optimizer 参考仍是 22 组在已暴露范围内通过、1 组部分覆盖、1 组公开梯度对象开放。旧原子负控曾将 86／87 视为未知命令，其原始失败单独保留，新增准入检查不冒称旧负控原样通过。共同配置没有增加新的上游 API 覆盖，也未接入公开 `.grad` 对象后继；完整 RNG、dtype、优化器模式及整个 PyTorch 的 2,590 条 schema／17 项门禁继续保持未闭合。
+
+
+## 公开梯度 Tensor 与共同运行时
+
+[公开梯度对象实现](tools/gradient_objects/README.md)为 `.grad` 提供真实 Tensor、Storage、Version、引用和别名寿命。主集成从冻结 SGD 前驱重新编译 355 函数配置，实际完成 **16 项冷资格**；仅用 HIA overlay 重建和重走完整作者生成链得到逐字相同的源码与 ELF。固定 public10 为 9 组已覆盖／1 组部分覆盖，incoming25 为 22 组已覆盖／3 组未表示，alias12 全部通过。历史失败、实际帧和明确的未表示边界保存在 [根集成证据](validation/gradient-objects-root/)。
+
+[共同配置 candidate05](tools/gradient_adam_distributions/README.md)把上述真实梯度对象与 Adam／AdamW、CPU Bernoulli／dropout 接入同一 owner。源码 `1fed8ea7…`、ELF `67734858…` 包含 **428 个 core 函数、5,738 个块、21,348 条指令和 9 个原生模块**。主集成再次冷构建后完成全部 **17 项生产资格**。新物理 incoming Storage 与逻辑梯度工作区分别管理，解决转置零贡献先到达时的梯度混排；pointwise 输出使用实际布局地址；scalar-add 保留固定 CPU 参考的 NaN 符号和 payload。
+
+独立资格分别在同一最终映像上重新执行原生重编、owner 入口、四向 typed handoff、48 组 scalar NaN、2 组实际混合布局、6 组跨功能生命周期、2 组数学反例以及 8 组极大 size-one stride 对照。candidate04 在这 8 组中真实失败 4 组；candidate05 仅修正 signed byte-stride 比较，同一参考与比较器得到 8／8 通过。原失败没有改写为通过。这些重叠套件分别计数，不汇总为上游 API 覆盖率。
+
+原 Optimizer24 的 case20 已通过实际 `.grad` 外部引用、`zero_grad(None/False)`、原地标量更新和弱引用到期验证；与原 SGD 及 Adam 的不重复索引合并后为 **23 组已覆盖／1 组部分覆盖**。`retain_grad` 的非叶梯度行为、hooks／高阶导数、18 组分布 dtype／bool-mask 情形及其余全量子系统继续开放。新增 355 和 428 两份 ELF 的 CI 各运行原生资格、原样 live32 与原样 frozen35；这些新映像的实际 hosted 结果单独记录，不能继承 378 配置的 PASS。
+
+[集成构建说明](docs/gradient-objects-and-composition.md)给出复现命令、输入绑定、失效历史和剩余边界。整个项目仍为 **HOLD**；2,590 条原始 schema 和 17 项完整验收门禁不变。
