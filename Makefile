@@ -308,6 +308,25 @@ test-owned-optimizers: owned-optimizers
 	  --nullable-build "$(CURDIR)/build/tensor-rng-nullable" --stack-build "$(HEPTA_STACK_BUILD)" --output "$$review/observed"; \
 	cp "$$review/observed/report.json" build/hosted-owned-optimizers-native.json
 
+OWNED_ADAM_INPUTS := $(wildcard tools/owned_adam/* tools/owned_adam/upstream/* tests/adam_object_review/*) validation/owned-adam-package.sha256 validation/adam-object-review-package.sha256 tests/qualify_owned_adam.py Makefile
+
+.PHONY: owned-adam test-owned-adam
+owned-adam: build/owned-adam/reproduction.json
+
+build/owned-adam/reproduction.json: build/owned-optimizers/reproduction.json $(OWNED_ADAM_INPUTS) | build
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.owned-adam.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	python3 -I -S -B tools/owned_adam/rebuild.py --baseline "$(CURDIR)/build/owned-optimizers" \
+	  --repository "$(CURDIR)" --source-root "$(HEPTA_SOURCE_ROOT)" \
+	  --compiler "$(HEPTA_STACK_BUILD)/native/stack-module-compiler" --linker "$(HEPTA_STACK_BUILD)/native/stack-linker-session" \
+	  --output "$$tmp/native"; \
+	mkdir -p build/owned-adam; cp -a --remove-destination "$$tmp/native/." build/owned-adam/
+
+test-owned-adam: owned-adam
+	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/.owned-adam-review.XXXXXX"); \
+	python3 -I -S -B tests/qualify_owned_adam.py --build "$(CURDIR)/build/owned-adam" \
+	  --baseline "$(CURDIR)/build/owned-optimizers" --stack-build "$(HEPTA_STACK_BUILD)" --output "$$review/observed"; \
+	cp "$$review/observed/report.json" build/hosted-owned-adam-native.json
+
 check-compiler:
 	@compiler=$$(command -v "$(HEPTA_COMPILER)") || { echo 'Set HEPTA_COMPILER to the pinned native HIA compiler; see docs/build.md.' >&2; exit 1; }; \
 	printf '%s  %s\n' '$(COMPILER_SHA256)' "$$compiler" | sha256sum -c -
