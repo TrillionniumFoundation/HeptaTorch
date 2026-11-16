@@ -132,7 +132,17 @@ cmp build/train.response build/train.expected
 
 [联合原生实现](tools/tensor_rng_composition/README.md)把完整首次梯度组件与 Tensor 均匀填充、独立 Generator 表放进同一个 HIA 可执行文件和真实 owner。命令 58 失败时只保留前缀的随机消费；命令 57 和普通命令错误仍整帧回滚。7 个原生单元重建得到固定映像 `cdcaebb2785639585de7fd2a4e1f98d41a56e885f1657c3485ce5f187f89d726`，原生交叉事务、增长重放、两种反向入口的训练轨迹及四种前驱状态交接均通过。接近 binary32 最大值的区间接纳按真实 PyTorch 的 binary64 减法判断，88 项实际观测逐项匹配；旧 RNG03 的严格拒绝失败与独立测试输入适配记录均保留。
 
-主审独立的 **32 组 live PyTorch 联合测试**及原样 **35 组 Tensor 回归**已接入 CI，当前仍等待这些新增托管结果。32 组测试检查参数和梯度逐位结果、绝对版本、梯度存在、实际 Storage 字节数／偏移，以及完整 5,056 字节 Generator 状态。`validation/tensor-rng-backward-oracle-preparation.json` 保持 `NOT_RUN` 的准备身份，不能当作执行通过记录。完整 Python API、其他 dtype/device、其他分布、非叶原地随机操作的完整自动微分和优化器对象生命周期仍开放。
+[实际托管联合资格](validation/hosted-native-tensor-rng-backward.json)已在实现提交 `44bd2a3bed4dab600bb31298c2b7f698df75d89d` 上通过全部 **51 个 CI 步骤**。主审独立的 **32 组 live PyTorch 联合测试全部通过**：2,132 帧、17,455 个精确 binary32 字、1,137,600 字节完整 Generator 状态、238 次绝对版本和 166 次梯度存在比较；同时检查实际 Storage 字节数和偏移。原样 **35 组 Tensor 回归全部通过**：6,344 帧、2,590,274 个数值比较、零参数绝对版本差异。两套实际参考的 11 项来源检查全部通过，原始报告逐字压缩保存在 `validation/hosted-tensor-rng-oracles/`；原有 283 项 momentum 生命周期观察和另一组 8／65 项状态观察分别保留，不相加计数。`validation/tensor-rng-backward-oracle-preparation.json` 保持 `NOT_RUN` 的准备身份，不能当作执行通过记录。完整 Python API、其他 dtype/device、其他分布、非叶原地随机操作的完整自动微分和优化器对象生命周期仍开放。
+
+## 梯度清除与同一 owner 内的重新物化
+
+[独立 nullable-gradient 组件](tools/gradient_none/README.md)增加命令 70：实际释放叶梯度的私有 Storage／Hold，把梯度存在状态改为 None；后续反向传播重新取得真实存储，并继续保留首次写入的精确位模式。命令 8 只清零已存在的梯度，None 时不分配、不写空地址。命令 58 失败时，已经完成的叶梯度保留，尚未物化的预留存储被回收。
+
+[联合实现](tools/tensor_rng_nullable/README.md)把同样的行为接入现有 Tensor／Generator owner。全部 7 个原生单元的源码、对象文件和最终映像已经重新构建并逐字匹配。其新私有状态使用明确的格式屏障；真实跨模块 owner 交接检查了拒绝后的完整内容、原运行时恢复，以及进程仍存活时解除映射。
+
+[本地正式资格](validation/gradient-none-root-native.json)对独立和联合两个映像分别通过 6 组／179 帧、131,101 个精确梯度字及 261 次提交节点不变量检查；还分别重放了全部 10 组实际 PyTorch 梯度清除观测和原有 13／16／8 组回归。新增联合检查覆盖 24 次训练更新、34 份完整随机状态和 2,500,896 字节失败回滚。10 组梯度清除重放中的 6 个 Adam 位差异仍按原有容差记录；11 项状态版本、9 项状态创建和 30 项缺失 step Tensor 的观察独立保留。旧的 8／65 项观察没有被替换或相加。
+
+新映像的原样 32 组 live PyTorch 联合测试和 35 组 Tensor 回归已接入 CI，托管执行结果仍待验收。公开 `.grad` Tensor 身份／版本和外部别名存活期、真正的 Optimizer 对象及完整 Python 接口仍开放。[后续实现所需的真实参考](validation/hosted-object-distribution-observations.json)另外冻结了 24 组优化器对象、6 组叶求导标志及 183 组 Bernoulli／dropout 观测；这些参考观测不作为 HIA 已实现的数量。
 
 ## 跨请求持久会话
 

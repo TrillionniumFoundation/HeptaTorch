@@ -536,6 +536,13 @@ jobs:
             HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget"
           python3 -I -S -B tools/emit_ci_report.py build/hosted-tensor-rng-composition-native.json
 
+      - name: Reproduce and qualify nullable gradients in standalone and Tensor RNG owners
+        run: |
+          make gradient-none tensor-rng-nullable test-gradient-none \
+            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
+            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget"
+          python3 -I -S -B tools/emit_ci_report.py build/hosted-gradient-none-native.json
+
       - name: Reproduce and qualify persistent native CPU Generator objects
         run: |
           make cpu-generators test-cpu-generators \
@@ -580,6 +587,19 @@ jobs:
             --expected-source-sha256 7447c169d3b2cad1e55cb7b1b8970d67f4103c5866f6db0a60c0b4d05d02cc0b \
             --repo . --output build/pytorch-tensor-rng-backward.json > build/pytorch-tensor-rng-backward.stdout || status=$?
           python3 -I -S -B tools/emit_ci_report.py build/pytorch-tensor-rng-backward.json
+          exit "$status"
+
+      - name: Regress nullable Tensor RNG image against the unchanged live joint oracle (32 cases)
+        run: |
+          echo '554671168c7a4a408dc1e1df89a19db15c3efcefcf4ae1a300af1b6dcae40160  tests/pytorch_tensor_rng_backward_oracle.py' | sha256sum -c -
+          status=0
+          python3 tests/pytorch_tensor_rng_backward_oracle.py \
+            --native build/tensor-rng-nullable/tensor-rng-session \
+            --source build/tensor-rng-nullable/runtime.hepta \
+            --expected-native-sha256 5baa9cd5e5625f0e2324941486982b714dcdedfe897f5c16686a3ac8882ce242 \
+            --expected-source-sha256 490fc144160f6e4440aed001363f86ccff56c335f9781e38b058fc6106b1be09 \
+            --repo . --output build/pytorch-nullable-rng-backward.json > build/pytorch-nullable-rng-backward.stdout || status=$?
+          python3 -I -S -B tools/emit_ci_report.py build/pytorch-nullable-rng-backward.json
           exit "$status"
 
       - name: Compare persistent CPU Generators with fixed real PyTorch (24 cases)
@@ -742,5 +762,17 @@ jobs:
             --lock compatibility/pytorch-oracle-lock.json --repo . \
             --expected-native-sha256 cdcaebb2785639585de7fd2a4e1f98d41a56e885f1657c3485ce5f187f89d726 || status=$?
           python3 -I -S -B tools/emit_ci_report.py build/pytorch-tensor-rng-frozen35.json
+          exit "$status"
+
+      - name: Regress nullable Tensor RNG image against the unchanged 35 Tensor cases
+        run: |
+          status=0
+          python3 tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py \
+            build/tensor-rng-nullable/tensor-rng-session build/pytorch-nullable-rng-frozen35.json \
+            --owned-reference tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py \
+            --session-reference tests/pytorch_session_oracle.py --reference tests/pytorch_oracle.py \
+            --lock compatibility/pytorch-oracle-lock.json --repo . \
+            --expected-native-sha256 5baa9cd5e5625f0e2324941486982b714dcdedfe897f5c16686a3ac8882ce242 || status=$?
+          python3 -I -S -B tools/emit_ci_report.py build/pytorch-nullable-rng-frozen35.json
           exit "$status"
 

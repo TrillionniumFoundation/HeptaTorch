@@ -1,0 +1,322 @@
+hia-asm.v1 hepta.hia.program.v8 selfhost_exec
+fn entry(v0:readbuf,v1:mutbuf,v2:mutbuf) -> (u32) effects(read,write,trap) entry(b0)
+block b0(v0:readbuf,v1:mutbuf,v2:mutbuf)
+  v3:usize = buffer.len(v0)
+  v4:u64 = int.cast(v3) {"mode":"wrap"}
+  v5:u64 = const() {"value":8}
+  v6:bool = compare.lt(v4,v5)
+  branch v6 b1(v1) b2(v0,v1,v4)
+block b1(v7:mutbuf)
+  v8:u64 = const() {"value":0}
+  v9:u64 = const() {"value":1}
+  v10:u64 = call(v7,v8,v9) {"function":"put4"}
+  v11:u64 = const() {"value":4}
+  v12:u32 = int.cast(v11) {"mode":"wrap"}
+  ret(v12)
+block b2(v13:readbuf,v14:mutbuf,v15:u64)
+  v16:u64 = const() {"value":0}
+  v17:u64 = const() {"value":4}
+  v18:u64 = call(v13,v16) {"function":"load4"}
+  v19:u64 = call(v13,v17) {"function":"load4"}
+  v20:u64 = const() {"value":200000}
+  v21:bool = compare.gt(v19,v20)
+  v22:u64 = const() {"value":1}
+  v23:bool = compare.gt(v18,v22)
+  v24:bool = bool.or(v21,v23)
+  branch v24 b1(v14) b3(v13,v14,v15,v19,v18)
+block b3(v25:readbuf,v26:mutbuf,v27:u64,v28:u64,v29:u64)
+  v30:u64 = const() {"value":0}
+  v31:bool = compare.eq(v29,v30)
+  branch v31 b4(v25,v26,v27,v28) b8(v25,v26,v27,v28)
+block b4(v32:readbuf,v33:mutbuf,v34:u64,v35:u64)
+  v36:u64 = const() {"value":4}
+  v37:u64 = const() {"value":1}
+  v38:u64 = const() {"value":8}
+  v39:u64 = const() {"value":4}
+  v40:u64 = int.mul.wrap(v35,v36)
+  v41:u64 = int.add.wrap(v38,v40)
+  v42:u64 = int.mul.wrap(v35,v37)
+  v43:u64 = int.add.wrap(v39,v42)
+  v44:usize = buffer.len(v33)
+  v45:u64 = int.cast(v44) {"mode":"wrap"}
+  v46:bool = compare.ne(v34,v41)
+  v47:bool = compare.gt(v43,v45)
+  v48:bool = bool.or(v46,v47)
+  branch v48 b1(v33) b5(v32,v33,v35,v43)
+block b5(v49:readbuf,v50:mutbuf,v51:u64,v52:u64)
+  v53:u64 = const() {"value":0}
+  v54:u64 = call(v50,v53,v53) {"function":"put4"}
+  jump b6(v49,v50,v51,v53,v52)
+block b6(v55:readbuf,v56:mutbuf,v57:u64,v58:u64,v59:u64)
+  v60:bool = compare.lt(v58,v57)
+  branch v60 b7(v55,v56,v57,v58,v59) b12(v59)
+block b7(v61:readbuf,v62:mutbuf,v63:u64,v64:u64,v65:u64)
+  v66:u64 = const() {"value":8}
+  v67:u64 = const() {"value":4}
+  v68:u64 = int.mul.wrap(v64,v67)
+  v69:u64 = int.add.wrap(v66,v68)
+  v70:u64 = call(v61,v69) {"function":"load4"}
+  v71:u64 = call(v70) {"function":"round_float8_e4m3fnuz"}
+  v72:u64 = const() {"value":4}
+  v73:u64 = const() {"value":1}
+  v74:u64 = int.mul.wrap(v64,v73)
+  v75:u64 = int.add.wrap(v72,v74)
+  v76:u64 = call(v62,v75,v71) {"function":"put1"}
+  v77:u64 = const() {"value":1}
+  v78:u64 = int.add.wrap(v64,v77)
+  jump b6(v61,v62,v63,v78,v65)
+block b8(v79:readbuf,v80:mutbuf,v81:u64,v82:u64)
+  v83:u64 = const() {"value":1}
+  v84:u64 = const() {"value":4}
+  v85:u64 = const() {"value":8}
+  v86:u64 = const() {"value":4}
+  v87:u64 = int.mul.wrap(v82,v83)
+  v88:u64 = int.add.wrap(v85,v87)
+  v89:u64 = int.mul.wrap(v82,v84)
+  v90:u64 = int.add.wrap(v86,v89)
+  v91:usize = buffer.len(v80)
+  v92:u64 = int.cast(v91) {"mode":"wrap"}
+  v93:bool = compare.ne(v81,v88)
+  v94:bool = compare.gt(v90,v92)
+  v95:bool = bool.or(v93,v94)
+  branch v95 b1(v80) b9(v79,v80,v82,v90)
+block b9(v96:readbuf,v97:mutbuf,v98:u64,v99:u64)
+  v100:u64 = const() {"value":0}
+  v101:u64 = call(v97,v100,v100) {"function":"put4"}
+  jump b10(v96,v97,v98,v100,v99)
+block b10(v102:readbuf,v103:mutbuf,v104:u64,v105:u64,v106:u64)
+  v107:bool = compare.lt(v105,v104)
+  branch v107 b11(v102,v103,v104,v105,v106) b12(v106)
+block b11(v108:readbuf,v109:mutbuf,v110:u64,v111:u64,v112:u64)
+  v113:u64 = const() {"value":8}
+  v114:u64 = const() {"value":1}
+  v115:u64 = int.mul.wrap(v111,v114)
+  v116:u64 = int.add.wrap(v113,v115)
+  v117:u64 = call(v108,v116) {"function":"load1"}
+  v119:u64 = call(v117) {"function":"widen_float8_e4m3fnuz"}
+  v120:u64 = const() {"value":4}
+  v121:u64 = const() {"value":4}
+  v122:u64 = int.mul.wrap(v111,v121)
+  v123:u64 = int.add.wrap(v120,v122)
+  v124:u64 = call(v109,v123,v119) {"function":"put4"}
+  v125:u64 = const() {"value":1}
+  v126:u64 = int.add.wrap(v111,v125)
+  jump b10(v108,v109,v110,v126,v112)
+block b12(v127:u64)
+  v128:u32 = int.cast(v127) {"mode":"wrap"}
+  ret(v128)
+end
+fn load1(v0:readbuf,v1:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(v0:readbuf,v1:u64)
+  v2:usize = int.cast(v1) {"mode":"wrap"}
+  v3:u8 = buffer.load(v0,v2)
+  v4:u64 = int.cast(v3) {"mode":"wrap"}
+  ret(v4)
+end
+fn load4(v0:readbuf,v1:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(v0:readbuf,v1:u64)
+  v2:u64 = const() {"value":0}
+  v3:usize = int.cast(v1) {"mode":"wrap"}
+  v4:u8 = buffer.load(v0,v3)
+  v5:u64 = int.cast(v4) {"mode":"wrap"}
+  v6:u64 = bit.or(v2,v5)
+  v7:u64 = const() {"value":1}
+  v8:u64 = int.add.wrap(v1,v7)
+  v9:usize = int.cast(v8) {"mode":"wrap"}
+  v10:u8 = buffer.load(v0,v9)
+  v11:u64 = int.cast(v10) {"mode":"wrap"}
+  v12:u64 = const() {"value":8}
+  v13:u64 = int.shl.checked(v11,v12)
+  v14:u64 = bit.or(v6,v13)
+  v15:u64 = const() {"value":2}
+  v16:u64 = int.add.wrap(v1,v15)
+  v17:usize = int.cast(v16) {"mode":"wrap"}
+  v18:u8 = buffer.load(v0,v17)
+  v19:u64 = int.cast(v18) {"mode":"wrap"}
+  v20:u64 = const() {"value":16}
+  v21:u64 = int.shl.checked(v19,v20)
+  v22:u64 = bit.or(v14,v21)
+  v23:u64 = const() {"value":3}
+  v24:u64 = int.add.wrap(v1,v23)
+  v25:usize = int.cast(v24) {"mode":"wrap"}
+  v26:u8 = buffer.load(v0,v25)
+  v27:u64 = int.cast(v26) {"mode":"wrap"}
+  v28:u64 = const() {"value":24}
+  v29:u64 = int.shl.checked(v27,v28)
+  v30:u64 = bit.or(v22,v29)
+  ret(v30)
+end
+fn put1(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(v0:mutbuf,v1:u64,v2:u64)
+  v3:u8 = int.cast(v2) {"mode":"wrap"}
+  v4:usize = int.cast(v1) {"mode":"wrap"}
+  _ = buffer.store(v0,v4,v3)
+  ret(v2)
+end
+fn round_float8_e4m3fnuz(x:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(x:u64)
+  shift16:u64 = const() {"value":24}
+  upper:u64 = int.shr.checked(x,shift16)
+  sign_mask:u64 = const() {"value":128}
+  sign:u64 = bit.and(upper,sign_mask)
+  shift23:u64 = const() {"value":23}
+  exponent_bits:u64 = int.shr.checked(x,shift23)
+  exponent_mask:u64 = const() {"value":255}
+  exponent:u64 = bit.and(exponent_bits,exponent_mask)
+  fraction_mask:u64 = const() {"value":8388607}
+  fraction:u64 = bit.and(x,fraction_mask)
+  exceptional:bool = compare.eq(exponent,exponent_mask)
+  branch exceptional special(sign,fraction) finite(sign,exponent,fraction)
+block special(s1:u64,f1:u64)
+  zero1:u64 = const() {"value":0}
+  is_inf1:bool = compare.eq(f1,zero1)
+  branch is_inf1 infinity(s1) nan(s1,f1)
+block infinity(s2:u64)
+  inf2:u64 = const() {"value":128}
+  result2:u64 = bit.or(s2,inf2)
+  ret(result2)
+block nan(s3:u64,f3:u64)
+  canonical3:u64 = const() {"value":128}
+  ret(canonical3)
+block finite(s4:u64,e4:u64,f4:u64)
+  largest4:u64 = const() {"value":134}
+  overflow4:bool = compare.gt(e4,largest4)
+  branch overflow4 infinity(s4) classify(s4,e4,f4)
+block classify(s5:u64,e5:u64,f5:u64)
+  minimum5:u64 = const() {"value":120}
+  normal5:bool = compare.ge(e5,minimum5)
+  branch normal5 normal(s5,e5,f5) tiny(s5,e5,f5)
+block normal(s6:u64,e6:u64,f6:u64)
+  shift6:u64 = const() {"value":20}
+  truncated6:u64 = int.shr.checked(f6,shift6)
+  one6:u64 = const() {"value":1}
+  odd6:u64 = bit.and(truncated6,one6)
+  bias6:u64 = const() {"value":524287}
+  adjustment6:u64 = int.add.wrap(bias6,odd6)
+  rounded6:u64 = int.add.wrap(f6,adjustment6)
+  fraction6:u64 = int.shr.checked(rounded6,shift6)
+  exponent_bias6:u64 = const() {"value":119}
+  exponent6:u64 = int.sub.wrap(e6,exponent_bias6)
+  ten6:u64 = const() {"value":3}
+  exponent_bits6:u64 = int.shl.checked(exponent6,ten6)
+  magnitude6:u64 = int.add.wrap(exponent_bits6,fraction6)
+  last6:u64 = const() {"value":128}
+  invalid6:bool = compare.ge(magnitude6,last6)
+  admitted6:u64 = select(invalid6,last6,magnitude6)
+  result6:u64 = bit.or(s6,admitted6)
+  ret(result6)
+block tiny(s7:u64,e7:u64,f7:u64)
+  minimum7:u64 = const() {"value":116}
+  vanishes7:bool = compare.lt(e7,minimum7)
+  branch vanishes7 zero(s7) subnormal(s7,e7,f7)
+block zero(s8:u64)
+  zero8:u64 = const() {"value":0}
+  ret(zero8)
+block subnormal(s9:u64,e9:u64,f9:u64)
+  implicit9:u64 = const() {"value":8388608}
+  significand9:u64 = bit.or(f9,implicit9)
+  bias9:u64 = const() {"value":140}
+  shift9:u64 = int.sub.wrap(bias9,e9)
+  quotient9:u64 = int.shr.checked(significand9,shift9)
+  one9:u64 = const() {"value":1}
+  divisor9:u64 = int.shl.checked(one9,shift9)
+  mask9:u64 = int.sub.wrap(divisor9,one9)
+  remainder9:u64 = bit.and(significand9,mask9)
+  halfway9:u64 = int.shr.checked(divisor9,one9)
+  above9:bool = compare.gt(remainder9,halfway9)
+  tied9:bool = compare.eq(remainder9,halfway9)
+  odd9:u64 = bit.and(quotient9,one9)
+  zero9:u64 = const() {"value":0}
+  odd_bool9:bool = compare.ne(odd9,zero9)
+  tie_up9:bool = bool.and(tied9,odd_bool9)
+  round_up9:bool = bool.or(above9,tie_up9)
+  increment9:u64 = select(round_up9,one9,zero9)
+  rounded9:u64 = int.add.wrap(quotient9,increment9)
+  encoded_zero9:bool = compare.eq(rounded9,zero9)
+  signed9:u64 = bit.or(s9,rounded9)
+  result9:u64 = select(encoded_zero9,zero9,signed9)
+  ret(result9)
+end
+fn widen_float8_e4m3fnuz(x:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(x:u64)
+  invalid:u64 = const() {"value":128}
+  is_invalid:bool = compare.eq(x,invalid)
+  branch is_invalid nan_code(x) decode(x)
+block nan_code(raw:u64)
+  nan_bits:u64 = const() {"value":2139095041}
+  ret(nan_bits)
+block decode(encoded:u64)
+  sign_mask:u64 = const() {"value":128}
+  sign16:u64 = bit.and(encoded,sign_mask)
+  shift16:u64 = const() {"value":24}
+  sign:u64 = int.shl.checked(sign16,shift16)
+  shift10:u64 = const() {"value":3}
+  exponent_bits:u64 = int.shr.checked(encoded,shift10)
+  exponent_mask:u64 = const() {"value":15}
+  exponent:u64 = bit.and(exponent_bits,exponent_mask)
+  fraction_mask:u64 = const() {"value":7}
+  fraction:u64 = bit.and(encoded,fraction_mask)
+  zero:u64 = const() {"value":0}
+  sub:bool = compare.eq(exponent,zero)
+  branch sub denormal(sign,fraction) nonzero(sign,exponent,fraction)
+block denormal(s1:u64,f1:u64)
+  zero1:u64 = const() {"value":0}
+  empty1:bool = compare.eq(f1,zero1)
+  start1:u64 = const() {"value":120}
+  branch empty1 signed_zero(s1) normalize(s1,start1,f1)
+block signed_zero(s2:u64)
+  ret(s2)
+block normalize(s3:u64,e3:u64,f3:u64)
+  hidden3:u64 = const() {"value":8}
+  normalized3:bool = compare.ge(f3,hidden3)
+  branch normalized3 assemble(s3,e3,f3) shift(s3,e3,f3)
+block shift(s4:u64,e4:u64,f4:u64)
+  one4:u64 = const() {"value":1}
+  exponent4:u64 = int.sub.wrap(e4,one4)
+  fraction4:u64 = int.shl.checked(f4,one4)
+  jump normalize(s4,exponent4,fraction4)
+block nonzero(s5:u64,e5:u64,f5:u64)
+  jump normal(s5,e5,f5)
+block normal(s7:u64,e7:u64,f7:u64)
+  bias7:u64 = const() {"value":119}
+  exponent7:u64 = int.add.wrap(e7,bias7)
+  jump assemble(s7,exponent7,f7)
+block assemble(s8:u64,e8:u64,f8:u64)
+  mask8:u64 = const() {"value":7}
+  fraction8:u64 = bit.and(f8,mask8)
+  shift_fraction8:u64 = const() {"value":20}
+  payload8:u64 = int.shl.checked(fraction8,shift_fraction8)
+  shift_exponent8:u64 = const() {"value":23}
+  exponent8:u64 = int.shl.checked(e8,shift_exponent8)
+  magnitude8:u64 = bit.or(exponent8,payload8)
+  result8:u64 = bit.or(s8,magnitude8)
+  ret(result8)
+end
+fn put4(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(v0:mutbuf,v1:u64,v2:u64)
+  v3:u8 = int.cast(v2) {"mode":"wrap"}
+  v4:usize = int.cast(v1) {"mode":"wrap"}
+  _ = buffer.store(v0,v4,v3)
+  v5:u64 = const() {"value":1}
+  v6:u64 = int.add.wrap(v1,v5)
+  v7:u64 = const() {"value":8}
+  v8:u64 = int.shr.checked(v2,v7)
+  v9:u8 = int.cast(v8) {"mode":"wrap"}
+  v10:usize = int.cast(v6) {"mode":"wrap"}
+  _ = buffer.store(v0,v10,v9)
+  v11:u64 = const() {"value":2}
+  v12:u64 = int.add.wrap(v1,v11)
+  v13:u64 = const() {"value":16}
+  v14:u64 = int.shr.checked(v2,v13)
+  v15:u8 = int.cast(v14) {"mode":"wrap"}
+  v16:usize = int.cast(v12) {"mode":"wrap"}
+  _ = buffer.store(v0,v16,v15)
+  v17:u64 = const() {"value":3}
+  v18:u64 = int.add.wrap(v1,v17)
+  v19:u64 = const() {"value":24}
+  v20:u64 = int.shr.checked(v2,v19)
+  v21:u8 = int.cast(v20) {"mode":"wrap"}
+  v22:usize = int.cast(v18) {"mode":"wrap"}
+  _ = buffer.store(v0,v22,v21)
+  ret(v2)
+end

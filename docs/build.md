@@ -667,3 +667,46 @@ workflow does not substitute for these live differential runs.
 The preparation report is intentionally `NOT_RUN`; native replay reports state
 that they consume actual hosted observations rather than execute Torch locally.
 All full subsystem gates and the original2590-schema denominator remain open.
+
+## Nullable gradients in standalone and Tensor RNG owners
+
+Use the same pinned source checkout and ABI3 tools:
+
+```sh
+make gradient-none tensor-rng-nullable test-gradient-none \
+  HEPTA_SOURCE_ROOT=/path/to/pinned-hepta \
+  HEPTA_STACK_BUILD=/path/to/stack-tools
+```
+
+The dependency chain reproduces the original Tensor objects, release and
+materialization profiles before compiling the new standalone image at
+`build/gradient-none/tensor-nullable-session` and the combined image at
+`build/tensor-rng-nullable/tensor-rng-session`. The frozen 25-file standalone
+package and 20-file common package remain byte-identical. The latter combines
+authoritative HIA function bodies, then invokes the unchanged native compiler
+and linker on all seven real units.
+
+`tests/qualify_gradient_none.py` verifies every packaged input before and after
+execution. Each image runs six native storage/rollback groups, the ten actual
+gradient-clear observations and unchanged thirteen/sixteen/eight gradient
+replays. The combined image also runs the previous three joint recipes, four
+new clear/RNG/training cases and real owner handoffs with both predecessors.
+The standalone barrier separately executes both ownership directions. No raw
+native pointer is serialized into production. The small observer adapter only
+changes private state magic and table offsets; its exact source transformation
+must match the frozen receipt.
+
+The complete local qualification is preserved losslessly through
+`validation/gradient-none-root-native.json`. Earlier integration-driver schema
+and output-directory errors are also preserved there, separately from native
+contract failures. The command writes `build/hosted-gradient-none-native.json`
+for lossless CI emission. Hosted CI additionally runs the unchanged live32 and
+frozen35 oracles against the new common image, retaining all original numerical
+assertions, tolerances and eleven reference-provenance checks.
+
+The ten clear recipes keep six raw Adam bit differences under the original
+4e-5 relative / 5e-6 absolute policy, plus their explicit 11/9/30 lifecycle
+observations. The older eight presence recipes retain their separate 8/65
+observations. Repeated execution does not add API coverage. Public gradient
+Tensor identity/Version, externally retained gradient aliases and true
+Optimizer-owned state remain open.

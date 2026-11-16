@@ -1,0 +1,38 @@
+{
+  "schema": "heptatorch.nullable-rng-stronger-handoff-test.v1",
+  "original_test_sha256": "bb9f342c40685a95334e85cb5773a6b3dab14b22b7cda95264326b22734d4e50",
+  "adapted_test_sha256": "312cc61017ba4cce2a8c06345219b69d9ac1aea80ed083af48e80108281f2f75",
+  "test_contract": "same owner-transfer/linkage checks, now requiring an actual defined-to-None leaf before wrong-profile handoff",
+  "exact_edits": [
+    {
+      "before": "b'HTRNGP01'",
+      "after": "b'HTRNGN01'",
+      "count": 1
+    },
+    {
+      "before": "rows=route(1,[wire.full((3,),0),(60,99),(68,wire.reference(1),wire.reference(2),0,wire.bits(1)),(63,wire.reference(2)),(53,)])",
+      "after": "rows=route(1,[wire.full((3,),0,1),(60,99),(68,wire.reference(1),wire.reference(2),0,wire.bits(1),1),wire.full((3,),1),(58,wire.reference(1),wire.reference(4),0),(70,wire.reference(1)),(63,wire.reference(2)),(59,wire.reference(1)),(53,)])",
+      "count": 1
+    },
+    {
+      "before": "state=rows[3]['payload'];new=s.owner();",
+      "after": "state=rows[6]['payload'];assert rows[7]['value']==0;new=s.owner();",
+      "count": 1
+    },
+    {
+      "before": "got=route(1,[(63,generator),(13,tensor),(53,)])",
+      "after": "got=route(1,[(63,generator),(13,tensor),(53,),(59,tensor)])",
+      "count": 1
+    },
+    {
+      "before": "assert got[0]['payload']==state and wire.meta(got[1])['version']==1",
+      "after": "assert got[0]['payload']==state and wire.meta(got[1])['version']==1 and got[3]['value']==0",
+      "count": 1
+    },
+    {
+      "before": "'both_closed_owner_mappings_absent':True",
+      "after": "'both_closed_owner_mappings_absent':True,'new_state_has_genuinely_cleared_nullable_leaf':True",
+      "count": 1
+    }
+  ]
+}
