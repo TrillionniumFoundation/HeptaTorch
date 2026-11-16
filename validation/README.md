@@ -428,3 +428,30 @@ JSON file hashes. It explicitly records the absolute version-counter gap.
 Earlier native and oracle preparation snapshots remain NOT_RUN at their
 original assembly times; this hosted receipt supplies the subsequent actual
 execution evidence without rebinding them.
+
+## Native owned-resource modules
+
+`native-owned-modules.json` is the frozen ABI2 component qualification. It
+records the complete two-unit compiler partition, three reproduced ABI2
+generations, explicit 1/2 MiB startup templates, syscall allocation/release,
+315 interface-admission cases and 70 other native lifecycle/allocator cases.
+The full current runtime and unhex generate byte-identical executable outputs.
+`owned-module-package.sha256` preserves the 23-file package snapshot.
+
+`owned-module-build-integration.json` records fresh canonical-worktree
+reproduction and qualification, retaining the initial missing-runtime-artifact
+integration failure. The first attempt had passed all 385 counted cases but
+could not read a comparison executable that had not been built in the new
+worktree. Building the pinned ordinary runtime before qualification resolved
+that prerequisite; no native code or expected result changed.
+
+### Observed hosted owned-module result
+
+`hosted-owned-modules.json` records run 43795584310, job 133063531252, at
+commit `030694be9373aefc9a6740c3ccc8d742098e5c51`: all 32 steps passed. The
+complete 385-case owned-module campaign and compiler reproduction passed, and
+the hosted per-suite reports reproduce their exact file SHA-256 values.
+Both ordinary 270-case PyTorch oracles, both interactive 21-case oracles, both
+461-pair fixture runs and all prior borrowed/session native gates also passed.
+This evidence does not qualify a general Tensor storage object or owned-state
+interactive entry; those have distinct implementations and acceptance work.

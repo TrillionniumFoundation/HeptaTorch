@@ -1,0 +1,259 @@
+def module_section(s:readbuf, h:u64, name:u64, kind:u64, flags:u64, align:u64, item:u64) -> u64:
+    if uint(s, h, 4) != name or uint(s, h + 4, 4) != kind or uint(s, h + 8, 8) != flags:
+        return 0
+    if uint(s, h + 16, 8) != 0 or uint(s, h + 48, 8) != align or uint(s, h + 56, 8) != item:
+        return 0
+    return 1
+
+def module_names(s:readbuf, at:u64) -> u64:
+    MODULE_NAMES_CHECKS
+    return 1
+
+def module_identifier(s:readbuf, at:u64, size:u64) -> u64:
+    if size == 0 or size > 128:
+        return 0
+    i = 0
+    while i < size:
+        c = byte(s, at + i)
+        good = 0
+        if (c >= 65 and c <= 90) or (c >= 97 and c <= 122) or c == 95:
+            good = 1
+        if i != 0 and c >= 48 and c <= 57:
+            good = 1
+        if good == 0:
+            return 0
+        i = i + 1
+    return 1
+
+def module_layout(s:readbuf, w:mutbuf, record:u64) -> u64:
+    pos = get(w, record)
+    if get(w, record + 24) != 8 or get(w, record + 72) != 2 or uint(s, pos + 62, 2) != 4:
+        return 0
+    table = pos + uint(s, pos + 40, 8)
+    if module_section(s, table + 64, 1, 1, 6, 16, 0) == 0:
+        return 0
+    if module_section(s, table + 128, 7, 2, 0, 8, 24) == 0:
+        return 0
+    if module_section(s, table + 192, 15, 3, 0, 1, 0) == 0:
+        return 0
+    if module_section(s, table + 256, 23, 3, 0, 1, 0) == 0:
+        return 0
+    if module_section(s, table + 320, 33, 1, 0, 1, 0) == 0:
+        return 0
+    if module_section(s, table + 384, 49, 4, 0, 8, 24) == 0:
+        return 0
+    if module_section(s, table + 448, 60, 1, 0, 8, 0) == 0:
+        return 0
+    if uint(s, table + 128 + 40, 8) != 8589934595 or uint(s, table + 384 + 40, 8) != 4294967298:
+        return 0
+    i = 1
+    while i < 8:
+        if i != 2 and i != 6 and uint(s, table + i * 64 + 40, 8) != 0:
+            return 0
+        i = i + 1
+    text = uint(s, table + 64 + 32, 8)
+    if text == 0 or uint(s, table + 64 + 24, 8) != 64:
+        return 0
+    symbols = uint(s, table + 128 + 24, 8)
+    symbol_bytes = uint(s, table + 128 + 32, 8)
+    strings = uint(s, table + 192 + 24, 8)
+    string_bytes = uint(s, table + 192 + 32, 8)
+    names = uint(s, table + 256 + 24, 8)
+    if symbols != aligned(64 + text, 8) or strings != symbols + symbol_bytes or names != strings + string_bytes:
+        return 0
+    if uint(s, table + 256 + 32, 8) != 75:
+        return 0
+    if module_names(s, pos + names) == 0:
+        return 0
+    if uint(s, table + 320 + 24, 8) != names + 75 or uint(s, table + 320 + 32, 8) != 0:
+        return 0
+    relocs = uint(s, table + 384 + 24, 8)
+    relocation_bytes = uint(s, table + 384 + 32, 8)
+    metadata = uint(s, table + 448 + 24, 8)
+    metadata_bytes = uint(s, table + 448 + 32, 8)
+    if relocs != aligned(names + 75, 8) or (relocation_bytes % 24) != 0 or metadata != relocs + relocation_bytes:
+        return 0
+    if metadata_bytes < 64 or table != pos + metadata + metadata_bytes or get(w, record + 8) != metadata + metadata_bytes + 512:
+        return 0
+    at = pos + metadata
+    count = uint(s, at + 16, 8)
+    functions = uint(s, at + 24, 8)
+    exports = uint(s, at + 32, 8)
+    imports = uint(s, at + 40, 8)
+    if uint(s, at, 8) != MODULE_MAGIC or uint(s, at + 8, 8) != 2 or uint(s, at + 48, 8) != 256 or uint(s, at + 56, 8) != 0:
+        return 0
+    if count == 0 or count > 256 or functions < count or functions > 256 or exports == 0 or exports > count or imports != count - exports:
+        return 0
+    if metadata_bytes != 64 + count * 256 or get(w, record + 40) != count + 2:
+        return 0
+    # The only local symbol is the complete text section. All other symbols
+    # must have exactly one checked interface record in canonical order.
+    if uint(s, pos + symbols + 24, 8) != 281487861612544 or uint(s, pos + symbols + 32, 8) != 0 or uint(s, pos + symbols + 40, 8) != 0:
+        return 0
+    i = 0
+    while i < relocation_bytes:
+        relocation = pos + relocs + i
+        offset = uint(s, relocation, 8)
+        symbol = uint(s, relocation + 12, 4)
+        if uint(s, relocation + 8, 4) != 4 or uint(s, relocation + 16, 8) != 18446744073709551612:
+            return 0
+        if symbol < exports + 2 or symbol >= count + 2 or offset == 0 or within(text, offset, 4) == 0:
+            return 0
+        if byte(s, pos + 64 + offset - 1) != 232 or uint(s, pos + 64 + offset, 4) != 0:
+            return 0
+        i = i + 24
+    return at
+
+def module_signature_valid(s:readbuf, at:u64) -> u64:
+    parameters = uint(s, at + 16, 8)
+    results = uint(s, at + 24, 8)
+    effects = uint(s, at + 32, 8)
+    if parameters > 16 or results > 3 or (effects & 18446744073709551600) != 0:
+        return 0
+    i = 0
+    while i < 3:
+        offset = 40
+        if i > 0:
+            offset = 168 + i * 8
+        result = uint(s, at + offset, 8)
+        if i < results:
+            if result == 0 or result > 16 or result == 6 or result == 7:
+                return 0
+        else:
+            if result != 0:
+                return 0
+        i = i + 1
+    i = 0
+    while i < 16:
+        t = uint(s, at + 48 + i * 8, 8)
+        if i < parameters:
+            if t == 0 or t > 15:
+                return 0
+        else:
+            if t != 0:
+                return 0
+        i = i + 1
+    i = 192
+    while i < 256:
+        if uint(s, at + i, 8) != 0:
+            return 0
+        i = i + 8
+    return 1
+
+def module_symbols(s:readbuf, w:mutbuf, object:u64, metadata:u64) -> u64:
+    record = 4096 + object * 80
+    count = uint(s, metadata + 16, 8)
+    exports = uint(s, metadata + 32, 8)
+    symtab = get(w, record) + uint(s, get(w, record + 32) + 24, 8)
+    string_cursor = 1
+    i = 0
+    while i < count:
+        contract = metadata + 64 + i * 256
+        ordinal = i + 2
+        imported = 0
+        if i >= exports:
+            imported = 1
+        if uint(s, contract, 8) != ordinal or uint(s, contract + 8, 8) != imported:
+            return 0
+        if module_signature_valid(s, contract) == 0:
+            return 0
+        symbol = symtab + ordinal * 24
+        name = uint(s, symbol, 4)
+        if name != string_cursor or byte(s, symbol + 4) != 18 or byte(s, symbol + 5) != 0:
+            return 0
+        size = string_size(s, get(w, record + 48), get(w, record + 56), name)
+        if size == 4294967295 or module_identifier(s, get(w, record + 48) + name, size) == 0:
+            return 0
+        string_cursor = string_cursor + size + 1
+        if uint(s, symbol + 6, 2) != 1 - imported:
+            return 0
+        if imported == 0 and uint(s, symbol + 16, 8) == 0:
+            return 0
+        index = get(w, record + 64) + ordinal
+        put(w, 12582912 + index * 8, contract)
+        put(w, 12845056 + index * 8, object + 1)
+        i = i + 1
+    if string_cursor != get(w, record + 56):
+        return 0
+    return 1
+
+def module_links(s:readbuf, w:mutbuf) -> u64:
+    object = 0
+    while object < get(w, 0):
+        record = 4096 + object * 80
+        metadata = get(w, 13111808 + object * 8)
+        count = uint(s, metadata + 16, 8)
+        i = uint(s, metadata + 32, 8)
+        while i < count:
+            imported = metadata + 64 + i * 256
+            sym = 262144 + (get(w, record + 64) + i + 2) * 32
+            found = global_find(s, w, get(w, sym), get(w, sym + 8))
+            if found == 0:
+                return 0
+            target_index = (get(w, found + 16) - 262144) // 32
+            target = get(w, 12582912 + target_index * 8)
+            provider = get(w, 12845056 + target_index * 8)
+            if target == 0 or provider == 0 or provider > get(w, 0):
+                return 0
+            if uint(s, target + 8, 8) != 0:
+                return 0
+            j = 16
+            while j < 192:
+                if uint(s, imported + j, 8) != uint(s, target + j, 8):
+                    return 0
+                j = j + 8
+            store(w, 13107200 + object * 64 + provider - 1, 1)
+            i = i + 1
+        object = object + 1
+    return 1
+
+def module_graph(w:mutbuf) -> u64:
+    step = 0
+    count = get(w, 0)
+    while step < count:
+        object = 0
+        pending = 0
+        while object < count:
+            if get(w, 13111296 + object * 8) == 0:
+                ready = 1
+                target = 0
+                while target < count:
+                    if byte(w, 13107200 + object * 64 + target) != 0 and get(w, 13111296 + target * 8) == 0:
+                        ready = 0
+                    target = target + 1
+                if ready == 1:
+                    put(w, 13111296 + object * 8, 1)
+                else:
+                    pending = pending + 1
+            object = object + 1
+        if pending == 0:
+            return 1
+        step = step + 1
+    return 0
+
+def module_contracts(s:readbuf, w:mutbuf) -> u64:
+    fill_range(w, 12582912, 524288, 0)
+    fill_range(w, 13107200, 5120, 0)
+    object = 0
+    while object < get(w, 0):
+        metadata = module_layout(s, w, 4096 + object * 80)
+        if metadata == 0:
+            return 0
+        put(w, 13111808 + object * 8, metadata)
+        if module_symbols(s, w, object, metadata) == 0:
+            return 0
+        object = object + 1
+    if module_links(s, w) == 0:
+        return 0
+    return module_graph(w)
+
+def module_entry(s:readbuf, w:mutbuf, symbol:u64) -> u64:
+    index = (symbol - 262144) // 32
+    at = get(w, 12582912 + index * 8)
+    if at == 0:
+        return 0
+    if uint(s, at + 8, 8) != 0 or uint(s, at + 16, 8) != 3 or uint(s, at + 24, 8) != 1 or uint(s, at + 40, 8) != 3:
+        return 0
+    if uint(s, at + 48, 8) != 6 or uint(s, at + 56, 8) != 7 or uint(s, at + 64, 8) != 7:
+        return 0
+    return 1

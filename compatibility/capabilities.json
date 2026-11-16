@@ -329,7 +329,7 @@
     }
   ],
   "unimplemented_subsystems": [
-    "general module ABI, owned resource transfer/returns, cross-boundary allocation and arbitrary foreign-language tensor interfaces",
+    "general public tensor/object ABI, foreign-resource provenance and unrestricted module graphs",
     "other dtypes and type promotion",
     "arbitrary as_strided and general indexing",
     "sparse/compressed/nested/complex/quantized layouts",
@@ -521,6 +521,28 @@
       "tested_commit": "c627e1f7a5ab44a882a047a6c63ee4c8ca8a3c3a",
       "evidence": "validation/hosted-persistent-session.json",
       "absolute_pytorch_version_counter_parity": false
+    }
+  },
+  "native_owned_module_profile": {
+    "profile": "heptatorch.hia.owned-modules.v1",
+    "scope": "Same pinned ABI2 native producer; scalar/readbuf/mutbuf/buffer/chain parameters, scalar/owner/unit results up to three, linear resource transfer, borrowed returns refused",
+    "compiler_sha256": "0ccdb524ea327ab290b2e70feaac49a4789abb2fee6da8746a095f435c17af73",
+    "runtime_linker_sha256": "23eed229e329fb5b7e2116012f74f210d5de4acd2b4f8475e364890748da86ee",
+    "allocator": "native Linux mmap/munmap; private16-byte header; no target libc allocator",
+    "qualification_counted_cases": 385,
+    "native_compiler_generation_count": 3,
+    "ordinary_runtime_bytes_unchanged": true,
+    "general_tensor_storage_complete": false,
+    "owned_interactive_entry_qualified_by_this_profile": false,
+    "foreign_owner_pointers_accepted": false,
+    "contract": "tools/owned_modules/CONTRACT.md",
+    "evidence": "validation/native-owned-modules.json",
+    "hosted_qualification": {
+      "status": "PASS_FOR_RECORDED_SCOPE",
+      "counted_native_cases": 385,
+      "workflow_steps_passed": 32,
+      "tested_commit": "030694be9373aefc9a6740c3ccc8d742098e5c51",
+      "evidence": "validation/hosted-owned-modules.json"
     }
   }
 }
