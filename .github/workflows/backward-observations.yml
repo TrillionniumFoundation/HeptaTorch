@@ -1,0 +1,45 @@
+name: Pinned PyTorch backward failure observations
+on:
+  push:
+    branches: ["feature/native-tensor-objects", "feature/native-backward-release", "feature/native-backward-partial"]
+  pull_request:
+    paths: ["tests/pytorch_backward_release_probe.py", "tests/pytorch_backward_partial_probe.py", ".github/workflows/backward-observations.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  reference:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Install exact independent PyTorch wheel
+        run: |
+          python3 - <<'PY'
+          import json,platform,subprocess,sys
+          from pathlib import Path
+          x=json.load(open('compatibility/pytorch-oracle-lock.json'))['oracle']
+          assert list(sys.version_info[:2])==x['python']['version'] and platform.machine()=='x86_64'
+          url=x['wheel']['url']+'#sha256='+x['wheel']['sha256']
+          Path(x['install_report']).parent.mkdir(parents=True,exist_ok=True)
+          subprocess.run([sys.executable,'-m','pip','install','--disable-pip-version-check','--force-reinstall',
+             '--index-url','https://download.pytorch.org/whl/cpu','--report',x['install_report'],url],check=True)
+          PY
+      - name: Verify frozen independent observation sources
+        run: |
+          echo '1192de6e175407756b01028278446067b22b70fe2d820f0045f6f5d623d46aa3  tests/pytorch_backward_release_probe.py' | sha256sum -c -
+          echo '2dc9a76462368f5bb227f02d5e401e10505e38676c9fe9b04460c1dae2d2c970  tests/pytorch_backward_partial_probe.py' | sha256sum -c -
+      - name: Observe default Saved release and repeat backward
+        run: |
+          python3 tests/pytorch_backward_release_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/torch-backward-release.json
+          python3 -I -S -B tools/emit_ci_report.py build/torch-backward-release.json
+      - name: Observe actual node ordering and partial gradients after failures
+        run: |
+          python3 tests/pytorch_backward_partial_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/torch-backward-partial.json
+          python3 -I -S -B tools/emit_ci_report.py build/torch-backward-partial.json

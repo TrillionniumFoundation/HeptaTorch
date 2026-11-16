@@ -515,3 +515,23 @@ not compute target numerical outputs, gradients or version counters.
 The full-scope acceptance gates remain open. In particular this candidate keeps
 Saved data until explicit graph release/reset, and its internal logical
 reference counts do not claim parity with PyTorch intrusive pointer use counts.
+
+### Complete hosted object reports
+
+The exact source-bound native qualification and the two actual 35-case Torch
+results are recorded in `validation/hosted-native-tensor-objects.json`. Each full
+original Torch JSON report is stored without changes in
+`validation/hosted-tensor-object-oracles/abi2.json.zlib` or `abi3.json.zlib`.
+The receipt records compressed and original byte lengths and SHA256 hashes.
+These are complete reports, not replacement summaries. For example:
+
+```sh
+python3 -c 'import pathlib,zlib; p=pathlib.Path("validation/hosted-tensor-object-oracles/abi2.json.zlib"); pathlib.Path("/tmp/tensor-object-abi2-report.json").write_bytes(zlib.decompress(p.read_bytes()))'
+```
+
+The CI log uses the same byte-preserving zlib/base64 envelope to stay within the
+log transport limit. The original oracle exit status remains mandatory; report
+compression neither changes numeric JSON values nor reclassifies failures.
+The separate `backward-observations.yml` workflow records actual pinned reference
+behavior for the next release/failure implementation; reference observations do
+not count as native parity.

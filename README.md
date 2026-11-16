@@ -110,7 +110,7 @@ cmp build/train.response build/train.expected
 
 237 个 HIA 核心函数与 3 个 owner 入口分成 5 个编译单元。ABI2 和带保护栈的 ABI3 已在新目录复现冻结映像，两者 ELF 的代码载荷逐字一致；143 个规范函数中 99 个函数体逐字未变，44 个变更均有完整源码映射和差分。每种映像实际执行 **731 帧原生检查、38,056,912 字节完整 owner 回滚比较**，并通过另外 **6 项／19 帧**协议桥接检查。冻结包及历史失败保存在 [来源清单](validation/tensor-object-package.json)、[独立审查](validation/tensor-object-independent-history.json)和 [PyTorch 测试来源](validation/tensor-object-oracle-package.json)。
 
-新增 CI 为两种映像分别执行 **35 项**真实 PyTorch 对照，其中原有 28 项数值测试的输入、数值断言、容差及绝对参数版本断言保持不变，另外 7 项检查对象生命周期。此处尚未声明托管对照通过。默认 backward 后自动释放 Saved 数据仍未实现，当前候选保留图直到显式释放或 reset；该差异被明确观察为 OPEN。CPU binary32、rank 0–4 和池／表容量等限制仍存在。完整目标仍是 2,590 个上游 schema，17 项全量子系统门禁仍开放。
+新增 CI 为两种映像分别执行 **35 项**真实 PyTorch 对照，其中原有 28 项数值测试的输入、数值断言、容差及绝对参数版本断言保持不变，另外 7 项检查对象生命周期。[实际托管完整回执](validation/hosted-native-tensor-objects.json)已确认两种映像各 **35／35 通过、6,344 帧、2,590,274 个值、11 项来源检查**，完整运行的 **44 个 CI 步骤全部通过**。两份原始报告逐字无损保存在 `validation/hosted-tensor-object-oracles/`；参数绝对版本差异为零，283 项显式优化器状态生命周期观察继续保留。默认 backward 后自动释放 Saved 数据仍未实现，当前候选保留图直到显式释放或 reset；该差异被明确观察为 OPEN。CPU binary32、rank 0–4 和池／表容量等限制仍存在。完整目标仍是 2,590 个上游 schema，17 项全量子系统门禁仍开放。
 
 ## 跨请求持久会话
 
