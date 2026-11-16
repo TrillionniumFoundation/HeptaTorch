@@ -74,7 +74,7 @@ cmp build/train.response build/train.expected
 
 [owned 交互入口](tools/owned_sessions/README.md)由单独固定的原生 HIA linker 接纳 `step(readbuf,mutbuf,buffer)->(buffer,u32)` 和 `close(buffer)->()`。原生 startup 在 stdin 未关闭时返回响应，先接管返回的唯一 owner，再处理输出或退出。正常 EOF、断管及其他可恢复传输失败会调用真实 close。单独标识的资格程序在进程退出前观测到了实际解除映射；真实 EINTR 和短写也已执行验证。
 
-正式源码的独立资格包含 **131 项 owner 入口／传输检查**、有限 trace 与交互模式各 **12 组／63 帧**、**5 项当前极限状态守卫**，以及独立参考模型的 **2,952 帧／11,177 次精确标量比较／93 次完整状态回滚比较**。[源码与原始证据](validation/storage-object-handoff.json)保留 456 个文件的逐字节清单；[两种模块排列的独立模型回执](validation/storage-independent-models.json)分别绑定两个不同映像。重复执行同一语料不增加上游 PyTorch 测试或 schema 覆盖数。实际构建与报告门禁见 [构建配方](docs/build.md#building-owned-interactive-storage)。
+正式源码的独立资格包含 **131 项 owner 入口／传输检查**、有限 trace 与交互模式各 **12 组／63 帧**、**5 项当前极限状态守卫**，以及独立参考模型的 **2,952 帧／11,177 次精确标量比较／93 次完整状态回滚比较**。[源码与原始证据](validation/storage-object-handoff.json)保留 456 个文件的逐字节清单；[两种模块排列的独立模型回执](validation/storage-independent-models.json)分别绑定两个不同映像。重复执行同一语料不增加上游 PyTorch 测试或 schema 覆盖数。实际构建与报告门禁见 [构建配方](docs/build.md#building-owned-interactive-storage)。 [实际托管 CI](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43797863695)已在提交 `8186da151687808085479392f4e4720b8ac71769` 上通过全部 **34 个步骤**，包括新的存储／所有权资格、原有双 270 项普通 PyTorch 门禁和双 21 项交互门禁。[完整托管证据](validation/hosted-owned-storage.json)保留实际逐项报告、源码和二进制身份。
 
 ## 跨请求持久会话
 

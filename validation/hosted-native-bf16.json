@@ -1,0 +1,46 @@
+{
+  "schema": "heptatorch.hosted-native-bf16.v1",
+  "status": "PASS",
+  "implementation_commit": "dc0f2bc0efba61f9ea1a83c2cdc34b1c9bee4b7e",
+  "branch": "feature/native-bf16-conversion",
+  "native_source": "tools/dtype-bf16/bf16.hepta",
+  "native_source_sha256": "2f4790a050ccf24bc869c4a9a46c4be4fd740355f363b086eac512e360718469",
+  "native_compiler_sha256": "87c247e4d1c3c9a449d2947fd4227fdc186d519bffd203a04cafce7861a4ed54",
+  "native_executable_sha256": "a9b16e651c8605e17f238c8d4be85021ee8f959c0f6a494096d4a33faaa6cba3",
+  "oracle": "Pinned independent real torch 2.15.0+cpu; exact wheel SHA256 plus Git build SHA and install metadata",
+  "comparison": {
+    "cases": 22,
+    "bit_exact_non_nan": 86318,
+    "nan_classification": 344,
+    "failed_cases": 0,
+    "bfloat16_patterns": 65536,
+    "rounding": "nearest-even f32→bf16",
+    "runtime_dependency": "Linux x86-64 kernel only"
+  },
+  "matched_hosted_runs": [
+    {
+      "event": "push",
+      "run_id": 43797419354,
+      "job_id": 133069283438,
+      "url": "https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43797419354",
+      "conclusion": "success"
+    },
+    {
+      "event": "pull_request",
+      "run_id": 43797424776,
+      "job_id": 133069299861,
+      "url": "https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43797424776",
+      "conclusion": "success"
+    }
+  ],
+  "retained_failure": {
+    "run_id": 43797308555,
+    "url": "https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43797308555",
+    "conclusion": "failure",
+    "classification": "CI install_report parent directory missing; exact native differential NOT_RUN",
+    "fix": "Create build/ before pip --report; original failure remains in Actions history"
+  },
+  "scope": "Standalone HIA f32/bf16 conversion only; not integrated into tensor object dtype dispatch, aliasing, autograd, device support, production numerical runtime or upstream schema parity",
+  "full_upstream_dtype_layout_gate": "OPEN",
+  "whole_pytorch_rewrite_complete": false
+}

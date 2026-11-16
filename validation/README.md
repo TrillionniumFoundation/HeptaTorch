@@ -485,3 +485,19 @@ The formal Make/CI gate freshly compiles and executes the current service,
 owner-aware transport and independent model. Numerical Tensor storage, typed
 metadata, arbitrary layouts, device/foreign allocations and general concurrent
 lifetime remain separate work. Whole-project acceptance remains HOLD.
+
+### Observed hosted owned-storage result
+
+`hosted-owned-storage.json` records actual run 43797863695, job 133070700679,
+at commit `8186da151687808085479392f4e4720b8ac71769`. All 34 steps passed:
+owned-module qualification, owned-session linker reproduction, 131 entry/transport
+cases, both 12-group / 63-frame storage paths, five current extreme guards,
+and the 2,952-frame independent model. Every stored suite report reconstructs
+its actual hosted file SHA-256. Deterministic storage/model reports and all
+native build identities equal the fresh canonical-worktree results.
+
+Both ordinary 270-case / 13,076-value / 11-provenance-check PyTorch gates and
+both interactive 21-case / 4,681-frame / 491,847-value / 11-check gates passed,
+with the earlier fixtures and native tool qualifications still required.
+The receipt includes those full reports, so successful storage qualification
+is not substituted for unchanged numerical-runtime regression.
