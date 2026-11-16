@@ -1,9 +1,9 @@
-name: Standalone HIA binary64 arithmetic differential
+name: HIA binary64 RNE component qualification (partial)
 on:
   push:
     branches: ["feature/native-f64-arithmetic"]
   pull_request:
-    paths: ["tools/dtype-f64/**", "tests/f64_oracle.py", ".github/workflows/dtype-f64.yml"]
+    paths: ["tools/dtype-f64/**", "tests/f64*.py", "validation/f64-rne-package.sha256", ".github/workflows/dtype-f64.yml"]
   workflow_dispatch:
 permissions:
   contents: read
@@ -74,6 +74,34 @@ jobs:
       - name: Diagnose sqrt against exact rational rounding cells
         run: |
           python3 tests/f64_sqrt_probe.py --native build/f64-cpython/f64-native --reference pytorch --output build/f64-sqrt-diagnostic
-      - name: Frozen strict differential against real PyTorch
+      - name: Record original strict PyTorch outcome without reclassifying it
         run: |
-          python3 tests/f64_oracle.py --compiler "$RUNNER_TEMP/f64-compiler/native-compiler" --reference pytorch --output build/f64-pytorch
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,json,os,subprocess,sys
+          script=Path('tests/f64_oracle.py')
+          assert hashlib.sha256(script.read_bytes()).hexdigest()=='bb639f7ef669d34787986ed62e870cc61071adcba1ae4e44e325673e2f75bb03'
+          args=[sys.executable,str(script),'--compiler',str(Path(os.environ['RUNNER_TEMP'])/'f64-compiler/native-compiler'),
+                '--reference','pytorch','--output','build/f64-pytorch']
+          process=subprocess.run(args,capture_output=True)
+          Path('build/f64-strict.stdout').write_bytes(process.stdout)
+          Path('build/f64-strict.stderr').write_bytes(process.stderr)
+          sys.stdout.buffer.write(process.stdout);sys.stdout.flush()
+          sys.stderr.buffer.write(process.stderr);sys.stderr.flush()
+          report=json.loads(Path('build/f64-pytorch/report.json').read_bytes())
+          assert process.returncode in (0,1) and not process.stderr
+          assert process.returncode==(1 if report['status']=='FAIL' else 0)
+          result={'schema':'heptatorch.f64-frozen-strict-exit.v1','status':report['status'],
+                  'actual_exit_code':process.returncode,'original_oracle_sha256':hashlib.sha256(script.read_bytes()).hexdigest(),
+                  'report_sha256':hashlib.sha256(Path('build/f64-pytorch/report.json').read_bytes()).hexdigest(),
+                  'stdout_sha256':hashlib.sha256(process.stdout).hexdigest(),
+                  'stderr_sha256':hashlib.sha256(process.stderr).hexdigest(),
+                  'strict_gate_reclassified':False,'whole_pytorch_rewrite_complete':False}
+          raw=json.dumps(result,indent=2)+'\n';Path('build/f64-strict-exit.json').write_text(raw);print(raw)
+          PY
+      - name: Independently qualify RNE and reference accuracy as a PARTIAL component
+        run: |
+          sha256sum -c validation/f64-rne-package.sha256
+          python3 tests/f64_rne_qualification.py --repo . --native build/f64-pytorch/f64-native \
+            --reference pytorch --strict-report build/f64-pytorch/report.json \
+            --cpython-report build/f64-cpython/report.json --output build/f64-rne-accuracy

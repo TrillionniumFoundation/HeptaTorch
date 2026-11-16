@@ -1,5 +1,12 @@
 # Native HIA binary64 arithmetic
 
+**Component status: PARTIAL.** The native arithmetic passes the full CPython
+bitwise corpus. The unchanged strict PyTorch corpus currently fails four sqrt
+groups: 4,008 observed non-NaN results differ by one encoding step. Integer
+rounding-cell checks show native RNE for these inputs and non-RNE results from
+the fixed MKL-backed reference. This does not close fixed-backend bitwise parity,
+the full dtype gate, or the complete PyTorch rewrite.
+
 `f64.hepta` implements binary64 addition, subtraction, multiplication, division,
 square root, exact binary32 widening and rounded binary32 narrowing. Every target
 operation uses HIA unsigned integer instructions. The emitted ELF has no Python,
@@ -94,3 +101,41 @@ kernel source identities are recorded in the profile.
 This campaign does not exhaust all 2^64 input encodings or all operand pairs.
 Passing it is scoped arithmetic evidence, not full Tensor or upstream schema
 closure. The separately required full-project acceptance record is unchanged.
+
+## Correct rounding and the retained PyTorch differences
+
+The actual first strict failures are preserved in
+`validation/hosted-native-f64-initial-failure.json`. A separate hosted diagnostic
+at commit `22b6329e23faaaead270a3a51dc6a8e5e803d3d7` confirmed MKL 2024.2 and
+AVX512 in the fixed CPU wheel, zero native rounding-cell failures and 4,008
+reference results outside the exact nearest-even cell. Its full original reports
+are retained in `validation/hosted-f64-sqrt-diagnostic.json`.
+
+[The independent mathematical review](SQRT_REVIEW.md) explains the HIA restoring
+algorithm and two independent integer qualification paths. It distinguishes
+Intel's HA error contract from correctly rounded results. A one-step difference
+between encodings is insufficient to prove the HA bound: the new qualifier tests
+each reference result against exact squared boundaries and requires error
+strictly below one ulp of the exact result's binade.
+
+The original 55-case oracle source, all inputs and exact comparisons remain
+unchanged. CI saves its original exit code and full FAIL report. A separately
+named component qualification repeats all 55 cases, requires every non-sqrt
+strict comparison to pass, proves native sqrt RNE, proves the reference error
+bound, and requires both original reports' request/response/reference stream
+hashes to match the new execution. Every sqrt mismatch is saved individually.
+
+```sh
+python3 tests/f64_rne_qualification.py \
+  --repo . --native build/f64-pytorch/f64-native --reference pytorch \
+  --strict-report build/f64-pytorch/report.json \
+  --cpython-report build/f64-cpython/report.json \
+  --output build/f64-rne-accuracy
+```
+
+Successful mathematical qualification reports `status: PARTIAL` and a separate
+`qualification_status: PASS`. It always retains
+`strict_pytorch_bitwise_gate_closed: false`, `full_dtype_gate_closed: false` and
+`whole_pytorch_rewrite_complete: false`. The stronger fixed-backend bitwise
+target remains open. This component does not insert input-specific corrections
+to imitate the observed MKL outputs.
