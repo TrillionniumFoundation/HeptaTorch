@@ -1,0 +1,91 @@
+{
+  "status": "EXPLICIT_NEW_TYPED_PROFILE_AND_SAVED_ROLE_CONTROL",
+  "original_runner_sha256": "4f3e9e76ca405c4216fe1f727d6c25498a3e51ceb785daa6e7674139c13173e8",
+  "new_runner_sha256": "ce7384984dbf91758ab6589c9cd7c6cfcc3747fcf4d32e0902a587c9f5a30fa3",
+  "edits": [
+    {
+      "old": "Real linear owned handoff between immutable523 and the I64 candidate07.",
+      "new": "Real linear owned handoff between immutable I64-07 and mixed Saved-T-10.",
+      "count": 1
+    },
+    {
+      "old": "OLD_SOURCE = '6ffe509afce28ff15705b4c7b269eaef8f8f89f9d8b2486d4d9fa45b6be66ef3'",
+      "new": "OLD_SOURCE = 'adf6cae67666273aa6fb77989080ca3b1e3632188d2d7956a6d8b71808787e62'",
+      "count": 1
+    },
+    {
+      "old": "OLD_IMAGE = '830f0b4ef8d6ad8c6a105be56d383628b45c84e3e43905fee6812c7c52d35a51'",
+      "new": "OLD_IMAGE = 'b7324639bade3312981d1cbf9c2491b9fcff04fb6c3f808e9c5e1a7c2ca88f08'",
+      "count": 1
+    },
+    {
+      "old": "NEW_SOURCE = 'adf6cae67666273aa6fb77989080ca3b1e3632188d2d7956a6d8b71808787e62'",
+      "new": "NEW_SOURCE = '5f8ab1f7ca1593dc21b8b6a3537e210cfbc42b37ddefcb322239c5a316d88c49'",
+      "count": 1
+    },
+    {
+      "old": "NEW_IMAGE = 'b7324639bade3312981d1cbf9c2491b9fcff04fb6c3f808e9c5e1a7c2ca88f08'",
+      "new": "NEW_IMAGE = '69045063c00395d07fc6c0101ed1b8aba18376cb1daea54e0a01c2c5caeb49b6'",
+      "count": 1
+    },
+    {
+      "old": "SUPPORT = '8d5d81a81246085245eb4a5bc6b4deb7ed845b2ca558f3697560ef890c3e1871'",
+      "new": "SUPPORT = '07248452cef312f264ccc4279479765542084c61217916eb364cf4ba3cdc4d88'",
+      "count": 1
+    },
+    {
+      "old": "OLD_SOURCE, 'tensor-dtype-dropout-session', OLD_IMAGE",
+      "new": "OLD_SOURCE, 'tensor-integer-session', OLD_IMAGE",
+      "count": 1
+    },
+    {
+      "old": "NEW_SOURCE, 'tensor-integer-session', NEW_IMAGE",
+      "new": "NEW_SOURCE, 'tensor-mixed-autograd-session', NEW_IMAGE",
+      "count": 1
+    },
+    {
+      "old": "# Old523 state genuinely contains",
+      "new": "# Old07 state genuinely contains",
+      "count": 1
+    },
+    {
+      "old": "b'HTDTYP03'",
+      "new": "b'HTINT002'",
+      "count": 1
+    },
+    {
+      "old": "523_to_integer07_reject_return_recover_close",
+      "new": "integer07_to_mixed10_reject_return_recover_close",
+      "count": 1
+    },
+    {
+      "old": "integer07_to_523_reject_return_recover_close",
+      "new": "mixed10_to_integer07_reject_return_recover_close",
+      "count": 1
+    },
+    {
+      "old": "wire.full([2], .5),\n                        (103, 1, wire.reference(1), wire.reference(5))",
+      "new": "wire.full([2], .5, 1),\n                        (103, 3, wire.reference(1), wire.reference(5))",
+      "count": 1
+    },
+    {
+      "old": "struct.pack('<2f', 5.5, 7.5)",
+      "new": "struct.pack('<2f', 2.5, 3.5)",
+      "count": 1
+    },
+    {
+      "old": "        assert state.tensor_node(view)[1][584//8] != 0\n",
+      "new": "        assert state.tensor_node(view)[1][584//8] != 0\n        # Both base ownership and the new Saved-original-T role are real.\n        vi, vd = state.tensor_node(view)\n        yi, yd = state.tensor_node(y)\n        assert yd[584//8] > 65535 and vd[600//8] == 1 and vd[208//8] == 2\n        hold_row = state.row(yd[584//8], 6)\n        pairs = struct.unpack('<4Q', state.storage_bytes(hold_row[2]))\n        assert pairs == (vi, vd[320//8], 0, 0)\n        assert route(1, [(107, y, 0)])[0]['value'] == view\n",
+      "count": 1
+    },
+    {
+      "old": "'actual_I64_8byte_Saved_Weak_ultimate_base_and_promoted_F32_preserved': True,",
+      "new": "'actual_I64_8byte_Saved_Weak_ultimate_base_and_promoted_F32_preserved': True,\n            'actual_original_Tensor_Saved_private_Hold_preserved': True,",
+      "count": 1
+    }
+  ],
+  "inverse_exact_original": true,
+  "all_unchanged_wire_rollback_close_assertions_preserved": true,
+  "new_native_execution": "NOT_RUN",
+  "new_control": "real F32 requires/I64 multiply saves original view in private32B Hold; same original 107getter; real base strong plus Saved strong preserved across foreign rejection"
+}

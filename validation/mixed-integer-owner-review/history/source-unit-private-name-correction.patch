@@ -1,0 +1,43 @@
+--- first/audit_source10.py
++++ current/audit_source10.py
+@@ -33,16 +33,23 @@
+     old=bodies(oldraw);assert len(old)==544
+     definitions_by_unit={};duplicates=[];unit_rows=[]
+     for unit in info['units']:
+-        defs=bodies((a.build/(unit['name']+'.hepta')).read_bytes())
++        raw=(a.build/(unit['name']+'.hepta')).read_bytes()
++        defs=bodies(raw)
++        exports=set(re.search(rb'^exports\(([^)]*)\)',raw,re.M)[1].decode().split(','))
+         for name,body in defs.items():
+             if name in definitions_by_unit:
+-                assert definitions_by_unit[name]['body']==body
+-                duplicates.append({'name':name,'same_definition_in':unit['name'],'sha256':sha(body)})
+-            else:definitions_by_unit[name]={'body':body,'unit':unit['name']}
++                duplicates.append({'name':name,'additional_unit':unit['name'],'sha256':sha(body),
++                                   'public_export':name in exports})
++            definitions_by_unit.setdefault(name,[]).append({'body':body,'unit':unit['name'],'public_export':name in exports})
++            assert sum(d['public_export'] for d in definitions_by_unit[name])<=1
+         unit_rows.append({'name':unit['name'],'source_sha256':unit['source_sha256'],'object_sha256':unit['object_sha256'],
+                           'defined_functions':sorted(defs),'native_compile_exit':unit['compiler_exit']})
+     assert len(definitions_by_unit)==571 and len(duplicates)==6
+-    for name,body in current.items():assert definitions_by_unit[name]['body']==body
++    core_unit={}
++    for name,body in current.items():
++        matches=[d['unit'] for d in definitions_by_unit[name] if d['body']==body]
++        assert matches,(name,'missing exact real core definition')
++        core_unit[name]=matches
+     missing=sorted(old.keys()-current.keys());assert not missing
+     changed=sorted(n for n in old if old[n]!=current[n]);added=sorted(current.keys()-old.keys())
+     assert changed==sorted(info['changed_parent_functions']) and added==sorted(info['added_functions'])
+@@ -76,9 +83,9 @@
+     report={'status':'SOURCE_AND_UNIT_CUSTODY_PASS','source_sha256':observer.SOURCE,'native_sha256':observer.IMAGE,
+         'previous_source_sha256':PREVIOUS_SOURCE,'previous_native_sha256':PREVIOUS_IMAGE,
+         'functions':556,'blocks':7420,'instructions':26889,'units':unit_rows,
+-        'all_556_core_function_bytes_present_in_real_units':True,'duplicate_unchanged_helpers':duplicates,
++        'all_556_core_function_bytes_present_in_real_units':True,'private_helper_name_reuse':duplicates,
+         'changed_parent_functions':changed,'added_functions':added,'unchanged_parent_function_count':531,
+-        'function_bodies':{n:{'sha256':sha(b),'bytes':len(b),'unit':definitions_by_unit[n]['unit']} for n,b in current.items()},
++        'function_bodies':{n:{'sha256':sha(b),'bytes':len(b),'exact_definition_in_units':core_unit[n]} for n,b in current.items()},
+         'inspected_actual_native_role_functions':{n:sha(current[n]) for n in inspected_actual},
+         'observer_sha256':sha(observed),'parent_observer_sha256':sha(parent),'observer_whole_inverse_exact':True,
+         'observer_changed_definitions':changed_observer,

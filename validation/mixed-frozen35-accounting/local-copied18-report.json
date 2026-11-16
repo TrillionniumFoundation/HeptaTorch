@@ -1,0 +1,418 @@
+{
+  "schema": "heptatorch.pr28.private-node-observer-independent-negative-controls.v1",
+  "status": "PASS_OBSERVER_CONTROLS_ONLY",
+  "controls_sha256": "f7ac72207d3a9a5ecae9642cce27bca2cbf399b333236a303eedaba87de62e2f",
+  "observer_sha256": "8361f28ab6a6548ec0b3d4b97fb0f5b7c96788bcbfc6ba96fe644f5c2834bb3f",
+  "native_executed": false,
+  "Torch_executed": false,
+  "native_memory_read": false,
+  "native_memory_written": false,
+  "expected_outcomes_come_from_named_invariants_not_target_return_values": true,
+  "input_files": {
+    "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-first/journals/2d091cf59b34442e/events.json": {
+      "sha256": "df3a498c47d7e5e79a546b3ef05af8a37dcbbb63ed1bc5b224144e8be2ed4875",
+      "bytes": 6647
+    },
+    "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-first/journals/2d091cf59b34442e/snapshots.jsonl.gz": {
+      "sha256": "a73d2977733c8f2e6dbd7a86d1ed12de5f7e97f05534a663e3b72f65fba850ca",
+      "bytes": 5954
+    }
+  },
+  "positive_rows": [
+    {
+      "case": "compound-construction",
+      "status": "PASS",
+      "journal": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-first/journals/2d091cf59b34442e/events.json",
+      "event": 2,
+      "result": {
+        "status": "PASS",
+        "failed_frame": false,
+        "created_program_nodes": 3,
+        "created_private_G": 0,
+        "private_G_incarnations": [],
+        "native_incarnation_delta": 3,
+        "native_node_high_water": 5,
+        "live_nodes": 5,
+        "live_gradient_nodes": 0,
+        "reset_count": 0
+      },
+      "input_sha256": "841181703e68211f69774e9942cf62aca6c3a0ff4ccebfa065b98cbdc894af14"
+    },
+    {
+      "case": "materialization",
+      "status": "PASS",
+      "journal": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-first/journals/2d091cf59b34442e/events.json",
+      "event": 5,
+      "result": {
+        "status": "PASS",
+        "failed_frame": false,
+        "created_program_nodes": 0,
+        "created_private_G": 1,
+        "private_G_incarnations": [
+          8
+        ],
+        "native_incarnation_delta": 1,
+        "native_node_high_water": 8,
+        "live_nodes": 8,
+        "live_gradient_nodes": 1,
+        "reset_count": 0
+      },
+      "input_sha256": "109c1f4e3ff82ca8bdc00e3ad00a093234e1cfbc3ad3b9059c70d9ed56001d20"
+    },
+    {
+      "case": "reset-with-private-gradient",
+      "status": "PASS",
+      "journal": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-first/journals/2d091cf59b34442e/events.json",
+      "event": 6,
+      "result": {
+        "status": "PASS",
+        "failed_frame": false,
+        "created_program_nodes": 0,
+        "created_private_G": 0,
+        "private_G_incarnations": [],
+        "native_incarnation_delta": 0,
+        "native_node_high_water": 8,
+        "live_nodes": 3,
+        "live_gradient_nodes": 1,
+        "reset_count": 1
+      },
+      "input_sha256": "8924a964fcc9a48d0e7da5539444b768edd96b2dc3acb1c788212f8f9b4ab762"
+    },
+    {
+      "case": "failed-frame-rollback",
+      "status": "PASS",
+      "journal": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-first/journals/2d091cf59b34442e/events.json",
+      "event": 7,
+      "result": {
+        "status": "PASS",
+        "failed_frame": true,
+        "created_program_nodes": 0,
+        "created_private_G": 0
+      },
+      "input_sha256": "0f1ef5937af8cbcefbd422d3a5a123f135cbf933eaeaa231113f3b0cac56f631"
+    }
+  ],
+  "negative_rows": [
+    {
+      "case": "extra-incarnation-not-attributed",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "unexplained-incarnation-delta",
+      "actual_rule": "unexplained-incarnation-delta",
+      "details": {
+        "observer_rule": "unexplained-incarnation-delta",
+        "actual": 2,
+        "program": 0,
+        "private_gradients": 1
+      },
+      "input_sha256": "49bbe87053333e474589674a0c5d4718fd30e5c21010ee71fb8fe047f9186a11",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-first/journals/2d091cf59b34442e/events.json",
+        "event": 5
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-copied18-first/negative-inputs/extra-incarnation-not-attributed.json.gz",
+      "compressed_sha256": "fba58c01fd8cae1fb2cf95f4ab1688c71e683ca4198a4d5712bf3b475c10854c"
+    },
+    {
+      "case": "wrong-gradient-incarnation",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "gradient-incarnation",
+      "actual_rule": "gradient-incarnation",
+      "details": {
+        "observer_rule": "gradient-incarnation",
+        "node": 1,
+        "gradient": 8
+      },
+      "input_sha256": "1ce38b1beb4b81a45284fa06d056e9e72ef6e597be802daa7a559aeed3497160",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-first/journals/2d091cf59b34442e/events.json",
+        "event": 5
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-copied18-first/negative-inputs/wrong-gradient-incarnation.json.gz",
+      "compressed_sha256": "82055d131261c18ee1ae2cf6ce34707dfdaf9d5019477ce947c427036b0a8835"
+    },
+    {
+      "case": "wrong-gradient-incoming-reference-count",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "gradient-reference-count",
+      "actual_rule": "gradient-reference-count",
+      "details": {
+        "observer_rule": "gradient-reference-count",
+        "node": 8
+      },
+      "input_sha256": "65f0d3d66cd3ffbac21e81cae4e988b9a13c86fc6c82b7d45b478627fbf55110",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-first/journals/2d091cf59b34442e/events.json",
+        "event": 5
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-copied18-first/negative-inputs/wrong-gradient-incoming-reference-count.json.gz",
+      "compressed_sha256": "4a6b1045d466bd8a7b8f3221f4df76ed5010f109c567804a4f02d66a08bbd9af"
+    },
+    {
+      "case": "wrong-node-reference-count",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "node-reference-count",
+      "actual_rule": "node-reference-count",
+      "details": {
+        "observer_rule": "node-reference-count",
+        "node": 1,
+        "observed": 6,
+        "expected": 5
+      },
+      "input_sha256": "13fc47a784faa9c5d6c0470890d2b7f9e6c9876b8108624466c77f873050c989",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-first/journals/2d091cf59b34442e/events.json",
+        "event": 5
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-copied18-first/negative-inputs/wrong-node-reference-count.json.gz",
+      "compressed_sha256": "101e215c6982ebb3bcb5c56d05a600fdba433c03d96e851fe083a90fd1ac1eb1"
+    },
+    {
+      "case": "wrong-accumulator-reference-count",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "accumulator-reference-count",
+      "actual_rule": "accumulator-reference-count",
+      "details": {
+        "observer_rule": "accumulator-reference-count",
+        "node": 1
+      },
+      "input_sha256": "195fbe77b2a47336b8524720cfd5fdd8f4f42be942ae1630335f72effbf32f07",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-first/journals/2d091cf59b34442e/events.json",
+        "event": 5
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-copied18-first/negative-inputs/wrong-accumulator-reference-count.json.gz",
+      "compressed_sha256": "553ffdd9f382d2bc11c31a7a4025a3eb5632a4657e03cef7c102d1848113823e"
+    },
+    {
+      "case": "private-gradient-incorrectly-public",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "unexpected-public-or-nonleaf-gradient",
+      "actual_rule": "unexpected-public-or-nonleaf-gradient",
+      "details": {
+        "observer_rule": "unexpected-public-or-nonleaf-gradient",
+        "gradient": 8
+      },
+      "input_sha256": "d08dd62475baa166826e960f7830fec2f50c85391e2f6d8c929595a60be75049",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-first/journals/2d091cf59b34442e/events.json",
+        "event": 5
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-copied18-first/negative-inputs/private-gradient-incorrectly-public.json.gz",
+      "compressed_sha256": "8c7dd6f3452f13ad6785299fb7e1fccad16bb0fc9b61a7465e8c89baa505c50a"
+    },
+    {
+      "case": "gradient-binding-without-presence",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "gradient-not-defined",
+      "actual_rule": "gradient-not-defined",
+      "details": {
+        "observer_rule": "gradient-not-defined",
+        "node": 1
+      },
+      "input_sha256": "ee5d0b379eeb53e47b0256e31aaa3841da89a3e5d830f2f072b62221d80542c9",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-first/journals/2d091cf59b34442e/events.json",
+        "event": 5
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-copied18-first/negative-inputs/gradient-binding-without-presence.json.gz",
+      "compressed_sha256": "bfd33c63dba36ba446ced7c5ec2e604cc049d4471c6d7c8c2731db6309863551"
+    },
+    {
+      "case": "gradient-T-record-points-to-wrong-node",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "T-row-node-mapping",
+      "actual_rule": "T-row-node-mapping",
+      "details": {
+        "observer_rule": "T-row-node-mapping",
+        "node": 8
+      },
+      "input_sha256": "88f5c9486bb280f996caf9a122f40883565af392ae696d3be3aed1efb2b33ef6",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-first/journals/2d091cf59b34442e/events.json",
+        "event": 5
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-copied18-first/negative-inputs/gradient-T-record-points-to-wrong-node.json.gz",
+      "compressed_sha256": "86783f5447e759f32fde8319ced84a630e75d20aa3aa4af2b92d50507a10c8ba"
+    },
+    {
+      "case": "committed-incoming-temporary-not-cleared",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "descriptor-transient",
+      "actual_rule": "descriptor-transient",
+      "details": {
+        "observer_rule": "descriptor-transient",
+        "node": 1,
+        "field": 448
+      },
+      "input_sha256": "66dd8a9802c71ddf24e51c984b18dc50dc67ff4eb0830999809278da6340d19c",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-first/journals/2d091cf59b34442e/events.json",
+        "event": 5
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-copied18-first/negative-inputs/committed-incoming-temporary-not-cleared.json.gz",
+      "compressed_sha256": "9df6b626162ab6eaa209ac4ec8856a8d6cd15612ee831d2b82a3b6a15bb8a4f2"
+    },
+    {
+      "case": "hidden-gradient-node-entry",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "node-index-coverage",
+      "actual_rule": "node-index-coverage",
+      "details": {
+        "observer_rule": "node-index-coverage"
+      },
+      "input_sha256": "0bfa5ef02716977d4de87af8f39a9a20194be09c9ba87c9a43fc03f84d6f00af",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-first/journals/2d091cf59b34442e/events.json",
+        "event": 5
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-copied18-first/negative-inputs/hidden-gradient-node-entry.json.gz",
+      "compressed_sha256": "2fc8ad8c1b9f5ea71e9a58be96785e556e2a4ca38e3eb9032e7e86d6d06c63aa"
+    },
+    {
+      "case": "duplicate-live-node-incarnation",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "node-incarnation-unique",
+      "actual_rule": "node-incarnation-unique",
+      "details": {
+        "observer_rule": "node-incarnation-unique",
+        "node": 8,
+        "incarnation": 1
+      },
+      "input_sha256": "8010f3f84cd3ecc89c92adf6cfa2ba2f0f399dacdd774ad5c5623149be31a37c",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-first/journals/2d091cf59b34442e/events.json",
+        "event": 5
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-copied18-first/negative-inputs/duplicate-live-node-incarnation.json.gz",
+      "compressed_sha256": "62c318464c51dc2972ccbfa72a7ab51a98d91d1f468746b3a7fc533df84cc518"
+    },
+    {
+      "case": "extra-unrooted-live-gradient-cannot-explain-allocation",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "anonymous-live-node",
+      "actual_rule": "anonymous-live-node",
+      "details": {
+        "observer_rule": "anonymous-live-node",
+        "missing": [
+          8
+        ]
+      },
+      "input_sha256": "0ce6215ccceb524dfc1c99f02089d07cd91c5f8a2859b53d5963aacecf73c0cb",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-first/journals/2d091cf59b34442e/events.json",
+        "event": 5
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-copied18-first/negative-inputs/extra-unrooted-live-gradient-cannot-explain-allocation.json.gz",
+      "compressed_sha256": "7fb404e4f3b22c99c3781702ac70fd784e7c8dfd3a35ae06bd644e9cf34366f8"
+    },
+    {
+      "case": "compound-three-constructors-miscounted-as-one",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "unexplained-incarnation-delta",
+      "actual_rule": "unexplained-incarnation-delta",
+      "details": {
+        "observer_rule": "unexplained-incarnation-delta",
+        "actual": 3,
+        "program": 1,
+        "private_gradients": 0
+      },
+      "input_sha256": "4aa5eade910b3eb01ab970e9d636c5dfea9599f4b4104ee98c30306c3ee432f2",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-first/journals/2d091cf59b34442e/events.json",
+        "event": 2
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-copied18-first/negative-inputs/compound-three-constructors-miscounted-as-one.json.gz",
+      "compressed_sha256": "a3cf30551b226a34001a5a1a9e79a6e9384b27167a6f6bbe644486317f4df638"
+    },
+    {
+      "case": "duplicate-program-creation-ticket",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "duplicate-creation-ticket",
+      "actual_rule": "duplicate-creation-ticket",
+      "details": {
+        "observer_rule": "duplicate-creation-ticket"
+      },
+      "input_sha256": "f1d5cc4efb624767048b13785d95fb04269daaf6cc1c6622b93947bb7704d54b",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-first/journals/2d091cf59b34442e/events.json",
+        "event": 2
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-copied18-first/negative-inputs/duplicate-program-creation-ticket.json.gz",
+      "compressed_sha256": "c83a7eb7db6074f63b368123004eff0236fd109ed46be950e8197bb71d98eabf"
+    },
+    {
+      "case": "reset-high-water-includes-unexplained-dead-slot",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "reset-high-water",
+      "actual_rule": "reset-high-water",
+      "details": {
+        "observer_rule": "reset-high-water",
+        "observed": 10,
+        "expected": 9
+      },
+      "input_sha256": "c2e74301cad0d975a57b032a232f7cc21c75737a3467e80084e01db348def922",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-first/journals/2d091cf59b34442e/events.json",
+        "event": 6
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-copied18-first/negative-inputs/reset-high-water-includes-unexplained-dead-slot.json.gz",
+      "compressed_sha256": "f89cdbdc2dd4df07c95b0379c6b4312c9f7d6b4b1d8f84f774aef09858cc0e94"
+    },
+    {
+      "case": "unrequested-generation-change",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "unrequested-reset",
+      "actual_rule": "unrequested-reset",
+      "details": {
+        "observer_rule": "unrequested-reset"
+      },
+      "input_sha256": "fc907203c5f2be4624886de1992e74b4a747c733c783b1a9a25803c149ee0d2f",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-first/journals/2d091cf59b34442e/events.json",
+        "event": 5
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-copied18-first/negative-inputs/unrequested-generation-change.json.gz",
+      "compressed_sha256": "6f7a68eeb41595ee157b308199f5470b6eee001544a2bb3fc08e7700110aec95"
+    },
+    {
+      "case": "failed-frame-raw-owner-digest-changed",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "failed-frame-full-owner-rollback",
+      "actual_rule": "failed-frame-full-owner-rollback",
+      "details": {
+        "observer_rule": "failed-frame-full-owner-rollback"
+      },
+      "input_sha256": "30c5c9baeb73cfe53f5c75fdf88aa024d5c4295fc5870f155ad7c01c54aa58ec",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-first/journals/2d091cf59b34442e/events.json",
+        "event": 7
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-copied18-first/negative-inputs/failed-frame-raw-owner-digest-changed.json.gz",
+      "compressed_sha256": "cb9ee2acca1f1902af0ded285987333420fc1db3d4d19271074ad6586ed5116d"
+    },
+    {
+      "case": "failed-frame-owner-pointer-changed",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "failed-frame-structural-rollback",
+      "actual_rule": "failed-frame-structural-rollback",
+      "details": {
+        "observer_rule": "failed-frame-structural-rollback"
+      },
+      "input_sha256": "5214568585f7e41cbd861e61fcd63a4465a06df2f7def584be1085e526507170",
+      "source_event": {
+        "journal": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-first/journals/2d091cf59b34442e/events.json",
+        "event": 7
+      },
+      "compressed_input": "/dev/shm/heptatorch-d26699e25fea/mixed-frozen35-accounting-extension/smoke10-copied18-first/negative-inputs/failed-frame-owner-pointer-changed.json.gz",
+      "compressed_sha256": "f287f49cbb9d64c7987deb87b4554ee1a4648f7cb30d478ce4487148290cf991"
+    }
+  ],
+  "scope": "Observer admission only, using copies of committed owner snapshots; no native or API qualification is claimed.",
+  "expected_profile": "mixed-integer-556-fixed35-F32-Saved",
+  "selection_policy": "First actual eligible event of each fixed category; event result is only a selector, never a substitute for baseline verification.",
+  "positive_cases": 4,
+  "negative_cases": 18,
+  "original_journals_unchanged": true,
+  "observer_source_unchanged": true,
+  "failures": 0
+}

@@ -591,3 +591,32 @@ full-acceptance:
 
 clean:
 	rm -f build/heptatorch build/heptatorch-monolithic build/heptatorch-session build/heptatorch-session-monolithic build/heptatorch-session-build.json build/heptatorch-session-monolithic-build.json build/session-independent-modular.json build/session-independent-monolithic.json build/unhex build/.heptatorch.* build/.unhex.*
+
+
+MIXED_INTEGER_AUTOGRAD_INPUTS := $(wildcard tools/mixed_integer_autograd/* tests/mixed_integer_autograd_review/* tests/mixed_integer_autograd_review/*/* tests/saved_public_lifetime_review/* tests/mixed_integer_owner_review/* validation/mixed-integer-autograd/reference/*) tests/qualify_mixed_integer_autograd.py Makefile
+
+.PHONY: mixed-integer-autograd test-mixed-integer-autograd
+mixed-integer-autograd: build/mixed-integer-autograd/build.json
+
+build/mixed-integer-autograd/build.json: build/integer-tensors/build.json $(MIXED_INTEGER_AUTOGRAD_INPUTS) | build
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.mixed-integer-autograd.XXXXXX"); \
+	python3 -S -B tools/mixed_integer_autograd/rebuild.py --parent "$(CURDIR)/build/integer-tensors" \
+	  --repository "$(CURDIR)" --upstream "$(HEPTA_SOURCE_ROOT)" \
+	  --compiler "$(HEPTA_STACK_BUILD)/native/stack-module-compiler" --linker "$(HEPTA_STACK_BUILD)/native/stack-linker-session" \
+	  --output "$$tmp/native"; \
+	mkdir -p build/mixed-integer-autograd; cp -a --remove-destination "$$tmp/native/." build/mixed-integer-autograd/
+
+test-mixed-integer-autograd: integer-tensors
+	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/.mixed-integer-autograd-review.XXXXXX"); status=0; \
+	python3 -I -S -B tests/qualify_mixed_integer_autograd.py --repo "$(CURDIR)" \
+	  --parent-build "$(CURDIR)/build/integer-tensors" --upstream "$(HEPTA_SOURCE_ROOT)" \
+	  --compiler "$(HEPTA_STACK_BUILD)/native/stack-module-compiler" --linker "$(HEPTA_STACK_BUILD)/native/stack-linker-session" \
+	  --flat-compiler "$$(command -v "$(HEPTA_COMPILER)")" --stack-build "$(HEPTA_STACK_BUILD)" \
+	  --output "$$review/observed" || status=$$?; \
+	if [ -f "$$review/observed/report.json" ]; then cp "$$review/observed/report.json" build/hosted-mixed-integer-autograd-native.json; fi; \
+	if [ -f "$$review/observed/evidence-manifest.json" ]; then cp "$$review/observed/evidence-manifest.json" build/mixed-integer-autograd-ci-raw-manifest.json; fi; \
+	if [ -f "$$review/observed/raw-evidence.tar.xz" ]; then cp "$$review/observed/raw-evidence.tar.xz" build/mixed-integer-autograd-ci-raw.tar.xz; fi; \
+	test "$$status" -eq 0 || exit "$$status"; \
+	test -f build/hosted-mixed-integer-autograd-native.json; \
+	test -f build/mixed-integer-autograd-ci-raw-manifest.json; test -f build/mixed-integer-autograd-ci-raw.tar.xz; \
+	mkdir -p build/mixed-integer-autograd; cp -a --remove-destination "$$review/observed/producer5/native/." build/mixed-integer-autograd/
