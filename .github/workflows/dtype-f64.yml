@@ -68,7 +68,12 @@ jobs:
           subprocess.run([sys.executable,'-m','pip','install','--disable-pip-version-check','--force-reinstall',
              '--index-url','https://download.pytorch.org/whl/cpu','--report',x['install_report'],url],check=True)
           PY
-      - name: Native differential against real PyTorch
+      - name: Native differential against CPython
         run: |
           python3 -I -S -B tests/f64_oracle.py --compiler "$RUNNER_TEMP/f64-compiler/native-compiler" --reference cpython --output build/f64-cpython
+      - name: Diagnose sqrt against exact rational rounding cells
+        run: |
+          python3 tests/f64_sqrt_probe.py --native build/f64-cpython/f64-native --reference pytorch --output build/f64-sqrt-diagnostic
+      - name: Frozen strict differential against real PyTorch
+        run: |
           python3 tests/f64_oracle.py --compiler "$RUNNER_TEMP/f64-compiler/native-compiler" --reference pytorch --output build/f64-pytorch
