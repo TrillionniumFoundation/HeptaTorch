@@ -993,6 +993,63 @@ def concatenation_layouts():
         if other is not None:expected[p.read(other_id,True)]=other.grad.clone()
         compare_join_layout('layout-'+kind+'-axis'+str(axis),p,expected,{p.command(13,output):result})
 
+
+def combined_indexed_training():
+    """Exercise composition, duplicate-index accumulation, AD, optimizers and
+    graph reclamation in the SAME native request, against fresh real PyTorch
+    operations at every update. No detached intermediate is used as a gradient
+    reference and the seed/tolerances remain independent of native output.
+    """
+    for mode in ('SGD', 'AdamW'):
+        p = Program()
+        parameter = torch.nn.Parameter(torch.tensor([[.5, -.2], [1.2, -.9]], dtype=torch.float32))
+        x = p.tensor(parameter, True)
+        state_m = p.tensor(torch.zeros_like(parameter)) if mode == 'AdamW' else 0
+        state_v = p.tensor(torch.zeros_like(parameter)) if mode == 'AdamW' else 0
+        stack = mode == 'AdamW'
+        index = torch.tensor([1, 1] if stack else [1, 3, 1, 0], dtype=torch.int64)
+        target = (torch.arange(8, dtype=torch.float32).reshape(2, 2, 2) / 8 - .25
+                  if stack else torch.arange(8, dtype=torch.float32).reshape(4, 2) / 8 - .25)
+        target_id = p.tensor(target)
+        keep = p.next_id - 1
+        lr, b1, b2, eps, wd = map(f32, [2**-7, .5, .75, 2**-12, 2**-6])
+        optimizer = (torch.optim.AdamW([parameter], lr=lr, betas=(b1, b2), eps=eps,
+                                      weight_decay=wd, foreach=False, fused=False)
+                     if mode == 'AdamW' else
+                     torch.optim.SGD([parameter], lr=lr, foreach=False, fused=False))
+        expected = {}
+        for step in range(1, 13):
+            optimizer.zero_grad(set_to_none=False)
+            p.zero(x)
+            transposed = p.transpose(x)
+            composed = p.join([x, transposed], 0, stack)
+            accumulated = p.index_add(composed, 0, index, composed, .125)
+            native_loss = p.mse(accumulated, target_id)
+            reference_join = (torch.stack if stack else torch.cat)(
+                [parameter, parameter.t()], dim=0)
+            reference_indexed = torch.index_add(reference_join, 0, index,
+                                                reference_join, alpha=.125)
+            reference_loss = F.mse_loss(reference_indexed, target)
+            reference_loss.backward()
+            p.backward(native_loss)
+            if step in (1, 4, 8, 12):
+                expected[p.read(accumulated)] = reference_indexed.detach().clone()
+                expected[p.read(native_loss)] = reference_loss.detach().clone()
+                expected[p.read(x, True)] = parameter.grad.detach().clone()
+            if mode == 'AdamW':
+                p.adam(x, state_m, state_v, step, lr, b1, b2, eps, wd, True)
+            else:
+                p.sgd(x, lr)
+            optimizer.step()
+            p.reset_graph(keep)
+            if step in (1, 4, 8, 12):
+                expected[p.read(x)] = parameter.detach().clone()
+        if mode == 'AdamW':
+            expected[p.read(state_m)] = optimizer.state[parameter]['exp_avg'].clone()
+            expected[p.read(state_v)] = optimizer.state[parameter]['exp_avg_sq'].clone()
+        compare('combined-' + mode + '-cat-stack-index-add-12-resets', p, expected,
+                rtol=2e-4, atol=2e-5)
+
 def main():
     started = time.monotonic()
     sha = hashlib.sha256(EXE.read_bytes()).hexdigest()
@@ -1008,11 +1065,12 @@ def main():
         concatenation()
         concatenation_layouts()
         scatter_index_extensions()
+        combined_indexed_training()
     except Exception as exc:
         setup_error = type(exc).__name__ + ': ' + str(exc)
     changed = sha != hashlib.sha256(EXE.read_bytes()).hexdigest()
     failed = sum(row['status'] == 'FAIL' for row in ROWS)
-    passed = setup_error is None and not changed and failed == 0 and len(ROWS) == 268 and len({row["case"] for row in ROWS}) == 268 and PROVENANCE['status'] == 'PASS'
+    passed = setup_error is None and not changed and failed == 0 and len(ROWS) == 270 and len({row["case"] for row in ROWS}) == 270 and PROVENANCE['status'] == 'PASS'
     report = {'schema': 'heptatorch.live-pytorch-differential.v1', 'status': 'PASS' if passed else 'FAIL',
               'oracle': 'real pinned CPU PyTorch forward, autograd and torch.optim; no copied derivative formulas',
               'torch_version': torch.__version__, 'torch_git_version': torch.version.git_version,
@@ -1021,7 +1079,7 @@ def main():
               'torch_git_matches_oracle_build_pin': torch.version.git_version == EXPECTED['git_commit'],
               'oracle_provenance': PROVENANCE,
               'native_executable_sha256': sha, 'native_unchanged_during_run': not changed,
-              'seed': 1729, 'expected_cases': 268, 'cases': len(ROWS), 'failed_cases': failed, 'setup_error': setup_error,
+              'seed': 1729, 'expected_cases': 270, 'cases': len(ROWS), 'failed_cases': failed, 'setup_error': setup_error,
               'compared_values': sum(row['compared_values'] for row in ROWS), 'rows': ROWS,
               'training': training_result, 'wall_seconds': time.monotonic() - started}
     emit(report)
