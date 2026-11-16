@@ -32,7 +32,8 @@ identities are recorded in `validation/`.
 | Workstream | Implemented and locally qualified | Remaining next work |
 | --- | --- | --- |
 | Native module compilation | True external declarations, borrowed buffer signatures, effects and lifetime checks, symbolic ELF relocations, two-unit execution and 69/204/19/18 boundary suites | General public tensor ABI, foreign-resource provenance, recursive graphs and whole-program resource bounds |
-| Owned module resources | Separate ABI2 compiler and native mmap/munmap allocator; up to three scalar/owner results, linear buffer/chain calls, three reproduced compiler generations and 385 native qualification cases | Integrate the general tensor/storage object model and a separately qualified owned-state interactive entry |
+| Owned module resources | Separate ABI2 compiler and native mmap/munmap allocator; up to three scalar/owner results, linear buffer/chain calls, three reproduced compiler generations and 385 native qualification cases | General tensor ABI, foreign resources and whole-program bounds |
+| Owned interactive storage | Independent Storage/Version identities, strong/weak/saved lifetime, reusable/growing owned pool, full-frame transactions and actual allocation-failure recovery; 131 owner-entry/transport cases, 12 groups / 63 frames on each entry path, 5 current guards and a 2,952-frame independent model | Connect numerical Tensor kernels, shape/stride/dtype and AD/optimizer state; concurrent/device/external allocation and restart persistence remain open |
 | Tensor composition | Native `cat` and `stack`, variable-parent reverse AD, empty shapes, layout selection, version checks and graph reset | Complete dtype/device/layout variants, mutation/out forms and full upstream schema qualification |
 | Indexed accumulation | Native `scatter_add` and `index_add`, exact integer index payloads, duplicate accumulation, alpha rounding and reverse AD preflight | Complete dtype/device/layout variants, mutation/out forms and full upstream schema qualification |
 | Persistent execution | Two native interactive builds, complete-frame arena transactions, 477 independent live-session cases each, 22 packer / 18 flat-linker / 3 actual growth checks | Both hosted session images now pass 21 cases / 4,681 frames / 491,847 values each; general owned/resizable storage, absolute torch._version parity and cross-process durability remain open |
@@ -49,9 +50,7 @@ oracle and fixture inventory. Historical 159-case receipts keep their identities
 Borrowed modules and a separate checked owned-resource ABI2 are implemented.
 The latter adds native buffer/chain allocation, transfer, returns and release;
 it does not establish a general public tensor object ABI.
-The next foundation work is the Tensor/Storage/Version object model, reference
-lifetimes and scalable native storage,
-followed by general owned persistent state and dtype/layout services. Bounded borrowed-arena persistence is implemented separately in `tools/session`; it does not establish external heap-owner transactions. Independent
+The byte-storage foundation now has independent Tensor/Storage/Version records, reference lifetimes, genuinely growing native owned pools and an owned interactive entry. The next implementation work connects the existing numerical Tensor/AD/optimizer path to scalable storage and then completes typed object and dtype/layout services. Bounded borrowed-arena persistence is implemented separately in `tools/session`; it does not establish external heap-owner transactions. Independent
 operator and AD work may continue without treating restricted packet features
 as complete upstream schema coverage.
 

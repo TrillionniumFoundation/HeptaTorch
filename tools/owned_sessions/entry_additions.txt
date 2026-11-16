@@ -1,0 +1,33 @@
+def module_entry(s:readbuf, w:mutbuf, symbol:u64) -> u64:
+    index = (symbol - 262144) // 32
+    at = get(w, 12582912 + index * 8)
+    if at == 0:
+        return 0
+    if uint(s, at + 8, 8) != 0 or uint(s, at + 16, 8) != 3 or uint(s, at + 24, 8) != 2 or uint(s, at + 32, 8) != 15:
+        return 0
+    if uint(s, at + 40, 8) != 8 or uint(s, at + 176, 8) != 3:
+        return 0
+    if uint(s, at + 48, 8) != 6 or uint(s, at + 56, 8) != 7 or uint(s, at + 64, 8) != 8:
+        return 0
+    i = 0
+    while i < get(w, 24):
+        row = 1310720 + i * 32
+        if get(w, row + 8) == 5:
+            name = get(w, row)
+            if uint(s, name, 4) == CLOSE_PREFIX and byte(s, name + 4) == 101:
+                close_symbol = get(w, row + 16)
+                close_index = (close_symbol - 262144) // 32
+                close_at = get(w, 12582912 + close_index * 8)
+                if close_at == 0:
+                    return 0
+                if uint(s, close_at + 8, 8) != 0 or uint(s, close_at + 16, 8) != 1 or uint(s, close_at + 24, 8) != 0 or uint(s, close_at + 32, 8) != 9:
+                    return 0
+                if uint(s, close_at + 48, 8) != 8:
+                    return 0
+                flags = get(w, close_symbol + 24)
+                if ((flags >> 8) & 255) != 2 or ((flags >> 16) & 255) != 1 or ((flags >> 24) & 4) == 0:
+                    return 0
+                put(w, 96, get(w, close_symbol + 16) - 4194304)
+                return 1
+        i = i + 1
+    return 0

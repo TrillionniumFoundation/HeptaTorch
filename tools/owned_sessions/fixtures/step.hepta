@@ -1,0 +1,26 @@
+hia-asm.v1 hepta.hia.program.v8 session_entry
+exports(step)
+fn make(n:usize) -> (buffer) effects(alloc,trap) external()
+fn bump(state:buffer) -> (buffer,u8) effects(read,write,trap) external()
+fn step(s:readbuf,o:mutbuf,state:buffer) -> (buffer,u32) effects(alloc,read,write,trap) entry(b0)
+block b0(s:readbuf,o:mutbuf,state:buffer)
+  length:usize = buffer.len(state)
+  zero:usize = const() {"value":0}
+  empty:bool = compare.eq(length,zero)
+  branch empty fresh(o,state) existing(o,state)
+block fresh(of:mutbuf,old:buffer)
+  _ = owner.drop(old)
+  size:usize = const() {"value":8}
+  made:buffer = call(size) {"function":"make"}
+  jump apply(of,made)
+block existing(oe:mutbuf,kept:buffer)
+  jump apply(oe,kept)
+block apply(out:mutbuf,current:buffer)
+  next:buffer,value:u8 = call(current) {"function":"bump"}
+  zbyte:u8 = const() {"value":0}
+  _ = buffer.fill(out,zbyte)
+  z:usize = const() {"value":0}
+  _ = buffer.store(out,z,value)
+  count:u32 = const() {"value":32}
+  ret(next,count)
+end

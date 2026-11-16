@@ -1,0 +1,179 @@
+def audit_count(w:mutbuf, kind:u64, id:u64, field:u64) -> u64:
+    if slot_lookup(w,kind,id) == 0:
+        return 9
+    slot = id & 16777215
+    p = 144+uget(w,16)*400+(slot-1)*24+field
+    value = uget(w,p)
+    if value >= 4294967295:
+        return 9
+    uput(w,p,value+1)
+    return 0
+
+def audit_records(w:mutbuf) -> u64:
+    kind = 1
+    while kind <= 6:
+        i = 1
+        while i <= uget(w,16):
+            p = slot_at(w,kind,i)
+            generation = uget(w,p)
+            live = uget(w,p+8)
+            if generation > 4294967295 or live > 1:
+                return 9
+            if live == 0:
+                j = 16
+                while j < 64:
+                    if uget(w,p+j) != 0:
+                        return 9
+                    j = j+8
+            else:
+                if generation == 0:
+                    return 9
+                id = handle(kind,i,generation)
+                if kind == 1 or kind == 5:
+                    if kind == 1 and tensor_live(w,id) == 0 or kind == 5 and saved_live(w,id) == 0:
+                        return 9
+                    if audit_count(w,2,uget(w,p+16),0) != 0 or audit_count(w,3,uget(w,p+24),16) != 0:
+                        return 9
+                    if uget(w,p+56) != 0 or kind == 1 and uget(w,p+48) != 0:
+                        return 9
+                if kind == 4 or kind == 6:
+                    field = 0
+                    if kind == 4:
+                        field = 8
+                    if audit_count(w,2,uget(w,p+16),field) != 0:
+                        return 9
+                    j = 24
+                    while j < 64:
+                        if uget(w,p+j) != 0:
+                            return 9
+                        j = j+8
+                if kind == 3:
+                    j = 32
+                    while j < 64:
+                        if uget(w,p+j) != 0:
+                            return 9
+                        j = j+8
+            i = i+1
+        kind = kind+1
+    return 0
+
+def audit_references(w:mutbuf) -> u64:
+    i = 1
+    while i <= uget(w,16):
+        counters = 144+uget(w,16)*400+(i-1)*24
+        storage = slot_at(w,2,i)
+        version = slot_at(w,3,i)
+        if uget(w,storage+8) == 0:
+            if uget(w,counters) != 0 or uget(w,counters+8) != 0:
+                return 9
+        else:
+            strong = uget(w,counters)
+            weak = uget(w,counters+8)
+            if strong > 0:
+                weak = weak+1
+            if weak == 0 or uget(w,storage+40) != strong or uget(w,storage+48) != weak:
+                return 9
+            if uget(w,storage+24) > 1073741824:
+                return 9
+            if strong == 0:
+                if uget(w,storage+16) != 0 or uget(w,storage+32) != 0 or uget(w,storage+56) != 1:
+                    return 9
+            else:
+                if uget(w,storage+56) != 0 or uget(w,storage+32) != align16(uget(w,storage+24)):
+                    return 9
+                offset = uget(w,storage+16)
+                size = uget(w,storage+32)
+                if offset > uget(w,24) or size > uget(w,24)-offset or (offset & 15) != 0:
+                    return 9
+                if size == 0 and offset != 0:
+                    return 9
+        refs = uget(w,counters+16)
+        if uget(w,version+8) == 0:
+            if refs != 0:
+                return 9
+        else:
+            if refs == 0 or uget(w,version+24) != refs:
+                return 9
+        i = i+1
+    return 0
+
+def audit_free(w:mutbuf) -> u64:
+    free = 128+uget(w,16)*384
+    i = 0
+    previous = 0
+    while i < uget(w,32):
+        start = uget(w,free+i*16)
+        size = uget(w,free+i*16+8)
+        if size == 0 or start > uget(w,24) or size > uget(w,24)-start:
+            return 9
+        if (start & 15) != 0 or (size & 15) != 0:
+            return 9
+        if i > 0 and start <= previous:
+            return 9
+        previous = start+size
+        i = i+1
+    while i < uget(w,16)+1:
+        if uget(w,free+i*16) != 0 or uget(w,free+i*16+8) != 0:
+            return 9
+        i = i+1
+    return 0
+
+def audit_extent(w:mutbuf, index:u64) -> u64:
+    storage = slot_at(w,2,index)
+    if uget(w,storage+8) == 0 or uget(w,storage+40) == 0 or uget(w,storage+32) == 0:
+        return 0
+    start = uget(w,storage+16)
+    size = uget(w,storage+32)
+    j = index+1
+    while j <= uget(w,16):
+        other = slot_at(w,2,j)
+        if uget(w,other+8) == 1 and uget(w,other+40) > 0 and uget(w,other+32) > 0:
+            offset = uget(w,other+16)
+            if start < offset+uget(w,other+32) and offset < start+size:
+                return 9
+        j = j+1
+    free = 128+uget(w,16)*384
+    j = 0
+    while j < uget(w,32):
+        offset = uget(w,free+j*16)
+        if start < offset+uget(w,free+j*16+8) and offset < start+size:
+            return 9
+        j = j+1
+    return 0
+
+def audit_extents(w:mutbuf) -> u64:
+    if audit_free(w) != 0:
+        return 9
+    total = 0
+    i = 1
+    while i <= uget(w,16):
+        if audit_extent(w,i) != 0:
+            return 9
+        p = slot_at(w,2,i)
+        if uget(w,p+8) == 1:
+            total = total+uget(w,p+32)
+        i = i+1
+    free = 128+uget(w,16)*384
+    i = 0
+    while i < uget(w,32):
+        total = total+uget(w,free+i*16+8)
+        i = i+1
+    if total != uget(w,24):
+        return 9
+    return 0
+
+def audit(w:mutbuf) -> u64:
+    if state_header(w) != 0:
+        return 9
+    slots = uget(w,16)
+    if slots > 4096:
+        return 3
+    scratch = 144+slots*400
+    fill_range(w,scratch,slots*24,0)
+    status = audit_records(w)
+    if status == 0:
+        status = audit_references(w)
+    if status == 0:
+        status = audit_extents(w)
+    fill_range(w,scratch,slots*24,0)
+    return status

@@ -1,0 +1,23 @@
+hia-asm.v1 hepta.hia.program.v8 session_owners
+exports(make,bump,close)
+fn make(n:usize) -> (buffer) effects(alloc,trap) entry(b0)
+block b0(n:usize)
+  state:buffer = buffer.new(n)
+  ret(state)
+end
+fn bump(state:buffer) -> (buffer,u8) effects(read,write,trap) entry(b0)
+block b0(state:buffer)
+  loan:mutbuf = borrow.mut(state)
+  z:usize = const() {"value":0}
+  prior:u8 = buffer.load(loan,z)
+  one:u8 = const() {"value":1}
+  next:u8 = int.add.wrap(prior,one)
+  _ = buffer.store(loan,z,next)
+  _ = loan.end(loan)
+  ret(state,next)
+end
+fn close(state:buffer) -> () effects(alloc,trap) entry(b0)
+block b0(state:buffer)
+  _ = owner.drop(state)
+  ret()
+end

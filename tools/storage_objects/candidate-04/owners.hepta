@@ -1,0 +1,252 @@
+hia-asm.v1 hepta.hia.program.v8 storage_owners
+exports(step,close)
+fn rget(s:readbuf,at:u64) -> (u64) effects(read,write,trap) external()
+fn uget(w:mutbuf,at:u64) -> (u64) effects(read,write,trap) external()
+fn uput(w:mutbuf,at:u64,value:u64) -> (u64) effects(read,write,trap) external()
+fn slots_normalized(value:u64) -> (u64) effects(read,write,trap) external()
+fn align16(value:u64) -> (u64) effects(read,write,trap) external()
+fn state_size(slots:u64,pool:u64) -> (u64) effects(read,write,trap) external()
+fn state_header(w:mutbuf) -> (u64) effects(read,write,trap) external()
+fn state_init(w:mutbuf,slots:u64,pool:u64) -> (u64) effects(read,write,trap) external()
+fn state_migrate(source:readbuf,target:mutbuf,slots:u64,pool:u64) -> (u64) effects(read,write,trap) external()
+fn frame_valid(s:readbuf) -> (u64) effects(read,write,trap) external()
+fn reply_begin(o:mutbuf) -> (u64) effects(read,write,trap) external()
+fn reply_error(o:mutbuf,status:u64) -> (u64) effects(read,write,trap) external()
+fn prepare(s:readbuf,w:mutbuf,cp:u64,remaining:u64) -> (u64) effects(read,write,trap) external()
+fn apply(s:readbuf,w:mutbuf,o:mutbuf,cp:u64,at:u64) -> (u64) effects(read,write,trap) external()
+fn make_trial(state:buffer,initial_slots:u64,initial_pool:u64) -> (buffer,buffer,u64) effects(alloc,read,write,trap) entry(b0)
+block b0(state:buffer,initial_slots:u64,initial_pool:u64)
+  size:usize = buffer.len(state)
+  zero:usize = const() {"value":0}
+  empty:bool = compare.eq(size,zero)
+  branch empty fresh(state,initial_slots,initial_pool) existing(state,initial_slots,initial_pool)
+block fresh(st:buffer,ns:u64,ps:u64)
+  z:u64 = const() {"value":0}
+  dslots:u64 = const() {"value":8}
+  dpool:u64 = const() {"value":256}
+  snone:bool = compare.eq(ns,z)
+  pnone:bool = compare.eq(ps,z)
+  ss:u64 = select(snone,dslots,ns)
+  pp:u64 = select(pnone,dpool,ps)
+  maximum:u64 = const() {"value":1073741824}
+  over:bool = compare.gt(pp,maximum)
+  slots:u64 = call(ss) {"function":"slots_normalized"}
+  invalid:bool = compare.eq(slots,z)
+  bad:bool = bool.or(over,invalid)
+  branch bad invalid_new(st) new_pool(st,slots,pp)
+block invalid_new(st2:buffer)
+  zero2:usize = const() {"value":0}
+  empty2:buffer = buffer.new(zero2)
+  bad2:u64 = const() {"value":2}
+  ret(st2,empty2,bad2)
+block new_pool(st3:buffer,slots3:u64,pool3:u64)
+  aligned3:u64 = call(pool3) {"function":"align16"}
+  total3:u64 = call(slots3,aligned3) {"function":"state_size"}
+  amount3:usize = int.cast(total3) {"mode":"wrap"}
+  trial3:buffer,ok3:bool = buffer.try_new(amount3)
+  branch ok3 initialize(st3,trial3,slots3,aligned3) no_allocation(st3,trial3)
+block initialize(st4:buffer,trial4:buffer,slots4:u64,pool4:u64)
+  m4:mutbuf = borrow.mut(trial4)
+  init4:u64 = call(m4,slots4,pool4) {"function":"state_init"}
+  _ = loan.end(m4)
+  good4:u64 = const() {"value":0}
+  ret(st4,trial4,good4)
+block existing(st5:buffer,slots5:u64,pool5:u64)
+  m5:mutbuf = borrow.mut(st5)
+  check5:u64 = call(m5) {"function":"state_header"}
+  _ = loan.end(m5)
+  zero5:u64 = const() {"value":0}
+  valid5:bool = compare.eq(check5,zero5)
+  branch valid5 existing_options(st5,slots5,pool5) existing_error(st5,check5)
+block existing_options(st6:buffer,slots6:u64,pool6:u64)
+  zero6:u64 = const() {"value":0}
+  options6:u64 = bit.or(slots6,pool6)
+  valid6:bool = compare.eq(options6,zero6)
+  error6:u64 = const() {"value":2}
+  branch valid6 clone_allocate(st6) existing_error(st6,error6)
+block existing_error(st7:buffer,error7:u64)
+  zero7:usize = const() {"value":0}
+  empty7:buffer = buffer.new(zero7)
+  ret(st7,empty7,error7)
+block clone_allocate(st8:buffer)
+  size8:usize = buffer.len(st8)
+  trial8:buffer,ok8:bool = buffer.try_new(size8)
+  branch ok8 clone_copy(st8,trial8,size8) no_allocation(st8,trial8)
+block clone_copy(st9:buffer,trial9:buffer,size9:usize)
+  source9:readbuf = borrow.read(st9)
+  target9:mutbuf = borrow.mut(trial9)
+  zero9:usize = const() {"value":0}
+  _ = buffer.copy_range(target9,source9,zero9,zero9,size9)
+  _ = loan.end(target9)
+  _ = loan.end(source9)
+  good9:u64 = const() {"value":0}
+  ret(st9,trial9,good9)
+block no_allocation(st10:buffer,trial10:buffer)
+  no10:u64 = const() {"value":3}
+  ret(st10,trial10,no10)
+end
+fn resize(state:buffer,slots:u64,pool:u64) -> (buffer,u64) effects(alloc,read,write,trap) entry(b0)
+block b0(state:buffer,slots:u64,pool:u64)
+  source:readbuf = borrow.read(state)
+  s_at:u64 = const() {"value":16}
+  p_at:u64 = const() {"value":24}
+  e_at:u64 = const() {"value":40}
+  old_slots:u64 = call(source,s_at) {"function":"rget"}
+  old_pool:u64 = call(source,p_at) {"function":"rget"}
+  epoch:u64 = call(source,e_at) {"function":"rget"}
+  _ = loan.end(source)
+  more_s:bool = compare.gt(slots,old_slots)
+  more_p:bool = compare.gt(pool,old_pool)
+  more:bool = bool.or(more_s,more_p)
+  branch more check(state,slots,pool,old_slots,old_pool,epoch) unchanged(state)
+block unchanged(st1:buffer)
+  good1:u64 = const() {"value":0}
+  ret(st1,good1)
+block check(st2:buffer,slots2:u64,pool2:u64,old_s2:u64,old_p2:u64,epoch2:u64)
+  total2:u64 = call(slots2,pool2) {"function":"state_size"}
+  zero2:u64 = const() {"value":0}
+  bad_size2:bool = compare.eq(total2,zero2)
+  bad_s2:bool = compare.lt(slots2,old_s2)
+  bad_p2:bool = compare.lt(pool2,old_p2)
+  smaller2:bool = bool.or(bad_s2,bad_p2)
+  invalid2:bool = bool.or(smaller2,bad_size2)
+  branch invalid2 invalid(st2) check_epoch(st2,slots2,pool2,epoch2,total2)
+block invalid(st3:buffer)
+  bad3:u64 = const() {"value":2}
+  ret(st3,bad3)
+block check_epoch(st4:buffer,slots4:u64,pool4:u64,epoch4:u64,total4:u64)
+  max4:u64 = const() {"value":18446744073709551615}
+  overflow4:bool = compare.eq(epoch4,max4)
+  branch overflow4 exhausted(st4) allocate(st4,slots4,pool4,total4)
+block exhausted(st5:buffer)
+  bad5:u64 = const() {"value":8}
+  ret(st5,bad5)
+block allocate(st6:buffer,slots6:u64,pool6:u64,total6:u64)
+  amount6:usize = int.cast(total6) {"mode":"wrap"}
+  target6:buffer,ok6:bool = buffer.try_new(amount6)
+  branch ok6 migrate(st6,target6,slots6,pool6) allocate_failed(st6,target6)
+block allocate_failed(st7:buffer,target7:buffer)
+  _ = owner.drop(target7)
+  bad7:u64 = const() {"value":3}
+  ret(st7,bad7)
+block migrate(st8:buffer,target8:buffer,slots8:u64,pool8:u64)
+  src8:readbuf = borrow.read(st8)
+  dst8:mutbuf = borrow.mut(target8)
+  migrated8:u64 = call(src8,dst8,slots8,pool8) {"function":"state_migrate"}
+  _ = loan.end(dst8)
+  _ = loan.end(src8)
+  zero8:u64 = const() {"value":0}
+  success8:bool = compare.eq(migrated8,zero8)
+  branch success8 committed(st8,target8) migrate_failed(st8,target8,migrated8)
+block committed(st9:buffer,target9:buffer)
+  _ = owner.drop(st9)
+  good9:u64 = const() {"value":0}
+  ret(target9,good9)
+block migrate_failed(st10:buffer,target10:buffer,status10:u64)
+  _ = owner.drop(target10)
+  ret(st10,status10)
+end
+fn abort_frame(original:buffer,trial:buffer,o:mutbuf,status:u64) -> (buffer,u32) effects(alloc,read,write,trap) entry(b0)
+block b0(original:buffer,trial:buffer,o:mutbuf,status:u64)
+  _ = owner.drop(trial)
+  n:u64 = call(o,status) {"function":"reply_error"}
+  count:u32 = int.cast(n) {"mode":"wrap"}
+  ret(original,count)
+end
+fn step(s:readbuf,o:mutbuf,state:buffer) -> (buffer,u32) effects(alloc,read,write,trap) entry(b0)
+block b0(s:readbuf,o:mutbuf,state:buffer)
+  cap:usize = buffer.len(o)
+  minimum:usize = const() {"value":32}
+  short:bool = compare.lt(cap,minimum)
+  branch short no_output(state) envelope(s,o,state)
+block no_output(state1:buffer)
+  n1:u32 = const() {"value":0}
+  ret(state1,n1)
+block envelope(s2:readbuf,o2:mutbuf,state2:buffer)
+  status2:u64 = call(s2) {"function":"frame_valid"}
+  z2:u64 = const() {"value":0}
+  good2:bool = compare.eq(status2,z2)
+  branch good2 start(s2,o2,state2) envelope_error(o2,state2,status2)
+block envelope_error(o3:mutbuf,state3:buffer,status3:u64)
+  n3:u64 = call(o3,status3) {"function":"reply_error"}
+  c3:u32 = int.cast(n3) {"mode":"wrap"}
+  ret(state3,c3)
+block start(s4:readbuf,o4:mutbuf,state4:buffer)
+  sa4:u64 = const() {"value":16}
+  pa4:u64 = const() {"value":24}
+  ns4:u64 = call(s4,sa4) {"function":"rget"}
+  ps4:u64 = call(s4,pa4) {"function":"rget"}
+  original4:buffer,trial4:buffer,status4:u64 = call(state4,ns4,ps4) {"function":"make_trial"}
+  zero4:u64 = const() {"value":0}
+  good4:bool = compare.eq(status4,zero4)
+  branch good4 ready(s4,o4,original4,trial4) failed(o4,original4,trial4,status4)
+block ready(s5:readbuf,o5:mutbuf,original5:buffer,trial5:buffer)
+  ca5:u64 = const() {"value":8}
+  count5:u64 = call(s5,ca5) {"function":"rget"}
+  i5:u64 = const() {"value":0}
+  at5:u64 = const() {"value":32}
+  jump loop(s5,o5,original5,trial5,i5,at5,count5)
+block loop(s6:readbuf,o6:mutbuf,original6:buffer,trial6:buffer,i6:u64,at6:u64,count6:u64)
+  more6:bool = compare.lt(i6,count6)
+  branch more6 command(s6,o6,original6,trial6,i6,at6,count6) success(o6,original6,trial6,at6,count6)
+block command(s7:readbuf,o7:mutbuf,original7:buffer,trial7:buffer,i7:u64,at7:u64,count7:u64)
+  width7:u64 = const() {"value":64}
+  header7:u64 = const() {"value":32}
+  ix7:u64 = int.mul.wrap(i7,width7)
+  cp7:u64 = int.add.wrap(header7,ix7)
+  rawcap7:usize = buffer.len(o7)
+  cap7:u64 = int.cast(rawcap7) {"mode":"wrap"}
+  maximum7:u64 = const() {"value":1048576}
+  wide7:bool = compare.gt(cap7,maximum7)
+  bounded7:u64 = select(wide7,maximum7,cap7)
+  remaining7:u64 = int.sub.wrap(bounded7,at7)
+  m7:mutbuf = borrow.mut(trial7)
+  status7:u64 = call(s7,m7,cp7,remaining7) {"function":"prepare"}
+  sa7:u64 = const() {"value":64}
+  pa7:u64 = const() {"value":72}
+  slots7:u64 = call(m7,sa7) {"function":"uget"}
+  pool7:u64 = call(m7,pa7) {"function":"uget"}
+  zero7:u64 = const() {"value":0}
+  clear_s7:u64 = call(m7,sa7,zero7) {"function":"uput"}
+  clear_p7:u64 = call(m7,pa7,zero7) {"function":"uput"}
+  _ = loan.end(m7)
+  good7:bool = compare.eq(status7,zero7)
+  branch good7 grow(s7,o7,original7,trial7,i7,at7,count7,cp7,slots7,pool7) failed(o7,original7,trial7,status7)
+block grow(s8:readbuf,o8:mutbuf,original8:buffer,trial8:buffer,i8:u64,at8:u64,count8:u64,cp8:u64,slots8:u64,pool8:u64)
+  grown8:buffer,status8:u64 = call(trial8,slots8,pool8) {"function":"resize"}
+  zero8:u64 = const() {"value":0}
+  good8:bool = compare.eq(status8,zero8)
+  branch good8 execute(s8,o8,original8,grown8,i8,at8,count8,cp8) failed(o8,original8,grown8,status8)
+block execute(s9:readbuf,o9:mutbuf,original9:buffer,trial9:buffer,i9:u64,at9:u64,count9:u64,cp9:u64)
+  m9:mutbuf = borrow.mut(trial9)
+  status9:u64 = call(s9,m9,o9,cp9,at9) {"function":"apply"}
+  _ = loan.end(m9)
+  zero9:u64 = const() {"value":0}
+  good9:bool = compare.eq(status9,zero9)
+  branch good9 advance(s9,o9,original9,trial9,i9,at9,count9) failed(o9,original9,trial9,status9)
+block advance(s10:readbuf,o10:mutbuf,original10:buffer,trial10:buffer,i10:u64,at10:u64,count10:u64)
+  offset10:u64 = const() {"value":56}
+  pa10:u64 = int.add.wrap(at10,offset10)
+  payload10:u64 = call(o10,pa10) {"function":"uget"}
+  width10:u64 = const() {"value":64}
+  advance10:u64 = int.add.wrap(payload10,width10)
+  next_at10:u64 = int.add.wrap(at10,advance10)
+  one10:u64 = const() {"value":1}
+  next_i10:u64 = int.add.wrap(i10,one10)
+  jump loop(s10,o10,original10,trial10,next_i10,next_at10,count10)
+block failed(of:mutbuf,originalf:buffer,trialf:buffer,statusf:u64)
+  retainedf:buffer,countf:u32 = call(originalf,trialf,of,statusf) {"function":"abort_frame"}
+  ret(retainedf,countf)
+block success(os:mutbuf,originals:buffer,trials:buffer,ats:u64,counts:u64)
+  _ = owner.drop(originals)
+  begun:u64 = call(os) {"function":"reply_begin"}
+  count_at:u64 = const() {"value":16}
+  stored:u64 = call(os,count_at,counts) {"function":"uput"}
+  size:u32 = int.cast(ats) {"mode":"wrap"}
+  ret(trials,size)
+end
+fn close(state:buffer) -> () effects(alloc,trap) entry(b0)
+block b0(state:buffer)
+  _ = owner.drop(state)
+  ret()
+end

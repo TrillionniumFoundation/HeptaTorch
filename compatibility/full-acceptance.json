@@ -13,13 +13,13 @@
       "id": "module-abi",
       "status": "IN_PROGRESS",
       "required": "Independent native compilation and linking with complete signatures, effects, resources, ownership, imports/exports and runtime tensor ABI",
-      "remaining": "Native borrowed ABI1 and a separate same-producer owned ABI2 are implemented, including buffer/chain ownership transfer, up to three scalar/owner results, native mmap/munmap allocation, exact signatures/effects and module admission. General public tensor/object ABI, foreign-resource provenance, recursive module graphs and whole-program stack bounds remain unqualified."
+      "remaining": "Native borrowed ABI1 and a separate same-producer owned ABI2 support buffer/chain ownership, up to three scalar/owner results, native mmap/munmap and exact admission. A separate native interactive profile consumes and returns state ownership and checks close, with actual cleanup/I/O qualification. General public tensor/object ABI, foreign-resource provenance, recursive module graphs and whole-program stack bounds remain unqualified."
     },
     {
       "id": "storage-lifetime",
       "status": "IN_PROGRESS",
       "required": "General allocation, storage ownership, aliasing, reference lifetime, persistent execution, scalable capacity and device memory",
-      "remaining": "Bounded native interactive sessions and complete-frame durable/shadow arena transactions are implemented and independently exercised. Each frame still has 1 MiB I/O and each state arena 1 MiB with 255 simultaneous descriptors. General owned/resizable storage, reference lifetime, device allocation and process-restart durability remain unqualified."
+      "remaining": "The separately qualified byte-storage service implements independent Tensor/Storage/Version handles, strong/weak/saved lifetimes, reusable extents, genuinely growing owned pools, interactive owner transfer and whole-frame rollback including actual allocation failure. The numerical Tensor runtime still uses its prior 1 MiB state/255 descriptors. Integrating typed Tensor kernels with independent storage objects, general dtype/layout/device allocation, concurrent lifetime, custom deleters and restart durability remains open."
     },
     {
       "id": "dtype-layout",

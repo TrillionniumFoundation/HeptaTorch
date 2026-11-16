@@ -273,8 +273,8 @@ configuration change after the otherwise identical wheel source revision.
 the two pins and their relationship.
 
 The oracle checks real PyTorch forward results, autograd gradients and optimizer
-updates against each already-built HIA executable. The current gate has 268
-cases: the preceding 159 plus 35 cat/stack and 74 indexed-addition cases. It
+updates against each already-built HIA executable. The tensor-composition gate recorded below had 268
+cases: the preceding 159 plus 35 cat/stack and 74 indexed-addition cases. The current gate has 270 cases after two integrated SGD/AdamW trajectories were added; its separate receipt is `validation/hosted-cross-feature-training.json`. It
 records the wheel's source URL, archive hash and Git revision and verifies that
 the native executable is unchanged by the test. Both builds passed all 268
 cases, 12,932 value comparisons and 11 provenance checks in
@@ -326,3 +326,49 @@ existing borrowed toolchain pins and both ordinary and interactive PyTorch
 oracle gates. The public entry of this owned-module profile remains the
 three-borrowed-buffer entry; an owned persistent-state entry needs a separate
 bridge and qualification.
+
+## Building owned interactive storage
+
+First reproduce the owned ABI2 toolchain as above. Use its full build directory,
+the same pinned upstream source and the existing borrowed native tool directory:
+
+```sh
+python3 -I -S -B tools/owned_sessions/rebuild.py \
+  --source-root /absolute/path/to/pinned-hepta \
+  --owned-build /absolute/path/to/owned-module-build \
+  --owned-profile tools/owned_modules/profile.json \
+  --borrowed-tools /absolute/path/to/borrowed-native-tools \
+  --output /absolute/path/to/new-owned-session-tools
+
+make storage-objects test-storage-objects \
+  HEPTA_SOURCE_ROOT=/absolute/path/to/pinned-hepta \
+  HEPTA_OWNED_COMPILER=/absolute/path/to/owned-module-build/native/owned-module-compiler \
+  HEPTA_OWNED_LINKER=/absolute/path/to/owned-module-build/native/linker-abi2-w1m \
+  HEPTA_OWNED_SESSION_BUILD=/absolute/path/to/new-owned-session-tools
+```
+
+The first command reproduces three distinct native linkers: production, a
+post-close observer, and a signal observer. Only production is used for the
+service. Qualification adapters have their own pins and are never substituted
+for the production image.
+
+Make creates `build/storage-native/storage-trace` and
+`build/storage-interactive/storage-session`. The test target recompiles the real
+five-module service for transport qualification, runs all 131 entry/transport
+cases, 12 scenario groups through each entry, five current extreme-state guards,
+and three 300-event independent model campaigns. Failed review directories are
+retained under `build/`; earlier observations are not overwritten. The combined
+actual receipt is `build/hosted-owned-storage-gates.json`.
+
+The historical sixth guard is a preserved failure of candidate 03. It is not
+counted as a current passing production witness. The original 456-file storage
+package and all 23 owned-session package files are verified byte-for-byte.
+`tests/check_storage_object_reports.py` also checks exact generated modules,
+executables, response corpora, independent transcript hashes and loaded report
+identities. Native HIA performs all target allocation, copies, lifetime changes,
+rollback, linking and execution; Python authors source, transports bytes and
+computes independent test expectations.
+
+CI repeats these commands after the owned-module toolchain and keeps both
+ordinary and both interactive pinned PyTorch gates required. Passing the byte
+service does not qualify its still-pending numerical Tensor integration.

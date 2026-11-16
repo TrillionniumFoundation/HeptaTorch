@@ -457,6 +457,26 @@ jobs:
             --review "$RUNNER_TEMP/hepta-owned-review" \
             --output build/hosted-owned-module-gates.json
 
+      - name: Reproduce checked owned-state interactive entry and cleanup tools
+        shell: bash
+        run: |
+          sha256sum -c validation/owned-session-package.sha256
+          python3 -I -S -B tools/owned_sessions/rebuild.py \
+            --source-root "$GITHUB_WORKSPACE/.toolchain/hepta" \
+            --owned-build "$RUNNER_TEMP/hepta-owned-modules" \
+            --owned-profile tools/owned_modules/profile.json \
+            --borrowed-tools "$RUNNER_TEMP/hepta-modules-native" \
+            --output "$RUNNER_TEMP/hepta-owned-session-tools"
+
+      - name: Build and qualify growable owned storage and independent reference model
+        shell: bash
+        run: |
+          make storage-objects test-storage-objects \
+            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
+            HEPTA_OWNED_COMPILER="$RUNNER_TEMP/hepta-owned-modules/native/owned-module-compiler" \
+            HEPTA_OWNED_LINKER="$RUNNER_TEMP/hepta-owned-modules/native/linker-abi2-w1m" \
+            HEPTA_OWNED_SESSION_BUILD="$RUNNER_TEMP/hepta-owned-session-tools"
+
       - name: Install the independent pinned PyTorch CPU oracle
         shell: bash
         run: |
