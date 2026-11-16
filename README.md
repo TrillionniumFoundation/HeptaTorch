@@ -64,7 +64,7 @@ cmp build/train.response build/train.expected
 
 该编译器自身有 8,229 条指令，通过两个合法编译单元完成原生重建，保留单元容量限制和全部既有 ownership checker。三代 ABI2 重建字节一致；正式源码重新构建与 **385 项**原生资格检查通过，并为当前完整 runtime 和 unhex 生成与已有构建逐字相同的映像。[资格证据](validation/native-owned-modules.json)包含 315 项接口攻击、资源生命周期和独立跨模块执行。[实际托管 CI](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43795584310)的 **32 个步骤全部通过**，包含全部 385 项 owned 资格、原有双 270 项普通 PyTorch 门禁和双 21 项交互门禁；[完整托管回执](validation/hosted-owned-modules.json)绑定实现提交 `030694be9373aefc9a6740c3ccc8d742098e5c51`。
 
-这是原生所有权基础。当前张量内核和 borrowed 持久会话仍使用有界 arena；另一个原生字节存储服务已实现独立 Storage／Version 对象、强弱引用、可增长 owned 内存池及 owned 交互入口，下一步继续连接数值张量内核。此处不把复制 owner 的两个机器字解释为合法所有权复制，也不接纳任意外部指针。
+这是原生所有权基础。原有张量内核和 borrowed 持久会话保留有界 arena；新的数值 Tensor 候选已接入可增长 owner，独立 Storage／Version 对象的完整连接继续进行。原生字节存储服务已分别验证强弱引用、独立版本与可增长内存池。此处不把复制 owner 的两个机器字解释为合法所有权复制，也不接纳任意外部指针。
 
 ## 可增长原生存储与 owned 交互入口
 
@@ -75,6 +75,16 @@ cmp build/train.response build/train.expected
 [owned 交互入口](tools/owned_sessions/README.md)由单独固定的原生 HIA linker 接纳 `step(readbuf,mutbuf,buffer)->(buffer,u32)` 和 `close(buffer)->()`。原生 startup 在 stdin 未关闭时返回响应，先接管返回的唯一 owner，再处理输出或退出。正常 EOF、断管及其他可恢复传输失败会调用真实 close。单独标识的资格程序在进程退出前观测到了实际解除映射；真实 EINTR 和短写也已执行验证。
 
 正式源码的独立资格包含 **131 项 owner 入口／传输检查**、有限 trace 与交互模式各 **12 组／63 帧**、**5 项当前极限状态守卫**，以及独立参考模型的 **2,952 帧／11,177 次精确标量比较／93 次完整状态回滚比较**。[源码与原始证据](validation/storage-object-handoff.json)保留 456 个文件的逐字节清单；[两种模块排列的独立模型回执](validation/storage-independent-models.json)分别绑定两个不同映像。重复执行同一语料不增加上游 PyTorch 测试或 schema 覆盖数。实际构建与报告门禁见 [构建配方](docs/build.md#building-owned-interactive-storage)。 [实际托管 CI](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43797863695)已在提交 `8186da151687808085479392f4e4720b8ac71769` 上通过全部 **34 个步骤**，包括新的存储／所有权资格、原有双 270 项普通 PyTorch 门禁和双 21 项交互门禁。[完整托管证据](validation/hosted-owned-storage.json)保留实际逐项报告、源码和二进制身份。
+
+## 可增长数值 Tensor 候选
+
+[owned Tensor 候选](tools/owned_tensors/README.md)将现有 binary32 数值内核接入真正的 HIA owner：描述符按页分配，最多 65,535 个存活句柄；状态实际按需扩容，旧句柄和数组偏移在扩容后继续有效。完整请求在独立 owner 中执行，成功才提交；可恢复错误和真实内存分配失败保留原状态。构建对 143 个原函数逐个记录来源，其中 126 个函数体逐字保留，17 个函数只在明确列出的入口、分配、句柄和版本路径中修改，另新增 7 个辅助函数。
+
+正式源码重新构建已通过 **11 组／161 帧／1,078,028 个 binary32 精确比较**，包括 64 MiB Tensor、128 MiB 实际 owner、全部 65,535 个描述符、跨扩容训练和 59,310,080 字节完整失败回滚比较。另有 6 项真实 typed-owner 状态检查；独立审查运行了 16 帧、612 个精确字段比较和 41,943,040 字节完整状态回滚比较，连接非均匀 matmul、转置、重复 gather、反向传播及 SGD。[本地构建回执](validation/owned-tensor-build-integration.json)记录实际执行结果与源码身份。[构建配方](docs/build.md#building-growable-numerical-tensors)可重现这些结果。
+
+真实 PyTorch 门禁另设 **28 项**，保留原 21 项数值期望和容差，并新增分页、扩容、大张量及空张量反向传播检查。它加强了参数绝对版本计数比较；原生资格通过不代表该独立门禁已经通过。构造时版本从 0 开始已实现，优化器逐操作版本语义仍需由这一门禁检查。此候选仍为 CPU binary32、rank 0–4、受明确资源限额约束；独立 Storage／Version 对象与数值 Tensor 的连接、完整 stride／dtype／device 语义和整个 PyTorch 验收继续开放。
+
+[首次严格门禁](validation/hosted-owned-tensor-initial-failure.json)已实际完成全部 28 项、6,233 帧和 2,590,207 个数值比较，其中两项因非零权重衰减 AdamW 的绝对版本计数而失败，原始结果完整保留。[原生修正版](tools/owned_tensor_versions/README.md)仅替换 `adam` 的版本收尾调用并新增一个 HIA 辅助函数，修正参数和二阶矩计数；原 28 项 PyTorch oracle 源码与断言保持逐字不变。修正版原生资格还检查了零／负零衰减、零学习率和空张量的版本行为。[实际修复 CI](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43801012881)已通过全部 37 个步骤，严格门禁 **28／28 PASS、6,233 帧、2,590,207 个值、11 项来源检查**，参数绝对计数差异为 0；另有 22 项真实上游生命周期观察。[完整回执](validation/hosted-owned-tensors.json)绑定实现、二进制及全部实际报告。预先提供的 momentum 状态与 torch.optim 新建状态之间的生命周期差异仍保留为开放问题。
 
 ## 跨请求持久会话
 
@@ -116,7 +126,7 @@ make session session-monolithic test-session test-session-monolithic \
 
 本轮在此前矩阵、VJP、图回收和 Adam 舍入修正基础上，实现了 cat/stack 与 scatter_add/index_add，并修复通用空张量的连续步长和晚出现零维度的形状接纳。cat 的 channels-last 是实际存储布局；index_add 的 alpha 舍入按已测固定 CPU 路径区分 rank 0/1 和更高 rank，不代表所有 ISA 都采用同一路径。具体行为见 [协议](docs/protocol.md)与 [数值说明](docs/numerics.md)。
 
-当前权威源码使用 143／256 个函数名额、1,783／2,560 个基本块及 7,064／8,192 条指令。已运行的借用缓冲区模块桥接推进了独立原生编译与链接；独立 owned ABI2 已实现资源传递、返回及原生 syscall 分配；可增长张量存储、任意外部 ABI 和规模化对象生命周期仍需实现和验收。会话当前仅保存有界 arena 状态，不持有 arena 外部的 heap owner。具体证据及完整目标见 [审计更新](docs/upstream-audit.md#tensor-composition-and-indexed-addition-audit)。
+当前权威源码使用 143／256 个函数名额、1,783／2,560 个基本块及 7,064／8,192 条指令。已运行的借用缓冲区模块桥接推进了独立原生编译与链接；独立 owned ABI2 已实现资源传递、返回及原生 syscall 分配；新的 owned Tensor 候选已运行可增长的数值存储；独立对象生命周期和任意外部 ABI 仍需完整实现和验收。原 borrowed 会话保留有界 arena；新的 owned 会话显式持有和移交 heap owner。具体证据及完整目标见 [审计更新](docs/upstream-audit.md#tensor-composition-and-indexed-addition-audit)。
 
 完整目标尚包括：完整 dtype/layout/promotion 语义、其余算子及重载、高阶和前向自动微分、CUDA/ROCm/MPS/XPU、分布式、图捕获与编译优化、数据加载、RNG、完整 checkpoint/serialization、Python/C++ 前端兼容和跨平台构建。[上游审计](docs/upstream-audit.md)列出这些目标的验收条件。
 
