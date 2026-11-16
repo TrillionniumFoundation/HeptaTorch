@@ -282,7 +282,46 @@ third_party/pytorch/      上游许可证与通知
 [详细复现说明](docs/retained-gradients.md)给出工具路径、原始档案与尚待执行的门。
 第三个 private-node profile 仅增加精确的 446 源码／ELF／标签；所有分配、引用、
 Version、整 owner 回滚与原 18 个负控保持原规则。446 映像上的 live32 与 frozen35
-已接入 CI，**在本包形成时尚未执行**，不能沿用父映像的成功。
+现已在实现提交 `cef47b8f…` 上实际通过，两条 Native job 各完成全部 80 步，
+355／428／446 三条快速资格各完成 13 步。独立离线审阅通过 106,570 项检查；
+主控再次执行得到逐字相同的完整报告。PR #31 已合入 `e0ea769c…`，
+[完整原件与审阅记录](validation/hosted-retained-gradients-cef47/)保留两个原始
+reader 失败、局部修复及最终成功，6 份原始 ZIP 共 94,716,715 字节另有完整来源回执。
 
 hooks、前向／高阶导数、任意 dtype／设备、完整优化器状态与整个 PyTorch 兼容性
 继续按原 2,590 条 schema 和 17 项门禁验收。
+
+## 已合并的原生 int64 算术基础
+
+[独立 HIA int64 内核](tools/native-i64/README.md)实现六种有界整数算术与位运算，
+两份实际 PyTorch 专用作业均通过 **33 组／351,174 个精确值／11 项来源检查**。
+接入当时主线后，两份 Native 作业各通过 80 步；两份原始产物分别通过
+106,633 项独立检查，主审另外重放得到逐字一致的报告。
+[完整准入记录](validation/hosted-native-int64-2e66/)保留所有原始失败与来源。
+PR #29 已合入 `7e157f7b…`，合并树与实测树一致。整数 Tensor、推广规则、
+布局及其完整自动微分接口仍须各自实现和验收。
+
+## 实际 bool Storage、NativeDropout 与捕获的反向历史
+
+[523 函数原生后继](docs/native-dropout-history.md)在真实 HIA owner 中加入
+一字节 bool Storage、公开 mask Tensor、保留的不可变 AD 边与 AccumulateGrad
+目标、真实 `detach_` 和 `logical_not_`。11 个原生模块重新编译后逐字复现固定
+源码与 ELF；13 个生产资格步骤通过。独立的 9 组实际历史配方展开为 13 个
+原生进程，全部通过；26 组 detach 原地操作及全部后续操作、双向 typed owner
+交接和短输出入口检查另有各自完整证据。
+
+空 NativeDropout 改变当前 Tensor 历史后，合法已有优化器的审计与清零，以及
+SGD 首次 momentum 在 maximize／weight-decay 路径上的布局，均由实际固定
+PyTorch 观察约束。此前真实失败和修复后的独立结果分别保留。有限的 640 字节
+owner 审计通过 4 个有效控制和 24 个复制快照负控；这组有限控制与完整
+frozen35 分配账本分别验收。新映像已在固定 ROG PyTorch 环境实际通过原样
+live32，以及完整 640 字节独立 owner 观察器下的全部 frozen35：
+**35 组／6,344 帧／2,590,274 个值／11 项来源检查**。原 EOF、关闭后的
+Version 检查和 283 项旧显式状态差异完整保留；参数 Version 差异为 0。
+[完整原始记录](validation/dtype-frozen35-accounting/evidence/qualification-summary.json)
+保留两次旧检查器失败及真实释放控制，原生源码和 ELF 未因检查器修正而改变。
+新集成入口已实际冷编译并通过全部 6 个独立资格门；新的 GitHub 源码组合仍待
+其自身 CI 与原始产物准入。
+
+计数按各自参考与运行来源保留，原 183 组参考中的 18 OPEN 不改写。其他 dtype、
+promotion、完整 Python 接口和所有 17 项系统门禁继续开放。

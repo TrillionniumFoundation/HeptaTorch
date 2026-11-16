@@ -1,0 +1,53 @@
+{
+  "old_source_sha256": "cb856ddcea423e8db7c4dda39cd6b0d10b75a3eb9dbb23eeeb2c70c3fc375ae9",
+  "new_source_sha256": "c5b2cd94b994b891418f75117ffec93668513b0e3e84568c41b75e9b67b9d3d4",
+  "edits": [
+    {
+      "before": "\"\"\"Read-only replay of the immutable native_dropout reference, with explicit OPEN empty AD.\"\"\"",
+      "after": "\"\"\"Strict replay of the original28 real outcomes, including same-T empty autograd history.\"\"\""
+    },
+    {
+      "before": "        def setup(expected):",
+      "after": "        def setup(expected):"
+    },
+    {
+      "before": "x=one(69,base,w.Payload(cfg),80)['value'];one(90,x,1);one(41,base)",
+      "after": "x=one(69,base,w.Payload(cfg),80)['value']\n            if expected['requires_grad']:one(90,x,1)\n            one(41,base)"
+    },
+    {
+      "before": "wanted=10 if 'second time' in ref['error']['message'] else 6",
+      "after": "wanted=11 if 'moved into the graph interior' in ref['error']['message'] else (10 if 'second time' in ref['error']['message'] else 6)"
+    },
+    {
+      "before": "            if not case['input_before']['binary_words']:\n                error([request],5)\n                row.update(status='OPEN',open_boundary='Actual accepts same Tensor and changes leaf autograd identity; this candidate explicitly rejects that unsupported identity transition before mutation.')\n            elif not case['forward']['accepted']:",
+      "after": "            if not case['forward']['accepted']:"
+    },
+    {
+      "before": "                snapshot(x,case['input_after_forward'],'input_after_forward')",
+      "after": "                input_after=snapshot(x,case['input_after_forward'],'input_after_forward')\n                eq('output_is_input_Tensor',output==x,case['output_is_input_Tensor'])\n                eq('output_aliases_input_Storage',before_out['meta']['storage_id']==input_after['meta']['storage_id'],case['output_aliases_input_Storage'])\n                eq('mask_aliases_input_Storage',before_mask['meta']['storage_id']==input_after['meta']['storage_id'],case['mask_aliases_input_Storage'])\n                eq('mask_aliases_output_Storage',before_mask['meta']['storage_id']==before_out['meta']['storage_id'],case['mask_aliases_output_Storage'])"
+    },
+    {
+      "before": "                seed=case['seed'];raw=struct.pack('<'+'I'*len(seed['binary_words']),*seed['binary_words'])\n                shape=seed['shape'];seed_id=one(1,len(shape),0,*shape,*([0]*(4-len(shape))),w.Payload(raw,4))['value']",
+      "after": "                seed_id=setup(case['seed'])\n                snapshot(seed_id,case['seed'],'seed')"
+    },
+    {
+      "before": "one(70,x)",
+      "after": "one(92,x,0)",
+      "count": 2
+    },
+    {
+      "before": "                for t in (seed_id,output,mask):one(41,t)",
+      "after": "                for t in (seed_id,output,mask):\n                    if t!=x:one(41,t)"
+    },
+    {
+      "before": "'status':'FAIL' if any(r['status']=='FAIL' for r in rows) else 'QUALIFIED_WITH_OPEN_EMPTY_IDENTITY'",
+      "after": "'status':'FAIL' if any(r['status']=='FAIL' for r in rows) else 'PASS'"
+    },
+    {
+      "before": "'Torch_executed_here':False,'reference_replayed':True,'full_pytorch_rewrite_complete':False",
+      "after": "'Torch_executed_here':False,'reference_replayed':True,'full_pytorch_rewrite_complete':False,\n        'private_saved_scalar_query':'Not exposed by the wire; scalar private attributes are not counted as matched.',\n        'old_open_empty_forward_not_reclassified':True"
+    }
+  ],
+  "original_reference_unchanged": true,
+  "observation_scope": "Original28 actual values/layouts/None/Version/Saved mask Tensor identity/fullRNG. Empty formerly OPEN now compared to actual outcomes."
+}

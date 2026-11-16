@@ -1,0 +1,49 @@
+{
+  "schema": "heptatorch.native-dropout-portable-source-review.v1",
+  "status": "PASS_SOURCE_ONLY",
+  "native_executed": false,
+  "Torch_executed": false,
+  "modified_producer_files": false,
+  "package_manifest_sha256": "3e087c9ddeae0e34f29120ee9e05632e3048aaf5d17b449330faaaed15633708",
+  "files": {
+    "tools/native_dropout/qualify.py": {
+      "bytes": 9055,
+      "sha256": "f8a78a20505a81b926b25ca2ea9c9548b5eb45a855c95c7e7565d9ad58384d4a"
+    },
+    "tools/native_dropout/build.py": {
+      "bytes": 1893,
+      "sha256": "09a3163a4cbbf7a5dae91108b8f8df4851ef9a0e788e1ee4a61332cd59f5f22f"
+    },
+    "tools/native_dropout/build_effective_momentum.py": {
+      "bytes": 19820,
+      "sha256": "360d03d6e4a51734fce5ce03373d8887302ee8d30932e5c2d5cb8371183944fa"
+    },
+    "tools/native_dropout/profile.json": {
+      "bytes": 6903,
+      "sha256": "f6fb73f47dec30810d778c02e8117c819cccedee1e7b83d6fb48b34ce0ed1bbd"
+    },
+    "tests/native_dropout_review/run_inherited.py": {
+      "bytes": 13954,
+      "sha256": "e3124c82665bcab77f6f754f0465371220a75c954e89c9d361b370b3e6f65503"
+    }
+  },
+  "findings": [
+    {
+      "subject": "retained12 admission",
+      "conclusion": "Exact QUALIFIED_EXPOSED_SCOPE, variants_executed=12, variants_qualified=12, unexpected_failures=0, ca8b5d3a7c679dcc5ad9a3d7b2bbd38f664c90e6474cf3e3c28496d5b716d1b3 fixed observations, exactly 11 true provenance checks and all_inputs_unchanged are required."
+    },
+    {
+      "subject": "native build identity",
+      "conclusion": "Expected profile compares the entire 11-unit receipt, aggregate source/image, compiler/linker, descriptor and state formats. Producer stores actual native compiler bytes, links those objects, requires successful compiler/linker results and checks source/tool custody; build.py also checks final source/image bytes."
+    },
+    {
+      "subject": "inherited16 counting",
+      "conclusion": "Frozen 9+1,22+3,161+4+18,165+18 and optimizer18+1+5/Adam4/case20 remain named separate scopes; legacy state differences are asserted. Actual retained12 is not silently substituted for the old optimizer mapping."
+    }
+  ],
+  "no_specific_blocker_within_reviewed_scope": true,
+  "limitations": [
+    "This is static inspection of named source, not a new cold build or execution result.",
+    "Authoring/native verifier resource limits and global PyTorch parity remain separate gates."
+  ]
+}

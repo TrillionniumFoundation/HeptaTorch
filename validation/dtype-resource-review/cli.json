@@ -1,0 +1,119 @@
+{
+  "schema": "heptatorch.dtype11-resource-review-cli.v1",
+  "source_sha256": "6ffe509afce28ff15705b4c7b269eaef8f8f89f9d8b2486d4d9fa45b6be66ef3",
+  "native_sha256": "830f0b4ef8d6ad8c6a105be56d383628b45c84e3e43905fee6812c7c52d35a51",
+  "substitution": "Each placeholder is one argv item; no shell evaluation is needed. All output directories must be new.",
+  "commands": [
+    {
+      "name": "actual-detach26",
+      "argv": [
+        "{python}",
+        "-I",
+        "-B",
+        "{repo}/tests/dtype_resource_review/replay_detach_inplace_complete.py",
+        "--binary",
+        "{native_build}/tensor-dtype-dropout-session",
+        "--source",
+        "{native_build}/runtime.hepta",
+        "--build-report",
+        "{native_build}/build.json",
+        "--protocol",
+        "{repo}/tests/retained_resource_review/protocol.py",
+        "--observations",
+        "{repo}/validation/dtype-resource-review/reference/torch-detach-inplace.json",
+        "--expected-source-sha256",
+        "6ffe509afce28ff15705b4c7b269eaef8f8f89f9d8b2486d4d9fa45b6be66ef3",
+        "--expected-native-sha256",
+        "830f0b4ef8d6ad8c6a105be56d383628b45c84e3e43905fee6812c7c52d35a51",
+        "--output",
+        "{output}/actual-detach26"
+      ],
+      "required": {
+        "status": "PASS",
+        "passed_cases": 26,
+        "failed_cases": 0,
+        "original_post_witness_passed": 26,
+        "original_post_witness_unmapped": 0,
+        "native_prefix_rollback_passed": 9,
+        "source_files_unchanged": true
+      },
+      "original_report": {
+        "bytes": 2151305,
+        "sha256": "e15f1c809efa6b01ef5b9e5bac301214c6af7747be93e88fdf69ccd4c117039d"
+      }
+    },
+    {
+      "name": "typed-handoff2",
+      "argv": [
+        "{python}",
+        "-I",
+        "-B",
+        "{repo}/tests/dtype_resource_review/test_dtype_owned_handoff_11.py",
+        "--build",
+        "{native_build}",
+        "--previous-build",
+        "{parent_build}",
+        "--stack-build",
+        "{stack_build}",
+        "--protocol",
+        "{repo}/tests/retained_resource_review/protocol.py",
+        "--controller",
+        "{repo}/tests/retained_resource_review/state_handoff.hepta",
+        "--output",
+        "{output}/typed-handoff2"
+      ],
+      "required": {
+        "status": "PASS",
+        "case_count": 2,
+        "passed": 2,
+        "failed": 0,
+        "linked_modules": 21,
+        "frame_count": 12,
+        "all_source_custody_unchanged": true
+      },
+      "original_report": {
+        "bytes": 28555,
+        "sha256": "143922c0cb2c94fd27065260c65c9f28fc635e0ca47ab5f451e1978d8641331c"
+      }
+    },
+    {
+      "name": "owned-entry5",
+      "argv": [
+        "{python}",
+        "-I",
+        "-B",
+        "{repo}/tests/dtype_resource_review/test_dtype_owned_entry_11.py",
+        "--build",
+        "{native_build}",
+        "--stack-build",
+        "{stack_build}",
+        "--protocol",
+        "{repo}/tests/retained_resource_review/protocol.py",
+        "--probe-source",
+        "{repo}/tests/dtype_resource_review/entry_probe.hepta",
+        "--output",
+        "{output}/owned-entry5"
+      ],
+      "required": {
+        "status": "PASS",
+        "case_count": 5,
+        "passed": 5,
+        "failed": 0,
+        "linked_modules": 12,
+        "native_probe_processes": 42,
+        "interactive_frames": 51,
+        "all_source_custody_unchanged": true
+      },
+      "original_report": {
+        "bytes": 11850,
+        "sha256": "c03ec9e5d4e814d67b8522b2fa1cd759be7ffedebe23a7e2bccf587291072006"
+      }
+    }
+  ],
+  "counting_boundary": "26 fixed actual cases; two native typed directions; five native entry controls are distinct scopes, not a unique PyTorch API count. No live Torch is rerun by these commands.",
+  "parent_source_sha256": "666230f05cc6942470006d1f184135321d8cbc26a6c6ba0bf7e3cf9857fe515b",
+  "parent_native_sha256": "7568c0a4ec40d82d3a0b46d1e8a27499dd96e8fe3fd15433523131a196da89b5",
+  "whole_pytorch_gate": "HOLD",
+  "full_pytorch_parity": false,
+  "pytorch_api_denominator": 2590
+}

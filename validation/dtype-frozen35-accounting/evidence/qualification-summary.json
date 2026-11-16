@@ -1,0 +1,196 @@
+{
+  "schema": "heptatorch.dtype523-frozen35-evidence-completion.v1",
+  "status": "COMPONENT_PASS_WITH_COMPLETE_EVIDENCE_BYTES",
+  "native_source_sha256": "6ffe509afce28ff15705b4c7b269eaef8f8f89f9d8b2486d4d9fa45b6be66ef3",
+  "native_executable_sha256": "830f0b4ef8d6ad8c6a105be56d383628b45c84e3e43905fee6812c7c52d35a51",
+  "native_rebuilt_for_these_reference_runs": false,
+  "reference_runtime": {
+    "host": "ROG",
+    "platform": "linux-x86_64",
+    "python": "CPython 3.12",
+    "torch": "2.15.0+cpu",
+    "all_11_original_provenance_checks": true
+  },
+  "source_package": {
+    "manifest": "validation/dtype-frozen35-accounting/source-package-manifest.json",
+    "sha256": "934aa2916e6cd00d634839b9b3676b73b62dfe70815a8a44b043dfb65b91d3b3",
+    "unchanged": true
+  },
+  "runs": [
+    {
+      "name": "unmodified-frozen35-523",
+      "job_id": "1a1e4b38317-392-37ae",
+      "status": "FAIL_PRESERVED",
+      "original_oracle_exit": 1,
+      "cases": 35,
+      "failed_cases": 32,
+      "frames": 6344,
+      "compared_values": 2590274,
+      "report": {
+        "archive": "remote-raw",
+        "member": "unmodified-frozen35-01/original-oracle.json",
+        "bytes": 3023023,
+        "sha256": "e2533cc7a49cea86cdf074f18430e3bd8a5060ad91055b0de5d2fbc6cbe6bfd4",
+        "mode": 384
+      },
+      "reason": "The unmodified historical public-client node ledger does not account for private gradient nodes on this exact 523 image. This is a separate actual run from the old 355 failure."
+    },
+    {
+      "name": "unchanged-live32-523",
+      "job_id": "1a1e4b586ee-392-37b2",
+      "status": "PASS",
+      "original_oracle_exit": 0,
+      "cases": 32,
+      "failed_cases": 0,
+      "frames": 2132,
+      "oracle_sha256": "554671168c7a4a408dc1e1df89a19db15c3efcefcf4ae1a300af1b6dcae40160",
+      "report": {
+        "archive": "remote-raw",
+        "member": "unchanged-live32-01/oracle.json",
+        "bytes": 35256,
+        "sha256": "0c4691a29bdd53c0c4df5b6ee19aee7e39f712edb2719ad08128b9a5ed07fc14",
+        "mode": 384
+      }
+    },
+    {
+      "name": "full640-frozen35-first",
+      "job_id": "1a1e4c10a7b-392-37cd",
+      "status": "FAIL_PRESERVED",
+      "original_oracle_exit": 1,
+      "cases": 35,
+      "failed_cases": 4,
+      "frames": 6329,
+      "compared_values": 2590271,
+      "report": {
+        "archive": "remote-raw",
+        "member": "accounted-frozen35-01/original-oracle.json",
+        "bytes": 3060482,
+        "sha256": "d37500707fec0c9e225c2df1cade0ad360435ee0959a1f36a86e8b0d4ae01a55",
+        "mode": 384
+      },
+      "reason": "The frozen 6ea structural observer incorrectly required expired nonempty Storage requested bytes to be zero. The actual native producer retains that historical size."
+    },
+    {
+      "name": "full640-frozen35-corrected",
+      "job_id": "1a1e4c7dcf9-392-37dc",
+      "status": "PASS",
+      "original_oracle_exit": 0,
+      "cases": 35,
+      "failed_cases": 0,
+      "frames": 6344,
+      "compared_values": 2590274,
+      "explicit_state_absolute_version_differences": 283,
+      "direct_parameter_absolute_version_mismatches": 0,
+      "original_EOF_and_post_close_Version_gates_all_executed": true,
+      "numeric_oracle_rows_reclassified": false,
+      "report": {
+        "archive": "remote-raw",
+        "member": "accounted-frozen35-02/original-oracle.json",
+        "bytes": 3055752,
+        "sha256": "206a6a62a2c40a7aeb2964257388daefa051326c951c57f65a1a7a243b917d98",
+        "mode": 384
+      },
+      "wrapper": {
+        "archive": "remote-raw",
+        "member": "accounted-frozen35-02/outer.json",
+        "bytes": 40667,
+        "sha256": "3d61a7f685719d42b004d89433431f234707d4af1663f2b8a14d6e474d23de5d",
+        "mode": 384
+      }
+    }
+  ],
+  "observer_correction": {
+    "original_structural_sha256": "6ea9e8b33164089034a2a71a03f4850e1ec18ed1a09155d7841f700ef311c833",
+    "successor_structural_sha256": "f503df2d1dbce8242591e77211b96a7787201e991db8186c9f1cca6576244409",
+    "full35_transition_sha256": "4cd9c3d1fafd1eee04ac1b2b8bb720a099d53dc821b25b9cf4380e6c67b36a71",
+    "actual_release_body_sha256": "bc12724cb0fa1844d04d57b7b7aab1de91a7f1209322e8dedbac39f9e947a33e",
+    "old_source_unchanged": true,
+    "native_source_or_image_changed": false,
+    "change": "Expired Storage offset and rounded extent must remain zero; the historical requested size is retained and bounded. Same-generation transitions preserve it and forbid resurrection.",
+    "exact_inverse_proof": "tests/dtype_frozen35_accounting/storage-tombstone-correction.json"
+  },
+  "additional_evidence_groups_not_added_to_API_cases": {
+    "copied_original18": {
+      "positive_cases": 4,
+      "negative_cases": 18,
+      "native_executed": false,
+      "Torch_executed": false,
+      "report": {
+        "archive": "remote-raw",
+        "member": "accounted-frozen35-02/copied18/report.json",
+        "bytes": 28370,
+        "sha256": "d4f9d9c228a4ccdecdcabd234ba35c3de60bdbdfe69c1db34b0fc925ecba3490",
+        "mode": 384
+      }
+    },
+    "tombstone_native_control": {
+      "archive": "local-supplement",
+      "member": "tombstone-control-01/report.json",
+      "native_cases": 1,
+      "frames": 6,
+      "additional_copied_refusals": 4,
+      "bytes": 13701,
+      "sha256": "287b72589c32dcfcc1eec2bd450e91bedc7a53f77afcc8c774e8209cf6023f52",
+      "mode": 420
+    },
+    "historical_structural_replay": {
+      "archive": "local-supplement",
+      "member": "structural-replay-01/report.json",
+      "native_executed": false,
+      "Torch_executed": false,
+      "bytes": 55579,
+      "sha256": "7ea2610c8169b922b902a736e698f7538ca030ab92f70a4b9a5f687b38f57d54",
+      "mode": 420
+    },
+    "peer_tombstone_source_review": {
+      "archive": "local-supplement",
+      "member": "peer-source-review/tombstone-f503.json",
+      "native_executed": false,
+      "Torch_executed": false,
+      "bytes": 4384,
+      "sha256": "8e92956d7bae949d6848ab6c6dd5f7961678017de95abaa19542d81b95da71bf",
+      "mode": 420
+    }
+  },
+  "evidence": {
+    "remote_archive_sha256": "1c3ef93dd3e7910b10dd12287959b6e841e5b2e2e71ffb09793fcc1597b4d993",
+    "remote_members": 450,
+    "remote_expanded_bytes": 94644488,
+    "local_supplement_members": 328,
+    "local_readback_custody": {
+      "bytes": 113665,
+      "sha256": "2f1e5dfce6224465600b374fa46c82c91ae5df1ea9d00303d2d4634995436403",
+      "mode": 420
+    },
+    "restore_verification": {
+      "bytes": 3310,
+      "sha256": "c88cebc464d34f72570875854c97de2c4363585a3ffc6df7a2cb591d941bba07",
+      "mode": 420
+    },
+    "evidence_index": {
+      "bytes": 2643,
+      "sha256": "0a772282288e7a1985ba76f7d05b46c56a892b5799a9b4f794bced035e014b65",
+      "mode": 420
+    },
+    "all_full_original_report_bytes_present": true,
+    "all_remote_members_size_SHA_mode_verified": true,
+    "all_local_supplement_members_size_SHA_mode_verified": true,
+    "whole_XZ_and_single_stream_EOF_verified": true,
+    "remote_SSH_interruption_and_retry_preserved": true,
+    "child_absolute_paths_and_argv_unchanged": true
+  },
+  "scope": [
+    "This is original numerical-oracle compatibility plus a source-bound read-only ownership observer, not a replacement numerical implementation.",
+    "The full35 transition is restricted to the exact exercised historical command domain. Every snapshot carries all 80 descriptor words; new persistent history roles were explicitly zero on these actual trajectories.",
+    "The separate native 4/24 controls exercise new 640 roles. Their evidence remains separately counted and their old observer bytes are preserved.",
+    "The remote archive contains the actual runtime, executable, build receipt, all raw transports, owner journals, original reports, six frozen oracle/support inputs, lock and installation receipt; it does not claim to include every one of the 11 compile-unit products.",
+    "The historical baseline command/execution metadata has literal trailing backslash-n bytes. Those original bytes are preserved; valid original oracle JSON is separate.",
+    "Cold 11-unit reproduction and official CI are integration gates owned by the parent workflow; these actual reference runs reused the fixed executable."
+  ],
+  "whole_pytorch_gate": "HOLD",
+  "pytorch_api_denominator": 2590,
+  "whole_pytorch_rewrite_complete": false,
+  "full_autograd_gate_closed": false,
+  "full_rng_gate_closed": false,
+  "all_dtypes_gate_closed": false
+}

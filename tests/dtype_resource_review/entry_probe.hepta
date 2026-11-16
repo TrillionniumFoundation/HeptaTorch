@@ -1,0 +1,57 @@
+hia-asm.v1 hepta.hia.program.v8 tensor_rng_entry_probe
+exports(probe)
+fn step(s:readbuf,o:mutbuf,state:buffer) -> (buffer,u32) effects(alloc,read,write,trap) external()
+fn getr(s:readbuf,at:u64) -> (u64) effects(read,write,trap) external()
+fn putw(o:mutbuf,at:u64,value:u64) -> (u64) effects(read,write,trap) external()
+fn probe(s:readbuf,o:mutbuf,w:mutbuf) -> (u32) effects(alloc,read,write,trap) entry(b0)
+block b0(s:readbuf,o:mutbuf,w:mutbuf)
+  zero:u64 = const() {"value":0}
+  eight:u64 = const() {"value":8}
+  sixteen:u64 = const() {"value":16}
+  header:u64 = const() {"value":24}
+  stlen:u64 = call(s,zero) {"function":"getr"}
+  sqlen:u64 = call(s,eight) {"function":"getr"}
+  cap:u64 = call(s,sixteen) {"function":"getr"}
+  stn:usize = int.cast(stlen) {"mode":"wrap"}
+  sqn:usize = int.cast(sqlen) {"mode":"wrap"}
+  on:usize = int.cast(cap) {"mode":"wrap"}
+  st:buffer = buffer.new(stn)
+  sq:buffer = buffer.new(sqn)
+  ob:buffer = buffer.new(on)
+  stm:mutbuf = borrow.mut(st)
+  sqm:mutbuf = borrow.mut(sq)
+  z:usize = const() {"value":0}
+  sh:usize = const() {"value":24}
+  sat:u64 = int.add.wrap(header,stlen)
+  si:usize = int.cast(sat) {"mode":"wrap"}
+  _ = buffer.copy_range(stm,s,z,sh,stn)
+  _ = buffer.copy_range(sqm,s,z,si,sqn)
+  _ = loan.end(stm)
+  _ = loan.end(sqm)
+  sr:readbuf = borrow.read(sq)
+  om:mutbuf = borrow.mut(ob)
+  next:buffer,n:u32 = call(sr,om,st) {"function":"step"}
+  _ = loan.end(om)
+  _ = loan.end(sr)
+  _ = owner.drop(sq)
+  returned:u64 = int.cast(n) {"mode":"wrap"}
+  nn:usize = buffer.len(next)
+  size:u64 = int.cast(nn) {"mode":"wrap"}
+  a:u64 = call(o,zero,returned) {"function":"putw"}
+  b:u64 = call(o,eight,size) {"function":"putw"}
+  c:u64 = call(o,sixteen,cap) {"function":"putw"}
+  output:readbuf = borrow.read(ob)
+  state:readbuf = borrow.read(next)
+  payload:usize = const() {"value":24}
+  after:u64 = int.add.wrap(header,cap)
+  after_index:usize = int.cast(after) {"mode":"wrap"}
+  _ = buffer.copy_range(o,output,payload,z,on)
+  _ = buffer.copy_range(o,state,after_index,z,nn)
+  _ = loan.end(state)
+  _ = loan.end(output)
+  _ = owner.drop(next)
+  _ = owner.drop(ob)
+  total:u64 = int.add.wrap(after,size)
+  result:u32 = int.cast(total) {"mode":"wrap"}
+  ret(result)
+end

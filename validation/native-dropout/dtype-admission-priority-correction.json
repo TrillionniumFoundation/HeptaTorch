@@ -1,0 +1,20 @@
+{
+  "schema": "heptatorch.dtype-admission-error-priority-correction.v1",
+  "old_script_sha256": "d81ff4e7c064e146c8c382b3e55c1fe4e891c98f73e48f5862360985401adf7a",
+  "new_script_sha256": "dcb4bb5635716946eb9db4922520c4110f18e292fc882394023804375c5cd914",
+  "edits": [
+    {
+      "before": "mutation_target = boolean([1])",
+      "after": "mutation_target = boolean([1])\n        bool_grad = one(18, b)['value']"
+    },
+    {
+      "before": "add('gradient-bool-target', (92, b, f), 5)",
+      "after": "add('gradient-bool-target-f32-source', (92, b, f), 2)\n        add('gradient-bool-target-bool-source', (92, b, bool_grad), 5)"
+    }
+  ],
+  "inverse_exact": true,
+  "first_failure": "dtype-admission-07-second/report.json",
+  "reason": "Frozen gradient_assign checks exact dtype/shape before rejecting a bool target. Bool target plus F32 source is therefore mismatch2, while a distinct same-shaped bool source reaches unsupported-gradient5. Both branches now have explicit controls. This is an admission contract correction, not a changed native result or Torch reference.",
+  "source_function_sha256": "02d3489309e37ff86e9ec7778469588539a7ad5f8f34280c2cedaa21417d152c",
+  "native_changed": false
+}

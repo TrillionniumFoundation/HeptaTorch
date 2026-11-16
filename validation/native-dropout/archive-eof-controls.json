@@ -1,0 +1,32 @@
+{
+  "schema": "heptatorch.native-dropout-xz-EOF-controls.v1",
+  "status": "PASS",
+  "native_executed": false,
+  "Torch_executed": false,
+  "scope": "Two corrupt copies of an already verified archive; no runtime/oracle qualification is added.",
+  "source_archive_sha256": "5e83fd19d0ccf26ca8257523480f78e1444ded7765f59788ac5fb6fc14c45857",
+  "coordinator_sha256": "5c997334bfbb3fc11accce45a6a5f770f0f61f35f19b08d140b28fae8451440b",
+  "source_archive_unchanged": true,
+  "controls": [
+    {
+      "name": "missing_footer",
+      "bytes": 4196756,
+      "sha256": "1c2668ffef3bc399e154fd602069d810eecb4f2b01b6c66ab702383d828cbfd7",
+      "producer_or_original_evidence_modified": false,
+      "tar_member_scan_count": 2860,
+      "tar_member_scan": "ACCEPTED",
+      "full_xz_stream": "EXPECTED_REFUSAL",
+      "stream_error": "EOFError: Compressed file ended before the end-of-stream marker was reached"
+    },
+    {
+      "name": "corrupt_footer_crc",
+      "bytes": 4196768,
+      "sha256": "fb95496cbc4148ffbb99e088ae065bb726f419754cee050bfed093a24c1406c5",
+      "producer_or_original_evidence_modified": false,
+      "tar_member_scan_count": 2860,
+      "tar_member_scan": "ACCEPTED",
+      "full_xz_stream": "EXPECTED_REFUSAL",
+      "stream_error": "LZMAError: Corrupt input data"
+    }
+  ]
+}

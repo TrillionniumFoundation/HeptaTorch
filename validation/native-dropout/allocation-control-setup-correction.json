@@ -1,0 +1,19 @@
+{
+  "schema": "heptatorch.dtype-allocation-control-setup-correction.v1",
+  "old_script_sha256": "301d5a63c193d9a0d9c84265d4adc1142b374f926970ceb8f63528b1444ce647",
+  "new_script_sha256": "5b3163c6a596e72b37b1e665815c3c3a5e4adb90ecca752c6e778a9d63855f16",
+  "edits": [
+    {
+      "before": "address_limit = 26 << 20",
+      "after": "address_limit = 32 << 20"
+    },
+    {
+      "before": "        before = s.owner()\n        maps = Path(f'/proc/{s.pid}/maps').read_bytes()\n        rng = one(63, gen)['payload']",
+      "after": "        rng = one(63, gen)['payload']\n        before = s.owner()\n        maps = Path(f'/proc/{s.pid}/maps').read_bytes()"
+    }
+  ],
+  "inverse_exact": true,
+  "original_failure": "allocation-07-first/report.json",
+  "reason": "26MiB AS permits 4\u21928MiB committed migration but not the next ordinary 8MiB clone, so the setup failed before the target request. 32MiB admits ordinary clones and still refuses the required 16MiB trial. Save the owner observation after the read-only RNG request, because every successful owned frame commits a new trial pointer.",
+  "native_changed": false
+}

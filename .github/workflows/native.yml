@@ -11,7 +11,7 @@ permissions:
 jobs:
   native:
     runs-on: ubuntu-24.04
-    timeout-minutes: 40
+    timeout-minutes: 90
     steps:
       - name: Check out HeptaTorch
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -596,6 +596,32 @@ jobs:
           fi
           exit "$status"
 
+      - name: Cold-build typed native dropout and independently qualify history ownership
+        run: |
+          status=0
+          make test-native-dropout \
+            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
+            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget" \
+            HEPTA_COMPILER="$RUNNER_TEMP/hepta-expanded/hia-native-compiler" || status=$?
+          if [ -f build/hosted-native-dropout-native.json ]; then
+            python3 -I -S -B tools/emit_ci_report.py build/hosted-native-dropout-native.json
+          fi
+          exit "$status"
+
+      - name: Validate released Storage metadata and strict 640-byte observer refusals
+        run: |
+          status=0
+          python3 -I -S -B tests/dtype_frozen35_accounting/test_storage_tombstone.py \
+            --binary build/native-dropout/tensor-dtype-dropout-session \
+            --source build/native-dropout/runtime.hepta \
+            --protocol tests/retained_nonleaf_review/protocol.py \
+            --output build/frozen35-dtype-node/storage-tombstone || status=$?
+          if [ -f build/frozen35-dtype-node/storage-tombstone/report.json ]; then
+            cp build/frozen35-dtype-node/storage-tombstone/report.json build/native-dropout-storage-tombstone.json
+            python3 -I -S -B tools/emit_ci_report.py build/native-dropout-storage-tombstone.json
+          fi
+          exit "$status"
+
       - name: Reproduce and qualify persistent native CPU Generator objects
         run: |
           make cpu-generators test-cpu-generators \
@@ -1039,6 +1065,58 @@ jobs:
           fi
           exit "$status"
 
+      - name: Compare typed dropout owner with unchanged live oracle (32 cases)
+        run: |
+          echo '554671168c7a4a408dc1e1df89a19db15c3efcefcf4ae1a300af1b6dcae40160  tests/pytorch_tensor_rng_backward_oracle.py' | sha256sum -c -
+          status=0
+          python3 tests/pytorch_tensor_rng_backward_oracle.py \
+            --native build/native-dropout/tensor-dtype-dropout-session \
+            --source build/native-dropout/runtime.hepta \
+            --expected-native-sha256 830f0b4ef8d6ad8c6a105be56d383628b45c84e3e43905fee6812c7c52d35a51 \
+            --expected-source-sha256 6ffe509afce28ff15705b4c7b269eaef8f8f89f9d8b2486d4d9fa45b6be66ef3 \
+            --repo . --output build/pytorch-native-dropout-backward.json > build/pytorch-native-dropout-backward.stdout || status=$?
+          python3 -I -S -B tools/emit_ci_report.py build/pytorch-native-dropout-backward.json
+          exit "$status"
+
+      - name: Regress typed-dropout owner against all unchanged 35 Tensor cases with exact 640-byte accounting
+        run: |
+          echo '149b41c455444edeb8d25d0ad98045e29683e780f37f7e210e7985242d359597  tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py' | sha256sum -c -
+          status=0
+          python3 tests/dtype_frozen35_accounting/run_frozen35_accounted.py \
+            --legacy-directory tests/tensor_object_oracle \
+            --native-source build/native-dropout/runtime.hepta \
+            --observer-output build/frozen35-dtype-node/523 \
+            --observer-report build/pytorch-native-dropout-frozen35.json \
+            -- build/native-dropout/tensor-dtype-dropout-session build/pytorch-native-dropout-frozen35-original.json \
+            --owned-reference tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py \
+            --session-reference tests/pytorch_session_oracle.py --reference tests/pytorch_oracle.py \
+            --lock compatibility/pytorch-oracle-lock.json --repo . \
+            --trace-directory build/frozen35-dtype-node-wire/523 \
+            --expected-native-sha256 830f0b4ef8d6ad8c6a105be56d383628b45c84e3e43905fee6812c7c52d35a51 || status=$?
+          if [ -f build/pytorch-native-dropout-frozen35.json ]; then
+            python3 -I -S -B tools/emit_ci_report.py build/pytorch-native-dropout-frozen35.json
+          fi
+          if [ "$status" -eq 0 ]; then
+            python3 -I -S -B tests/dtype_frozen35_accounting/check_frozen35_accounted.py \
+              --observer-report build/pytorch-native-dropout-frozen35.json \
+              --original-report build/pytorch-native-dropout-frozen35-original.json
+          fi
+          exit "$status"
+
+      - name: Check original copied-snapshot refusals against the typed-dropout full35 journals
+        run: |
+          status=0
+          python3 -I -S -B tests/dtype_frozen35_accounting/check_owner_snapshots.py \
+            --observer tests/dtype_frozen35_accounting/owner_accounting523.py \
+            --expected-profile dtype-native-dropout-523 \
+            --journals build/frozen35-dtype-node/523/owners \
+            --output build/frozen35-dtype-node/523/copied-controls || status=$?
+          if [ -f build/frozen35-dtype-node/523/copied-controls/report.json ]; then
+            cp build/frozen35-dtype-node/523/copied-controls/report.json build/pytorch-native-dropout-frozen35-observer-controls.json
+            python3 -I -S -B tools/emit_ci_report.py build/pytorch-native-dropout-frozen35-observer-controls.json
+          fi
+          exit "$status"
+
       - name: Index complete original CI reports and checkout identity
         if: always()
         env:
@@ -1091,4 +1169,42 @@ jobs:
             build/hosted-retained-gradients-native.json
           if-no-files-found: warn
           compression-level: 0
+          retention-days: 30
+
+      - name: Export complete typed-dropout native execution evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: native-dropout-native-evidence-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+          path: |
+            build/native-dropout-ci-raw.tar.xz
+            build/native-dropout-ci-raw-manifest.json
+            build/hosted-native-dropout-native.json
+          if-no-files-found: warn
+          compression-level: 0
+          retention-days: 30
+
+      - name: Index original typed-dropout 640-byte journals and oracle reports
+        if: always()
+        env:
+          HEPTATORCH_SOURCE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          HEPTATORCH_OBSERVER_ARTIFACT: dtype-node-journals-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+        run: |
+          python3 -I -S -B tests/private_node_accounting/collect_private_node_journals.py \
+            --build build --journal-root build/frozen35-dtype-node --wire-root build/frozen35-dtype-node-wire \
+            --reports build/pytorch-native-dropout-frozen35.json build/pytorch-native-dropout-frozen35-original.json \
+              build/pytorch-native-dropout-frozen35-observer-controls.json build/native-dropout-storage-tombstone.json \
+              build/pytorch-native-dropout-backward.json build/pytorch-install.json \
+            --job-status '${{ job.status }}'
+
+      - name: Export original typed-dropout 640-byte journals and wire traces
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: dtype-node-journals-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+          path: |
+            build/frozen35-dtype-node/
+            build/frozen35-dtype-node-wire/
+          if-no-files-found: warn
+          compression-level: 9
           retention-days: 30

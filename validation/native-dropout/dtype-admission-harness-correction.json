@@ -1,0 +1,19 @@
+{
+  "schema": "heptatorch.dtype-admission-harness-correction.v1",
+  "old_script_sha256": "1364e4b56dda34f5039ae38c6bff7729b7a1e12db81bb2d32f8e9fcde03c68e8",
+  "new_script_sha256": "d81ff4e7c064e146c8c382b3e55c1fe4e891c98f73e48f5862360985401adf7a",
+  "edits": [
+    {
+      "before": "b = boolean([2, 2]); bv = boolean([2]); b4 = boolean([1, 1, 2, 2]); be = boolean([0])",
+      "after": "b = boolean([2, 2]); bv = boolean([2]); b4 = boolean([1, 1, 2, 2]); be = boolean([0])\n        mutation_target = boolean([1])"
+    },
+    {
+      "before": "[(102, b), (68, f, gen, 0, w.bits(1), 1), command]",
+      "after": "[(102, mutation_target), (68, f, gen, 0, w.bits(1), 1), command]"
+    }
+  ],
+  "inverse_exact": true,
+  "first_failure": "dtype-admission-07-first/report.json",
+  "reason": "The first prefix mutated the same bool Storage that public Saved read guarded. Saved version6 correctly precedes dtype7. The successor uses an independent real bool Tensor for prefix mutation, preserving all dtype expectations and complete rollback assertions.",
+  "native_changed": false
+}

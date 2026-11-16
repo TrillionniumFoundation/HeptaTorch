@@ -1,0 +1,28 @@
+{
+  "schema": "heptatorch.dtype523-expired-storage-source-review.v1",
+  "status": "SOURCE_CONTRACT_CONFIRMED",
+  "native_executed": false,
+  "Torch_executed": false,
+  "source_sha256": "6ffe509afce28ff15705b4c7b269eaef8f8f89f9d8b2486d4d9fa45b6be66ef3",
+  "functions": {
+    "so_storage_release": {
+      "sha256": "bc12724cb0fa1844d04d57b7b7aab1de91a7f1209322e8dedbac39f9e947a33e",
+      "bytes": 2461
+    },
+    "so_storage_live": {
+      "sha256": "7db4e501d11f7bde8e2ba2b5960bb0c47365b48eaf35bb3781ab80feaac978d7",
+      "bytes": 1257
+    }
+  },
+  "observed_source_semantics": {
+    "last_strong_reference_with_external_weak": "release actual extent; set offset16=0, rounded32=0, strong40=0, weak48=old_weak-1, dead56=1",
+    "byte_size24": "Preserved by so_storage_release; not a live payload extent after strong reaches zero.",
+    "live_access": "so_storage_live refuses zero strong, zero weak, or nonzero dead flag."
+  },
+  "old_observer_sha256": "6ea9e8b33164089034a2a71a03f4850e1ec18ed1a09155d7841f700ef311c833",
+  "old_predicate": "row[2] == row[3] == row[4] == 0",
+  "finding": "The old copied-snapshot guard incorrectly requires historical byte_size24 to be cleared. Source correctness requires zero physical offset and rounded extent, while history metadata remains.",
+  "suggested_successor_invariant": "Keep reference/dead/count/interval equations; separately preserve byte_size across same-generation storage transitions, including expiration.",
+  "source_or_test_expectations_modified": false,
+  "new_full35_execution_not_qualified_by_this_receipt": true
+}

@@ -1,0 +1,27 @@
+{
+  "schema": "heptatorch.effective-momentum-builder-inverse.v1",
+  "baseline_sha256": "48555df8607a4d4ff69b7356d5d1ae8a0b375b7da5fb0699f0d624acb1a4d4c0",
+  "builder_sha256": "360d03d6e4a51734fce5ce03373d8887302ee8d30932e5c2d5cb8371183944fa",
+  "edits": [
+    {
+      "before": "('build_optimizer_history.py', 'optimizer-history-baseline.py',",
+      "after": "('build_effective_momentum.py', 'effective_momentum.py', 'effective-momentum-baseline.py', 'optimizer-history-baseline.py',"
+    },
+    {
+      "before": "    original.update({n.name: ast.unparse(n) for n in ast.parse(own['optimizer-history-baseline.py']).body})\n",
+      "after": "    original.update({n.name: ast.unparse(n) for n in ast.parse(own['optimizer-history-baseline.py']).body})\n    original.update({n.name: ast.unparse(n) for n in ast.parse(own['effective-momentum-baseline.py']).body})\n"
+    },
+    {
+      "before": "    admission = '''\n",
+      "after": "    layout = once(original['pointwise_layout'], 'def pointwise_layout(', 'def optimizer_effective_pointwise_layout(')\n    layout = once(layout, 'if is_contiguous(w, a) != 0 and is_contiguous(w, b) != 0:\\n            return 1',\n                  'if is_contiguous(w, a) != 0 and is_contiguous(w, b) != 0:\\n            return incoming_contiguous_layout(w,t,p+128)')\n    layout = once(layout, 'if inverted != 0:\\n        return 1',\n                  'if inverted != 0:\\n        return incoming_contiguous_layout(w,t,p+128)')\n    patches['optimizer_effective_pointwise_layout'] = layout\n    patches['optimizer_sgd_occurrence'] = once(original['optimizer_sgd_occurrence'],\n        'optimizer_new_momentum(w, parameter)', 'optimizer_new_effective_momentum(w,parameter,gp)')\n    admission = '''\n"
+    },
+    {
+      "before": "+ own['logical_not.py'].decode() + admission",
+      "after": "+ own['logical_not.py'].decode() + '\\n\\n' + own['effective_momentum.py'].decode() + admission"
+    }
+  ],
+  "inverse_exact": true,
+  "old_builder_unchanged": true,
+  "native_numeric_function_body_changed": false,
+  "scope": "Change first-buffer layout through actual effective gradient unary-negate and weight-decay pointwise branches. Plain clone path is unchanged; existing numeric element writes and Version increments are unchanged."
+}

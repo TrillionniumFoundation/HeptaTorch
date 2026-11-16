@@ -1,0 +1,20 @@
+{
+  "schema": "heptatorch.native-dropout-integration-host-field-correction.v1",
+  "status": "SOURCE_CORRECTION_NOT_NEW_RUNTIME",
+  "first_error": "KeyError('module_count')",
+  "first_aggregate_sha256": "32bc7b4639092c718c79f23d6912ff9911d29c4f9f4ebccb6fd365b738158338",
+  "original_source_sha256": "0ee083d50c02349ffa29a8b0542b1cebfe6c5152f6f6e5bec3136466ff64c644",
+  "corrected_source_sha256": "cdb325ab586c74324985fecaaaa2b15f370eba6a098bd2cd29b81f2575091511",
+  "exact_inverse_to_original": true,
+  "changes": [
+    {
+      "before": "    require(r['module_count']==len(r['units'])==(9 if parent else 11),'actual native module count')",
+      "after": "    require(len(r['units'])==(9 if parent else 11),'actual native module count')\n    if parent:require(r['module_count']==9,'parent declared native module count')"
+    }
+  ],
+  "production_sources_changed": false,
+  "reference_or_expectation_changed": false,
+  "first_producer13_status": "PASS",
+  "first_producer13_report_sha256": "5a5571807c2848d3212bf0ab010d02d0c971b9383b6142be1810c4541df6b2f3",
+  "reason": "The frozen523 build exposes its actual units list rather than a redundant module_count field. Eleven distinct actual unit sources and objects are still individually checked; the parent446 declared count remains required."
+}

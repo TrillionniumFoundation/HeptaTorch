@@ -1,0 +1,34 @@
+{
+  "audit_recorded": true,
+  "job": {
+    "args": [
+      "-c",
+      "from pathlib import Path\nimport hashlib,json\nr=Path('/Users/qianqi/heptatorch-pr31-validation-20261116/hosted-cef47')\nout=[]\nfor group,names in [('main',['native-reports.zip','private-node-journals.zip','retained-gradient-native-evidence.zip']),('quick',['observer-355.zip','observer-428.zip','observer-446.zip'])]:\n for name in names:\n  p=r/group/name\n  out.append({'file':str(p),'exists':p.is_file(),'bytes':p.stat().st_size if p.is_file() else None,'sha256':hashlib.sha256(p.read_bytes()).hexdigest() if p.is_file() else None})\nprint(json.dumps({'native_executed':False,'Torch_executed':False,'files':out},indent=2))"
+    ],
+    "created_unix_ms": 1794837757168,
+    "cwd": "/Users/qianqi/heptatorch-pr28-validation-20261116",
+    "env_keys": [],
+    "executable": "/opt/homebrew/bin/python3.14",
+    "execution_mode": "operator",
+    "host": "mac",
+    "id": "1a1e4aabcf0-392-37a2",
+    "idempotency_key": "heptatorch-pr31-cef47-mac-existing-artifacts-inventory-20261116-v1",
+    "launch_error": null,
+    "launch_state": "launched",
+    "remote_job_dir": "/Users/qianqi/.local/state/hepta-runtime-mac-worker/jobs/1a1e4aabcf0-392-37a2",
+    "request_digest": "d1ce24e3bf58215f4774ba01c1743e70de13f869789edb1cb2440124f284e606",
+    "request_fingerprint": 15118061559715733855,
+    "ssh_target": "hepta-mac-local",
+    "system_jobctl": false,
+    "unit": "hepta-runtime-job-1a1e4aabcf0-392-37a2"
+  },
+  "launch": {
+    "backend": "detached",
+    "launcher_pid": 71109,
+    "ok": true,
+    "systemd_error": "systemd user units unavailable on this platform",
+    "unit": "hepta-runtime-job-1a1e4aabcf0-392-37a2"
+  },
+  "local_record_pending": false,
+  "reused": false
+}
