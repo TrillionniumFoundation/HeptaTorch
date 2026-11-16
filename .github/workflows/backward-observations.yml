@@ -3,7 +3,7 @@ on:
   push:
     branches: ["feature/native-tensor-objects", "feature/native-backward-release", "feature/native-backward-partial", "feature/native-cpu-generators", "feature/native-gradient-none", "feature/native-optimizer-objects"]
   pull_request:
-    paths: ["tests/pytorch_backward_release_probe.py", "tests/pytorch_backward_partial_probe.py", "tests/pytorch_gradient_presence_probe.py", "tests/pytorch_gradient_signed_zero_probe.py", "tests/pytorch_grad_clear_probe.py", "tests/pytorch_optimizer_object_probe.py", "tests/pytorch_requires_grad_probe.py", "tests/pytorch_accumulator_lifetime_probe.py", "tests/pytorch_gradient_object_probe.py", "tests/pytorch_bernoulli_dropout_probe.py", "tests/pytorch_uniform_probe.py", "tests/pytorch_uniform_range_probe.py", "tests/pytorch_gradient_materialization_probe.py", "tests/pytorch_gradient_alias_edge_probe.py", "tests/pytorch_bernoulli_gradient_layout_probe.py", "tests/pytorch_zero_merge_layout_probe.py", "tests/pytorch_scalar_add_nan_probe.py", ".github/workflows/backward-observations.yml"]
+    paths: ["tests/pytorch_backward_release_probe.py", "tests/pytorch_backward_partial_probe.py", "tests/pytorch_gradient_presence_probe.py", "tests/pytorch_gradient_signed_zero_probe.py", "tests/pytorch_grad_clear_probe.py", "tests/pytorch_optimizer_object_probe.py", "tests/pytorch_requires_grad_probe.py", "tests/pytorch_accumulator_lifetime_probe.py", "tests/pytorch_gradient_object_probe.py", "tests/pytorch_bernoulli_dropout_probe.py", "tests/pytorch_uniform_probe.py", "tests/pytorch_uniform_range_probe.py", "tests/pytorch_gradient_materialization_probe.py", "tests/pytorch_gradient_alias_edge_probe.py", "tests/pytorch_bernoulli_gradient_layout_probe.py", "tests/pytorch_zero_merge_layout_probe.py", "tests/pytorch_scalar_add_nan_probe.py", "tests/pytorch_extreme_stride_probe.py", ".github/workflows/backward-observations.yml"]
   workflow_dispatch:
 permissions:
   contents: read
@@ -213,6 +213,26 @@ jobs:
         run: |
           test -f build/torch-scalar-add-nan.json
           python3 -I -S -B tools/emit_ci_report.py build/torch-scalar-add-nan.json
+      - name: Verify fixed extreme singleton-stride observation source
+        run: |
+          echo '568ece8996db71f5d1a16b6dfb71efd963a258f457e73cfdc738f7d60e226f89  tests/pytorch_extreme_stride_probe.py' | sha256sum -c -
+          python3 -I -S -B -m py_compile tests/pytorch_extreme_stride_probe.py
+      - name: Prepare extreme singleton-stride observation plan
+        run: |
+          python3 -I -S -B tests/pytorch_extreme_stride_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/torch-extreme-stride-prepared.json --prepare-only
+          python3 -I -S -B tools/emit_ci_report.py build/torch-extreme-stride-prepared.json
+      - name: Observe actual pointwise layout at signed byte-stride boundaries
+        run: |
+          python3 tests/pytorch_extreme_stride_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/torch-extreme-stride.json
+      - name: Preserve complete extreme singleton-stride observations
+        if: always()
+        run: |
+          test -f build/torch-extreme-stride.json
+          python3 -I -S -B tools/emit_ci_report.py build/torch-extreme-stride.json
       - name: Index original reference reports and checkout identity
         if: always()
         env:
