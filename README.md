@@ -120,6 +120,12 @@ cmp build/train.response build/train.expected
 
 新增 CI 为两种映像分别执行 **35 项**真实 PyTorch 对照，其中原有 28 项数值测试的输入、数值断言、容差及绝对参数版本断言保持不变，另外 7 项检查对象生命周期。[实际托管完整回执](validation/hosted-native-tensor-objects.json)已确认两种映像各 **35／35 通过、6,344 帧、2,590,274 个值、11 项来源检查**，完整运行的 **44 个 CI 步骤全部通过**。两份原始报告逐字无损保存在 `validation/hosted-tensor-object-oracles/`；参数绝对版本差异为零，283 项显式优化器状态生命周期观察继续保留。默认 backward 后自动释放 Saved 数据仍未实现，当前候选保留图直到显式释放或 reset；该差异被明确观察为 OPEN。CPU binary32、rank 0–4 和池／表容量等限制仍存在。完整目标仍是 2,590 个上游 schema，17 项全量子系统门禁仍开放。
 
+## 默认反向传播与保存值释放
+
+[独立默认反向组件](tools/backward_release/README.md)增加命令 57，支持成功反向后的 Saved 数据释放与显式 `retain_graph`。它会释放已消费的保存值和临时工作区，保留叶梯度及 AccumulateGrad 的存储义务；无需保存数据的图仍能重复反向。两套完整 HIA 实现之间的合法 owner 交接测试验证内部状态格式互拒、原字节不变、原实现继续执行及实际释放。
+
+该组件的原生合同通过 10 组／144 帧、14 项独立控制／207 帧和双向交接 28 帧验证。对实际固定 PyTorch 的 36 项观测，35 项匹配；命令 57 保留整帧失败回滚，因此还有 **1 项明确的部分失败副作用差异**。这一结果始终记录为 `QUALIFIED_WITH_OPEN_DIFFERENCE`，不是完整反向兼容。后继部分失败执行、梯度存在标记、首次写入和 Tensor RNG 的组合正在独立构建与验收。
+
 ## 跨请求持久会话
 
 会话进程读取 `HTOSES01` 外层帧，执行其中的 `HTORCH01` 请求，在 stdin 仍打开时立即输出 `HTOSRP01` 响应帧，然后读取下一帧。每个完整请求在 shadow 工作区执行；成功才提交，失败返回保留原错误码的 32 字节、零记录响应，并保持已提交状态不变。外层格式、EOF／EINTR／断管处理及边界见 [会话合同](tools/session/CONTRACT.md)。

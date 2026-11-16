@@ -178,6 +178,25 @@ test-cpu-generators: cpu-generators
 	python3 -I -S -B tests/check_cpu_generator_reports.py --build "$(CURDIR)/build/cpu-generators" \
 	  --review "$$review" --output build/hosted-cpu-generator-native.json
 
+HEPTA_TENSOR_OBJECT_BASELINE ?= build/tensor-objects/abi3
+BACKWARD_RELEASE_INPUTS := $(wildcard tools/backward_release/* tools/backward_release/evidence/*) validation/backward-release-package.json tests/qualify_backward_release.py Makefile
+
+.PHONY: backward-release test-backward-release
+backward-release: build/backward-release/build.json
+
+build/backward-release/build.json: $(HEPTA_TENSOR_OBJECT_BASELINE)/build.json $(BACKWARD_RELEASE_INPUTS) | build
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.backward-release.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	python3 -I -S -B tools/backward_release/build.py --repository "$(CURDIR)" --source-root "$(HEPTA_SOURCE_ROOT)" \
+	  --baseline "$(HEPTA_TENSOR_OBJECT_BASELINE)" --compiler "$(HEPTA_STACK_BUILD)/native/stack-module-compiler" \
+	  --linker "$(HEPTA_STACK_BUILD)/native/stack-linker-session" --output "$$tmp/native"; \
+	mkdir -p build/backward-release; cp -a --remove-destination "$$tmp/native/." build/backward-release/
+
+test-backward-release: backward-release
+	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/.backward-release-review.XXXXXX"); \
+	python3 -I -S -B tests/qualify_backward_release.py --build "$(CURDIR)/build/backward-release" \
+	  --baseline "$(HEPTA_TENSOR_OBJECT_BASELINE)" --stack-build "$(HEPTA_STACK_BUILD)" --output "$$review/observed"; \
+	cp "$$review/observed/report.json" build/hosted-backward-release-native.json
+
 check-compiler:
 	@compiler=$$(command -v "$(HEPTA_COMPILER)") || { echo 'Set HEPTA_COMPILER to the pinned native HIA compiler; see docs/build.md.' >&2; exit 1; }; \
 	printf '%s  %s\n' '$(COMPILER_SHA256)' "$$compiler" | sha256sum -c -

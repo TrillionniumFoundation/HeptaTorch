@@ -594,3 +594,29 @@ decompress it with Python `zlib.decompress` and check its original length and
 SHA256 against the receipt. These files are reference observations for subsequent
 native work and do not claim that the Generator service implements autodiff or
 Tensor filling.
+
+## Default backward release foundation
+
+`make backward-release test-backward-release` builds the separately named
+command-57 component from the frozen guarded Tensor object core. Supply
+`HEPTA_SOURCE_ROOT` and `HEPTA_STACK_BUILD` as above. By default its baseline is
+`build/tensor-objects/abi3`; `HEPTA_TENSOR_OBJECT_BASELINE` may identify an already
+verified build of exactly the same pinned image. The builder checks that source
+closure, and the root qualification driver checks the complete 30-file frozen
+package before and after execution.
+
+The native executable is `build/backward-release/tensor-release-session`, SHA256
+`f146b71b5614b7d1022ef41875f5fbfd857e80028d33b2d634ecd255163f320b`.
+The driver replays all native contracts, all 36 actual historical reference
+observations and a real 11-module owner-handoff executable. The first 20
+reference operator cases match exactly; the remaining 16 contain 15 matching
+cases and one explicit partial-failure side-effect difference. The 15 tanh
+comparisons keep their original declared tolerances. The aggregate status is
+`QUALIFIED_WITH_OPEN_DIFFERENCE`; the old whole-frame rollback interface is not
+reclassified as PyTorch-style partial execution.
+
+The next implementation will be admitted separately with its unchanged strict
+reference tests, including the preserved signed-zero failure. The lightweight
+reference workflow also observes sparse uniform interval-admission boundaries
+using the exact fixed wheel. Reference observations remain distinct from target
+execution and are not accepted as a full subsystem closure.

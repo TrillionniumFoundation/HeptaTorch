@@ -515,6 +515,13 @@ jobs:
             HEPTA_OWNED_SESSION_BUILD="$RUNNER_TEMP/hepta-owned-session-tools" \
             HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget"
 
+      - name: Reproduce default Saved release and retain the explicit atomic-error contract
+        run: |
+          make backward-release test-backward-release \
+            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
+            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget"
+          python3 -I -S -B tools/emit_ci_report.py build/hosted-backward-release-native.json
+
       - name: Reproduce and qualify persistent native CPU Generator objects
         run: |
           make cpu-generators test-cpu-generators \
