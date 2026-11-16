@@ -1,0 +1,39 @@
+--- first-executed-integration.py
++++ qualified-integration.py
+@@ -44,6 +44,12 @@
+     ('validation/adam-distributions-gradient-review/candidate05/frozen-additive-package-manifest.json',
+      'a483343a288d68eb0d17e545c0ff489376c3c214d58b3b6164665626bf50f944', 9),
+ )
++MANIFEST_RELOCATIONS = {
++    ('validation/adam-distributions-gradient-review/frozen-package-manifest.json', 'README.md'):
++        'validation/adam-distributions-gradient-review/history/frozen-package-04/README.md',
++    ('validation/adam-distributions-gradient-review/candidate05/frozen-additive-package-manifest.json', 'README.md'):
++        'validation/adam-distributions-gradient-review/candidate05/README.md',
++}
+ EXTRA_INPUTS = {
+     'compatibility/pytorch-oracle-lock.json': LOCK,
+     'tools/cpu_distributions/protocol.py': '7a30d7bca140e3a4cc9d63a3e6930b92d2ffd60ad4503895419d8a63e67c8bd9',
+@@ -194,9 +200,14 @@
+         files = value['files']
+         rows = [dict(item, path=key) for key, item in files.items()] if isinstance(files, dict) else files
+         require(len(rows) == count and len({row['path'] for row in rows}) == count, ('manifest cardinality', name))
++        relocations = {}
+         for row in rows:
+-            custody.bind(relative_file(repo, row['path']), row['sha256'], row['bytes'], row.get('mode'))
++            installed = MANIFEST_RELOCATIONS.get((name, row['path']), row['path'])
++            custody.bind(relative_file(repo, installed), row['sha256'], row['bytes'], row.get('mode'))
++            if installed != row['path']:
++                relocations[row['path']] = installed
+         result.append({'path': name, 'sha256': expected, 'file_count': count,
++                       'explicit_document_only_path_relocations': relocations,
+                        'all_file_bytes_hashes_and_declared_modes_verified': True})
+     for name, expected in EXTRA_INPUTS.items():
+         custody.bind(relative_file(repo, name), expected)
+@@ -326,6 +337,7 @@
+     args = parser.parse_args()
+     repo, out = args.repo.resolve(), args.output.resolve()
+     out.mkdir(parents=True, exist_ok=False)
++    (out / 'executed-integration.py').write_bytes(Path(__file__).resolve().read_bytes())
+     custody = Custody()
+     report = {'schema': 'heptatorch.gradient-adam-distributions-integration-qualification.v1',
+               'status': 'RUNNING', 'source_sha256': SOURCE, 'native_sha256': IMAGE,

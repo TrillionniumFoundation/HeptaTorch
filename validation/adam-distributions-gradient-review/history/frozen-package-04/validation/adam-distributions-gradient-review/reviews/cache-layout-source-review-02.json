@@ -1,0 +1,67 @@
+{
+  "schema": "heptatorch.independent-combined-cache-layout-source-review.v1",
+  "status": "SOURCE_REVIEW_ONLY_NO_NEW_EXECUTION",
+  "before_source_sha256": "9fa3a32a761d4f177d742ff48aa850a467a6fc5b62d7cc9325f60bbefec47af8",
+  "after_source_sha256": "84a088b4e36771251f240a8d293e2041ca9fbfcc25877815774a371dcedd01a8",
+  "before_functions": 420,
+  "after_functions": 422,
+  "unchanged_original_bodies": 412,
+  "changed": [
+    {
+      "name": "state_header",
+      "before_sha256": "7c6da1300054c00ebf6d013b021a05f4fcb6961477a1c4e08e672abede23d7fd",
+      "after_sha256": "5dd88dc08443dabe6ea0fa1774adcb1b4c3571df0171b7ee905f3c7f536c85bf"
+    },
+    {
+      "name": "init_state",
+      "before_sha256": "5fbd5b65b337d5ca7530982241e79782042af2686657c3de10e08cd9856c60d0",
+      "after_sha256": "823a355eb73a992ef1b96fc0be6faec3db39b8141e71e8980bf25fbf7fe9dfce"
+    },
+    {
+      "name": "so_state_init",
+      "before_sha256": "e5ccd840183bf0b6dd98a65391e66c5859f9f8572cea3e9d796c9170b7f53a8f",
+      "after_sha256": "a4920ae4ea939e833aa963bce10e4876e5e68e93a1c84c04291ce80de1cecddd"
+    },
+    {
+      "name": "so_state_header",
+      "before_sha256": "966b606c52f570476da066d058fab4e1275d2a6667002ff4ab309998b8ddb14e",
+      "after_sha256": "b101234da6f4a25331d5ca4b00b0becdbcb2e993482c12be05b9002b2e252272"
+    },
+    {
+      "name": "ensure_backward_work",
+      "before_sha256": "1fb4510406f6545e1e244533b18cd36dd02400502f4c1cdffc18d4983fd59956",
+      "after_sha256": "7c57630e5701f159c25f75fc578d85c3bf9469194b6b0ea6d4d3dd6d2017851c"
+    },
+    {
+      "name": "incoming_drop_cache",
+      "before_sha256": "372a6d5112e5818fa15f518aa9a4b07895701b309b982192922715aff2b76f33",
+      "after_sha256": "166f2578ea3e7453eaa4c692dbca0da37e54fe7cee790878babde4301d23e9d4"
+    },
+    {
+      "name": "incoming_can_accumulate",
+      "before_sha256": "e9fe9a6cbefd4c74ec91ff52ed1d17b68cfb6796c583af3bd2e8bc86ea4056e7",
+      "after_sha256": "744c468a366b2ad6ddcb3f037643fc4aa9c8a2e22751e051fe467c3575649563"
+    },
+    {
+      "name": "incoming_construct",
+      "before_sha256": "019c1b972c228d2f37f1daaa22fe3eacd1cb1c1a0a2a805f86bb98eae64c82b4",
+      "after_sha256": "1f74250cbdfcfe720e7d8a773675b32249e4fb114e8a1b2951bf748570dbf922"
+    }
+  ],
+  "added": [
+    {
+      "name": "incoming_mark_preserve_targets",
+      "sha256": "27f890e0481f2263e54c75249bbb8acebae8c6a5c92c9faad8fcf994f92e8615"
+    },
+    {
+      "name": "incoming_reserve_preserve_storage",
+      "sha256": "fe5ffcb680a5c07a1dad6b9a7cdeb1af18989aaf2f432c7997f7823f65fd0662"
+    }
+  ],
+  "removed": [],
+  "all_25_distribution_bodies_unchanged": true,
+  "logical_merge_body_unchanged": true,
+  "all_adam_numerical_and_mutation_bodies_unchanged": true,
+  "source_reasoning": "A separate pre-admitted Hold/Storage/Version stores noncontiguous fresh incoming data in actual layout. p160 logical cache remains contiguous; existing inplace merge writes both logical cache and distinct physical Storage. All new fields544..568 clear in incoming_drop_cache. Tags are independently upgraded.",
+  "still_blocked": "The separate actual scalar-add NaN payload discrepancy remains in unchanged command95; this source review is not final profile qualification."
+}

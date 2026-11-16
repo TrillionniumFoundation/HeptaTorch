@@ -388,6 +388,49 @@ test-adam-distributions: adam-distributions
 	  --output "$$review/observed"; \
 	cp "$$review/observed/report.json" build/hosted-adam-distributions-native.json
 
+GRADIENT_OBJECT_INPUTS := $(wildcard tools/gradient_objects/* tools/gradient_objects/authoring/incoming/* tools/gradient_objects/authoring/public/* tools/gradient_objects/authoring/public/baseline-authoring/* tests/gradient_objects/* validation/gradient-objects/reference/*) tests/check_gradient_object_reports.py Makefile
+
+.PHONY: gradient-objects test-gradient-objects
+gradient-objects: build/gradient-objects/build.json
+
+build/gradient-objects/build.json: build/owned-optimizers/reproduction.json $(GRADIENT_OBJECT_INPUTS) | build
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.gradient-objects.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	python3 -I -S -B tools/gradient_objects/build.py --baseline "$(CURDIR)/build/owned-optimizers" \
+	  --compiler "$(HEPTA_STACK_BUILD)/native/stack-module-compiler" --linker "$(HEPTA_STACK_BUILD)/native/stack-linker-session" \
+	  --output "$$tmp/native"; \
+	mkdir -p build/gradient-objects; cp -a --remove-destination "$$tmp/native/." build/gradient-objects/
+
+test-gradient-objects: owned-optimizers
+	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/.gradient-object-review.XXXXXX"); \
+	python3 -I -S -B tools/gradient_objects/qualify.py --repository "$(CURDIR)" \
+	  --baseline "$(CURDIR)/build/owned-optimizers" --source-root "$(HEPTA_SOURCE_ROOT)" \
+	  --compiler "$(HEPTA_STACK_BUILD)/native/stack-module-compiler" --linker "$(HEPTA_STACK_BUILD)/native/stack-linker-session" \
+	  --output "$$review/observed"; \
+	python3 -I -S -B tests/check_gradient_object_reports.py --build "$$review/observed/native" \
+	  --review "$$review/observed" --output build/hosted-gradient-objects-native.json; \
+	mkdir -p build/gradient-objects; cp -a --remove-destination "$$review/observed/native/." build/gradient-objects/
+
+GRADIENT_ADAM_DISTRIBUTION_INPUTS := $(wildcard tools/gradient_adam_distributions/* tests/gradient_adam_distributions_review/* tests/gradient_composition_review/* tests/adam_distributions_gradient_review/* validation/gradient-adam-distributions/reference/*) tests/qualify_gradient_adam_distributions.py Makefile
+
+.PHONY: gradient-adam-distributions test-gradient-adam-distributions
+gradient-adam-distributions: build/gradient-adam-distributions/build.json
+
+build/gradient-adam-distributions/build.json: build/gradient-objects/build.json build/adam-distributions/reproduction.json $(GRADIENT_ADAM_DISTRIBUTION_INPUTS) | build
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.gradient-adam-distributions.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	python3 -I -S -B tools/gradient_adam_distributions/build.py --gradient-build "$(CURDIR)/build/gradient-objects" \
+	  --adam-distribution-build "$(CURDIR)/build/adam-distributions" \
+	  --compiler "$(HEPTA_STACK_BUILD)/native/stack-module-compiler" --linker "$(HEPTA_STACK_BUILD)/native/stack-linker-session" \
+	  --output "$$tmp/native"; \
+	mkdir -p build/gradient-adam-distributions; cp -a --remove-destination "$$tmp/native/." build/gradient-adam-distributions/
+
+test-gradient-adam-distributions: gradient-objects adam-distributions
+	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/.gradient-adam-distribution-review.XXXXXX"); \
+	python3 -I -S -B tests/qualify_gradient_adam_distributions.py \
+	  --gradient-build "$(CURDIR)/build/gradient-objects" --adam-distribution-build "$(CURDIR)/build/adam-distributions" \
+	  --stack-build "$(HEPTA_STACK_BUILD)" --output "$$review/observed"; \
+	cp "$$review/observed/report.json" build/hosted-gradient-adam-distributions-native.json; \
+	mkdir -p build/gradient-adam-distributions; cp -a --remove-destination "$$review/observed/producer/native/." build/gradient-adam-distributions/
+
 check-compiler:
 	@compiler=$$(command -v "$(HEPTA_COMPILER)") || { echo 'Set HEPTA_COMPILER to the pinned native HIA compiler; see docs/build.md.' >&2; exit 1; }; \
 	printf '%s  %s\n' '$(COMPILER_SHA256)' "$$compiler" | sha256sum -c -

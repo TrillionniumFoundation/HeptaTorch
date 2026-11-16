@@ -1,0 +1,428 @@
+{
+  "schema": "heptatorch.pr28.private-node-observer-independent-negative-controls.v1",
+  "status": "PASS_OBSERVER_CONTROLS_ONLY",
+  "controls_sha256": "c4873900abd44f2c74c2632d662d932ee0912501b7a127771c2bfecccc0f2db6",
+  "observer_sha256": "e900466bff13bcaa5cd89a814dc411b4fc33320d84855ca6bd085179cd599c6a",
+  "native_executed": false,
+  "Torch_executed": false,
+  "native_memory_read": false,
+  "native_memory_written": false,
+  "expected_outcomes_come_from_named_invariants_not_target_return_values": true,
+  "input_files": {
+    "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/observer-355/observer-proof/native-controls/owners/1970e908c208e33c/events.json": {
+      "sha256": "e79385f3c1b7e53f36895c6daf1b46a8f4fcda62acf38b782777ca71aeae53b5",
+      "bytes": 3974
+    },
+    "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/observer-355/observer-proof/native-controls/owners/1970e908c208e33c/snapshots.jsonl.gz": {
+      "sha256": "2bef33b52f94aea5f96864cc0029fa6d0f15da93634c2b0ab1a30f77b1fcd98b",
+      "bytes": 2885
+    },
+    "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/observer-355/observer-proof/native-controls/owners/7b32c9730e17b464/events.json": {
+      "sha256": "9ca5f3f5fb953f301c05691e6b82cf15aaa2055cad93104c533975547e056468",
+      "bytes": 4827
+    },
+    "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/observer-355/observer-proof/native-controls/owners/7b32c9730e17b464/snapshots.jsonl.gz": {
+      "sha256": "4539d14b61e9041f21a61fdd17cbae5247cc37b529165e046826c100eea196f3",
+      "bytes": 3015
+    }
+  },
+  "positive_rows": [
+    {
+      "case": "compound-construction",
+      "status": "PASS",
+      "journal": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/observer-355/observer-proof/native-controls/owners/1970e908c208e33c/events.json",
+      "event": 0,
+      "result": {
+        "status": "PASS",
+        "failed_frame": false,
+        "created_program_nodes": 10,
+        "created_private_G": 0,
+        "private_G_incarnations": [],
+        "native_incarnation_delta": 10,
+        "native_node_high_water": 10,
+        "live_nodes": 10,
+        "live_gradient_nodes": 0,
+        "reset_count": 0
+      },
+      "input_sha256": "d94984cbf4afab0d12c0f812672dbbc75a13807c3d11df7df9562ccbbe468a30"
+    },
+    {
+      "case": "materialization",
+      "status": "PASS",
+      "journal": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/observer-355/observer-proof/native-controls/owners/1970e908c208e33c/events.json",
+      "event": 1,
+      "result": {
+        "status": "PASS",
+        "failed_frame": false,
+        "created_program_nodes": 0,
+        "created_private_G": 3,
+        "private_G_incarnations": [
+          11,
+          12,
+          13
+        ],
+        "native_incarnation_delta": 3,
+        "native_node_high_water": 13,
+        "live_nodes": 13,
+        "live_gradient_nodes": 3,
+        "reset_count": 0
+      },
+      "input_sha256": "22a14dd327f59820cd9ae7ce7fb9508394502c96e35e65af5c82c7843ef4a487"
+    },
+    {
+      "case": "reset-with-private-gradient",
+      "status": "PASS",
+      "journal": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/observer-355/observer-proof/native-controls/owners/7b32c9730e17b464/events.json",
+      "event": 2,
+      "result": {
+        "status": "PASS",
+        "failed_frame": false,
+        "created_program_nodes": 0,
+        "created_private_G": 0,
+        "private_G_incarnations": [],
+        "native_incarnation_delta": 0,
+        "native_node_high_water": 5,
+        "live_nodes": 3,
+        "live_gradient_nodes": 1,
+        "reset_count": 1
+      },
+      "input_sha256": "7f4eae7bfb596868bfa0cff8d51ef845fbec0e9e72aad15f50846acc1eb9a15a"
+    },
+    {
+      "case": "failed-frame-rollback",
+      "status": "PASS",
+      "journal": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/observer-355/observer-proof/native-controls/owners/7b32c9730e17b464/events.json",
+      "event": 4,
+      "result": {
+        "status": "PASS",
+        "failed_frame": true,
+        "created_program_nodes": 0,
+        "created_private_G": 0
+      },
+      "input_sha256": "f346500bcd4a3953dff5d83d13c05adc8f2f19623f1ff734c853f638f46f25b8"
+    }
+  ],
+  "negative_rows": [
+    {
+      "case": "extra-incarnation-not-attributed",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "unexplained-incarnation-delta",
+      "actual_rule": "unexplained-incarnation-delta",
+      "details": {
+        "observer_rule": "unexplained-incarnation-delta",
+        "actual": 4,
+        "program": 0,
+        "private_gradients": 3
+      },
+      "input_sha256": "c3cdbea12843e7b911349e2f76fab95905fcf5f0c2afa9450d98be5b815e4e36",
+      "source_event": {
+        "journal": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/observer-355/observer-proof/native-controls/owners/1970e908c208e33c/events.json",
+        "event": 1
+      },
+      "compressed_input": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/repaired-controls/355/negative-inputs/extra-incarnation-not-attributed.json.gz",
+      "compressed_sha256": "aeedd6312593ba90977891b14bdf17982b3566f64e06b825299cbaf0c03d2faf"
+    },
+    {
+      "case": "wrong-gradient-incarnation",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "gradient-incarnation",
+      "actual_rule": "gradient-incarnation",
+      "details": {
+        "observer_rule": "gradient-incarnation",
+        "node": 1,
+        "gradient": 11
+      },
+      "input_sha256": "090c2eda2b3766b5ad26bf86ba42665b05e6f51e86185ceb2a07c9c5bbbaaf7f",
+      "source_event": {
+        "journal": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/observer-355/observer-proof/native-controls/owners/1970e908c208e33c/events.json",
+        "event": 1
+      },
+      "compressed_input": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/repaired-controls/355/negative-inputs/wrong-gradient-incarnation.json.gz",
+      "compressed_sha256": "741f2fe1e3550292c5a482fc6236abc052975ec8112b9d9bd38f3ff19000c7cf"
+    },
+    {
+      "case": "wrong-gradient-incoming-reference-count",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "gradient-reference-count",
+      "actual_rule": "gradient-reference-count",
+      "details": {
+        "observer_rule": "gradient-reference-count",
+        "node": 11
+      },
+      "input_sha256": "2c185672fc43ff62d40d2a6024c8005fc73ddf8672ef265ac306871f6e6ef96c",
+      "source_event": {
+        "journal": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/observer-355/observer-proof/native-controls/owners/1970e908c208e33c/events.json",
+        "event": 1
+      },
+      "compressed_input": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/repaired-controls/355/negative-inputs/wrong-gradient-incoming-reference-count.json.gz",
+      "compressed_sha256": "8c3e1e446e351956afb359478043f84bd447d43587a759f2432afccc2e15624b"
+    },
+    {
+      "case": "wrong-node-reference-count",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "node-reference-count",
+      "actual_rule": "node-reference-count",
+      "details": {
+        "observer_rule": "node-reference-count",
+        "node": 1,
+        "observed": 2,
+        "expected": 1
+      },
+      "input_sha256": "6ba4c978253c76a5bfefb5f6289ede1e42331fe30db05d2a089fcb19532cb28b",
+      "source_event": {
+        "journal": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/observer-355/observer-proof/native-controls/owners/1970e908c208e33c/events.json",
+        "event": 1
+      },
+      "compressed_input": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/repaired-controls/355/negative-inputs/wrong-node-reference-count.json.gz",
+      "compressed_sha256": "0bb3b64491c152c552f615f365aa1854ada301d099ae21c5df3c93533f24f847"
+    },
+    {
+      "case": "wrong-accumulator-reference-count",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "accumulator-reference-count",
+      "actual_rule": "accumulator-reference-count",
+      "details": {
+        "observer_rule": "accumulator-reference-count",
+        "node": 1
+      },
+      "input_sha256": "aeb99adaa73ca119466ffd1a5603c66530c74263d5bae0ed15e4294b6aec1173",
+      "source_event": {
+        "journal": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/observer-355/observer-proof/native-controls/owners/1970e908c208e33c/events.json",
+        "event": 1
+      },
+      "compressed_input": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/repaired-controls/355/negative-inputs/wrong-accumulator-reference-count.json.gz",
+      "compressed_sha256": "3440db383efdd68b3ef9b5983cfd69249b2b48a4a98501811a334096b521ce19"
+    },
+    {
+      "case": "private-gradient-incorrectly-public",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "unexpected-public-or-nonleaf-gradient",
+      "actual_rule": "unexpected-public-or-nonleaf-gradient",
+      "details": {
+        "observer_rule": "unexpected-public-or-nonleaf-gradient",
+        "gradient": 11
+      },
+      "input_sha256": "26a21b9567de07a963778b7f887090a5c0740aa8c64c03a00eb4a050a0d20060",
+      "source_event": {
+        "journal": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/observer-355/observer-proof/native-controls/owners/1970e908c208e33c/events.json",
+        "event": 1
+      },
+      "compressed_input": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/repaired-controls/355/negative-inputs/private-gradient-incorrectly-public.json.gz",
+      "compressed_sha256": "33e3b57dcd45e1288902e6bd8e5c81b7a5009459da8bc6586351043e1f830a4f"
+    },
+    {
+      "case": "gradient-binding-without-presence",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "gradient-not-defined",
+      "actual_rule": "gradient-not-defined",
+      "details": {
+        "observer_rule": "gradient-not-defined",
+        "node": 1
+      },
+      "input_sha256": "0fa3ff06090a39dcb8d262ef5926798448ee2c461bc614e85df64fc683c509c6",
+      "source_event": {
+        "journal": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/observer-355/observer-proof/native-controls/owners/1970e908c208e33c/events.json",
+        "event": 1
+      },
+      "compressed_input": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/repaired-controls/355/negative-inputs/gradient-binding-without-presence.json.gz",
+      "compressed_sha256": "105994b37f018577763dfdf229e606f8336bb0ff15d5d133d33990321516d5b1"
+    },
+    {
+      "case": "gradient-T-record-points-to-wrong-node",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "T-row-node-mapping",
+      "actual_rule": "T-row-node-mapping",
+      "details": {
+        "observer_rule": "T-row-node-mapping",
+        "node": 11
+      },
+      "input_sha256": "9db743de41919969d9393d1c8019fd73bfe7cf47412b6a59721578edd9437a34",
+      "source_event": {
+        "journal": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/observer-355/observer-proof/native-controls/owners/1970e908c208e33c/events.json",
+        "event": 1
+      },
+      "compressed_input": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/repaired-controls/355/negative-inputs/gradient-T-record-points-to-wrong-node.json.gz",
+      "compressed_sha256": "6cb987bb81bc6661fc0dc2daacb7f86ba4c081e0fa955bd46fd9a92236cfe270"
+    },
+    {
+      "case": "committed-incoming-temporary-not-cleared",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "descriptor-transient",
+      "actual_rule": "descriptor-transient",
+      "details": {
+        "observer_rule": "descriptor-transient",
+        "node": 1,
+        "field": 448
+      },
+      "input_sha256": "8af9cc7a4cf42e528480600db1bddbe74c4c131e9ad0e1d349c8dab86ee684f5",
+      "source_event": {
+        "journal": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/observer-355/observer-proof/native-controls/owners/1970e908c208e33c/events.json",
+        "event": 1
+      },
+      "compressed_input": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/repaired-controls/355/negative-inputs/committed-incoming-temporary-not-cleared.json.gz",
+      "compressed_sha256": "362f67a2b3166c8893af91a686c5fc978ce120e56d597c109bd6275d45124b95"
+    },
+    {
+      "case": "hidden-gradient-node-entry",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "node-index-coverage",
+      "actual_rule": "node-index-coverage",
+      "details": {
+        "observer_rule": "node-index-coverage"
+      },
+      "input_sha256": "6e4449ae0b3b7b0ce1662d43b4570adb7f60605d5fac01d9ab75180877c78b62",
+      "source_event": {
+        "journal": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/observer-355/observer-proof/native-controls/owners/1970e908c208e33c/events.json",
+        "event": 1
+      },
+      "compressed_input": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/repaired-controls/355/negative-inputs/hidden-gradient-node-entry.json.gz",
+      "compressed_sha256": "979b36c9ef7fc0040de5770ebbe35bc8c594f99631e24ff6662b0382065a8fbb"
+    },
+    {
+      "case": "duplicate-live-node-incarnation",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "node-incarnation-unique",
+      "actual_rule": "node-incarnation-unique",
+      "details": {
+        "observer_rule": "node-incarnation-unique",
+        "node": 11,
+        "incarnation": 1
+      },
+      "input_sha256": "3071e59c78fb2872bd8c19adde9625a5ac79bf3c0d4fc83216210538a2febd44",
+      "source_event": {
+        "journal": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/observer-355/observer-proof/native-controls/owners/1970e908c208e33c/events.json",
+        "event": 1
+      },
+      "compressed_input": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/repaired-controls/355/negative-inputs/duplicate-live-node-incarnation.json.gz",
+      "compressed_sha256": "9406edcce3e88a203884867a8b060a32d239b38ae9ae80f497d7156c677dce80"
+    },
+    {
+      "case": "extra-unrooted-live-gradient-cannot-explain-allocation",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "anonymous-live-node",
+      "actual_rule": "anonymous-live-node",
+      "details": {
+        "observer_rule": "anonymous-live-node",
+        "missing": [
+          11
+        ]
+      },
+      "input_sha256": "864a9838373c0f1f43d4934c72530e7664f24d76194ca433f68cf01317f26db0",
+      "source_event": {
+        "journal": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/observer-355/observer-proof/native-controls/owners/1970e908c208e33c/events.json",
+        "event": 1
+      },
+      "compressed_input": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/repaired-controls/355/negative-inputs/extra-unrooted-live-gradient-cannot-explain-allocation.json.gz",
+      "compressed_sha256": "cc2bd468ef947be7a58272f24c3f531d351849951f1381dcbd07ad6594d94e4f"
+    },
+    {
+      "case": "compound-three-constructors-miscounted-as-one",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "unexplained-incarnation-delta",
+      "actual_rule": "unexplained-incarnation-delta",
+      "details": {
+        "observer_rule": "unexplained-incarnation-delta",
+        "actual": 10,
+        "program": 8,
+        "private_gradients": 0
+      },
+      "input_sha256": "048e57f30225e5aeb79545e783e69210c5e1eca839dea6c6b98ad51d3b64f288",
+      "source_event": {
+        "journal": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/observer-355/observer-proof/native-controls/owners/1970e908c208e33c/events.json",
+        "event": 0
+      },
+      "compressed_input": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/repaired-controls/355/negative-inputs/compound-three-constructors-miscounted-as-one.json.gz",
+      "compressed_sha256": "5afa9e9fe6a457f4be09667461bdb236cb04a5d68f2fd38377825a5a3fd7ec64"
+    },
+    {
+      "case": "duplicate-program-creation-ticket",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "duplicate-creation-ticket",
+      "actual_rule": "duplicate-creation-ticket",
+      "details": {
+        "observer_rule": "duplicate-creation-ticket"
+      },
+      "input_sha256": "c7be509e9c20b612a8543908f4167fdc0382695e8ef225ae3d731c864b859822",
+      "source_event": {
+        "journal": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/observer-355/observer-proof/native-controls/owners/1970e908c208e33c/events.json",
+        "event": 0
+      },
+      "compressed_input": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/repaired-controls/355/negative-inputs/duplicate-program-creation-ticket.json.gz",
+      "compressed_sha256": "35e571fa792c2c0f215f0083c71a03e335ef3aa6de9a858b8414035824a97c27"
+    },
+    {
+      "case": "reset-high-water-includes-unexplained-dead-slot",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "reset-high-water",
+      "actual_rule": "reset-high-water",
+      "details": {
+        "observer_rule": "reset-high-water",
+        "observed": 7,
+        "expected": 6
+      },
+      "input_sha256": "d13c96e7afe9d642eb04eb8b91002279b6c4207b7c1a79e48914da97c7ce296a",
+      "source_event": {
+        "journal": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/observer-355/observer-proof/native-controls/owners/7b32c9730e17b464/events.json",
+        "event": 2
+      },
+      "compressed_input": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/repaired-controls/355/negative-inputs/reset-high-water-includes-unexplained-dead-slot.json.gz",
+      "compressed_sha256": "da1822b83de4d09a426d6daf7d38f05a8a6889ec522272ce4ce18320ddfc6830"
+    },
+    {
+      "case": "unrequested-generation-change",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "unrequested-reset",
+      "actual_rule": "unrequested-reset",
+      "details": {
+        "observer_rule": "unrequested-reset"
+      },
+      "input_sha256": "5f2aaf5767c3339608e4a3ac656c47005cee495e8d5183ca57e6d751ea4dc898",
+      "source_event": {
+        "journal": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/observer-355/observer-proof/native-controls/owners/1970e908c208e33c/events.json",
+        "event": 1
+      },
+      "compressed_input": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/repaired-controls/355/negative-inputs/unrequested-generation-change.json.gz",
+      "compressed_sha256": "eedd7faca45a2b5e6c675c5721697b407dbbc794d8adc89bb5b7343154770e37"
+    },
+    {
+      "case": "failed-frame-raw-owner-digest-changed",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "failed-frame-full-owner-rollback",
+      "actual_rule": "failed-frame-full-owner-rollback",
+      "details": {
+        "observer_rule": "failed-frame-full-owner-rollback"
+      },
+      "input_sha256": "7c51626c19d5ab5a47f126f869f1753ddbb746706eeab15ae12b3e60e19ec91c",
+      "source_event": {
+        "journal": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/observer-355/observer-proof/native-controls/owners/7b32c9730e17b464/events.json",
+        "event": 4
+      },
+      "compressed_input": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/repaired-controls/355/negative-inputs/failed-frame-raw-owner-digest-changed.json.gz",
+      "compressed_sha256": "6a79d401e0dc456c21cc6e72a3e949bbc5b74aa9ebed32601a2729fcc5c7b670"
+    },
+    {
+      "case": "failed-frame-owner-pointer-changed",
+      "status": "PASS_EXPECTED_REJECTION",
+      "expected_rule": "failed-frame-structural-rollback",
+      "actual_rule": "failed-frame-structural-rollback",
+      "details": {
+        "observer_rule": "failed-frame-structural-rollback"
+      },
+      "input_sha256": "ec91fb2f934d8fd5a86acdc2678c475a236a641a3caca797e56d8d56e9de1ebd",
+      "source_event": {
+        "journal": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/observer-355/observer-proof/native-controls/owners/7b32c9730e17b464/events.json",
+        "event": 4
+      },
+      "compressed_input": "/Users/qianqi/heptatorch-pr28-validation-20261116/first-observer-ci-1d45ea9/repaired-controls/355/negative-inputs/failed-frame-owner-pointer-changed.json.gz",
+      "compressed_sha256": "6e0483255025b40df1f68491484f4a720813cfd639c36741147ac5b874052a77"
+    }
+  ],
+  "scope": "Observer admission only, using copies of committed owner snapshots; no native or API qualification is claimed.",
+  "expected_profile": "gradient-objects-355",
+  "selection_policy": "First actual eligible event of each fixed category; event result is only a selector, never a substitute for baseline verification.",
+  "positive_cases": 4,
+  "negative_cases": 18,
+  "original_journals_unchanged": true,
+  "observer_source_unchanged": true,
+  "failures": 0
+}

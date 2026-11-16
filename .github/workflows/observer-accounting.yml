@@ -1,0 +1,140 @@
+name: Private node accounting
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  observer:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - profile: '355'
+            profile_name: gradient-objects-355
+            image: tensor-gradient-object-session
+            native_sha: be18ab877f38a4027a527783db80a1418a137c7d6da91e5bc39e2af8c044cb6b
+            source_sha: 1b18da2cf9791e1b20982f9706434c1359ea194dd983dc6c66eb005f152e77b5
+          - profile: '428'
+            profile_name: gradient-adam-distributions-428
+            image: tensor-gradient-adam-distributions-session
+            native_sha: 6773485896d961b6c2e62784ebb66320290df47128bd1331aecc0c8b7f6611fe
+            source_sha: 1fed8ea7ba5bf755a9df9ca1e61d34cfd4712cc2fd66e0728493091c81c24dae
+    env:
+      HEPTATORCH_SOURCE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      HEPTATORCH_OBSERVER_ARTIFACT: private-node-observer-${{ matrix.profile }}-${{ github.run_id }}-${{ github.run_attempt }}
+    steps:
+      - name: Check out the exact candidate
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Restore source-pinned published native inputs without rebuilding
+        run: |
+          python3 -I -S -B tests/private_node_accounting/restore_native_inputs.py \
+            --profile '${{ matrix.profile }}' --repo . \
+            --output build/observer-native --report build/observer-restored.json
+
+      - name: Execute three native ownership and allocation controls
+        run: |
+          python3 -I -S -B tests/private_node_accounting/test_native_accounting.py \
+            --repository . --binary 'build/observer-native/${{ matrix.image }}' \
+            --source build/observer-native/runtime.hepta --output build/observer-proof/native-controls
+
+      - name: Reject eighteen independent corruptions of copied real snapshots
+        run: |
+          python3 -I -S -B tests/private_node_accounting/check_owner_snapshots.py \
+            --observer tests/private_node_accounting/owner_accounting.py \
+            --expected-profile '${{ matrix.profile_name }}' \
+            --journals build/observer-proof/native-controls/owners \
+            --output build/observer-proof/negative-controls
+
+      - name: Install the independent pinned PyTorch CPU oracle
+        shell: bash
+        run: |
+          python3 - <<'PYTORCH_INSTALL'
+          from pathlib import Path
+          import json
+          import platform
+          import subprocess
+          import sys
+
+          lock = json.loads(Path('compatibility/pytorch-oracle-lock.json').read_text())
+          expected = lock['oracle']
+          if (sys.implementation.name != expected['python']['implementation']
+                  or list(sys.version_info[:2]) != expected['python']['version']
+                  or sys.platform != expected['platform']['sys_platform']
+                  or platform.machine() != expected['platform']['machine']):
+              raise RuntimeError('Pinned PyTorch oracle requires CPython 3.12 on Linux x86_64')
+          report = Path(expected['install_report'])
+          report.parent.mkdir(parents=True, exist_ok=True)
+          wheel = expected['wheel']['url'] + '#sha256=' + expected['wheel']['sha256']
+          subprocess.run([sys.executable, '-m', 'pip', 'install',
+                          '--disable-pip-version-check', '--force-reinstall',
+                          '--index-url', 'https://download.pytorch.org/whl/cpu',
+                          '--report', str(report), wheel], check=True)
+          PYTORCH_INSTALL
+
+
+      - name: Execute the unchanged live joint oracle with 32 cases
+        run: |
+          echo '554671168c7a4a408dc1e1df89a19db15c3efcefcf4ae1a300af1b6dcae40160  tests/pytorch_tensor_rng_backward_oracle.py' | sha256sum -c -
+          status=0
+          python3 tests/pytorch_tensor_rng_backward_oracle.py \
+            --native 'build/observer-native/${{ matrix.image }}' \
+            --source build/observer-native/runtime.hepta \
+            --expected-native-sha256 '${{ matrix.native_sha }}' \
+            --expected-source-sha256 '${{ matrix.source_sha }}' \
+            --repo . --output build/observer-live32.json > build/observer-proof/live32.stdout || status=$?
+          python3 -I -S -B tools/emit_ci_report.py build/observer-live32.json
+          exit "$status"
+
+      - name: Execute all 35 unchanged cases with exact private-node accounting
+        run: |
+          status=0
+          python3 tests/private_node_accounting/run_frozen35_accounted.py \
+            --legacy-directory tests/tensor_object_oracle \
+            --native-source build/observer-native/runtime.hepta \
+            --observer-output build/observer-proof/frozen35 \
+            --observer-report build/observer-frozen35.json \
+            'build/observer-native/${{ matrix.image }}' build/observer-frozen35-original.json \
+            --owned-reference tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py \
+            --session-reference tests/pytorch_session_oracle.py --reference tests/pytorch_oracle.py \
+            --lock compatibility/pytorch-oracle-lock.json --repo . \
+            --trace-directory build/observer-wire \
+            --expected-native-sha256 '${{ matrix.native_sha }}' || status=$?
+          python3 -I -S -B tools/emit_ci_report.py build/observer-frozen35.json
+          exit "$status"
+
+      - name: Verify original report binding and all EOF and Version gates
+        run: |
+          python3 -I -S -B tests/private_node_accounting/check_frozen35_accounted.py \
+            --observer-report build/observer-frozen35.json \
+            --original-report build/observer-frozen35-original.json
+
+      - name: Index original observer reports and raw snapshots
+        if: always()
+        run: |
+          python3 -I -S -B tests/private_node_accounting/collect_private_node_journals.py \
+            --build build --journal-root build/observer-proof --wire-root build/observer-wire \
+            --reports build/observer-restored.json build/observer-live32.json \
+              build/observer-frozen35.json build/observer-frozen35-original.json build/pytorch-install.json \
+            --job-status '${{ job.status }}'
+
+      - name: Export original observer evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ${{ env.HEPTATORCH_OBSERVER_ARTIFACT }}
+          path: |
+            build/observer-proof/
+            build/observer-wire/
+          if-no-files-found: error
+          compression-level: 9
+          retention-days: 30

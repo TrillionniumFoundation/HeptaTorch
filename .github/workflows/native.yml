@@ -11,7 +11,7 @@ permissions:
 jobs:
   native:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 40
     steps:
       - name: Check out HeptaTorch
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -571,6 +571,20 @@ jobs:
             HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget"
           python3 -I -S -B tools/emit_ci_report.py build/hosted-adam-distributions-native.json
 
+      - name: Reproduce public gradient Tensor objects and incoming ownership
+        run: |
+          make test-gradient-objects \
+            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
+            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget"
+          python3 -I -S -B tools/emit_ci_report.py build/hosted-gradient-objects-native.json
+
+      - name: Reproduce shared public gradients Adam and CPU distributions
+        run: |
+          make test-gradient-adam-distributions \
+            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
+            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget"
+          python3 -I -S -B tools/emit_ci_report.py build/hosted-gradient-adam-distributions-native.json
+
       - name: Reproduce and qualify persistent native CPU Generator objects
         run: |
           make cpu-generators test-cpu-generators \
@@ -906,6 +920,78 @@ jobs:
           python3 -I -S -B tools/emit_ci_report.py build/pytorch-adam-distributions-frozen35.json
           exit "$status"
 
+      - name: Compare public gradient owner with the unchanged live joint oracle (32 cases)
+        run: |
+          echo '554671168c7a4a408dc1e1df89a19db15c3efcefcf4ae1a300af1b6dcae40160  tests/pytorch_tensor_rng_backward_oracle.py' | sha256sum -c -
+          status=0
+          python3 tests/pytorch_tensor_rng_backward_oracle.py \
+            --native build/gradient-objects/tensor-gradient-object-session \
+            --source build/gradient-objects/runtime.hepta \
+            --expected-native-sha256 be18ab877f38a4027a527783db80a1418a137c7d6da91e5bc39e2af8c044cb6b \
+            --expected-source-sha256 1b18da2cf9791e1b20982f9706434c1359ea194dd983dc6c66eb005f152e77b5 \
+            --repo . --output build/pytorch-gradient-objects-backward.json > build/pytorch-gradient-objects-backward.stdout || status=$?
+          python3 -I -S -B tools/emit_ci_report.py build/pytorch-gradient-objects-backward.json
+          exit "$status"
+
+      - name: Regress public gradient owner against the unchanged 35 Tensor cases with exact private-node accounting
+        run: |
+          echo '149b41c455444edeb8d25d0ad98045e29683e780f37f7e210e7985242d359597  tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py' | sha256sum -c -
+          status=0
+          python3 tests/private_node_accounting/run_frozen35_accounted.py \
+            --legacy-directory tests/tensor_object_oracle \
+            --native-source build/gradient-objects/runtime.hepta \
+            --observer-output build/frozen35-private-node/355 \
+            --observer-report build/pytorch-gradient-objects-frozen35.json \
+            build/gradient-objects/tensor-gradient-object-session build/pytorch-gradient-objects-frozen35-original.json \
+            --owned-reference tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py \
+            --session-reference tests/pytorch_session_oracle.py --reference tests/pytorch_oracle.py \
+            --lock compatibility/pytorch-oracle-lock.json --repo . \
+            --trace-directory build/frozen35-private-node-wire/355 \
+            --expected-native-sha256 be18ab877f38a4027a527783db80a1418a137c7d6da91e5bc39e2af8c044cb6b || status=$?
+          python3 -I -S -B tools/emit_ci_report.py build/pytorch-gradient-objects-frozen35.json
+          if [ "$status" -eq 0 ]; then
+            python3 -I -S -B tests/private_node_accounting/check_frozen35_accounted.py \
+              --observer-report build/pytorch-gradient-objects-frozen35.json \
+              --original-report build/pytorch-gradient-objects-frozen35-original.json
+          fi
+          exit "$status"
+
+      - name: Compare shared gradient Adam distribution owner with unchanged live oracle (32 cases)
+        run: |
+          echo '554671168c7a4a408dc1e1df89a19db15c3efcefcf4ae1a300af1b6dcae40160  tests/pytorch_tensor_rng_backward_oracle.py' | sha256sum -c -
+          status=0
+          python3 tests/pytorch_tensor_rng_backward_oracle.py \
+            --native build/gradient-adam-distributions/tensor-gradient-adam-distributions-session \
+            --source build/gradient-adam-distributions/runtime.hepta \
+            --expected-native-sha256 6773485896d961b6c2e62784ebb66320290df47128bd1331aecc0c8b7f6611fe \
+            --expected-source-sha256 1fed8ea7ba5bf755a9df9ca1e61d34cfd4712cc2fd66e0728493091c81c24dae \
+            --repo . --output build/pytorch-gradient-adam-distributions-backward.json > build/pytorch-gradient-adam-distributions-backward.stdout || status=$?
+          python3 -I -S -B tools/emit_ci_report.py build/pytorch-gradient-adam-distributions-backward.json
+          exit "$status"
+
+      - name: Regress shared gradient Adam distribution owner against unchanged 35 Tensor cases with exact private-node accounting
+        run: |
+          echo '149b41c455444edeb8d25d0ad98045e29683e780f37f7e210e7985242d359597  tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py' | sha256sum -c -
+          status=0
+          python3 tests/private_node_accounting/run_frozen35_accounted.py \
+            --legacy-directory tests/tensor_object_oracle \
+            --native-source build/gradient-adam-distributions/runtime.hepta \
+            --observer-output build/frozen35-private-node/428 \
+            --observer-report build/pytorch-gradient-adam-distributions-frozen35.json \
+            build/gradient-adam-distributions/tensor-gradient-adam-distributions-session build/pytorch-gradient-adam-distributions-frozen35-original.json \
+            --owned-reference tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py \
+            --session-reference tests/pytorch_session_oracle.py --reference tests/pytorch_oracle.py \
+            --lock compatibility/pytorch-oracle-lock.json --repo . \
+            --trace-directory build/frozen35-private-node-wire/428 \
+            --expected-native-sha256 6773485896d961b6c2e62784ebb66320290df47128bd1331aecc0c8b7f6611fe || status=$?
+          python3 -I -S -B tools/emit_ci_report.py build/pytorch-gradient-adam-distributions-frozen35.json
+          if [ "$status" -eq 0 ]; then
+            python3 -I -S -B tests/private_node_accounting/check_frozen35_accounted.py \
+              --observer-report build/pytorch-gradient-adam-distributions-frozen35.json \
+              --original-report build/pytorch-gradient-adam-distributions-frozen35-original.json
+          fi
+          exit "$status"
+
       - name: Index complete original CI reports and checkout identity
         if: always()
         env:
@@ -922,3 +1008,26 @@ jobs:
           compression-level: 9
           retention-days: 30
 
+      - name: Index original private-node reports and raw snapshots
+        if: always()
+        env:
+          HEPTATORCH_SOURCE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          HEPTATORCH_OBSERVER_ARTIFACT: private-node-journals-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+        run: |
+          python3 -I -S -B tests/private_node_accounting/collect_private_node_journals.py \
+            --build build --journal-root build/frozen35-private-node --wire-root build/frozen35-private-node-wire \
+            --reports build/pytorch-gradient-objects-frozen35.json build/pytorch-gradient-objects-frozen35-original.json \
+              build/pytorch-gradient-adam-distributions-frozen35.json build/pytorch-gradient-adam-distributions-frozen35-original.json build/pytorch-install.json \
+            --job-status '${{ job.status }}'
+
+      - name: Export original private-node snapshots and wire traces
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: private-node-journals-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+          path: |
+            build/frozen35-private-node/
+            build/frozen35-private-node-wire/
+          if-no-files-found: warn
+          compression-level: 9
+          retention-days: 30

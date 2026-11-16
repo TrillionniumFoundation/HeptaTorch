@@ -1,0 +1,1266 @@
+{
+  "actual_torch_compared": false,
+  "cases": 8,
+  "executable_sha256": "6773485896d961b6c2e62784ebb66320290df47128bd1331aecc0c8b7f6611fe",
+  "frames": 80,
+  "full_rewrite_complete": false,
+  "input_custody_after": true,
+  "input_sha256": {
+    "/dev/shm/heptatorch-d26699e25fea/grad/combined-candidate-05/runtime.hepta": "1fed8ea7ba5bf755a9df9ca1e61d34cfd4712cc2fd66e0728493091c81c24dae",
+    "/dev/shm/heptatorch-d26699e25fea/grad/combined-candidate-05/tensor-gradient-adam-distributions-session": "6773485896d961b6c2e62784ebb66320290df47128bd1331aecc0c8b7f6611fe",
+    "/workspace/scratch/d26699e25fea/adam-distributions-gradient-review/extreme-stride-prepared.json": "2ecfa99b998d6f384880bdd3b59bc1e6a81bf8dbbe81848e280ee7b78848d27d",
+    "/workspace/scratch/d26699e25fea/adam-distributions-gradient-review/observe_extreme_stride_native.py": "8a0e809e8a5294dd6fa82e47158eb94864fdf599bb3bfff879d7f5ed8cc05be4",
+    "/workspace/scratch/d26699e25fea/cpu-distributions-extension/package-03/tools/cpu_distributions/owner_client.py": "dee3e4cb25ee1e5e06513e2f33478fbe274d9510ce2aaab9525815c72312946b",
+    "/workspace/scratch/d26699e25fea/cpu-distributions-extension/package-03/tools/cpu_distributions/protocol.py": "7a30d7bca140e3a4cc9d63a3e6930b92d2ffd60ad4503895419d8a63e67c8bd9"
+  },
+  "native_executed": true,
+  "numerical_qualification_claim": false,
+  "reference_probe_sha256": "568ece8996db71f5d1a16b6dfb71efd963a258f457e73cfdc738f7d60e226f89",
+  "rows": [
+    {
+      "audit": 1,
+      "case": "largest-positive-byte-stride",
+      "checks": {
+        "fresh_output_storage": true,
+        "fresh_output_tensor": true,
+        "left_unchanged": true,
+        "new_output_version_zero": true,
+        "right_unchanged": true,
+        "same_output_shape": true
+      },
+      "frames": 10,
+      "left_after": {
+        "binary32_words": [
+          1065353216,
+          1077936128,
+          1084227584,
+          1073741824,
+          1082130432,
+          1086324736
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521730,
+        "storage_offset_bytes": 0,
+        "strides": [
+          2305843009213693951,
+          1,
+          2
+        ],
+        "tensor_identity": 4311744515,
+        "version": 0,
+        "version_identity": 4345298945
+      },
+      "left_before": {
+        "binary32_words": [
+          1065353216,
+          1077936128,
+          1084227584,
+          1073741824,
+          1082130432,
+          1086324736
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521730,
+        "storage_offset_bytes": 0,
+        "strides": [
+          2305843009213693951,
+          1,
+          2
+        ],
+        "tensor_identity": 4311744515,
+        "version": 0,
+        "version_identity": 4345298945
+      },
+      "operation_accepted": true,
+      "operation_status": 0,
+      "output": {
+        "binary32_words": [
+          1093664768,
+          1096810496,
+          1099431936,
+          1097859072,
+          1099956224,
+          1101529088
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521732,
+        "storage_offset_bytes": 0,
+        "strides": [
+          6,
+          1,
+          2
+        ],
+        "tensor_identity": 4311744516,
+        "version": 0,
+        "version_identity": 4345298947
+      },
+      "reverse_inputs": false,
+      "right_after": {
+        "binary32_words": [
+          1092616192,
+          1093664768,
+          1094713344,
+          1095761920,
+          1096810496,
+          1097859072
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521731,
+        "storage_offset_bytes": 0,
+        "strides": [
+          6,
+          3,
+          1
+        ],
+        "tensor_identity": 4311744514,
+        "version": 0,
+        "version_identity": 4345298946
+      },
+      "right_before": {
+        "binary32_words": [
+          1092616192,
+          1093664768,
+          1094713344,
+          1095761920,
+          1096810496,
+          1097859072
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521731,
+        "storage_offset_bytes": 0,
+        "strides": [
+          6,
+          3,
+          1
+        ],
+        "tensor_identity": 4311744514,
+        "version": 0,
+        "version_identity": 4345298946
+      },
+      "status": "OBSERVED",
+      "stride": 2305843009213693951,
+      "view_accepted": true,
+      "view_status": 0
+    },
+    {
+      "audit": 1,
+      "case": "byte-sign-boundary",
+      "checks": {
+        "fresh_output_storage": true,
+        "fresh_output_tensor": true,
+        "left_unchanged": true,
+        "new_output_version_zero": true,
+        "right_unchanged": true,
+        "same_output_shape": true
+      },
+      "frames": 10,
+      "left_after": {
+        "binary32_words": [
+          1065353216,
+          1077936128,
+          1084227584,
+          1073741824,
+          1082130432,
+          1086324736
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521730,
+        "storage_offset_bytes": 0,
+        "strides": [
+          2305843009213693952,
+          1,
+          2
+        ],
+        "tensor_identity": 4311744515,
+        "version": 0,
+        "version_identity": 4345298945
+      },
+      "left_before": {
+        "binary32_words": [
+          1065353216,
+          1077936128,
+          1084227584,
+          1073741824,
+          1082130432,
+          1086324736
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521730,
+        "storage_offset_bytes": 0,
+        "strides": [
+          2305843009213693952,
+          1,
+          2
+        ],
+        "tensor_identity": 4311744515,
+        "version": 0,
+        "version_identity": 4345298945
+      },
+      "operation_accepted": true,
+      "operation_status": 0,
+      "output": {
+        "binary32_words": [
+          1093664768,
+          1096810496,
+          1099431936,
+          1097859072,
+          1099956224,
+          1101529088
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521732,
+        "storage_offset_bytes": 0,
+        "strides": [
+          1,
+          1,
+          2
+        ],
+        "tensor_identity": 4311744516,
+        "version": 0,
+        "version_identity": 4345298947
+      },
+      "reverse_inputs": false,
+      "right_after": {
+        "binary32_words": [
+          1092616192,
+          1093664768,
+          1094713344,
+          1095761920,
+          1096810496,
+          1097859072
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521731,
+        "storage_offset_bytes": 0,
+        "strides": [
+          6,
+          3,
+          1
+        ],
+        "tensor_identity": 4311744514,
+        "version": 0,
+        "version_identity": 4345298946
+      },
+      "right_before": {
+        "binary32_words": [
+          1092616192,
+          1093664768,
+          1094713344,
+          1095761920,
+          1096810496,
+          1097859072
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521731,
+        "storage_offset_bytes": 0,
+        "strides": [
+          6,
+          3,
+          1
+        ],
+        "tensor_identity": 4311744514,
+        "version": 0,
+        "version_identity": 4345298946
+      },
+      "status": "OBSERVED",
+      "stride": 2305843009213693952,
+      "view_accepted": true,
+      "view_status": 0
+    },
+    {
+      "audit": 1,
+      "case": "byte-sign-boundary-reversed",
+      "checks": {
+        "fresh_output_storage": true,
+        "fresh_output_tensor": true,
+        "left_unchanged": true,
+        "new_output_version_zero": true,
+        "right_unchanged": true,
+        "same_output_shape": true
+      },
+      "frames": 10,
+      "left_after": {
+        "binary32_words": [
+          1092616192,
+          1093664768,
+          1094713344,
+          1095761920,
+          1096810496,
+          1097859072
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521731,
+        "storage_offset_bytes": 0,
+        "strides": [
+          6,
+          3,
+          1
+        ],
+        "tensor_identity": 4311744514,
+        "version": 0,
+        "version_identity": 4345298946
+      },
+      "left_before": {
+        "binary32_words": [
+          1092616192,
+          1093664768,
+          1094713344,
+          1095761920,
+          1096810496,
+          1097859072
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521731,
+        "storage_offset_bytes": 0,
+        "strides": [
+          6,
+          3,
+          1
+        ],
+        "tensor_identity": 4311744514,
+        "version": 0,
+        "version_identity": 4345298946
+      },
+      "operation_accepted": true,
+      "operation_status": 0,
+      "output": {
+        "binary32_words": [
+          1093664768,
+          1096810496,
+          1099431936,
+          1097859072,
+          1099956224,
+          1101529088
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521732,
+        "storage_offset_bytes": 0,
+        "strides": [
+          6,
+          3,
+          1
+        ],
+        "tensor_identity": 4311744516,
+        "version": 0,
+        "version_identity": 4345298947
+      },
+      "reverse_inputs": true,
+      "right_after": {
+        "binary32_words": [
+          1065353216,
+          1077936128,
+          1084227584,
+          1073741824,
+          1082130432,
+          1086324736
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521730,
+        "storage_offset_bytes": 0,
+        "strides": [
+          2305843009213693952,
+          1,
+          2
+        ],
+        "tensor_identity": 4311744515,
+        "version": 0,
+        "version_identity": 4345298945
+      },
+      "right_before": {
+        "binary32_words": [
+          1065353216,
+          1077936128,
+          1084227584,
+          1073741824,
+          1082130432,
+          1086324736
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521730,
+        "storage_offset_bytes": 0,
+        "strides": [
+          2305843009213693952,
+          1,
+          2
+        ],
+        "tensor_identity": 4311744515,
+        "version": 0,
+        "version_identity": 4345298945
+      },
+      "status": "OBSERVED",
+      "stride": 2305843009213693952,
+      "view_accepted": true,
+      "view_status": 0
+    },
+    {
+      "audit": 1,
+      "case": "above-byte-sign-boundary",
+      "checks": {
+        "fresh_output_storage": true,
+        "fresh_output_tensor": true,
+        "left_unchanged": true,
+        "new_output_version_zero": true,
+        "right_unchanged": true,
+        "same_output_shape": true
+      },
+      "frames": 10,
+      "left_after": {
+        "binary32_words": [
+          1065353216,
+          1077936128,
+          1084227584,
+          1073741824,
+          1082130432,
+          1086324736
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521730,
+        "storage_offset_bytes": 0,
+        "strides": [
+          2305843009213693953,
+          1,
+          2
+        ],
+        "tensor_identity": 4311744515,
+        "version": 0,
+        "version_identity": 4345298945
+      },
+      "left_before": {
+        "binary32_words": [
+          1065353216,
+          1077936128,
+          1084227584,
+          1073741824,
+          1082130432,
+          1086324736
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521730,
+        "storage_offset_bytes": 0,
+        "strides": [
+          2305843009213693953,
+          1,
+          2
+        ],
+        "tensor_identity": 4311744515,
+        "version": 0,
+        "version_identity": 4345298945
+      },
+      "operation_accepted": true,
+      "operation_status": 0,
+      "output": {
+        "binary32_words": [
+          1093664768,
+          1096810496,
+          1099431936,
+          1097859072,
+          1099956224,
+          1101529088
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521732,
+        "storage_offset_bytes": 0,
+        "strides": [
+          1,
+          1,
+          2
+        ],
+        "tensor_identity": 4311744516,
+        "version": 0,
+        "version_identity": 4345298947
+      },
+      "reverse_inputs": false,
+      "right_after": {
+        "binary32_words": [
+          1092616192,
+          1093664768,
+          1094713344,
+          1095761920,
+          1096810496,
+          1097859072
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521731,
+        "storage_offset_bytes": 0,
+        "strides": [
+          6,
+          3,
+          1
+        ],
+        "tensor_identity": 4311744514,
+        "version": 0,
+        "version_identity": 4345298946
+      },
+      "right_before": {
+        "binary32_words": [
+          1092616192,
+          1093664768,
+          1094713344,
+          1095761920,
+          1096810496,
+          1097859072
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521731,
+        "storage_offset_bytes": 0,
+        "strides": [
+          6,
+          3,
+          1
+        ],
+        "tensor_identity": 4311744514,
+        "version": 0,
+        "version_identity": 4345298946
+      },
+      "status": "OBSERVED",
+      "stride": 2305843009213693953,
+      "view_accepted": true,
+      "view_status": 0
+    },
+    {
+      "audit": 1,
+      "case": "byte-wrap-zero",
+      "checks": {
+        "fresh_output_storage": true,
+        "fresh_output_tensor": true,
+        "left_unchanged": true,
+        "new_output_version_zero": true,
+        "right_unchanged": true,
+        "same_output_shape": true
+      },
+      "frames": 10,
+      "left_after": {
+        "binary32_words": [
+          1065353216,
+          1077936128,
+          1084227584,
+          1073741824,
+          1082130432,
+          1086324736
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521730,
+        "storage_offset_bytes": 0,
+        "strides": [
+          4611686018427387904,
+          1,
+          2
+        ],
+        "tensor_identity": 4311744515,
+        "version": 0,
+        "version_identity": 4345298945
+      },
+      "left_before": {
+        "binary32_words": [
+          1065353216,
+          1077936128,
+          1084227584,
+          1073741824,
+          1082130432,
+          1086324736
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521730,
+        "storage_offset_bytes": 0,
+        "strides": [
+          4611686018427387904,
+          1,
+          2
+        ],
+        "tensor_identity": 4311744515,
+        "version": 0,
+        "version_identity": 4345298945
+      },
+      "operation_accepted": true,
+      "operation_status": 0,
+      "output": {
+        "binary32_words": [
+          1093664768,
+          1096810496,
+          1099431936,
+          1097859072,
+          1099956224,
+          1101529088
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521732,
+        "storage_offset_bytes": 0,
+        "strides": [
+          6,
+          1,
+          2
+        ],
+        "tensor_identity": 4311744516,
+        "version": 0,
+        "version_identity": 4345298947
+      },
+      "reverse_inputs": false,
+      "right_after": {
+        "binary32_words": [
+          1092616192,
+          1093664768,
+          1094713344,
+          1095761920,
+          1096810496,
+          1097859072
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521731,
+        "storage_offset_bytes": 0,
+        "strides": [
+          6,
+          3,
+          1
+        ],
+        "tensor_identity": 4311744514,
+        "version": 0,
+        "version_identity": 4345298946
+      },
+      "right_before": {
+        "binary32_words": [
+          1092616192,
+          1093664768,
+          1094713344,
+          1095761920,
+          1096810496,
+          1097859072
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521731,
+        "storage_offset_bytes": 0,
+        "strides": [
+          6,
+          3,
+          1
+        ],
+        "tensor_identity": 4311744514,
+        "version": 0,
+        "version_identity": 4345298946
+      },
+      "status": "OBSERVED",
+      "stride": 4611686018427387904,
+      "view_accepted": true,
+      "view_status": 0
+    },
+    {
+      "audit": 1,
+      "case": "byte-wrap-zero-reversed",
+      "checks": {
+        "fresh_output_storage": true,
+        "fresh_output_tensor": true,
+        "left_unchanged": true,
+        "new_output_version_zero": true,
+        "right_unchanged": true,
+        "same_output_shape": true
+      },
+      "frames": 10,
+      "left_after": {
+        "binary32_words": [
+          1092616192,
+          1093664768,
+          1094713344,
+          1095761920,
+          1096810496,
+          1097859072
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521731,
+        "storage_offset_bytes": 0,
+        "strides": [
+          6,
+          3,
+          1
+        ],
+        "tensor_identity": 4311744514,
+        "version": 0,
+        "version_identity": 4345298946
+      },
+      "left_before": {
+        "binary32_words": [
+          1092616192,
+          1093664768,
+          1094713344,
+          1095761920,
+          1096810496,
+          1097859072
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521731,
+        "storage_offset_bytes": 0,
+        "strides": [
+          6,
+          3,
+          1
+        ],
+        "tensor_identity": 4311744514,
+        "version": 0,
+        "version_identity": 4345298946
+      },
+      "operation_accepted": true,
+      "operation_status": 0,
+      "output": {
+        "binary32_words": [
+          1093664768,
+          1096810496,
+          1099431936,
+          1097859072,
+          1099956224,
+          1101529088
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521732,
+        "storage_offset_bytes": 0,
+        "strides": [
+          6,
+          3,
+          1
+        ],
+        "tensor_identity": 4311744516,
+        "version": 0,
+        "version_identity": 4345298947
+      },
+      "reverse_inputs": true,
+      "right_after": {
+        "binary32_words": [
+          1065353216,
+          1077936128,
+          1084227584,
+          1073741824,
+          1082130432,
+          1086324736
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521730,
+        "storage_offset_bytes": 0,
+        "strides": [
+          4611686018427387904,
+          1,
+          2
+        ],
+        "tensor_identity": 4311744515,
+        "version": 0,
+        "version_identity": 4345298945
+      },
+      "right_before": {
+        "binary32_words": [
+          1065353216,
+          1077936128,
+          1084227584,
+          1073741824,
+          1082130432,
+          1086324736
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521730,
+        "storage_offset_bytes": 0,
+        "strides": [
+          4611686018427387904,
+          1,
+          2
+        ],
+        "tensor_identity": 4311744515,
+        "version": 0,
+        "version_identity": 4345298945
+      },
+      "status": "OBSERVED",
+      "stride": 4611686018427387904,
+      "view_accepted": true,
+      "view_status": 0
+    },
+    {
+      "audit": 1,
+      "case": "below-byte-wrap-zero",
+      "checks": {
+        "fresh_output_storage": true,
+        "fresh_output_tensor": true,
+        "left_unchanged": true,
+        "new_output_version_zero": true,
+        "right_unchanged": true,
+        "same_output_shape": true
+      },
+      "frames": 10,
+      "left_after": {
+        "binary32_words": [
+          1065353216,
+          1077936128,
+          1084227584,
+          1073741824,
+          1082130432,
+          1086324736
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521730,
+        "storage_offset_bytes": 0,
+        "strides": [
+          4611686018427387903,
+          1,
+          2
+        ],
+        "tensor_identity": 4311744515,
+        "version": 0,
+        "version_identity": 4345298945
+      },
+      "left_before": {
+        "binary32_words": [
+          1065353216,
+          1077936128,
+          1084227584,
+          1073741824,
+          1082130432,
+          1086324736
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521730,
+        "storage_offset_bytes": 0,
+        "strides": [
+          4611686018427387903,
+          1,
+          2
+        ],
+        "tensor_identity": 4311744515,
+        "version": 0,
+        "version_identity": 4345298945
+      },
+      "operation_accepted": true,
+      "operation_status": 0,
+      "output": {
+        "binary32_words": [
+          1093664768,
+          1096810496,
+          1099431936,
+          1097859072,
+          1099956224,
+          1101529088
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521732,
+        "storage_offset_bytes": 0,
+        "strides": [
+          1,
+          1,
+          2
+        ],
+        "tensor_identity": 4311744516,
+        "version": 0,
+        "version_identity": 4345298947
+      },
+      "reverse_inputs": false,
+      "right_after": {
+        "binary32_words": [
+          1092616192,
+          1093664768,
+          1094713344,
+          1095761920,
+          1096810496,
+          1097859072
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521731,
+        "storage_offset_bytes": 0,
+        "strides": [
+          6,
+          3,
+          1
+        ],
+        "tensor_identity": 4311744514,
+        "version": 0,
+        "version_identity": 4345298946
+      },
+      "right_before": {
+        "binary32_words": [
+          1092616192,
+          1093664768,
+          1094713344,
+          1095761920,
+          1096810496,
+          1097859072
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521731,
+        "storage_offset_bytes": 0,
+        "strides": [
+          6,
+          3,
+          1
+        ],
+        "tensor_identity": 4311744514,
+        "version": 0,
+        "version_identity": 4345298946
+      },
+      "status": "OBSERVED",
+      "stride": 4611686018427387903,
+      "view_accepted": true,
+      "view_status": 0
+    },
+    {
+      "audit": 1,
+      "case": "largest-signed-element-stride",
+      "checks": {
+        "fresh_output_storage": true,
+        "fresh_output_tensor": true,
+        "left_unchanged": true,
+        "new_output_version_zero": true,
+        "right_unchanged": true,
+        "same_output_shape": true
+      },
+      "frames": 10,
+      "left_after": {
+        "binary32_words": [
+          1065353216,
+          1077936128,
+          1084227584,
+          1073741824,
+          1082130432,
+          1086324736
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521730,
+        "storage_offset_bytes": 0,
+        "strides": [
+          9223372036854775807,
+          1,
+          2
+        ],
+        "tensor_identity": 4311744515,
+        "version": 0,
+        "version_identity": 4345298945
+      },
+      "left_before": {
+        "binary32_words": [
+          1065353216,
+          1077936128,
+          1084227584,
+          1073741824,
+          1082130432,
+          1086324736
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521730,
+        "storage_offset_bytes": 0,
+        "strides": [
+          9223372036854775807,
+          1,
+          2
+        ],
+        "tensor_identity": 4311744515,
+        "version": 0,
+        "version_identity": 4345298945
+      },
+      "operation_accepted": true,
+      "operation_status": 0,
+      "output": {
+        "binary32_words": [
+          1093664768,
+          1096810496,
+          1099431936,
+          1097859072,
+          1099956224,
+          1101529088
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521732,
+        "storage_offset_bytes": 0,
+        "strides": [
+          1,
+          1,
+          2
+        ],
+        "tensor_identity": 4311744516,
+        "version": 0,
+        "version_identity": 4345298947
+      },
+      "reverse_inputs": false,
+      "right_after": {
+        "binary32_words": [
+          1092616192,
+          1093664768,
+          1094713344,
+          1095761920,
+          1096810496,
+          1097859072
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521731,
+        "storage_offset_bytes": 0,
+        "strides": [
+          6,
+          3,
+          1
+        ],
+        "tensor_identity": 4311744514,
+        "version": 0,
+        "version_identity": 4345298946
+      },
+      "right_before": {
+        "binary32_words": [
+          1092616192,
+          1093664768,
+          1094713344,
+          1095761920,
+          1096810496,
+          1097859072
+        ],
+        "requires_grad": false,
+        "shape": [
+          1,
+          2,
+          3
+        ],
+        "storage_bytes": 24,
+        "storage_identity": 4328521731,
+        "storage_offset_bytes": 0,
+        "strides": [
+          6,
+          3,
+          1
+        ],
+        "tensor_identity": 4311744514,
+        "version": 0,
+        "version_identity": 4345298946
+      },
+      "status": "OBSERVED",
+      "stride": 9223372036854775807,
+      "view_accepted": true,
+      "view_status": 0
+    }
+  ],
+  "schema": "heptatorch.native-extreme-stride-observations.v1",
+  "source_sha256": "1fed8ea7ba5bf755a9df9ca1e61d34cfd4712cc2fd66e0728493091c81c24dae",
+  "status": "OBSERVED_NOT_TORCH_QUALIFIED",
+  "test_sha256": "8a0e809e8a5294dd6fa82e47158eb94864fdf599bb3bfff879d7f5ed8cc05be4",
+  "torch_executed_here": false
+}
