@@ -69,3 +69,7 @@ assertions, the 2,590-schema denominator and all 17 complete subsystem gates
 remain required. CPU binary32/rank 0–4 limits and the missing independent
 Storage/Version integration still apply. These gates do not qualify full
 PyTorch optimizer objects, saved-data selection or general clone layout.
+
+## Actual pinned PyTorch result
+
+[Run 43801012881](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43801012881) passed all 37 steps on implementation `a446c02b57a7bb3760b4d8a73971a7a069b76bb1`. The unchanged strict oracle passed all 28 cases, 6,233 frames and 2,590,207 numerical comparisons with all 11 provenance checks. All 160 prior absolute parameter-version mismatches are gone. The second-moment correction also removes 576 observed state-counter differences; 283 momentum-state lifecycle observations remain explicit and open. The [full hosted receipt](../../validation/hosted-owned-tensors.json) preserves every case and the initial failure identity. Twenty-two upstream-only lifetime observations guide the independent-object successor and do not count as native compatibility coverage.
