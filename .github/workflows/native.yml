@@ -210,6 +210,9 @@ jobs:
                           '--report', str(report), wheel], check=True)
           PYTORCH_INSTALL
 
+      - name: Observe pinned PyTorch alpha rounding semantics
+        run: python3 tests/pytorch_alpha_semantics.py build/alpha-semantics.json
+
       - name: Compare native HIA with real PyTorch forward, autograd and optimizers
         shell: bash
         run: |
