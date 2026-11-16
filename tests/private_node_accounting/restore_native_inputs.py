@@ -10,6 +10,10 @@ P = {
          "458fab50d7eb4c9685fd400053dd6746225ccae348e75c758d1e0cbd6d8fb6fe", "producer/native/",
          "1fed8ea7ba5bf755a9df9ca1e61d34cfd4712cc2fd66e0728493091c81c24dae",
          "tensor-gradient-adam-distributions-session", "6773485896d961b6c2e62784ebb66320290df47128bd1331aecc0c8b7f6611fe"),
+ "446": ("validation/retained-gradients-root/root-cold-and-strict-01.tar.xz",
+         "0cc512e60904cf32812efdb1aba166f01ff190cea6966a75a1c50e888325aec5", "build/retained-root-cold-01/native/",
+         "666230f05cc6942470006d1f184135321d8cbc26a6c6ba0bf7e3cf9857fe515b",
+         "tensor-retained-session", "7568c0a4ec40d82d3a0b46d1e8a27499dd96e8fe3fd15433523131a196da89b5"),
 }
 def sha(raw): return hashlib.sha256(raw).hexdigest()
 def main():
