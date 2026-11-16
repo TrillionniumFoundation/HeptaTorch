@@ -1,0 +1,18 @@
+{
+  "schema": "heptatorch.f64-sqrt-primary-source-inspection.v1",
+  "upstream_commit": "31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
+  "sources": [
+    {
+      "path": "aten/src/ATen/cpu/vml.h",
+      "sha256": "53e1c2494904204d2fb13eef6d5d3fc8bf406390e2d1e73ef1fd81a55a743cf7",
+      "url": "https://github.com/pytorch/pytorch/blob/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/aten/src/ATen/cpu/vml.h"
+    },
+    {
+      "path": "aten/src/ATen/native/cpu/UnaryOpsKernel.cpp",
+      "sha256": "08fc303733334afcabcb80b46712218ca7174abacceef743074eb5a723a012c1",
+      "url": "https://github.com/pytorch/pytorch/blob/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/aten/src/ATen/native/cpu/UnaryOpsKernel.cpp"
+    }
+  ],
+  "inspection": "UnaryOpsKernel registers sqrt through IMPLEMENT_COMPLEX_KERNEL_WITHOUT_AVX512(sqrt), whose contiguous kernel invokes vml::vsqrt. vml.h specializes double sqrt to vmdSqrt when MKL is enabled, with VML_HA | VML_FTZDAZ_OFF | VML_ERRMODE_IGNORE. This source path alone does not prove which wheel backend was active; hosted configuration and exact rational diagnostic are pending.",
+  "strict_pytorch_bitwise_gate_closed": false
+}

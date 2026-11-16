@@ -648,24 +648,6 @@ jobs:
             --lock compatibility/pytorch-oracle-lock.json --repo . \
             --expected-native-sha256 e172bc81dfbe9ee2c9853cf9221ebf7236e8099a207947bccff66b0b01dc1f5f
 
-      - name: Compare ABI2 Tensor objects with unchanged strict numeric cases and new lifetimes
-        run: |
-          python3 tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py \
-            build/tensor-objects/abi2/tensor-object-session build/pytorch-tensor-objects-abi2.json \
-            --owned-reference tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py \
-            --session-reference tests/pytorch_session_oracle.py --reference tests/pytorch_oracle.py \
-            --lock compatibility/pytorch-oracle-lock.json --repo . \
-            --expected-native-sha256 4bd22ab115a5428be6ee1ab77fd31a1e20baf14a80756eb38f000574cbad531f
-
-      - name: Compare guarded ABI3 Tensor objects with the same 35 frozen cases
-        run: |
-          python3 tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py \
-            build/tensor-objects/abi3/tensor-object-session build/pytorch-tensor-objects-abi3.json \
-            --owned-reference tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py \
-            --session-reference tests/pytorch_session_oracle.py --reference tests/pytorch_oracle.py \
-            --lock compatibility/pytorch-oracle-lock.json --repo . \
-            --expected-native-sha256 2b39ff1a5a258c5fae7be1fbca5dcf0764787b43fa72ad8fdc3ab6fd119e2a91
-
       - name: Observe pinned PyTorch default backward and retain_graph release boundaries
         run: |
           echo '1192de6e175407756b01028278446067b22b70fe2d820f0045f6f5d623d46aa3  tests/pytorch_backward_release_probe.py' | sha256sum -c -
@@ -673,3 +655,28 @@ jobs:
             --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
             --repo . --output build/pytorch-backward-release-observations.json
           cat build/pytorch-backward-release-observations.json
+
+      - name: Compare ABI2 Tensor objects with unchanged strict numeric cases and new lifetimes
+        run: |
+          status=0
+          python3 tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py \
+            build/tensor-objects/abi2/tensor-object-session build/pytorch-tensor-objects-abi2.json \
+            --owned-reference tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py \
+            --session-reference tests/pytorch_session_oracle.py --reference tests/pytorch_oracle.py \
+            --lock compatibility/pytorch-oracle-lock.json --repo . \
+            --expected-native-sha256 4bd22ab115a5428be6ee1ab77fd31a1e20baf14a80756eb38f000574cbad531f || status=$?
+          cat build/pytorch-tensor-objects-abi2.json
+          exit "$status"
+
+      - name: Compare guarded ABI3 Tensor objects with the same 35 frozen cases
+        run: |
+          status=0
+          python3 tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py \
+            build/tensor-objects/abi3/tensor-object-session build/pytorch-tensor-objects-abi3.json \
+            --owned-reference tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py \
+            --session-reference tests/pytorch_session_oracle.py --reference tests/pytorch_oracle.py \
+            --lock compatibility/pytorch-oracle-lock.json --repo . \
+            --expected-native-sha256 2b39ff1a5a258c5fae7be1fbca5dcf0764787b43fa72ad8fdc3ab6fd119e2a91 || status=$?
+          cat build/pytorch-tensor-objects-abi3.json
+          exit "$status"
+

@@ -1,0 +1,115 @@
+name: HIA binary64 RNE component qualification (partial)
+on:
+  push:
+    branches: ["feature/native-f64-arithmetic"]
+  pull_request:
+    paths: ["tools/dtype-f64/**", "tests/f64*.py", "validation/f64-rne-package.sha256", ".github/workflows/dtype-f64.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  f64:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: TrillionniumFoundation/Hepta
+          ref: f33d8da316de8fdf27b504371f1a5310997ff548
+          path: .toolchain/hepta
+          persist-credentials: false
+          sparse-checkout-cone-mode: true
+          sparse-checkout: |
+            hepta
+            tools
+            examples/hia_bootstrap
+            docs
+      - name: Reproduce native HIA compiler
+        run: |
+          python3 -I -S -B - <<'PY'
+          from pathlib import Path
+          import hashlib,os,subprocess,sys
+          root=Path('.toolchain/hepta').resolve()
+          assert subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD'],text=True).strip()=='f33d8da316de8fdf27b504371f1a5310997ff548'
+          src=(root/'examples/hia_bootstrap/selfhost.hepta').read_bytes()
+          assert hashlib.sha256(src).hexdigest()=='388b182e42675f11435867dd99520e9452a4ff48e23c0766a3952b662acc7627'
+          sys.path.insert(0,str(root))
+          from tools.qualify_hia_selfhost import build_seed,compile_stage
+          out=Path(os.environ['RUNNER_TEMP'])/'f64-compiler';out.mkdir(parents=True,exist_ok=True)
+          image,_=build_seed(out,src)
+          generations=[]
+          for label in ('B1','B2','B3'):
+              image,record=compile_stage(out,label,image,src,image_format='seed-shared' if label=='B1' else 'flat-x86-64')
+              generations.append(record['produced_sha256'])
+          assert len(set(generations))==1
+          before=b'hia-asm.v1 hepta.hia.program.v8 selfhost\n'
+          assert src.startswith(before)
+          executable=b'hia-asm.v1 hepta.hia.program.v8 selfhost_exec\n'+src[len(before):]
+          compiler,_=compile_stage(out,'native-compiler',image,executable,output_extension='')
+          compiler.chmod(0o755)
+          assert hashlib.sha256(compiler.read_bytes()).hexdigest()=='87c247e4d1c3c9a449d2947fd4227fdc186d519bffd203a04cafce7861a4ed54'
+          for i in range(2):
+              p=subprocess.run([str(compiler)],input=executable,capture_output=True,timeout=30,env={'PATH':''})
+              assert p.returncode==0 and not p.stderr and p.stdout==compiler.read_bytes()
+          print('PASS native HIA compiler reproduction')
+          PY
+      - name: Install exact independent PyTorch wheel
+        run: |
+          python3 - <<'PY'
+          import json,platform,subprocess,sys
+          from pathlib import Path
+          x=json.load(open('compatibility/pytorch-oracle-lock.json'))['oracle']
+          assert list(sys.version_info[:2])==x['python']['version'] and platform.machine()=='x86_64'
+          url=x['wheel']['url']+'#sha256='+x['wheel']['sha256']
+          Path(x['install_report']).parent.mkdir(parents=True,exist_ok=True)
+          subprocess.run([sys.executable,'-m','pip','install','--disable-pip-version-check','--force-reinstall',
+             '--index-url','https://download.pytorch.org/whl/cpu','--report',x['install_report'],url],check=True)
+          PY
+      - name: Native differential against CPython
+        run: |
+          python3 -I -S -B tests/f64_oracle.py --compiler "$RUNNER_TEMP/f64-compiler/native-compiler" --reference cpython --output build/f64-cpython
+      - name: Diagnose sqrt against exact rational rounding cells
+        run: |
+          python3 tests/f64_sqrt_probe.py --native build/f64-cpython/f64-native --reference pytorch --output build/f64-sqrt-diagnostic
+      - name: Record original strict PyTorch outcome without reclassifying it
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,json,os,re,subprocess,sys
+          script=Path('tests/f64_oracle.py')
+          assert hashlib.sha256(script.read_bytes()).hexdigest()=='bb639f7ef669d34787986ed62e870cc61071adcba1ae4e44e325673e2f75bb03'
+          args=[sys.executable,str(script),'--compiler',str(Path(os.environ['RUNNER_TEMP'])/'f64-compiler/native-compiler'),
+                '--reference','pytorch','--output','build/f64-pytorch']
+          process=subprocess.run(args,capture_output=True)
+          Path('build/f64-strict.stdout').write_bytes(process.stdout)
+          Path('build/f64-strict.stderr').write_bytes(process.stderr)
+          sys.stdout.buffer.write(process.stdout);sys.stdout.flush()
+          sys.stderr.buffer.write(process.stderr);sys.stderr.flush()
+          report=json.loads(Path('build/f64-pytorch/report.json').read_bytes())
+          assert process.returncode in (0,1)
+          # This exact optional-NumPy import warning is present in the pinned
+          # wheel without NumPy. Preserve it; reject any other diagnostic.
+          expected_warning = (r"[^\n]+/torch/_subclasses/functional_tensor.py:377: UserWarning: "
+              r"Failed to initialize NumPy: No module named 'numpy' "
+              r"\(Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82\.\)\n"
+              r'  cpu = _conversion_method_template\(device=torch.device\("cpu"\)\)\n')
+          assert not process.stderr or re.fullmatch(expected_warning,process.stderr.decode()), process.stderr
+          assert process.returncode==(1 if report['status']=='FAIL' else 0)
+          result={'schema':'heptatorch.f64-frozen-strict-exit.v1','status':report['status'],
+                  'actual_exit_code':process.returncode,'original_oracle_sha256':hashlib.sha256(script.read_bytes()).hexdigest(),
+                  'report_sha256':hashlib.sha256(Path('build/f64-pytorch/report.json').read_bytes()).hexdigest(),
+                  'stdout_sha256':hashlib.sha256(process.stdout).hexdigest(),
+                  'stderr_sha256':hashlib.sha256(process.stderr).hexdigest(),
+                  'stderr_text':process.stderr.decode(),
+                  'strict_gate_reclassified':False,'whole_pytorch_rewrite_complete':False}
+          raw=json.dumps(result,indent=2)+'\n';Path('build/f64-strict-exit.json').write_text(raw);print(raw)
+          PY
+      - name: Independently qualify RNE and reference accuracy as a PARTIAL component
+        run: |
+          sha256sum -c validation/f64-rne-package.sha256
+          python3 tests/f64_rne_qualification.py --repo . --native build/f64-pytorch/f64-native \
+            --reference pytorch --strict-report build/f64-pytorch/report.json \
+            --cpython-report build/f64-cpython/report.json --output build/f64-rne-accuracy

@@ -1,0 +1,122 @@
+{
+  "schema": "heptatorch.binary64-sqrt-primary-source-review.v1",
+  "pytorch_source": [
+    {
+      "path": "aten/src/ATen/cpu/vml.h",
+      "commit": "31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
+      "url": "https://github.com/pytorch/pytorch/blob/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/aten/src/ATen/cpu/vml.h",
+      "bytes": 6211,
+      "sha256": "53e1c2494904204d2fb13eef6d5d3fc8bf406390e2d1e73ef1fd81a55a743cf7"
+    },
+    {
+      "path": "aten/src/ATen/native/cpu/UnaryOpsKernel.cpp",
+      "commit": "31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
+      "url": "https://github.com/pytorch/pytorch/blob/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/aten/src/ATen/native/cpu/UnaryOpsKernel.cpp",
+      "bytes": 38240,
+      "sha256": "08fc303733334afcabcb80b46712218ca7174abacceef743074eb5a723a012c1"
+    }
+  ],
+  "documentation": [
+    {
+      "name": "intel-vm-accuracy-2021-1",
+      "url": "https://www.intel.com/content/www/us/en/docs/onemkl/developer-reference-vector-math-performance-accuracy-data/2021-1/overview.html",
+      "response_url": "https://www.intel.com/content/www/us/en/docs/onemkl/developer-reference-vector-math-performance-accuracy-data/2021-1/overview.html",
+      "http_status": 200,
+      "retrieved_utc": "2026-11-16T04:29:12.566547+00:00",
+      "bytes": 321314,
+      "sha256": "f156550806f10c48a8e4c619caceedba42f0b569704b21ee3aa1e7985184a4ca",
+      "kind": "accuracy-contract",
+      "version": "2021.1",
+      "finding": "HA design target is error below 1 ulp and correct special values; results may vary with processor and release inside specified bounds. This does not promise RNE.",
+      "sha256_scope": "exact downloaded HTTP response HTML bytes at retrieval time, including navigation; not an immutable upstream commit",
+      "external_observation_filename": "intel-vm-accuracy-2021-1.html"
+    },
+    {
+      "name": "intel-vm-measured-accuracy-2021-1",
+      "url": "https://www.intel.com/content/www/us/en/docs/onemkl/developer-reference-vector-math-performance-accuracy-data/2021-1/measured-accuracy-of-all-real-vm-functions.html",
+      "response_url": "https://www.intel.com/content/www/us/en/docs/onemkl/developer-reference-vector-math-performance-accuracy-data/2021-1/measured-accuracy-of-all-real-vm-functions.html",
+      "http_status": 200,
+      "retrieved_utc": "2026-11-16T04:29:12.576322+00:00",
+      "bytes": 562187,
+      "sha256": "080e1d4238187cdb435779144769c8ecb3d2611b51d95c7197711398834a0406",
+      "kind": "historical-measurement",
+      "version": "2021.1",
+      "double_sqrt_HA_ulp_by_cpu": {
+        "Xeon E5-2680": 0.52,
+        "Xeon E5-2699 v3": 0.52,
+        "Xeon E5-2699 v4": 0.52,
+        "Xeon Gold 6148": 0.54
+      },
+      "finding": "Historical measured double-sqrt HA error exceeds 0.5 ulp; these are not measurements of the hosted 2024.2 library.",
+      "sha256_scope": "exact downloaded HTTP response HTML bytes at retrieval time, including navigation; not an immutable upstream commit",
+      "external_observation_filename": "intel-vm-measured-accuracy-2021-1.html"
+    },
+    {
+      "name": "intel-vml-mode-2024-2",
+      "url": "https://www.intel.com/content/www/us/en/docs/onemkl/developer-reference-c/2024-2/vmlsetmode.html",
+      "response_url": "https://www.intel.com/content/www/us/en/docs/onemkl/developer-reference-c/2024-2/vmlsetmode.html",
+      "http_status": 200,
+      "retrieved_utc": "2026-11-16T04:29:12.663539+00:00",
+      "bytes": 2805350,
+      "sha256": "d4026b23648288ba29dddf09f179f8b122251b51312b0b85e33e41411792c199",
+      "kind": "mode-contract",
+      "version": "2024.2",
+      "finding": "Per-call vml variants override global mode. VML_HA chooses high accuracy, FTZDAZ_OFF disables fast denormal handling, and ERRMODE_IGNORE suppresses error handling except status update.",
+      "sha256_scope": "exact downloaded HTTP response HTML bytes at retrieval time, including navigation; not an immutable upstream commit",
+      "external_observation_filename": "intel-vml-mode-2024-2.html"
+    },
+    {
+      "name": "intel-vsqrt-2024-2",
+      "url": "https://www.intel.com/content/www/us/en/docs/onemkl/developer-reference-c/2024-2/v-sqrt.html",
+      "response_url": "https://www.intel.com/content/www/us/en/docs/onemkl/developer-reference-c/2024-2/v-sqrt.html",
+      "http_status": 200,
+      "retrieved_utc": "2026-11-16T04:29:12.649194+00:00",
+      "bytes": 2819961,
+      "sha256": "7f843999663137ea6291632be8bc358f376284d1ac3087ff2f8534451137a27e",
+      "kind": "function-contract",
+      "version": "2024.2",
+      "finding": "vmdSqrt operates on double vectors with explicit per-call mode; real sqrt has documented domain and special-value behavior.",
+      "sha256_scope": "exact downloaded HTTP response HTML bytes at retrieval time, including navigation; not an immutable upstream commit",
+      "external_observation_filename": "intel-vsqrt-2024-2.html"
+    },
+    {
+      "name": "pytorch-numerical-accuracy-2-15",
+      "url": "https://docs.pytorch.org/docs/2.15/notes/numerical_accuracy.html",
+      "response_url": "https://docs.pytorch.org/docs/2.15/notes/numerical_accuracy.html",
+      "http_status": 200,
+      "retrieved_utc": "2026-11-16T04:29:11.262613+00:00",
+      "bytes": 200470,
+      "sha256": "2525b7a857388743f4334c1a6db3bbf496627448e433ce8f4d2bbb8697a6eda5",
+      "kind": "framework-numerical-contract",
+      "version": "2.15",
+      "finding": "PyTorch does not guarantee bitwise identity across releases, commits, platforms, or different mathematically equivalent computation paths.",
+      "sha256_scope": "exact downloaded HTTP response HTML bytes at retrieval time, including navigation; not an immutable upstream commit",
+      "external_observation_filename": "pytorch-numerical-accuracy-2-15.html"
+    }
+  ],
+  "observed_backend": {
+    "diagnostic_sha256": "73b5322d668456ead9a8452b91c6911e07f2dde9fece6ab54731510477a1c520",
+    "run_id": 43803271107,
+    "job_id": 133088162490,
+    "commit_prefix": "22b6329",
+    "mkl_version": "2024.2-Product Build 20240605",
+    "torch_cpu_capability": "AVX512",
+    "torch_mkl_available": true,
+    "mismatch_count": 4008,
+    "native_rne_error_count": 0,
+    "reference_rne_error_count": 4008,
+    "shape_observations": 128
+  },
+  "interpretation": {
+    "mathematical_native_sqrt_error_observed": false,
+    "fixed_backend_bitwise_gap_observed": true,
+    "mkl_internal_algorithm_derived": false,
+    "exact_dispatched_isa_proved": false,
+    "vector_tail_cause_proved": false,
+    "new_qualification_accepts_by_mismatch_count": false,
+    "historical_documentation_is_current_binary_measurement": false
+  },
+  "strict_pytorch_bitwise_gate_closed": false,
+  "full_dtype_gate_closed": false,
+  "whole_pytorch_rewrite_complete": false
+}
