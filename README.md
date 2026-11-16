@@ -142,7 +142,7 @@ cmp build/train.response build/train.expected
 
 [本地正式资格](validation/gradient-none-root-native.json)对独立和联合两个映像分别通过 6 组／179 帧、131,101 个精确梯度字及 261 次提交节点不变量检查；还分别重放了全部 10 组实际 PyTorch 梯度清除观测和原有 13／16／8 组回归。新增联合检查覆盖 24 次训练更新、34 份完整随机状态和 2,500,896 字节失败回滚。10 组梯度清除重放中的 6 个 Adam 位差异仍按原有容差记录；11 项状态版本、9 项状态创建和 30 项缺失 step Tensor 的观察独立保留。旧的 8／65 项观察没有被替换或相加。
 
-新映像的原样 32 组 live PyTorch 联合测试和 35 组 Tensor 回归已接入 CI，托管执行结果仍待验收。公开 `.grad` Tensor 身份／版本和外部别名存活期、真正的 Optimizer 对象及完整 Python 接口仍开放。[后续实现所需的真实参考](validation/hosted-object-distribution-observations.json)另外冻结了 24 组优化器对象、6 组叶求导标志及 183 组 Bernoulli／dropout 观测；这些参考观测不作为 HIA 已实现的数量。
+[实际托管资格](validation/hosted-native-gradient-none.json)已通过实现提交 `cb7c676a8455be70a653093eee1ac7e9f4ad2a68` 的全部 **54 个 CI 步骤**。新映像上的原样 **32 组 live PyTorch 联合测试全部通过**：2,132 帧、17,455 个精确字和 1,137,600 字节完整 Generator 状态；原样 **35 组 Tensor 回归全部通过**：6,344 帧、2,590,274 个值、零参数绝对版本差异。两套独立参考的 11 项来源检查全部通过，12 份完整原始报告逐字压缩保留。公开 `.grad` Tensor 身份／版本和外部别名存活期、真正的 Optimizer 对象及完整 Python 接口仍开放。[后续实现所需的真实参考](validation/hosted-object-distribution-observations.json)另外冻结了 24 组优化器对象、6 组叶求导标志及 183 组 Bernoulli／dropout 观测；这些参考观测不作为 HIA 已实现的数量。
 
 ## 跨请求持久会话
 
