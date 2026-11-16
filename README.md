@@ -62,7 +62,7 @@ cmp build/train.response build/train.expected
 
 独立的 ABI2 工具链支持 `buffer`／`chain` 在线性调用中消费、返回和释放，允许最多三个标量／owner 返回值，并由 HIA 原生程序执行接口接纳与链接。分配和回收直接调用 Linux `mmap`／`munmap`；零长度、溢出、真实分配失败、借用未结束时的移动／释放，以及错误效果声明都有明确检查。源码、接口和分配合同见 [owned 模块说明](tools/owned_modules/CONTRACT.md)。
 
-该编译器自身有 8,229 条指令，通过两个合法编译单元完成原生重建，保留单元容量限制和全部既有 ownership checker。三代 ABI2 重建字节一致；正式源码重新构建与 **385 项**原生资格检查通过，并为当前完整 runtime 和 unhex 生成与已有构建逐字相同的映像。[资格证据](validation/native-owned-modules.json)包含 315 项接口攻击、资源生命周期和独立跨模块执行。托管 CI 对这一配置另行运行重建与资格门禁。
+该编译器自身有 8,229 条指令，通过两个合法编译单元完成原生重建，保留单元容量限制和全部既有 ownership checker。三代 ABI2 重建字节一致；正式源码重新构建与 **385 项**原生资格检查通过，并为当前完整 runtime 和 unhex 生成与已有构建逐字相同的映像。[资格证据](validation/native-owned-modules.json)包含 315 项接口攻击、资源生命周期和独立跨模块执行。[实际托管 CI](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43795584310)的 **32 个步骤全部通过**，包含全部 385 项 owned 资格、原有双 270 项普通 PyTorch 门禁和双 21 项交互门禁；[完整托管回执](validation/hosted-owned-modules.json)绑定实现提交 `030694be9373aefc9a6740c3ccc8d742098e5c51`。
 
 这是原生所有权基础。当前张量内核和 borrowed 持久会话仍使用有界 arena；可增长 Tensor／Storage／Version 对象、强弱引用和 owned 交互入口需要继续集成。此处不把复制 owner 的两个机器字解释为合法所有权复制，也不接纳任意外部指针。
 
