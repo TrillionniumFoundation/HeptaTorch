@@ -381,3 +381,7 @@ receipt, which continues to record that its own main-oracle execution was
 NOT_RUN at assembly time. Historical failed and successful receipts are not
 rebound to this source. This evidence update changes no runtime, compiler,
 workflow, numerical case, tolerance or fixture bytes.
+
+## Combined native training through composition and indexed accumulation
+
+**PASS:** [Run 43791020627](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43791020627) executed commit `91665f48c95f3bd8bb9bf4ec725c4f30ca66b511`. Both native-linked and monolithic HIA executables passed 461 native fixture pairs and 270 independent pinned CPU PyTorch cases (13,076 compared values per build, zero failures, all 11 wheel provenance checks). The two new 12-step sessions combine shared differentiable cat/stack, transposed views, duplicate `index_add`, MSE, optimizer updates (SGD/AdamW) and repeated `graph_reset`; 68 and 76 observed comparison values per build matched their real PyTorch references with zero maximum absolute error. `hosted-cross-feature-training.json` preserves both complete 270-row reports, their source/executable identities, per-case tolerances and the original run identity. Older 268-case and 159-case receipts remain unchanged. This is a stronger integrated native regression gate, not full PyTorch schema or subsystem completion.
