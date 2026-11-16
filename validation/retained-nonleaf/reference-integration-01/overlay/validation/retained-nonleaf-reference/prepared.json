@@ -1,0 +1,63 @@
+{
+  "schema": "heptatorch.pinned-retained-nonleaf-observations.v1",
+  "probe_sha256": "7cdb53f7a95c48acd1b85d93d90c693d4caa97ada72a54a4021bb616d098fcba",
+  "reference_support_sha256": "ef8fe89aa7dbff4ee03f9d5762d2736a3648d9e48e97ad5df7bec615676f04ae",
+  "lock_sha256": "ca2e54ce65083bbe0ab3d47b6878971271765ab35a9dd70725fa345fceed3944",
+  "reference_source_commit": "31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
+  "original_optimizer_24_reference_sha256": "7ad0a2e718300a33c91a9212f14ada3c0c7997be7fc77f64bb557c2ecd858160",
+  "expected_cases": 8,
+  "expected_variants": 12,
+  "case_plan": [
+    {
+      "case": "admission-leaf-noop-and-idempotence",
+      "variants": 1
+    },
+    {
+      "case": "retained-gradient-replacement-clear-and-old-saved-alias",
+      "variants": 1
+    },
+    {
+      "case": "transpose-incoming-and-assigned-gradient-layout",
+      "variants": 1
+    },
+    {
+      "case": "empty-retained-gradient-replacement",
+      "variants": 1
+    },
+    {
+      "case": "retained-nonleaf-owned-optimizer-state",
+      "variants": 3
+    },
+    {
+      "case": "retained-hook-before-own-saved-version-failure",
+      "variants": 1
+    },
+    {
+      "case": "retained-hook-before-own-released-saved-failure",
+      "variants": 1
+    },
+    {
+      "case": "weak-retention-versus-optimizer-strong-root",
+      "variants": 3
+    }
+  ],
+  "native_executed": false,
+  "native_values_compared": 0,
+  "identity_policy": "Opaque Tensor and Storage identities and equality relations are recorded. Equal Version counts do not assert shared Version identity. Python wrapper Weak observations are separate from Storage Weak lifetime.",
+  "comparison_policy": "Record exact logical binary32 words, None, layouts, Version counters, opaque identities and entire optimizer state. Future Adam numerical comparison must retain the existing declared tolerance; metadata/identity/Version/None stay exact.",
+  "observer_policy": "No custom autograd hooks are registered. Explicit held seeds, gradients and the Saved old-gradient guard are fixed inputs. Snapshots retain primitive data only.",
+  "scope": "Eight CPU binary32 first-order families needed to complete the retained-nonleaf Optimizer boundary and its ownership/exception behavior.",
+  "not_covered": [
+    "custom hooks",
+    "create_graph/higher-order derivatives",
+    "sparse gradients",
+    "non-CPU or non-float32 tensors",
+    "inplace graph rebase/detach_ of the nonleaf parameter",
+    "native equality is not established by this reference-only observation"
+  ],
+  "full_rewrite_complete": false,
+  "pytorch_api_denominator": 2590,
+  "status": "PREPARED_NOT_RUN",
+  "cases": 0,
+  "torch_executed": false
+}

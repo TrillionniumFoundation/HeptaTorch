@@ -1,0 +1,750 @@
+diff --git a/.github/workflows/backward-observations.yml b/.github/workflows/backward-observations.yml
+index db5b358bf0bc0a85fed217da238d364ef42e6fe4..1e0e9b4699072840d54441ea3bbb27df1729fd51 100644
+--- a/.github/workflows/backward-observations.yml
++++ b/.github/workflows/backward-observations.yml
+@@ -3,7 +3,7 @@ on:
+   push:
+     branches: ["feature/native-tensor-objects", "feature/native-backward-release", "feature/native-backward-partial", "feature/native-cpu-generators", "feature/native-gradient-none", "feature/native-optimizer-objects"]
+   pull_request:
+-    paths: ["tests/pytorch_backward_release_probe.py", "tests/pytorch_backward_partial_probe.py", "tests/pytorch_gradient_presence_probe.py", "tests/pytorch_gradient_signed_zero_probe.py", "tests/pytorch_grad_clear_probe.py", "tests/pytorch_optimizer_object_probe.py", "tests/pytorch_requires_grad_probe.py", "tests/pytorch_accumulator_lifetime_probe.py", "tests/pytorch_gradient_object_probe.py", "tests/pytorch_bernoulli_dropout_probe.py", "tests/pytorch_uniform_probe.py", "tests/pytorch_uniform_range_probe.py", "tests/pytorch_gradient_materialization_probe.py", "tests/pytorch_gradient_alias_edge_probe.py", "tests/pytorch_bernoulli_gradient_layout_probe.py", "tests/pytorch_zero_merge_layout_probe.py", "tests/pytorch_scalar_add_nan_probe.py", "tests/pytorch_extreme_stride_probe.py", ".github/workflows/backward-observations.yml"]
++    paths: ["tests/pytorch_backward_release_probe.py", "tests/pytorch_backward_partial_probe.py", "tests/pytorch_gradient_presence_probe.py", "tests/pytorch_gradient_signed_zero_probe.py", "tests/pytorch_grad_clear_probe.py", "tests/pytorch_optimizer_object_probe.py", "tests/pytorch_requires_grad_probe.py", "tests/pytorch_accumulator_lifetime_probe.py", "tests/pytorch_gradient_object_probe.py", "tests/pytorch_bernoulli_dropout_probe.py", "tests/pytorch_uniform_probe.py", "tests/pytorch_uniform_range_probe.py", "tests/pytorch_gradient_materialization_probe.py", "tests/pytorch_gradient_alias_edge_probe.py", "tests/pytorch_bernoulli_gradient_layout_probe.py", "tests/pytorch_zero_merge_layout_probe.py", "tests/pytorch_scalar_add_nan_probe.py", "tests/pytorch_extreme_stride_probe.py", "tests/pytorch_retained_nonleaf_probe.py", ".github/workflows/backward-observations.yml"]
+   workflow_dispatch:
+ permissions:
+   contents: read
+@@ -233,6 +233,31 @@ jobs:
+         run: |
+           test -f build/torch-extreme-stride.json
+           python3 -I -S -B tools/emit_ci_report.py build/torch-extreme-stride.json
++      - name: Verify frozen retained nonleaf source and provenance inputs
++        run: |
++          echo '7cdb53f7a95c48acd1b85d93d90c693d4caa97ada72a54a4021bb616d098fcba  tests/pytorch_retained_nonleaf_probe.py' | sha256sum -c -
++          echo 'ef8fe89aa7dbff4ee03f9d5762d2736a3648d9e48e97ad5df7bec615676f04ae  tests/pytorch_oracle.py' | sha256sum -c -
++          echo 'ca2e54ce65083bbe0ab3d47b6878971271765ab35a9dd70725fa345fceed3944  compatibility/pytorch-oracle-lock.json' | sha256sum -c -
++          echo 'fff892d371d90f3d64b498a0f8bddb908a153773492d9ce715c0b239dc292bab  validation/retained-nonleaf-reference/prepared.json' | sha256sum -c -
++          echo '08d979da4564aaca19bdeaf9a229e4b56602d3e8d3dbb2634ac61dbc7871ef68  validation/retained-nonleaf-reference/independent-probe-review.json' | sha256sum -c -
++          python3 -I -S -B -c "import ast,pathlib; ast.parse(pathlib.Path('tests/pytorch_retained_nonleaf_probe.py').read_bytes())"
++      - name: Prepare retained nonleaf gradient and optimizer observation plan
++        run: |
++          python3 -I -S -B tests/pytorch_retained_nonleaf_probe.py \
++            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
++            --repo . --output build/torch-retained-nonleaf-prepared.json --prepare-only
++          cmp build/torch-retained-nonleaf-prepared.json validation/retained-nonleaf-reference/prepared.json
++          python3 -I -S -B tools/emit_ci_report.py build/torch-retained-nonleaf-prepared.json
++      - name: Observe retained nonleaf gradients optimizer state and failure lifetimes
++        run: |
++          python3 tests/pytorch_retained_nonleaf_probe.py \
++            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
++            --repo . --output build/torch-retained-nonleaf.json
++      - name: Preserve complete retained nonleaf observations including failures
++        if: always()
++        run: |
++          test -f build/torch-retained-nonleaf.json
++          python3 -I -S -B tools/emit_ci_report.py build/torch-retained-nonleaf.json
+       - name: Index original reference reports and checkout identity
+         if: always()
+         env:
+diff --git a/docs/retained-nonleaf-reference.md b/docs/retained-nonleaf-reference.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..cc2929d3c48b119efba13c422a090cfa4196899c
+--- /dev/null
++++ b/docs/retained-nonleaf-reference.md
+@@ -0,0 +1,79 @@
++# Retained nonleaf gradients: pinned reference preparation
++
++This change adds a reference-only observation plan for `Tensor.retain_grad()`.
++The probe is frozen at SHA256
++`7cdb53f7a95c48acd1b85d93d90c693d4caa97ada72a54a4021bb616d098fcba`.
++Local preparation has run; real PyTorch execution and native compatibility are
++pending. It does not add a native opcode or change a production runtime.
++
++The original 24-case Optimizer observation only demonstrated that construction
++accepts a retained nonleaf parameter. It did not execute its retained backward,
++optimizer step, or lifetime. The new plan preserves that original evidence and
++adds eight families with twelve variants:
++
++| Family | Variants | Observations |
++| --- | ---: | --- |
++| Admission, leaf no-op, idempotence | 1 | Requires-grad rejection, retaining twice, nonleaf Optimizer admission |
++| Gradient replacement and aliases | 1 | First materialization, repeated out-of-place replacement, clear, old Saved gradient |
++| Strided incoming and assigned gradient | 1 | Logical words, actual retained layout and identity after accumulation |
++| Empty retained gradient | 1 | Defined empty gradient versus None and repeated replacement |
++| Retained Optimizer parameter | 3 | SGD, Adam and AdamW lazy state, zero/None skip and resume |
++| Own Saved-version failure | 1 | Retained gradient effects before the node's failing backward |
++| Own released-Saved failure | 1 | Repeated default backward and retained gradient effects |
++| Weak lifetime and Optimizer ownership | 3 | Public drop, held gradient, privately owned parameter and final release |
++
++Every snapshot records exact logical binary32 words, shape, strides, storage
++offset/size, Version counter and opaque Tensor/Storage identity. None remains
++distinct from defined zero. Python wrapper weak lifetime and Storage weak
++lifetime are separate observations; neither is an intrusive reference-count
++oracle. The observer returns primitive snapshots and installs no custom hooks.
++Held seeds, gradients, and the guard using an old gradient are explicit inputs.
++
++## Reproduce preparation
++
++```sh
++python3 -I -S -B tests/pytorch_retained_nonleaf_probe.py \
++  --reference tests/pytorch_oracle.py \
++  --lock compatibility/pytorch-oracle-lock.json \
++  --repo . --output build/torch-retained-nonleaf-prepared.json --prepare-only
++cmp build/torch-retained-nonleaf-prepared.json \
++  validation/retained-nonleaf-reference/prepared.json
++```
++
++The result is `PREPARED_NOT_RUN`, with eight planned families, twelve variants,
++zero executed cases and no Torch or native execution. The probe refuses changed
++oracle or lock bytes. CI also verifies the frozen probe, preparation receipt and
++independent source review before invoking it.
++
++## Real reference execution and custody
++
++The reference workflow installs the exact wheel from the existing oracle lock.
++Its new execution command is the preparation command without `--prepare-only`,
++using `--output build/torch-retained-nonleaf.json`. A real observation requires
++all eleven original provenance checks, `OBSERVED`, eight rows with their fixed
++variant counts, zero probe errors, and unchanged probe/oracle/lock bytes. No
++native-derived expected values are used. Future Adam comparisons must retain
++the existing declared numerical tolerance; identities, metadata, Versions and
++None remain exact.
++
++The four new workflow steps add two original-byte envelope reports:
++`torch-retained-nonleaf-prepared.json` and `torch-retained-nonleaf.json`.
++Against reference commit `9a20eadbe20a801c8b26727ae369e0ee0832e423`, declared
++reference-job steps increase from 41 to 45 and required envelopes from 24 to 26.
++The existing collector discovers both paths without modification and exports
++all available JSON files with exact lengths and hashes, including failures.
++The native workflow and all previous reference steps remain unchanged.
++
++Pinned primary sources are recorded in
++`validation/retained-nonleaf-reference/source-custody.json`:
++[retain_grad](https://github.com/pytorch/pytorch/blob/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/torch/csrc/autograd/variable.cpp),
++[engine execution](https://github.com/pytorch/pytorch/blob/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/torch/csrc/autograd/engine.cpp),
++and [Optimizer admission](https://github.com/pytorch/pytorch/blob/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/torch/optim/optimizer.py).
++Their source-level rationale does not substitute for the pending wheel
++observations. The original independent source-only review is preserved at
++`validation/retained-nonleaf-reference/independent-probe-review.json` without
++claiming that it executed Torch.
++
++This finite CPU binary32 first-order plan does not establish custom hooks,
++higher-order differentiation, sparse gradients, other devices/dtypes, graph
++rebasing, or full PyTorch compatibility. The full 2,590-schema scope remains.
+diff --git a/tests/pytorch_retained_nonleaf_probe.py b/tests/pytorch_retained_nonleaf_probe.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..0ddcee973980a94e61223c6f1db7e82a81c6bacc
+--- /dev/null
++++ b/tests/pytorch_retained_nonleaf_probe.py
+@@ -0,0 +1,403 @@
++#!/usr/bin/env python3
++"""Observe retained nonleaf gradients, optimizer membership and weak lifetime.
++
++Only the pinned real PyTorch reference executes this probe. No native program,
++native-derived expected values, or custom gradient hook is used. Explicitly
++held gradients/seed tensors are part of the fixed recipe.
++"""
++from pathlib import Path
++import argparse
++import gc
++import hashlib
++import json
++import os
++import runpy
++import sys
++import traceback
++import warnings
++import weakref
++
++
++SUPPORT_SHA = 'ef8fe89aa7dbff4ee03f9d5762d2736a3648d9e48e97ad5df7bec615676f04ae'
++LOCK_SHA = 'ca2e54ce65083bbe0ab3d47b6878971271765ab35a9dd70725fa345fceed3944'
++SOURCE_PIN = '31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457'
++ORIGINAL_OPTIMIZER_REFERENCE_SHA = '7ad0a2e718300a33c91a9212f14ada3c0c7997be7fc77f64bb557c2ecd858160'
++PLAN = (
++    ('admission-leaf-noop-and-idempotence', 1),
++    ('retained-gradient-replacement-clear-and-old-saved-alias', 1),
++    ('transpose-incoming-and-assigned-gradient-layout', 1),
++    ('empty-retained-gradient-replacement', 1),
++    ('retained-nonleaf-owned-optimizer-state', 3),
++    ('retained-hook-before-own-saved-version-failure', 1),
++    ('retained-hook-before-own-released-saved-failure', 1),
++    ('weak-retention-versus-optimizer-strong-root', 3),
++)
++
++
++def digest(path):
++    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
++
++
++def emit(path, value):
++    path.parent.mkdir(parents=True, exist_ok=True)
++    path.write_text(json.dumps(value, indent=2, allow_nan=False) + '\n')
++
++
++def execute(torch):
++    def tensor(values, requires_grad=False):
++        return torch.tensor(values, dtype=torch.float32, device='cpu', requires_grad=requires_grad)
++
++    def info(value):
++        assert value.dtype == torch.float32 and value.device.type == 'cpu'
++        words = value.detach().contiguous().reshape(-1).view(torch.int32).tolist()
++        return {
++            'shape': list(value.shape), 'strides': list(value.stride()),
++            'storage_offset_bytes': value.storage_offset() * value.element_size(),
++            'storage_bytes': value.untyped_storage().nbytes(),
++            'dtype': str(value.dtype), 'requires_grad': bool(value.requires_grad),
++            'is_leaf': bool(value.is_leaf), 'retains_grad': bool(value.retains_grad),
++            'grad_fn_type': None if value.grad_fn is None else type(value.grad_fn).__name__,
++            'version': int(value._version),
++            'binary32_words': [int(word) & 0xffffffff for word in words],
++            'tensor_identity': str(value._cdata),
++            'storage_identity': str(value.untyped_storage()._cdata),
++        }
++
++    def warning_rows(observed):
++        return [{'category': w.category.__name__, 'message': str(w.message)} for w in observed]
++
++    def capture(named, optimizer=None):
++        result = {'tensors': {}, 'gradients': {}, 'gradient_read_warnings': {}}
++        for name, value in named.items():
++            result['tensors'][name] = info(value)
++            with warnings.catch_warnings(record=True) as observed:
++                warnings.simplefilter('always')
++                grad = value.grad
++                result['gradients'][name] = None if grad is None else info(grad)
++            result['gradient_read_warnings'][name] = warning_rows(observed)
++        if optimizer is not None:
++            result['optimizer_type'] = type(optimizer).__name__
++            result['optimizer_state_entries'] = len(optimizer.state)
++            result['optimizer_groups'] = []
++            result['optimizer_state'] = []
++            for group in optimizer.param_groups:
++                config = {key: value for key, value in group.items()
++                          if key != 'params' and isinstance(value, (bool, int, float, str, type(None)))}
++                if 'betas' in group:
++                    config['betas'] = list(group['betas'])
++                result['optimizer_groups'].append({
++                    'parameter_identities': [str(p._cdata) for p in group['params']],
++                    'config': config})
++                for p in group['params']:
++                    fields = optimizer.state.get(p)
++                    result['optimizer_state'].append({
++                        'parameter_identity': str(p._cdata),
++                        'entry_exists': fields is not None,
++                        'fields': {} if fields is None else {
++                            key: info(value) if isinstance(value, torch.Tensor) else value
++                            for key, value in fields.items()}})
++        return result
++
++    def invoke(label, fn):
++        with warnings.catch_warnings(record=True) as observed:
++            warnings.simplefilter('always')
++            try:
++                value = fn()
++                row = {'action': label, 'outcome': 'SUCCEEDED',
++                       'return_type': type(value).__name__}
++            except Exception as error:
++                value = None
++                row = {'action': label, 'outcome': 'RAISED',
++                       'exception_type': type(error).__name__, 'message': str(error)}
++        row['warnings'] = warning_rows(observed)
++        return value, row
++
++    def action(label, fn, named, optimizer=None):
++        before = capture(named, optimizer)
++        value, result = invoke(label, fn)
++        del value
++        result['before'] = before
++        result['after'] = capture(named, optimizer)
++        return result
++
++    def optimizer(kind, parameter):
++        common = {'lr': .125, 'weight_decay': .25, 'foreach': False,
++                  'fused': False, 'differentiable': False}
++        if kind == 'SGD':
++            return torch.optim.SGD([parameter], momentum=.5, dampening=0., **common)
++        return getattr(torch.optim, kind)([parameter], betas=(.5, .75), eps=.01, **common)
++
++    class WeakStorage:
++        def __init__(self, value):
++            self.handle = value.untyped_storage()._weak_ref()
++        def expired(self):
++            return bool(torch.UntypedStorage._expired(self.handle))
++        def close(self):
++            if self.handle is not None:
++                torch.UntypedStorage._free_weak_ref(self.handle)
++                self.handle = None
++
++    def admission():
++        x = tensor([1., -2.], True)
++        q = x * 2.
++        inert = tensor([3.])
++        named = {'leaf': x, 'nonleaf': q, 'inert': inert}
++        events = [action('leaf retain is a no-op', x.retain_grad, named),
++                  action('requires-false retain request', inert.retain_grad, named)]
++        unexpected, outcome = invoke('nonleaf optimizer before retain',
++                                     lambda: optimizer('SGD', q))
++        del unexpected
++        events.append(outcome)
++        events.append(action('first nonleaf retain', q.retain_grad, named))
++        events.append(action('repeated nonleaf retain', q.retain_grad, named))
++        opt, outcome = invoke('nonleaf optimizer after retain', lambda: optimizer('SGD', q))
++        events.append(outcome)
++        return {'events': events, 'after': capture(named, opt)}
++
++    def replacement():
++        x = tensor([1., -2.], True)
++        q = x * 2.
++        q.retain_grad()
++        seed1, seed2, seed3 = tensor([-0., 2.]), tensor([1., -2.]), tensor([-0., -0.])
++        named = {'x': x, 'q': q, 'seed1': seed1, 'seed2': seed2, 'seed3': seed3}
++        events = [action('first retained backward', lambda: q.backward(seed1, retain_graph=True), named)]
++        old1 = q.grad
++        z = tensor([1., 1.], True)
++        saved_old_gradient_root = (old1 * z).sum()
++        named = dict(named, held_gradient1=old1, saved_guard_parameter=z)
++        events.append(action('second retained backward', lambda: q.backward(seed2, retain_graph=True), named))
++        old2 = q.grad
++        named = dict(named, held_gradient2=old2)
++        events.append(action('backward through saved old gradient', saved_old_gradient_root.backward, named))
++        events.append(action('clear retained gradient reference', lambda: setattr(q, 'grad', None), named))
++        events.append(action('first materialization again including negative zero', lambda: q.backward(seed3), named))
++        return {'events': events, 'after': capture(named)}
++
++    def strided():
++        x = tensor([[1., 2., 3.], [4., 5., 6.]], True)
++        q = x.transpose(0, 1)
++        q.retain_grad()
++        seed = tensor([[1., 3., 5.], [2., 4., 6.]]).transpose(0, 1)
++        named = {'x': x, 'q': q, 'held_strided_seed': seed}
++        events = [action('first retain clones contiguous despite strided seed',
++                         lambda: q.backward(seed, retain_graph=True), named)]
++        old = q.grad
++        assigned = tensor([[.25, .75, 1.25], [.5, 1., 1.5]]).transpose(0, 1)
++        named = dict(named, held_first_gradient=old, assigned_gradient=assigned)
++        events.append(action('assign actual strided gradient', lambda: setattr(q, 'grad', assigned), named))
++        events.append(action('later retain uses out-of-place gradient addition', lambda: q.backward(seed), named))
++        return {'events': events, 'after': capture(named)}
++
++    def empty():
++        x = torch.empty((2, 0, 3), dtype=torch.float32, requires_grad=True)
++        q = x.transpose(0, 2)
++        q.retain_grad()
++        seed = torch.empty_strided(tuple(q.shape), (100, 17, 1), dtype=torch.float32)
++        named = {'x': x, 'q': q, 'held_empty_seed': seed}
++        events = [action('first empty retained backward', lambda: q.backward(seed, retain_graph=True), named)]
++        old = q.grad
++        named = dict(named, held_empty_gradient=old)
++        events.append(action('second empty retained backward', lambda: q.backward(seed), named))
++        return {'events': events, 'after': capture(named)}
++
++    def optimized():
++        variants = []
++        for kind in ('SGD', 'Adam', 'AdamW'):
++            x = tensor([1., -2.], True)
++            q = x * 2.
++            q.retain_grad()
++            opt = optimizer(kind, q)
++            seed1, seed2 = tensor([2., -1.]), tensor([-.5, .25])
++            named = {'x': x, 'q': q, 'seed1': seed1, 'seed2': seed2}
++            events = [action('skip before any retained gradient', opt.step, named, opt),
++                      action('materialize retained gradient', lambda: q.backward(seed1, retain_graph=True), named, opt),
++                      action('first owned-state step', opt.step, named, opt)]
++            held = q.grad
++            named = dict(named, held_gradient=held)
++            events.append(action('optimizer zero False', lambda: opt.zero_grad(set_to_none=False), named, opt))
++            events.append(action('defined zero gradient is consumed', opt.step, named, opt))
++            events.append(action('optimizer zero True', lambda: opt.zero_grad(set_to_none=True), named, opt))
++            events.append(action('None preserves existing parameter and state', opt.step, named, opt))
++            events.append(action('rebuild retained gradient after parameter mutation', lambda: q.backward(seed2), named, opt))
++            events.append(action('resume with existing owned state', opt.step, named, opt))
++            variants.append({'variant': kind, 'events': events, 'after': capture(named, opt)})
++        return {'variants': variants}
++
++    def own_version_failure():
++        x, c = tensor([1., -2.], True), tensor(2.)
++        q = x * c
++        q.retain_grad()
++        seed = tensor([1., 1.])
++        named = {'x': x, 'coefficient': c, 'q': q, 'seed': seed}
++        with torch.no_grad():
++            c.add_(1.)
++        events = [action('retained prehook before own version failure', lambda: q.backward(seed), named)]
++        old = q.grad
++        named = dict(named, held_gradient_after_failure=old)
++        events.append(action('retry still reaches retained prehook', lambda: q.backward(seed), named))
++        return {'events': events, 'after': capture(named)}
++
++    def own_released_failure():
++        x = tensor([1., -2.], True)
++        q = x * x
++        q.retain_grad()
++        seed = tensor([2., -.5])
++        named = {'x': x, 'q': q, 'seed': seed}
++        events = [action('successful default releases Saved tensors', lambda: q.backward(seed), named)]
++        old = q.grad
++        named = dict(named, held_gradient_before_retry=old)
++        events.append(action('retained prehook before own released-Saved failure', lambda: q.backward(seed), named))
++        return {'events': events, 'after': capture(named)}
++
++    def lifetimes():
++        variants = []
++        for materialize in (False, True):
++            x = tensor([1., -2.], True)
++            q = x * 2.
++            q.retain_grad()
++            seed = tensor([2., -1.])
++            held = None
++            if materialize:
++                q.backward(seed, retain_graph=True)
++                held = q.grad
++            child = q + 1.
++            weak_q = WeakStorage(q)
++            weak_g = None if held is None else WeakStorage(held)
++            py_q = weakref.ref(q)
++            before = capture({'x': x, 'q': q, 'child': child, 'seed': seed})
++            del q
++            gc.collect()
++            dropped = {'q_storage_expired': weak_q.expired(), 'python_q_wrapper_alive': py_q() is not None,
++                       'held_gradient_storage_expired': None if weak_g is None else weak_g.expired()}
++            _, outcome = invoke('backward after public nonleaf is gone', lambda: child.backward(seed))
++            named = {'x': x, 'child': child, 'seed': seed}
++            if held is not None:
++                named['held_old_gradient'] = held
++            after = capture(named)
++            variants.append({'variant': 'materialized-and-held' if materialize else 'never-materialized',
++                             'before_drop': before, 'after_drop': dropped, 'backward': outcome,
++                             'after_backward': after, 'q_storage_expired_after_backward': weak_q.expired()})
++            weak_q.close()
++            if weak_g is not None:
++                weak_g.close()
++
++        x = tensor([1., -2.], True)
++        q = x * 2.
++        q.retain_grad()
++        q.backward(tensor([2., -1.]), retain_graph=True)
++        held = q.grad
++        opt = optimizer('SGD', q)
++        weak_x, weak_q, weak_g, weak_xg = (WeakStorage(x), WeakStorage(q), WeakStorage(held), WeakStorage(x.grad))
++        py_x, py_q = weakref.ref(x), weakref.ref(q)
++        before = capture({'x': x, 'q': q, 'held_gradient': held}, opt)
++        del x, q
++        gc.collect()
++        def weak_snapshot():
++            return {'x_storage_expired': weak_x.expired(), 'q_storage_expired': weak_q.expired(),
++                    'x_gradient_storage_expired': weak_xg.expired(), 'held_gradient_storage_expired': weak_g.expired(),
++                    'python_x_wrapper_alive': py_x() is not None, 'python_q_wrapper_alive': py_q() is not None}
++        after_public_drop = weak_snapshot()
++        _, stepped = invoke('optimizer reaches privately retained nonleaf', opt.step)
++        private = capture({'private_parameter': opt.param_groups[0]['params'][0], 'held_gradient': held}, opt)
++        del opt
++        gc.collect()
++        after_optimizer_drop = weak_snapshot()
++        held_info = info(held)
++        del held
++        gc.collect()
++        after_gradient_drop = weak_snapshot()
++        variants.append({'variant': 'optimizer-is-the-only-strong-parameter-root',
++                         'before_drop': before, 'after_public_drop': after_public_drop,
++                         'private_step': stepped, 'after_private_step': private,
++                         'after_optimizer_drop': after_optimizer_drop, 'held_gradient_after_optimizer_drop': held_info,
++                         'after_final_gradient_drop': after_gradient_drop})
++        for w in (weak_x, weak_q, weak_g, weak_xg):
++            w.close()
++        return {'variants': variants}
++
++    functions = (admission, replacement, strided, empty, optimized,
++                 own_version_failure, own_released_failure, lifetimes)
++    rows = []
++    with torch.autograd.set_multithreading_enabled(False):
++        for (name, variants), fn in zip(PLAN, functions, strict=True):
++            row = {'case': name, 'planned_variants': variants}
++            try:
++                observation = fn()
++                assert len(observation.get('variants', [observation])) == variants
++                row.update(status='OBSERVED', observation=observation)
++            except Exception as error:
++                row.update(status='PROBE_ERROR', exception_type=type(error).__name__,
++                           message=str(error), traceback=traceback.format_exc())
++            rows.append(row)
++            gc.collect()
++    return rows
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    for name in ('reference', 'lock', 'repo', 'output'):
++        parser.add_argument('--' + name, type=Path, required=True)
++    parser.add_argument('--prepare-only', action='store_true')
++    args = parser.parse_args()
++    for name in ('reference', 'lock', 'repo', 'output'):
++        setattr(args, name, getattr(args, name).resolve())
++    assert digest(args.reference) == SUPPORT_SHA and digest(args.lock) == LOCK_SHA
++    before = {'probe': digest(__file__), 'reference': digest(args.reference), 'lock': digest(args.lock)}
++    base = {
++        'schema': 'heptatorch.pinned-retained-nonleaf-observations.v1',
++        'probe_sha256': before['probe'], 'reference_support_sha256': SUPPORT_SHA,
++        'lock_sha256': LOCK_SHA, 'reference_source_commit': SOURCE_PIN,
++        'original_optimizer_24_reference_sha256': ORIGINAL_OPTIMIZER_REFERENCE_SHA,
++        'expected_cases': 8, 'expected_variants': 12,
++        'case_plan': [{'case': name, 'variants': count} for name, count in PLAN],
++        'native_executed': False, 'native_values_compared': 0,
++        'identity_policy': 'Opaque Tensor and Storage identities and equality relations are recorded. Equal Version counts do not assert shared Version identity. Python wrapper Weak observations are separate from Storage Weak lifetime.',
++        'comparison_policy': 'Record exact logical binary32 words, None, layouts, Version counters, opaque identities and entire optimizer state. Future Adam numerical comparison must retain the existing declared tolerance; metadata/identity/Version/None stay exact.',
++        'observer_policy': 'No custom autograd hooks are registered. Explicit held seeds, gradients and the Saved old-gradient guard are fixed inputs. Snapshots retain primitive data only.',
++        'scope': 'Eight CPU binary32 first-order families needed to complete the retained-nonleaf Optimizer boundary and its ownership/exception behavior.',
++        'not_covered': ['custom hooks', 'create_graph/higher-order derivatives', 'sparse gradients',
++                        'non-CPU or non-float32 tensors', 'inplace graph rebase/detach_ of the nonleaf parameter',
++                        'native equality is not established by this reference-only observation'],
++        'full_rewrite_complete': False, 'pytorch_api_denominator': 2590,
++    }
++    if args.prepare_only:
++        emit(args.output, dict(base, status='PREPARED_NOT_RUN', cases=0, torch_executed=False))
++        print(json.dumps({'status': 'PREPARED_NOT_RUN', 'expected_cases': 8,
++                          'expected_variants': 12, 'probe_sha256': before['probe']}))
++        return 0
++    provenance_path = args.output.with_name(args.output.stem + '-provenance.json')
++    args.output.parent.mkdir(parents=True, exist_ok=True)
++    old_argv, old_cwd = sys.argv, Path.cwd()
++    try:
++        os.chdir(args.repo)
++        sys.argv = [str(args.reference), '/dev/null', str(provenance_path), str(args.lock)]
++        try:
++            support = runpy.run_path(str(args.reference), run_name='retained_nonleaf_probe_support')
++        except (SystemExit, ModuleNotFoundError) as error:
++            observed = json.loads(provenance_path.read_bytes()) if provenance_path.exists() else None
++            emit(args.output, dict(base, status='NOT_RUN', cases=0, torch_executed=False,
++                reason='Pinned reference did not admit this environment',
++                initialization_exception=type(error).__name__, initialization_message=str(error),
++                support_observation=observed))
++            return 2
++    finally:
++        sys.argv = old_argv
++        os.chdir(old_cwd)
++    provenance = support['PROVENANCE']
++    assert provenance['status'] == 'PASS' and len(provenance['checks']) == 11
++    assert all(value is True for value in provenance['checks'].values())
++    rows = execute(support['torch'])
++    errors = sum(row['status'] != 'OBSERVED' for row in rows)
++    unchanged = before == {'probe': digest(__file__), 'reference': digest(args.reference), 'lock': digest(args.lock)}
++    assert unchanged
++    result = dict(base, status='OBSERVED' if errors == 0 else 'PROBE_ERROR',
++                  cases=len(rows), probe_errors=errors, rows=rows, oracle_provenance=provenance,
++                  torch_executed=True, source_files_unchanged=unchanged)
++    emit(args.output, result)
++    print(json.dumps({'status': result['status'], 'cases': len(rows), 'probe_errors': errors,
++                      'probe_sha256': before['probe']}))
++    return 0 if errors == 0 else 1
++
++
++if __name__ == '__main__':
++    raise SystemExit(main())
+diff --git a/validation/retained-nonleaf-reference/independent-probe-review.json b/validation/retained-nonleaf-reference/independent-probe-review.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..cca8ac8a09aefb94334db74cdca754a0f52c84e1
+--- /dev/null
++++ b/validation/retained-nonleaf-reference/independent-probe-review.json
+@@ -0,0 +1,80 @@
++{
++  "findings": [
++    {
++      "finding": "info/capture return primitive words, strings, booleans and dictionaries; temporary named dictionaries and local Tensor variables are released when capture returns. No closure or object reference from capture is returned.",
++      "id": "primitive-snapshots"
++    },
++    {
++      "finding": "Before del q, the temporary capture dictionary is gone. The stored before/after observations are primitive. py_q is a Python weakref and WeakStorage stores only the integer weak handle. held intentionally keeps the old gradient, not q. The child graph is intentionally live to observe whether it preserves q or only its autograd edge.",
++      "id": "drop-q-with-child"
++    },
++    {
++      "finding": "After del x,q, the current opt intentionally holds q. invoke(opt.step) does not return its bound callable; its method reference dies on return. private capture has primitive output only. After del opt, weak_snapshot closes over weak-handle wrappers and Python weakrefs only; held intentionally preserves only the current retained gradient until its explicit deletion.",
++      "id": "optimizer-only-current-root"
++    },
++    {
++      "finding": "The named/child/seed locals left from the earlier loop may retain prior-variant tensors, but the third variant creates fresh x,q,held and none of those stale dictionaries references the new objects. This is not a process-wide no-other-live-Tensors claim.",
++      "id": "previous-loop-locals"
++    },
++    {
++      "finding": "Storage weak lifetime and Python wrapper weak lifetime are explicitly separate observations; neither is converted into an invented native intrusive strong-count oracle.",
++      "id": "weak-contract"
++    },
++    {
++      "finding": "Reference, lock, repo and output are explicit paths; exact support/lock hashes are checked before runpy. Actual execution requires all eleven provenance checks; prepare-only exits before Torch import. Eight families sum to twelve variants and each executed family verifies its planned variant count. Source hashes are rechecked after observations.",
++      "id": "cli"
++    }
++  ],
++  "full_rewrite_complete": false,
++  "limits": [
++    "No actual Torch, native target, optimizer or lifetime behavior was executed in this source-only review.",
++    "The review does not prove all Python or C++ internal owners; real weak-expiration observations remain necessary.",
++    "Weak cleanup on exceptional probe setup paths was not claimed as a production resource contract."
++  ],
++  "native_executed": false,
++  "prepare_only_executed_by_this_review": false,
++  "review_scope": "Python temporary strong references in lifetimes, primitive-only capture, weak handle separation, and pinned reference CLI; not a review of future native retain_grad implementation.",
++  "reviewed_nodes": {
++    "WeakStorage": {
++      "end_line": 138,
++      "line": 130,
++      "normalized_ast_sha256": "61760a8e688683eb0c5f0ea0c446590897500b869a30246ce7aeb26c59963ee0"
++    },
++    "action": {
++      "end_line": 121,
++      "line": 115,
++      "normalized_ast_sha256": "b72fae27da35837b66e09f021fa806c707901a32ea7741a973f9d82d1aa2024c"
++    },
++    "capture": {
++      "end_line": 99,
++      "line": 69,
++      "normalized_ast_sha256": "554fe9fad94e9ad1cce631b69c99515c92483a398daeb225afc3469049be77d4"
++    },
++    "info": {
++      "end_line": 64,
++      "line": 50,
++      "normalized_ast_sha256": "ce78119fd1b506cac07a095a2a90c390a908f1e21728c21b649ed470da0edd92"
++    },
++    "invoke": {
++      "end_line": 113,
++      "line": 101,
++      "normalized_ast_sha256": "b3c6b3a8c51137e194d3c29c27f0188214f45cf57dccd49a65d0ef5e24236d76"
++    },
++    "lifetimes": {
++      "end_line": 316,
++      "line": 252,
++      "normalized_ast_sha256": "69f599f9ee825eb2a4bc19358119dfb7ddb677dcdbabadcf4ed7396048808416"
++    },
++    "main": {
++      "end_line": 399,
++      "line": 336,
++      "normalized_ast_sha256": "e74f6240ea5293667bf3dcbcdb0ee8fdc9b70e593fab8494095f31bbb2881f5d"
++    }
++  },
++  "schema": "heptatorch.retained-nonleaf.independent-reference-source-review.v1",
++  "source_bytes": 21049,
++  "source_sha256": "7cdb53f7a95c48acd1b85d93d90c693d4caa97ada72a54a4021bb616d098fcba",
++  "source_unchanged_after": true,
++  "status": "NO_BLOCKER_FOUND_IN_REQUESTED_SOURCE_SCOPE",
++  "torch_executed": false
++}
+diff --git a/validation/retained-nonleaf-reference/prepared.json b/validation/retained-nonleaf-reference/prepared.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..6aeacfbe3b666366e8e6799ce2e9bdc14f636922
+--- /dev/null
++++ b/validation/retained-nonleaf-reference/prepared.json
+@@ -0,0 +1,63 @@
++{
++  "schema": "heptatorch.pinned-retained-nonleaf-observations.v1",
++  "probe_sha256": "7cdb53f7a95c48acd1b85d93d90c693d4caa97ada72a54a4021bb616d098fcba",
++  "reference_support_sha256": "ef8fe89aa7dbff4ee03f9d5762d2736a3648d9e48e97ad5df7bec615676f04ae",
++  "lock_sha256": "ca2e54ce65083bbe0ab3d47b6878971271765ab35a9dd70725fa345fceed3944",
++  "reference_source_commit": "31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
++  "original_optimizer_24_reference_sha256": "7ad0a2e718300a33c91a9212f14ada3c0c7997be7fc77f64bb557c2ecd858160",
++  "expected_cases": 8,
++  "expected_variants": 12,
++  "case_plan": [
++    {
++      "case": "admission-leaf-noop-and-idempotence",
++      "variants": 1
++    },
++    {
++      "case": "retained-gradient-replacement-clear-and-old-saved-alias",
++      "variants": 1
++    },
++    {
++      "case": "transpose-incoming-and-assigned-gradient-layout",
++      "variants": 1
++    },
++    {
++      "case": "empty-retained-gradient-replacement",
++      "variants": 1
++    },
++    {
++      "case": "retained-nonleaf-owned-optimizer-state",
++      "variants": 3
++    },
++    {
++      "case": "retained-hook-before-own-saved-version-failure",
++      "variants": 1
++    },
++    {
++      "case": "retained-hook-before-own-released-saved-failure",
++      "variants": 1
++    },
++    {
++      "case": "weak-retention-versus-optimizer-strong-root",
++      "variants": 3
++    }
++  ],
++  "native_executed": false,
++  "native_values_compared": 0,
++  "identity_policy": "Opaque Tensor and Storage identities and equality relations are recorded. Equal Version counts do not assert shared Version identity. Python wrapper Weak observations are separate from Storage Weak lifetime.",
++  "comparison_policy": "Record exact logical binary32 words, None, layouts, Version counters, opaque identities and entire optimizer state. Future Adam numerical comparison must retain the existing declared tolerance; metadata/identity/Version/None stay exact.",
++  "observer_policy": "No custom autograd hooks are registered. Explicit held seeds, gradients and the Saved old-gradient guard are fixed inputs. Snapshots retain primitive data only.",
++  "scope": "Eight CPU binary32 first-order families needed to complete the retained-nonleaf Optimizer boundary and its ownership/exception behavior.",
++  "not_covered": [
++    "custom hooks",
++    "create_graph/higher-order derivatives",
++    "sparse gradients",
++    "non-CPU or non-float32 tensors",
++    "inplace graph rebase/detach_ of the nonleaf parameter",
++    "native equality is not established by this reference-only observation"
++  ],
++  "full_rewrite_complete": false,
++  "pytorch_api_denominator": 2590,
++  "status": "PREPARED_NOT_RUN",
++  "cases": 0,
++  "torch_executed": false
++}
+diff --git a/validation/retained-nonleaf-reference/source-custody.json b/validation/retained-nonleaf-reference/source-custody.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..e581f0c28a84c2f9dedf099506e7060099187d80
+--- /dev/null
++++ b/validation/retained-nonleaf-reference/source-custody.json
+@@ -0,0 +1,50 @@
++{
++  "schema": "heptatorch.retained-nonleaf-source-review.v1",
++  "status": "SOURCE_REVIEW_AND_PROBE_PREPARED",
++  "commit": "31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
++  "files": [
++    {
++      "path": "torch/csrc/autograd/variable.cpp",
++      "bytes": 37296,
++      "sha256": "ca2f1e573307069dee2fdff70ba81f161f48817cd278ad5464b9809cf23ab2c6",
++      "git_blob_sha1": "63e2ef57c05b19fd17479fe67abd36e49fc598e6",
++      "git_blob_verified": true,
++      "copied_from": "owned-tensor-object-review/upstream/torch/csrc/autograd/variable.cpp",
++      "url": "https://github.com/pytorch/pytorch/blob/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/torch/csrc/autograd/variable.cpp"
++    },
++    {
++      "path": "torch/csrc/autograd/engine.cpp",
++      "bytes": 74197,
++      "sha256": "9e3cd515ac84665a35e21e52c19ab7cd82a0dc3d90fa47aeaf589a1c046fab46",
++      "git_blob_sha1": "eff32dd6bed45976e0a4d49c1769917e190dcb13",
++      "git_blob_verified": true,
++      "copied_from": "backward-release-review/upstream/torch/csrc/autograd/engine.cpp",
++      "url": "https://github.com/pytorch/pytorch/blob/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/torch/csrc/autograd/engine.cpp"
++    },
++    {
++      "path": "torch/optim/optimizer.py",
++      "bytes": 52695,
++      "sha256": "4b0ecf48fa034f60e6ac1e5055846bbc907ec63c2f174b1bb81472354593075b",
++      "git_blob_sha1": "8dcac001b5690a3c0d1ae1df58a338124caebcfd",
++      "git_blob_verified": true,
++      "copied_from": "optimizer-object-review/upstream/torch/optim/optimizer.py",
++      "url": "https://github.com/pytorch/pytorch/blob/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/torch/optim/optimizer.py"
++    }
++  ],
++  "original_optimizer_reference_sha256": "7ad0a2e718300a33c91a9212f14ada3c0c7997be7fc77f64bb557c2ecd858160",
++  "original_case14_retained_sub_observation": {
++    "action": "nonleaf with retain_grad",
++    "outcome": "SUCCEEDED",
++    "return_type": "SGD",
++    "warnings": []
++  },
++  "original_case14_did_not_execute_retained_nonleaf_backward_or_step": true,
++  "probe_sha256": "7cdb53f7a95c48acd1b85d93d90c693d4caa97ada72a54a4021bb616d098fcba",
++  "probe_families": 8,
++  "probe_variants": 12,
++  "native_executed": false,
++  "new_Torch_executed": false,
++  "native_retained_nonleaf_implemented": false,
++  "full_rewrite_complete": false,
++  "pytorch_schema_denominator": 2590
++}

@@ -1,0 +1,167 @@
+{
+  "schema": "heptatorch.retained-nonleaf-reference-integration.v1",
+  "status": "PASS_PREPARATION_AND_PATCH_CHECKS_NOT_RUN",
+  "base_commit": "9a20eadbe20a801c8b26727ae369e0ee0832e423",
+  "base_tree": "5519a9f84b9768e8dcf9ff041ddd1d5969f3bcbc",
+  "probe_sha256": "7cdb53f7a95c48acd1b85d93d90c693d4caa97ada72a54a4021bb616d098fcba",
+  "probe_bytes_changed": false,
+  "original_preparation_manifest_sha256": "4610b7d1412c302e8d87cb184edc7edd8edb12db86c7d6d533a73d09c60faf67",
+  "original_independent_source_review_sha256": "08d979da4564aaca19bdeaf9a229e4b56602d3e8d3dbb2634ac61dbc7871ef68",
+  "source_custody": {
+    ".github/workflows/backward-observations.yml": {
+      "bytes": 17896,
+      "sha256": "8236c182a03116be3ad56e95c0437f7c8a5d3112f8ea553d486f5707b046ded8"
+    },
+    "tests/pytorch_oracle.py": {
+      "bytes": 61783,
+      "sha256": "ef8fe89aa7dbff4ee03f9d5762d2736a3648d9e48e97ad5df7bec615676f04ae"
+    },
+    "compatibility/pytorch-oracle-lock.json": {
+      "bytes": 5018,
+      "sha256": "ca2e54ce65083bbe0ab3d47b6878971271765ab35a9dd70725fa345fceed3944"
+    },
+    "tools/emit_ci_report.py": {
+      "bytes": 979,
+      "sha256": "606bc698e052eaf70a059e3a218d9942718aeb6c4ece23bcaf574718880e1198"
+    },
+    "tools/collect_ci_reports.py": {
+      "bytes": 3015,
+      "sha256": "22b7e0113197b74f20177fbacd160618ad75737b7d524e63027edc4c5aeee75a"
+    }
+  },
+  "workflow_before_sha256": "8236c182a03116be3ad56e95c0437f7c8a5d3112f8ea553d486f5707b046ded8",
+  "workflow_after_sha256": "41234afbb47dcf87919e272ef927dd017529d389d6d874d1f7d8a33179c3504a",
+  "exact_workflow_inverse": true,
+  "old_steps_unchanged": true,
+  "reference_steps_before": 41,
+  "reference_steps_after": 45,
+  "required_envelopes_before": 24,
+  "required_envelopes_after": 26,
+  "added_required_envelopes": [
+    "build/torch-retained-nonleaf-prepared.json",
+    "build/torch-retained-nonleaf.json"
+  ],
+  "collector_unchanged": true,
+  "native_workflow_unchanged": true,
+  "native_workflow_sha256": "8ac47db83fe7859f0b147bea4e530dba227e6ba4ffbca7fe79af43cbb1ba507a",
+  "changed_repository_paths": [
+    ".github/workflows/backward-observations.yml",
+    "docs/retained-nonleaf-reference.md",
+    "tests/pytorch_retained_nonleaf_probe.py",
+    "validation/retained-nonleaf-reference/independent-probe-review.json",
+    "validation/retained-nonleaf-reference/prepared.json",
+    "validation/retained-nonleaf-reference/source-custody.json"
+  ],
+  "patch_checked_and_applied_to_private_index": true,
+  "normal_index_modified": false,
+  "commit_created": false,
+  "remote_actions": false,
+  "prepare_cli_executed_from_final_yaml": true,
+  "verification_cli_executed_from_final_yaml": true,
+  "prepare_exact_frozen_bytes": true,
+  "syntax_parsed": true,
+  "wrong_reference_refused_before_execution": true,
+  "wrong_lock_refused_before_execution": true,
+  "wrong_probe_refused_by_workflow": true,
+  "expected_cases": 8,
+  "expected_variants": 12,
+  "new_Torch_executed": false,
+  "native_executed": false,
+  "observed_semantic_cases": 0,
+  "executions": [
+    {
+      "name": "workflow-1",
+      "argv": [
+        "bash",
+        "-e",
+        "-o",
+        "pipefail",
+        "-c",
+        "echo '7cdb53f7a95c48acd1b85d93d90c693d4caa97ada72a54a4021bb616d098fcba  tests/pytorch_retained_nonleaf_probe.py' | sha256sum -c -\necho 'ef8fe89aa7dbff4ee03f9d5762d2736a3648d9e48e97ad5df7bec615676f04ae  tests/pytorch_oracle.py' | sha256sum -c -\necho 'ca2e54ce65083bbe0ab3d47b6878971271765ab35a9dd70725fa345fceed3944  compatibility/pytorch-oracle-lock.json' | sha256sum -c -\necho 'fff892d371d90f3d64b498a0f8bddb908a153773492d9ce715c0b239dc292bab  validation/retained-nonleaf-reference/prepared.json' | sha256sum -c -\necho '08d979da4564aaca19bdeaf9a229e4b56602d3e8d3dbb2634ac61dbc7871ef68  validation/retained-nonleaf-reference/independent-probe-review.json' | sha256sum -c -\npython3 -I -S -B -c \"import ast,pathlib; ast.parse(pathlib.Path('tests/pytorch_retained_nonleaf_probe.py').read_bytes())\"\n"
+      ],
+      "cwd": "/workspace/scratch/d26699e25fea/retained-nonleaf-reference-integration/proposal-02/cli-check-worktree",
+      "exit_code": 0,
+      "stdout_sha256": "9339fa6bd0b8f2575d13e704e83826be3f27c52d45cf7cfb05fef7634a328f31",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "workflow-2",
+      "argv": [
+        "bash",
+        "-e",
+        "-o",
+        "pipefail",
+        "-c",
+        "python3 -I -S -B tests/pytorch_retained_nonleaf_probe.py \\\n  --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \\\n  --repo . --output build/torch-retained-nonleaf-prepared.json --prepare-only\ncmp build/torch-retained-nonleaf-prepared.json validation/retained-nonleaf-reference/prepared.json\npython3 -I -S -B tools/emit_ci_report.py build/torch-retained-nonleaf-prepared.json\n"
+      ],
+      "cwd": "/workspace/scratch/d26699e25fea/retained-nonleaf-reference-integration/proposal-02/cli-check-worktree",
+      "exit_code": 0,
+      "stdout_sha256": "d4c79e11971574ef82bf13fdb2680c438b781623d3c375cc5376793896adc85e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "reject-changed-reference",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-I",
+        "-S",
+        "-B",
+        "tests/pytorch_retained_nonleaf_probe.py",
+        "--reference",
+        "/workspace/scratch/d26699e25fea/retained-nonleaf-reference-integration/proposal-02/negative-inputs/changed-pytorch_oracle.py",
+        "--lock",
+        "compatibility/pytorch-oracle-lock.json",
+        "--repo",
+        ".",
+        "--output",
+        "/workspace/scratch/d26699e25fea/retained-nonleaf-reference-integration/proposal-02/negative-inputs/reference-must-not-exist.json",
+        "--prepare-only"
+      ],
+      "cwd": "/workspace/scratch/d26699e25fea/retained-nonleaf-reference-integration/proposal-02/cli-check-worktree",
+      "exit_code": 1,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "927eba40934d9d91c74ca60b4bb792a03c71e1a4ba3d6a8e9a71df75146a16c9"
+    },
+    {
+      "name": "reject-changed-lock",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-I",
+        "-S",
+        "-B",
+        "tests/pytorch_retained_nonleaf_probe.py",
+        "--reference",
+        "tests/pytorch_oracle.py",
+        "--lock",
+        "/workspace/scratch/d26699e25fea/retained-nonleaf-reference-integration/proposal-02/negative-inputs/changed-pytorch-oracle-lock.json",
+        "--repo",
+        ".",
+        "--output",
+        "/workspace/scratch/d26699e25fea/retained-nonleaf-reference-integration/proposal-02/negative-inputs/lock-must-not-exist.json",
+        "--prepare-only"
+      ],
+      "cwd": "/workspace/scratch/d26699e25fea/retained-nonleaf-reference-integration/proposal-02/cli-check-worktree",
+      "exit_code": 1,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "927eba40934d9d91c74ca60b4bb792a03c71e1a4ba3d6a8e9a71df75146a16c9"
+    },
+    {
+      "name": "reject-changed-probe",
+      "argv": [
+        "bash",
+        "-e",
+        "-o",
+        "pipefail",
+        "-c",
+        "echo '7cdb53f7a95c48acd1b85d93d90c693d4caa97ada72a54a4021bb616d098fcba  tests/pytorch_retained_nonleaf_probe.py' | sha256sum -c -\necho 'ef8fe89aa7dbff4ee03f9d5762d2736a3648d9e48e97ad5df7bec615676f04ae  tests/pytorch_oracle.py' | sha256sum -c -\necho 'ca2e54ce65083bbe0ab3d47b6878971271765ab35a9dd70725fa345fceed3944  compatibility/pytorch-oracle-lock.json' | sha256sum -c -\necho 'fff892d371d90f3d64b498a0f8bddb908a153773492d9ce715c0b239dc292bab  validation/retained-nonleaf-reference/prepared.json' | sha256sum -c -\necho '08d979da4564aaca19bdeaf9a229e4b56602d3e8d3dbb2634ac61dbc7871ef68  validation/retained-nonleaf-reference/independent-probe-review.json' | sha256sum -c -\npython3 -I -S -B -c \"import ast,pathlib; ast.parse(pathlib.Path('tests/pytorch_retained_nonleaf_probe.py').read_bytes())\"\n"
+      ],
+      "cwd": "/workspace/scratch/d26699e25fea/retained-nonleaf-reference-integration/proposal-02/negative-probe-worktree",
+      "exit_code": 1,
+      "stdout_sha256": "e8389f7dc51132bc5f121eccb7c19c043ccc1570205527c268633502f035fe02",
+      "stderr_sha256": "c21162752e0e9447063c54afadaabcd769aa943d1dc1e9641847e990d83020b9"
+    }
+  ],
+  "patch_sha256": "90ea530a7407c76dda51a4b44d6bbbbe670ff89900159c2cb5d59ffac910ebb0",
+  "full_rewrite_complete": false,
+  "pytorch_schema_denominator": 2590
+}

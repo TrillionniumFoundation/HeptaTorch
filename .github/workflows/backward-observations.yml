@@ -3,7 +3,7 @@ on:
   push:
     branches: ["feature/native-tensor-objects", "feature/native-backward-release", "feature/native-backward-partial", "feature/native-cpu-generators", "feature/native-gradient-none", "feature/native-optimizer-objects"]
   pull_request:
-    paths: ["tests/pytorch_backward_release_probe.py", "tests/pytorch_backward_partial_probe.py", "tests/pytorch_gradient_presence_probe.py", "tests/pytorch_gradient_signed_zero_probe.py", "tests/pytorch_grad_clear_probe.py", "tests/pytorch_optimizer_object_probe.py", "tests/pytorch_requires_grad_probe.py", "tests/pytorch_accumulator_lifetime_probe.py", "tests/pytorch_gradient_object_probe.py", "tests/pytorch_bernoulli_dropout_probe.py", "tests/pytorch_uniform_probe.py", "tests/pytorch_uniform_range_probe.py", "tests/pytorch_gradient_materialization_probe.py", "tests/pytorch_gradient_alias_edge_probe.py", "tests/pytorch_bernoulli_gradient_layout_probe.py", "tests/pytorch_zero_merge_layout_probe.py", "tests/pytorch_scalar_add_nan_probe.py", "tests/pytorch_extreme_stride_probe.py", ".github/workflows/backward-observations.yml"]
+    paths: ["tests/pytorch_backward_release_probe.py", "tests/pytorch_backward_partial_probe.py", "tests/pytorch_gradient_presence_probe.py", "tests/pytorch_gradient_signed_zero_probe.py", "tests/pytorch_grad_clear_probe.py", "tests/pytorch_optimizer_object_probe.py", "tests/pytorch_requires_grad_probe.py", "tests/pytorch_accumulator_lifetime_probe.py", "tests/pytorch_gradient_object_probe.py", "tests/pytorch_bernoulli_dropout_probe.py", "tests/pytorch_uniform_probe.py", "tests/pytorch_uniform_range_probe.py", "tests/pytorch_gradient_materialization_probe.py", "tests/pytorch_gradient_alias_edge_probe.py", "tests/pytorch_bernoulli_gradient_layout_probe.py", "tests/pytorch_zero_merge_layout_probe.py", "tests/pytorch_scalar_add_nan_probe.py", "tests/pytorch_extreme_stride_probe.py", "tests/pytorch_retained_nonleaf_probe.py", ".github/workflows/backward-observations.yml"]
   workflow_dispatch:
 permissions:
   contents: read
@@ -233,6 +233,31 @@ jobs:
         run: |
           test -f build/torch-extreme-stride.json
           python3 -I -S -B tools/emit_ci_report.py build/torch-extreme-stride.json
+      - name: Verify frozen retained nonleaf source and provenance inputs
+        run: |
+          echo '7cdb53f7a95c48acd1b85d93d90c693d4caa97ada72a54a4021bb616d098fcba  tests/pytorch_retained_nonleaf_probe.py' | sha256sum -c -
+          echo 'ef8fe89aa7dbff4ee03f9d5762d2736a3648d9e48e97ad5df7bec615676f04ae  tests/pytorch_oracle.py' | sha256sum -c -
+          echo 'ca2e54ce65083bbe0ab3d47b6878971271765ab35a9dd70725fa345fceed3944  compatibility/pytorch-oracle-lock.json' | sha256sum -c -
+          echo 'fff892d371d90f3d64b498a0f8bddb908a153773492d9ce715c0b239dc292bab  validation/retained-nonleaf-reference/prepared.json' | sha256sum -c -
+          echo '08d979da4564aaca19bdeaf9a229e4b56602d3e8d3dbb2634ac61dbc7871ef68  validation/retained-nonleaf-reference/independent-probe-review.json' | sha256sum -c -
+          python3 -I -S -B -c "import ast,pathlib; ast.parse(pathlib.Path('tests/pytorch_retained_nonleaf_probe.py').read_bytes())"
+      - name: Prepare retained nonleaf gradient and optimizer observation plan
+        run: |
+          python3 -I -S -B tests/pytorch_retained_nonleaf_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/torch-retained-nonleaf-prepared.json --prepare-only
+          cmp build/torch-retained-nonleaf-prepared.json validation/retained-nonleaf-reference/prepared.json
+          python3 -I -S -B tools/emit_ci_report.py build/torch-retained-nonleaf-prepared.json
+      - name: Observe retained nonleaf gradients optimizer state and failure lifetimes
+        run: |
+          python3 tests/pytorch_retained_nonleaf_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/torch-retained-nonleaf.json
+      - name: Preserve complete retained nonleaf observations including failures
+        if: always()
+        run: |
+          test -f build/torch-retained-nonleaf.json
+          python3 -I -S -B tools/emit_ci_report.py build/torch-retained-nonleaf.json
       - name: Index original reference reports and checkout identity
         if: always()
         env:

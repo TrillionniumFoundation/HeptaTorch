@@ -1,0 +1,80 @@
+{
+  "findings": [
+    {
+      "finding": "info/capture return primitive words, strings, booleans and dictionaries; temporary named dictionaries and local Tensor variables are released when capture returns. No closure or object reference from capture is returned.",
+      "id": "primitive-snapshots"
+    },
+    {
+      "finding": "Before del q, the temporary capture dictionary is gone. The stored before/after observations are primitive. py_q is a Python weakref and WeakStorage stores only the integer weak handle. held intentionally keeps the old gradient, not q. The child graph is intentionally live to observe whether it preserves q or only its autograd edge.",
+      "id": "drop-q-with-child"
+    },
+    {
+      "finding": "After del x,q, the current opt intentionally holds q. invoke(opt.step) does not return its bound callable; its method reference dies on return. private capture has primitive output only. After del opt, weak_snapshot closes over weak-handle wrappers and Python weakrefs only; held intentionally preserves only the current retained gradient until its explicit deletion.",
+      "id": "optimizer-only-current-root"
+    },
+    {
+      "finding": "The named/child/seed locals left from the earlier loop may retain prior-variant tensors, but the third variant creates fresh x,q,held and none of those stale dictionaries references the new objects. This is not a process-wide no-other-live-Tensors claim.",
+      "id": "previous-loop-locals"
+    },
+    {
+      "finding": "Storage weak lifetime and Python wrapper weak lifetime are explicitly separate observations; neither is converted into an invented native intrusive strong-count oracle.",
+      "id": "weak-contract"
+    },
+    {
+      "finding": "Reference, lock, repo and output are explicit paths; exact support/lock hashes are checked before runpy. Actual execution requires all eleven provenance checks; prepare-only exits before Torch import. Eight families sum to twelve variants and each executed family verifies its planned variant count. Source hashes are rechecked after observations.",
+      "id": "cli"
+    }
+  ],
+  "full_rewrite_complete": false,
+  "limits": [
+    "No actual Torch, native target, optimizer or lifetime behavior was executed in this source-only review.",
+    "The review does not prove all Python or C++ internal owners; real weak-expiration observations remain necessary.",
+    "Weak cleanup on exceptional probe setup paths was not claimed as a production resource contract."
+  ],
+  "native_executed": false,
+  "prepare_only_executed_by_this_review": false,
+  "review_scope": "Python temporary strong references in lifetimes, primitive-only capture, weak handle separation, and pinned reference CLI; not a review of future native retain_grad implementation.",
+  "reviewed_nodes": {
+    "WeakStorage": {
+      "end_line": 138,
+      "line": 130,
+      "normalized_ast_sha256": "61760a8e688683eb0c5f0ea0c446590897500b869a30246ce7aeb26c59963ee0"
+    },
+    "action": {
+      "end_line": 121,
+      "line": 115,
+      "normalized_ast_sha256": "b72fae27da35837b66e09f021fa806c707901a32ea7741a973f9d82d1aa2024c"
+    },
+    "capture": {
+      "end_line": 99,
+      "line": 69,
+      "normalized_ast_sha256": "554fe9fad94e9ad1cce631b69c99515c92483a398daeb225afc3469049be77d4"
+    },
+    "info": {
+      "end_line": 64,
+      "line": 50,
+      "normalized_ast_sha256": "ce78119fd1b506cac07a095a2a90c390a908f1e21728c21b649ed470da0edd92"
+    },
+    "invoke": {
+      "end_line": 113,
+      "line": 101,
+      "normalized_ast_sha256": "b3c6b3a8c51137e194d3c29c27f0188214f45cf57dccd49a65d0ef5e24236d76"
+    },
+    "lifetimes": {
+      "end_line": 316,
+      "line": 252,
+      "normalized_ast_sha256": "69f599f9ee825eb2a4bc19358119dfb7ddb677dcdbabadcf4ed7396048808416"
+    },
+    "main": {
+      "end_line": 399,
+      "line": 336,
+      "normalized_ast_sha256": "e74f6240ea5293667bf3dcbcdb0ee8fdc9b70e593fab8494095f31bbb2881f5d"
+    }
+  },
+  "schema": "heptatorch.retained-nonleaf.independent-reference-source-review.v1",
+  "source_bytes": 21049,
+  "source_sha256": "7cdb53f7a95c48acd1b85d93d90c693d4caa97ada72a54a4021bb616d098fcba",
+  "source_unchanged_after": true,
+  "status": "NO_BLOCKER_FOUND_IN_REQUESTED_SOURCE_SCOPE",
+  "torch_executed": false
+}
