@@ -1,0 +1,31 @@
+{
+  "case": "False-preserves-existing-gradient-and-optimizer-consumes-it",
+  "reference_status": "OBSERVED",
+  "status": "FAIL",
+  "exception_type": "KeyError",
+  "message": "'groups'",
+  "traceback": "Traceback (most recent call last):\n  File \"/workspace/scratch/d26699e25fea/optimizer-object-review/replay_optimizer_objects.py\", line 548, in main\n    details = (replay.optimizer_case if args.suite == 'optimizer' else replay.requires_case)(number, actual['observation'])\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/d26699e25fea/optimizer-object-review/replay_optimizer_objects.py\", line 468, in requires_case\n    self.actions(obs['actions'], f, opt)\n  File \"/workspace/scratch/d26699e25fea/optimizer-object-review/replay_optimizer_objects.py\", line 260, in actions\n    self.action(row, fn, opt, params)\n  File \"/workspace/scratch/d26699e25fea/optimizer-object-review/replay_optimizer_objects.py\", line 250, in action\n    before = self.snapshot(actual['before'], opt, params)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/d26699e25fea/optimizer-object-review/replay_optimizer_objects.py\", line 190, in snapshot\n    result['groups'], locations = self.groups(opt, expected['groups'], expected['parameters'])\n                                                   ~~~~~~~~^^^^^^^^^^\nKeyError: 'groups'\n",
+  "completed_actions": [],
+  "additional_observations": {},
+  "native_executed": true,
+  "frames": [
+    {
+      "frame": 1,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "10f447b51fe3daa2c872efe767e8913c74c26def19309e709685f5930e5b7e7d",
+      "response_sha256": "ad51d27674aa864b4312a4718e12a105c4c7c9b2f02687125028a1eeee2a90b1"
+    },
+    {
+      "frame": 2,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "0e3a65e18a6706fdfc0c1ac977debaaa1ce4effd22db5b3300c4bd1e237bdf94",
+      "response_sha256": "a35b3f70a22d998efbb25f19972c1b3503a7d4835cec2e5b7e5d3158bd39e602"
+    }
+  ],
+  "exact_comparisons": 3,
+  "rollback_bytes": 0
+}

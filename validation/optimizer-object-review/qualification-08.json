@@ -1,0 +1,90 @@
+{
+  "schema": "heptatorch.independent-owned-optimizer-replay-qualification.v1",
+  "status": "QUALIFIED_EXPOSED_SGD_AND_LEAF_FLAGS_WITH_EXPLICIT_OPEN_SCOPE",
+  "native_profile": {
+    "state_format": "HTOPT002",
+    "backing_format": "HTOOPT02",
+    "source_sha256": "7c68a96b08aa9a21a52e2fd12be912c5f47dbde889e462f9a0dbb38cb3c09edf",
+    "executable_sha256": "b6634158e079512e797d8237cca12d65052db18df23b12b8414adeb8d0b4b0e1",
+    "native_build_receipt": "validation/optimizer-object-review/native-08-build-receipt.json"
+  },
+  "separate_suites": {
+    "optimizer_object_actual_reference": {
+      "observations_sha256": "7ad0a2e718300a33c91a9212f14ada3c0c7997be7fc77f64bb557c2ecd858160",
+      "probe_sha256": "f69340170dc2e55886bca73a8d37265ba2c95a8c793c7633c7e8a22234cfa386",
+      "reference_cases": 24,
+      "executed_cases": 19,
+      "qualified_exposed_scope": 18,
+      "partial_cases": 1,
+      "open_not_executed_cases": 5,
+      "unexpected_failures": 0,
+      "frames": 2332,
+      "exact_comparisons": 9535,
+      "rollback_bytes": 4587120
+    },
+    "leaf_requires_grad_actual_reference": {
+      "observations_sha256": "1bb9045b680cef2943eada06dd3288d2404ce9aada24b5f14a396a11c17f1844",
+      "probe_sha256": "aeccf1ed21501682df772bbc9e05ccdaf821e93bb243a6f2a045c05035e56ad3",
+      "reference_cases": 6,
+      "executed_cases": 6,
+      "qualified_exposed_scope": 6,
+      "unexpected_failures": 0,
+      "frames": 600,
+      "exact_comparisons": 2489
+    },
+    "native_private_root_control": {
+      "cases": 1,
+      "frames": 72,
+      "exact_value_and_helper_comparisons": 51,
+      "whole_owner_rollback_bytes": 29066368,
+      "actual_Torch_reference_cases": 0
+    }
+  },
+  "observed_reference_runs": {
+    "optimizer_24": {
+      "commit": "edc66f6877055d51ea2a3d0732a071662c0e011b",
+      "run": 43816653907,
+      "job": 133130124947
+    },
+    "requires_6": {
+      "commit": "391bfabb",
+      "run": 43818263794,
+      "job": 133135174153,
+      "commit_identifier_note": "Abbreviated development commit supplied with the raw job receipt; raw report/probe/11 provenance identities are exact."
+    }
+  },
+  "history": {
+    "native_06": {
+      "source_sha256": "1b143984d6fce05ba9a92f5f528c7a1b59b4e8aaa9ceae2c6e2299c43a651297",
+      "executable_sha256": "b86215580b319a3ad3f030b2bf3e41febd6dffb3fe15212601d60e019fea9991",
+      "actual_native_failures": [
+        "Nonrequiring transpose still carried an AD op and cmd90 rejected it with status 5.",
+        "Enabling a forward nonrequiring input later incorrectly created a gradient edge."
+      ]
+    },
+    "host_schema_error": {
+      "first_runner_sha256": "c637352dd83f43417f32e7365a45dd354e5145f42c21d1a6b05c60cebd309f98",
+      "corrected_runner_sha256": "ea748d4100b539e0144f032ca301b4886d0f9520c36676c980279e0bbc9bc034",
+      "receipt": "validation/optimizer-object-review/history/replay-schema-correction.json",
+      "detail": "The first six-case replay incorrectly expected the 24-case group-inventory fields. Its original KeyError report is retained. V2 only adapts the missing observation fields to fixed constructor-input checks and observed per-parameter state entry counts; all recipe and numeric/identity comparison methods remain AST-identical."
+    },
+    "retention_policy": "Every original report, executed source, request and response is copied byte for byte. No candidate-06 evidence is relabeled as candidate-08."
+  },
+  "numeric_policy": "Exact unsigned binary32 words, including signed zero; exact parameter/state Versions and gradient presence. No floating tolerance.",
+  "identity_policy": "Reference opaque identity relationships map to observed native stable Tensor incarnations or live public tokens and typed Storage IDs; host addresses are never compared.",
+  "open_scope": [
+    "Public .grad Tensor identity, layout, Storage aliases and Version are not exposed; only exact words and None presence are compared.",
+    "Python warning objects, mutable group dictionaries and intrusive_ptr reference counts are not implemented by this wire API.",
+    "Arbitrary late-error partial Optimizer mutation behavior is not claimed; native Optimizer commands are frame atomic.",
+    "The fixed literal alias mutation in case 16 is not a Tensor.add_ implementation.",
+    "Actual retained-nonleaf Optimizer membership is accepted by Torch but lacks a native retain_grad interface (one partial case).",
+    "External public grad aliases (case 20) and actual Adam/AdamW state objects (cases 21\u201324) remain not executed.",
+    "The additional three AccumulateGrad lifetime recipes are separately PREPARED/NOT_RUN in this frozen package; their later actual observations and qualification must use an additive receipt."
+  ],
+  "count_policy": "Do not sum separate suites, repeated trajectories, or scalar comparisons into unique upstream tests or API coverage. Twenty-four reference cases are not twenty-four native passes.",
+  "historical_path_policy": "Absolute paths inside raw development receipts are historical execution context, not a promise those local paths remain available. Package manifest paths are repository-relative.",
+  "pinned_Torch_executed_during_native_replay": false,
+  "production_host_numeric_runtime": false,
+  "pytorch_api_denominator": 2590,
+  "full_rewrite_complete": false
+}

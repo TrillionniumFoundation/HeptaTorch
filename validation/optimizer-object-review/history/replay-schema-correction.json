@@ -1,0 +1,37 @@
+{
+  "schema": "heptatorch.optimizer-replay-schema-correction.v1",
+  "status": "HOST_SCHEMA_CORRECTION_WITH_NATIVE_FAILURE_PRESERVED",
+  "old_runner_sha256": "c637352dd83f43417f32e7365a45dd354e5145f42c21d1a6b05c60cebd309f98",
+  "new_runner_sha256": "ea748d4100b539e0144f032ca301b4886d0f9520c36676c980279e0bbc9bc034",
+  "changed_AST_functions": [
+    "Replay.__init__",
+    "Replay.opt_create",
+    "Replay.snapshot",
+    "main"
+  ],
+  "all_recipe_methods_and_numeric_identity_assertion_methods_AST_unchanged": true,
+  "reason": "The six requires_grad observations contain parameters, gradients, and optimizer_state but intentionally no groups or state_entries. The first adapter incorrectly assumed the 24-case object snapshot schema.",
+  "correction": "Only the requires suite derives group readback checks from already fixed constructor inputs and counts state entries from actually observed per-parameter entry_exists booleans. That source distinction is recorded in each snapshot. The optimizer suite continues to require actual group and state_entries fields.",
+  "not_changed": [
+    "actual reference bytes",
+    "case recipes",
+    "SGD exact binary32 policy",
+    "parameter/state Version assertions",
+    "None assertions",
+    "Tensor/Storage identity relationship assertions"
+  ],
+  "retained_first_reports": {
+    "optimizer": "hosted-optimizer-native-06/report.json",
+    "requires_with_schema_error": "hosted-requires-native-06/report.json"
+  },
+  "corrected_requires_report_sha256": "5cc6069b17d33a8276827f7fc86e7a216351600dbcdcc30ba7691eeadea99b6b",
+  "corrected_requires_result": {
+    "qualified_exposed_scope": 5,
+    "unexpected_failures": 1,
+    "frames": 594,
+    "exact_comparisons": 2466
+  },
+  "native_failure_remaining": "A forward nonrequiring parent incorrectly receives a gradient when requires_grad is enabled after forward.",
+  "full_rewrite_complete": false,
+  "pytorch_api_denominator": 2590
+}

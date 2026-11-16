@@ -543,6 +543,13 @@ jobs:
             HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget"
           python3 -I -S -B tools/emit_ci_report.py build/hosted-gradient-none-native.json
 
+      - name: Reproduce real owned SGD objects and captured gradient edges
+        run: |
+          make owned-optimizers test-owned-optimizers \
+            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
+            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget"
+          python3 -I -S -B tools/emit_ci_report.py build/hosted-owned-optimizers-native.json
+
       - name: Reproduce and qualify persistent native CPU Generator objects
         run: |
           make cpu-generators test-cpu-generators \
@@ -600,6 +607,19 @@ jobs:
             --expected-source-sha256 490fc144160f6e4440aed001363f86ccff56c335f9781e38b058fc6106b1be09 \
             --repo . --output build/pytorch-nullable-rng-backward.json > build/pytorch-nullable-rng-backward.stdout || status=$?
           python3 -I -S -B tools/emit_ci_report.py build/pytorch-nullable-rng-backward.json
+          exit "$status"
+
+      - name: Regress owned SGD image against the unchanged live joint oracle (32 cases)
+        run: |
+          echo '554671168c7a4a408dc1e1df89a19db15c3efcefcf4ae1a300af1b6dcae40160  tests/pytorch_tensor_rng_backward_oracle.py' | sha256sum -c -
+          status=0
+          python3 tests/pytorch_tensor_rng_backward_oracle.py \
+            --native build/owned-optimizers/tensor-optimizer-session \
+            --source build/owned-optimizers/runtime.hepta \
+            --expected-native-sha256 b6634158e079512e797d8237cca12d65052db18df23b12b8414adeb8d0b4b0e1 \
+            --expected-source-sha256 7c68a96b08aa9a21a52e2fd12be912c5f47dbde889e462f9a0dbb38cb3c09edf \
+            --repo . --output build/pytorch-owned-optimizer-backward.json > build/pytorch-owned-optimizer-backward.stdout || status=$?
+          python3 -I -S -B tools/emit_ci_report.py build/pytorch-owned-optimizer-backward.json
           exit "$status"
 
       - name: Compare persistent CPU Generators with fixed real PyTorch (24 cases)
@@ -774,5 +794,17 @@ jobs:
             --lock compatibility/pytorch-oracle-lock.json --repo . \
             --expected-native-sha256 5baa9cd5e5625f0e2324941486982b714dcdedfe897f5c16686a3ac8882ce242 || status=$?
           python3 -I -S -B tools/emit_ci_report.py build/pytorch-nullable-rng-frozen35.json
+          exit "$status"
+
+      - name: Regress owned SGD image against the unchanged 35 Tensor cases
+        run: |
+          status=0
+          python3 tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py \
+            build/owned-optimizers/tensor-optimizer-session build/pytorch-owned-optimizer-frozen35.json \
+            --owned-reference tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py \
+            --session-reference tests/pytorch_session_oracle.py --reference tests/pytorch_oracle.py \
+            --lock compatibility/pytorch-oracle-lock.json --repo . \
+            --expected-native-sha256 b6634158e079512e797d8237cca12d65052db18df23b12b8414adeb8d0b4b0e1 || status=$?
+          python3 -I -S -B tools/emit_ci_report.py build/pytorch-owned-optimizer-frozen35.json
           exit "$status"
 
