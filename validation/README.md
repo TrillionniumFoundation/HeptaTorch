@@ -404,3 +404,12 @@ HIA entry at build time; it does not vendor another full numerical source.
 270-case reference support, records its hash separately, and runs those 21
 cases against each session image. Actual hosted outcomes require a separate
 receipt; the native component receipt does not claim them.
+
+`hosted-session-oracle-contract-failure.json` retains the first hosted session
+result: 19 cases passed and two failed. One test expected the wrong documented
+error code; the other compared the packet owner counter directly with
+`Tensor._version`, although packet import counts initialization writes. The
+corrected oracle records both absolute counters and checks exact shared
+increments and clone independence. All numerical tolerances, the other case
+functions, and native source/image identities remain unchanged. Absolute
+PyTorch counter parity remains an explicit open compatibility item.

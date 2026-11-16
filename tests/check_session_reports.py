@@ -25,7 +25,7 @@ def check_sources():
     assert digest('src/heptatorch.hepta') == pins['canonical_source_sha256']
     assert digest('tools/session/entry.hepta') == pins['session_entry_sha256']
     assert digest('tools/modules/split_runtime.py') == pins['splitter_sha256']
-    assert digest('tests/pytorch_session_oracle.py') == 'b219fb63e7698f09951454cce9073157689398d38b1ea3d21e22b412a0dce606'
+    assert digest('tests/pytorch_session_oracle.py') == '35fa5fa3e1b740f901c11d46dca484079b77805004586c03ae42b35be2265577'
     return pins
 
 

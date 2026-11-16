@@ -157,7 +157,12 @@ Detach shares storage and removes the autograd connection. Clone copies logical
 values into new storage while preserving a differentiable connection. A leaf
 write or optimizer update increments the shared owner's version. Backward
 preflights the reachable graph, checking saved parent versions and newly owned
-output versions before altering gradients. This validation is conservative.
+output versions before altering gradients. This validation is conservative. The packet payload-import path uses
+`tset` for each element, so its owner counter includes those initialization
+writes. Its absolute value is not qualified as PyTorch `Tensor._version`;
+alias sharing, explicit mutation increments and stale-saved-value rejection
+are the current contract. Absolute counter parity remains an open compatibility
+item for the general tensor/storage interface.
 For concatenation and stacking, every saved input occurrence is checked,
 including repeated inputs, skipped `(0,)` tensors and inputs without gradients.
 The indexed-addition checks below can also reject a source derivative during

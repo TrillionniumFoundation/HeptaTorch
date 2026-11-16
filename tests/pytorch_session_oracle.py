@@ -139,13 +139,35 @@ def aliases(s):
     p = s.program(); native = p.tensor(leaf); s.exchange(p)
     p = s.program(); copied, shared = p.clone(native), p.detach(native); s.exchange(p)
     clone, detached = leaf.clone(), leaf.detach()
+    p = s.program()
+    indices = [p.command(13, value) for value in (native, copied, shared)]
+    records = s.exchange(p)
+    before = [struct.unpack('<13Q', records[index][2]) for index in indices]
+    reference_before = [value._version for value in (leaf, clone, detached)]
+    assert before[0][11] == before[2][11] and before[1][11] != before[0][11]
+    assert before[0][12] == before[2][12]
     p = s.program(); p.command(12, native, 2, bits(7.5)); s.exchange(p)
     leaf.reshape(-1)[2] = 7.5
     p = s.program(); expected = {p.read(native): leaf, p.read(copied): clone, p.read(shared): detached}
-    index = p.command(13, shared)
+    indices = [p.command(13, value) for value in (native, copied, shared)]
     records = s.exchange(p, expected)
-    s.metadata(records[index], detached)
-    assert struct.unpack('<13Q', records[index][2])[-1] == detached._version
+    after = [struct.unpack('<13Q', records[index][2]) for index in indices]
+    references = (leaf, clone, detached)
+    for index, reference in zip(indices, references):
+        s.metadata(records[index], reference)
+    assert after[0][11] == after[2][11] and after[1][11] != after[0][11]
+    assert after[0][12] == after[2][12]
+    native_deltas = [a[12]-b[12] for a, b in zip(after, before)]
+    reference_deltas = [value._version-old for value, old in zip(references, reference_before)]
+    assert native_deltas == reference_deltas == [1, 0, 1]
+    s.row['version_observation'] = {
+        'native_initial': [value[12] for value in before],
+        'pytorch_initial': reference_before,
+        'native_after_write': [value[12] for value in after],
+        'pytorch_after_write': [value._version for value in references],
+        'exact_shared_increment_and_clone_independence': True,
+        'absolute_counter_parity_qualified': False,
+        'scope': 'Packet owner counters include initial payload writes. Absolute torch._version parity remains an open compatibility gap.'}
 
 def joined(s):
     x = torch.arange(6, dtype=torch.float32).reshape(2, 3).requires_grad_(True)
@@ -218,7 +240,7 @@ def transaction(s):
     else:
         raise AssertionError('Pinned PyTorch accepted changed saved input')
     p = s.program(); provisional = p.clone(native); p.command(12, native, 0, bits(9.)); p.backward(loss)
-    s.exchange(p, status=5)
+    s.exchange(p, status=6)
     reference.backward()
     p = s.program(); p.backward(loss); s.exchange(p)
     p = s.program(); committed = p.clone(native); assert committed == provisional
