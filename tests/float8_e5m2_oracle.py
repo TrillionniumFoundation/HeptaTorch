@@ -26,9 +26,6 @@ def word(value):
     return struct.unpack('<I', struct.pack('<f', value))[0]
 
 
-def half_value(bits):
-    return struct.unpack('<e', struct.pack('<H', bits))[0]
-
 
 import bisect
 
@@ -114,7 +111,7 @@ def main():
     a = p.parse_args()
     a.output = a.output.resolve()
     a.output.mkdir(parents=True, exist_ok=False)
-    source_path = ROOT / 'tools/dtype-float8_e5m2/float8_e5m2.hepta'
+    source_path = ROOT / 'tools/dtype-float8-e5m2/float8_e5m2.hepta'
     source = source_path.read_bytes()
     compiler = a.compiler.resolve()
     assert sha(compiler.read_bytes()) == COMPILER_SHA
@@ -158,7 +155,7 @@ def main():
         tensor = torch.frombuffer(bytearray(raw), dtype=torch.float32 if mode == 0 else torch.float8_e5m2)
         converted = tensor.to(dtype=torch.float8_e5m2 if mode == 0 else torch.float32)
         signed = converted.view(torch.uint8 if mode == 0 else torch.int32).tolist()
-        mask = 0xffff if mode == 0 else 0xffffffff
+        mask = 0xff if mode == 0 else 0xffffffff
         return [value & mask for value in signed]
 
     rows = []
