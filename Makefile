@@ -9,6 +9,7 @@ HEPTA_OWNED_COMPILER ?= owned-module-compiler
 HEPTA_OWNED_LINKER ?= linker-abi2-w1m
 HEPTA_OWNED_SESSION_BUILD ?= build/owned-session-tools
 HEPTA_OWNED_SESSION_LINKER ?= $(HEPTA_OWNED_SESSION_BUILD)/production-native/owned-session-linker
+HEPTA_STACK_BUILD ?= build/stack-budget-tools
 COMPILER_SHA256 := c5a9c2b95a3061e080a21298f5b26000936ed9dac519690d845b0699a15744c6
 MODULE_COMPILER_SHA256 := e250d93bc0b2a5ff878d2188c95780abf7e7ebaf186e4531b136fa2735b2af59
 MODULE_LINKER_SHA256 := 1ba40ffe025abfcc2edd8d69f1ad689817598571138c11806af7aa60047fc7b8
@@ -102,6 +103,33 @@ test-owned-tensor-versions: owned-tensor-versions monolithic
 	  --linker "$$(command -v "$(HEPTA_OWNED_SESSION_LINKER)")" \
 	  --canonical-binary "$(CURDIR)/build/heptatorch-monolithic" --output "$$review/observed"; \
 	cp "$$review/observed/report.json" build/hosted-owned-tensor-versions.json
+
+STACK_TENSOR_INPUTS := $(wildcard tools/stack_budget/*) tests/stack_independent.py tests/check_stack_reports.py validation/stack-budget-package.sha256 Makefile
+
+.PHONY: stack-tensors test-stack-tensors
+stack-tensors: build/stack-tensors/build.json
+
+build/stack-tensors/build.json: build/owned-tensor-versions/build.json $(STACK_TENSOR_INPUTS) | build
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.stack-tensors.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	sha256sum -c validation/stack-budget-package.sha256; \
+	python3 -I -S -B tools/stack_budget/compile_application.py \
+	  --sources "$(HEPTA_STACK_BUILD)/sources" --native "$(HEPTA_STACK_BUILD)/native" \
+	  --baseline-build "$(CURDIR)/build/owned-tensor-versions" --output "$$tmp/native" \
+	  build/owned-tensor-versions/units/ht_kernel.hepta build/owned-tensor-versions/units/ht_runtime.hepta \
+	  build/owned-tensor-versions/units/owned_tensor_session.hepta; \
+	mkdir -p build/stack-tensors; cp -a --remove-destination "$$tmp/native/." build/stack-tensors/
+
+test-stack-tensors: stack-tensors all
+	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/.stack-review.XXXXXX"); \
+	python3 -I -S -B tools/stack_budget/qualify.py --build "$(HEPTA_STACK_BUILD)" --repo "$(CURDIR)" \
+	  --tensor-baseline "$(CURDIR)/build/owned-tensor-versions" --canonical-binary "$(CURDIR)/build/heptatorch" \
+	  --service-sources tools/storage_objects/candidate-04/bytes.hepta tools/storage_objects/candidate-04/records.hepta \
+	  tools/storage_objects/candidate-04/audit.hepta tools/storage_objects/candidate-04/ops.hepta tools/storage_objects/candidate-04/owners.hepta \
+	  --output "$$review/native"; \
+	python3 -I -S -B tests/stack_independent.py --native "$(HEPTA_STACK_BUILD)/native" --output "$$review/independent"; \
+	python3 -I -S -B tests/check_stack_reports.py --build "$(HEPTA_STACK_BUILD)" \
+	  --application-build "$(CURDIR)/build/stack-tensors" --review "$$review/native" \
+	  --root-review "$$review/independent" --output build/hosted-stack-budget.json
 
 check-compiler:
 	@compiler=$$(command -v "$(HEPTA_COMPILER)") || { echo 'Set HEPTA_COMPILER to the pinned native HIA compiler; see docs/build.md.' >&2; exit 1; }; \
