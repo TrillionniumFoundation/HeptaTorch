@@ -1,0 +1,112 @@
+{
+  "schema": "heptatorch.rng-independent-source-audit.v1",
+  "status": "PASS",
+  "upstream_sources": [
+    {
+      "path": "aten/src/ATen/CPUGeneratorImpl.cpp",
+      "commit": "31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
+      "url": "https://github.com/pytorch/pytorch/blob/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/aten/src/ATen/CPUGeneratorImpl.cpp",
+      "bytes": 9970,
+      "sha256": "fa8bde72bb00d2a350d41757664a4bc5dfd43d323290223555fafdabde209c64"
+    },
+    {
+      "path": "aten/src/ATen/CPUGeneratorImpl.h",
+      "commit": "31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
+      "url": "https://github.com/pytorch/pytorch/blob/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/aten/src/ATen/CPUGeneratorImpl.h",
+      "bytes": 1527,
+      "sha256": "ee876b3442205dff8dec0409984f1db1882b34abdd89a4da5b791740520c890a"
+    },
+    {
+      "path": "aten/src/ATen/core/MT19937RNGEngine.h",
+      "commit": "31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
+      "url": "https://github.com/pytorch/pytorch/blob/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/aten/src/ATen/core/MT19937RNGEngine.h",
+      "bytes": 6510,
+      "sha256": "504efc955015b6735e07f5e418b0f4f106a3fa65baefc34c9b2eed7fca8d287f"
+    },
+    {
+      "path": "aten/src/ATen/core/TransformationHelper.h",
+      "commit": "31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
+      "url": "https://github.com/pytorch/pytorch/blob/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/aten/src/ATen/core/TransformationHelper.h",
+      "bytes": 6831,
+      "sha256": "adbb8d572ae7bea53e491622733e617cf8a08a4476b00604ec54f5525c8f6cd2"
+    },
+    {
+      "path": "aten/src/ATen/core/DistributionsHelper.h",
+      "commit": "31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
+      "url": "https://github.com/pytorch/pytorch/blob/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/aten/src/ATen/core/DistributionsHelper.h",
+      "bytes": 8918,
+      "sha256": "06e36d144c6ce80629500cc23d864bb26e2a4c697cfe92854c9cf411fee46587"
+    },
+    {
+      "path": "aten/src/ATen/native/cpu/DistributionTemplates.h",
+      "commit": "31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
+      "url": "https://github.com/pytorch/pytorch/blob/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/aten/src/ATen/native/cpu/DistributionTemplates.h",
+      "bytes": 15516,
+      "sha256": "62e6c758fe75184b5d2c26f549212c06c687c39610d0dc948c4f83271ad0330c"
+    }
+  ],
+  "source_delta": {
+    "old_source": "bc0f60e23b2b3839f62cfb91c1f68f937a7c4dc1fde2c1f84c89400ea2295eab",
+    "new_source": "c1de63f5f046bfb20aa4d4f65cbffa6217a38a36c0dc63b05f08c7ddc7612032",
+    "same_function_names": true,
+    "changed_functions": [
+      "entry"
+    ],
+    "other_functions_identical": 17
+  },
+  "findings": [
+    {
+      "id": "RNG-FLAT-001",
+      "status": "FIXED_AND_NATIVE_RETESTED",
+      "finding": "The retired entry wrote a 24-byte error into output capacities below24, trapping after partial in-capacity writes. New entry returns0 first; all seven short capacities leave output/workspace untouched. No out-of-capacity write was observed in either version."
+    },
+    {
+      "id": "RNG-STATE-SCOPE",
+      "status": "EXPLICIT_PROFILE_BOUNDARY",
+      "finding": "Canonical/reachable MT positions and 0/1 cache flags are supported. Upstream is_valid only checks independent ranges; not all upstream-accepted states are accepted by this profile. Even safely refreshing left1,next1 is refused. No full set_state malformed-input parity is claimed.",
+      "source": "aten/src/ATen/core/MT19937RNGEngine.h:130"
+    },
+    {
+      "id": "RNG-STATE-LAYOUT",
+      "status": "MATCHES_PINNED_SOURCE_AND_EXECUTION",
+      "finding": "Full seed preserved; next and624 words truncate to32bits; seeded normalizes nonzero to1; dead legacy fields and padding clear; enabled float/double cache bit patterns preserve, disabled caches clear.",
+      "source": "aten/src/ATen/CPUGeneratorImpl.cpp:17,135,177"
+    },
+    {
+      "id": "RNG-CONSUMPTION",
+      "status": "MATCHES_PINNED_SOURCE_AND_EXECUTION",
+      "finding": "random64 combines high first then low; double rand consumes2 words and masks low53; float/half/bfloat consume1 and use low24 via float opmath. int64 ranges switch at2^28 for non-FBCODE builds, using modulo without rejection.",
+      "source": "aten/src/ATen/CPUGeneratorImpl.cpp:235; aten/src/ATen/core/DistributionsHelper.h:37,99; aten/src/ATen/core/TransformationHelper.h:84"
+    },
+    {
+      "id": "RNG-LOW-PRECISION-CLAMP",
+      "status": "MATCHES_PINNED_SOURCE_AND_EXECUTION",
+      "finding": "After float opmath conversion, a half/bfloat value equal to the exclusive upper bound1 is returned as0; exact halfway thresholds tested explicitly.",
+      "source": "aten/src/ATen/native/cpu/DistributionTemplates.h:248"
+    },
+    {
+      "id": "RNG-NOTICE",
+      "status": "UPSTREAM_NOTICE_IDENTIFIED_FOR_INTEGRATION",
+      "finding": "The MT engine header contains its own1997-2002 Matsumoto/Nishimura redistribution notice; root was notified to retain it with source attribution. This is distinct from the top-level PyTorch notice.",
+      "source": "aten/src/ATen/core/MT19937RNGEngine.h:41-90"
+    }
+  ],
+  "arithmetic_bounds": {
+    "maximum_packet_bytes": 9184,
+    "maximum_reply_bytes": 805080,
+    "minimum_workspace_bytes": 5056,
+    "maximum_commands": 128,
+    "maximum_preflight_count_each": 1000000,
+    "maximum_preflight_word_sum_before_final_check": 256000000,
+    "maximum_preflight_output_value_sum_before_final_check": 128000000,
+    "actual_engine_word_limit": 1000000,
+    "actual_output_value_limit": 100000,
+    "all_preflight_size_arithmetic_below_uint64": true,
+    "validation_precedes_rng_workspace_mutation": true
+  },
+  "local_reference": "GNU C++ std::mt19937 imported-state execution plus independent integer/CPython conversion references; no local torch execution",
+  "all_pytorch_rng_qualified": false,
+  "normal_distribution_implemented": false,
+  "tensor_rng_integration_complete": false,
+  "whole_pytorch_rewrite_complete": false
+}

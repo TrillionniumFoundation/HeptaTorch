@@ -58,6 +58,12 @@ cmp build/train.response build/train.expected
 
 命令流最小化平方损失，每一步执行前向、反向、参数更新和图回收。参数保持原 ID，临时图复用描述符与工作区。原有的两层 ReLU／18 步 Adam 训练夹具也保留在回归集中。
 
+## 原生 CPU 随机数基础
+
+[HIA MT19937 与均匀变换](tools/rng-cpu/README.md)实现完整 5,056 字节 CPU RNG 状态、seed、raw32/raw64、binary32/binary64/half/bfloat16 的单位区间值、int64 半开区间及 discard。生成、状态规范化、消费计数和数值变换全部由原生 HIA 执行。原始 MT19937 与固定 PyTorch 源码及许可声明均保留。
+
+本地独立参考资格已通过 **74 项／110 次原生调用／718,619 个精确值／434,816 字节完整状态比较**，另有 **35 项独立原生边界检查**通过。短输出缓冲区的实际失败及修复复测原样保留；原有 74 项请求和响应结果未变。真实锁定 PyTorch 的序列及状态对照由新增 CI 执行，目前未预先声明通过。持久 Generator、默认全局状态、Tensor 填充、normal/dropout 等其他分布、并发和加速设备仍待实现。
+
 ## 原生资源所有权
 
 独立的 ABI2 工具链支持 `buffer`／`chain` 在线性调用中消费、返回和释放，允许最多三个标量／owner 返回值，并由 HIA 原生程序执行接口接纳与链接。分配和回收直接调用 Linux `mmap`／`munmap`；零长度、溢出、真实分配失败、借用未结束时的移动／释放，以及错误效果声明都有明确检查。源码、接口和分配合同见 [owned 模块说明](tools/owned_modules/CONTRACT.md)。
