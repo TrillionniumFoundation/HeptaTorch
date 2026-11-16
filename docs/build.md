@@ -410,3 +410,15 @@ check, while adding absolute parameter-version assertions. A native scoped PASS
 cannot replace this gate. The current candidate still couples allocation and
 version identity in its Tensor descriptor; the independently qualified byte
 Storage/Version object service has not yet been connected to these kernels.
+
+### Corrected optimizer version profile
+
+The original owned Tensor profile is preserved as the exact first reviewed
+candidate. The current successor is built and tested with
+`make owned-tensor-versions test-owned-tensor-versions` and the same native tool
+variables. Its executable is `build/owned-tensor-versions/owned-tensor-session`.
+See [the native version correction](../tools/owned_tensor_versions/README.md)
+for the unchanged real PyTorch oracle command, the explicit image identity and
+the complete first-failure receipt. CI runs both original native qualification
+and corrected qualification before executing the strict oracle against the
+corrected image. It does not count replaying one corpus as new upstream coverage.

@@ -84,6 +84,8 @@ cmp build/train.response build/train.expected
 
 真实 PyTorch 门禁另设 **28 项**，保留原 21 项数值期望和容差，并新增分页、扩容、大张量及空张量反向传播检查。它加强了参数绝对版本计数比较；原生资格通过不代表该独立门禁已经通过。构造时版本从 0 开始已实现，优化器逐操作版本语义仍需由这一门禁检查。此候选仍为 CPU binary32、rank 0–4、受明确资源限额约束；独立 Storage／Version 对象与数值 Tensor 的连接、完整 stride／dtype／device 语义和整个 PyTorch 验收继续开放。
 
+[首次严格门禁](validation/hosted-owned-tensor-initial-failure.json)已实际完成全部 28 项、6,233 帧和 2,590,207 个数值比较，其中两项因非零权重衰减 AdamW 的绝对版本计数而失败，原始结果完整保留。[原生修正版](tools/owned_tensor_versions/README.md)仅替换 `adam` 的版本收尾调用并新增一个 HIA 辅助函数，修正参数和二阶矩计数；原 28 项 PyTorch oracle 源码与断言保持逐字不变。修正版原生资格还检查了零／负零衰减、零学习率和空张量的版本行为；真实 PyTorch 修复验证是独立必需门禁。预先提供的 momentum 状态与 torch.optim 新建状态之间的生命周期差异仍保留为开放问题。
+
 ## 跨请求持久会话
 
 会话进程读取 `HTOSES01` 外层帧，执行其中的 `HTORCH01` 请求，在 stdin 仍打开时立即输出 `HTOSRP01` 响应帧，然后读取下一帧。每个完整请求在 shadow 工作区执行；成功才提交，失败返回保留原错误码的 32 字节、零记录响应，并保持已提交状态不变。外层格式、EOF／EINTR／断管处理及边界见 [会话合同](tools/session/CONTRACT.md)。

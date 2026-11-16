@@ -36,7 +36,7 @@ build/owned-tensors/build.json: $(OWNED_TENSOR_INPUTS) | build
 	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.owned-tensor-build.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
 	python3 -I -S -B tools/owned_tensors/build_runtime.py --repository "$(CURDIR)" --source-root "$(HEPTA_SOURCE_ROOT)" \
 	  --compiler "$$(command -v "$(HEPTA_OWNED_COMPILER)")" --linker "$$(command -v "$(HEPTA_OWNED_SESSION_LINKER)")" --output "$$tmp/native"; \
-	mkdir -p build/owned-tensors; cp -R "$$tmp/native/." build/owned-tensors/
+	mkdir -p build/owned-tensors; cp -R --remove-destination "$$tmp/native/." build/owned-tensors/
 
 test-owned-tensors: owned-tensors monolithic
 	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/.owned-tensor-review.XXXXXX"); \
@@ -82,6 +82,26 @@ test-storage-objects: storage-objects
 	  --session-review "$$review/owned-session" --native "$(CURDIR)/build/storage-native" --interactive "$(CURDIR)/build/storage-interactive" \
 	  --trace-review "$$review/trace" --interactive-review "$$review/interactive" --guard-review "$$review/guards" \
 	  --model-review "$$review/model" --output build/hosted-owned-storage-gates.json
+
+OWNED_TENSOR_VERSION_INPUTS := $(wildcard tools/owned_tensor_versions/*.py tools/owned_tensor_versions/*.hepta tools/owned_tensor_versions/*.json) Makefile
+
+.PHONY: owned-tensor-versions test-owned-tensor-versions
+owned-tensor-versions: build/owned-tensor-versions/build.json
+
+build/owned-tensor-versions/build.json: build/owned-tensors/build.json $(OWNED_TENSOR_VERSION_INPUTS) | build
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.tensor-versions.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	python3 -I -S -B tools/owned_tensor_versions/build.py --baseline "$(CURDIR)/build/owned-tensors" \
+	  --compiler "$$(command -v "$(HEPTA_OWNED_COMPILER)")" \
+	  --linker "$$(command -v "$(HEPTA_OWNED_SESSION_LINKER)")" --output "$$tmp/native"; \
+	mkdir -p build/owned-tensor-versions; cp -a --remove-destination "$$tmp/native/." build/owned-tensor-versions/
+
+test-owned-tensor-versions: owned-tensor-versions monolithic
+	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/.tensor-versions-review.XXXXXX"); \
+	python3 -I -S -B tools/owned_tensor_versions/qualify.py --native "$(CURDIR)/build/owned-tensor-versions" \
+	  --compiler "$$(command -v "$(HEPTA_OWNED_COMPILER)")" \
+	  --linker "$$(command -v "$(HEPTA_OWNED_SESSION_LINKER)")" \
+	  --canonical-binary "$(CURDIR)/build/heptatorch-monolithic" --output "$$review/observed"; \
+	cp "$$review/observed/report.json" build/hosted-owned-tensor-versions.json
 
 check-compiler:
 	@compiler=$$(command -v "$(HEPTA_COMPILER)") || { echo 'Set HEPTA_COMPILER to the pinned native HIA compiler; see docs/build.md.' >&2; exit 1; }; \
