@@ -463,8 +463,12 @@ nine-case metadata attack/execution review, and the current Tensor's unchanged
 11 native groups and 16 peer frames. It retains the full aggregate in
 `build/hosted-stack-budget.json`. The CI workflow additionally runs the same
 strict 28-case PyTorch oracle against the guarded image with its explicit SHA;
-the oracle and its numerical assertions are unchanged. Configuring this gate
-does not by itself establish a hosted PASS.
+the oracle and its numerical assertions are unchanged. Actual run
+[43803875841](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43803875841)
+passed all 40 steps, including 28 strict guarded-image cases, 6,233 frames,
+2,590,207 compared values and all 11 provenance checks. The full receipt is
+`validation/hosted-stack-budget.json`; the 283 explicit momentum-state lifecycle
+observations remain open and are not counted as parameter-version mismatches.
 
 This profile assumes verified source/object custody through the pinned native
 producer. It is not a general verifier for arbitrary substituted x86 code,
