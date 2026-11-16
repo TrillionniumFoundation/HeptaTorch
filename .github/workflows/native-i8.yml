@@ -78,7 +78,7 @@ jobs:
           PY
       - name: Execute real PyTorch byte exact differential and 11 provenance checks
         run: |
-          python3 -I -S -B tests/i8_oracle.py --compiler "$RUNNER_TEMP/i8-compiler/native-compiler" \
+          python3 -B tests/i8_oracle.py --compiler "$RUNNER_TEMP/i8-compiler/native-compiler" \
             --source tools/native-i8/i8_elementwise.hepta --repo . --reference pytorch \
             --expected-elf-sha256 eba8c05bfe514c38ffa1a5e1ccbc9aacd513531f74becd18f4e3dca73db0a0b1 \
             --output build/native-i8-pytorch
