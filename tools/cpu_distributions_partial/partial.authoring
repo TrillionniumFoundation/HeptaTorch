@@ -1,0 +1,162 @@
+def dist_partial_fill(w: mutbuf, scratch: mutbuf, t: u64, probability: u64, data: u64, o: mutbuf, info: u64) -> u64:
+    p = dptr(w,t)
+    q = dptr(w,probability)
+    n = getw(w,p+8)
+    if n == 0:
+        return 0
+    rng_load_scratch(w,scratch,data)
+    order = dist_pair_order(w,p,q)
+    i = 0
+    error = 0
+    while i < n and error == 0:
+        bound = get4(w,dist_probability_address(w,p,q,order,i))
+        if dist_prob32_valid(bound) == 0:
+            error = 7
+        else:
+            bound = bound & 2147483647
+            unit = rng_unit32(rng_next(scratch))
+            value = 0
+            if unit < bound:
+                value = 1065353216
+            put4(w,rng_iteration_address(w,p,order,i),value)
+            i = i+1
+    rng_save_scratch(w,scratch,data)
+    putw(o,info+16,i)
+    putw(o,info+24,i)
+    return error
+
+def dist_partial_bernoulli(w: mutbuf, scratch: mutbuf, o: mutbuf, info: u64, id: u64, generator: u64, probability: u64, no_grad: u64) -> u64:
+    t = public_node(w,id)
+    source = public_node(w,probability)
+    data = rng_object(w,generator)
+    if t == 0 or source == 0 or data == 0:
+        return 0
+    p = dptr(w,t)
+    q = dptr(w,source)
+    if no_grad > 1:
+        return terror(w,7)
+    if no_grad == 0 and (getw(w,p+32) != 0 or getw(w,q+32) != 0):
+        return terror(w,5)
+    if getw(w,p+8) > 1000000:
+        return terror(w,3)
+    if version_can_bump(w,t,1) == 0 or dist_probability_admit(w,t,source) == 0:
+        return 0
+    putw(o,info+8,getw(w,p+192))
+    error = dist_partial_fill(w,scratch,t,source,data,o,info)
+    if error == 0:
+        bump_version(w,t)
+    return error
+
+def dist_partial_noise(w: mutbuf, scratch: mutbuf, t: u64, data: u64, probability: u64) -> u64:
+    p = dptr(w,t)
+    noise = 0
+    if probability == 4607182418800017408:
+        noise = tnew(w,0,p+96,0)
+        if noise == 0:
+            return 0
+        put4(w,taddr(w,noise,0),0)
+    else:
+        noise = tnew(w,getw(w,p),p+96,0)
+        if noise == 0:
+            return 0
+        dist_dense_layout(w,noise,t,1)
+        complement = dist_complement64(probability)
+        scale = divf(1065353216,dist_probability_to32(complement))
+        if dist_fill_scalar(w,scratch,noise,data,complement,scale) == 0:
+            return 0
+    bump_version(w,noise)
+    bump_version(w,noise)
+    return noise
+
+def dist_partial_dropout_write(w: mutbuf, t: u64, noise: u64) -> u64:
+    p = dptr(w,t)
+    q = dptr(w,noise)
+    order = dist_pair_order(w,p,q)
+    i = 0
+    while i < getw(w,p+8):
+        destination = rng_iteration_address(w,p,order,i)
+        mask_address = dist_probability_address(w,p,q,order,i)
+        put4(w,destination,mulf(get4(w,destination),get4(w,mask_address)))
+        i = i+1
+    return bump_version(w,t)
+
+def dist_partial_dropout(w: mutbuf, scratch: mutbuf, o: mutbuf, info: u64, id: u64, generator: u64, probability: u64, training: u64, no_grad: u64) -> u64:
+    t = public_node(w,id)
+    data = rng_object(w,generator)
+    if t == 0 or data == 0:
+        return 0
+    if no_grad > 1 or training > 1 or dist_prob64_valid(probability) == 0:
+        return terror(w,7)
+    p = dptr(w,t)
+    probability = probability & 9223372036854775807
+    n = getw(w,p+8)
+    putw(o,info+8,getw(w,p+192))
+    if probability == 0 or training == 0 or n == 0:
+        return 0
+    if n > 1000000:
+        return terror(w,3)
+    tracked = 0
+    if no_grad == 0 and getw(w,p+32) != 0:
+        if getw(w,p+40) != 0:
+            return terror(w,5)
+        tracked = 1
+    if tracked == 0 and version_can_bump(w,t,1) == 0:
+        return 0
+    noise = dist_partial_noise(w,scratch,t,data,probability)
+    if noise == 0:
+        return 0
+    if probability != 4607182418800017408:
+        putw(o,info+24,n*2)
+    if tracked != 0:
+        return 5
+    if dist_no_internal_overlap(w,t) == 0:
+        error = getw(w,0)
+        if error == 2:
+            putw(w,0,0)
+            return 2
+        return 0
+    if dist_partial_dropout_write(w,t,noise) == 0:
+        return 0
+    putw(o,info+16,n)
+    return 0
+
+def dist_partial_command(s: readbuf, o: mutbuf, w: mutbuf, scratch: mutbuf, cp: u64, at: u64) -> u64:
+    code = getr(s,cp)
+    a = getr(s,cp+8)
+    b = getr(s,cp+16)
+    c = getr(s,cp+24)
+    d = getr(s,cp+32)
+    e = getr(s,cp+40)
+    first = getw(w,8)
+    result = 0
+    payload = 0
+    if code != 86 and code != 87:
+        terror(w,4)
+    if getr(s,cp+48) != 0 or getr(s,cp+56) != 0:
+        terror(w,7)
+    if code == 86 and e != 0:
+        terror(w,7)
+    if length(o)-at-32 < 32:
+        terror(w,3)
+    if getw(w,0) == 0:
+        putw(o,at+32,0)
+        putw(o,at+40,0)
+        putw(o,at+48,0)
+        putw(o,at+56,0)
+        if code == 86:
+            result = dist_partial_bernoulli(w,scratch,o,at+32,a,b,c,d)
+        if code == 87:
+            result = dist_partial_dropout(w,scratch,o,at+32,a,b,c,d,e)
+        if getw(w,0) == 0:
+            finish_command(w,first)
+            putw(o,at+32,result)
+            payload = 32
+    status = getw(w,0)
+    if status != 0:
+        result = 0
+        payload = 0
+    putw(o,at,code)
+    putw(o,at+8,status)
+    putw(o,at+16,result)
+    putw(o,at+24,payload)
+    return at+32+payload

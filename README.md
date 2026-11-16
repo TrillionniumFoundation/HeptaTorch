@@ -221,3 +221,12 @@ third_party/pytorch/      上游许可证与通知
 原生资格还验证 900 个实际状态 Tensor 的扩容与私有引用、实际分配失败的整帧回滚、两种状态格式的合法 owner 交接、旧 6 组叶标志和 3 组累积器生命周期，以及原样 13／16／8／10 组反向回归和两套 RNG 组合测试。`make owned-adam test-owned-adam` 可重建并执行这些门禁。[构建说明](docs/build.md#owned-adam-and-adamw-state-tensors)列出依赖、产物和命令。最终 Adam ELF 上新增的原样 **32 组 live PyTorch** 与 **35 组冻结 Tensor** CI 已配置，结果尚待实际执行；此前 SGD ELF 的通过记录不作为新映像的通过证据。
 
 此配置明确保留限制：当前 bias correction 只接纳实际 float32 自增后为正整数且小于 2³² 的 step；±0 可恢复为 1，2²⁴ 处的 float32 停滞仍递增 Version，任意实数指数仍未完成。AMSGrad、其他 dtype／后端、公开 `.grad` 对象组合、完整 state_dict 与优化器任意异常的部分副作用仍开放。完整 PyTorch 的 2,590 条 schema 和 17 项完成门禁不因本批通过而关闭。
+## 原生 CPU Bernoulli 与 dropout
+
+[分布组件](docs/cpu-distributions.md)在同一真实 Tensor／Generator owner 内执行 float32 Bernoulli、普通 CPU dropout、Saved noise 和相应反向传播。双精度标量概率保留原始 IEEE 位模式；Tensor 概率、实际 stride／alias 写入、完整 5,056 字节 Generator 状态和共享 Version 均由原生 HIA 处理。原子 profile03 与显式部分提交后继分别冻结，原生编译器、模块接口和全调用图栈门禁未放宽。
+
+固定实际 PyTorch 的 **183 组观测**保持原样：旧命令 80–85 在两个映像上均保留 **161 PASS、4 个事务差异、18 OPEN**。新命令 86／87 明确表达晚错误的前缀提交和后缀停止，使同一参考的 **165／183** 组严格通过；闭合的零起始索引仅为 **101、103、105、179**。错误前的 Tensor 写入和 RNG 消费可以提交，失败的分布操作本身不额外增加 Version；普通准入错误仍完整回滚。旧接口没有被悄悄改义。
+
+`make test-cpu-distributions` 先实际执行冻结的 5 套原子资格和 6 套后继资格，再核对两份 37／28 文件清单、全部 11 个子报告和完整原始归档。CI 另外要求最终后继映像运行原样 32 组 live PyTorch 联合对照和 35 组 Tensor 回归，不修改其数值期望、容差或 11 项来源检查。构建方式与精确源码／映像身份见[构建说明](docs/build.md#native-cpu-bernoulli-and-dropout)。
+
+剩余 **18 OPEN** 是 8 组 float64 概率 Tensor、2 组 int64 概率 Tensor 和 8 组独立 `native_dropout` 布尔 mask 接口观测；双精度标量不等于双精度 Tensor。普通梯度模式下非叶原地操作的完整自动微分、与 kind-8 Optimizer／公开梯度对象的共同运行时及其他分布仍开放。组件状态保持 **PARTIAL**，整个 PyTorch 验收保持 **HOLD**；全部 RNG、dtype 和全量重写完成标志仍为 false，2,590 项分母不变。

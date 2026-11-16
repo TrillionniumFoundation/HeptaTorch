@@ -327,6 +327,42 @@ test-owned-adam: owned-adam
 	  --baseline "$(CURDIR)/build/owned-optimizers" --stack-build "$(HEPTA_STACK_BUILD)" --output "$$review/observed"; \
 	cp "$$review/observed/report.json" build/hosted-owned-adam-native.json
 
+CPU_DISTRIBUTION_INPUTS := $(wildcard tools/cpu_distributions/* tools/cpu_distributions/evidence/*) validation/cpu-distributions-package.sha256 Makefile
+CPU_DISTRIBUTION_PARTIAL_INPUTS := $(wildcard tools/cpu_distributions_partial/* tools/cpu_distributions_partial/evidence/*) validation/cpu-distributions-partial-package.sha256 Makefile
+
+.PHONY: cpu-distributions cpu-distributions-partial test-cpu-distributions
+cpu-distributions: build/cpu-distributions/reproduction.json
+cpu-distributions-partial: build/cpu-distributions-partial/reproduction.json
+
+build/cpu-distributions/reproduction.json: build/tensor-rng-nullable/reproduction.json build/tensor-rng-composition/reproduction.json build/gradient-materialization/build.json $(CPU_DISTRIBUTION_INPUTS) | build
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.cpu-distributions.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	sha256sum -c validation/cpu-distributions-package.sha256; \
+	python3 -I -S -B tools/cpu_distributions/rebuild.py --baseline "$(CURDIR)/build/tensor-rng-nullable" \
+	  --common-authoring "$(CURDIR)/build/tensor-rng-composition/native/overlay-authoring.py" \
+	  --gradient-authoring "$(CURDIR)/build/gradient-materialization/overlay-authoring.py" \
+	  --upstream "$(HEPTA_SOURCE_ROOT)" --stack-build "$(HEPTA_STACK_BUILD)" --output "$$tmp/native"; \
+	mkdir -p build/cpu-distributions; cp -a --remove-destination "$$tmp/native/." build/cpu-distributions/
+
+build/cpu-distributions-partial/reproduction.json: build/cpu-distributions/reproduction.json $(CPU_DISTRIBUTION_PARTIAL_INPUTS) | build
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.cpu-distributions-partial.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	sha256sum -c validation/cpu-distributions-partial-package.sha256; \
+	python3 -I -S -B tools/cpu_distributions_partial/rebuild.py --baseline "$(CURDIR)/build/cpu-distributions" \
+	  --upstream "$(HEPTA_SOURCE_ROOT)" --stack-build "$(HEPTA_STACK_BUILD)" --output "$$tmp/native"; \
+	mkdir -p build/cpu-distributions-partial; cp -a --remove-destination "$$tmp/native/." build/cpu-distributions-partial/
+
+test-cpu-distributions: cpu-distributions-partial
+	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/.cpu-distributions-review.XXXXXX"); \
+	printf '%s\n' "CPU distribution review: $$review"; \
+	sha256sum -c validation/cpu-distributions-package.sha256 validation/cpu-distributions-partial-package.sha256; \
+	python3 -I -S -B tools/cpu_distributions/qualify.py --build "$(CURDIR)/build/cpu-distributions" \
+	  --baseline "$(CURDIR)/build/tensor-rng-nullable" --stack-build "$(HEPTA_STACK_BUILD)" --output "$$review/atomic"; \
+	python3 -I -S -B tools/cpu_distributions_partial/qualify.py --build "$(CURDIR)/build/cpu-distributions-partial" \
+	  --baseline "$(CURDIR)/build/cpu-distributions" --atomic-tools "$(CURDIR)/tools/cpu_distributions" \
+	  --stack-build "$(HEPTA_STACK_BUILD)" --output "$$review/partial"; \
+	python3 -I -S -B tests/check_cpu_distribution_reports.py --atomic-build "$(CURDIR)/build/cpu-distributions" \
+	  --build "$(CURDIR)/build/cpu-distributions-partial" --atomic-review "$$review/atomic" --review "$$review/partial" \
+	  --output build/hosted-cpu-distributions-native.json
+
 check-compiler:
 	@compiler=$$(command -v "$(HEPTA_COMPILER)") || { echo 'Set HEPTA_COMPILER to the pinned native HIA compiler; see docs/build.md.' >&2; exit 1; }; \
 	printf '%s  %s\n' '$(COMPILER_SHA256)' "$$compiler" | sha256sum -c -

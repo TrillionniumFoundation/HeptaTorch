@@ -1,5 +1,18 @@
 # Reproducible native build
 
+## Complete hosted report export
+
+The native workflow exports the original top-level `build/*.json` report files
+as an Actions artifact, in addition to the existing compressed log envelopes.
+`ci-report-manifest.json` records each original file's byte length and SHA-256,
+the checkout commit and tree, the workflow and collector hashes, and the actual
+run, attempt, event and source-head identity. Collection never parses or
+reserializes report contents, including unsigned 64-bit state observations.
+A successful job must contain every report named by the existing envelope
+steps and have an unchanged tracked checkout. Failed jobs can export partial
+evidence, explicitly marked with the prior job status and missing report names.
+Artifact transport does not qualify a report or change any numerical gate.
+
 ## Target and toolchain
 
 The executable target is Linux x86-64. The canonical implementation is
@@ -800,3 +813,63 @@ For command layouts, ownership and remaining exponent/mode boundaries, see
 external `HTORCH03` / `HTORSP03` wire protocol is retained. Production state is
 created and transferred through checked native owner calls. No user pointer or
 copied owner descriptor is introduced.
+
+## Native CPU Bernoulli and dropout
+
+The distribution targets use the reproduced nullable Tensor/RNG predecessor,
+the common and gradient-materialization authoring layers, and the unchanged
+pinned ABI3 compiler/linker:
+
+```sh
+make cpu-distributions cpu-distributions-partial test-cpu-distributions \
+  HEPTA_SOURCE_ROOT=/path/to/pinned-hepta \
+  HEPTA_STACK_BUILD=/path/to/stack-tools
+```
+
+The dependency chain first provides `build/tensor-rng-nullable`,
+`build/tensor-rng-composition/native/overlay-authoring.py` and
+`build/gradient-materialization/overlay-authoring.py`. The atomic producer
+compiles seven real units into
+`build/cpu-distributions/tensor-distributions-session`; the successor consumes
+that exact build and produces
+`build/cpu-distributions-partial/tensor-distributions-session`. Each recipe
+checks its frozen package manifest, authors into an isolated temporary
+directory, verifies source/object/image identities and copies the successful
+result into its build directory. Exact pins and state barriers are listed in
+[the component contract](cpu-distributions.md).
+
+`test-cpu-distributions` executes both frozen qualification drivers, in order:
+five atomic suites and six successor suites. It does not substitute stored
+PASS reports for native execution. Only after both finish does
+`tests/check_cpu_distribution_reports.py` bind their eleven reports to the
+actual builds and write `build/hosted-cpu-distributions-native.json`. Raw suite
+outputs remain under the printed `.cpu-distributions-review.*` build directory.
+
+The checker verifies both 37-file and 28-file frozen manifests; complete HIA,
+unit-object and ELF identities; each concrete report's source/image or
+qualification-only identity; typed-peer source bindings; all 183 reference
+indices, names, families and status counts; the exact 18 unrepresented indices;
+and every member's bytes, SHA256 and mode in both historical archives. The
+original checker and its earlier accepted source-mismatch/truncated-row
+witnesses are preserved separately in the integration history. No production
+or frozen qualification file was changed to strengthen report admission.
+
+The original commands retain 161 PASS, four explicit transaction differences
+and 18 unrepresented observations. Commands 86/87 strictly match 165 of the same
+183 observations, closing only zero-based indices 101, 103, 105 and 179. This
+scoped native qualification returns success while its compatibility status
+stays PARTIAL; it does not turn HOLD into whole-PyTorch acceptance.
+
+CI adds one step for both rebuilds and all eleven native suites. After the
+locked PyTorch wheel is installed, two further steps run the unchanged live
+32-case joint oracle and frozen 35-case Tensor oracle on the final partial
+image. Their reports use separate `pytorch-cpu-distributions-*` filenames.
+All previous steps and historical reports remain unchanged. These added live
+runs are required gates, not results inferred from the fixed-observation replay.
+
+The remaining 18 observations require float64 probability Tensors (eight),
+int64 probability Tensors (two), or the distinct `native_dropout` boolean-mask
+interface (eight). The seven-kind owner also has not yet been composed with the
+kind-8 Optimizer or public-gradient-object successor. Full RNG, dtype and
+PyTorch-rewrite flags remain false and the original 2,590-schema denominator is
+unchanged.
