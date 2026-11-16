@@ -665,7 +665,7 @@ jobs:
             --session-reference tests/pytorch_session_oracle.py --reference tests/pytorch_oracle.py \
             --lock compatibility/pytorch-oracle-lock.json --repo . \
             --expected-native-sha256 4bd22ab115a5428be6ee1ab77fd31a1e20baf14a80756eb38f000574cbad531f || status=$?
-          cat build/pytorch-tensor-objects-abi2.json
+          python3 -I -S -B tools/emit_ci_report.py build/pytorch-tensor-objects-abi2.json
           exit "$status"
 
       - name: Compare guarded ABI3 Tensor objects with the same 35 frozen cases
@@ -677,6 +677,6 @@ jobs:
             --session-reference tests/pytorch_session_oracle.py --reference tests/pytorch_oracle.py \
             --lock compatibility/pytorch-oracle-lock.json --repo . \
             --expected-native-sha256 2b39ff1a5a258c5fae7be1fbca5dcf0764787b43fa72ad8fdc3ab6fd119e2a91 || status=$?
-          cat build/pytorch-tensor-objects-abi3.json
+          python3 -I -S -B tools/emit_ci_report.py build/pytorch-tensor-objects-abi3.json
           exit "$status"
 
