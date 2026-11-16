@@ -197,6 +197,9 @@ Source: [Pinned SGD](https://github.com/pytorch/pytorch/blob/31a77fc9c0a7c6fff15
 The completion matrix is an engineering work inventory. No row is marked
 complete merely because the repository contains a corresponding directory or
 symbol. In particular, CPU results cannot establish GPU or distributed behavior.
+The durable [full-acceptance ledger](../compatibility/full-acceptance.json) has
+17 gates. Every gate remains open or in progress; the full upstream schema
+qualification count remains zero out of the 2,590 frozen declarations.
 
 ## Upstream test sources
 
@@ -258,7 +261,7 @@ are recorded in `validation/native-extension.json`.
 | Separate rank-two matrix kernels duplicated the generalized path | Replaced by a rank-two admission wrapper; three superseded forward/reverse helpers removed |
 | Non-scalar outputs lacked a direct cotangent interface | Implemented exact-shape seeded backward, strided seeds, repeated accumulation and error preflight |
 | General matrix shapes and integer selection were absent | Implemented scoped native matmul, index_select and gather; remaining dtype/overload coverage stays open |
-| One native compilation unit is approaching fixed compiler limits | Capacity expanded by the separate profile below to 256 functions and 2,560 blocks; general module imports and resource-bearing public ABI remain open |
+| One native compilation unit is approaching fixed compiler limits | Capacity expanded by the separate profile below to 256 functions and 2,560 blocks; the later borrowed-module bridge implements a bounded cross-unit path, while general ownership and public resource ABI remain open |
 | Graph/data arena grows for the duration of one request | Resolved within one request by the subsequent graph-lifetime change below; cross-request persistence and scalable allocation remain open |
 | Only software binary32 and one CPU target exist | Open: other dtypes, SIMD/device code generation, device memory/stream services and independent backend qualification |
 | The wire protocol is separate from upstream frontends | Open: Python/C++ object, dispatch, module/state, override and extension interfaces |
@@ -278,10 +281,10 @@ interface. Scaling the full rewrite therefore requires language/runtime module
 work alongside operator implementation. The full target and all 2,590 original
 schema records remain intact.
 
-The oracle expands to 153 actual PyTorch cases, including the new operators and
+That extension expanded the oracle to 153 actual PyTorch cases, including its new operators and
 three composed attention paths without masking or dropout. Those attention tests
 qualify composition of the implemented primitives, not the complete attention
-API. The current fixture manifest contains 221 native packet pairs. Historical
+API. That revision's fixture manifest contained 221 native packet pairs. Historical
 baseline, isolated component, final integrated and hosted results retain their
 own source and executable hashes in the validation records.
 
@@ -312,8 +315,8 @@ nonentry production function bodies byte for byte and is not a production
 debug interface. Exact identities and original isolated-component records are
 in `validation/session-native.json`.
 
-The compiler profile is unchanged: the runtime now uses 121 functions, 1,439
-blocks and 5,751 instructions. Graph reset does not increase request/response
+The graph-lifetime revision kept the compiler profile unchanged and used 121
+functions, 1,439 blocks and 5,751 instructions. Graph reset does not increase request/response
 capacities, provide cross-request persistence, general reference counting or
 full upstream graph-lifetime compatibility. The new hosted gate requires 159
 uniquely named real-PyTorch cases, with long SGD/Adam/AdamW sessions and preserved
@@ -336,8 +339,8 @@ passing report without replacing the failed record.
 
 ## Compiler capacity profile
 
-The current runtime fits the original profile, but leaves only seven of its 128
-function slots and 97 of its 1,536 basic blocks unused. To continue adding HIA
+The 121-function runtime at this stage fit the original profile, but left only
+seven of its 128 function slots and 97 of its 1,536 basic blocks unused. To continue adding HIA
 implementation, the repository now supplies a separately identified compiler
 configuration, `heptatorch.hia.compiler.f256-b2560-w2m.v1`. It preserves the
 upstream source identity and does not relabel its original limits.
@@ -386,10 +389,11 @@ This expands one compilation unit. The upstream project already contains a
 but the pinned compiler does not admit general external function imports or
 resource-bearing public tensor interfaces. Its
 [Core module route](https://github.com/TrillionniumFoundation/Hepta/blob/f33d8da316de8fdf27b504371f1a5310997ff548/docs/HIA_CORE_MODULE_GRAPH.md)
-combines modules into one limited Core program. Scaling the full PyTorch rewrite
-therefore still requires cross-unit signatures, effects, ownership/borrowing
-contracts and linking, together with the remaining operator, dtype, frontend
-and device work already listed in the completion matrix.
+combines modules into one limited Core program. The later borrowed-module
+profile below adds a bounded cross-unit signature/effect and linking path.
+General ownership contracts, resource allocation and returns, foreign ABI,
+and the remaining operator, dtype, frontend and device work still require
+independent implementation and qualification.
 
 The expanded profile also passed the complete fresh
 [hosted build](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43743468220)
@@ -398,3 +402,141 @@ four native generations, all 16 capacity cases, original/expanded application
 byte identity, 275 native packet pairs, 159 real-PyTorch cases and all oracle
 provenance checks. `validation/hosted-compiler-profile.json` retains the complete
 result; the original runtime and failed Adam records remain separately bound.
+
+## Tensor composition and indexed addition audit
+
+This batch adds cat, stack, scatter_add and index_add to the native binary32
+runtime. The merged authoritative packet source is
+`264e9c5c4e8ea1834724cc0d8d859952016daffe4af330a8daa7745e7a5e5233`,
+with monolithic reference executable
+`5b992e5f07fe1167aacf31d9fd07a053b3b02fc1bd1149c06f8ccd164ef96bb0`.
+It contains 143 functions, 1,783 blocks and 7,064 instructions. The previous
+compiler, graph-lifetime and operator receipts retain their original source
+and executable identities; this batch does not relabel them as fresh runs.
+
+| Audited behavior | Implementation and qualification |
+| --- | --- |
+| Variable parent lists | Cat/stack save every full generation-coded ID and owner version; repeated parents accumulate gradients; list and output allocation are preflighted together |
+| Cat's `(0,)` exception | Only exact rank-one `(0,)` inputs are skipped for shape matching; all-skipped lists accept every signed 64-bit axis, including both endpoints |
+| Strided composition | Logical copying and VJP support transposed inputs and seeds; output channels-last selection changes actual physical writes as well as metadata |
+| Stack layout | Last-axis insertion for rank-three inputs follows the virtual-unsqueeze memory-format rule; other admitted paths use ordinary contiguous output |
+| Empty metadata | Generic descriptor strides multiply by `max(dim,1)`; every dimension is checked before zero-aware numel admission, including late zeros after large prefixes |
+| Indexed accumulation | Exact i64 configurations, repeated indices, shared parents, source/self tracking, noncontiguous inputs and graph-reset reuse are implemented |
+| Delayed source refusals | Scatter's returned source-gradient shape and empty multidimensional index_add's deferred index bounds are checked during graph preflight, before gradient/work changes |
+| Alpha arithmetic | All binary32 encodings are admitted with zero upper word bits; rank-above-one index_add uses native software FMA, while rank-zero/one retains separate multiply/add for the pinned measured CPU profile |
+
+The empty descriptor correction is global, not a cat-specific metadata
+workaround. A shape containing zero does not allocate the product of its earlier
+dimensions, but an invalid dimension still fails. With rank at most four and
+each dimension at most `2^18`, the product of `max(dim,1)` for an empty shape is
+at most `2^54`. Both the address arithmetic and canonical empty strides remain
+within u64. Exactly one earlier fixture response changes: byte 280 of
+`session-implementation-reset-empty-owned-leaf` changes from zero to one,
+correcting strides for `[2,0]` from `[0,1]` to `[1,1]`. Its original request and
+the earlier failed comparison remain preserved.
+
+Pinned source review covers
+[TensorShape.cpp](https://github.com/pytorch/pytorch/blob/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/aten/src/ATen/native/TensorShape.cpp),
+[MemoryFormat.h](https://github.com/pytorch/pytorch/blob/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/c10/core/MemoryFormat.h),
+[TensorImpl.h](https://github.com/pytorch/pytorch/blob/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/c10/core/TensorImpl.h),
+[FunctionsManual.cpp](https://github.com/pytorch/pytorch/blob/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/torch/csrc/autograd/FunctionsManual.cpp),
+[ScatterGatherChecks.h](https://github.com/pytorch/pytorch/blob/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/aten/src/ATen/native/ScatterGatherChecks.h),
+[TensorAdvancedIndexing.cpp](https://github.com/pytorch/pytorch/blob/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/aten/src/ATen/native/TensorAdvancedIndexing.cpp),
+[input_metadata.cpp](https://github.com/pytorch/pytorch/blob/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/torch/csrc/autograd/input_metadata.cpp),
+and [ufunc/add.h](https://github.com/pytorch/pytorch/blob/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/aten/src/ATen/native/ufunc/add.h).
+The [protocol](protocol.md#concatenation-and-stacking) records exact command
+fields and error phases; [numerics](numerics.md#indexed-addition-and-alpha-rounding)
+records the arithmetic distinction and its CPU/ISA qualification boundary.
+
+Actual locked-wheel probes observed 22 empty-tensor cases, 12 indexed boundary
+cases, six alpha-rounding cases and eight layout cases. Their original JSON
+observations, CI runs and source identities remain in
+[hosted boundary observations](../validation/hosted-boundary-observations.json).
+The wheel is `2.15.0+cpu` at build commit
+`d0f2af8b66b20da4baa50644c0cd3f887a2eae2e`; it is not relabeled as the inventory
+commit. The [oracle lock](../compatibility/pytorch-oracle-lock.json) separately
+records the verified lint-only release-source difference.
+
+The merged monolithic reference executable passed these independent checks:
+
+| Check | Executed cases | Compared numeric values |
+| --- | ---: | ---: |
+| Cat/stack shape, copy, VJP, error, capacity and lifetime checks | 81 | 1,673 |
+| Cat/stack failure atomicity | 16 | Gradient/work bytes and allocation cursors |
+| General composition, including matmul and repeated graph reset | 64 | 3,738 |
+| Scatter/index_add coordinate, error and lifetime checks | 100 | 1,553 |
+| Indexed addition special values and shared transpose views | 9 | 1,652 |
+| Replay of actual indexed boundary observations | 12 | 64 |
+| Replay of actual alpha observations | 6 | 102 |
+| Replay of actual layout observations | 8 | 924 |
+| Cat/scatter/stack/index_add cross-feature chains | 3 | 102 |
+
+These are distinct evidence sets with some overlapping behaviors; their counts
+are not a percentage of upstream schema coverage. The complete regression
+collection is 461 pairs: 275 preceding pairs, 81 cat/stack pairs, 100 indexed
+pairs, three cross-feature pairs and two additional matmul-composition pairs.
+The default linked image has also passed all 461 pairs. Its executable hash
+and module qualification remain separate from the monolithic review above.
+The original 81 production and 16 scratch atomicity request/response pairs
+remain byte-identical after merging. Reports in
+[tensor composition evidence](../validation/tensor-composition-native.json)
+bind the actual final replay, component identities and preserved failures.
+
+The main hosted oracle is configured for 268 uniquely named cases:
+159 preceding cases with unchanged inputs/tolerances, 35 cat/stack cases and
+74 indexed-addition cases, including late-zero shape admission. The same cases
+passed separately against both runtime images in
+[hosted run 43788929713](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43788929713),
+which tested commit `724cbf2eb19d2ef8d400615d7196f5397cb402f6`. Each build passed
+268 cases, 12,932 value comparisons and all 11 exact oracle-provenance checks,
+with no failures and no executable change during comparison. Both 461-pair
+native suites, compiler reproduction and module gates also passed.
+[The complete receipt](../validation/hosted-tensor-composition.json) records
+both source-bound results and their original hosted report hashes. Historical
+boundary observations and earlier runtime receipts retain their identities.
+
+This batch retains conservative version checks, first-order reverse AD,
+binary32 CPU values, rank at most four, bounded one-request storage and the
+explicit packet frontend. It does not qualify full cat/indexed schemas across
+all dtypes, layouts, devices, in-place/out variants or upstream frontends.
+All 2,590 schema records and all 17 full-project gates remain in the target.
+
+## Native borrowed-module bridge
+
+A separately identified compiler/linker extension now demonstrates real
+independent compilation of the complete current runtime. It derives a
+63-function `ht_kernel` unit and an 80-function `ht_runtime` unit from the
+143 authoritative function bodies, preserving those bodies byte for byte.
+The runtime unit imports 52 declared functions from the kernel unit. Native
+HIA admission and ELF relocation produce executable
+`cf78556c3c512227ffe123635b76e5a6af97697606e8ba3535c56f5101f4f80d`,
+which has passed all 461 packet regressions with an empty PATH and no host
+numerical runtime. The independent boundary checks and exact execution receipts
+belong to [native module evidence](../validation/native-modules.json).
+
+Imports are real external declarations, not placeholder function bodies.
+The admitted module boundary carries exact scalar types or borrowed `readbuf`
+and `mutbuf` descriptors, with zero or one scalar/unit result. Native compiler
+checks retain effect and borrowing constraints; the linker checks interface
+metadata, symbol visibility, ABI agreement, relocations and an acyclic module
+dependency graph. Mutable aliasing and expired loans are refusal cases, while
+shared read borrowing remains admitted. The public executable still uses the
+same bounded three-buffer packet entry.
+
+This is a profile extension to the pinned Hepta source, not a claim that the
+unmodified upstream compiler already had these external import capabilities.
+The canonical packet source remains the only hand-maintained implementation;
+generated module units and objects are derived build artifacts. The default
+`make` target produces the linked `build/heptatorch` using
+`HEPTA_MODULE_COMPILER` and `HEPTA_MODULE_LINKER`; `HEPTA_COMPILER` still builds
+unhex and the `make monolithic` reference executable. The corresponding
+`test` and `test-monolithic` targets replay the same 461 fixtures. Reproduction
+commands and the host source-organization/transport boundary are documented
+in [Build](build.md#reproducing-the-borrowed-module-tools).
+
+Owned `buffer`/`chain` values, ownership transfer, allocation across the public
+boundary, borrowed-resource returns and arbitrary foreign pointer provenance
+remain outside this profile. The linker is not a machine-code authenticity
+proof; source/compiler/object identity and build custody remain necessary.
+General module ABI, scalable allocation, cross-request persistence and the
+full 17-gate acceptance target therefore remain open.

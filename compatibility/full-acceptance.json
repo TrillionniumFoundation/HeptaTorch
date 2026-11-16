@@ -1,0 +1,115 @@
+{
+  "schema": "heptatorch.full-acceptance.v1",
+  "upstream_commit": "31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
+  "upstream_version": "2.15.0",
+  "native_schema_count": 2590,
+  "native_schema_lines_sha256": "c2ebd09fea8de36e74301f48e7a1a84512a6ddbdf6b55138738712500b025718",
+  "whole_pytorch_rewrite_complete": false,
+  "status": "HOLD",
+  "plan": "docs/continuation-plan.md",
+  "closure_rule": "All frozen native declarations and every subsystem below need full source-bound native qualification; scoped implementation and component CI success do not close a full gate.",
+  "gates": [
+    {
+      "id": "module-abi",
+      "status": "IN_PROGRESS",
+      "required": "Independent native compilation and linking with complete signatures, effects, resources, ownership, imports/exports and runtime tensor ABI",
+      "remaining": "Native borrowed readbuf/mutbuf imports, exports, signatures/effects/loans, symbolic ELF relocations and two-unit execution are implemented. Owned resources, allocation, resource returns, general public runtime ABI, foreign provenance and whole-program stack bounds remain unqualified."
+    },
+    {
+      "id": "storage-lifetime",
+      "status": "IN_PROGRESS",
+      "required": "General allocation, storage ownership, aliasing, reference lifetime, persistent execution, scalable capacity and device memory",
+      "remaining": "One-request 1 MiB buffers and 255 simultaneous descriptors; graph reset covers only fixed-prefix owned leaves"
+    },
+    {
+      "id": "dtype-layout",
+      "status": "OPEN",
+      "required": "All upstream dtypes, conversion, promotion, numerical modes, dense/sparse/compressed/nested/quantized/complex layouts and invariants",
+      "remaining": "Only dense binary32 and restricted strides are implemented"
+    },
+    {
+      "id": "native-schemas",
+      "status": "IN_PROGRESS",
+      "required": "All 2590 frozen native declarations plus generated variants and required backend/dtype/layout/shape combinations",
+      "remaining": "Current scoped kernels do not fully qualify any complete upstream declaration"
+    },
+    {
+      "id": "views-mutation",
+      "status": "IN_PROGRESS",
+      "required": "All view/stride/offset/overlap/indexing semantics, out and inplace variants, alias/version behavior and mutation errors",
+      "remaining": "Scoped transpose, contiguous view, detach, cat/stack layout selection and indexed accumulation are implemented; full offset/overlap/stride, mutation/out variants and complete dtype/device behavior remain unqualified."
+    },
+    {
+      "id": "autodiff-transforms",
+      "status": "IN_PROGRESS",
+      "required": "Full reverse/forward/higher-order AD, hooks, custom functions, checkpointing, batching and functional transforms",
+      "remaining": "Restricted first-order reverse AD includes variable-parent cat/stack, indexed accumulation and seeded backward; forward/higher-order AD, hooks, custom functions, transforms and full derivative coverage remain open."
+    },
+    {
+      "id": "frontend-dispatch",
+      "status": "OPEN",
+      "required": "Python/C++ frontend object and error behavior, schemas/dispatch/meta execution, overrides and extension registration",
+      "remaining": "The native packet interface is not the upstream torch API"
+    },
+    {
+      "id": "neural-networks",
+      "status": "IN_PROGRESS",
+      "required": "Complete modules, parameter/buffer trees, train/eval state, functional APIs, convolution/pooling/normalization/attention/recurrent semantics",
+      "remaining": "Only explicitly listed bounded CPU module operations are implemented"
+    },
+    {
+      "id": "optimizers",
+      "status": "IN_PROGRESS",
+      "required": "All optimizers and schedules, parameter groups, grad=None, state dictionaries, serialization, capturable/differentiable and backend modes",
+      "remaining": "Current explicit-state SGD/momentum/Adam/AdamW omit upstream variants and object/state interfaces"
+    },
+    {
+      "id": "rng-determinism",
+      "status": "OPEN",
+      "required": "Generators, all distributions, seed/state/device behavior, dropout and deterministic execution controls",
+      "remaining": "No native RNG or dropout implementation"
+    },
+    {
+      "id": "serialization",
+      "status": "OPEN",
+      "required": "Full checkpoint/state serialization, storage alias preservation, formats, map_location, compatibility, interrupted restore and distributed checkpoints",
+      "remaining": "The packet protocol is not upstream checkpoint or serialization compatibility"
+    },
+    {
+      "id": "accelerators",
+      "status": "OPEN",
+      "required": "CUDA/ROCm/MPS/XPU devices, allocators/transfers, streams/events, kernels, numerical modes, synchronization and error behavior",
+      "remaining": "Current executable is Linux x86-64 CPU only"
+    },
+    {
+      "id": "distributed",
+      "status": "OPEN",
+      "required": "Rendezvous/process groups, collectives, async work, failure/timeouts, DDP/FSDP/DTensor and distributed state",
+      "remaining": "No native distributed implementation"
+    },
+    {
+      "id": "compiler-export",
+      "status": "OPEN",
+      "required": "Graph capture, symbolic shapes, decomposition, AOT/compile/export, transformations, lowering, fusion and executable artifact compatibility",
+      "remaining": "HIA source compilation does not implement torch.compile or torch.export"
+    },
+    {
+      "id": "data-pipelines",
+      "status": "OPEN",
+      "required": "Dataset/dataloader, worker/multiprocessing lifecycle, pinning, sampling, reproducibility, failure and cancellation semantics",
+      "remaining": "No native data-loading or worker service"
+    },
+    {
+      "id": "platform-packaging",
+      "status": "IN_PROGRESS",
+      "required": "All upstream-supported platforms/architectures, native packaging, reproducible toolchain, installation, extension and profiling interfaces",
+      "remaining": "Only one fixed Linux x86-64 native target and compiler profile are qualified"
+    },
+    {
+      "id": "final-integration",
+      "status": "OPEN",
+      "required": "Full original test and application acceptance, independent final review, performance/resource/error qualifications and retirement of replaced implementation paths",
+      "remaining": "Scoped fixture and oracle suites do not constitute the full PyTorch acceptance suite"
+    }
+  ]
+}

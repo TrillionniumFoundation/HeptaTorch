@@ -1,0 +1,20 @@
+--- old/indexed_add_forward.authoring
++++ fixed/indexed_add_forward.authoring
+@@ -20,9 +20,14 @@
+         source = locations >> 32
+         target = locations & 4294967295
+         value = tget(w,b,source)
++        dest = data+target*4
+         if op == 40:
+-            value = mulf(value,getw(w,aux+16))
+-        dest = data+target*4
+-        put4(w,dest,addf(get4(w,dest),value))
++            if getw(w,p) > 1:
++                value = fmaf(getw(w,aux+16),value,get4(w,dest))
++            else:
++                value = addf(get4(w,dest),mulf(value,getw(w,aux+16)))
++        else:
++            value = addf(get4(w,dest),value)
++        put4(w,dest,value)
+         j = j + 1
+     return 1

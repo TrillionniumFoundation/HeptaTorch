@@ -53,7 +53,7 @@ Documentation-only evidence updates after that run leave the tested runtime,
 compiler recipe, oracle code and fixtures unchanged.
 
 The CI workflow installs the pinned **CPU PyTorch 2.15.0+cpu** only as an
-independent test oracle. Its inline test program serializes inputs and invokes
+independent test oracle. Its test program, now in `tests/pytorch_oracle.py`, serializes inputs and invokes
 real PyTorch forward operations, autograd, and optimizers. It never implements
 HeptaTorch's runtime operations. The original gate required exactly 76 cases, zero
 failures, the exact wheel version, source revision and artifact hash, and an
@@ -236,3 +236,148 @@ pairs and all 159 real-PyTorch cases (8,471 values) passed. All 11 oracle origin
 checks passed. `hosted-compiler-profile.json` preserves the complete reports and
 binds the expanded compiler hash to that run. This receipt update changes no
 compiler recipe, runtime source, test definition, tolerance or fixture bytes.
+
+## Tensor composition and indexed accumulation
+
+**Executed native reviews: PASS. New complete hosted differential gate: NOT_RUN
+in this receipt.** [Tensor composition evidence](tensor-composition-native.json)
+binds the complete per-case records to source
+`264e9c5c4e8ea1834724cc0d8d859952016daffe4af330a8daa7745e7a5e5233`
+and monolithic executable
+`5b992e5f07fe1167aacf31d9fd07a053b3b02fc1bd1149c06f8ccd164ef96bb0`.
+The build contains 143 functions, 1,783 blocks and 7,064 instructions. These
+reviews cover commands 34–37 (`cat`, `stack`, `scatter_add`, `index_add`) and
+their interaction with existing native operators, saved versions, repeated
+backward and graph reset in the current CPU binary32/rank-at-most-four profile.
+
+| Evidence group | Cases | Value comparisons | Reference and execution |
+| --- | ---: | ---: | --- |
+| Independent composition review | 64 | 3,738 | Native monolithic image against independent NumPy composition, analytical VJP and SGD |
+| Cat/stack semantics and layout | 81 | 1,673 | 73 semantic cases/107 values plus eight layout cases/1,566 values; independent NumPy and analytical references |
+| Cat/stack failure atomicity | 16 | Separate state-preservation assertions | Instrumented native harness, with production functions preserved and a test-only dispatcher |
+| Cat/stack hosted layout replay | 8 | 924 | Native monolithic image compared with actual recorded pinned PyTorch values and metadata |
+| Scatter/index addition | 100 | 1,553 | Independent coordinate formulas and explicit admission/refusal expectations |
+| Indexed-addition supplemental review | 9 | 1,652 | Shared transpose aliases and binary32 special-value arithmetic |
+| Index-add alpha replay | 6 | 102 exact binary32 values | Native monolithic image compared with actual recorded pinned CPU PyTorch bits |
+| Indexed boundary replay | 12 | 64 | Actual recorded PyTorch forward/backward results, exceptions and gradient shapes |
+| Mixed new-operator graph review | 3 | 102 | Independent full-chain forward calculation and central finite differences for eight leaf coordinates, plus rejection and untracked-source controls |
+
+These are separate suites with different case definitions and units. They are
+not added into a count of unique upstream PyTorch tests. The 16 atomicity cases
+use harness image `56daa05dc3fbd005f6f48e4052b13575fbc2a12646161d19bc70d33a244e6058`:
+all production functions except its dispatcher are byte-identical, the original
+dispatcher remains available as `command_base`, and the extra opcode 99 is
+absent from production. A producer report's historical “pending layout” text is
+retained; the later eight-case hosted layout replay supplies that specific
+comparison without claiming the new complete main oracle ran.
+
+The [original boundary observations](hosted-boundary-observations.json) retain
+their own CI commits, run URLs, exact oracle provenance and original JSON-line
+hashes. The twelve indexed observations, twenty-two empty-shape observations,
+six alpha observations and eight layout observations remain **OBSERVED** at that
+layer. Replaying them on the current native image is a separately recorded
+operation. Their signed-i64 payloads were parsed as arbitrary-precision integers;
+the value `9223372036854775807` is preserved exactly.
+
+### Retained alpha failure and correction
+
+The first index-add candidate separately rounded multiplication and addition at
+every rank. Its [original failure report](tensor-composition-alpha-failure.json)
+is preserved byte for byte: three of six cases failed, with 67 mismatching
+binary32 values among 102 compared values. The old source and executable hashes
+remain in the aggregate receipt; the failed image is not relabeled as the
+current one.
+
+The [focused kernel diff](tensor-composition-alpha-kernel.diff) records the
+authoring change that emits the native HIA update. The emitted old and current
+`indexed_add_forward` functions have hashes
+`d6f95963aa6467898b2cb0a44554a46ee5e95af18d8ce2c4ea15d68c995714e1`
+and `f5743c8f0dece54ebe8abf574c786cef38a066ba44236fa3decaf307b68404d5`.
+Rank zero and one retain separate multiply/add rounding; rank above one uses
+`fmaf(alpha, source, current)`. All six recorded cases and 102 exact values then
+match the current image using the same observations and comparison rules. The
+whole current source includes other integration changes as well; the focused
+diff does not claim the complete old and current runtimes differ only by that
+function. No old full runtime is vendored in this evidence set.
+
+This rounding rule is qualified for the locked `2.15.0+cpu` wheel and recorded
+Linux x86-64 CPU/ISA execution. It does not establish identical rounding across
+all upstream devices, CPUs, vector widths, schedules or future builds.
+
+### Empty-stride correction and packet corpus
+
+All 275 requests from baseline commit
+`31d5b1483714b32254730ba56787884c5c76e2fb` are byte-identical. Of their expected
+responses, 274 are unchanged. The response for
+`session-implementation-reset-empty-owned-leaf` changes exactly one decoded
+byte, offset 280 from `0` to `1`, correcting shape `[2,0]` strides from `[0,1]`
+to `[1,1]`. The request, stored-file hashes, decoded-byte hashes and original
+pending-review record are all retained in the aggregate receipt. The correction
+follows the pinned [contiguous-stride rule](https://github.com/pytorch/pytorch/blob/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/c10/core/TensorImpl.h) of multiplying by `max(dimension,1)`,
+also checked against the recorded empty-shape examples. That probe does not
+contain a direct `[2,0]` creation row; the evidence does not imply it does.
+
+The staged corpus now has 461 input/output pairs: 275 baseline pairs, 81 cat/stack
+pairs, 100 indexed-addition pairs and five additional mixed-composition packets.
+The aggregate receipt retains the complete current file inventory and its
+deterministic hash. [Build integration](build-integration.json) separately records
+the actual canonical 461-pair monolithic gate passing. It also preserves the
+initial hex-transport failure and correction: an encoded request exceeded the
+decoder wrapper's input capacity; complete byte-pair chunks are now decoded by
+the unchanged native decoder, with neither fixture bytes nor runtime bytes
+changed for that fix. Packet counts remain distinct from numerical review case
+counts.
+
+The new main oracle is configured for exactly **268 cases = 159 existing + 35
+cat/stack + 74 indexed-addition**. Its script hash is recorded in the aggregate
+receipt. A complete successful hosted result for that changed gate is not
+asserted here; historical passing runs and the small probes keep their original
+source identities. Linked-module image qualification is recorded separately;
+this receipt binds its production numerical reviews to the monolithic image.
+The upstream denominator remains 2,590 native schemas and
+`full_rewrite_complete` remains false.
+
+## Native borrowed modules and dual build integration
+
+`native-modules.json` binds the native module compiler, native linker, verified
+upstream authoring closure, three identical native compiler generations, source
+partition, object relocations and actual linked runtime. Its complete reports
+record 69 native boundary cases, 204 independent contract cases, 19 independent
+alias/effect/lifetime cases, 18 guarded flat-ABI cases and two ordinary-mode byte
+comparisons. The current 143 function bodies are preserved in independent units
+of 63 and 80 definitions, with 52 borrowed imports and 1,108 symbolic PLT32 call
+relocations. The linked image is
+`cf78556c3c512227ffe123635b76e5a6af97697606e8ba3535c56f5101f4f80d`.
+
+`build-integration.json` records a fresh rebuild through the canonical portable
+scripts and the actual Makefile. Both the default linked image and monolithic
+reference image pass all 461 packet pairs through the native HIA hex decoder.
+`fixture-manifest.json` binds all 922 text files, the current source and both
+executable identities. `oracle-extension-custody.json` records unchanged Python
+ASTs for all prior oracle functions and serializer methods; new case families
+run after all prior case families.
+
+The module profile supports checked borrowed buffers. Its contract explicitly
+leaves owned-resource transfer, allocation, resource results, arbitrary foreign
+pointer provenance, machine-code authenticity and whole-program stack cost
+unqualified. These finite suites do not close the full resource-ABI gate or any
+whole-PyTorch acceptance gate.
+
+## Observed dual-build tensor-composition result
+
+**PASS:** [Run 43788929713](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43788929713)
+tested commit `724cbf2eb19d2ef8d400615d7196f5397cb402f6`. The native-linked and
+monolithic builds each passed all 461 production packet pairs, all 268 uniquely
+named real-PyTorch cases and 12,932 value comparisons, with zero failed cases.
+All 11 exact oracle-provenance checks passed for each build, and both executable
+hashes were unchanged during the run. Compiler reproduction, the historical
+legacy witness, the 16 capacity cases and the 69/204/19/18 module suites passed.
+
+`hosted-tensor-composition.json` contains both complete oracle reports, actual
+build/module gate results, step conclusions and exact source/oracle/fixture
+identities. Re-serializing each captured report reproduces its hosted file
+SHA-256. It adds the actual hosted outcome after the earlier native-review
+receipt, which continues to record that its own main-oracle execution was
+NOT_RUN at assembly time. Historical failed and successful receipts are not
+rebound to this source. This evidence update changes no runtime, compiler,
+workflow, numerical case, tolerance or fixture bytes.
