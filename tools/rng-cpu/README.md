@@ -135,7 +135,7 @@ The PyTorch mode compares actual `rand`, `randint`, raw64 and complete generator
 state with the exact locked wheel, including all eleven provenance checks and
 two normal-cache import observations. Raw32 full outputs use the independent
 standard/CPython reference; the Torch comparison additionally checks their low31
-projection and exact full-state advancement. Actual hosted results are pending.
+projection and exact full-state advancement. Run [43806361208](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43806361208) passed all twelve workflow steps: 76 actual PyTorch cases, 114 native invocations, 719,337 exact values and 455,040 state bytes, with all eleven provenance checks. The full source-bound receipt is `validation/hosted-native-rng.json`.
 
 This component has explicit state input/output. Persistent Generator objects,
 default/global RNG state, concurrent access, numerical Tensor filling, other
