@@ -1,0 +1,515 @@
+{
+  "schema": "heptatorch.independent-owned-tensor-migration-review.v1",
+  "status": "PASS",
+  "candidate_executable_sha256": "05c5544da2b7b34a8db9bd019a3ad0fa930f9ed5c18fd4b7582e7150f21eaeea",
+  "canonical_executable_sha256": "cf78556c3c512227ffe123635b76e5a6af97697606e8ba3535c56f5101f4f80d",
+  "transport_observer_sha256": "dee3e4cb25ee1e5e06513e2f33478fbe274d9510ce2aaab9525815c72312946b",
+  "review_script_sha256": "fd633286ad089f584d29217a195b4faea4a9a18a52dc4e4da287fd20160b9f47",
+  "wire_encoder_sha256": "fe104bc6d270cd4ab346964cf783b7002ece885023149a9ce2f547380113eed1",
+  "reference": "Exact rational nonuniform VJP plus separate unchanged canonical native execution",
+  "hosted_pytorch_execution_claimed": false,
+  "native_target_execution": true,
+  "interactive_frames": 16,
+  "responses_before_stdin_eof": true,
+  "exact_scalar_or_f32_fields_compared": 612,
+  "entire_owner_rollback_bytes_compared": 41943040,
+  "created_handle_count": 518,
+  "all_created_handles_unique": true,
+  "initial_owner_capacity": 131072,
+  "grown_owner_capacity": 4194304,
+  "relative_page1_offset_preserved": 57512,
+  "frame_rows": [
+    {
+      "label": "260-owned-leaf-prefix",
+      "expected_status": 0,
+      "observed_status": 0,
+      "request_sha256": "b85f5c46debb141e2512e2d9102debe36c4ab038c32425ca39fb5ab18ce0045e",
+      "reply_sha256": "f91e36450f60f2be46ca83b95d2a87e06815f58982206e850ef7a6a93b5b3177",
+      "reply_bytes": 8760
+    },
+    {
+      "label": "nonuniform-VJP-across-descriptor-page-and-owner-growth",
+      "expected_status": 0,
+      "observed_status": 0,
+      "request_sha256": "831624ea3e5a54c878a4466d91e1b2368a703b85a9f7aac5379755e48fd72f37",
+      "reply_sha256": "125b5168c14d80e6f1d6d61f35ea51056f2403d2b82bb0e5450fd1a770076fe8",
+      "reply_bytes": 740
+    },
+    {
+      "label": "repeat-backward-and-SGD-after-owner-migration",
+      "expected_status": 0,
+      "observed_status": 0,
+      "request_sha256": "35e220ab50ee6781e27a99dd38d426bd755fcddb118bb2af78963ac8e1dde8ac",
+      "reply_sha256": "8b12de5a34cb100ac564ca39482b069c8dbcdaef5730f1bfcf565c637f59018a",
+      "reply_bytes": 400
+    },
+    {
+      "label": "saved-version-failure-after-SGD",
+      "expected_status": 6,
+      "observed_status": 6,
+      "request_sha256": "d5fe0cee952136d832038cb0f51d6d7c3e052f487adb6e987f43feedaa3b0fdb",
+      "reply_sha256": "41ef097bdcb9ace0f53145cf29954828b2860f85d1c0d6fe2e2c8ecf007d4639",
+      "reply_bytes": 32,
+      "entire_owner_bytes_unchanged": true,
+      "owner_bytes": 4194304,
+      "same_returned_owner_pointer": true,
+      "owner_sha256": "654931f7e0c541bd86bcf6da2034d481786f571efcddf640991747f9dfa15725"
+    },
+    {
+      "label": "reset-cannot-retain-nonleaf",
+      "expected_status": 6,
+      "observed_status": 6,
+      "request_sha256": "3a2f19de155c2ae962a85419d1784ce27cbe22c359da6fcf8f362ec04ddccea2",
+      "reply_sha256": "41ef097bdcb9ace0f53145cf29954828b2860f85d1c0d6fe2e2c8ecf007d4639",
+      "reply_bytes": 32,
+      "entire_owner_bytes_unchanged": true,
+      "owner_bytes": 4194304,
+      "same_returned_owner_pointer": true,
+      "owner_sha256": "654931f7e0c541bd86bcf6da2034d481786f571efcddf640991747f9dfa15725"
+    },
+    {
+      "label": "mutation-growth-and-later-unknown-op-whole-frame-rollback",
+      "expected_status": 4,
+      "observed_status": 4,
+      "request_sha256": "77afa50c2d56dd4991219ba9755a2a1f1166d351548e60e707c679eae95018c6",
+      "reply_sha256": "4821913914493240b0f63ee1e4b7df2c2d543e88a8bfdfad3788b036369d538b",
+      "reply_bytes": 32,
+      "entire_owner_bytes_unchanged": true,
+      "owner_bytes": 4194304,
+      "same_returned_owner_pointer": true,
+      "owner_sha256": "654931f7e0c541bd86bcf6da2034d481786f571efcddf640991747f9dfa15725"
+    },
+    {
+      "label": "real-mmap-failure-retains-original-four-MiB-owner",
+      "expected_status": 3,
+      "observed_status": 3,
+      "request_sha256": "cb33b8cb0ca60cc216ab2973dcc7422f729e84e35831885aee1664f5403d6504",
+      "reply_sha256": "0cc2a4ee5988f3a53b5d84f4fab31ccbc959172a8f9c9f98e8348d94c9ce4deb",
+      "reply_bytes": 32,
+      "entire_owner_bytes_unchanged": true,
+      "owner_bytes": 4194304,
+      "same_returned_owner_pointer": true,
+      "owner_sha256": "654931f7e0c541bd86bcf6da2034d481786f571efcddf640991747f9dfa15725"
+    },
+    {
+      "label": "per-dimension-refusal-not-capacity-retry",
+      "expected_status": 3,
+      "observed_status": 3,
+      "request_sha256": "640c65e52a54a4cfd57fd2fc8b2b4327674557cf697bbebb49c48e73756fb49c",
+      "reply_sha256": "0cc2a4ee5988f3a53b5d84f4fab31ccbc959172a8f9c9f98e8348d94c9ce4deb",
+      "reply_bytes": 32,
+      "entire_owner_bytes_unchanged": true,
+      "owner_bytes": 4194304,
+      "same_returned_owner_pointer": true,
+      "owner_sha256": "654931f7e0c541bd86bcf6da2034d481786f571efcddf640991747f9dfa15725"
+    },
+    {
+      "label": "pool-work-budget-refusal-not-capacity-retry",
+      "expected_status": 3,
+      "observed_status": 3,
+      "request_sha256": "b9e8ec4471679a0f587a616f6d438cd96dbaa3363ccb446811f3bcede7c31be6",
+      "reply_sha256": "0cc2a4ee5988f3a53b5d84f4fab31ccbc959172a8f9c9f98e8348d94c9ce4deb",
+      "reply_bytes": 32,
+      "entire_owner_bytes_unchanged": true,
+      "owner_bytes": 4194304,
+      "same_returned_owner_pointer": true,
+      "owner_sha256": "654931f7e0c541bd86bcf6da2034d481786f571efcddf640991747f9dfa15725"
+    },
+    {
+      "label": "reset-retains-descriptor-page-end",
+      "expected_status": 0,
+      "observed_status": 0,
+      "request_sha256": "901c63c7058a301f5f5a9793274af64370de51358fab68cf3a2dc1fbe450eb5f",
+      "reply_sha256": "b66bd9abed47254860056ca973cf278752f3fdb7860437ef85479015e99ba5ee",
+      "reply_bytes": 256
+    },
+    {
+      "label": "old-generation-graph-handle-refused",
+      "expected_status": 1,
+      "observed_status": 1,
+      "request_sha256": "a5a791e9bcefb7d217d7091c3369bf23e73bf359e9041daf9979d6b9aa170e0b",
+      "reply_sha256": "dfbf05fcf8928f0cf22c01d444a26639cfc0c15d00dfe4680aada8d33adcec06",
+      "reply_bytes": 32,
+      "entire_owner_bytes_unchanged": true,
+      "owner_bytes": 4194304,
+      "same_returned_owner_pointer": true,
+      "owner_sha256": "c68a0341ffb403c05a7a1af9a9c9cc467fcc12c59ed53a0cf35300f49e2f7b4c"
+    },
+    {
+      "label": "reuse-slots-and-allocate-next-descriptor-page",
+      "expected_status": 0,
+      "observed_status": 0,
+      "request_sha256": "fc5f4c753dca34a3c161bccc003e7425841e17e57277b91888dec3a85be2225e",
+      "reply_sha256": "e9e3046f9d3c9bef2a030c2581bd0fe3b064367993e038892dd4fced847c4650",
+      "reply_bytes": 8516
+    },
+    {
+      "label": "second-reset-discards-page2-and-advances-generation",
+      "expected_status": 0,
+      "observed_status": 0,
+      "request_sha256": "6b9573a932194218eaecc29624c92359c7df01b702b6c891e31df643b203f805",
+      "reply_sha256": "55e7d0562bf3cbda4db6e84c1c8146405e15533c991a8d8447cba37e2be06ad2",
+      "reply_bytes": 232
+    },
+    {
+      "label": "previous-reused-handle-refused",
+      "expected_status": 1,
+      "observed_status": 1,
+      "request_sha256": "f6c1bc6a92d6eb61986c841bc7387399855f1714600c64d14c94007e3bc4ec4d",
+      "reply_sha256": "dfbf05fcf8928f0cf22c01d444a26639cfc0c15d00dfe4680aada8d33adcec06",
+      "reply_bytes": 32,
+      "entire_owner_bytes_unchanged": true,
+      "owner_bytes": 4194304,
+      "same_returned_owner_pointer": true,
+      "owner_sha256": "5be8dcaa6ace6ab1ec610ad44ba7390de4451a5ade94efaf5a7288ff869ec256"
+    },
+    {
+      "label": "retained-prefix-cannot-change",
+      "expected_status": 7,
+      "observed_status": 7,
+      "request_sha256": "eb44c7202284e8e918a69f952979652f7c0151d8439bc15f19a3a1ce8f124265",
+      "reply_sha256": "275716ba0076f3b196de0a9b2aa8612c328e02007d496583fa8dac7ef2b81d52",
+      "reply_bytes": 32,
+      "entire_owner_bytes_unchanged": true,
+      "owner_bytes": 4194304,
+      "same_returned_owner_pointer": true,
+      "owner_sha256": "5be8dcaa6ace6ab1ec610ad44ba7390de4451a5ade94efaf5a7288ff869ec256"
+    },
+    {
+      "label": "range-index-overflow-refused",
+      "expected_status": 2,
+      "observed_status": 2,
+      "request_sha256": "0b14be6eead39d4ead761fe3c3b39a8432d12ef12d1e179777005eff5cf67c52",
+      "reply_sha256": "1114ea26f92b39c192f46aef6264408dcd02f1dce398fef55b2579cc36c166d9",
+      "reply_bytes": 32,
+      "entire_owner_bytes_unchanged": true,
+      "owner_bytes": 4194304,
+      "same_returned_owner_pointer": true,
+      "owner_sha256": "5be8dcaa6ace6ab1ec610ad44ba7390de4451a5ade94efaf5a7288ff869ec256"
+    }
+  ],
+  "numerical_checks": [
+    {
+      "check": "canonical-square",
+      "values": 6,
+      "expected_bits": [
+        1096876032,
+        1128529920,
+        1091567616,
+        1128529920,
+        1096876032,
+        1109983232
+      ],
+      "actual_bits": [
+        1096876032,
+        1128529920,
+        1091567616,
+        1128529920,
+        1096876032,
+        1109983232
+      ],
+      "pass": true
+    },
+    {
+      "check": "canonical-dx",
+      "values": 6,
+      "expected_bits": [
+        3249405952,
+        3255828480,
+        1108738048,
+        3249864704,
+        3267686400,
+        1111015424
+      ],
+      "actual_bits": [
+        3249405952,
+        3255828480,
+        1108738048,
+        3249864704,
+        3267686400,
+        1111015424
+      ],
+      "pass": true
+    },
+    {
+      "check": "canonical-dw",
+      "values": 6,
+      "expected_bits": [
+        3277291520,
+        1083179008,
+        1133379584,
+        3244949504,
+        3283107840,
+        1103495168
+      ],
+      "actual_bits": [
+        3277291520,
+        1083179008,
+        1133379584,
+        3244949504,
+        3283107840,
+        1103495168
+      ],
+      "pass": true
+    },
+    {
+      "check": "canonical-repeat-dx",
+      "values": 6,
+      "expected_bits": [
+        3257794560,
+        3264217088,
+        1117126656,
+        3258253312,
+        3276075008,
+        1119404032
+      ],
+      "actual_bits": [
+        3257794560,
+        3264217088,
+        1117126656,
+        3258253312,
+        3276075008,
+        1119404032
+      ],
+      "pass": true
+    },
+    {
+      "check": "canonical-repeat-dw",
+      "values": 6,
+      "expected_bits": [
+        3285680128,
+        1091567616,
+        1141768192,
+        3253338112,
+        3291496448,
+        1111883776
+      ],
+      "actual_bits": [
+        3285680128,
+        1091567616,
+        1141768192,
+        3253338112,
+        3291496448,
+        1111883776
+      ],
+      "pass": true
+    },
+    {
+      "check": "canonical-SGD",
+      "values": 6,
+      "expected_bits": [
+        1094582272,
+        1098907648,
+        3246129152,
+        1098186752,
+        1110503424,
+        3246964736
+      ],
+      "actual_bits": [
+        1094582272,
+        1098907648,
+        3246129152,
+        1098186752,
+        1110503424,
+        3246964736
+      ],
+      "pass": true
+    },
+    {
+      "check": "owned-square",
+      "values": 6,
+      "expected_bits": [
+        1096876032,
+        1128529920,
+        1091567616,
+        1128529920,
+        1096876032,
+        1109983232
+      ],
+      "actual_bits": [
+        1096876032,
+        1128529920,
+        1091567616,
+        1128529920,
+        1096876032,
+        1109983232
+      ],
+      "pass": true
+    },
+    {
+      "check": "two-MiB-data-tail",
+      "values": 3,
+      "expected_bits": [
+        1040187392,
+        1040187392,
+        1040187392
+      ],
+      "actual_bits": [
+        1040187392,
+        1040187392,
+        1040187392
+      ],
+      "pass": true
+    },
+    {
+      "check": "owned-dx",
+      "values": 6,
+      "expected_bits": [
+        3249405952,
+        3255828480,
+        1108738048,
+        3249864704,
+        3267686400,
+        1111015424
+      ],
+      "actual_bits": [
+        3249405952,
+        3255828480,
+        1108738048,
+        3249864704,
+        3267686400,
+        1111015424
+      ],
+      "pass": true
+    },
+    {
+      "check": "owned-dw",
+      "values": 6,
+      "expected_bits": [
+        3277291520,
+        1083179008,
+        1133379584,
+        3244949504,
+        3283107840,
+        1103495168
+      ],
+      "actual_bits": [
+        3277291520,
+        1083179008,
+        1133379584,
+        3244949504,
+        3283107840,
+        1103495168
+      ],
+      "pass": true
+    },
+    {
+      "check": "owned-repeat-dx",
+      "values": 6,
+      "expected_bits": [
+        3257794560,
+        3264217088,
+        1117126656,
+        3258253312,
+        3276075008,
+        1119404032
+      ],
+      "actual_bits": [
+        3257794560,
+        3264217088,
+        1117126656,
+        3258253312,
+        3276075008,
+        1119404032
+      ],
+      "pass": true
+    },
+    {
+      "check": "owned-repeat-dw",
+      "values": 6,
+      "expected_bits": [
+        3285680128,
+        1091567616,
+        1141768192,
+        3253338112,
+        3291496448,
+        1111883776
+      ],
+      "actual_bits": [
+        3285680128,
+        1091567616,
+        1141768192,
+        3253338112,
+        3291496448,
+        1111883776
+      ],
+      "pass": true
+    },
+    {
+      "check": "owned-SGD",
+      "values": 6,
+      "expected_bits": [
+        1094582272,
+        1098907648,
+        3246129152,
+        1098186752,
+        1110503424,
+        3246964736
+      ],
+      "actual_bits": [
+        1094582272,
+        1098907648,
+        3246129152,
+        1098186752,
+        1110503424,
+        3246964736
+      ],
+      "pass": true
+    },
+    {
+      "check": "retained-parameter-after-reset",
+      "values": 6,
+      "expected_bits": [
+        1094582272,
+        1098907648,
+        3246129152,
+        1098186752,
+        1110503424,
+        3246964736
+      ],
+      "actual_bits": [
+        1094582272,
+        1098907648,
+        3246129152,
+        1098186752,
+        1110503424,
+        3246964736
+      ],
+      "pass": true
+    },
+    {
+      "check": "new-generation-scalar",
+      "values": 1,
+      "expected_bits": [
+        1061158912
+      ],
+      "actual_bits": [
+        1061158912
+      ],
+      "pass": true
+    },
+    {
+      "check": "retained-parameter-after-page2-allocation",
+      "values": 6,
+      "expected_bits": [
+        1094582272,
+        1098907648,
+        3246129152,
+        1098186752,
+        1110503424,
+        3246964736
+      ],
+      "actual_bits": [
+        1094582272,
+        1098907648,
+        3246129152,
+        1098186752,
+        1110503424,
+        3246964736
+      ],
+      "pass": true
+    }
+  ],
+  "pytorch_api_denominator": 2590,
+  "full_rewrite_complete": false
+}

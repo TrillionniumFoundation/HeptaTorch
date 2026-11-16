@@ -1,0 +1,120 @@
+hia-asm.v1 hepta.hia.program.v8 owned_tensor_session
+exports(step,close)
+fn init(w:mutbuf) -> (u64) effects(read,write,trap) external()
+fn state_header(w:mutbuf) -> (u64) effects(read,write,trap) external()
+fn getw(w:mutbuf,at:u64) -> (u64) effects(read,write,trap) external()
+fn entry(s:readbuf,o:mutbuf,w:mutbuf) -> (u32) effects(read,write,trap) external()
+fn frame_valid(s:readbuf) -> (u64) effects(read,write,trap) external()
+fn reply_error(o:mutbuf,status:u64) -> (u64) effects(read,write,trap) external()
+fn growth_capacity(current:u64,needed:u64) -> (u64) effects(read,write,trap) external()
+fn make_trial(state:buffer,capacity:u64) -> (buffer,buffer,u64) effects(alloc,read,write,trap) entry(b0)
+block b0(state:buffer,capacity:u64)
+  amount:usize = int.cast(capacity) {"mode":"wrap"}
+  trial:buffer,ok:bool = buffer.try_new(amount)
+  branch ok allocated(state,trial) no_allocation(state,trial)
+block no_allocation(s0:buffer,t0:buffer)
+  failed:u64 = const() {"value":3}
+  ret(s0,t0,failed)
+block allocated(s1:buffer,t1:buffer)
+  size:usize = buffer.len(s1)
+  zero:usize = const() {"value":0}
+  empty:bool = compare.eq(size,zero)
+  branch empty initialize(s1,t1) clone(s1,t1,size)
+block initialize(s2:buffer,t2:buffer)
+  m2:mutbuf = borrow.mut(t2)
+  initialized:u64 = call(m2) {"function":"init"}
+  _ = loan.end(m2)
+  good2:u64 = const() {"value":0}
+  ret(s2,t2,good2)
+block clone(s3:buffer,t3:buffer,size3:usize)
+  source3:readbuf = borrow.read(s3)
+  target3:mutbuf = borrow.mut(t3)
+  zero3:usize = const() {"value":0}
+  _ = buffer.copy_range(target3,source3,zero3,zero3,size3)
+  _ = loan.end(target3)
+  _ = loan.end(source3)
+  good3:u64 = const() {"value":0}
+  ret(s3,t3,good3)
+end
+fn step(s:readbuf,o:mutbuf,state:buffer) -> (buffer,u32) effects(alloc,read,write,trap) entry(b0)
+block b0(s:readbuf,o:mutbuf,state:buffer)
+  output_size:usize = buffer.len(o)
+  minimum:usize = const() {"value":32}
+  short:bool = compare.lt(output_size,minimum)
+  branch short no_output(state) envelope(s,o,state)
+block no_output(st0:buffer)
+  zero0:u32 = const() {"value":0}
+  ret(st0,zero0)
+block envelope(s1:readbuf,o1:mutbuf,st1:buffer)
+  status1:u64 = call(s1) {"function":"frame_valid"}
+  zero1:u64 = const() {"value":0}
+  valid1:bool = compare.eq(status1,zero1)
+  branch valid1 start(s1,o1,st1) invalid(o1,st1,status1)
+block invalid(o2:mutbuf,st2:buffer,error2:u64)
+  size2:u64 = call(o2,error2) {"function":"reply_error"}
+  result2:u32 = int.cast(size2) {"mode":"wrap"}
+  ret(st2,result2)
+block start(s3:readbuf,o3:mutbuf,st3:buffer)
+  loan3:mutbuf = borrow.mut(st3)
+  admitted3:u64 = call(loan3) {"function":"state_header"}
+  _ = loan.end(loan3)
+  normal3:u64 = const() {"value":0}
+  valid3:bool = compare.eq(admitted3,normal3)
+  branch valid3 state_capacity(s3,o3,st3) invalid(o3,st3,admitted3)
+block state_capacity(s3a:readbuf,o3a:mutbuf,st3a:buffer)
+  raw3:usize = buffer.len(st3a)
+  size3:u64 = int.cast(raw3) {"mode":"wrap"}
+  zero3:u64 = const() {"value":0}
+  empty3:bool = compare.eq(size3,zero3)
+  initial3:u64 = const() {"value":65536}
+  capacity3:u64 = select(empty3,initial3,size3)
+  jump attempt(s3a,o3a,st3a,capacity3)
+block attempt(s4:readbuf,o4:mutbuf,st4:buffer,capacity4:u64)
+  original4:buffer,trial4:buffer,status4:u64 = call(st4,capacity4) {"function":"make_trial"}
+  zero4:u64 = const() {"value":0}
+  allocated4:bool = compare.eq(status4,zero4)
+  branch allocated4 execute(s4,o4,original4,trial4,capacity4) failed(o4,original4,trial4,status4)
+block execute(s5:readbuf,o5:mutbuf,original5:buffer,trial5:buffer,capacity5:u64)
+  m5:mutbuf = borrow.mut(trial5)
+  returned5:u32 = call(s5,o5,m5) {"function":"entry"}
+  hint_at5:u64 = const() {"value":48}
+  hint5:u64 = call(m5,hint_at5) {"function":"getw"}
+  reason_at5:u64 = const() {"value":56}
+  reason5:u64 = call(m5,reason_at5) {"function":"getw"}
+  _ = loan.end(m5)
+  status_at5:u64 = const() {"value":24}
+  status5:u64 = call(o5,status_at5) {"function":"getw"}
+  zero5:u64 = const() {"value":0}
+  success5:bool = compare.eq(status5,zero5)
+  branch success5 commit(original5,trial5,returned5) refusal(s5,o5,original5,trial5,capacity5,hint5,reason5,status5)
+block commit(original6:buffer,trial6:buffer,returned6:u32)
+  _ = owner.drop(original6)
+  ret(trial6,returned6)
+block refusal(s7:readbuf,o7:mutbuf,original7:buffer,trial7:buffer,capacity7:u64,hint7:u64,reason7:u64,status7:u64)
+  space7:u64 = const() {"value":3}
+  allocation7:bool = compare.eq(status7,space7)
+  reason_expected7:u64 = const() {"value":1}
+  reason_valid7:bool = compare.eq(reason7,reason_expected7)
+  needs_allocation7:bool = bool.and(allocation7,reason_valid7)
+  more7:bool = compare.gt(hint7,capacity7)
+  retry7:bool = bool.and(needs_allocation7,more7)
+  branch retry7 larger(s7,o7,original7,trial7,capacity7,hint7,status7) failed(o7,original7,trial7,status7)
+block larger(s8:readbuf,o8:mutbuf,original8:buffer,trial8:buffer,capacity8:u64,hint8:u64,status8:u64)
+  next8:u64 = call(capacity8,hint8) {"function":"growth_capacity"}
+  zero8:u64 = const() {"value":0}
+  viable8:bool = compare.ne(next8,zero8)
+  branch viable8 retry(s8,o8,original8,trial8,next8) failed(o8,original8,trial8,status8)
+block retry(s9:readbuf,o9:mutbuf,original9:buffer,trial9:buffer,next9:u64)
+  _ = owner.drop(trial9)
+  jump attempt(s9,o9,original9,next9)
+block failed(of:mutbuf,originalf:buffer,trialf:buffer,statusf:u64)
+  _ = owner.drop(trialf)
+  sizef:u64 = call(of,statusf) {"function":"reply_error"}
+  resultf:u32 = int.cast(sizef) {"mode":"wrap"}
+  ret(originalf,resultf)
+end
+fn close(state:buffer) -> () effects(alloc,trap) entry(b0)
+block b0(state:buffer)
+  _ = owner.drop(state)
+  ret()
+end

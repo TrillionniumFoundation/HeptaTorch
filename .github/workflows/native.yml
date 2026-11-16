@@ -477,6 +477,15 @@ jobs:
             HEPTA_OWNED_LINKER="$RUNNER_TEMP/hepta-owned-modules/native/linker-abi2-w1m" \
             HEPTA_OWNED_SESSION_BUILD="$RUNNER_TEMP/hepta-owned-session-tools"
 
+      - name: Build and qualify paged owned Tensor execution and real growth
+        shell: bash
+        run: |
+          make owned-tensors test-owned-tensors \
+            HEPTA_COMPILER="$RUNNER_TEMP/hepta-expanded/hia-native-compiler" \
+            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
+            HEPTA_OWNED_COMPILER="$RUNNER_TEMP/hepta-owned-modules/native/owned-module-compiler" \
+            HEPTA_OWNED_SESSION_BUILD="$RUNNER_TEMP/hepta-owned-session-tools"
+
       - name: Install the independent pinned PyTorch CPU oracle
         shell: bash
         run: |
@@ -584,3 +593,11 @@ jobs:
 
       - name: Observe pinned PyTorch empty-tensor metadata
         run: python3 tests/pytorch_empty_semantics.py build/empty-semantics.json
+
+      - name: Compare owned Tensor execution and absolute parameter versions with pinned PyTorch
+        run: |
+          python3 tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py \
+            build/owned-tensors/owned-tensor-session build/pytorch-owned-tensor.json \
+            --session-reference tests/pytorch_session_oracle.py \
+            --reference tests/pytorch_oracle.py \
+            --lock compatibility/pytorch-oracle-lock.json --repo .

@@ -19,7 +19,7 @@
       "id": "storage-lifetime",
       "status": "IN_PROGRESS",
       "required": "General allocation, storage ownership, aliasing, reference lifetime, persistent execution, scalable capacity and device memory",
-      "remaining": "The separately qualified byte-storage service implements independent Tensor/Storage/Version handles, strong/weak/saved lifetimes, reusable extents, genuinely growing owned pools, interactive owner transfer and whole-frame rollback including actual allocation failure. The numerical Tensor runtime still uses its prior 1 MiB state/255 descriptors. Integrating typed Tensor kernels with independent storage objects, general dtype/layout/device allocation, concurrent lifetime, custom deleters and restart durability remains open."
+      "remaining": "The separately qualified byte-storage service implements independent Tensor/Storage/Version handles, strong/weak/saved lifetimes, reusable extents and genuinely growing owned pools. A separate numerical Tensor candidate now executes binary32 AD and optimizer kernels across actual owner growth, 65,535 paged descriptors and full-frame rollback including actual allocation failure. Its descriptors still couple storage and version identity; independent object integration, general dtype/layout/device allocation, concurrent lifetime, custom deleters and restart durability remain open."
     },
     {
       "id": "dtype-layout",
@@ -37,7 +37,7 @@
       "id": "views-mutation",
       "status": "IN_PROGRESS",
       "required": "All view/stride/offset/overlap/indexing semantics, out and inplace variants, alias/version behavior and mutation errors",
-      "remaining": "Scoped transpose, contiguous view, detach, cat/stack layout selection and indexed accumulation are implemented; full offset/overlap/stride, mutation/out variants and complete dtype/device behavior remain unqualified. Packet payload import currently increments the owner counter per element, so absolute torch._version parity is not qualified; shared increments and saved-version invalidation are checked separately."
+      "remaining": "Scoped transpose, contiguous view, detach, cat/stack layout selection and indexed accumulation are implemented. The growable numerical candidate starts constructed versions at zero and adds a strict 28-case real PyTorch gate; full optimizer counter parity is not yet qualified. The old borrowed runtime keeps its historical payload-write counting. Complete offset/overlap/stride, mutation/out variants and dtype/device behavior remain unqualified."
     },
     {
       "id": "autodiff-transforms",

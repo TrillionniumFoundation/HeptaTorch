@@ -372,3 +372,41 @@ computes independent test expectations.
 CI repeats these commands after the owned-module toolchain and keeps both
 ordinary and both interactive pinned PyTorch gates required. Passing the byte
 service does not qualify its still-pending numerical Tensor integration.
+
+## Building growable numerical Tensors
+
+After reproducing the owned module compiler and owned session tools above:
+
+```sh
+make owned-tensors test-owned-tensors \
+  HEPTA_COMPILER=/absolute/path/to/expanded-hia-native-compiler \
+  HEPTA_SOURCE_ROOT=/absolute/path/to/pinned-hepta \
+  HEPTA_OWNED_COMPILER=/absolute/path/to/owned-module-build/native/owned-module-compiler \
+  HEPTA_OWNED_SESSION_BUILD=/absolute/path/to/new-owned-session-tools
+```
+
+The resulting native service is `build/owned-tensors/owned-tensor-session`.
+The checker verifies the exact 23-file implementation package, 15-file independent
+review, and 5-file PyTorch-oracle package; it binds all generated units, the native
+producer, the 150-function source mapping and the resulting executable. It then
+checks the 11 native scenario groups, six real typed-owner probes and the separate
+reviewer's 16-frame numerical/lifetime campaign. Failed and successful review
+directories are preserved. The actual aggregate is
+`build/hosted-owned-tensor-native.json`.
+
+After installing the exact locked CPU wheel as described above, run:
+
+```sh
+python3 tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py \
+  build/owned-tensors/owned-tensor-session build/owned-tensor-pytorch.json \
+  --session-reference tests/pytorch_session_oracle.py \
+  --reference tests/pytorch_oracle.py \
+  --lock compatibility/pytorch-oracle-lock.json --repo .
+```
+
+This distinct gate requires 28 actual cases and all 11 wheel provenance checks.
+It preserves the old numerical assertions and tolerances by an AST reconstruction
+check, while adding absolute parameter-version assertions. A native scoped PASS
+cannot replace this gate. The current candidate still couples allocation and
+version identity in its Tensor descriptor; the independently qualified byte
+Storage/Version object service has not yet been connected to these kernels.
