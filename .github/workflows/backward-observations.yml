@@ -3,7 +3,7 @@ on:
   push:
     branches: ["feature/native-tensor-objects", "feature/native-backward-release", "feature/native-backward-partial", "feature/native-cpu-generators", "feature/native-gradient-none", "feature/native-optimizer-objects"]
   pull_request:
-    paths: ["tests/pytorch_backward_release_probe.py", "tests/pytorch_backward_partial_probe.py", "tests/pytorch_gradient_presence_probe.py", "tests/pytorch_gradient_signed_zero_probe.py", "tests/pytorch_grad_clear_probe.py", "tests/pytorch_optimizer_object_probe.py", "tests/pytorch_requires_grad_probe.py", "tests/pytorch_accumulator_lifetime_probe.py", "tests/pytorch_gradient_object_probe.py", "tests/pytorch_bernoulli_dropout_probe.py", "tests/pytorch_uniform_probe.py", "tests/pytorch_uniform_range_probe.py", "tests/pytorch_gradient_materialization_probe.py", "tests/pytorch_gradient_alias_edge_probe.py", "tests/pytorch_bernoulli_gradient_layout_probe.py", ".github/workflows/backward-observations.yml"]
+    paths: ["tests/pytorch_backward_release_probe.py", "tests/pytorch_backward_partial_probe.py", "tests/pytorch_gradient_presence_probe.py", "tests/pytorch_gradient_signed_zero_probe.py", "tests/pytorch_grad_clear_probe.py", "tests/pytorch_optimizer_object_probe.py", "tests/pytorch_requires_grad_probe.py", "tests/pytorch_accumulator_lifetime_probe.py", "tests/pytorch_gradient_object_probe.py", "tests/pytorch_bernoulli_dropout_probe.py", "tests/pytorch_uniform_probe.py", "tests/pytorch_uniform_range_probe.py", "tests/pytorch_gradient_materialization_probe.py", "tests/pytorch_gradient_alias_edge_probe.py", "tests/pytorch_bernoulli_gradient_layout_probe.py", "tests/pytorch_zero_merge_layout_probe.py", "tests/pytorch_scalar_add_nan_probe.py", ".github/workflows/backward-observations.yml"]
   workflow_dispatch:
 permissions:
   contents: read
@@ -173,6 +173,46 @@ jobs:
         run: |
           test -f build/torch-bernoulli-gradient-layout.json
           python3 -I -S -B tools/emit_ci_report.py build/torch-bernoulli-gradient-layout.json
+      - name: Verify fixed mixed zero and nonzero gradient layout source
+        run: |
+          echo '3f8c8c6b3d8bb86cdbfe574ab92ac2c43f6817e3b6cc32b1f4e48957cd8816ae  tests/pytorch_zero_merge_layout_probe.py' | sha256sum -c -
+          python3 -I -S -B -m py_compile tests/pytorch_zero_merge_layout_probe.py
+      - name: Prepare both mixed zero and nonzero gradient creation orders
+        run: |
+          python3 -I -S -B tests/pytorch_zero_merge_layout_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/torch-zero-merge-layout-prepared.json --prepare-only
+          python3 -I -S -B tools/emit_ci_report.py build/torch-zero-merge-layout-prepared.json
+      - name: Observe mixed Bernoulli and nonzero gradients in both creation orders
+        run: |
+          python3 tests/pytorch_zero_merge_layout_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/torch-zero-merge-layout.json
+      - name: Preserve complete mixed zero and nonzero gradient observations
+        if: always()
+        run: |
+          test -f build/torch-zero-merge-layout.json
+          python3 -I -S -B tools/emit_ci_report.py build/torch-zero-merge-layout.json
+      - name: Verify fixed scalar addition NaN payload observation source
+        run: |
+          echo 'bd4660bf02d32e175d8c9802c09f2dcc93b4f589d06749ae43645544fb76936a  tests/pytorch_scalar_add_nan_probe.py' | sha256sum -c -
+          python3 -I -S -B -m py_compile tests/pytorch_scalar_add_nan_probe.py
+      - name: Prepare scalar addition NaN payload variants
+        run: |
+          python3 -I -S -B tests/pytorch_scalar_add_nan_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/torch-scalar-add-nan-prepared.json --prepare-only
+          python3 -I -S -B tools/emit_ci_report.py build/torch-scalar-add-nan-prepared.json
+      - name: Observe scalar addition NaN payloads across layouts and vector widths
+        run: |
+          python3 tests/pytorch_scalar_add_nan_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/torch-scalar-add-nan.json
+      - name: Preserve complete scalar addition NaN payload observations
+        if: always()
+        run: |
+          test -f build/torch-scalar-add-nan.json
+          python3 -I -S -B tools/emit_ci_report.py build/torch-scalar-add-nan.json
       - name: Index original reference reports and checkout identity
         if: always()
         env:
