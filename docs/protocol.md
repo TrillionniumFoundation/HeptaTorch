@@ -412,3 +412,18 @@ The outer native ELF wrapper rejects input larger than 1 MiB with process exit
 allocation failure exits 4. Those process-level failures are distinct from the
 structured statuses above. No background service, network listener, GPU context,
 or distributed process group is created by this executable.
+
+## Optional interactive framing
+
+The ordinary executable still consumes one `HTORCH01` packet. The optional
+`heptatorch-session` process accepts a sequence of `HTOSES01` frames and emits a
+`HTOSRP01` response before reading the next frame, without requiring stdin EOF.
+The complete byte-level contract, canonical failed response, atomic state
+commit, EOF behavior and native error exits are specified in
+[tools/session/CONTRACT.md](../tools/session/CONTRACT.md).
+
+This entry keeps state across requests in one process. It uses two one-MiB
+arenas and can commit or discard the complete packet, including graph-reset
+generations, gradients and optimizer states. It has no owner outside those
+arenas and does not establish general storage allocation or persistence after
+process exit. The same numerical kernels serve both entry modes.

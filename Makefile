@@ -2,15 +2,24 @@ SHELL := /bin/sh
 HEPTA_COMPILER ?= hia-native-compiler
 HEPTA_MODULE_COMPILER ?= hia-module-compiler
 HEPTA_MODULE_LINKER ?= hia-module-linker
+HEPTA_FLAT_LINKER ?= hia-flat-linker
+HEPTA_SESSION_PACKER ?= hia-session-packer
 COMPILER_SHA256 := c5a9c2b95a3061e080a21298f5b26000936ed9dac519690d845b0699a15744c6
 MODULE_COMPILER_SHA256 := e250d93bc0b2a5ff878d2188c95780abf7e7ebaf186e4531b136fa2735b2af59
 MODULE_LINKER_SHA256 := 1ba40ffe025abfcc2edd8d69f1ad689817598571138c11806af7aa60047fc7b8
+FLAT_LINKER_SHA256 := 4c36e3409b397788664f1501896aff2719f667306795cb5fa95061d710fd6139
+SESSION_PACKER_SHA256 := 22600cee8853b6a49dfbf66154ddcdc99bdbbc6fcfb2face2605ad7117b20a44
+SESSION_INPUTS := src/heptatorch.hepta tools/session/build_runtime.py tools/session/entry.hepta tools/session/profile.json tools/modules/split_runtime.py Makefile
 
-.PHONY: all monolithic test test-monolithic check-compiler check-module-tools acceptance-status full-acceptance clean
+.PHONY: all monolithic session session-monolithic test test-monolithic test-session test-session-monolithic check-compiler check-module-tools check-session-tools check-session-packer acceptance-status full-acceptance clean
 
 all: build/heptatorch build/unhex
 
 monolithic: build/heptatorch-monolithic build/unhex
+
+session: build/heptatorch-session
+
+session-monolithic: build/heptatorch-session-monolithic
 
 check-compiler:
 	@compiler=$$(command -v "$(HEPTA_COMPILER)") || { echo 'Set HEPTA_COMPILER to the pinned native HIA compiler; see docs/build.md.' >&2; exit 1; }; \
@@ -20,6 +29,15 @@ check-module-tools:
 	@set -eu; compiler=$$(command -v "$(HEPTA_MODULE_COMPILER)") || { echo 'Set HEPTA_MODULE_COMPILER to the pinned native module compiler; see docs/build.md.' >&2; exit 1; }; \
 	linker=$$(command -v "$(HEPTA_MODULE_LINKER)") || { echo 'Set HEPTA_MODULE_LINKER to the pinned native module linker; see docs/build.md.' >&2; exit 1; }; \
 	printf '%s  %s\n' '$(MODULE_COMPILER_SHA256)' "$$compiler" '$(MODULE_LINKER_SHA256)' "$$linker" | sha256sum -c -
+
+check-session-packer:
+	@packer=$$(command -v "$(HEPTA_SESSION_PACKER)") || { echo 'Set HEPTA_SESSION_PACKER to the pinned native session packer; see tools/session/README.md.' >&2; exit 1; }; \
+	printf '%s  %s\n' '$(SESSION_PACKER_SHA256)' "$$packer" | sha256sum -c -
+
+check-session-tools: check-session-packer
+	@set -eu; compiler=$$(command -v "$(HEPTA_MODULE_COMPILER)") || { echo 'Set HEPTA_MODULE_COMPILER to the pinned native module compiler.' >&2; exit 1; }; \
+	linker=$$(command -v "$(HEPTA_FLAT_LINKER)") || { echo 'Set HEPTA_FLAT_LINKER to the pinned native flat linker; see tools/session/README.md.' >&2; exit 1; }; \
+	printf '%s  %s\n' '$(MODULE_COMPILER_SHA256)' "$$compiler" '$(FLAT_LINKER_SHA256)' "$$linker" | sha256sum -c -
 
 build:
 	mkdir -p build
@@ -35,6 +53,20 @@ build/heptatorch-monolithic: src/heptatorch.hepta Makefile | build check-compile
 	@set -eu; tmp=$$(mktemp build/.heptatorch.XXXXXX); trap 'rm -f "$$tmp"' EXIT HUP INT TERM; \
 	"$(HEPTA_COMPILER)" < "$<" > "$$tmp"; test -s "$$tmp"; chmod 755 "$$tmp"; mv "$$tmp" "$@"
 
+build/heptatorch-session: $(SESSION_INPUTS) | build check-session-tools
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.session.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	compiler=$$(realpath "$$(command -v "$(HEPTA_MODULE_COMPILER)")"); linker=$$(realpath "$$(command -v "$(HEPTA_FLAT_LINKER)")"); packer=$$(realpath "$$(command -v "$(HEPTA_SESSION_PACKER)")"); \
+	python3 -I -S -B tools/session/build_runtime.py --source "$(CURDIR)/src/heptatorch.hepta" --mode modular \
+	  --module-compiler "$$compiler" --flat-linker "$$linker" --packer "$$packer" --output "$$tmp/native"; \
+	cp "$$tmp/native/build.json" "$@-build.json"; chmod 755 "$$tmp/native/application"; mv "$$tmp/native/application" "$@"
+
+build/heptatorch-session-monolithic: $(SESSION_INPUTS) | build check-compiler check-session-packer
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.session-monolithic.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	compiler=$$(realpath "$$(command -v "$(HEPTA_COMPILER)")"); packer=$$(realpath "$$(command -v "$(HEPTA_SESSION_PACKER)")"); \
+	python3 -I -S -B tools/session/build_runtime.py --source "$(CURDIR)/src/heptatorch.hepta" --mode monolithic \
+	  --compiler "$$compiler" --packer "$$packer" --output "$$tmp/native"; \
+	cp "$$tmp/native/build.json" "$@-build.json"; chmod 755 "$$tmp/native/application"; mv "$$tmp/native/application" "$@"
+
 build/unhex: tools/unhex.hepta | build check-compiler
 	@set -eu; tmp=$$(mktemp build/.unhex.XXXXXX); trap 'rm -f "$$tmp"' EXIT HUP INT TERM; \
 	"$(HEPTA_COMPILER)" < "$<" > "$$tmp"; test -s "$$tmp"; chmod 755 "$$tmp"; mv "$$tmp" "$@"
@@ -45,6 +77,16 @@ test: all
 test-monolithic: monolithic
 	sh tests/run.sh "$(CURDIR)/build/heptatorch-monolithic"
 
+test-session: session
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.session-test.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	python3 -I -S -B tools/session/tests/independent.py --executable "$(CURDIR)/build/heptatorch-session" \
+	  --fixtures "$(CURDIR)/tests/fixtures" --output "$$tmp/review"; cp "$$tmp/review/report.json" build/session-independent-modular.json
+
+test-session-monolithic: session-monolithic
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.session-monolithic-test.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	python3 -I -S -B tools/session/tests/independent.py --executable "$(CURDIR)/build/heptatorch-session-monolithic" \
+	  --fixtures "$(CURDIR)/tests/fixtures" --output "$$tmp/review"; cp "$$tmp/review/report.json" build/session-independent-monolithic.json
+
 acceptance-status:
 	python3 -I -S -B tools/check_acceptance.py
 
@@ -52,4 +94,4 @@ full-acceptance:
 	python3 -I -S -B tools/check_acceptance.py --require-complete
 
 clean:
-	rm -f build/heptatorch build/heptatorch-monolithic build/unhex build/.heptatorch.* build/.unhex.*
+	rm -f build/heptatorch build/heptatorch-monolithic build/heptatorch-session build/heptatorch-session-monolithic build/heptatorch-session-build.json build/heptatorch-session-monolithic-build.json build/session-independent-modular.json build/session-independent-monolithic.json build/unhex build/.heptatorch.* build/.unhex.*
