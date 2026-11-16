@@ -1,0 +1,37 @@
+{
+  "schema": "heptatorch.owned-optimizer-accumulator-additive-qualification.v1",
+  "status": "QUALIFIED_STORAGE_AND_PRIVATE_GRAD_LIFETIME",
+  "parent_frozen_manifest_sha256": "74a133ea1735534f3d92a256474cc8172e84b3943e7566e1878375eea34eeadc",
+  "parent_manifest_unchanged": true,
+  "native_executable_sha256": "b6634158e079512e797d8237cca12d65052db18df23b12b8414adeb8d0b4b0e1",
+  "native_source_sha256": "7c68a96b08aa9a21a52e2fd12be912c5f47dbde889e462f9a0dbb38cb3c09edf",
+  "report_sha256": "fea3e5ce19031caa4d5d9665b133d06682bf030b78d1862974727797cc4eefe8",
+  "reference_sha256": "b6cffbb632c9f71752353c1152e8023d454f9ba3f5837bd7fe7846670a913832",
+  "probe_sha256": "1597219302665e79a840305f2ead58bdfd5472ddca97b0a4092c8d0dd8de96e2",
+  "runner_sha256": "eac45b4bfe739dff12abeb1e672bb8bf471fc2f94123f5f6fbe08ff2b40cdf97",
+  "actual_reference_run": {
+    "run": 43820627562,
+    "job": 133142649615,
+    "commit": "45bd8bffd359ed70c753e790ad5c19746b4d8edd"
+  },
+  "cases": 3,
+  "qualified": 3,
+  "unexpected_failures": 0,
+  "frames": 106,
+  "exact_observation_comparisons": 102,
+  "rollback_bytes": 2140656,
+  "closed_observations": [
+    "Captured AccumulateGrad keeps a disabled, publicly dropped leaf parameter Storage until final graph root release.",
+    "An already defined private gradient allocation and its exact words survive both retained/default backward with accumulation disabled, and expire on final root release.",
+    "A forward nonrequiring input enabled later receives no AccumulateGrad reference; its saved Storage expires on default backward while the root remains live."
+  ],
+  "qualification_limits": [
+    "Python wrapper weakref is diagnostic only and is not equated to native public-token liveness.",
+    "Public grad Tensor identity, Version, layout and assignable aliases are not exposed. The existing private gradient Storage lifetime and exact words are compared."
+  ],
+  "observer_contract": "Read-only inspection of this test child committed owner; no new private/public Storage reference is created by reading grad Hold identity, bits or allocation lifetime.",
+  "count_policy": "These three actual reference recipes are separate from the original 24, the six leaf-flag recipes, and the one native private-root control. Do not rewrite the earlier pending receipt or add comparison counts to unique API coverage.",
+  "pinned_Torch_executed_during_replay": false,
+  "full_rewrite_complete": false,
+  "pytorch_api_denominator": 2590
+}

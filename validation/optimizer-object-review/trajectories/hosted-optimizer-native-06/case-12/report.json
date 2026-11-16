@@ -1,0 +1,1004 @@
+{
+  "case": "SGD-within-group-duplicate-first-and-second-step",
+  "reference_status": "OBSERVED",
+  "status": "QUALIFIED_EXPOSED_SCOPE",
+  "details": {
+    "actions": [
+      {
+        "action": "one shared parameter gradient",
+        "before": {
+          "parameters": {
+            "p": {
+              "metadata": [
+                1,
+                2,
+                1,
+                2,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                4328521730,
+                4345298945,
+                0,
+                0,
+                8
+              ],
+              "binary32_words": [
+                1065353216,
+                3221225472
+              ]
+            }
+          },
+          "gradients": {
+            "p": null
+          },
+          "groups": [
+            [
+              0,
+              2,
+              1040187392,
+              1056964608,
+              1048576000,
+              1048576000,
+              0,
+              0,
+              1,
+              4311744513,
+              1,
+              4311744513
+            ]
+          ],
+          "states": {
+            "p": {
+              "inventory": [
+                1,
+                0,
+                0,
+                0
+              ],
+              "momentum": null
+            }
+          }
+        },
+        "native_result": {
+          "header_status": 0,
+          "runtime_error": 0,
+          "backward_result": [
+            0,
+            1,
+            1,
+            0
+          ]
+        },
+        "after": {
+          "parameters": {
+            "p": {
+              "metadata": [
+                1,
+                2,
+                1,
+                2,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                4328521730,
+                4345298945,
+                0,
+                0,
+                8
+              ],
+              "binary32_words": [
+                1065353216,
+                3221225472
+              ]
+            }
+          },
+          "gradients": {
+            "p": {
+              "binary32_words": [
+                1073741824,
+                3212836864
+              ]
+            }
+          },
+          "groups": [
+            [
+              0,
+              2,
+              1040187392,
+              1056964608,
+              1048576000,
+              1048576000,
+              0,
+              0,
+              1,
+              4311744513,
+              1,
+              4311744513
+            ]
+          ],
+          "states": {
+            "p": {
+              "inventory": [
+                1,
+                0,
+                0,
+                0
+              ],
+              "momentum": null
+            }
+          }
+        }
+      },
+      {
+        "action": "first duplicate step plans two absent buffers",
+        "before": {
+          "parameters": {
+            "p": {
+              "metadata": [
+                1,
+                2,
+                1,
+                2,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                4328521730,
+                4345298945,
+                0,
+                0,
+                8
+              ],
+              "binary32_words": [
+                1065353216,
+                3221225472
+              ]
+            }
+          },
+          "gradients": {
+            "p": {
+              "binary32_words": [
+                1073741824,
+                3212836864
+              ]
+            }
+          },
+          "groups": [
+            [
+              0,
+              2,
+              1040187392,
+              1056964608,
+              1048576000,
+              1048576000,
+              0,
+              0,
+              1,
+              4311744513,
+              1,
+              4311744513
+            ]
+          ],
+          "states": {
+            "p": {
+              "inventory": [
+                1,
+                0,
+                0,
+                0
+              ],
+              "momentum": null
+            }
+          }
+        },
+        "native_result": {
+          "header_status": 0
+        },
+        "after": {
+          "parameters": {
+            "p": {
+              "metadata": [
+                1,
+                2,
+                1,
+                2,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                4328521730,
+                4345298945,
+                2,
+                0,
+                8
+              ],
+              "binary32_words": [
+                1055162368,
+                3218128896
+              ]
+            }
+          },
+          "gradients": {
+            "p": {
+              "binary32_words": [
+                1073741824,
+                3212836864
+              ]
+            }
+          },
+          "groups": [
+            [
+              0,
+              2,
+              1040187392,
+              1056964608,
+              1048576000,
+              1048576000,
+              0,
+              0,
+              1,
+              4311744513,
+              1,
+              4311744513
+            ]
+          ],
+          "states": {
+            "p": {
+              "inventory": [
+                1,
+                1,
+                4,
+                0
+              ],
+              "momentum": {
+                "metadata": [
+                  1,
+                  2,
+                  0,
+                  2,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  8623489030,
+                  4345298947,
+                  0,
+                  0,
+                  8
+                ],
+                "binary32_words": [
+                  1074495488,
+                  3216637952
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        "action": "second duplicate step shares existing buffer",
+        "before": {
+          "parameters": {
+            "p": {
+              "metadata": [
+                1,
+                2,
+                1,
+                2,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                4328521730,
+                4345298945,
+                2,
+                0,
+                8
+              ],
+              "binary32_words": [
+                1055162368,
+                3218128896
+              ]
+            }
+          },
+          "gradients": {
+            "p": {
+              "binary32_words": [
+                1073741824,
+                3212836864
+              ]
+            }
+          },
+          "groups": [
+            [
+              0,
+              2,
+              1040187392,
+              1056964608,
+              1048576000,
+              1048576000,
+              0,
+              0,
+              1,
+              4311744513,
+              1,
+              4311744513
+            ]
+          ],
+          "states": {
+            "p": {
+              "inventory": [
+                1,
+                1,
+                4,
+                0
+              ],
+              "momentum": {
+                "metadata": [
+                  1,
+                  2,
+                  0,
+                  2,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  8623489030,
+                  4345298947,
+                  0,
+                  0,
+                  8
+                ],
+                "binary32_words": [
+                  1074495488,
+                  3216637952
+                ]
+              }
+            }
+          }
+        },
+        "native_result": {
+          "header_status": 0
+        },
+        "after": {
+          "parameters": {
+            "p": {
+              "metadata": [
+                1,
+                2,
+                1,
+                2,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                4328521730,
+                4345298945,
+                4,
+                0,
+                8
+              ],
+              "binary32_words": [
+                3195732412,
+                3214262235
+              ]
+            }
+          },
+          "gradients": {
+            "p": {
+              "binary32_words": [
+                1073741824,
+                3212836864
+              ]
+            }
+          },
+          "groups": [
+            [
+              0,
+              2,
+              1040187392,
+              1056964608,
+              1048576000,
+              1048576000,
+              0,
+              0,
+              1,
+              4311744513,
+              1,
+              4311744513
+            ]
+          ],
+          "states": {
+            "p": {
+              "inventory": [
+                1,
+                1,
+                4,
+                0
+              ],
+              "momentum": {
+                "metadata": [
+                  1,
+                  2,
+                  0,
+                  2,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  8623489030,
+                  4345298947,
+                  4,
+                  0,
+                  8
+                ],
+                "binary32_words": [
+                  1077339614,
+                  3220430120
+                ]
+              }
+            }
+          }
+        }
+      }
+    ],
+    "additional_observations": {
+      "warning_contract": "The native inventory reports one duplicate; it does not create Python warning objects."
+    },
+    "identity_relationships": {
+      "Tensor": {
+        "631583984": [
+          "incarnation",
+          1
+        ],
+        "640615904": [
+          "incarnation",
+          4
+        ]
+      },
+      "Storage": {
+        "638866592": 4328521730,
+        "640362944": 8623489030
+      }
+    }
+  },
+  "native_executed": true,
+  "frames": [
+    {
+      "frame": 1,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "10f447b51fe3daa2c872efe767e8913c74c26def19309e709685f5930e5b7e7d",
+      "response_sha256": "ad51d27674aa864b4312a4718e12a105c4c7c9b2f02687125028a1eeee2a90b1"
+    },
+    {
+      "frame": 2,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "1a72b5de7d98cbff8ec0727efa1c69637b32e8f110d13072151d3a2ce677c18f",
+      "response_sha256": "0f4b19096f00105cf58f6ed26f4675e00854d2758dd7bf61c5249906119f415e"
+    },
+    {
+      "frame": 3,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "5b39d401040546a8a4e1dd0a0c6c33ee15772197bac23e13d5b3c26deb08708b",
+      "response_sha256": "e1fabee99b67494a7aa2b1172f8be94c0cd011f66118917f7b405516c83f4895"
+    },
+    {
+      "frame": 4,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "77db37a307d9ee2cc529931b916d9a13416ef71bf2a1138e1579cf89c051b21d",
+      "response_sha256": "420400a7a18a01acf314d26c3f17881263f14603e86989693af030a831552113"
+    },
+    {
+      "frame": 5,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "56095f247b8242dc74ad86adb0c9b1f8471d27e9e9158c1c0196d17a3d2a536f",
+      "response_sha256": "a31e64f6180f34a24adcaea8bb335ff9c27a5939dd3a49855a4909b0f10f7e16"
+    },
+    {
+      "frame": 6,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "d2c4d7a008345d90a1035a9ee19178af9c247109fcfd0c586a26225419851598",
+      "response_sha256": "a2fde4c07df542989a06232a3fc36cce1501e391f11f5b5cb2a7863840f0336b"
+    },
+    {
+      "frame": 7,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "fe8e8835053ad4abd48fafa4c838e8f1261da49203b01dfca661da1f923f0099",
+      "response_sha256": "08f18c748a7e29c01ea1e02aa3f45378ba946ff4a5f94dc700ce5ddc54ab0ba8"
+    },
+    {
+      "frame": 8,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "b677d7a55a2297baeec6a9c25334aa2a9397445c599d11c72d39d10ed8f7caa4",
+      "response_sha256": "c23bd1968ffd8f0b27530e80620c969b96bb34ac691ba7746a4197b8f579a9a9"
+    },
+    {
+      "frame": 9,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "ec2aab6fbc87a526a5a4721dd92ea9fae4cc4d591c5ed5777e630b85c5b28248",
+      "response_sha256": "d5d9655e3332868834eb6b8136eefa91addb1d0b49af970ce7ef05535725c28e"
+    },
+    {
+      "frame": 10,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "b677d7a55a2297baeec6a9c25334aa2a9397445c599d11c72d39d10ed8f7caa4",
+      "response_sha256": "c23bd1968ffd8f0b27530e80620c969b96bb34ac691ba7746a4197b8f579a9a9"
+    },
+    {
+      "frame": 11,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "77db37a307d9ee2cc529931b916d9a13416ef71bf2a1138e1579cf89c051b21d",
+      "response_sha256": "420400a7a18a01acf314d26c3f17881263f14603e86989693af030a831552113"
+    },
+    {
+      "frame": 12,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "4f59047a1a2b620ef50735ac5c1cb53773684b25879b481fbc04f8606761ebfd",
+      "response_sha256": "d39a47df51646344f7cbf85014209463598f9486ee353849b67441516f5eafc9"
+    },
+    {
+      "frame": 13,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "301bf42d2515cd1307f7acec0e9458333d682310a9922581f8507d62c507ce1f",
+      "response_sha256": "f45644399b980705aa3a7bc4984edee1ee67dbba0ffac9166026a5ca1a94ca46"
+    },
+    {
+      "frame": 14,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "703594e0f0f066c7156ded839eaf66d8b4c82cc066d77b6b29d5242e8999460f",
+      "response_sha256": "0b574ae30404ceef94b96839915091ed9ed1f5dc4a2c99370c00ecbb64ba0db7"
+    },
+    {
+      "frame": 15,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "5b39d401040546a8a4e1dd0a0c6c33ee15772197bac23e13d5b3c26deb08708b",
+      "response_sha256": "e1fabee99b67494a7aa2b1172f8be94c0cd011f66118917f7b405516c83f4895"
+    },
+    {
+      "frame": 16,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "77db37a307d9ee2cc529931b916d9a13416ef71bf2a1138e1579cf89c051b21d",
+      "response_sha256": "420400a7a18a01acf314d26c3f17881263f14603e86989693af030a831552113"
+    },
+    {
+      "frame": 17,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "56095f247b8242dc74ad86adb0c9b1f8471d27e9e9158c1c0196d17a3d2a536f",
+      "response_sha256": "a31e64f6180f34a24adcaea8bb335ff9c27a5939dd3a49855a4909b0f10f7e16"
+    },
+    {
+      "frame": 18,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "d2c4d7a008345d90a1035a9ee19178af9c247109fcfd0c586a26225419851598",
+      "response_sha256": "185263237e0b7fde3c4822a57af5d5b2d2015b27dbc4ea052ec4c90dd005c261"
+    },
+    {
+      "frame": 19,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "fe8e8835053ad4abd48fafa4c838e8f1261da49203b01dfca661da1f923f0099",
+      "response_sha256": "b47456906093b1c26839a59e46c97a9d4a5ab089a9a21a126b5348bd8dbc7b77"
+    },
+    {
+      "frame": 20,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "b677d7a55a2297baeec6a9c25334aa2a9397445c599d11c72d39d10ed8f7caa4",
+      "response_sha256": "c23bd1968ffd8f0b27530e80620c969b96bb34ac691ba7746a4197b8f579a9a9"
+    },
+    {
+      "frame": 21,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "ec2aab6fbc87a526a5a4721dd92ea9fae4cc4d591c5ed5777e630b85c5b28248",
+      "response_sha256": "d5d9655e3332868834eb6b8136eefa91addb1d0b49af970ce7ef05535725c28e"
+    },
+    {
+      "frame": 22,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "b677d7a55a2297baeec6a9c25334aa2a9397445c599d11c72d39d10ed8f7caa4",
+      "response_sha256": "c23bd1968ffd8f0b27530e80620c969b96bb34ac691ba7746a4197b8f579a9a9"
+    },
+    {
+      "frame": 23,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "5b39d401040546a8a4e1dd0a0c6c33ee15772197bac23e13d5b3c26deb08708b",
+      "response_sha256": "e1fabee99b67494a7aa2b1172f8be94c0cd011f66118917f7b405516c83f4895"
+    },
+    {
+      "frame": 24,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "77db37a307d9ee2cc529931b916d9a13416ef71bf2a1138e1579cf89c051b21d",
+      "response_sha256": "420400a7a18a01acf314d26c3f17881263f14603e86989693af030a831552113"
+    },
+    {
+      "frame": 25,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "56095f247b8242dc74ad86adb0c9b1f8471d27e9e9158c1c0196d17a3d2a536f",
+      "response_sha256": "a31e64f6180f34a24adcaea8bb335ff9c27a5939dd3a49855a4909b0f10f7e16"
+    },
+    {
+      "frame": 26,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "d2c4d7a008345d90a1035a9ee19178af9c247109fcfd0c586a26225419851598",
+      "response_sha256": "185263237e0b7fde3c4822a57af5d5b2d2015b27dbc4ea052ec4c90dd005c261"
+    },
+    {
+      "frame": 27,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "fe8e8835053ad4abd48fafa4c838e8f1261da49203b01dfca661da1f923f0099",
+      "response_sha256": "b47456906093b1c26839a59e46c97a9d4a5ab089a9a21a126b5348bd8dbc7b77"
+    },
+    {
+      "frame": 28,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "b677d7a55a2297baeec6a9c25334aa2a9397445c599d11c72d39d10ed8f7caa4",
+      "response_sha256": "c23bd1968ffd8f0b27530e80620c969b96bb34ac691ba7746a4197b8f579a9a9"
+    },
+    {
+      "frame": 29,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "ec2aab6fbc87a526a5a4721dd92ea9fae4cc4d591c5ed5777e630b85c5b28248",
+      "response_sha256": "d5d9655e3332868834eb6b8136eefa91addb1d0b49af970ce7ef05535725c28e"
+    },
+    {
+      "frame": 30,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "b677d7a55a2297baeec6a9c25334aa2a9397445c599d11c72d39d10ed8f7caa4",
+      "response_sha256": "c23bd1968ffd8f0b27530e80620c969b96bb34ac691ba7746a4197b8f579a9a9"
+    },
+    {
+      "frame": 31,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "7600e0d6f3737c4936e7a0a0ec11c365196aace282b7f6f1ee899fe934c5bb87",
+      "response_sha256": "a54da8234db0da0afebe8a3552841d5d08854c10907b6a7cd9c6aa62f73de71c"
+    },
+    {
+      "frame": 32,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "5b39d401040546a8a4e1dd0a0c6c33ee15772197bac23e13d5b3c26deb08708b",
+      "response_sha256": "e1fabee99b67494a7aa2b1172f8be94c0cd011f66118917f7b405516c83f4895"
+    },
+    {
+      "frame": 33,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "77db37a307d9ee2cc529931b916d9a13416ef71bf2a1138e1579cf89c051b21d",
+      "response_sha256": "465362c8f74997eb9664493fe212c50ad632c0aa4f785239f616ff26d7ec22ea"
+    },
+    {
+      "frame": 34,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "56095f247b8242dc74ad86adb0c9b1f8471d27e9e9158c1c0196d17a3d2a536f",
+      "response_sha256": "9a987a18cc981d01725c10847ff881678f6947c3f019dfcf91706d1bb0873f53"
+    },
+    {
+      "frame": 35,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "d2c4d7a008345d90a1035a9ee19178af9c247109fcfd0c586a26225419851598",
+      "response_sha256": "185263237e0b7fde3c4822a57af5d5b2d2015b27dbc4ea052ec4c90dd005c261"
+    },
+    {
+      "frame": 36,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "fe8e8835053ad4abd48fafa4c838e8f1261da49203b01dfca661da1f923f0099",
+      "response_sha256": "b47456906093b1c26839a59e46c97a9d4a5ab089a9a21a126b5348bd8dbc7b77"
+    },
+    {
+      "frame": 37,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "b677d7a55a2297baeec6a9c25334aa2a9397445c599d11c72d39d10ed8f7caa4",
+      "response_sha256": "2803212f42847659f63e9a46f8b5f6cce3727ecce027b9beafc5454632f5a288"
+    },
+    {
+      "frame": 38,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "ec2aab6fbc87a526a5a4721dd92ea9fae4cc4d591c5ed5777e630b85c5b28248",
+      "response_sha256": "ec95a9d56b59981d3a75d0a1019eceac34ccfb414620e5240364e5f19ddc22bb"
+    },
+    {
+      "frame": 39,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "8a85529b2c8885a29eaf14f7a4be71443d730b63143e880b6aa648acb416026c",
+      "response_sha256": "bf718a2507c8ab10986e2ca88bdd3568d26b25042e42c98876a172bb7dcce4e7"
+    },
+    {
+      "frame": 40,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "996b520c6e240285046c002f9409120bd218560461953d4420eb11c597a7c583",
+      "response_sha256": "ff71e908351e400275c4ca42d00fb559a6b7d57901a142b0c226c274bd6788cb"
+    },
+    {
+      "frame": 41,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "b0db809cf3fea4cbba9330ee1a203db61a3f0ebf3d7f9c4597d2c393b7e3f66a",
+      "response_sha256": "0b574ae30404ceef94b96839915091ed9ed1f5dc4a2c99370c00ecbb64ba0db7"
+    },
+    {
+      "frame": 42,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "5b39d401040546a8a4e1dd0a0c6c33ee15772197bac23e13d5b3c26deb08708b",
+      "response_sha256": "e1fabee99b67494a7aa2b1172f8be94c0cd011f66118917f7b405516c83f4895"
+    },
+    {
+      "frame": 43,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "77db37a307d9ee2cc529931b916d9a13416ef71bf2a1138e1579cf89c051b21d",
+      "response_sha256": "465362c8f74997eb9664493fe212c50ad632c0aa4f785239f616ff26d7ec22ea"
+    },
+    {
+      "frame": 44,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "56095f247b8242dc74ad86adb0c9b1f8471d27e9e9158c1c0196d17a3d2a536f",
+      "response_sha256": "9a987a18cc981d01725c10847ff881678f6947c3f019dfcf91706d1bb0873f53"
+    },
+    {
+      "frame": 45,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "d2c4d7a008345d90a1035a9ee19178af9c247109fcfd0c586a26225419851598",
+      "response_sha256": "185263237e0b7fde3c4822a57af5d5b2d2015b27dbc4ea052ec4c90dd005c261"
+    },
+    {
+      "frame": 46,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "fe8e8835053ad4abd48fafa4c838e8f1261da49203b01dfca661da1f923f0099",
+      "response_sha256": "b47456906093b1c26839a59e46c97a9d4a5ab089a9a21a126b5348bd8dbc7b77"
+    },
+    {
+      "frame": 47,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "b677d7a55a2297baeec6a9c25334aa2a9397445c599d11c72d39d10ed8f7caa4",
+      "response_sha256": "2803212f42847659f63e9a46f8b5f6cce3727ecce027b9beafc5454632f5a288"
+    },
+    {
+      "frame": 48,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "ec2aab6fbc87a526a5a4721dd92ea9fae4cc4d591c5ed5777e630b85c5b28248",
+      "response_sha256": "2ddc80e8034bd7a02e579c5fc8ecf847a60d184cfcd9125ff7c49472ea919517"
+    },
+    {
+      "frame": 49,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "fb3d6cdbc071d23b377eed98416149a5afdef1c99de2043baad656e8a65970c7",
+      "response_sha256": "898a7ef2e4c4402c987d925a729c72bc709e7ac015f1f098cce88cff8ea759fe"
+    },
+    {
+      "frame": 50,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "2b0fa0fe01e64e8a0a696e14a4c7e3153c6c347be4cb05b74bff5c742fdc572a",
+      "response_sha256": "ff71e908351e400275c4ca42d00fb559a6b7d57901a142b0c226c274bd6788cb"
+    },
+    {
+      "frame": 51,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "9f91c27c5cfcd0ea9b355fb3beae2d8ebdb47a7ec20755d638cb382a5701bb55",
+      "response_sha256": "0b574ae30404ceef94b96839915091ed9ed1f5dc4a2c99370c00ecbb64ba0db7"
+    },
+    {
+      "frame": 52,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "7600e0d6f3737c4936e7a0a0ec11c365196aace282b7f6f1ee899fe934c5bb87",
+      "response_sha256": "a54da8234db0da0afebe8a3552841d5d08854c10907b6a7cd9c6aa62f73de71c"
+    },
+    {
+      "frame": 53,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "5b39d401040546a8a4e1dd0a0c6c33ee15772197bac23e13d5b3c26deb08708b",
+      "response_sha256": "e1fabee99b67494a7aa2b1172f8be94c0cd011f66118917f7b405516c83f4895"
+    },
+    {
+      "frame": 54,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "77db37a307d9ee2cc529931b916d9a13416ef71bf2a1138e1579cf89c051b21d",
+      "response_sha256": "08101e3c09cb1624a7780b9e25bfe5ec166d52a11df74ce9d0646de782ab069a"
+    },
+    {
+      "frame": 55,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "56095f247b8242dc74ad86adb0c9b1f8471d27e9e9158c1c0196d17a3d2a536f",
+      "response_sha256": "307bc02d7e761c995159630d7328034e144914568ae981a093752cf3702f5902"
+    },
+    {
+      "frame": 56,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "d2c4d7a008345d90a1035a9ee19178af9c247109fcfd0c586a26225419851598",
+      "response_sha256": "185263237e0b7fde3c4822a57af5d5b2d2015b27dbc4ea052ec4c90dd005c261"
+    },
+    {
+      "frame": 57,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "fe8e8835053ad4abd48fafa4c838e8f1261da49203b01dfca661da1f923f0099",
+      "response_sha256": "b47456906093b1c26839a59e46c97a9d4a5ab089a9a21a126b5348bd8dbc7b77"
+    },
+    {
+      "frame": 58,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "b677d7a55a2297baeec6a9c25334aa2a9397445c599d11c72d39d10ed8f7caa4",
+      "response_sha256": "2803212f42847659f63e9a46f8b5f6cce3727ecce027b9beafc5454632f5a288"
+    },
+    {
+      "frame": 59,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "ec2aab6fbc87a526a5a4721dd92ea9fae4cc4d591c5ed5777e630b85c5b28248",
+      "response_sha256": "aefeb003840a16c5bb25f86074136ed207275874790e76106ad784857e8215f8"
+    },
+    {
+      "frame": 60,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "306daf8a5be82062c3e207cef6b9962821619abbb309968c2ce1dd40020af177",
+      "response_sha256": "6e31dc1895a641ccd96c57f80477c03efd4f6a232bd154808bed078c2a8a217a"
+    },
+    {
+      "frame": 61,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "6132cbc18b80611df746ef08893648b994a3ffb22611b1575776b98a66822ec5",
+      "response_sha256": "8fbe2b20eae1efa5bace4d4a7a30fbeb7086c0710deddb8969dd1c44e4bbca78"
+    },
+    {
+      "frame": 62,
+      "label": "",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "0f7848973fb7bbdc4bc2214fecb26e22c607fd42a3f0bbf287f2e2db7da81722",
+      "response_sha256": "0b574ae30404ceef94b96839915091ed9ed1f5dc4a2c99370c00ecbb64ba0db7"
+    },
+    {
+      "frame": 63,
+      "label": "final object audit",
+      "expected_status": 0,
+      "actual_status": 0,
+      "request_sha256": "ae276b71e75dcf71e6d489071031c0e0305178400e3d9e2fb4d19481111840d8",
+      "response_sha256": "7004b03afc4c1f82e866ac5dce96d432dcb3933841a087e0dd48e35cdcf7dbde"
+    }
+  ],
+  "exact_comparisons": 273,
+  "rollback_bytes": 0
+}

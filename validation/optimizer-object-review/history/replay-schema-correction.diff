@@ -1,0 +1,58 @@
+--- replay_optimizer_objects.py
++++ replay_optimizer_objects_v2.py
+@@ -39,8 +39,9 @@
+ 
+ 
+ class Replay:
+-    def __init__(self, c, codec):
+-        self.c, self.b = c, codec
++    def __init__(self, c, codec, suite):
++        self.c, self.b, self.suite = c, codec, suite
++        self.input_groups = {}
+         self.params, self.opts, self.members = {}, {}, {}
+         self.handle_incarnations, self.ref_tensor, self.ref_storage = {}, {}, {}
+         self.steps, self.extra = [], {}
+@@ -75,6 +76,7 @@
+         self.eq(list(self.b.words(rec)), [len(groups), len(occurrences), len(set(occurrences)),
+                                         len(occurrences)-len(set(occurrences))], 'creation inventory')
+         self.members[opt] = [list(names) for names, _ in groups]
++        self.input_groups[opt] = [(list(names), dict(cfg, **local)) for names, local in groups]
+         return opt
+ 
+     def opt_add(self, opt, names, overrides=None, status=0):
+@@ -187,7 +189,15 @@
+         result = {'parameters': {}, 'gradients': {}}
+         locations = {}
+         if opt is not None:
+-            result['groups'], locations = self.groups(opt, expected['groups'], expected['parameters'])
++            if self.suite == 'optimizer':
++                group_reference = expected['groups']
++                result['group_comparison_source'] = 'actual observed Torch groups'
++            else:
++                assert self.suite == 'requires' and set(expected) == {'parameters', 'gradients', 'optimizer_state'}
++                group_reference = [{'parameters': [expected['parameters'][name]['tensor_identity'] for name in names],
++                                    'config': config} for names, config in self.input_groups[opt]]
++                result['group_comparison_source'] = 'fixed constructor input contract; the six-case reference does not observe group inventory'
++            result['groups'], locations = self.groups(opt, group_reference, expected['parameters'])
+             result['states'] = {}
+         for name, tid in names.items():
+             result['parameters'][name] = self.tensor(tid, expected['parameters'][name])
+@@ -211,7 +221,8 @@
+                     result['states'][name] = None
+         if opt is not None:
+             self.eq(sum(v is not None and v['momentum'] is not None for v in result['states'].values()),
+-                    expected['state_entries'], 'unique state entry count')
++                    expected['state_entries'] if self.suite == 'optimizer' else
++                    sum(state['entry_exists'] for state in expected['optimizer_state'].values()), 'unique state entry count')
+         return result
+ 
+     def backward(self, target, values=None, retain=0, error=0, shape=None):
+@@ -543,7 +554,7 @@
+             continue
+         directory = args.output / ('case-'+str(number).zfill(2))
+         session = transport.OwnerSession(args.binary, directory=directory, address_limit=64 << 20)
+-        c = codec.Check(session); replay = Replay(c, codec)
++        c = codec.Check(session); replay = Replay(c, codec, args.suite)
+         try:
+             details = (replay.optimizer_case if args.suite == 'optimizer' else replay.requires_case)(number, actual['observation'])
+             session.finish()

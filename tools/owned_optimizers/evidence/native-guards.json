@@ -1,0 +1,72 @@
+{
+  "schema": "heptatorch.optimizer-admission-capacity-controls.v1",
+  "status": "PASS",
+  "native_sha256": "b6634158e079512e797d8237cca12d65052db18df23b12b8414adeb8d0b4b0e1",
+  "source_sha256": "7c68a96b08aa9a21a52e2fd12be912c5f47dbde889e462f9a0dbb38cb3c09edf",
+  "native_executed": true,
+  "Torch_executed_here": false,
+  "cases": [
+    {
+      "case": "typed-payload-and-configuration-refusals",
+      "status": "PASS",
+      "rejections": 28,
+      "rollback_bytes": 8562624,
+      "details": {
+        "invalid_defaults_payload_types_membership_and_reserved_fields": true,
+        "ordered_NaN_default_predicates_not_blanket_finite_rejection": true
+      },
+      "frames": 39,
+      "all_responses_before_stdin_eof": true
+    },
+    {
+      "case": "exact-group-and-occurrence-capacity",
+      "status": "PASS",
+      "rejections": 5,
+      "rollback_bytes": 3495120,
+      "details": {
+        "maximum_occurrences": 4096,
+        "maximum_groups": 1024,
+        "exact_boundary_accepted_and_one_beyond_rejected": true
+      },
+      "frames": 16,
+      "all_responses_before_stdin_eof": true
+    },
+    {
+      "case": "same-frame-reference-kinds",
+      "status": "PASS",
+      "rejections": 3,
+      "rollback_bytes": 917424,
+      "details": {
+        "same_frame_real_Tensor_and_Optimizer_refs": true,
+        "scalar_and_forward_refs_cannot_forge_Tensor": true
+      },
+      "frames": 6,
+      "all_responses_before_stdin_eof": true
+    },
+    {
+      "case": "actual-address-limit-after-real-optimizer-write",
+      "status": "PASS",
+      "rejections": 1,
+      "rollback_bytes": 305808,
+      "details": {
+        "RLIMIT_AS_bytes": 67108864,
+        "legal_requested_tensor_data_bytes": 67108864,
+        "prior_real_SGD_and_Version_updates_rolled_back": true,
+        "next_step_uses_original_state_and_succeeds": true
+      },
+      "frames": 16,
+      "all_responses_before_stdin_eof": true
+    }
+  ],
+  "frames": 77,
+  "rejections": 37,
+  "rollback_bytes": 13280976,
+  "inputs_sha256": {
+    "/workspace/scratch/d26699e25fea/optimizer-owned-extension/test_guards.py": "2a1e97cad3950ddf2cc665cb9dce3c0d4031b0a9d332f4190ae64f89f405292d",
+    "/workspace/scratch/d26699e25fea/optimizer-owned-extension/candidate-08/tensor-optimizer-session": "b6634158e079512e797d8237cca12d65052db18df23b12b8414adeb8d0b4b0e1",
+    "/workspace/scratch/d26699e25fea/optimizer-owned-extension/candidate-08/runtime.hepta": "7c68a96b08aa9a21a52e2fd12be912c5f47dbde889e462f9a0dbb38cb3c09edf",
+    "/workspace/scratch/d26699e25fea/owned-tensor-object-extension/portable-test-layout/tools/tensor_objects/protocol.py": "5b99b0e508c2093fe830e509fffbb46b709f65e85b669ab6d79a32d425aa95ac",
+    "/workspace/scratch/d26699e25fea/optimizer-owned-extension/profile.json": "442eab10209d492cc983b6892a6015157e71d620cd29ef2c7e963da2b5a73e40"
+  },
+  "case_count": 4
+}

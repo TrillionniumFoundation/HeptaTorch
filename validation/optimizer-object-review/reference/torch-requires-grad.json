@@ -1,0 +1,4583 @@
+{
+  "schema": "heptatorch.pinned-torch-leaf-requires-grad-observations.v1",
+  "probe_sha256": "aeccf1ed21501682df772bbc9e05ccdaf821e93bb243a6f2a045c05035e56ad3",
+  "reference_support_sha256": "ef8fe89aa7dbff4ee03f9d5762d2736a3648d9e48e97ad5df7bec615676f04ae",
+  "lock_sha256": "ca2e54ce65083bbe0ab3d47b6878971271765ab35a9dd70725fa345fceed3944",
+  "reference_source_commit": "31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
+  "expected_cases": 6,
+  "case_plan": [
+    "leaf-flags-preserve-identity-data-Version-and-None",
+    "False-preserves-existing-gradient-and-optimizer-consumes-it",
+    "existing-graph-AccumulateGrad-observes-current-leaf-flag",
+    "False-at-forward-True-later-does-not-create-an-edge",
+    "False-at-backward-does-not-suppress-Saved-version-error",
+    "distinct-alias-leaves-have-independent-flags-and-gradients"
+  ],
+  "native_executed": false,
+  "native_values_compared": 0,
+  "reference_encoding": "Unsigned binary32 words and opaque identity relationships; never compare host addresses to native handles.",
+  "predeclared_future_native_policy": "Exact gradient and dyadic SGD words, leaf flags, parameter/available state Versions, None presence and existing/absent graph-edge behavior. Public grad Tensor identity/Version remains open until exposed.",
+  "scope": "Leaf requires_grad_ changes, retained actual gradients, SGD participation, graph edges and Saved validation. Not nonleaf retain_grad or differentiable optimizer support.",
+  "full_rewrite_complete": false,
+  "pytorch_api_denominator": 2590,
+  "status": "OBSERVED",
+  "cases": 6,
+  "probe_errors": 0,
+  "rows": [
+    {
+      "case": "leaf-flags-preserve-identity-data-Version-and-None",
+      "status": "OBSERVED",
+      "observation": {
+        "actions": [
+          {
+            "action": "requires_grad_(False)",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417077856",
+                  "storage_identity": "418822832",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "returned_Tensor_identity": "417077856",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417077856",
+                  "storage_identity": "418822832",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null
+              }
+            }
+          },
+          {
+            "action": "requires_grad_(True)",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417077856",
+                  "storage_identity": "418822832",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "returned_Tensor_identity": "417077856",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417077856",
+                  "storage_identity": "418822832",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null
+              }
+            }
+          },
+          {
+            "action": "requires_grad_(True)",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417077856",
+                  "storage_identity": "418822832",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "returned_Tensor_identity": "417077856",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417077856",
+                  "storage_identity": "418822832",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null
+              }
+            }
+          },
+          {
+            "action": "requires_grad_(False)",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417077856",
+                  "storage_identity": "418822832",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "returned_Tensor_identity": "417077856",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417077856",
+                  "storage_identity": "418822832",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null
+              }
+            }
+          },
+          {
+            "action": "requires_grad_(True)",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417077856",
+                  "storage_identity": "418822832",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "returned_Tensor_identity": "417077856",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417077856",
+                  "storage_identity": "418822832",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "False-preserves-existing-gradient-and-optimizer-consumes-it",
+      "status": "OBSERVED",
+      "observation": {
+        "actions": [
+          {
+            "action": "initial defined gradient",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417077856",
+                  "storage_identity": "418822832",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417077856",
+                  "storage_identity": "418822832",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 1,
+                  "binary32_words": [
+                    1073741824,
+                    3212836864
+                  ],
+                  "values": [
+                    2.0,
+                    -1.0
+                  ],
+                  "tensor_identity": "416120336",
+                  "storage_identity": "417545024",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            }
+          },
+          {
+            "action": "False retains old gradient",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417077856",
+                  "storage_identity": "418822832",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 1,
+                  "binary32_words": [
+                    1073741824,
+                    3212836864
+                  ],
+                  "values": [
+                    2.0,
+                    -1.0
+                  ],
+                  "tensor_identity": "416120336",
+                  "storage_identity": "417545024",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "returned_Tensor_identity": "417077856",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417077856",
+                  "storage_identity": "418822832",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 1,
+                  "binary32_words": [
+                    1073741824,
+                    3212836864
+                  ],
+                  "values": [
+                    2.0,
+                    -1.0
+                  ],
+                  "tensor_identity": "416120336",
+                  "storage_identity": "417545024",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            }
+          },
+          {
+            "action": "Optimizer consumes present gradient despite requires False",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417077856",
+                  "storage_identity": "418822832",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 1,
+                  "binary32_words": [
+                    1073741824,
+                    3212836864
+                  ],
+                  "values": [
+                    2.0,
+                    -1.0
+                  ],
+                  "tensor_identity": "416120336",
+                  "storage_identity": "417545024",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": false,
+                  "fields": {}
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 1,
+                  "binary32_words": [
+                    1060634624,
+                    3219652608
+                  ],
+                  "values": [
+                    0.71875,
+                    -1.8125
+                  ],
+                  "tensor_identity": "417077856",
+                  "storage_identity": "418822832",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 1,
+                  "binary32_words": [
+                    1073741824,
+                    3212836864
+                  ],
+                  "values": [
+                    2.0,
+                    -1.0
+                  ],
+                  "tensor_identity": "416120336",
+                  "storage_identity": "417545024",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": true,
+                  "fields": {
+                    "momentum_buffer": {
+                      "tensor": {
+                        "shape": [
+                          2
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "is_leaf": true,
+                        "version": 0,
+                        "binary32_words": [
+                          1074790400,
+                          3217031168
+                        ],
+                        "values": [
+                          2.25,
+                          -1.5
+                        ],
+                        "tensor_identity": "418059680",
+                        "storage_identity": "417175808",
+                        "storage_offset_bytes": 0,
+                        "storage_bytes": 8
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "action": "False zero_grad zeros the existing gradient",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 1,
+                  "binary32_words": [
+                    1060634624,
+                    3219652608
+                  ],
+                  "values": [
+                    0.71875,
+                    -1.8125
+                  ],
+                  "tensor_identity": "417077856",
+                  "storage_identity": "418822832",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 1,
+                  "binary32_words": [
+                    1073741824,
+                    3212836864
+                  ],
+                  "values": [
+                    2.0,
+                    -1.0
+                  ],
+                  "tensor_identity": "416120336",
+                  "storage_identity": "417545024",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": true,
+                  "fields": {
+                    "momentum_buffer": {
+                      "tensor": {
+                        "shape": [
+                          2
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "is_leaf": true,
+                        "version": 0,
+                        "binary32_words": [
+                          1074790400,
+                          3217031168
+                        ],
+                        "values": [
+                          2.25,
+                          -1.5
+                        ],
+                        "tensor_identity": "418059680",
+                        "storage_identity": "417175808",
+                        "storage_offset_bytes": 0,
+                        "storage_bytes": 8
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 1,
+                  "binary32_words": [
+                    1060634624,
+                    3219652608
+                  ],
+                  "values": [
+                    0.71875,
+                    -1.8125
+                  ],
+                  "tensor_identity": "417077856",
+                  "storage_identity": "418822832",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 2,
+                  "binary32_words": [
+                    0,
+                    0
+                  ],
+                  "values": [
+                    0.0,
+                    0.0
+                  ],
+                  "tensor_identity": "416120336",
+                  "storage_identity": "417545024",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": true,
+                  "fields": {
+                    "momentum_buffer": {
+                      "tensor": {
+                        "shape": [
+                          2
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "is_leaf": true,
+                        "version": 0,
+                        "binary32_words": [
+                          1074790400,
+                          3217031168
+                        ],
+                        "values": [
+                          2.25,
+                          -1.5
+                        ],
+                        "tensor_identity": "418059680",
+                        "storage_identity": "417175808",
+                        "storage_offset_bytes": 0,
+                        "storage_bytes": 8
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "action": "present zero still updates while requires False",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 1,
+                  "binary32_words": [
+                    1060634624,
+                    3219652608
+                  ],
+                  "values": [
+                    0.71875,
+                    -1.8125
+                  ],
+                  "tensor_identity": "417077856",
+                  "storage_identity": "418822832",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 2,
+                  "binary32_words": [
+                    0,
+                    0
+                  ],
+                  "values": [
+                    0.0,
+                    0.0
+                  ],
+                  "tensor_identity": "416120336",
+                  "storage_identity": "417545024",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": true,
+                  "fields": {
+                    "momentum_buffer": {
+                      "tensor": {
+                        "shape": [
+                          2
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "is_leaf": true,
+                        "version": 0,
+                        "binary32_words": [
+                          1074790400,
+                          3217031168
+                        ],
+                        "values": [
+                          2.25,
+                          -1.5
+                        ],
+                        "tensor_identity": "418059680",
+                        "storage_identity": "417175808",
+                        "storage_offset_bytes": 0,
+                        "storage_bytes": 8
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 2,
+                  "binary32_words": [
+                    1057898496,
+                    3218391040
+                  ],
+                  "values": [
+                    0.5556640625,
+                    -1.662109375
+                  ],
+                  "tensor_identity": "417077856",
+                  "storage_identity": "418822832",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 2,
+                  "binary32_words": [
+                    0,
+                    0
+                  ],
+                  "values": [
+                    0.0,
+                    0.0
+                  ],
+                  "tensor_identity": "416120336",
+                  "storage_identity": "417545024",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": true,
+                  "fields": {
+                    "momentum_buffer": {
+                      "tensor": {
+                        "shape": [
+                          2
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "is_leaf": true,
+                        "version": 2,
+                        "binary32_words": [
+                          1067909120,
+                          3214540800
+                        ],
+                        "values": [
+                          1.3046875,
+                          -1.203125
+                        ],
+                        "tensor_identity": "418059680",
+                        "storage_identity": "417175808",
+                        "storage_offset_bytes": 0,
+                        "storage_bytes": 8
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "action": "True zero_grad clears while requires False",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 2,
+                  "binary32_words": [
+                    1057898496,
+                    3218391040
+                  ],
+                  "values": [
+                    0.5556640625,
+                    -1.662109375
+                  ],
+                  "tensor_identity": "417077856",
+                  "storage_identity": "418822832",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 2,
+                  "binary32_words": [
+                    0,
+                    0
+                  ],
+                  "values": [
+                    0.0,
+                    0.0
+                  ],
+                  "tensor_identity": "416120336",
+                  "storage_identity": "417545024",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": true,
+                  "fields": {
+                    "momentum_buffer": {
+                      "tensor": {
+                        "shape": [
+                          2
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "is_leaf": true,
+                        "version": 2,
+                        "binary32_words": [
+                          1067909120,
+                          3214540800
+                        ],
+                        "values": [
+                          1.3046875,
+                          -1.203125
+                        ],
+                        "tensor_identity": "418059680",
+                        "storage_identity": "417175808",
+                        "storage_offset_bytes": 0,
+                        "storage_bytes": 8
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 2,
+                  "binary32_words": [
+                    1057898496,
+                    3218391040
+                  ],
+                  "values": [
+                    0.5556640625,
+                    -1.662109375
+                  ],
+                  "tensor_identity": "417077856",
+                  "storage_identity": "418822832",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": true,
+                  "fields": {
+                    "momentum_buffer": {
+                      "tensor": {
+                        "shape": [
+                          2
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "is_leaf": true,
+                        "version": 2,
+                        "binary32_words": [
+                          1067909120,
+                          3214540800
+                        ],
+                        "values": [
+                          1.3046875,
+                          -1.203125
+                        ],
+                        "tensor_identity": "418059680",
+                        "storage_identity": "417175808",
+                        "storage_offset_bytes": 0,
+                        "storage_bytes": 8
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "action": "None skips while requires False",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 2,
+                  "binary32_words": [
+                    1057898496,
+                    3218391040
+                  ],
+                  "values": [
+                    0.5556640625,
+                    -1.662109375
+                  ],
+                  "tensor_identity": "417077856",
+                  "storage_identity": "418822832",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": true,
+                  "fields": {
+                    "momentum_buffer": {
+                      "tensor": {
+                        "shape": [
+                          2
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "is_leaf": true,
+                        "version": 2,
+                        "binary32_words": [
+                          1067909120,
+                          3214540800
+                        ],
+                        "values": [
+                          1.3046875,
+                          -1.203125
+                        ],
+                        "tensor_identity": "418059680",
+                        "storage_identity": "417175808",
+                        "storage_offset_bytes": 0,
+                        "storage_bytes": 8
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 2,
+                  "binary32_words": [
+                    1057898496,
+                    3218391040
+                  ],
+                  "values": [
+                    0.5556640625,
+                    -1.662109375
+                  ],
+                  "tensor_identity": "417077856",
+                  "storage_identity": "418822832",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": true,
+                  "fields": {
+                    "momentum_buffer": {
+                      "tensor": {
+                        "shape": [
+                          2
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "is_leaf": true,
+                        "version": 2,
+                        "binary32_words": [
+                          1067909120,
+                          3214540800
+                        ],
+                        "values": [
+                          1.3046875,
+                          -1.203125
+                        ],
+                        "tensor_identity": "418059680",
+                        "storage_identity": "417175808",
+                        "storage_offset_bytes": 0,
+                        "storage_bytes": 8
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "action": "True preserves identity without defining a gradient",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 2,
+                  "binary32_words": [
+                    1057898496,
+                    3218391040
+                  ],
+                  "values": [
+                    0.5556640625,
+                    -1.662109375
+                  ],
+                  "tensor_identity": "417077856",
+                  "storage_identity": "418822832",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": true,
+                  "fields": {
+                    "momentum_buffer": {
+                      "tensor": {
+                        "shape": [
+                          2
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "is_leaf": true,
+                        "version": 2,
+                        "binary32_words": [
+                          1067909120,
+                          3214540800
+                        ],
+                        "values": [
+                          1.3046875,
+                          -1.203125
+                        ],
+                        "tensor_identity": "418059680",
+                        "storage_identity": "417175808",
+                        "storage_offset_bytes": 0,
+                        "storage_bytes": 8
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "returned_Tensor_identity": "417077856",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 2,
+                  "binary32_words": [
+                    1057898496,
+                    3218391040
+                  ],
+                  "values": [
+                    0.5556640625,
+                    -1.662109375
+                  ],
+                  "tensor_identity": "417077856",
+                  "storage_identity": "418822832",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": true,
+                  "fields": {
+                    "momentum_buffer": {
+                      "tensor": {
+                        "shape": [
+                          2
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "is_leaf": true,
+                        "version": 2,
+                        "binary32_words": [
+                          1067909120,
+                          3214540800
+                        ],
+                        "values": [
+                          1.3046875,
+                          -1.203125
+                        ],
+                        "tensor_identity": "418059680",
+                        "storage_identity": "417175808",
+                        "storage_offset_bytes": 0,
+                        "storage_bytes": 8
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "action": "fresh first negative-zero gradient",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 2,
+                  "binary32_words": [
+                    1057898496,
+                    3218391040
+                  ],
+                  "values": [
+                    0.5556640625,
+                    -1.662109375
+                  ],
+                  "tensor_identity": "417077856",
+                  "storage_identity": "418822832",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": true,
+                  "fields": {
+                    "momentum_buffer": {
+                      "tensor": {
+                        "shape": [
+                          2
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "is_leaf": true,
+                        "version": 2,
+                        "binary32_words": [
+                          1067909120,
+                          3214540800
+                        ],
+                        "values": [
+                          1.3046875,
+                          -1.203125
+                        ],
+                        "tensor_identity": "418059680",
+                        "storage_identity": "417175808",
+                        "storage_offset_bytes": 0,
+                        "storage_bytes": 8
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 2,
+                  "binary32_words": [
+                    1057898496,
+                    3218391040
+                  ],
+                  "values": [
+                    0.5556640625,
+                    -1.662109375
+                  ],
+                  "tensor_identity": "417077856",
+                  "storage_identity": "418822832",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 1,
+                  "binary32_words": [
+                    2147483648,
+                    2147483648
+                  ],
+                  "values": [
+                    -0.0,
+                    -0.0
+                  ],
+                  "tensor_identity": "417536160",
+                  "storage_identity": "417574000",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "optimizer_state": {
+                "p": {
+                  "entry_exists": true,
+                  "fields": {
+                    "momentum_buffer": {
+                      "tensor": {
+                        "shape": [
+                          2
+                        ],
+                        "strides": [
+                          1
+                        ],
+                        "dtype": "torch.float32",
+                        "requires_grad": false,
+                        "is_leaf": true,
+                        "version": 2,
+                        "binary32_words": [
+                          1067909120,
+                          3214540800
+                        ],
+                        "values": [
+                          1.3046875,
+                          -1.203125
+                        ],
+                        "tensor_identity": "418059680",
+                        "storage_identity": "417175808",
+                        "storage_offset_bytes": 0,
+                        "storage_bytes": 8
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "existing-graph-AccumulateGrad-observes-current-leaf-flag",
+      "status": "OBSERVED",
+      "observation": {
+        "actions": [
+          {
+            "action": "False after forward",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "418450928",
+                  "storage_identity": "417175808",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "coefficient": {
+                  "shape": [],
+                  "strides": [],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1073741824
+                  ],
+                  "values": [
+                    2.0
+                  ],
+                  "tensor_identity": "418059680",
+                  "storage_identity": "416888736",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 4
+                }
+              },
+              "gradients": {
+                "p": null,
+                "coefficient": null
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "returned_Tensor_identity": "418450928",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "418450928",
+                  "storage_identity": "417175808",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "coefficient": {
+                  "shape": [],
+                  "strides": [],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1073741824
+                  ],
+                  "values": [
+                    2.0
+                  ],
+                  "tensor_identity": "418059680",
+                  "storage_identity": "416888736",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 4
+                }
+              },
+              "gradients": {
+                "p": null,
+                "coefficient": null
+              }
+            }
+          },
+          {
+            "action": "retained backward with leaf flag False",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "418450928",
+                  "storage_identity": "417175808",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "coefficient": {
+                  "shape": [],
+                  "strides": [],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1073741824
+                  ],
+                  "values": [
+                    2.0
+                  ],
+                  "tensor_identity": "418059680",
+                  "storage_identity": "416888736",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 4
+                }
+              },
+              "gradients": {
+                "p": null,
+                "coefficient": null
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "418450928",
+                  "storage_identity": "417175808",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "coefficient": {
+                  "shape": [],
+                  "strides": [],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1073741824
+                  ],
+                  "values": [
+                    2.0
+                  ],
+                  "tensor_identity": "418059680",
+                  "storage_identity": "416888736",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 4
+                }
+              },
+              "gradients": {
+                "p": null,
+                "coefficient": null
+              }
+            }
+          },
+          {
+            "action": "True before next retained backward",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "418450928",
+                  "storage_identity": "417175808",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "coefficient": {
+                  "shape": [],
+                  "strides": [],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1073741824
+                  ],
+                  "values": [
+                    2.0
+                  ],
+                  "tensor_identity": "418059680",
+                  "storage_identity": "416888736",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 4
+                }
+              },
+              "gradients": {
+                "p": null,
+                "coefficient": null
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "returned_Tensor_identity": "418450928",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "418450928",
+                  "storage_identity": "417175808",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "coefficient": {
+                  "shape": [],
+                  "strides": [],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1073741824
+                  ],
+                  "values": [
+                    2.0
+                  ],
+                  "tensor_identity": "418059680",
+                  "storage_identity": "416888736",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 4
+                }
+              },
+              "gradients": {
+                "p": null,
+                "coefficient": null
+              }
+            }
+          },
+          {
+            "action": "retained backward with leaf flag True",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "418450928",
+                  "storage_identity": "417175808",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "coefficient": {
+                  "shape": [],
+                  "strides": [],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1073741824
+                  ],
+                  "values": [
+                    2.0
+                  ],
+                  "tensor_identity": "418059680",
+                  "storage_identity": "416888736",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 4
+                }
+              },
+              "gradients": {
+                "p": null,
+                "coefficient": null
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "418450928",
+                  "storage_identity": "417175808",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "coefficient": {
+                  "shape": [],
+                  "strides": [],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1073741824
+                  ],
+                  "values": [
+                    2.0
+                  ],
+                  "tensor_identity": "418059680",
+                  "storage_identity": "416888736",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 4
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1073741824,
+                    1073741824
+                  ],
+                  "values": [
+                    2.0,
+                    2.0
+                  ],
+                  "tensor_identity": "418084288",
+                  "storage_identity": "417125920",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "coefficient": null
+              }
+            }
+          },
+          {
+            "action": "False while a gradient already exists",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "418450928",
+                  "storage_identity": "417175808",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "coefficient": {
+                  "shape": [],
+                  "strides": [],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1073741824
+                  ],
+                  "values": [
+                    2.0
+                  ],
+                  "tensor_identity": "418059680",
+                  "storage_identity": "416888736",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 4
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1073741824,
+                    1073741824
+                  ],
+                  "values": [
+                    2.0,
+                    2.0
+                  ],
+                  "tensor_identity": "418084288",
+                  "storage_identity": "417125920",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "coefficient": null
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "returned_Tensor_identity": "418450928",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "418450928",
+                  "storage_identity": "417175808",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "coefficient": {
+                  "shape": [],
+                  "strides": [],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1073741824
+                  ],
+                  "values": [
+                    2.0
+                  ],
+                  "tensor_identity": "418059680",
+                  "storage_identity": "416888736",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 4
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1073741824,
+                    1073741824
+                  ],
+                  "values": [
+                    2.0,
+                    2.0
+                  ],
+                  "tensor_identity": "418084288",
+                  "storage_identity": "417125920",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "coefficient": null
+              }
+            }
+          },
+          {
+            "action": "default backward releases Saved while accumulation is disabled",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "418450928",
+                  "storage_identity": "417175808",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "coefficient": {
+                  "shape": [],
+                  "strides": [],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1073741824
+                  ],
+                  "values": [
+                    2.0
+                  ],
+                  "tensor_identity": "418059680",
+                  "storage_identity": "416888736",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 4
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1073741824,
+                    1073741824
+                  ],
+                  "values": [
+                    2.0,
+                    2.0
+                  ],
+                  "tensor_identity": "418084288",
+                  "storage_identity": "417125920",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "coefficient": null
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "418450928",
+                  "storage_identity": "417175808",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "coefficient": {
+                  "shape": [],
+                  "strides": [],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1073741824
+                  ],
+                  "values": [
+                    2.0
+                  ],
+                  "tensor_identity": "418059680",
+                  "storage_identity": "416888736",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 4
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1073741824,
+                    1073741824
+                  ],
+                  "values": [
+                    2.0,
+                    2.0
+                  ],
+                  "tensor_identity": "418084288",
+                  "storage_identity": "417125920",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "coefficient": null
+              }
+            }
+          },
+          {
+            "action": "True after graph release",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "418450928",
+                  "storage_identity": "417175808",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "coefficient": {
+                  "shape": [],
+                  "strides": [],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1073741824
+                  ],
+                  "values": [
+                    2.0
+                  ],
+                  "tensor_identity": "418059680",
+                  "storage_identity": "416888736",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 4
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1073741824,
+                    1073741824
+                  ],
+                  "values": [
+                    2.0,
+                    2.0
+                  ],
+                  "tensor_identity": "418084288",
+                  "storage_identity": "417125920",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "coefficient": null
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "returned_Tensor_identity": "418450928",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "418450928",
+                  "storage_identity": "417175808",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "coefficient": {
+                  "shape": [],
+                  "strides": [],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1073741824
+                  ],
+                  "values": [
+                    2.0
+                  ],
+                  "tensor_identity": "418059680",
+                  "storage_identity": "416888736",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 4
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1073741824,
+                    1073741824
+                  ],
+                  "values": [
+                    2.0,
+                    2.0
+                  ],
+                  "tensor_identity": "418084288",
+                  "storage_identity": "417125920",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "coefficient": null
+              }
+            }
+          },
+          {
+            "action": "spent graph still errors",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "418450928",
+                  "storage_identity": "417175808",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "coefficient": {
+                  "shape": [],
+                  "strides": [],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1073741824
+                  ],
+                  "values": [
+                    2.0
+                  ],
+                  "tensor_identity": "418059680",
+                  "storage_identity": "416888736",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 4
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1073741824,
+                    1073741824
+                  ],
+                  "values": [
+                    2.0,
+                    2.0
+                  ],
+                  "tensor_identity": "418084288",
+                  "storage_identity": "417125920",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "coefficient": null
+              }
+            },
+            "outcome": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward.",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "418450928",
+                  "storage_identity": "417175808",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "coefficient": {
+                  "shape": [],
+                  "strides": [],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1073741824
+                  ],
+                  "values": [
+                    2.0
+                  ],
+                  "tensor_identity": "418059680",
+                  "storage_identity": "416888736",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 4
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1073741824,
+                    1073741824
+                  ],
+                  "values": [
+                    2.0,
+                    2.0
+                  ],
+                  "tensor_identity": "418084288",
+                  "storage_identity": "417125920",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "coefficient": null
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "False-at-forward-True-later-does-not-create-an-edge",
+      "status": "OBSERVED",
+      "observation": {
+        "actions": [
+          {
+            "action": "enable formerly nonrequiring forward input",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417536160",
+                  "storage_identity": "417114512",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "q": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1077936128,
+                    1082130432
+                  ],
+                  "values": [
+                    3.0,
+                    4.0
+                  ],
+                  "tensor_identity": "418059680",
+                  "storage_identity": "418150672",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null,
+                "q": null
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "returned_Tensor_identity": "417536160",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417536160",
+                  "storage_identity": "417114512",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "q": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1077936128,
+                    1082130432
+                  ],
+                  "values": [
+                    3.0,
+                    4.0
+                  ],
+                  "tensor_identity": "418059680",
+                  "storage_identity": "418150672",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null,
+                "q": null
+              }
+            }
+          },
+          {
+            "action": "backward uses the edges captured at forward",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417536160",
+                  "storage_identity": "417114512",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "q": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1077936128,
+                    1082130432
+                  ],
+                  "values": [
+                    3.0,
+                    4.0
+                  ],
+                  "tensor_identity": "418059680",
+                  "storage_identity": "418150672",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null,
+                "q": null
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417536160",
+                  "storage_identity": "417114512",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "q": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1077936128,
+                    1082130432
+                  ],
+                  "values": [
+                    3.0,
+                    4.0
+                  ],
+                  "tensor_identity": "418059680",
+                  "storage_identity": "418150672",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null,
+                "q": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "418437280",
+                  "storage_identity": "418088144",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "False-at-backward-does-not-suppress-Saved-version-error",
+      "status": "OBSERVED",
+      "observation": {
+        "actions": [
+          {
+            "action": "disable leaf accumulation after forward",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417224672",
+                  "storage_identity": "417545024",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "coefficient": {
+                  "shape": [],
+                  "strides": [],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1073741824
+                  ],
+                  "values": [
+                    2.0
+                  ],
+                  "tensor_identity": "418478000",
+                  "storage_identity": "418327840",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 4
+                }
+              },
+              "gradients": {
+                "p": null,
+                "coefficient": null
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "returned_Tensor_identity": "417224672",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417224672",
+                  "storage_identity": "417545024",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "coefficient": {
+                  "shape": [],
+                  "strides": [],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1073741824
+                  ],
+                  "values": [
+                    2.0
+                  ],
+                  "tensor_identity": "418478000",
+                  "storage_identity": "418327840",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 4
+                }
+              },
+              "gradients": {
+                "p": null,
+                "coefficient": null
+              }
+            }
+          },
+          {
+            "action": "mutate saved scalar coefficient",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417224672",
+                  "storage_identity": "417545024",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "coefficient": {
+                  "shape": [],
+                  "strides": [],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1073741824
+                  ],
+                  "values": [
+                    2.0
+                  ],
+                  "tensor_identity": "418478000",
+                  "storage_identity": "418327840",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 4
+                }
+              },
+              "gradients": {
+                "p": null,
+                "coefficient": null
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "returned_Tensor_identity": "418478000",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417224672",
+                  "storage_identity": "417545024",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "coefficient": {
+                  "shape": [],
+                  "strides": [],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 1,
+                  "binary32_words": [
+                    1077936128
+                  ],
+                  "values": [
+                    3.0
+                  ],
+                  "tensor_identity": "418478000",
+                  "storage_identity": "418327840",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 4
+                }
+              },
+              "gradients": {
+                "p": null,
+                "coefficient": null
+              }
+            }
+          },
+          {
+            "action": "Saved version validation still executes",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417224672",
+                  "storage_identity": "417545024",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "coefficient": {
+                  "shape": [],
+                  "strides": [],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 1,
+                  "binary32_words": [
+                    1077936128
+                  ],
+                  "values": [
+                    3.0
+                  ],
+                  "tensor_identity": "418478000",
+                  "storage_identity": "418327840",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 4
+                }
+              },
+              "gradients": {
+                "p": null,
+                "coefficient": null
+              }
+            },
+            "outcome": "RAISED",
+            "exception_type": "RuntimeError",
+            "message": "one of the variables needed for gradient computation has been modified by an inplace operation: [torch.FloatTensor []] is at version 1; expected version 0 instead. Hint: enable anomaly detection to find the operation that failed to compute its gradient, with torch.autograd.set_detect_anomaly(True, check_nan=False).",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417224672",
+                  "storage_identity": "417545024",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "coefficient": {
+                  "shape": [],
+                  "strides": [],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 1,
+                  "binary32_words": [
+                    1077936128
+                  ],
+                  "values": [
+                    3.0
+                  ],
+                  "tensor_identity": "418478000",
+                  "storage_identity": "418327840",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 4
+                }
+              },
+              "gradients": {
+                "p": null,
+                "coefficient": null
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "distinct-alias-leaves-have-independent-flags-and-gradients",
+      "status": "OBSERVED",
+      "observation": {
+        "same_parameter_Storage": true,
+        "same_parameter_Tensor": false,
+        "actions": [
+          {
+            "action": "enable distinct detached leaf",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "418450928",
+                  "storage_identity": "417166544",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "q": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417536160",
+                  "storage_identity": "417166544",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null,
+                "q": null
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "returned_Tensor_identity": "417536160",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "418450928",
+                  "storage_identity": "417166544",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "q": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417536160",
+                  "storage_identity": "417166544",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null,
+                "q": null
+              }
+            }
+          },
+          {
+            "action": "accumulate only detached leaf",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "418450928",
+                  "storage_identity": "417166544",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "q": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417536160",
+                  "storage_identity": "417166544",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null,
+                "q": null
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "418450928",
+                  "storage_identity": "417166544",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "q": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417536160",
+                  "storage_identity": "417166544",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null,
+                "q": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 1,
+                  "binary32_words": [
+                    1077936128,
+                    1082130432
+                  ],
+                  "values": [
+                    3.0,
+                    4.0
+                  ],
+                  "tensor_identity": "397065456",
+                  "storage_identity": "418792656",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              }
+            }
+          },
+          {
+            "action": "disable original leaf independently",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "418450928",
+                  "storage_identity": "417166544",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "q": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417536160",
+                  "storage_identity": "417166544",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null,
+                "q": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 1,
+                  "binary32_words": [
+                    1077936128,
+                    1082130432
+                  ],
+                  "values": [
+                    3.0,
+                    4.0
+                  ],
+                  "tensor_identity": "397065456",
+                  "storage_identity": "418792656",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "returned_Tensor_identity": "418450928",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "418450928",
+                  "storage_identity": "417166544",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "q": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417536160",
+                  "storage_identity": "417166544",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null,
+                "q": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 1,
+                  "binary32_words": [
+                    1077936128,
+                    1082130432
+                  ],
+                  "values": [
+                    3.0,
+                    4.0
+                  ],
+                  "tensor_identity": "397065456",
+                  "storage_identity": "418792656",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              }
+            }
+          },
+          {
+            "action": "disable alias but retain its gradient",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "418450928",
+                  "storage_identity": "417166544",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "q": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417536160",
+                  "storage_identity": "417166544",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null,
+                "q": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 1,
+                  "binary32_words": [
+                    1077936128,
+                    1082130432
+                  ],
+                  "values": [
+                    3.0,
+                    4.0
+                  ],
+                  "tensor_identity": "397065456",
+                  "storage_identity": "418792656",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "returned_Tensor_identity": "417536160",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "418450928",
+                  "storage_identity": "417166544",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "q": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417536160",
+                  "storage_identity": "417166544",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null,
+                "q": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 1,
+                  "binary32_words": [
+                    1077936128,
+                    1082130432
+                  ],
+                  "values": [
+                    3.0,
+                    4.0
+                  ],
+                  "tensor_identity": "397065456",
+                  "storage_identity": "418792656",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              }
+            }
+          },
+          {
+            "action": "reenable original",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "418450928",
+                  "storage_identity": "417166544",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "q": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417536160",
+                  "storage_identity": "417166544",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null,
+                "q": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 1,
+                  "binary32_words": [
+                    1077936128,
+                    1082130432
+                  ],
+                  "values": [
+                    3.0,
+                    4.0
+                  ],
+                  "tensor_identity": "397065456",
+                  "storage_identity": "418792656",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "returned_Tensor_identity": "418450928",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "418450928",
+                  "storage_identity": "417166544",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "q": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417536160",
+                  "storage_identity": "417166544",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null,
+                "q": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 1,
+                  "binary32_words": [
+                    1077936128,
+                    1082130432
+                  ],
+                  "values": [
+                    3.0,
+                    4.0
+                  ],
+                  "tensor_identity": "397065456",
+                  "storage_identity": "418792656",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              }
+            }
+          },
+          {
+            "action": "reenable alias",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "418450928",
+                  "storage_identity": "417166544",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "q": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417536160",
+                  "storage_identity": "417166544",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null,
+                "q": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 1,
+                  "binary32_words": [
+                    1077936128,
+                    1082130432
+                  ],
+                  "values": [
+                    3.0,
+                    4.0
+                  ],
+                  "tensor_identity": "397065456",
+                  "storage_identity": "418792656",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "returned_Tensor_identity": "417536160",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "418450928",
+                  "storage_identity": "417166544",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "q": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417536160",
+                  "storage_identity": "417166544",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null,
+                "q": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 1,
+                  "binary32_words": [
+                    1077936128,
+                    1082130432
+                  ],
+                  "values": [
+                    3.0,
+                    4.0
+                  ],
+                  "tensor_identity": "397065456",
+                  "storage_identity": "418792656",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              }
+            }
+          },
+          {
+            "action": "original retained graph accumulates only original leaf",
+            "before": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "418450928",
+                  "storage_identity": "417166544",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "q": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417536160",
+                  "storage_identity": "417166544",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": null,
+                "q": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 1,
+                  "binary32_words": [
+                    1077936128,
+                    1082130432
+                  ],
+                  "values": [
+                    3.0,
+                    4.0
+                  ],
+                  "tensor_identity": "397065456",
+                  "storage_identity": "418792656",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              }
+            },
+            "outcome": "SUCCEEDED",
+            "after": {
+              "parameters": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "418450928",
+                  "storage_identity": "417166544",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "q": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": true,
+                  "is_leaf": true,
+                  "version": 0,
+                  "binary32_words": [
+                    1065353216,
+                    3221225472
+                  ],
+                  "values": [
+                    1.0,
+                    -2.0
+                  ],
+                  "tensor_identity": "417536160",
+                  "storage_identity": "417166544",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              },
+              "gradients": {
+                "p": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 1,
+                  "binary32_words": [
+                    1073741824,
+                    3229614080
+                  ],
+                  "values": [
+                    2.0,
+                    -4.0
+                  ],
+                  "tensor_identity": "418478000",
+                  "storage_identity": "419913280",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                },
+                "q": {
+                  "shape": [
+                    2
+                  ],
+                  "strides": [
+                    1
+                  ],
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "is_leaf": true,
+                  "version": 1,
+                  "binary32_words": [
+                    1077936128,
+                    1082130432
+                  ],
+                  "values": [
+                    3.0,
+                    4.0
+                  ],
+                  "tensor_identity": "397065456",
+                  "storage_identity": "418792656",
+                  "storage_offset_bytes": 0,
+                  "storage_bytes": 8
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "oracle_provenance": {
+    "status": "PASS",
+    "lock_path": "/home/runner/work/HeptaTorch/HeptaTorch/compatibility/pytorch-oracle-lock.json",
+    "lock_sha256": "ca2e54ce65083bbe0ab3d47b6878971271765ab35a9dd70725fa345fceed3944",
+    "expected": {
+      "distribution": "torch",
+      "version": "2.15.0+cpu",
+      "git_commit": "d0f2af8b66b20da4baa50644c0cd3f887a2eae2e",
+      "backend_versions": {
+        "cuda": null,
+        "hip": null,
+        "rocm": null,
+        "xpu": null
+      },
+      "python": {
+        "implementation": "cpython",
+        "version": [
+          3,
+          12
+        ]
+      },
+      "platform": {
+        "sys_platform": "linux",
+        "machine": "x86_64"
+      },
+      "wheel": {
+        "url": "https://download-r2.pytorch.org/whl/cpu/torch-2.15.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl",
+        "sha256": "0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3",
+        "filename": "torch-2.15.0+cpu-cp312-cp312-manylinux_2_28_x86_64.whl",
+        "python_tag": "cp312",
+        "abi_tag": "cp312",
+        "platform_tag": "manylinux_2_28_x86_64",
+        "metadata_sha256": "8bbf94c86c3be6cf586385861d476b78cb66d19b67fef49ece4f7d68ca428cc3"
+      },
+      "install_report": "build/pytorch-install.json"
+    },
+    "observed": {
+      "python": {
+        "implementation": "cpython",
+        "version": [
+          3,
+          12
+        ],
+        "full_version": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]"
+      },
+      "platform": {
+        "sys_platform": "linux",
+        "machine": "x86_64"
+      },
+      "version": "2.15.0+cpu",
+      "git_commit": "d0f2af8b66b20da4baa50644c0cd3f887a2eae2e",
+      "backend_versions": {
+        "cuda": null,
+        "hip": null,
+        "rocm": null,
+        "xpu": null
+      },
+      "distribution_version": "2.15.0+cpu",
+      "direct_url": {
+        "archive_info": {
+          "hash": "sha256=0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3",
+          "hashes": {
+            "sha256": "0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3"
+          }
+        },
+        "url": "https://download-r2.pytorch.org/whl/cpu/torch-2.15.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl"
+      },
+      "install_report": {
+        "path": "build/pytorch-install.json",
+        "pip_version": "24.0",
+        "download_info": {
+          "url": "https://download-r2.pytorch.org/whl/cpu/torch-2.15.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl",
+          "archive_info": {
+            "hash": "sha256=0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3",
+            "hashes": {
+              "sha256": "0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3"
+            }
+          }
+        },
+        "metadata_name": "torch",
+        "metadata_version": "2.15.0+cpu",
+        "requested": true
+      }
+    },
+    "checks": {
+      "python_matches": true,
+      "platform_matches": true,
+      "version_backend_matches": true,
+      "git_matches_oracle_build_pin": true,
+      "distribution_version_matches": true,
+      "direct_url_matches": true,
+      "direct_url_archive_sha256_matches": true,
+      "pip_report_url_matches": true,
+      "pip_report_archive_sha256_matches": true,
+      "pip_report_version_matches": true,
+      "pip_report_requested": true
+    },
+    "metadata_error": null,
+    "release_source_equivalence": {
+      "inventory_commit": "31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
+      "wheel_build_commit": "d0f2af8b66b20da4baa50644c0cd3f887a2eae2e",
+      "wheel_build_is_direct_parent_of_inventory_commit": true,
+      "torch_git_matches_upstream_pin": false,
+      "release_root_tree": "156b7013e253ac50abaa4de8a4d2e6dd7acbbb56",
+      "wheel_build_root_tree": "408badfd8e01265470f4efedfe22fa547b128351",
+      "root_entry_counts": {
+        "release": 74,
+        "wheel": 74
+      },
+      "root_trees_truncated": {
+        "release": false,
+        "wheel": false
+      },
+      "changed_paths": [
+        "pyproject.toml"
+      ],
+      "change": "The release commit adds five lines under [tool.ruff], setting target-version to py310 with explanatory comments. There are no deletions. Every other root entry and every source subtree is identical.",
+      "wheel_pyproject_blob": "6d2cb5e341729de25288267e24d76c20254288f8",
+      "release_pyproject_blob": "e7648b0fcb198697832a6aab3469719a9992a8ec",
+      "identical_subtrees": {
+        ".ci": "40279ceebccac57277fdaabf1fb8cb70b60850d6",
+        ".claude": "0075de12edc4d9bdbf28e567c5f54f3ac5e78201",
+        ".ctags.d": "3c8ba0dccbb55f2da51365a465144aa69c6025d0",
+        ".devcontainer": "6abd271cefad60b09bbfacb63e53325198cd5521",
+        ".github": "8ae0eeb95729b758872993f4a7fed6ffcefb286c",
+        ".spin": "ef791f9c9264cb8a8e13acce7ee418e0f9c956ac",
+        ".vscode": "ea91f344ac83b434b498fa28b4b8b555e68a9126",
+        "android": "d2ff3db5f9fac06b8ddce4b796409a09e8e5e8a8",
+        "aten": "742dba1bfe6135f3573e4eaac689742744628174",
+        "benchmarks": "ec19294aeabfaae61be43f8ea98c7bfe5e507b56",
+        "binaries": "f5249d171f1af6f07384c91418892a45d05fee22",
+        "c10": "bcd92827e525817818af6e44b77f64460823bef1",
+        "caffe2": "73f5fcafe72932ee5cbaab1b2bd879f8a634344e",
+        "cmake": "b622eeb5fe4620c3f58529c34cc52b4466af8519",
+        "docs": "5b3f3b84bd0c6597c7c926d221739ab4c9d4fc9f",
+        "functorch": "c559f838225b0971bc22fcb2672589c27ef01456",
+        "mypy_plugins": "f2f6231e180a450273107602eef43bd9433a51c0",
+        "scripts": "940b5e644e48b7eedc65292e19e56e4c7a9abb98",
+        "test": "9dcb79311a6209012b019fc6f20209d2804cca98",
+        "third_party": "60ad164358c335341c6a7840bb80256079e6dd8e",
+        "tools": "f35164cd2daf3f11baadcccc5551800e38392432",
+        "torch": "2877dbcda5441192b89ab6272c24bed424e53bd4",
+        "torchgen": "f5fb760a18c6d4c81a4b665ad7adef7348dba6a3"
+      },
+      "scope": "Only this exact official wheel SHA256/build commit and this exact inventory release commit. This is source equivalence for the recorded lint-only release change, not identity of the two Git commits or an allowance for other builds."
+    }
+  },
+  "source_files_unchanged": {
+    "probe": true,
+    "support": true,
+    "lock": true
+  }
+}
