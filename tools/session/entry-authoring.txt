@@ -1,0 +1,36 @@
+def entry(s:readbuf, o:mutbuf, w:mutbuf) -> u32:
+    putw(o, 0, 3544421225534018632)
+    putw(o, 8, 1)
+    putw(o, 16, 0)
+    putw(o, 24, 0)
+    if length(s) < 32:
+        putw(o, 24, 100)
+        return 32
+    if getr(s, 0) != 3544412360721519688 or getr(s, 16) != length(s) or getr(s, 24) != 0:
+        putw(o, 24, 100)
+        return 32
+    count = getr(s, 8)
+    if count > (length(s) - 32) // 64:
+        putw(o, 24, 100)
+        return 32
+    if getw(w,8) == 0:
+        init(w)
+    else:
+        putw(w,0,0)
+    end = 32 + count * 64
+    i = 0
+    at = 32
+    while i < count:
+        if at > length(o) - 32:
+            putw(o, 16, 0)
+            putw(o, 24, 3)
+            return 32
+        at = command(s, o, w, 32 + i * 64, at, end)
+        i = i + 1
+        putw(o, 16, i)
+        status = getw(w, 0)
+        if status != 0:
+            putw(o, 16, 0)
+            putw(o, 24, status)
+            return 32
+    return at

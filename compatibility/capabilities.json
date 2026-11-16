@@ -344,7 +344,7 @@
     "full checkpoint and serialization",
     "cross-platform execution",
     "large model memory management and device kernels",
-    "persistent state across requests, general lifetime/allocator management"
+    "general owned/resizable lifetime/allocator management and process-restart durability"
   ],
   "maximum_pooling_terms": 16777216,
   "maximum_matmul_terms": 16777216,
@@ -492,5 +492,35 @@
       "failed_cases_per_build": 0
     },
     "default_linked_executable_sha256": "cf78556c3c512227ffe123635b76e5a6af97697606e8ba3535c56f5101f4f80d"
+  },
+  "native_persistent_session": {
+    "profile": "heptatorch.native-persistent-session-profile.v1",
+    "mode": "opt-in interactive same-process execution",
+    "request_magic": "HTOSES01",
+    "response_magic": "HTOSRP01",
+    "per_frame_body_limit_bytes": 1048576,
+    "workspace_bytes_each": 1048576,
+    "workspace_copies": 2,
+    "transaction": "shadow full arena; status0 commits; failure preserves durable state and emits count0 response",
+    "native_modular_executable_sha256": "193c1b59323ced38fc5e2cf9ec939ade70ccb62e239bb65d01e22c188409b6db",
+    "native_monolithic_executable_sha256": "ce6ffe8f8530b0ad68ac93e01f47d3473b2749697021590c41c18e6c847d4077",
+    "canonical_function_bodies_unchanged": 142,
+    "independent_native_cases_per_build": 477,
+    "general_storage_complete": false,
+    "process_restart_durability": false,
+    "contract": "tools/session/CONTRACT.md",
+    "evidence": "validation/persistent-session-native.json",
+    "real_pytorch_session_oracle_cases_expected": 21,
+    "real_pytorch_session_oracle_at_native_receipt_assembly": "NOT_RUN",
+    "hosted_qualification": {
+      "status": "PASS_FOR_RECORDED_SCOPE",
+      "cases_per_build": 21,
+      "frames_per_build": 4681,
+      "compared_values_per_build": 491847,
+      "oracle_provenance_checks_per_build": 11,
+      "tested_commit": "c627e1f7a5ab44a882a047a6c63ee4c8ca8a3c3a",
+      "evidence": "validation/hosted-persistent-session.json",
+      "absolute_pytorch_version_counter_parity": false
+    }
   }
 }

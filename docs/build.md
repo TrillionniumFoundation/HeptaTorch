@@ -288,3 +288,19 @@ PyTorch is used only for this independent oracle. Python also supports initial
 toolchain authoring/bootstrap, source partitioning, build transport and audit
 drivers as described above. Neither Python nor PyTorch is a runtime dependency
 of either native executable or of the regression loop on already-built products.
+
+## Building native persistent sessions
+
+`make session session-monolithic` builds the optional interactive runtimes.
+`make test-session test-session-monolithic` observes 477 native cases per image,
+including all 461 existing packet pairs and full-state rollback. Set
+`HEPTA_COMPILER`, `HEPTA_MODULE_COMPILER`, `HEPTA_FLAT_LINKER`, and
+`HEPTA_SESSION_PACKER` to the pinned native tools. The complete source-adaptation
+and native reproduction commands are in [tools/session/README.md](../tools/session/README.md).
+
+The workflow rebuilds both session tools from the same fixed upstream checkout,
+checks 18 flat-linker / 22 packer / 3 actual module-growth cases, then builds and
+exercises both sessions. It separately compares each image with 21 real pinned
+PyTorch cross-frame cases. The existing 270-case ordinary-request gate and 461
+fixture pairs remain required. Native source and pre/post producer hashes bind
+each build; no Python or upstream tensor runtime executes production requests.

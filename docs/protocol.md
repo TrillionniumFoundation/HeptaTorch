@@ -157,7 +157,12 @@ Detach shares storage and removes the autograd connection. Clone copies logical
 values into new storage while preserving a differentiable connection. A leaf
 write or optimizer update increments the shared owner's version. Backward
 preflights the reachable graph, checking saved parent versions and newly owned
-output versions before altering gradients. This validation is conservative.
+output versions before altering gradients. This validation is conservative. The packet payload-import path uses
+`tset` for each element, so its owner counter includes those initialization
+writes. Its absolute value is not qualified as PyTorch `Tensor._version`;
+alias sharing, explicit mutation increments and stale-saved-value rejection
+are the current contract. Absolute counter parity remains an open compatibility
+item for the general tensor/storage interface.
 For concatenation and stacking, every saved input occurrence is checked,
 including repeated inputs, skipped `(0,)` tensors and inputs without gradients.
 The indexed-addition checks below can also reject a source derivative during
@@ -412,3 +417,18 @@ The outer native ELF wrapper rejects input larger than 1 MiB with process exit
 allocation failure exits 4. Those process-level failures are distinct from the
 structured statuses above. No background service, network listener, GPU context,
 or distributed process group is created by this executable.
+
+## Optional interactive framing
+
+The ordinary executable still consumes one `HTORCH01` packet. The optional
+`heptatorch-session` process accepts a sequence of `HTOSES01` frames and emits a
+`HTOSRP01` response before reading the next frame, without requiring stdin EOF.
+The complete byte-level contract, canonical failed response, atomic state
+commit, EOF behavior and native error exits are specified in
+[tools/session/CONTRACT.md](../tools/session/CONTRACT.md).
+
+This entry keeps state across requests in one process. It uses two one-MiB
+arenas and can commit or discard the complete packet, including graph-reset
+generations, gradients and optimizer states. It has no owner outside those
+arenas and does not establish general storage allocation or persistence after
+process exit. The same numerical kernels serve both entry modes.

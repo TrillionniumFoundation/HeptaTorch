@@ -19,7 +19,7 @@
       "id": "storage-lifetime",
       "status": "IN_PROGRESS",
       "required": "General allocation, storage ownership, aliasing, reference lifetime, persistent execution, scalable capacity and device memory",
-      "remaining": "One-request 1 MiB buffers and 255 simultaneous descriptors; graph reset covers only fixed-prefix owned leaves"
+      "remaining": "Bounded native interactive sessions and complete-frame durable/shadow arena transactions are implemented and independently exercised. Each frame still has 1 MiB I/O and each state arena 1 MiB with 255 simultaneous descriptors. General owned/resizable storage, reference lifetime, device allocation and process-restart durability remain unqualified."
     },
     {
       "id": "dtype-layout",
@@ -37,7 +37,7 @@
       "id": "views-mutation",
       "status": "IN_PROGRESS",
       "required": "All view/stride/offset/overlap/indexing semantics, out and inplace variants, alias/version behavior and mutation errors",
-      "remaining": "Scoped transpose, contiguous view, detach, cat/stack layout selection and indexed accumulation are implemented; full offset/overlap/stride, mutation/out variants and complete dtype/device behavior remain unqualified."
+      "remaining": "Scoped transpose, contiguous view, detach, cat/stack layout selection and indexed accumulation are implemented; full offset/overlap/stride, mutation/out variants and complete dtype/device behavior remain unqualified. Packet payload import currently increments the owner counter per element, so absolute torch._version parity is not qualified; shared increments and saved-version invalidation are checked separately."
     },
     {
       "id": "autodiff-transforms",

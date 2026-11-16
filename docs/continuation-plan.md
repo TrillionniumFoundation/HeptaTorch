@@ -34,7 +34,8 @@ identities are recorded in `validation/`.
 | Native module compilation | True external declarations, borrowed buffer signatures, effects and lifetime checks, symbolic ELF relocations, two-unit execution and 69/204/19/18 boundary suites | General owned-resource ABI, allocation and resource results; persistent storage and whole-program resource bounds |
 | Tensor composition | Native `cat` and `stack`, variable-parent reverse AD, empty shapes, layout selection, version checks and graph reset | Complete dtype/device/layout variants, mutation/out forms and full upstream schema qualification |
 | Indexed accumulation | Native `scatter_add` and `index_add`, exact integer index payloads, duplicate accumulation, alpha rounding and reverse AD preflight | Complete dtype/device/layout variants, mutation/out forms and full upstream schema qualification |
-| Qualification | Both actual builds pass 461 packet pairs and 268 pinned PyTorch cases each, with 12,932 compared values and 11 provenance checks per build; all 159 prior case functions remain unchanged | Extend source-bound qualification with every new implementation; component success does not close the whole-project gates |
+| Persistent execution | Two native interactive builds, complete-frame arena transactions, 477 independent live-session cases each, 22 packer / 18 flat-linker / 3 actual growth checks | Both hosted session images now pass 21 cases / 4,681 frames / 491,847 values each; general owned/resizable storage, absolute torch._version parity and cross-process durability remain open |
+| Qualification | Both ordinary builds pass 461 packet pairs and 270 pinned PyTorch cases each, with 13,076 compared values and 11 provenance checks per build; all 159 prior case functions remain unchanged | Extend source-bound qualification with every new implementation; component success does not close the whole-project gates |
 
 `validation/hosted-boundary-observations.json` contains actual pinned PyTorch
 observations used to establish empty, index, alpha and layout behavior. Those
@@ -47,7 +48,7 @@ oracle and fixture inventory. Historical 159-case receipts keep their identities
 The borrowed module barrier is now implemented; it does not establish owned
 resource transfer, general allocation or a general public tensor object ABI.
 The next foundation work is explicit native storage ownership and allocation,
-followed by persistent execution state and dtype/layout services. Independent
+followed by general owned persistent state and dtype/layout services. Bounded borrowed-arena persistence is implemented separately in `tools/session`; it does not establish external heap-owner transactions. Independent
 operator and AD work may continue without treating restricted packet features
 as complete upstream schema coverage.
 

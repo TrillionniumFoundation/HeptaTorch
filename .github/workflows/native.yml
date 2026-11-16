@@ -50,6 +50,7 @@ jobs:
         run: |
           python3 -I -S -B tools/check_acceptance.py
           python3 -I -S -B tests/check_acceptance_negative.py
+          python3 -I -S -B tests/check_session_reports.py sources
 
       - name: Bootstrap and reproduce the native HIA compiler
         shell: bash
@@ -375,6 +376,62 @@ jobs:
                             'monolithic_sha256': digest('build/heptatorch-monolithic')}))
           MANIFEST
 
+      - name: Reproduce native session flat linker and wide packer
+        shell: bash
+        run: |
+          python3 -I -S -B tools/session/build_flat_linker.py \
+            --source-root "$GITHUB_WORKSPACE/.toolchain/hepta" \
+            --capacity-adaptation "$RUNNER_TEMP/hepta-profile-sources/adaptation.json" \
+            --output "$RUNNER_TEMP/hepta-session-generated/flat"
+          python3 -I -S -B tools/session/build_packer.py \
+            --source-root "$GITHUB_WORKSPACE/.toolchain/hepta" \
+            --capacity-adaptation "$RUNNER_TEMP/hepta-profile-sources/adaptation.json" \
+            --output "$RUNNER_TEMP/hepta-session-generated/packer"
+          python3 -I -S -B tools/session/rebuild_flat_linker.py \
+            --compiler "$RUNNER_TEMP/hepta-expanded/hia-native-compiler" \
+            --module-compiler "$RUNNER_TEMP/hepta-modules-native/module-compiler" \
+            --generated "$RUNNER_TEMP/hepta-session-generated/flat" \
+            --output "$RUNNER_TEMP/hepta-session-native/flat"
+          python3 -I -S -B tools/session/rebuild_packer.py \
+            --compiler "$RUNNER_TEMP/hepta-expanded/hia-native-compiler" \
+            --module-compiler "$RUNNER_TEMP/hepta-modules-native/module-compiler" \
+            --generated "$RUNNER_TEMP/hepta-session-generated/packer" \
+            --output "$RUNNER_TEMP/hepta-session-native/packer"
+
+      - name: Qualify flat linking and actual native session capacity
+        shell: bash
+        run: |
+          python3 -I -S -B tools/session/tests/flat_linker.py \
+            --native-dir "$RUNNER_TEMP/hepta-session-native/flat" \
+            --generated-dir "$RUNNER_TEMP/hepta-session-generated/flat" \
+            --prior-review-dir "$RUNNER_TEMP/hepta-module-review/boundaries" \
+            --prior-report "$RUNNER_TEMP/hepta-module-review/boundaries/report.json" \
+            --abi-observer tools/modules/tests/observe_flat.py \
+            --output "$RUNNER_TEMP/hepta-session-review/flat"
+          python3 -I -S -B tools/session/tests/packer.py \
+            --executable "$RUNNER_TEMP/hepta-session-native/packer/session-packer" \
+            --image "$RUNNER_TEMP/hepta-session-native/packer/session-packer.image" \
+            --generated "$RUNNER_TEMP/hepta-session-generated/packer" \
+            --output "$RUNNER_TEMP/hepta-session-review/packer"
+          python3 -I -S -B tools/session/tests/modular_capacity.py \
+            --compiler "$RUNNER_TEMP/hepta-modules-native/module-compiler" \
+            --legacy-compiler "$RUNNER_TEMP/hepta-expanded/hia-native-compiler" \
+            --flat-linker "$RUNNER_TEMP/hepta-session-native/flat/flat-linker" \
+            --packer "$RUNNER_TEMP/hepta-session-native/packer/session-packer" \
+            --output "$RUNNER_TEMP/hepta-session-review/growth"
+
+      - name: Build and independently exercise both interactive session runtimes
+        shell: bash
+        run: |
+          make session session-monolithic test-session test-session-monolithic \
+            HEPTA_COMPILER="$RUNNER_TEMP/hepta-expanded/hia-native-compiler" \
+            HEPTA_MODULE_COMPILER="$RUNNER_TEMP/hepta-modules-native/module-compiler" \
+            HEPTA_FLAT_LINKER="$RUNNER_TEMP/hepta-session-native/flat/flat-linker" \
+            HEPTA_SESSION_PACKER="$RUNNER_TEMP/hepta-session-native/packer/session-packer"
+          python3 -I -S -B tests/check_session_reports.py native \
+            --review "$RUNNER_TEMP/hepta-session-review" \
+            --output build/hosted-persistent-session-native.json
+
       - name: Install the independent pinned PyTorch CPU oracle
         shell: bash
         run: |
@@ -467,6 +524,15 @@ jobs:
                   output.write('| ' + report['build'] + ' | 461 | 270 | 11 | `' + report['native_executable_sha256'] + '` |\n')
               output.write('\nHistorical 159-case receipts remain unchanged. Current reports are recorded separately for each build.\n')
           DUAL_ORACLE
+
+      - name: Compare modular interactive sessions with pinned real PyTorch (21 cases)
+        run: python3 tests/pytorch_session_oracle.py build/heptatorch-session build/pytorch-session-modular.json
+
+      - name: Compare monolithic interactive sessions with pinned real PyTorch (21 cases)
+        run: python3 tests/pytorch_session_oracle.py build/heptatorch-session-monolithic build/pytorch-session-monolithic.json
+
+      - name: Bind both interactive PyTorch session reports to exact native sources
+        run: python3 -I -S -B tests/check_session_reports.py oracle --output build/hosted-persistent-session-oracle.json
 
       - name: Observe pinned PyTorch indexed-accumulation boundary semantics
         run: python3 tests/pytorch_index_semantics.py build/index-semantics.json compatibility/pytorch-oracle-lock.json

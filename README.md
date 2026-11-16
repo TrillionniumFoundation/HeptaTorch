@@ -17,8 +17,8 @@ HIA 原生张量、自动微分和神经网络训练运行时。核心实现由 
 | 神经网络 | rank 1–4 输入的 Linear、MSE、softmax/log-softmax、最后一维 LayerNorm、冻结统计量的 BatchNorm、概率目标交叉熵 |
 | 空间算子 | NCHW/OIHW conv2d、分组与 depthwise 卷积、逐轴 stride/dilation/padding、平均池化和最大池化，以及对应反向传播 |
 | 优化器 | SGD、momentum、Nesterov、Adam、AdamW；显式状态张量与版本失效检查 |
-| 训练生命周期 | 保留参数／状态的图回收、工作区复用、带代际信息的张量 ID、旧句柄拒绝；单次请求内反复训练 |
-| 执行接口 | 有边界检查的二进制命令协议、明确错误状态、原生 HIA 十六进制解码工具 |
+| 训练生命周期 | 保留参数／状态的图回收、工作区复用、带代际信息的张量 ID、旧句柄拒绝；可选持久会话支持跨帧训练及完整帧失败回滚 |
+| 执行接口 | 有边界检查的二进制命令协议、明确错误状态、原生 HIA 十六进制解码工具，以及逐帧读写的原生持久会话 |
 | 原生模块 | 同一编译器配置下的借用缓冲区模块编译、签名／效果检查和 HIA 静态链接；通用资源所有权 ABI 仍未完成 |
 
 本次实现使用软件浮点算术。运行时无 Python、PyTorch、NumPy、libm 或 libc 依赖。HIA 编译器的初始 bootstrap 使用其上游 Python 实现和 GNU ld，随后由 HIA 编译器自行重建；构建与运行依赖见 [构建说明](docs/build.md)。
@@ -58,6 +58,20 @@ cmp build/train.response build/train.expected
 
 命令流最小化平方损失，每一步执行前向、反向、参数更新和图回收。参数保持原 ID，临时图复用描述符与工作区。原有的两层 ReLU／18 步 Adam 训练夹具也保留在回归集中。
 
+## 跨请求持久会话
+
+会话进程读取 `HTOSES01` 外层帧，执行其中的 `HTORCH01` 请求，在 stdin 仍打开时立即输出 `HTOSRP01` 响应帧，然后读取下一帧。每个完整请求在 shadow 工作区执行；成功才提交，失败返回保留原错误码的 32 字节、零记录响应，并保持已提交状态不变。外层格式、EOF／EINTR／断管处理及边界见 [会话合同](tools/session/CONTRACT.md)。
+
+```sh
+make session session-monolithic test-session test-session-monolithic \
+  HEPTA_COMPILER=/absolute/path/to/hia-native-compiler \
+  HEPTA_MODULE_COMPILER=/absolute/path/to/hia-module-compiler \
+  HEPTA_FLAT_LINKER=/absolute/path/to/hia-flat-linker \
+  HEPTA_SESSION_PACKER=/absolute/path/to/hia-session-packer
+```
+
+四个工具均有精确 SHA-256 门禁；后两个工具的源码生成与原生重建见 [完整配方](tools/session/README.md)。默认会话映像为 `build/heptatorch-session`，单体参考为 `build/heptatorch-session-monolithic`。构建只替换一个经过校验的 HIA entry，另外 142 个函数逐字保留；数值实现仍来自唯一权威源码。多模块增长测试已实际执行超过单元 8,192 指令限制、生成超过 1 MiB 的程序；这些构建能力见证不增加上游算子覆盖计数。
+
 ## 已观察到的验证结果
 
 - 基础数值层：**2,314,020** 次原生运算与独立 NumPy binary32 参考逐位一致，算术 NaN 统一为规范 quiet NaN。
@@ -66,7 +80,9 @@ cmp build/train.response build/train.expected
 - 本轮合并原生检查：cat/stack **81 项／1,673 个精确值**及 **16 项失败原子性**通过；scatter_add/index_add **100 项／1,553 个值**、补充 **9 项／1,652 个值**通过；独立组合检查 **64 项／3,738 个值**通过，包含共享梯度、矩阵乘法和多轮图回收。另有 **3 项／102 个值**检查把 cat、stack、scatter_add、index_add 和视图接在同一张图中。[本轮原生证据](validation/tensor-composition-native.json)绑定实际合并源码与二进制。
 - 默认模块链接映像已通过 **461 对原生回归夹具**：原有 275 对，加 81 对拼接、100 对索引累加、3 对跨算子组合和 2 对含矩阵乘法的组合。原有请求输入保持不变；空形状 `[2,0]` 的旧步长 golden 仅在响应 byte 280 从 0 改为 1，对应 `[0,1]` 修正为 `[1,1]`。该修正已有固定源码和真实 PyTorch 观察支持。单编译单元参考路径使用同一份 461 对集合；两份二进制的独立身份和实际回放结果各自记录。
 - 真实 PyTorch 边界观察：**22 项空张量、12 项索引边界、6 项 alpha 舍入和 8 项布局选择**已执行并保留各自 CI 来源。合并程序重放布局观察的 **924 个值及全部步长**、索引边界的 **64 个值及拒绝阶段**、alpha 的 **102 个值**，均一致。[原始观察](validation/hosted-boundary-observations.json)与最终二进制回放分别保存，观察所用的早期源码身份未改写。
-- 本轮主 PyTorch 对照门禁已在两份实际映像上分别 **PASS：每份 268 项／12,932 个数值／11 项来源检查，零失败**。保持原 159 项的输入和容差，新增 35 项拼接及 74 项索引累加；[实际运行](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43788929713)验证提交 `724cbf2eb19d2ef8d400615d7196f5397cb402f6`，同时通过两份 461 对原生夹具、模块边界和工具链重建。[完整新回执](validation/hosted-tensor-composition.json)分别绑定两份可执行文件，保留逐项结果。
+- 拼接与索引扩展批次的 PyTorch 门禁在两份实际映像上分别 **PASS：每份 268 项／12,932 个数值／11 项来源检查，零失败**。保持原 159 项的输入和容差，新增 35 项拼接及 74 项索引累加；[实际运行](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43788929713)验证提交 `724cbf2eb19d2ef8d400615d7196f5397cb402f6`，同时通过两份 461 对原生夹具、模块边界和工具链重建。[完整新回执](validation/hosted-tensor-composition.json)分别绑定两份可执行文件，保留逐项结果。
+- 当前普通请求 PyTorch 门禁进一步扩展到每份 **270 项／13,076 个数值／11 项来源检查**。新增两个 12 步 SGD／AdamW 轨迹将拼接、转置、共享梯度、重复索引累加和图回收接在同一训练流程中，新增 144 个值逐位一致。[实际托管回执](validation/hosted-cross-feature-training.json)绑定提交 `91665f48c95f3bd8bb9bf4ec725c4f30ca66b511`，原 268 项函数和容差保持不变。
+- 原生持久会话：模块化与单体参考各 **477 项独立检查**通过，含全部 461 对既有夹具互操作、五类完整 1 MiB 状态回滚、64 次分帧 SGD 更新及真实断管退出；另有 **22 项打包边界、18 项 flat-linker 检查和 3 项模块增长检查**。两种映像均已在 stdin 保持打开时实际返回多帧响应。[完整原生证据](validation/persistent-session-native.json)保留首次 SIGPIPE 失败、后续修正与单独标识的真实 EINTR 测试 adapter。两份映像的新增真实 PyTorch 跨帧门禁均已 **PASS：各 21 项／4,681 帧／491,847 个值／11 项来源检查**；[完整托管回执](validation/hosted-persistent-session.json)绑定实际提交 `c627e1f7a5ab44a882a047a6c63ee4c8ca8a3c3a`。其别名测试严格比较共享递增及 clone 独立性；packet 与 `Tensor._version` 的绝对计数差异仍开放，首次 19／21 结果和两项合同断言修正保留在[原始失败记录](validation/hosted-session-oracle-contract-failure.json)。
 - 历史图生命周期批次：**275 对原生回归夹具**通过，原有 221 份请求输入未变，其中 5 份 Adam 预期响应已随舍入修正重新通过独立参考验证。图生命周期的 **26 项／40,123 个值**独立检查通过，包括单次请求中的 **1,000 步 SGD、1,000 步 Adam**，以及在 1 MiB 工作区内反复回收共 **9,600,000 字节**的临时张量数据和梯度缓冲。另有 **10 项**失败原子性检查，每项比较除错误状态外的全部 **1,048,568 字节**，均未发生修改。[历史原生验证](validation/session-native.json)继续保留该批次的具体案例、误差和源码／二进制身份。
 - 上一批算子扩展的矩阵与 Linear **63 项／4,593 个值**检查、**2,514 项**独立矩阵形状／梯度／拒绝检查，以及 **11 项／529 个值**跨算子集成检查均通过；对应历史源码身份保留在[算子扩展验证](validation/native-extension.json)。
 - 历史托管 CI：上一批次的 **159 项／8,471 个真实 PyTorch 数值对照**全部通过，包含无掩码／无 dropout 注意力、**1,024 步 SGD、512 步 Adam 和 512 步 AdamW**。长 SGD 对照逐位一致；长 Adam／AdamW 最大绝对误差分别为 **1.49×10⁻⁸／5.96×10⁻⁸**。[成功运行](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43743468220)同时验证了编译器自重建、275 对原生夹具和 11 项 oracle 来源检查。[该批次完整回执](validation/hosted-compiler-profile.json)保留逐项结果；[首次失败回执](validation/hosted-session-failure.json)也保留，用于说明 Adam 舍入问题及修正过程。
@@ -78,11 +94,11 @@ cmp build/train.response build/train.expected
 
 ## 当前边界与完整目标
 
-当前设备为 CPU，dtype 为 binary32，张量 rank 不超过 4；同时存活的张量描述符最多 255 个，可以通过图回收在同一请求内复用。输入、输出和工作区仍各为 1 MiB；跨请求持久化尚未实现。卷积、矩阵乘法和池化各有每次 16,777,216 项的计算预算。整数索引载荷不等于完整整数张量 dtype 支持。空间、优化器和自动微分的具体限制见 [接口协议](docs/protocol.md)及 [能力清单](compatibility/capabilities.json)。
+当前设备为 CPU，dtype 为 binary32，张量 rank 不超过 4；同时存活的张量描述符最多 255 个，可以通过图回收在同一请求内复用。普通请求的输入、输出和工作区各为 1 MiB。可选持久会话在同一进程内保存状态，每帧输入／输出仍各为 1 MiB，使用 durable／shadow 两份 1 MiB 工作区提供完整帧事务；进程重启后的持久化尚未实现。卷积、矩阵乘法和池化各有每次 16,777,216 项的计算预算。整数索引载荷不等于完整整数张量 dtype 支持。空间、优化器和自动微分的具体限制见 [接口协议](docs/protocol.md)及 [能力清单](compatibility/capabilities.json)。
 
 本轮在此前矩阵、VJP、图回收和 Adam 舍入修正基础上，实现了 cat/stack 与 scatter_add/index_add，并修复通用空张量的连续步长和晚出现零维度的形状接纳。cat 的 channels-last 是实际存储布局；index_add 的 alpha 舍入按已测固定 CPU 路径区分 rank 0/1 和更高 rank，不代表所有 ISA 都采用同一路径。具体行为见 [协议](docs/protocol.md)与 [数值说明](docs/numerics.md)。
 
-当前权威源码使用 143／256 个函数名额、1,783／2,560 个基本块及 7,064／8,192 条指令。已运行的借用缓冲区模块桥接推进了独立原生编译与链接；通用 owned resource、资源返回值、分配所有权、跨请求状态、任意外部 ABI 和规模化生命周期仍需实现和验收。具体证据及完整目标见 [审计更新](docs/upstream-audit.md#tensor-composition-and-indexed-addition-audit)。
+当前权威源码使用 143／256 个函数名额、1,783／2,560 个基本块及 7,064／8,192 条指令。已运行的借用缓冲区模块桥接推进了独立原生编译与链接；通用 owned resource、资源返回值、分配所有权、可增长存储、任意外部 ABI 和规模化生命周期仍需实现和验收。会话当前仅保存有界 arena 状态，不持有 arena 外部的 heap owner。具体证据及完整目标见 [审计更新](docs/upstream-audit.md#tensor-composition-and-indexed-addition-audit)。
 
 完整目标尚包括：完整 dtype/layout/promotion 语义、其余算子及重载、高阶和前向自动微分、CUDA/ROCm/MPS/XPU、分布式、图捕获与编译优化、数据加载、RNG、完整 checkpoint/serialization、Python/C++ 前端兼容和跨平台构建。[上游审计](docs/upstream-audit.md)列出这些目标的验收条件。
 

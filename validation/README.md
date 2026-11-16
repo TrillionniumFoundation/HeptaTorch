@@ -6,7 +6,7 @@ cases, seven spatial/training integration cases, 894 scalar special-value
 vectors, and 19 independently reviewed adversarial groups. These counts describe
 different sets and units; they are not a count of upstream PyTorch tests.
 
-The native packet corpus contains 275 input/expected-output pairs. Its exact
+The current native packet corpus contains 461 input/expected-output pairs. Its exact
 files, sizes and hashes are recorded in `fixture-manifest.json`. `make test`
 executes all of them through the native HIA hexadecimal decoder and tensor
 executable with empty PATH. Responses were recorded only after independent
@@ -385,3 +385,46 @@ workflow, numerical case, tolerance or fixture bytes.
 ## Combined native training through composition and indexed accumulation
 
 **PASS:** [Run 43791020627](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/43791020627) executed commit `91665f48c95f3bd8bb9bf4ec725c4f30ca66b511`. Both native-linked and monolithic HIA executables passed 461 native fixture pairs and 270 independent pinned CPU PyTorch cases (13,076 compared values per build, zero failures, all 11 wheel provenance checks). The two new 12-step sessions combine shared differentiable cat/stack, transposed views, duplicate `index_add`, MSE, optimizer updates (SGD/AdamW) and repeated `graph_reset`; 68 and 76 observed comparison values per build matched their real PyTorch references with zero maximum absolute error. `hosted-cross-feature-training.json` preserves both complete 270-row reports, their source/executable identities, per-case tolerances and the original run identity. Older 268-case and 159-case receipts remain unchanged. This is a stronger integrated native regression gate, not full PyTorch schema or subsystem completion.
+
+## Native interactive persistent sessions
+
+`persistent-session-native.json` embeds 19 source-bound qualification reports
+with each original file hash. It records both runtime builds, independent
+477-case live-session reviews, implementation 26-case reviews, peer rollback
+and flat-linker review, actual signal observations, native tool reproduction,
+22 wide-packer cases and 3 actual module-growth cases. These are different
+suites and units, not an additive count of upstream schemas. First-attempt
+SIGPIPE failure and unavailable ptrace observation remain explicit.
+
+`session-source-manifest.json` pins all 15 frozen portable implementation files
+and both independent native review scripts. The implementation substitutes one
+HIA entry at build time; it does not vendor another full numerical source.
+`session-oracle-custody.json` is the earlier NOT_RUN preparation snapshot for
+21 pinned PyTorch cross-frame cases. Current CI uses the current unchanged
+270-case reference support, records its hash separately, and runs those 21
+cases against each session image. Actual hosted outcomes require a separate
+receipt; the native component receipt does not claim them.
+
+`hosted-session-oracle-contract-failure.json` retains the first hosted session
+result: 19 cases passed and two failed. One test expected the wrong documented
+error code; the other compared the packet owner counter directly with
+`Tensor._version`, although packet import counts initialization writes. The
+corrected oracle records both absolute counters and checks exact shared
+increments and clone independence. All numerical tolerances, the other case
+functions, and native source/image identities remain unchanged. Absolute
+PyTorch counter parity remains an explicit open compatibility item.
+
+### Observed hosted persistent-session result
+
+`hosted-persistent-session.json` records successful run 43794542802, job
+133060243554, at commit `c627e1f7a5ab44a882a047a6c63ee4c8ca8a3c3a`. All
+30 hosted steps passed. Each actual session image passed 21 pinned PyTorch
+cases, 4,681 interactive frames, 491,847 numerical comparisons and 11 provenance
+checks. Both 270-case ordinary oracles, both 461-pair fixture runs, 477 native
+session cases per image and the new native tool/capacity gates also passed.
+
+The receipt contains every live oracle report and reproduces the exact hosted
+JSON file hashes. It explicitly records the absolute version-counter gap.
+Earlier native and oracle preparation snapshots remain NOT_RUN at their
+original assembly times; this hosted receipt supplies the subsequent actual
+execution evidence without rebinding them.
