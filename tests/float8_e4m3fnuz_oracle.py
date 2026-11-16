@@ -17,7 +17,7 @@ import traceback
 
 ROOT = Path(__file__).resolve().parents[1]
 COMPILER_SHA = '87c247e4d1c3c9a449d2947fd4227fdc186d519bffd203a04cafce7861a4ed54'
-IMAGE_SHA = None  # Freeze the executable hash after the first actual native build.
+IMAGE_SHA = 'bb4a98a62a8765aebd898dd6c0544c2005eb4177c409a955f2a80602f81c6c18'
 REFERENCE_SHA = 'ef8fe89aa7dbff4ee03f9d5762d2736a3648d9e48e97ad5df7bec615676f04ae'
 sha = lambda data: hashlib.sha256(data).hexdigest()
 
