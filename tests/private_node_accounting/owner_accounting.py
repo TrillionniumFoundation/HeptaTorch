@@ -31,6 +31,11 @@ PROFILES = {
         "source_sha256": "1fed8ea7ba5bf755a9df9ca1e61d34cfd4712cc2fd66e0728493091c81c24dae",
         "state": "HTGAD002", "backing": "HTOGAD02",
     },
+    "7568c0a4ec40d82d3a0b46d1e8a27499dd96e8fe3fd15433523131a196da89b5": {
+        "name": "retained-gradients-446",
+        "source_sha256": "666230f05cc6942470006d1f184135321d8cbc26a6c6ba0bf7e3cf9857fe515b",
+        "state": "HTRET001", "backing": "HTORET01",
+    },
 }
 SOURCE_PINS = {
     "bridge.py": "c2888687f8876ad3505f0e13c9aecddc45695eff22bfdd9fa16d760f9aa3dac5",

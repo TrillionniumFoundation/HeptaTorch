@@ -585,6 +585,17 @@ jobs:
             HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget"
           python3 -I -S -B tools/emit_ci_report.py build/hosted-gradient-adam-distributions-native.json
 
+      - name: Reproduce retained nonleaf gradients and independent ownership qualification
+        run: |
+          status=0
+          make test-retained-gradients \
+            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
+            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget" || status=$?
+          if [ -f build/hosted-retained-gradients-native.json ]; then
+            python3 -I -S -B tools/emit_ci_report.py build/hosted-retained-gradients-native.json
+          fi
+          exit "$status"
+
       - name: Reproduce and qualify persistent native CPU Generator objects
         run: |
           make cpu-generators test-cpu-generators \
@@ -992,6 +1003,42 @@ jobs:
           fi
           exit "$status"
 
+      - name: Compare retained nonleaf gradient owner with unchanged live oracle (32 cases)
+        run: |
+          echo '554671168c7a4a408dc1e1df89a19db15c3efcefcf4ae1a300af1b6dcae40160  tests/pytorch_tensor_rng_backward_oracle.py' | sha256sum -c -
+          status=0
+          python3 tests/pytorch_tensor_rng_backward_oracle.py \
+            --native build/retained-gradients/tensor-retained-session \
+            --source build/retained-gradients/runtime.hepta \
+            --expected-native-sha256 7568c0a4ec40d82d3a0b46d1e8a27499dd96e8fe3fd15433523131a196da89b5 \
+            --expected-source-sha256 666230f05cc6942470006d1f184135321d8cbc26a6c6ba0bf7e3cf9857fe515b \
+            --repo . --output build/pytorch-retained-gradients-backward.json > build/pytorch-retained-gradients-backward.stdout || status=$?
+          python3 -I -S -B tools/emit_ci_report.py build/pytorch-retained-gradients-backward.json
+          exit "$status"
+
+      - name: Regress retained nonleaf gradient owner against unchanged 35 Tensor cases with exact private-node accounting
+        run: |
+          echo '149b41c455444edeb8d25d0ad98045e29683e780f37f7e210e7985242d359597  tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py' | sha256sum -c -
+          status=0
+          python3 tests/private_node_accounting/run_frozen35_accounted.py \
+            --legacy-directory tests/tensor_object_oracle \
+            --native-source build/retained-gradients/runtime.hepta \
+            --observer-output build/frozen35-private-node/446 \
+            --observer-report build/pytorch-retained-gradients-frozen35.json \
+            build/retained-gradients/tensor-retained-session build/pytorch-retained-gradients-frozen35-original.json \
+            --owned-reference tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py \
+            --session-reference tests/pytorch_session_oracle.py --reference tests/pytorch_oracle.py \
+            --lock compatibility/pytorch-oracle-lock.json --repo . \
+            --trace-directory build/frozen35-private-node-wire/446 \
+            --expected-native-sha256 7568c0a4ec40d82d3a0b46d1e8a27499dd96e8fe3fd15433523131a196da89b5 || status=$?
+          python3 -I -S -B tools/emit_ci_report.py build/pytorch-retained-gradients-frozen35.json
+          if [ "$status" -eq 0 ]; then
+            python3 -I -S -B tests/private_node_accounting/check_frozen35_accounted.py \
+              --observer-report build/pytorch-retained-gradients-frozen35.json \
+              --original-report build/pytorch-retained-gradients-frozen35-original.json
+          fi
+          exit "$status"
+
       - name: Index complete original CI reports and checkout identity
         if: always()
         env:
@@ -1017,7 +1064,8 @@ jobs:
           python3 -I -S -B tests/private_node_accounting/collect_private_node_journals.py \
             --build build --journal-root build/frozen35-private-node --wire-root build/frozen35-private-node-wire \
             --reports build/pytorch-gradient-objects-frozen35.json build/pytorch-gradient-objects-frozen35-original.json \
-              build/pytorch-gradient-adam-distributions-frozen35.json build/pytorch-gradient-adam-distributions-frozen35-original.json build/pytorch-install.json \
+              build/pytorch-gradient-adam-distributions-frozen35.json build/pytorch-gradient-adam-distributions-frozen35-original.json \
+              build/pytorch-retained-gradients-frozen35.json build/pytorch-retained-gradients-frozen35-original.json build/pytorch-install.json \
             --job-status '${{ job.status }}'
 
       - name: Export original private-node snapshots and wire traces
@@ -1030,4 +1078,17 @@ jobs:
             build/frozen35-private-node-wire/
           if-no-files-found: warn
           compression-level: 9
+          retention-days: 30
+
+      - name: Export complete original retained-gradient native evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: retained-gradient-native-evidence-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+          path: |
+            build/retained-gradients-ci-raw.tar.xz
+            build/retained-gradients-ci-raw-manifest.json
+            build/hosted-retained-gradients-native.json
+          if-no-files-found: warn
+          compression-level: 0
           retention-days: 30

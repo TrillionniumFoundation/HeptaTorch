@@ -6,7 +6,7 @@ does not run a native application, import Torch, or open /proc memory.
 from pathlib import Path
 import argparse, copy, gzip, hashlib, importlib.util, io, json, traceback
 
-EXPECTED = 'e900466bff13bcaa5cd89a814dc411b4fc33320d84855ca6bd085179cd599c6a'
+EXPECTED = '281f1ea437046a9cd884de2c8da34f38649a3b6482ade23123ac4aa992faed64'
 
 def sha(data): return hashlib.sha256(data).hexdigest()
 def canonical(value): return json.dumps(value,sort_keys=True,separators=(',',':'),allow_nan=False).encode()
@@ -18,7 +18,7 @@ def main():
     p.add_argument('--observer',type=Path,required=True)
     p.add_argument('--journals',type=Path,required=True)
     p.add_argument('--output',type=Path,required=True)
-    p.add_argument('--expected-profile',choices=['gradient-objects-355','gradient-adam-distributions-428'],required=True)
+    p.add_argument('--expected-profile',choices=['gradient-objects-355','gradient-adam-distributions-428','retained-gradients-446'],required=True)
     args=p.parse_args()
     for key in ('observer','journals','output'): setattr(args,key,getattr(args,key).resolve())
     args.output.mkdir(parents=True,exist_ok=False)

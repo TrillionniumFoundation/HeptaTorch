@@ -431,6 +431,34 @@ test-gradient-adam-distributions: gradient-objects adam-distributions
 	cp "$$review/observed/report.json" build/hosted-gradient-adam-distributions-native.json; \
 	mkdir -p build/gradient-adam-distributions; cp -a --remove-destination "$$review/observed/producer/native/." build/gradient-adam-distributions/
 
+
+RETAINED_GRADIENT_INPUTS := $(wildcard tools/retained_gradients/* tests/retained_gradient_regression/* tests/retained_nonleaf_review/* tests/retained_resource_review/* tests/retained_extension_review/*) tests/qualify_retained_gradients.py Makefile
+
+.PHONY: retained-gradients test-retained-gradients
+retained-gradients: build/retained-gradients/build.json
+
+build/retained-gradients/build.json: build/gradient-adam-distributions/build.json $(RETAINED_GRADIENT_INPUTS) | build
+	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.retained-gradients.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
+	python3 -I -S -B tools/retained_gradients/build.py --parent-build "$(CURDIR)/build/gradient-adam-distributions" \
+	  --compiler "$(HEPTA_STACK_BUILD)/native/stack-module-compiler" --linker "$(HEPTA_STACK_BUILD)/native/stack-linker-session" \
+	  --output "$$tmp/native"; \
+	mkdir -p build/retained-gradients; cp -a --remove-destination "$$tmp/native/." build/retained-gradients/
+
+test-retained-gradients: gradient-adam-distributions
+	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/.retained-gradient-review.XXXXXX"); status=0; \
+	python3 -I -S -B tests/qualify_retained_gradients.py --repo "$(CURDIR)" \
+	  --parent-build "$(CURDIR)/build/gradient-adam-distributions" \
+	  --compiler "$(HEPTA_STACK_BUILD)/native/stack-module-compiler" --linker "$(HEPTA_STACK_BUILD)/native/stack-linker-session" \
+	  --stack-build "$(HEPTA_STACK_BUILD)" --output "$$review/observed" || status=$$?; \
+	if [ -f "$$review/observed/report.json" ]; then cp "$$review/observed/report.json" build/hosted-retained-gradients-native.json; fi; \
+	if [ -f "$$review/observed/evidence-manifest.json" ]; then cp "$$review/observed/evidence-manifest.json" build/retained-gradients-ci-raw-manifest.json; fi; \
+	if [ -f "$$review/observed/raw-evidence.tar.xz" ]; then cp "$$review/observed/raw-evidence.tar.xz" build/retained-gradients-ci-raw.tar.xz; fi; \
+	test "$$status" -eq 0 || exit "$$status"; \
+	test -f build/hosted-retained-gradients-native.json; \
+	test -f build/retained-gradients-ci-raw-manifest.json; test -f build/retained-gradients-ci-raw.tar.xz; \
+	mkdir -p build/retained-gradients; cp -a --remove-destination "$$review/observed/producer/native/." build/retained-gradients/
+
+
 check-compiler:
 	@compiler=$$(command -v "$(HEPTA_COMPILER)") || { echo 'Set HEPTA_COMPILER to the pinned native HIA compiler; see docs/build.md.' >&2; exit 1; }; \
 	printf '%s  %s\n' '$(COMPILER_SHA256)' "$$compiler" | sha256sum -c -

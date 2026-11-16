@@ -1,0 +1,39 @@
+--- successful-original-137607
++++ failure-custody-revision
+@@ -666,10 +666,33 @@
+                           'checked_inputs':len(custody.files)}),flush=True)
+         return 0
+     except BaseException as error:
+-        report.update(status='FAIL',error=repr(error),traceback=traceback.format_exc())
++        primary_error,primary_traceback = repr(error),traceback.format_exc()
++        report.update(status='FAIL',error=primary_error,traceback=primary_traceback,
++                      requested_producer_mode='reuse' if args.producer_review else 'fresh',
++                      producer_executed_this_invocation=any(x['name']=='producer17' for x in report['commands']),
++                      producer_receipt_reused='producer_reuse_copy' in report,
++                      completed_outer_commands=len(report['commands']),
++                      successful_suite_completion_claimed=False)
++        try:
++            save()
++        except BaseException as report_error:
++            report['initial_failure_report_error'] = repr(report_error)
++        try:
++            partial = archive_outputs(out,custody)
++            partial.update(scope='PARTIAL_FAILED_EXECUTION_BYTES_ONLY',
++                           successful_suite_completion_claimed=False)
++            report['failed_execution_evidence'] = partial
++        except BaseException as archive_error:
++            report['evidence_archive_error'] = repr(archive_error)
++            report['evidence_archive_traceback'] = traceback.format_exc()
+         report['checked_inputs'] = {str(p):v for p,v in custody.files.items()}
+-        save()
+-        print(json.dumps({'status':'FAIL','error':repr(error),'report':str(out/'report.json')}),flush=True)
++        try:
++            save()
++        except BaseException as report_error:
++            report['final_failure_report_error'] = repr(report_error)
++        print(json.dumps({'status':'FAIL','error':primary_error,'report':str(out/'report.json'),
++                          'evidence_archive_error':report.get('evidence_archive_error'),
++                          'final_failure_report_error':report.get('final_failure_report_error')}),flush=True)
+         return 1
+ 
+ 

@@ -6,6 +6,8 @@ PROFILES={
   ("gradient-objects-355","1b18da2cf9791e1b20982f9706434c1359ea194dd983dc6c66eb005f152e77b5"),
  "6773485896d961b6c2e62784ebb66320290df47128bd1331aecc0c8b7f6611fe":
   ("gradient-adam-distributions-428","1fed8ea7ba5bf755a9df9ca1e61d34cfd4712cc2fd66e0728493091c81c24dae"),
+ "7568c0a4ec40d82d3a0b46d1e8a27499dd96e8fe3fd15433523131a196da89b5":
+  ("retained-gradients-446","666230f05cc6942470006d1f184135321d8cbc26a6c6ba0bf7e3cf9857fe515b"),
 }
 CHECKS={"python_matches","platform_matches","version_backend_matches",
  "git_matches_oracle_build_pin","distribution_version_matches","direct_url_matches",
@@ -44,7 +46,7 @@ def main():
  assert wrapper["profile"]["name"]==expected_name and wrapper["profile"]["source_sha256"]==expected_source
  assert wrapper["source_custody"]["native_image"]["sha256"]==inner["native_executable_sha256"]
  assert wrapper["source_custody"]["native_source"]["sha256"]==expected_source
- assert wrapper["source_custody"]["observer"]["sha256"]=="e900466bff13bcaa5cd89a814dc411b4fc33320d84855ca6bd085179cd599c6a"
+ assert wrapper["source_custody"]["observer"]["sha256"]=="281f1ea437046a9cd884de2c8da34f38649a3b6482ade23123ac4aa992faed64"
  assert wrapper["source_custody"]["launcher"]["sha256"]=="65c0d68725f0585b79f88ceb5fa106526a44805eca0b58535f32b5b29916cd12"
  assert inner["frames"]==bound["frames"]==sum(r["frames"] for r in inner["rows"])
  assert inner["compared_values"]==bound["compared_values"]==sum(r["compared_values"] for r in inner["rows"])

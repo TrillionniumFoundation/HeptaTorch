@@ -180,18 +180,19 @@ make session session-monolithic test-session test-session-monolithic \
 
 ## 当前边界与完整目标
 
-当前设备为 CPU，dtype 为 binary32，张量 rank 不超过 4；同时存活的张量描述符最多 255 个，可以通过图回收在同一请求内复用。普通请求的输入、输出和工作区各为 1 MiB。可选持久会话在同一进程内保存状态，每帧输入／输出仍各为 1 MiB，使用 durable／shadow 两份 1 MiB 工作区提供完整帧事务；进程重启后的持久化尚未实现。卷积、矩阵乘法和池化各有每次 16,777,216 项的计算预算。整数索引载荷不等于完整整数张量 dtype 支持。空间、优化器和自动微分的具体限制见 [接口协议](docs/protocol.md)及 [能力清单](compatibility/capabilities.json)。
+默认静态运行时的设备为 CPU，dtype 为 binary32，张量 rank 不超过 4；该配置同时存活的张量描述符最多 255 个，可以通过图回收在同一请求内复用。后续 owned 配置使用真实可增长 Storage 和分页面描述符，具有各自固定的源码、协议与验收记录；默认静态配置的容量不能代替它们的边界。普通请求的输入、输出和工作区各为 1 MiB。可选持久会话在同一进程内保存状态，每帧输入／输出仍各为 1 MiB，使用 durable／shadow 两份 1 MiB 工作区提供完整帧事务；进程重启后的持久化尚未实现。卷积、矩阵乘法和池化各有每次 16,777,216 项的计算预算。整数索引载荷不等于完整整数张量 dtype 支持。空间、优化器和自动微分的具体限制见 [接口协议](docs/protocol.md)及 [能力清单](compatibility/capabilities.json)。
 
 本轮在此前矩阵、VJP、图回收和 Adam 舍入修正基础上，实现了 cat/stack 与 scatter_add/index_add，并修复通用空张量的连续步长和晚出现零维度的形状接纳。cat 的 channels-last 是实际存储布局；index_add 的 alpha 舍入按已测固定 CPU 路径区分 rank 0/1 和更高 rank，不代表所有 ISA 都采用同一路径。具体行为见 [协议](docs/protocol.md)与 [数值说明](docs/numerics.md)。
 
-当前权威源码使用 143／256 个函数名额、1,783／2,560 个基本块及 7,064／8,192 条指令。已运行的借用缓冲区模块桥接推进了独立原生编译与链接；独立 owned ABI2 已实现资源传递、返回及原生 syscall 分配；新的 owned Tensor 候选已运行可增长的数值存储；独立对象生命周期和任意外部 ABI 仍需完整实现和验收。原 borrowed 会话保留有界 arena；新的 owned 会话显式持有和移交 heap owner。具体证据及完整目标见 [审计更新](docs/upstream-audit.md#tensor-composition-and-indexed-addition-audit)。
+默认静态源码使用 143／256 个函数名额、1,783／2,560 个基本块及 7,064／8,192 条指令。各个 owned 后继的完整 HIA 源码由其独立、哈希固定的输入生成，下面各节分别说明其原生模块和函数计数。已运行的借用缓冲区模块桥接推进了独立原生编译与链接；独立 owned ABI2 已实现资源传递、返回及原生 syscall 分配；新的 owned Tensor 候选已运行可增长的数值存储；独立对象生命周期和任意外部 ABI 仍需完整实现和验收。原 borrowed 会话保留有界 arena；新的 owned 会话显式持有和移交 heap owner。具体证据及完整目标见 [审计更新](docs/upstream-audit.md#tensor-composition-and-indexed-addition-audit)。
 
 完整目标尚包括：完整 dtype/layout/promotion 语义、其余算子及重载、高阶和前向自动微分、CUDA/ROCm/MPS/XPU、分布式、图捕获与编译优化、数据加载、RNG、完整 checkpoint/serialization、Python/C++ 前端兼容和跨平台构建。[上游审计](docs/upstream-audit.md)列出这些目标的验收条件。
 
 ## 仓库结构
 
 ```text
-src/heptatorch.hepta       唯一权威运行时源码；模块由其派生
+src/heptatorch.hepta       默认静态运行时源码；默认模块由其派生
+tools/*/                  各个 owned 后继的固定 HIA 源码输入与构建入口
 tools/unhex.hepta          原生测试数据解码器
 docs/                     构建、协议、数值与上游审计
 compatibility/            固定上游清单与已验证能力
@@ -250,6 +251,38 @@ third_party/pytorch/      上游许可证与通知
 
 独立资格分别在同一最终映像上重新执行原生重编、owner 入口、四向 typed handoff、48 组 scalar NaN、2 组实际混合布局、6 组跨功能生命周期、2 组数学反例以及 8 组极大 size-one stride 对照。candidate04 在这 8 组中真实失败 4 组；candidate05 仅修正 signed byte-stride 比较，同一参考与比较器得到 8／8 通过。原失败没有改写为通过。这些重叠套件分别计数，不汇总为上游 API 覆盖率。
 
-原 Optimizer24 的 case20 已通过实际 `.grad` 外部引用、`zero_grad(None/False)`、原地标量更新和弱引用到期验证；与原 SGD 及 Adam 的不重复索引合并后为 **23 组已覆盖／1 组部分覆盖**。`retain_grad` 的非叶梯度行为、hooks／高阶导数、18 组分布 dtype／bool-mask 情形及其余全量子系统继续开放。新增 355 和 428 两份 ELF 的 CI 各运行原生资格、原样 live32 与原样 frozen35；这些新映像的实际 hosted 结果单独记录，不能继承 378 配置的 PASS。
+原 Optimizer24 的 case20 已通过实际 `.grad` 外部引用、`zero_grad(None/False)`、原地标量更新和弱引用到期验证；与原 SGD 及 Adam 的不重复索引合并后为 **23 组已覆盖／1 组部分覆盖**。该 428 配置仍未实现非叶 `retain_grad`，后继 446 配置的实际实现见下一节。hooks／高阶导数、18 组分布 dtype／bool-mask 情形及其余全量子系统继续开放。355 和 428 两份 ELF 已在提交 `af33d106…` 的两条 Native CI 中各通过全部 76 个实际步骤，两条快速 CI 各通过 13 步；两个映像分别真实运行并通过原样 live32 与全部 frozen35。[完整托管原件及独立审查](validation/hosted-gradient-adam-distributions-af33/)保存 58 份主报告、原快照和四组对照；59,251 项独立离线检查均通过。原 `30ea38d…` 的 32 组 close 失败、首次复制负控失败和未执行的旧后置门均保留原状态。PR #28 已合入 `7e7e37be…`，源码树与验证时相同。
 
 [集成构建说明](docs/gradient-objects-and-composition.md)给出复现命令、输入绑定、失效历史和剩余边界。整个项目仍为 **HOLD**；2,590 条原始 schema 和 17 项完整验收门禁不变。
+
+## 保留非叶梯度的原生后继
+
+[446 函数配置](tools/retained_gradients/README.md)在同一 HIA owner 中实现
+`retain_grad` 的实际 Tensor 身份、首次连续梯度副本、后续 out-of-place 累加和
+外部旧梯度别名。每次后续累加创建新的 Tensor／Storage／Version，旧外部引用继续
+指向旧对象；叶节点与不要求梯度的节点采用独立准入规则。显式部分反向命令 58
+可以先提交已经执行的 retain hook，再报告自己的 Saved 版本／释放错误；原子命令
+7／29／57 继续保留整帧回滚。
+
+源码 `666230f0…` 与 ELF `7568c0a4…` 含 446 个核心函数、5,922 个块、
+21,904 条指令、9 个原生模块，描述符仍为 576 字节。根集成已实际重新冷编译并通过
+17 项继承资格。独立的 12 个保留梯度变体执行 3,849 帧、38,529 个断言，
+1,352 个 binary32 位置逐位一致；188 个 Adam 参数／moment 位置无位差，
+9,087,312 字节失败回滚逐字一致。原 Optimizer24 的第 14 组另以增量重放验证
+其两个保留非叶子观察；原报告的 23／1 汇总仍不改写。
+
+另有 8 个真实资源／内存失败用例、2 向真正的 19 模块 owner 交接和 5 组继承扩展
+回归通过。扩展回归执行 947 帧，包含原 NaN48、mixed2、cross6、math2 和 extreme8
+的期望；交叉测试只对私有格式标签作可逆适配。原资源归档曾截断，原始缺口保留，
+本次完整的交接帧来自新实际执行。[根证据](validation/retained-gradients-root/)和
+[集成证据](validation/retained-integration-review/)分别保留冷执行、明确复用、失败现场、
+全部子报告和原始封包。
+
+`make retained-gradients test-retained-gradients` 可以构建和执行固定资格。
+[详细复现说明](docs/retained-gradients.md)给出工具路径、原始档案与尚待执行的门。
+第三个 private-node profile 仅增加精确的 446 源码／ELF／标签；所有分配、引用、
+Version、整 owner 回滚与原 18 个负控保持原规则。446 映像上的 live32 与 frozen35
+已接入 CI，**在本包形成时尚未执行**，不能沿用父映像的成功。
+
+hooks、前向／高阶导数、任意 dtype／设备、完整优化器状态与整个 PyTorch 兼容性
+继续按原 2,590 条 schema 和 17 项门禁验收。
