@@ -245,17 +245,17 @@ block b0(x:u64)
 block nan_code(raw:u64)
   nan_bits:u64 = const() {"value":2139095041}
   ret(nan_bits)
-block decode(x:u64)
+block decode(encoded:u64)
   sign_mask:u64 = const() {"value":128}
-  sign16:u64 = bit.and(x,sign_mask)
+  sign16:u64 = bit.and(encoded,sign_mask)
   shift16:u64 = const() {"value":24}
   sign:u64 = int.shl.checked(sign16,shift16)
   shift10:u64 = const() {"value":3}
-  exponent_bits:u64 = int.shr.checked(x,shift10)
+  exponent_bits:u64 = int.shr.checked(encoded,shift10)
   exponent_mask:u64 = const() {"value":15}
   exponent:u64 = bit.and(exponent_bits,exponent_mask)
   fraction_mask:u64 = const() {"value":7}
-  fraction:u64 = bit.and(x,fraction_mask)
+  fraction:u64 = bit.and(encoded,fraction_mask)
   zero:u64 = const() {"value":0}
   sub:bool = compare.eq(exponent,zero)
   branch sub denormal(sign,fraction) nonzero(sign,exponent,fraction)
