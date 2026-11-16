@@ -113,3 +113,23 @@ jobs:
             --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
             --repo . --output build/torch-gradient-objects.json > build/torch-gradient-objects.stdout
           python3 -I -S -B tools/emit_ci_report.py build/torch-gradient-objects.json
+      - name: Verify fixed incoming-gradient materialization source and syntax
+        run: |
+          echo '8706090d731cf705e68a2e474693d10448b1fa00371ca8ddd5db36163500bd69  tests/pytorch_gradient_materialization_probe.py' | sha256sum -c -
+          python3 -I -S -B -m py_compile tests/pytorch_gradient_materialization_probe.py
+      - name: Prepare incoming-gradient materialization observation plan
+        run: |
+          python3 -I -S -B tests/pytorch_gradient_materialization_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/torch-gradient-materialization-prepared.json --prepare-only
+          python3 -I -S -B tools/emit_ci_report.py build/torch-gradient-materialization-prepared.json
+      - name: Observe actual incoming-gradient copy steal and layout controls
+        run: |
+          python3 tests/pytorch_gradient_materialization_probe.py \
+            --reference tests/pytorch_oracle.py --lock compatibility/pytorch-oracle-lock.json \
+            --repo . --output build/torch-gradient-materialization.json
+      - name: Preserve complete incoming-gradient observations including failures
+        if: always()
+        run: |
+          test -f build/torch-gradient-materialization.json
+          python3 -I -S -B tools/emit_ci_report.py build/torch-gradient-materialization.json
