@@ -1,0 +1,16 @@
+fn dtype_mask_release(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(v0:mutbuf,v1:u64)
+  v2:u64 = call(v0,v1) {"function":"dptr"}
+  v3:u64 = const() {"value":584}
+  v4:u64 = int.add.wrap(v2,v3)
+  v5:u64 = call(v0,v4) {"function":"getw"}
+  v6:u64 = const() {"value":65535}
+  v7:bool = compare.gt(v5,v6)
+  branch v7 b1(v0,v1) b2(v0,v1)
+block b1(v8:mutbuf,v9:u64)
+  v12:u64 = call(v8,v9) {"function":"binary_saved_release"}
+  ret(v12)
+block b2(v10:mutbuf,v11:u64)
+  v13:u64 = call(v10,v11) {"function":"mixed_original_mask_release"}
+  ret(v13)
+end

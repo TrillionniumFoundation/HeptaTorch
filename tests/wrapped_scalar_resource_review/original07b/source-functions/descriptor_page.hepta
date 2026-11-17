@@ -1,0 +1,36 @@
+fn descriptor_page(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(v0:mutbuf,v1:u64)
+  v2:u64 = const() {"value":4096}
+  v3:u64 = const() {"value":8}
+  v4:u64 = int.shr.checked(v1,v3)
+  v5:u64 = int.mul.wrap(v4,v3)
+  v6:u64 = int.add.wrap(v2,v5)
+  v7:u64 = call(v0,v6) {"function":"getw"}
+  v8:u64 = const() {"value":0}
+  v9:bool = compare.eq(v7,v8)
+  branch v9 b1(v0,v1,v6) b5(v0)
+block b1(v10:mutbuf,v11:u64,v12:u64)
+  v16:u64 = const() {"value":172032}
+  v17:u64 = call(v10,v16) {"function":"alloc"}
+  v18:u64 = const() {"value":0}
+  v19:u64 = call(v10,v18) {"function":"getw"}
+  v20:bool = compare.ne(v19,v18)
+  branch v20 b3(v10) b4(v10,v11,v12,v17)
+block b3(v21:mutbuf)
+  v29:u64 = const() {"value":0}
+  ret(v29)
+block b4(v25:mutbuf,v26:u64,v27:u64,v28:u64)
+  v30:u64 = call(v25,v27,v28) {"function":"putw"}
+  v31:u64 = const() {"value":6144}
+  v32:u64 = const() {"value":8}
+  v33:u64 = int.shr.checked(v26,v32)
+  v34:u64 = int.mul.wrap(v33,v32)
+  v35:u64 = int.add.wrap(v31,v34)
+  v36:u64 = const() {"value":80}
+  v37:u64 = call(v25,v36) {"function":"getw"}
+  v38:u64 = call(v25,v35,v37) {"function":"putw"}
+  jump b5(v25)
+block b5(v39:mutbuf)
+  v42:u64 = const() {"value":1}
+  ret(v42)
+end

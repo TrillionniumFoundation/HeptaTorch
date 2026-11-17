@@ -1,0 +1,63 @@
+fn scalar_peek_public(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(v0:mutbuf,v1:u64)
+  v2:u64 = const() {"value":0}
+  v3:u64 = call(v0,v2) {"function":"getw"}
+  v4:bool = compare.ne(v3,v2)
+  branch v4 b1(v0) b2(v0,v1)
+block b1(v5:mutbuf)
+  v9:u64 = const() {"value":0}
+  ret(v9)
+block b2(v7:mutbuf,v8:u64)
+  v10:u64 = call(v7,v8) {"function":"scalar_peek_resolved"}
+  v11:u64 = call(v7,v10) {"function":"so_tensor_live"}
+  v12:u64 = const() {"value":0}
+  v13:bool = compare.eq(v11,v12)
+  branch v13 b3(v7) b4(v7,v10,v11)
+block b3(v14:mutbuf)
+  v20:u64 = const() {"value":0}
+  ret(v20)
+block b4(v17:mutbuf,v18:u64,v19:u64)
+  v21:u64 = const() {"value":48}
+  v22:u64 = int.add.wrap(v19,v21)
+  v23:u64 = call(v17,v22) {"function":"so_uget"}
+  v24:u64 = const() {"value":0}
+  v25:bool = compare.eq(v23,v24)
+  branch v25 b6(v17,v18,v23,v25) b5(v17,v18,v23)
+block b5(v26:mutbuf,v27:u64,v29:u64)
+  v36:u64 = const() {"value":8}
+  v37:u64 = call(v26,v36) {"function":"getw"}
+  v38:bool = compare.ge(v29,v37)
+  jump b6(v26,v27,v29,v38)
+block b6(v31:mutbuf,v32:u64,v34:u64,v35:bool)
+  branch v35 b7(v31) b8(v31,v32,v34)
+block b7(v39:mutbuf)
+  v47:u64 = const() {"value":0}
+  ret(v47)
+block b8(v43:mutbuf,v44:u64,v46:u64)
+  v48:u64 = call(v43,v46) {"function":"dptr"}
+  v49:u64 = const() {"value":304}
+  v50:u64 = int.add.wrap(v48,v49)
+  v51:u64 = call(v43,v50) {"function":"getw"}
+  v52:u64 = const() {"value":0}
+  v53:bool = compare.eq(v51,v52)
+  branch v53 b10(v43,v46,v48,v53) b9(v43,v44,v46,v48)
+block b9(v54:mutbuf,v55:u64,v57:u64,v58:u64)
+  v66:u64 = const() {"value":192}
+  v67:u64 = int.add.wrap(v58,v66)
+  v68:u64 = call(v54,v67) {"function":"getw"}
+  v69:bool = compare.ne(v68,v55)
+  jump b10(v54,v57,v58,v69)
+block b10(v60:mutbuf,v63:u64,v64:u64,v65:bool)
+  branch v65 b12(v60,v63,v65) b11(v60,v63,v64)
+block b11(v70:mutbuf,v73:u64,v74:u64)
+  v82:u64 = const() {"value":200}
+  v83:u64 = int.add.wrap(v74,v82)
+  v84:u64 = call(v70,v83) {"function":"getw"}
+  v85:u64 = const() {"value":1}
+  v86:bool = compare.ne(v84,v85)
+  jump b12(v70,v73,v86)
+block b12(v76:mutbuf,v79:u64,v81:bool)
+  v87:u64 = const() {"value":0}
+  v88:u64 = select(v81,v87,v79)
+  ret(v88)
+end

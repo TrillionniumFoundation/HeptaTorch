@@ -1,0 +1,42 @@
+fn scalar_peek_resolved(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(v0:mutbuf,v1:u64)
+  v2:u64 = const() {"value":24}
+  v3:u64 = int.shr.checked(v1,v2)
+  v4:u64 = const() {"value":254}
+  v5:bool = compare.ne(v3,v4)
+  branch v5 b1(v0,v1) b2(v0,v1)
+block b1(v6:mutbuf,v7:u64)
+  ret(v7)
+block b2(v8:mutbuf,v9:u64)
+  v10:u64 = const() {"value":16777215}
+  v11:u64 = bit.and(v9,v10)
+  v12:u64 = const() {"value":96}
+  v13:u64 = call(v8,v12) {"function":"getw"}
+  v14:u64 = const() {"value":0}
+  v15:bool = compare.eq(v11,v14)
+  branch v15 b4(v8,v11,v13,v15) b3(v8,v11,v13)
+block b3(v16:mutbuf,v18:u64,v19:u64)
+  v26:u64 = const() {"value":104}
+  v27:u64 = call(v16,v26) {"function":"getw"}
+  v28:bool = compare.gt(v18,v27)
+  jump b4(v16,v18,v19,v28)
+block b4(v21:mutbuf,v23:u64,v24:u64,v25:bool)
+  branch v25 b6(v21,v23,v24,v25) b5(v21,v23,v24)
+block b5(v29:mutbuf,v31:u64,v32:u64)
+  v39:u64 = const() {"value":0}
+  v40:bool = compare.eq(v32,v39)
+  jump b6(v29,v31,v32,v40)
+block b6(v34:mutbuf,v36:u64,v37:u64,v38:bool)
+  branch v38 b7(v34) b8(v34,v36,v37)
+block b7(v41:mutbuf)
+  v49:u64 = const() {"value":0}
+  ret(v49)
+block b8(v45:mutbuf,v47:u64,v48:u64)
+  v50:u64 = const() {"value":8}
+  v51:u64 = const() {"value":1}
+  v52:u64 = int.sub.wrap(v47,v51)
+  v53:u64 = int.mul.wrap(v50,v52)
+  v54:u64 = int.add.wrap(v48,v53)
+  v55:u64 = call(v45,v54) {"function":"getw"}
+  ret(v55)
+end

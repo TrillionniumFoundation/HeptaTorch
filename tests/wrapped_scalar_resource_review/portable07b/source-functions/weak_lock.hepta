@@ -1,0 +1,21 @@
+fn weak_lock(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(v0:mutbuf,v1:u64)
+  v2:u64 = call(v0,v1) {"function":"dtype_original_weak_lock"}
+  v3:u64 = const() {"value":0}
+  v4:bool = compare.ne(v2,v3)
+  branch v4 b1(v0,v1,v2) b3(v0,v2)
+block b1(v5:mutbuf,v6:u64,v7:u64)
+  v11:u64 = const() {"value":4}
+  v12:u64 = call(v5,v11,v6) {"function":"so_slot_lookup"}
+  v13:u64 = const() {"value":6}
+  v14:u64 = call(v5,v13,v7) {"function":"so_slot_lookup"}
+  v15:u64 = const() {"value":32}
+  v16:u64 = int.add.wrap(v14,v15)
+  v17:u64 = const() {"value":24}
+  v18:u64 = int.add.wrap(v12,v17)
+  v19:u64 = call(v5,v18) {"function":"so_uget"}
+  v20:u64 = call(v5,v16,v19) {"function":"so_uput"}
+  jump b3(v5,v7)
+block b3(v21:mutbuf,v23:u64)
+  ret(v23)
+end

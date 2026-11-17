@@ -1,0 +1,30 @@
+fn finish_command(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(v0:mutbuf,v1:u64)
+  jump b1(v0,v1,v1)
+block b1(v2:mutbuf,v3:u64,v4:u64)
+  v5:u64 = const() {"value":8}
+  v6:u64 = call(v2,v5) {"function":"getw"}
+  v7:bool = compare.lt(v4,v6)
+  branch v7 b2(v2,v3,v4) b3(v2,v3)
+block b2(v8:mutbuf,v9:u64,v10:u64)
+  v14:u64 = call(v8,v10) {"function":"dptr"}
+  v15:u64 = const() {"value":200}
+  v16:u64 = int.add.wrap(v14,v15)
+  v17:u64 = call(v8,v16) {"function":"getw"}
+  v18:u64 = const() {"value":2}
+  v19:bool = compare.eq(v17,v18)
+  branch v19 b4(v8,v9,v10,v14) b6(v8,v9,v10)
+block b3(v11:mutbuf,v12:u64)
+  v38:u64 = call(v11,v12) {"function":"graph_collect_since"}
+  ret(v38)
+block b4(v20:mutbuf,v21:u64,v22:u64,v23:u64)
+  v28:u64 = const() {"value":200}
+  v29:u64 = int.add.wrap(v23,v28)
+  v30:u64 = const() {"value":0}
+  v31:u64 = call(v20,v29,v30) {"function":"putw"}
+  jump b6(v20,v21,v22)
+block b6(v32:mutbuf,v33:u64,v34:u64)
+  v36:u64 = const() {"value":1}
+  v37:u64 = int.add.wrap(v34,v36)
+  jump b1(v32,v33,v37)
+end

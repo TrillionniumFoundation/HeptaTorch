@@ -1,0 +1,45 @@
+fn resolve_handle(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(v0:mutbuf,v1:u64)
+  v2:u64 = const() {"value":24}
+  v3:u64 = int.shr.checked(v1,v2)
+  v4:u64 = const() {"value":254}
+  v5:bool = compare.eq(v3,v4)
+  branch v5 b1(v0,v1) b2(v0,v1)
+block b1(v6:mutbuf,v7:u64)
+  v10:u64 = const() {"value":16777215}
+  v11:u64 = bit.and(v7,v10)
+  v12:u64 = const() {"value":0}
+  v13:bool = compare.eq(v11,v12)
+  branch v13 b4(v6,v11,v13) b3(v6,v11)
+block b2(v8:mutbuf,v9:u64)
+  ret(v9)
+block b3(v14:mutbuf,v16:u64)
+  v22:u64 = const() {"value":104}
+  v23:u64 = call(v14,v22) {"function":"getw"}
+  v24:bool = compare.gt(v16,v23)
+  jump b4(v14,v16,v24)
+block b4(v18:mutbuf,v20:u64,v21:bool)
+  branch v21 b6(v18,v20,v21) b5(v18,v20)
+block b5(v25:mutbuf,v27:u64)
+  v33:u64 = const() {"value":96}
+  v34:u64 = call(v25,v33) {"function":"getw"}
+  v35:u64 = const() {"value":0}
+  v36:bool = compare.eq(v34,v35)
+  jump b6(v25,v27,v36)
+block b6(v29:mutbuf,v31:u64,v32:bool)
+  branch v32 b7(v29) b8(v29,v31)
+block b7(v37:mutbuf)
+  v43:u64 = const() {"value":1}
+  v44:u64 = call(v37,v43) {"function":"terror"}
+  ret(v44)
+block b8(v40:mutbuf,v42:u64)
+  v45:u64 = const() {"value":96}
+  v46:u64 = call(v40,v45) {"function":"getw"}
+  v47:u64 = const() {"value":1}
+  v48:u64 = int.sub.wrap(v42,v47)
+  v49:u64 = const() {"value":8}
+  v50:u64 = int.mul.wrap(v48,v49)
+  v51:u64 = int.add.wrap(v46,v50)
+  v52:u64 = call(v40,v51) {"function":"getw"}
+  ret(v52)
+end

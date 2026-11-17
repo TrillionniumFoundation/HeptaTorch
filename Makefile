@@ -806,3 +806,151 @@ test-differentiable-view-preserve-resources: differentiable-view-recovered $(DIF
 	  --protocol tests/differentiable_view_preserve_resource_review/protocol.py \
 	  --reference "$(abspath $(DIFFERENTIABLE_VIEW_INPUT4_REFERENCE_BUILD))/payload/actual/actual.json" \
 	  --output "$(abspath build/differentiable-view-preserve-resources)"
+
+# R4 concrete view/reshape and Scalar07b: fixed fresh units, explicit success stamps.
+DIFFERENTIABLE_VIEW_R4_SHAPE_BUILD ?= build/differentiable-view-r4-shape
+DIFFERENTIABLE_VIEW_R4_SCALAR_BUILD ?= build/differentiable-view-r4-scalar07b
+DIFFERENTIABLE_VIEW_R4_VIEW26_REFERENCE ?= build/view-reshape-r4-reference26
+DIFFERENTIABLE_VIEW_R4_SCALAR32_REFERENCE ?= build/view-reshape-r4-reference32
+DIFFERENTIABLE_VIEW_R4_REPLAY_ROOT ?= build/view-reshape-r4-native
+DIFFERENTIABLE_VIEW_R4_SOURCE_SHA256 := c436e21c45355891f8423f174a47e7c40fc8e1d6aef9a112043fac8787255d7a
+DIFFERENTIABLE_VIEW_R4_NATIVE_SHA256 := 0799496559ffdfb051e34bc7a543db238b81d09c970a5cb4a8235151e0335b74
+DIFFERENTIABLE_VIEW_R4_OBSERVER_SHA256 := 59019b5c4aeae0d7e04b362354bd9ca55917d2196791d3d18c4908a05fdbba8b
+DIFFERENTIABLE_VIEW_R4_BUILD_REVIEW := $(wildcard tools/differentiable_view_r4_build_review/*.py tools/differentiable_view_r4_build_review/*.json)
+DIFFERENTIABLE_VIEW_R4_SHAPE_INPUTS := $(wildcard tools/differentiable_view_shape_r4/*.py tools/differentiable_view_shape_r4/*.md tools/differentiable_view_shape_r4/generated/* tools/differentiable_view_shape_r4/generated/units/*.hepta)
+DIFFERENTIABLE_VIEW_R4_SCALAR_INPUTS := $(wildcard tools/differentiable_view_scalar_r4/*.py tools/differentiable_view_scalar_r4/*.md tools/differentiable_view_scalar_r4/generated/* tools/differentiable_view_scalar_r4/generated/units/*.hepta)
+
+.PHONY: differentiable-view-r4-shape differentiable-view-r4-scalar07b test-differentiable-view-r4-references test-differentiable-view-r4-native76 test-differentiable-view-r4-native26 test-differentiable-view-r4-scalar32 test-differentiable-view-r4-native14 test-differentiable-view-r4-input4
+
+differentiable-view-r4-shape: $(DIFFERENTIABLE_VIEW_R4_SHAPE_BUILD)/success.json
+
+$(DIFFERENTIABLE_VIEW_R4_SHAPE_BUILD)/success.json: $(DIFFERENTIABLE_VIEW_R4_BUILD_REVIEW) $(DIFFERENTIABLE_VIEW_R4_SHAPE_INPUTS) $(DIFFERENTIABLE_VIEW_BUILD)/build.json | build
+	python3 -I -S -B tools/differentiable_view_r4_build_review/build.py \
+	  --stage shape --previous "$(abspath $(DIFFERENTIABLE_VIEW_BUILD))" \
+	  --upstream "$(abspath $(HEPTA_SOURCE_ROOT))" \
+	  --compiler "$(abspath $(HEPTA_STACK_BUILD))/native/stack-module-compiler" \
+	  --linker "$(abspath $(HEPTA_STACK_BUILD))/native/stack-linker-session" \
+	  --output "$(abspath $(DIFFERENTIABLE_VIEW_R4_SHAPE_BUILD))"
+
+differentiable-view-r4-scalar07b: $(DIFFERENTIABLE_VIEW_R4_SCALAR_BUILD)/success.json
+
+$(DIFFERENTIABLE_VIEW_R4_SCALAR_BUILD)/success.json: $(DIFFERENTIABLE_VIEW_R4_BUILD_REVIEW) $(DIFFERENTIABLE_VIEW_R4_SCALAR_INPUTS) $(DIFFERENTIABLE_VIEW_R4_SHAPE_BUILD)/success.json | build
+	python3 -I -S -B tools/differentiable_view_r4_build_review/build.py \
+	  --stage scalar07b --previous "$(abspath $(DIFFERENTIABLE_VIEW_R4_SHAPE_BUILD))/native" \
+	  --upstream "$(abspath $(HEPTA_SOURCE_ROOT))" \
+	  --compiler "$(abspath $(HEPTA_STACK_BUILD))/native/stack-module-compiler" \
+	  --linker "$(abspath $(HEPTA_STACK_BUILD))/native/stack-linker-session" \
+	  --output "$(abspath $(DIFFERENTIABLE_VIEW_R4_SCALAR_BUILD))"
+
+test-differentiable-view-r4-references: $(DIFFERENTIABLE_VIEW_R4_VIEW26_REFERENCE)/.complete $(DIFFERENTIABLE_VIEW_R4_SCALAR32_REFERENCE)/.complete
+
+$(DIFFERENTIABLE_VIEW_R4_VIEW26_REFERENCE)/.complete: tests/differentiable_view_shape_reference_review/prepare_reference.py tests/differentiable_view_shape_reference_review/verify_packet.py $(wildcard validation/differentiable-view-shape-reference26/*) | build
+	python3 -I -S -B tests/differentiable_view_shape_reference_review/prepare_reference.py \
+	  --suite view26 --output "$(abspath $(DIFFERENTIABLE_VIEW_R4_VIEW26_REFERENCE))"
+	touch "$@"
+
+$(DIFFERENTIABLE_VIEW_R4_SCALAR32_REFERENCE)/.complete: tests/differentiable_view_shape_reference_review/prepare_reference.py $(wildcard validation/wrapped-f64-reference32/*) | build
+	python3 -I -S -B tests/differentiable_view_shape_reference_review/prepare_reference.py \
+	  --suite scalar32 --output "$(abspath $(DIFFERENTIABLE_VIEW_R4_SCALAR32_REFERENCE))"
+	touch "$@"
+
+test-differentiable-view-r4-native76: test-differentiable-view-r4-native26 test-differentiable-view-r4-scalar32 test-differentiable-view-r4-native14 test-differentiable-view-r4-input4
+
+test-differentiable-view-r4-native26: differentiable-view-r4-scalar07b $(DIFFERENTIABLE_VIEW_R4_VIEW26_REFERENCE)/.complete
+	@printf '%s  %s\n' 'b37c58e597e3c180736133ee4ac7826b76dd9b0ac41d7b902b3057eabc7297a6' tests/differentiable_view_shape_review/replay_shape26_epoch_r1.py | sha256sum -c -
+	python3 -B tests/differentiable_view_shape_review/replay_shape26_epoch_r1.py \
+	  --binary "$(abspath $(DIFFERENTIABLE_VIEW_R4_SCALAR_BUILD))/native/tensor-shape-scalar-session" \
+	  --source "$(abspath $(DIFFERENTIABLE_VIEW_R4_SCALAR_BUILD))/native/runtime.hepta" \
+	  --build-report "$(abspath $(DIFFERENTIABLE_VIEW_R4_SCALAR_BUILD))/native/build.json" \
+	  --protocol "tests/differentiable_view_native_review/protocol.py" \
+	  --observer "tests/differentiable_view_shape_review/native_observer_shape02.py" \
+	  --reference "$(abspath $(DIFFERENTIABLE_VIEW_R4_VIEW26_REFERENCE))/actual.json" \
+	  --probe "$(abspath $(DIFFERENTIABLE_VIEW_R4_VIEW26_REFERENCE))/probe.py" \
+	  --expected-source-sha256 "c436e21c45355891f8423f174a47e7c40fc8e1d6aef9a112043fac8787255d7a" \
+	  --expected-native-sha256 "0799496559ffdfb051e34bc7a543db238b81d09c970a5cb4a8235151e0335b74" \
+	  --expected-observer-sha256 "59019b5c4aeae0d7e04b362354bd9ca55917d2196791d3d18c4908a05fdbba8b" \
+	  --expected-functions "658" \
+	  --expected-native-units "13" \
+	  --output "$(abspath $(DIFFERENTIABLE_VIEW_R4_REPLAY_ROOT))/view26" \
+	  --support-reader "tests/differentiable_view_native_review/replay_direct_view14.py" \
+	  --expected-reference-sha256 "fecf1956790f78a9b1238f535c1c7cce9f1237b211c389ac0736d88687bbb9c9" \
+	  --identity-adapter "tests/differentiable_view_shape_review/identity_epochs.py" \
+	  --parent-reader "tests/differentiable_view_shape_review/replay_shape26_r3.py"
+
+test-differentiable-view-r4-scalar32: differentiable-view-r4-scalar07b $(DIFFERENTIABLE_VIEW_R4_SCALAR32_REFERENCE)/.complete
+	@printf '%s  %s\n' '7386703b3deb01d6ab809447a1e6ae83d3c87ab1b4264d9e54641dbf99b93ad0' tests/differentiable_view_shape_review/replay_wrapped_scalar32_r1.py | sha256sum -c -
+	python3 -B tests/differentiable_view_shape_review/replay_wrapped_scalar32_r1.py \
+	  --binary "$(abspath $(DIFFERENTIABLE_VIEW_R4_SCALAR_BUILD))/native/tensor-shape-scalar-session" \
+	  --source "$(abspath $(DIFFERENTIABLE_VIEW_R4_SCALAR_BUILD))/native/runtime.hepta" \
+	  --build-report "$(abspath $(DIFFERENTIABLE_VIEW_R4_SCALAR_BUILD))/native/build.json" \
+	  --protocol "tests/differentiable_view_native_review/protocol.py" \
+	  --observer "tests/differentiable_view_shape_review/native_observer_shape02.py" \
+	  --reference "$(abspath $(DIFFERENTIABLE_VIEW_R4_SCALAR32_REFERENCE))/actual.json" \
+	  --probe "$(abspath $(DIFFERENTIABLE_VIEW_R4_SCALAR32_REFERENCE))/probe.py" \
+	  --expected-source-sha256 "c436e21c45355891f8423f174a47e7c40fc8e1d6aef9a112043fac8787255d7a" \
+	  --expected-native-sha256 "0799496559ffdfb051e34bc7a543db238b81d09c970a5cb4a8235151e0335b74" \
+	  --expected-observer-sha256 "59019b5c4aeae0d7e04b362354bd9ca55917d2196791d3d18c4908a05fdbba8b" \
+	  --expected-functions "658" \
+	  --expected-native-units "13" \
+	  --output "$(abspath $(DIFFERENTIABLE_VIEW_R4_REPLAY_ROOT))/scalar32" \
+	  --support-reader "tests/differentiable_view_native_review/replay_direct_view14.py"
+
+test-differentiable-view-r4-native14: differentiable-view-r4-scalar07b $(DIFFERENTIABLE_VIEW_REFERENCE_BUILD)/report.json
+	@printf '%s  %s\n' 'deb9f6fafc3f91b2749bdfac030e19cb0ccdb832fa238af91ed9feb396e62eb8' tests/differentiable_view_input4_review/replay_direct_view14_profile.py | sha256sum -c -
+	python3 -B tests/differentiable_view_input4_review/replay_direct_view14_profile.py \
+	  --binary "$(abspath $(DIFFERENTIABLE_VIEW_R4_SCALAR_BUILD))/native/tensor-shape-scalar-session" \
+	  --source "$(abspath $(DIFFERENTIABLE_VIEW_R4_SCALAR_BUILD))/native/runtime.hepta" \
+	  --build-report "$(abspath $(DIFFERENTIABLE_VIEW_R4_SCALAR_BUILD))/native/build.json" \
+	  --protocol "tests/differentiable_view_native_review/protocol.py" \
+	  --observer "tests/differentiable_view_shape_review/native_observer_shape02.py" \
+	  --reference "$(abspath $(DIFFERENTIABLE_VIEW_REFERENCE_BUILD))/payload/original/actual.json" \
+	  --probe "$(abspath $(DIFFERENTIABLE_VIEW_REFERENCE_BUILD))/payload/original/inputs/differentiable-view14-probe-1ca74384.py" \
+	  --expected-source-sha256 "c436e21c45355891f8423f174a47e7c40fc8e1d6aef9a112043fac8787255d7a" \
+	  --expected-native-sha256 "0799496559ffdfb051e34bc7a543db238b81d09c970a5cb4a8235151e0335b74" \
+	  --expected-observer-sha256 "59019b5c4aeae0d7e04b362354bd9ca55917d2196791d3d18c4908a05fdbba8b" \
+	  --expected-functions "658" \
+	  --expected-native-units "13" \
+	  --output "$(abspath $(DIFFERENTIABLE_VIEW_R4_REPLAY_ROOT))/view14"
+
+test-differentiable-view-r4-input4: differentiable-view-r4-scalar07b $(DIFFERENTIABLE_VIEW_INPUT4_REFERENCE_BUILD)/report.json
+	@printf '%s  %s\n' '5b8809eb9e405bf89a3586741d64210483fe3fbc5bc323e2cc16cb712ce4de66' tests/differentiable_view_input4_review/replay_input_boundaries4.py | sha256sum -c -
+	python3 -B tests/differentiable_view_input4_review/replay_input_boundaries4.py \
+	  --binary "$(abspath $(DIFFERENTIABLE_VIEW_R4_SCALAR_BUILD))/native/tensor-shape-scalar-session" \
+	  --source "$(abspath $(DIFFERENTIABLE_VIEW_R4_SCALAR_BUILD))/native/runtime.hepta" \
+	  --build-report "$(abspath $(DIFFERENTIABLE_VIEW_R4_SCALAR_BUILD))/native/build.json" \
+	  --protocol "tests/differentiable_view_native_review/protocol.py" \
+	  --observer "tests/differentiable_view_shape_review/native_observer_shape02.py" \
+	  --reference "$(abspath $(DIFFERENTIABLE_VIEW_INPUT4_REFERENCE_BUILD))/payload/actual/actual.json" \
+	  --probe "$(abspath $(DIFFERENTIABLE_VIEW_INPUT4_REFERENCE_BUILD))/payload/source/pytorch_differentiable_view_input_boundaries_probe.py" \
+	  --expected-source-sha256 "c436e21c45355891f8423f174a47e7c40fc8e1d6aef9a112043fac8787255d7a" \
+	  --expected-native-sha256 "0799496559ffdfb051e34bc7a543db238b81d09c970a5cb4a8235151e0335b74" \
+	  --expected-observer-sha256 "59019b5c4aeae0d7e04b362354bd9ca55917d2196791d3d18c4908a05fdbba8b" \
+	  --expected-functions "658" \
+	  --expected-native-units "13" \
+	  --output "$(abspath $(DIFFERENTIABLE_VIEW_R4_REPLAY_ROOT))/input4" \
+	  --support-reader "tests/differentiable_view_native_review/replay_direct_view14.py" \
+	  --expected-reference-sha256 "f4abe6a750ecc791b3a7bc7aa507b4c77eb0a2fcccf45b0c6a828db0e01490d3"
+
+# Finite R4 resource3 resource controls on the fresh Scalar07b image.
+.PHONY: test-differentiable-view-r4-resource3
+test-differentiable-view-r4-resource3: differentiable-view-r4-scalar07b $(DIFFERENTIABLE_VIEW_R4_SCALAR32_REFERENCE)/.complete
+	@printf '%s  %s\n' '00becd65f6897286e82723e0e4042eca6c0dbce18e2719855f57af0262aaca53' tests/wrapped_scalar_resource_review/run_resources.py | sha256sum -c -
+	python3 -I -S -B tests/wrapped_scalar_resource_review/run_resources.py \
+	  --repo "$(CURDIR)" \
+	  --builder-output "$(abspath $(DIFFERENTIABLE_VIEW_R4_SCALAR_BUILD))" \
+	  --reference "$(abspath $(DIFFERENTIABLE_VIEW_R4_SCALAR32_REFERENCE))/actual.json" \
+	  --probe "$(abspath $(DIFFERENTIABLE_VIEW_R4_SCALAR32_REFERENCE))/probe.py" \
+	  --expected-build-sha256 "$$(sha256sum '$(abspath $(DIFFERENTIABLE_VIEW_R4_SCALAR_BUILD))/native/build.json' | cut -d ' ' -f 1)" \
+	  --output "$(abspath build/view-reshape-r4-resource3)"
+
+# Finite R4 backward-resource resource controls on the fresh Scalar07b image.
+.PHONY: test-differentiable-view-r4-backward-resource
+test-differentiable-view-r4-backward-resource: differentiable-view-r4-scalar07b $(DIFFERENTIABLE_VIEW_R4_SCALAR32_REFERENCE)/.complete
+	@printf '%s  %s\n' '29e49cc554b5317d610b5b9faf1894e546118d99c961d21301ea53f5336f805a' tests/backward_private_cache_resource_review/run_resource.py | sha256sum -c -
+	python3 -I -S -B tests/backward_private_cache_resource_review/run_resource.py \
+	  --repo "$(CURDIR)" \
+	  --builder-output "$(abspath $(DIFFERENTIABLE_VIEW_R4_SCALAR_BUILD))" \
+	  --reference "$(abspath $(DIFFERENTIABLE_VIEW_R4_SCALAR32_REFERENCE))/actual.json" \
+	  --probe "$(abspath $(DIFFERENTIABLE_VIEW_R4_SCALAR32_REFERENCE))/probe.py" \
+	  --expected-build-sha256 "$$(sha256sum '$(abspath $(DIFFERENTIABLE_VIEW_R4_SCALAR_BUILD))/native/build.json' | cut -d ' ' -f 1)" \
+	  --output "$(abspath build/view-reshape-r4-backward-resource)"

@@ -1,0 +1,87 @@
+fn binary_saved_get(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(v0:mutbuf,v1:u64,v2:u64)
+  v3:u64 = call(v0,v1) {"function":"dptr"}
+  v4:u64 = const() {"value":1}
+  v5:bool = compare.gt(v2,v4)
+  branch v5 b1(v0) b2(v0,v2,v3)
+block b1(v6:mutbuf)
+  v14:u64 = const() {"value":7}
+  v15:u64 = call(v6,v14) {"function":"terror"}
+  ret(v15)
+block b2(v10:mutbuf,v12:u64,v13:u64)
+  v16:u64 = call(v10,v13,v12) {"function":"binary_saved_needed"}
+  v17:u64 = const() {"value":0}
+  v18:u64 = call(v10,v17) {"function":"getw"}
+  v19:bool = compare.ne(v18,v17)
+  branch v19 b4(v10,v12,v13,v19) b3(v10,v12,v13,v16)
+block b3(v20:mutbuf,v22:u64,v23:u64,v24:u64)
+  v32:u64 = const() {"value":0}
+  v33:bool = compare.eq(v24,v32)
+  jump b4(v20,v22,v23,v33)
+block b4(v26:mutbuf,v28:u64,v29:u64,v31:bool)
+  branch v31 b5(v26) b6(v26,v28,v29)
+block b5(v34:mutbuf)
+  v44:u64 = const() {"value":0}
+  ret(v44)
+block b6(v39:mutbuf,v41:u64,v42:u64)
+  v45:u64 = const() {"value":328}
+  v46:u64 = int.add.wrap(v42,v45)
+  v47:u64 = call(v39,v46) {"function":"getw"}
+  v48:u64 = const() {"value":0}
+  v49:bool = compare.ne(v47,v48)
+  branch v49 b7(v39) b8(v39,v41,v42)
+block b7(v50:mutbuf)
+  v60:u64 = const() {"value":10}
+  v61:u64 = call(v50,v60) {"function":"terror"}
+  ret(v61)
+block b8(v55:mutbuf,v57:u64,v58:u64)
+  v62:u64 = const() {"value":280}
+  v63:u64 = int.add.wrap(v58,v62)
+  v64:u64 = const() {"value":8}
+  v65:u64 = int.mul.wrap(v57,v64)
+  v66:u64 = int.add.wrap(v63,v65)
+  v67:u64 = call(v55,v66) {"function":"getw"}
+  v68:u64 = const() {"value":0}
+  v69:bool = compare.eq(v67,v68)
+  branch v69 b9(v55) b10(v55,v57,v58,v67)
+block b9(v70:mutbuf)
+  v82:u64 = const() {"value":9}
+  v83:u64 = call(v70,v82) {"function":"terror"}
+  ret(v83)
+block b10(v76:mutbuf,v78:u64,v79:u64,v81:u64)
+  v84:u64 = call(v76,v81) {"function":"graph_saved_check"}
+  v85:u64 = const() {"value":0}
+  v86:bool = compare.eq(v84,v85)
+  branch v86 b11(v76) b12(v76,v78,v79)
+block b11(v87:mutbuf)
+  v99:u64 = const() {"value":0}
+  ret(v99)
+block b12(v93:mutbuf,v95:u64,v96:u64)
+  v100:u64 = call(v93,v96) {"function":"binary_saved_base"}
+  v101:u64 = const() {"value":0}
+  v102:bool = compare.eq(v100,v101)
+  branch v102 b13(v93) b14(v93,v95,v100)
+block b13(v103:mutbuf)
+  v117:u64 = const() {"value":9}
+  v118:u64 = call(v103,v117) {"function":"terror"}
+  ret(v118)
+block b14(v110:mutbuf,v112:u64,v116:u64)
+  v119:u64 = const() {"value":16}
+  v120:u64 = int.mul.wrap(v112,v119)
+  v121:u64 = int.add.wrap(v116,v120)
+  v122:u64 = call(v110,v121) {"function":"getw"}
+  v123:u64 = const() {"value":8}
+  v124:u64 = int.add.wrap(v121,v123)
+  v125:u64 = call(v110,v124) {"function":"getw"}
+  v126:u64 = call(v110,v122,v125) {"function":"private_tensor"}
+  v127:u64 = const() {"value":0}
+  v128:bool = compare.eq(v126,v127)
+  branch v128 b15(v110) b16(v110,v122)
+block b15(v129:mutbuf)
+  v145:u64 = const() {"value":9}
+  v146:u64 = call(v129,v145) {"function":"terror"}
+  ret(v146)
+block b16(v137:mutbuf,v144:u64)
+  v147:u64 = call(v137,v144) {"function":"publish_tensor"}
+  ret(v147)
+end

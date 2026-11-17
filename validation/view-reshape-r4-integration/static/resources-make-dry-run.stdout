@@ -1,0 +1,16 @@
+printf '%s  %s\n' '00becd65f6897286e82723e0e4042eca6c0dbce18e2719855f57af0262aaca53' tests/wrapped_scalar_resource_review/run_resources.py | sha256sum -c -
+python3 -I -S -B tests/wrapped_scalar_resource_review/run_resources.py \
+  --repo "/home/qian-qi/heptatorch-continuation-20261116/runs/view-reshape-r4-integration-01/repo" \
+  --builder-output "/home/qian-qi/heptatorch-continuation-20261116/runs/view-reshape-r4-integration-01/repo/build/differentiable-view-r4-scalar07b" \
+  --reference "/home/qian-qi/heptatorch-continuation-20261116/runs/view-reshape-r4-integration-01/repo/build/view-reshape-r4-reference32/actual.json" \
+  --probe "/home/qian-qi/heptatorch-continuation-20261116/runs/view-reshape-r4-integration-01/repo/build/view-reshape-r4-reference32/probe.py" \
+  --expected-build-sha256 "$(sha256sum '/home/qian-qi/heptatorch-continuation-20261116/runs/view-reshape-r4-integration-01/repo/build/differentiable-view-r4-scalar07b/native/build.json' | cut -d ' ' -f 1)" \
+  --output "/home/qian-qi/heptatorch-continuation-20261116/runs/view-reshape-r4-integration-01/repo/build/view-reshape-r4-resource3"
+printf '%s  %s\n' '29e49cc554b5317d610b5b9faf1894e546118d99c961d21301ea53f5336f805a' tests/backward_private_cache_resource_review/run_resource.py | sha256sum -c -
+python3 -I -S -B tests/backward_private_cache_resource_review/run_resource.py \
+  --repo "/home/qian-qi/heptatorch-continuation-20261116/runs/view-reshape-r4-integration-01/repo" \
+  --builder-output "/home/qian-qi/heptatorch-continuation-20261116/runs/view-reshape-r4-integration-01/repo/build/differentiable-view-r4-scalar07b" \
+  --reference "/home/qian-qi/heptatorch-continuation-20261116/runs/view-reshape-r4-integration-01/repo/build/view-reshape-r4-reference32/actual.json" \
+  --probe "/home/qian-qi/heptatorch-continuation-20261116/runs/view-reshape-r4-integration-01/repo/build/view-reshape-r4-reference32/probe.py" \
+  --expected-build-sha256 "$(sha256sum '/home/qian-qi/heptatorch-continuation-20261116/runs/view-reshape-r4-integration-01/repo/build/differentiable-view-r4-scalar07b/native/build.json' | cut -d ' ' -f 1)" \
+  --output "/home/qian-qi/heptatorch-continuation-20261116/runs/view-reshape-r4-integration-01/repo/build/view-reshape-r4-backward-resource"

@@ -1,0 +1,58 @@
+{
+  "schema": "heptatorch.shape26-identity-reader-exact-inverse.v1",
+  "parent_reader_sha256": "af290dad8ed2c815a1fe17c98296a39a451ba2de7673c16b97608ad16fc645a2",
+  "identity_adapter_sha256": "225472f6c7b00e8a7feefa876b025548d55aeca8a4ec5ffbf909a3e5d4d6d20b",
+  "original_comparator_support_sha256": "52c3b3242a73fb412102c83c5ba47cf8d95a4eb3c01e56f41bfe593066506d05",
+  "whole_inverse_bytes_equal": true,
+  "case_class_expected_status_admit_reference_source_unchanged": true,
+  "edits": [
+    {
+      "label": "bind-adapter-and-parent",
+      "before": "CLIENT = 'dee3e4cb25ee1e5e06513e2f33478fbe274d9510ce2aaab9525815c72312946b'\n",
+      "after": "CLIENT = 'dee3e4cb25ee1e5e06513e2f33478fbe274d9510ce2aaab9525815c72312946b'\nIDENTITY_ADAPTER = '225472f6c7b00e8a7feefa876b025548d55aeca8a4ec5ffbf909a3e5d4d6d20b'\nPARENT_READER = 'af290dad8ed2c815a1fe17c98296a39a451ba2de7673c16b97608ad16fc645a2'\n"
+    },
+    {
+      "label": "explicit-two-pinned-inputs",
+      "before": "'reference', 'probe', 'support-reader', 'output'):",
+      "after": "'reference', 'probe', 'support-reader', 'identity-adapter', 'parent-reader', 'output'):"
+    },
+    {
+      "label": "complete-input-custody",
+      "before": "a.reference, a.probe, a.support_reader]",
+      "after": "a.reference, a.probe, a.support_reader, a.identity_adapter, a.parent_reader]"
+    },
+    {
+      "label": "pin-new-inputs",
+      "before": "a.observer.resolve(): a.expected_observer_sha256, a.support_reader.resolve(): SUPPORT_READER,",
+      "after": "a.observer.resolve(): a.expected_observer_sha256, a.support_reader.resolve(): SUPPORT_READER,\n            a.identity_adapter.resolve(): IDENTITY_ADAPTER, a.parent_reader.resolve(): PARENT_READER,"
+    },
+    {
+      "label": "pure-lifetime-qualified-identity-data",
+      "before": "                           a.expected_reference_sha256, support)\n    assert len(support.FUNCTIONS",
+      "after": "                           a.expected_reference_sha256, support)\n    identity_module = load(a.identity_adapter, 'reference26_lifetime_identity_labels')\n    data, identity_plan = identity_module.admit(inputs[a.reference.resolve()], inputs[a.probe.resolve()])\n    identity_plan['copied_negative_controls'] = identity_module.negative_controls(\n        json.loads(inputs[a.reference.resolve()]), identity_plan)\n    assert len(support.FUNCTIONS"
+    },
+    {
+      "label": "preserve-full-proof-file",
+      "before": "    a.output.mkdir(parents=True, exist_ok=False)\n    common = {",
+      "after": "    a.output.mkdir(parents=True, exist_ok=False)\n    support.write_json(a.output / 'identity-epoch-plan.json', identity_plan)\n    identity_plan_sha256 = sha((a.output / 'identity-epoch-plan.json').read_bytes())\n    common = {"
+    },
+    {
+      "label": "additive-report-schema",
+      "before": "'schema': 'heptatorch.concrete-view-reshape-native26.v1',",
+      "after": "'schema': 'heptatorch.concrete-view-reshape-native26.identity-epochs.v1',"
+    },
+    {
+      "label": "honest-comparison-scope",
+      "before": "'comparison_scope': 'Original Tensor/Storage/identity/Version/gradient/Weak/whole-owner/RNG comparison methods are inherited unchanged. New decoding adds View16, ReshapeAlias45, UnsafeView46, Clone17 and bounded T10, plus actual saved input-size metadata. Event mapping is only this fixed reference26.',",
+      "after": "'comparison_scope': 'Original Tensor/Storage/identity/Version/gradient/Weak/whole-owner/RNG comparator methods execute unchanged. Only source-proven released Saved Scalar64 addresses receive lifetime-qualified labels; live aliases and every nonidentity expectation remain exact. New decoding adds View16, ReshapeAlias45, UnsafeView46, Clone17 and bounded T10, plus actual saved input-size metadata. Event mapping is only this fixed reference26.',"
+    },
+    {
+      "label": "explicit-proof-and-failure-history",
+      "before": "        'complete_original_overload_mapping': True,\n",
+      "after": "        'complete_original_overload_mapping': True,\n        'identity_epoch_admission': {\n            'adapter_sha256': IDENTITY_ADAPTER, 'parent_reader_sha256': PARENT_READER,\n            'proof_file': 'identity-epoch-plan.json', 'proof_sha256': identity_plan_sha256,\n            'status': identity_plan['status'], 'retirements': identity_plan['retirements'],\n            'identity_annotations': identity_plan['identity_annotations'],\n            'unaffected_rows': identity_plan['unaffected_rows'],\n            'whole_inverse_equal': identity_plan['whole_inverse_equal'],\n            'all_nonidentity_fields_unchanged': identity_plan['all_nonidentity_fields_unchanged'],\n            'no_case_number_address_or_native_result_exceptions': True,\n            'original_failures_preserved': [\n                'f7a9d470e91faac44055b5db5194a839cc45529970947752d603a3970d0c3d5b',\n                'afe47e394b3334f22f503e606f806e6abc8b3eef32ad5c5884cb3051d0dec598'],\n            'scope': 'Derived lifetime labels; original raw oracle addresses and observations are unchanged. No new Torch Weak-expiration observation is claimed.',\n        },\n"
+    }
+  ],
+  "new_native_executions": 0,
+  "new_Torch_executions": 0
+}
+
