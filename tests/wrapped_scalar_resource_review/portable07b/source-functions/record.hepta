@@ -1,0 +1,55 @@
+fn record(v0:mutbuf,v1:u64,v2:u64,v3:u64,v4:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(v0:mutbuf,v1:u64,v2:u64,v3:u64,v4:u64)
+  v5:u64 = const() {"value":0}
+  v6:bool = compare.eq(v1,v5)
+  branch v6 b2(v0,v1,v2,v3,v4,v6) b1(v0,v1,v2,v3,v4)
+block b1(v7:mutbuf,v8:u64,v9:u64,v10:u64,v11:u64)
+  v19:u64 = const() {"value":0}
+  v20:u64 = call(v7,v19) {"function":"getw"}
+  v21:bool = compare.ne(v20,v19)
+  jump b2(v7,v8,v9,v10,v11,v21)
+block b2(v13:mutbuf,v14:u64,v15:u64,v16:u64,v17:u64,v18:bool)
+  branch v18 b3(v13) b4(v13,v14,v15,v16,v17)
+block b3(v22:mutbuf)
+  v32:u64 = const() {"value":0}
+  ret(v32)
+block b4(v27:mutbuf,v28:u64,v29:u64,v30:u64,v31:u64)
+  v33:u64 = call(v27,v30) {"function":"to_view_refresh"}
+  v34:u64 = const() {"value":0}
+  v35:bool = compare.eq(v33,v34)
+  branch v35 b6(v27,v28,v29,v30,v31,v35) b5(v27,v28,v29,v30,v31)
+block b5(v36:mutbuf,v37:u64,v38:u64,v39:u64,v40:u64)
+  v48:u64 = call(v36,v40) {"function":"to_view_refresh"}
+  v49:u64 = const() {"value":0}
+  v50:bool = compare.eq(v48,v49)
+  jump b6(v36,v37,v38,v39,v40,v50)
+block b6(v42:mutbuf,v43:u64,v44:u64,v45:u64,v46:u64,v47:bool)
+  branch v47 b7(v42) b8(v42,v43,v44,v45,v46)
+block b7(v51:mutbuf)
+  v61:u64 = const() {"value":0}
+  ret(v61)
+block b8(v56:mutbuf,v57:u64,v58:u64,v59:u64,v60:u64)
+  v62:u64 = call(v56,v57,v58,v59,v60) {"function":"view_previous_record"}
+  v63:u64 = const() {"value":0}
+  v64:bool = compare.eq(v62,v63)
+  branch v64 b9(v56) b10(v56,v57,v62)
+block b9(v65:mutbuf)
+  v77:u64 = const() {"value":0}
+  ret(v77)
+block b10(v71:mutbuf,v72:u64,v76:u64)
+  v78:u64 = call(v71,v72) {"function":"dptr"}
+  v79:u64 = const() {"value":664}
+  v80:u64 = int.add.wrap(v78,v79)
+  v81:u64 = call(v71,v80) {"function":"getw"}
+  v82:u64 = const() {"value":0}
+  v83:bool = compare.ne(v81,v82)
+  branch v83 b11(v71,v72,v76,v78) b13(v71,v76)
+block b11(v84:mutbuf,v85:u64,v89:u64,v90:u64)
+  v98:u64 = const() {"value":656}
+  v99:u64 = int.add.wrap(v90,v98)
+  v100:u64 = call(v84,v85) {"function":"tversion"}
+  v101:u64 = call(v84,v99,v100) {"function":"putw"}
+  jump b13(v84,v89)
+block b13(v102:mutbuf,v107:u64)
+  ret(v107)
+end

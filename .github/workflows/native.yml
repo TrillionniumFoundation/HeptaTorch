@@ -812,6 +812,142 @@ jobs:
           fi
           exit "$status"
 
+      - name: Restore and admit all immutable R4 view26 and wrapped Scalar32 references
+        run: |
+          status=0
+          make test-differentiable-view-r4-references \
+            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
+            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget" \
+            > build/view-reshape-r4-references.make.stdout \
+            2> build/view-reshape-r4-references.make.stderr || status=$?
+          cat build/view-reshape-r4-references.make.stdout
+          cat build/view-reshape-r4-references.make.stderr >&2
+          if [ -f build/view-reshape-r4-reference26/report.json ]; then
+            cp build/view-reshape-r4-reference26/report.json build/view-reshape-r4-reference26.json
+            python3 -I -S -B tools/emit_ci_report.py build/view-reshape-r4-reference26.json
+          fi
+          if [ -f build/view-reshape-r4-reference32/report.json ]; then
+            cp build/view-reshape-r4-reference32/report.json build/view-reshape-r4-reference32.json
+            python3 -I -S -B tools/emit_ci_report.py build/view-reshape-r4-reference32.json
+          fi
+          exit "$status"
+
+      - name: Cold-build both R4 stages and verify every fixed source object and ELF
+        run: |
+          status=0
+          make differentiable-view-r4-scalar07b \
+            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
+            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget" \
+            > build/view-reshape-r4-build.make.stdout \
+            2> build/view-reshape-r4-build.make.stderr || status=$?
+          cat build/view-reshape-r4-build.make.stdout
+          cat build/view-reshape-r4-build.make.stderr >&2
+          if [ -f build/differentiable-view-r4-shape/report.json ]; then
+            cp build/differentiable-view-r4-shape/report.json build/view-reshape-r4-shape-build.json
+            python3 -I -S -B tools/emit_ci_report.py build/view-reshape-r4-shape-build.json
+          fi
+          if [ -f build/differentiable-view-r4-scalar07b/report.json ]; then
+            cp build/differentiable-view-r4-scalar07b/report.json build/view-reshape-r4-scalar07b-build.json
+            python3 -I -S -B tools/emit_ci_report.py build/view-reshape-r4-scalar07b-build.json
+          fi
+          exit "$status"
+
+      - name: Replay complete R4 view26 on the same Scalar07b HIA image
+        run: |
+          status=0
+          make test-differentiable-view-r4-native26 \
+            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
+            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget" \
+            > build/view-reshape-r4-view26.make.stdout \
+            2> build/view-reshape-r4-view26.make.stderr || status=$?
+          cat build/view-reshape-r4-view26.make.stdout
+          cat build/view-reshape-r4-view26.make.stderr >&2
+          if [ -f build/view-reshape-r4-native/view26/report.json ]; then
+            cp build/view-reshape-r4-native/view26/report.json build/view-reshape-r4-view26.json
+            python3 -I -S -B tools/emit_ci_report.py build/view-reshape-r4-view26.json
+          fi
+          exit "$status"
+
+      - name: Replay complete R4 scalar32 on the same Scalar07b HIA image
+        run: |
+          status=0
+          make test-differentiable-view-r4-scalar32 \
+            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
+            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget" \
+            > build/view-reshape-r4-scalar32.make.stdout \
+            2> build/view-reshape-r4-scalar32.make.stderr || status=$?
+          cat build/view-reshape-r4-scalar32.make.stdout
+          cat build/view-reshape-r4-scalar32.make.stderr >&2
+          if [ -f build/view-reshape-r4-native/scalar32/report.json ]; then
+            cp build/view-reshape-r4-native/scalar32/report.json build/view-reshape-r4-scalar32.json
+            python3 -I -S -B tools/emit_ci_report.py build/view-reshape-r4-scalar32.json
+          fi
+          exit "$status"
+
+      - name: Replay complete R4 view14 on the same Scalar07b HIA image
+        run: |
+          status=0
+          make test-differentiable-view-r4-native14 \
+            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
+            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget" \
+            > build/view-reshape-r4-view14.make.stdout \
+            2> build/view-reshape-r4-view14.make.stderr || status=$?
+          cat build/view-reshape-r4-view14.make.stdout
+          cat build/view-reshape-r4-view14.make.stderr >&2
+          if [ -f build/view-reshape-r4-native/view14/report.json ]; then
+            cp build/view-reshape-r4-native/view14/report.json build/view-reshape-r4-view14.json
+            python3 -I -S -B tools/emit_ci_report.py build/view-reshape-r4-view14.json
+          fi
+          exit "$status"
+
+      - name: Replay complete R4 input4 on the same Scalar07b HIA image
+        run: |
+          status=0
+          make test-differentiable-view-r4-input4 \
+            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
+            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget" \
+            > build/view-reshape-r4-input4.make.stdout \
+            2> build/view-reshape-r4-input4.make.stderr || status=$?
+          cat build/view-reshape-r4-input4.make.stdout
+          cat build/view-reshape-r4-input4.make.stderr >&2
+          if [ -f build/view-reshape-r4-native/input4/report.json ]; then
+            cp build/view-reshape-r4-native/input4/report.json build/view-reshape-r4-input4.json
+            python3 -I -S -B tools/emit_ci_report.py build/view-reshape-r4-input4.json
+          fi
+          exit "$status"
+
+      - name: Qualify three finite R4 scalar resource lifetime and rollback controls
+        run: |
+          status=0
+          make test-differentiable-view-r4-resource3 \
+            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
+            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget" \
+            > build/view-reshape-r4-resource3.make.stdout \
+            2> build/view-reshape-r4-resource3.make.stderr || status=$?
+          cat build/view-reshape-r4-resource3.make.stdout
+          cat build/view-reshape-r4-resource3.make.stderr >&2
+          if [ -f build/view-reshape-r4-resource3/report.json ]; then
+            cp build/view-reshape-r4-resource3/report.json build/view-reshape-r4-resource3.json
+            python3 -I -S -B tools/emit_ci_report.py build/view-reshape-r4-resource3.json
+          fi
+          exit "$status"
+
+      - name: Qualify finite backward private preserve cache OOM and recovery
+        run: |
+          status=0
+          make test-differentiable-view-r4-backward-resource \
+            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
+            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget" \
+            > build/view-reshape-r4-backward-resource.make.stdout \
+            2> build/view-reshape-r4-backward-resource.make.stderr || status=$?
+          cat build/view-reshape-r4-backward-resource.make.stdout
+          cat build/view-reshape-r4-backward-resource.make.stderr >&2
+          if [ -f build/view-reshape-r4-backward-resource/report.json ]; then
+            cp build/view-reshape-r4-backward-resource/report.json build/view-reshape-r4-backward-resource.json
+            python3 -I -S -B tools/emit_ci_report.py build/view-reshape-r4-backward-resource.json
+          fi
+          exit "$status"
+
       - name: Reproduce and qualify persistent native CPU Generator objects
         run: |
           make cpu-generators test-cpu-generators \
@@ -1439,6 +1575,26 @@ jobs:
           fi
           exit "$status"
 
+      - name: Seal complete R4 file bytes and original modes even after failure
+        if: always()
+        run: |
+          status=0
+          mkdir -p build
+          python3 -I -S -B tools/seal_r4_ci_evidence.py \
+            --repo "$GITHUB_WORKSPACE" \
+            --stack-build "$RUNNER_TEMP/hepta-stack-budget" \
+            --source-commit "$GITHUB_SHA" \
+            --output "$GITHUB_WORKSPACE/build/view-reshape-r4-custody" \
+            > build/r4-custody-seal.stdout \
+            2> build/r4-custody-seal.stderr || status=$?
+          cat build/r4-custody-seal.stdout
+          cat build/r4-custody-seal.stderr >&2
+          if [ -f build/view-reshape-r4-custody/report.json ]; then
+            cp build/view-reshape-r4-custody/report.json build/view-reshape-r4-custody.json
+            python3 -I -S -B tools/emit_ci_report.py build/view-reshape-r4-custody.json
+          fi
+          exit "$status"
+
       - name: Index complete original CI reports and checkout identity
         if: always()
         env:
@@ -1671,6 +1827,29 @@ jobs:
             build/differentiable-view-preserve-resources/
             build/differentiable-view-preserve-resources.json
             build/differentiable-view-preserve-resources.make.*
+          if-no-files-found: warn
+          compression-level: 9
+          retention-days: 30
+
+      - name: Export complete R4 builds references and all 76 native sessions
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: view-reshape-r4-evidence-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+          path: |
+            build/differentiable-view-r4-shape/
+            build/differentiable-view-r4-scalar07b/
+            build/view-reshape-r4-reference26/
+            build/view-reshape-r4-reference32/
+            build/view-reshape-r4-native/
+            build/view-reshape-r4-resource3/
+            build/view-reshape-r4-backward-resource/
+            build/view-reshape-r4-custody/
+            build/r4-custody-seal.stdout
+            build/r4-custody-seal.stderr
+            build/view-reshape-r4-*.json
+            build/view-reshape-r4-*.make.stdout
+            build/view-reshape-r4-*.make.stderr
           if-no-files-found: warn
           compression-level: 9
           retention-days: 30

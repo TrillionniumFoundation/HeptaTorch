@@ -1,0 +1,70 @@
+{
+  "schema": "heptatorch.scalar07b.backward-private-cache-resource-obligations.v1",
+  "source_sha256": "c436e21c45355891f8423f174a47e7c40fc8e1d6aef9a112043fac8787255d7a",
+  "functions": {
+    "partial_execute": "11e3c5ef304443c63444ddccb6305b77607cea6c59ca7ca709932e7d79014fbb",
+    "partial_admit": "eb0944a9d867975d07d6f49fb68cd04ed92dac6e259c3b2c54ee4a42c7af4e83",
+    "ensure_backward_work": "6bc14c91e736f304bb671d8c491e5901a559df45671f1897574ebb1fd0b842b9",
+    "gradient_workspace_size": "58a5918e412f5045e03015ffac8fb520032daec8727331109398efa8e99e7e46",
+    "incoming_mark_preserve_targets": "8c4c0237279b24a1ce676535fe8f81884b7951d15dc1df7760731f904ae55fa7",
+    "incoming_reserve_preserve_storage": "f9018f7560ff7d047e55f800d7926fed1e87910384b03a1415fce7d00c431436",
+    "dview_preserve_capacity": "395df29be2c79d2da28d6f63f78ccc8759def94243ded683f4a4425aed52a46e",
+    "history_prepare_leaf": "a111c50c3d97db2fd47b87a1f43fa3c7e210b5820b7f709305d29b83c602a548",
+    "gradient_new": "622e5631fb34db0a2a21014e42ab004ee8b419106fdad794da9e4ef79c5adada",
+    "alloc": "5faf663af54408412185027cb6ef47814a0fdd526acb28cedc52e72afdf21621",
+    "storage_capacity": "78cc8cc6b058ab735e518883dfdd51638966c849e9cb5fa4b171567bac494ac9",
+    "so_extent_allocate": "7fe1791fc24ca6ca716832ee03a052ceabb55244710887dde72353dbd53c1fc2",
+    "so_slot_available": "f378d402604dc8fa39a189cefa6583da4aad66841050c8b606b7b84bca9ceabd",
+    "partial_mark": "eb38b0b3de57b685c362d8ed8a518281af0a7bac124fd6cfeab90bc488acf490",
+    "gradient_parent_at": "1fe4e030a517a017f1f642c4bbbcc18ca2f9cdfab32c568ba1b9c7e1ebd16db3",
+    "gradient_parent_count": "a320a98f12baa9b41dab1413c4c46a83542fd4e8690e1047eaf6ae5ea78fc961",
+    "graph_parent_at": "d2ed07f97ee48e714eca3c05c51760953a5fd5dd466e75671ef018229cfd6efa",
+    "graph_edge_enabled": "ea5090289dc8f0cab758b5408be62faa94a62312ee08ecf721c8a5afb901b2b1",
+    "wrapped_scalar_mul": "8dea86af71f00144e495f6a41234c0b6cb9989a2565d65d3be06677b2b42ecd8",
+    "history_backward_root": "83dd21d0e48648fb82452f59d8fbe30520b16a3675b8865dd74238f1ff428a49",
+    "history_push": "ce354c66d366ed9cd8e47e08017f0beb387f8973e33895d73fd540bbeaa267da",
+    "scalar_previous_incoming_mark_preserve_targets": "c45e68298da075eb7d81533230b54e7f0b0340a007d5a35cbc57d0f05476d619",
+    "dtype_backward_admit": "ed05a8c3739e04c59a6d299f68bd98c0f63854c011fe31d516e00cada9006778",
+    "dtype_original_partial_admit": "759fbc15ee02a511bc3ecadfaf5f8cc4d3df065542c61708fc6450b1d0ff03ad"
+  },
+  "scope": "One real owned-child backward allocation-failure and identical-command recovery. Resource control only; not a new numerical or full-schema compatibility oracle.",
+  "recipe": {
+    "count": 65536,
+    "source_shape": [
+      65536
+    ],
+    "source_requires_grad": 1,
+    "scalar_binary64_hex": "3ff0000000000000",
+    "seed_backing_shape": [
+      131072
+    ],
+    "seed_shape": [
+      65536
+    ],
+    "seed_stride": [
+      2
+    ],
+    "retain_graph": 1
+  },
+  "pre_target_order": [
+    "partial_admit and history_backward_root: fixed valid F32 matching shapes and direct op3 root; no allocation",
+    "partial_mark/history_push: only live direct op3 output and its enabled F32 leaf; no allocation",
+    "alloc align16(24 + 24*(highest_descriptor+1) + 72 + 5*N) workspace",
+    "ensure_backward_work iterates leaf before output; already-existing real leaf gradient skips gradient_new",
+    "alloc align16(4*N) leaf normal backward buffer; reserve one V row, all necessary table slots already reusable",
+    "new wrapped-Scalar64 mark on op3/right dtype3/side0 requires incoming_reserve_preserve_storage for enabled leaf",
+    "alloc align16(4*N) private preserve buffer is the first request with no fitting free extent"
+  ],
+  "conditions": [
+    "Warmup is actual native58 with retain_graph=1; no host graph mutation.",
+    "Live owner proves direct output op3, original dtype3 Saved scalar, exactly one enabled F32 leaf, leaf node index before output, no active op44 ViewInfo path.",
+    "Live gradient root/inc already exists; leaf scratch/preserve fields are zero before the limited call.",
+    "All required table rows and current descriptor page exist; no incarnation or epoch overflow.",
+    "Actual ordered free extents are checked with source-bound first-fit allocation budgeting for workspace and ordinary buffer; next target has no fitting extent.",
+    "Only the owned child receives a lower temporary RLIMIT_AS. Original limit restored in finally. Baseline transaction allocation headroom is available; requested larger owner cannot fit.",
+    "Expected error3 alone is insufficient: exact owner pointer/length/all bytes, maps, full5056B RNG, same-capacity success, and identical request recovery are required."
+  ],
+  "whole_pytorch_gate": "HOLD",
+  "closed_schema_count": 0
+}
+

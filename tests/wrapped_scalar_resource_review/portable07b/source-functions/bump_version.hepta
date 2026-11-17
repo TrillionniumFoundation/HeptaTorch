@@ -1,0 +1,24 @@
+fn bump_version(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(v0:mutbuf,v1:u64)
+  v2:u64 = const() {"value":1}
+  v3:u64 = call(v0,v1,v2) {"function":"version_can_bump"}
+  v4:u64 = const() {"value":0}
+  v5:bool = compare.eq(v3,v4)
+  branch v5 b1(v0) b2(v0,v1)
+block b1(v6:mutbuf)
+  v10:u64 = const() {"value":0}
+  ret(v10)
+block b2(v8:mutbuf,v9:u64)
+  v11:u64 = call(v8,v9) {"function":"dptr"}
+  v12:u64 = const() {"value":224}
+  v13:u64 = int.add.wrap(v11,v12)
+  v14:u64 = call(v8,v13) {"function":"getw"}
+  v15:u64 = call(v8,v14) {"function":"so_version_live"}
+  v16:u64 = const() {"value":16}
+  v17:u64 = int.add.wrap(v15,v16)
+  v18:u64 = call(v8,v17) {"function":"so_uget"}
+  v19:u64 = const() {"value":1}
+  v20:u64 = int.add.wrap(v18,v19)
+  v21:u64 = call(v8,v17,v20) {"function":"so_uput"}
+  ret(v19)
+end

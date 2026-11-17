@@ -1,0 +1,627 @@
+{
+  "schema": "heptatorch.concrete-view-reshape-native26.v1",
+  "reference_sha256": "fecf1956790f78a9b1238f535c1c7cce9f1237b211c389ac0736d88687bbb9c9",
+  "probe_sha256": "4dd374419e4b21a9c814c855d846481730a12ea57a30dcf229a6b962f07021c5",
+  "support_reader_sha256": "52c3b3242a73fb412102c83c5ba47cf8d95a4eb3c01e56f41bfe593066506d05",
+  "source_sha256": "fb0e67313da4ae2236fa6334fd8b6cc38c1e894360fa16fc0f5a6afd02e163b6",
+  "native_sha256": "e1b1cf30b3993bdc87a42a1ef553730cc437cd57d9730792daaee28f475d4f33",
+  "observer_sha256": "59019b5c4aeae0d7e04b362354bd9ca55917d2196791d3d18c4908a05fdbba8b",
+  "descriptor_bytes": 672,
+  "functions": 654,
+  "native_units": 13,
+  "expected_cases": 26,
+  "reference_events": 483,
+  "reference_operation_totals": {
+    "attempted": 483,
+    "succeeded": 475,
+    "raised": 8
+  },
+  "torch_executed_here": false,
+  "full_pytorch_rewrite_complete": false,
+  "closed_schema_count": 0,
+  "pytorch_api_denominator": 2590,
+  "fixed_configuration": {
+    "cpu_capability": "AVX512",
+    "threads": 1,
+    "deterministic_algorithms": true,
+    "deterministic_fill": true
+  },
+  "comparison_scope": "Original Tensor/Storage/identity/Version/gradient/Weak/whole-owner/RNG comparison methods are inherited unchanged. New decoding adds View16, ReshapeAlias45, UnsafeView46, Clone17 and bounded T10, plus actual saved input-size metadata. Event mapping is only this fixed reference26.",
+  "seed_scope": "Raw words and geometry are declared reference inputs; no gradient values are calculated by the observer.",
+  "same_Python_object_scope": "Every fixed reference26 relation must have same_Python_object == same_Tensor; no general wrapper-refcount equivalence.",
+  "warnings_scope": "Original grad-warning predicates are inherited; non-getter operation warnings outside the empty warning surface cause an explicit mismatch.",
+  "partial_prefix_scope": "All before/after gradient and Saved effects are compared; native58 counters are retained as raw diagnostics, not labeled Torch observations.",
+  "input_setup_mapping": "True111(as_strided), optional19(detach) plus temporary41; no fabricated view flag. True100 typed fill with no-grad flag1. New112/113 only actual concrete view/reshape.",
+  "original_blocked_history": {
+    "indices": [
+      22,
+      25
+    ],
+    "reader_sha256": "aebe22c0e0a93c0211d7bdc42c1223773f912a17aaff4af5d64e7e07acc89aad",
+    "native_report_sha256": "148ecc661cb7c65f2196930ed3fc19c2a53b77d7204bb63305de6a8c63b1f20c"
+  },
+  "wrapped_scalar_mapping": "114 receives exact raw binary64 2.0 and retains a real float64 Scalar Tensor; no public F32 substitute is created by this reader.",
+  "selected_case_indices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25
+  ],
+  "complete_original_overload_mapping": true,
+  "status": "FAIL",
+  "native_executed": true,
+  "cases": 26,
+  "rows": [
+    {
+      "index": 0,
+      "name": "view_contiguous_infer",
+      "status": "FAIL",
+      "assertions": 125,
+      "exact_words": 48,
+      "full_rng_bytes": 20224,
+      "rollback_bytes": 0,
+      "frames": 29,
+      "exit_code": -4,
+      "error": {
+        "type": "AssertionError",
+        "message": "('early EOF', 16, 0, -4)",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 601, in run\n    self.execute(event,i)\n    ~~~~~~~~~~~~^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/replay_shape26_r3.py\", line 144, in execute\n    status, record = self.issue(command, label + '/true_view')\n                     ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 142, in issue\n    status, records = self.n.w.parse(self.n.s.exchange(self.n.w.packet([command])))\n                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 120, in exchange\n    return self.receive()\n           ~~~~~~~~~~~~^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 110, in receive\n    head=self.read_exact(self.output,16)\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/protocol.py\", line 88, in read_exact\n    return super().read_exact(fd, count, timeout=timeout)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 96, in read_exact\n    part=os.read(fd,n-len(result));assert part,('early EOF',n,len(result),self.poll())\n                                          ^^^^\nAssertionError: ('early EOF', 16, 0, -4)\n",
+        "at": "event01/construct_detached_input/operation",
+        "owner_capture_error": "AssertionError(('exited before syscall', -4))"
+      },
+      "mismatches": []
+    },
+    {
+      "index": 1,
+      "name": "view_holed_chunk",
+      "status": "FAIL",
+      "assertions": 125,
+      "exact_words": 48,
+      "full_rng_bytes": 20224,
+      "rollback_bytes": 0,
+      "frames": 29,
+      "exit_code": -4,
+      "error": {
+        "type": "AssertionError",
+        "message": "('early EOF', 16, 0, -4)",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 601, in run\n    self.execute(event,i)\n    ~~~~~~~~~~~~^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/replay_shape26_r3.py\", line 144, in execute\n    status, record = self.issue(command, label + '/true_view')\n                     ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 142, in issue\n    status, records = self.n.w.parse(self.n.s.exchange(self.n.w.packet([command])))\n                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 120, in exchange\n    return self.receive()\n           ~~~~~~~~~~~~^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 110, in receive\n    head=self.read_exact(self.output,16)\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/protocol.py\", line 88, in read_exact\n    return super().read_exact(fd, count, timeout=timeout)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 96, in read_exact\n    part=os.read(fd,n-len(result));assert part,('early EOF',n,len(result),self.poll())\n                                          ^^^^\nAssertionError: ('early EOF', 16, 0, -4)\n",
+        "at": "event01/construct_detached_input/operation",
+        "owner_capture_error": "AssertionError(('exited before syscall', -4))"
+      },
+      "mismatches": []
+    },
+    {
+      "index": 2,
+      "name": "view_transpose_chunk_split",
+      "status": "FAIL",
+      "assertions": 125,
+      "exact_words": 48,
+      "full_rng_bytes": 20224,
+      "rollback_bytes": 0,
+      "frames": 29,
+      "exit_code": -4,
+      "error": {
+        "type": "AssertionError",
+        "message": "('early EOF', 16, 0, -4)",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 601, in run\n    self.execute(event,i)\n    ~~~~~~~~~~~~^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/replay_shape26_r3.py\", line 144, in execute\n    status, record = self.issue(command, label + '/true_view')\n                     ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 142, in issue\n    status, records = self.n.w.parse(self.n.s.exchange(self.n.w.packet([command])))\n                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 120, in exchange\n    return self.receive()\n           ~~~~~~~~~~~~^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 110, in receive\n    head=self.read_exact(self.output,16)\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/protocol.py\", line 88, in read_exact\n    return super().read_exact(fd, count, timeout=timeout)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 96, in read_exact\n    part=os.read(fd,n-len(result));assert part,('early EOF',n,len(result),self.poll())\n                                          ^^^^\nAssertionError: ('early EOF', 16, 0, -4)\n",
+        "at": "event01/construct_detached_input/operation",
+        "owner_capture_error": "AssertionError(('exited before syscall', -4))"
+      },
+      "mismatches": []
+    },
+    {
+      "index": 3,
+      "name": "view_transpose_flatten",
+      "status": "FAIL",
+      "assertions": 125,
+      "exact_words": 48,
+      "full_rng_bytes": 20224,
+      "rollback_bytes": 0,
+      "frames": 29,
+      "exit_code": -4,
+      "error": {
+        "type": "AssertionError",
+        "message": "('early EOF', 16, 0, -4)",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 601, in run\n    self.execute(event,i)\n    ~~~~~~~~~~~~^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/replay_shape26_r3.py\", line 144, in execute\n    status, record = self.issue(command, label + '/true_view')\n                     ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 142, in issue\n    status, records = self.n.w.parse(self.n.s.exchange(self.n.w.packet([command])))\n                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 120, in exchange\n    return self.receive()\n           ~~~~~~~~~~~~^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 110, in receive\n    head=self.read_exact(self.output,16)\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/protocol.py\", line 88, in read_exact\n    return super().read_exact(fd, count, timeout=timeout)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 96, in read_exact\n    part=os.read(fd,n-len(result));assert part,('early EOF',n,len(result),self.poll())\n                                          ^^^^\nAssertionError: ('early EOF', 16, 0, -4)\n",
+        "at": "event01/construct_detached_input/operation",
+        "owner_capture_error": "AssertionError(('exited before syscall', -4))"
+      },
+      "mismatches": []
+    },
+    {
+      "index": 4,
+      "name": "view_singleton_stride_ignored",
+      "status": "FAIL",
+      "assertions": 125,
+      "exact_words": 48,
+      "full_rng_bytes": 20224,
+      "rollback_bytes": 0,
+      "frames": 29,
+      "exit_code": -4,
+      "error": {
+        "type": "AssertionError",
+        "message": "('early EOF', 16, 0, -4)",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 601, in run\n    self.execute(event,i)\n    ~~~~~~~~~~~~^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/replay_shape26_r3.py\", line 144, in execute\n    status, record = self.issue(command, label + '/true_view')\n                     ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 142, in issue\n    status, records = self.n.w.parse(self.n.s.exchange(self.n.w.packet([command])))\n                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 120, in exchange\n    return self.receive()\n           ~~~~~~~~~~~~^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 110, in receive\n    head=self.read_exact(self.output,16)\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/protocol.py\", line 88, in read_exact\n    return super().read_exact(fd, count, timeout=timeout)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 96, in read_exact\n    part=os.read(fd,n-len(result));assert part,('early EOF',n,len(result),self.poll())\n                                          ^^^^\nAssertionError: ('early EOF', 16, 0, -4)\n",
+        "at": "event01/construct_detached_input/operation",
+        "owner_capture_error": "AssertionError(('exited before syscall', -4))"
+      },
+      "mismatches": []
+    },
+    {
+      "index": 5,
+      "name": "view_expanded_chunk_split",
+      "status": "FAIL",
+      "assertions": 125,
+      "exact_words": 48,
+      "full_rng_bytes": 20224,
+      "rollback_bytes": 0,
+      "frames": 29,
+      "exit_code": -4,
+      "error": {
+        "type": "AssertionError",
+        "message": "('early EOF', 16, 0, -4)",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 601, in run\n    self.execute(event,i)\n    ~~~~~~~~~~~~^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/replay_shape26_r3.py\", line 144, in execute\n    status, record = self.issue(command, label + '/true_view')\n                     ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 142, in issue\n    status, records = self.n.w.parse(self.n.s.exchange(self.n.w.packet([command])))\n                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 120, in exchange\n    return self.receive()\n           ~~~~~~~~~~~~^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 110, in receive\n    head=self.read_exact(self.output,16)\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/protocol.py\", line 88, in read_exact\n    return super().read_exact(fd, count, timeout=timeout)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 96, in read_exact\n    part=os.read(fd,n-len(result));assert part,('early EOF',n,len(result),self.poll())\n                                          ^^^^\nAssertionError: ('early EOF', 16, 0, -4)\n",
+        "at": "event01/construct_detached_input/operation",
+        "owner_capture_error": "AssertionError(('exited before syscall', -4))"
+      },
+      "mismatches": []
+    },
+    {
+      "index": 6,
+      "name": "view_expanded_flatten",
+      "status": "FAIL",
+      "assertions": 125,
+      "exact_words": 48,
+      "full_rng_bytes": 20224,
+      "rollback_bytes": 0,
+      "frames": 29,
+      "exit_code": -4,
+      "error": {
+        "type": "AssertionError",
+        "message": "('early EOF', 16, 0, -4)",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 601, in run\n    self.execute(event,i)\n    ~~~~~~~~~~~~^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/replay_shape26_r3.py\", line 144, in execute\n    status, record = self.issue(command, label + '/true_view')\n                     ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 142, in issue\n    status, records = self.n.w.parse(self.n.s.exchange(self.n.w.packet([command])))\n                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 120, in exchange\n    return self.receive()\n           ~~~~~~~~~~~~^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 110, in receive\n    head=self.read_exact(self.output,16)\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/protocol.py\", line 88, in read_exact\n    return super().read_exact(fd, count, timeout=timeout)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 96, in read_exact\n    part=os.read(fd,n-len(result));assert part,('early EOF',n,len(result),self.poll())\n                                          ^^^^\nAssertionError: ('early EOF', 16, 0, -4)\n",
+        "at": "event01/construct_detached_input/operation",
+        "owner_capture_error": "AssertionError(('exited before syscall', -4))"
+      },
+      "mismatches": []
+    },
+    {
+      "index": 7,
+      "name": "view_empty_same_shape",
+      "status": "FAIL",
+      "assertions": 125,
+      "exact_words": 0,
+      "full_rng_bytes": 20224,
+      "rollback_bytes": 0,
+      "frames": 29,
+      "exit_code": -4,
+      "error": {
+        "type": "AssertionError",
+        "message": "('early EOF', 16, 0, -4)",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 601, in run\n    self.execute(event,i)\n    ~~~~~~~~~~~~^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/replay_shape26_r3.py\", line 144, in execute\n    status, record = self.issue(command, label + '/true_view')\n                     ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 142, in issue\n    status, records = self.n.w.parse(self.n.s.exchange(self.n.w.packet([command])))\n                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 120, in exchange\n    return self.receive()\n           ~~~~~~~~~~~~^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 110, in receive\n    head=self.read_exact(self.output,16)\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/protocol.py\", line 88, in read_exact\n    return super().read_exact(fd, count, timeout=timeout)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 96, in read_exact\n    part=os.read(fd,n-len(result));assert part,('early EOF',n,len(result),self.poll())\n                                          ^^^^\nAssertionError: ('early EOF', 16, 0, -4)\n",
+        "at": "event01/construct_detached_input/operation",
+        "owner_capture_error": "AssertionError(('exited before syscall', -4))"
+      },
+      "mismatches": []
+    },
+    {
+      "index": 8,
+      "name": "view_empty_infer",
+      "status": "FAIL",
+      "assertions": 125,
+      "exact_words": 0,
+      "full_rng_bytes": 20224,
+      "rollback_bytes": 0,
+      "frames": 29,
+      "exit_code": -4,
+      "error": {
+        "type": "AssertionError",
+        "message": "('early EOF', 16, 0, -4)",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 601, in run\n    self.execute(event,i)\n    ~~~~~~~~~~~~^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/replay_shape26_r3.py\", line 144, in execute\n    status, record = self.issue(command, label + '/true_view')\n                     ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 142, in issue\n    status, records = self.n.w.parse(self.n.s.exchange(self.n.w.packet([command])))\n                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 120, in exchange\n    return self.receive()\n           ~~~~~~~~~~~~^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 110, in receive\n    head=self.read_exact(self.output,16)\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/protocol.py\", line 88, in read_exact\n    return super().read_exact(fd, count, timeout=timeout)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 96, in read_exact\n    part=os.read(fd,n-len(result));assert part,('early EOF',n,len(result),self.poll())\n                                          ^^^^\nAssertionError: ('early EOF', 16, 0, -4)\n",
+        "at": "event01/construct_detached_input/operation",
+        "owner_capture_error": "AssertionError(('exited before syscall', -4))"
+      },
+      "mismatches": []
+    },
+    {
+      "index": 9,
+      "name": "view_empty_ambiguous_infer",
+      "status": "FAIL",
+      "assertions": 125,
+      "exact_words": 0,
+      "full_rng_bytes": 20224,
+      "rollback_bytes": 0,
+      "frames": 29,
+      "exit_code": -4,
+      "error": {
+        "type": "AssertionError",
+        "message": "('early EOF', 16, 0, -4)",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 601, in run\n    self.execute(event,i)\n    ~~~~~~~~~~~~^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/replay_shape26_r3.py\", line 144, in execute\n    status, record = self.issue(command, label + '/true_view')\n                     ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 142, in issue\n    status, records = self.n.w.parse(self.n.s.exchange(self.n.w.packet([command])))\n                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 120, in exchange\n    return self.receive()\n           ~~~~~~~~~~~~^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 110, in receive\n    head=self.read_exact(self.output,16)\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/protocol.py\", line 88, in read_exact\n    return super().read_exact(fd, count, timeout=timeout)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 96, in read_exact\n    part=os.read(fd,n-len(result));assert part,('early EOF',n,len(result),self.poll())\n                                          ^^^^\nAssertionError: ('early EOF', 16, 0, -4)\n",
+        "at": "event01/construct_detached_input/operation",
+        "owner_capture_error": "AssertionError(('exited before syscall', -4))"
+      },
+      "mismatches": []
+    },
+    {
+      "index": 10,
+      "name": "view_two_inferred_dimensions",
+      "status": "FAIL",
+      "assertions": 125,
+      "exact_words": 48,
+      "full_rng_bytes": 20224,
+      "rollback_bytes": 0,
+      "frames": 29,
+      "exit_code": -4,
+      "error": {
+        "type": "AssertionError",
+        "message": "('early EOF', 16, 0, -4)",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 601, in run\n    self.execute(event,i)\n    ~~~~~~~~~~~~^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/replay_shape26_r3.py\", line 144, in execute\n    status, record = self.issue(command, label + '/true_view')\n                     ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 142, in issue\n    status, records = self.n.w.parse(self.n.s.exchange(self.n.w.packet([command])))\n                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 120, in exchange\n    return self.receive()\n           ~~~~~~~~~~~~^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 110, in receive\n    head=self.read_exact(self.output,16)\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/protocol.py\", line 88, in read_exact\n    return super().read_exact(fd, count, timeout=timeout)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 96, in read_exact\n    part=os.read(fd,n-len(result));assert part,('early EOF',n,len(result),self.poll())\n                                          ^^^^\nAssertionError: ('early EOF', 16, 0, -4)\n",
+        "at": "event01/construct_detached_input/operation",
+        "owner_capture_error": "AssertionError(('exited before syscall', -4))"
+      },
+      "mismatches": []
+    },
+    {
+      "index": 11,
+      "name": "view_invalid_negative_dimension",
+      "status": "FAIL",
+      "assertions": 125,
+      "exact_words": 48,
+      "full_rng_bytes": 20224,
+      "rollback_bytes": 0,
+      "frames": 29,
+      "exit_code": -4,
+      "error": {
+        "type": "AssertionError",
+        "message": "('early EOF', 16, 0, -4)",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 601, in run\n    self.execute(event,i)\n    ~~~~~~~~~~~~^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/replay_shape26_r3.py\", line 144, in execute\n    status, record = self.issue(command, label + '/true_view')\n                     ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 142, in issue\n    status, records = self.n.w.parse(self.n.s.exchange(self.n.w.packet([command])))\n                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 120, in exchange\n    return self.receive()\n           ~~~~~~~~~~~~^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 110, in receive\n    head=self.read_exact(self.output,16)\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/protocol.py\", line 88, in read_exact\n    return super().read_exact(fd, count, timeout=timeout)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 96, in read_exact\n    part=os.read(fd,n-len(result));assert part,('early EOF',n,len(result),self.poll())\n                                          ^^^^\nAssertionError: ('early EOF', 16, 0, -4)\n",
+        "at": "event01/construct_detached_input/operation",
+        "owner_capture_error": "AssertionError(('exited before syscall', -4))"
+      },
+      "mismatches": []
+    },
+    {
+      "index": 12,
+      "name": "view_invalid_element_count",
+      "status": "FAIL",
+      "assertions": 125,
+      "exact_words": 48,
+      "full_rng_bytes": 20224,
+      "rollback_bytes": 0,
+      "frames": 29,
+      "exit_code": -4,
+      "error": {
+        "type": "AssertionError",
+        "message": "('early EOF', 16, 0, -4)",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 601, in run\n    self.execute(event,i)\n    ~~~~~~~~~~~~^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/replay_shape26_r3.py\", line 144, in execute\n    status, record = self.issue(command, label + '/true_view')\n                     ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 142, in issue\n    status, records = self.n.w.parse(self.n.s.exchange(self.n.w.packet([command])))\n                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 120, in exchange\n    return self.receive()\n           ~~~~~~~~~~~~^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 110, in receive\n    head=self.read_exact(self.output,16)\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/protocol.py\", line 88, in read_exact\n    return super().read_exact(fd, count, timeout=timeout)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 96, in read_exact\n    part=os.read(fd,n-len(result));assert part,('early EOF',n,len(result),self.poll())\n                                          ^^^^\nAssertionError: ('early EOF', 16, 0, -4)\n",
+        "at": "event01/construct_detached_input/operation",
+        "owner_capture_error": "AssertionError(('exited before syscall', -4))"
+      },
+      "mismatches": []
+    },
+    {
+      "index": 13,
+      "name": "view_scalar_to_singletons",
+      "status": "FAIL",
+      "assertions": 125,
+      "exact_words": 48,
+      "full_rng_bytes": 20224,
+      "rollback_bytes": 0,
+      "frames": 29,
+      "exit_code": -4,
+      "error": {
+        "type": "AssertionError",
+        "message": "('early EOF', 16, 0, -4)",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 601, in run\n    self.execute(event,i)\n    ~~~~~~~~~~~~^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/replay_shape26_r3.py\", line 144, in execute\n    status, record = self.issue(command, label + '/true_view')\n                     ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 142, in issue\n    status, records = self.n.w.parse(self.n.s.exchange(self.n.w.packet([command])))\n                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 120, in exchange\n    return self.receive()\n           ~~~~~~~~~~~~^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 110, in receive\n    head=self.read_exact(self.output,16)\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/protocol.py\", line 88, in read_exact\n    return super().read_exact(fd, count, timeout=timeout)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 96, in read_exact\n    part=os.read(fd,n-len(result));assert part,('early EOF',n,len(result),self.poll())\n                                          ^^^^\nAssertionError: ('early EOF', 16, 0, -4)\n",
+        "at": "event01/construct_detached_input/operation",
+        "owner_capture_error": "AssertionError(('exited before syscall', -4))"
+      },
+      "mismatches": []
+    },
+    {
+      "index": 14,
+      "name": "reshape_holed_alias",
+      "status": "FAIL",
+      "assertions": 125,
+      "exact_words": 48,
+      "full_rng_bytes": 20224,
+      "rollback_bytes": 0,
+      "frames": 29,
+      "exit_code": -4,
+      "error": {
+        "type": "AssertionError",
+        "message": "('early EOF', 16, 0, -4)",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 601, in run\n    self.execute(event,i)\n    ~~~~~~~~~~~~^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/replay_shape26_r3.py\", line 144, in execute\n    status, record = self.issue(command, label + '/true_view')\n                     ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 142, in issue\n    status, records = self.n.w.parse(self.n.s.exchange(self.n.w.packet([command])))\n                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 120, in exchange\n    return self.receive()\n           ~~~~~~~~~~~~^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 110, in receive\n    head=self.read_exact(self.output,16)\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/protocol.py\", line 88, in read_exact\n    return super().read_exact(fd, count, timeout=timeout)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 96, in read_exact\n    part=os.read(fd,n-len(result));assert part,('early EOF',n,len(result),self.poll())\n                                          ^^^^\nAssertionError: ('early EOF', 16, 0, -4)\n",
+        "at": "event01/construct_detached_input/operation",
+        "owner_capture_error": "AssertionError(('exited before syscall', -4))"
+      },
+      "mismatches": []
+    },
+    {
+      "index": 15,
+      "name": "reshape_transpose_copy",
+      "status": "FAIL",
+      "assertions": 125,
+      "exact_words": 48,
+      "full_rng_bytes": 20224,
+      "rollback_bytes": 0,
+      "frames": 29,
+      "exit_code": -4,
+      "error": {
+        "type": "AssertionError",
+        "message": "('early EOF', 16, 0, -4)",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 601, in run\n    self.execute(event,i)\n    ~~~~~~~~~~~~^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/replay_shape26_r3.py\", line 144, in execute\n    status, record = self.issue(command, label + '/true_view')\n                     ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 142, in issue\n    status, records = self.n.w.parse(self.n.s.exchange(self.n.w.packet([command])))\n                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 120, in exchange\n    return self.receive()\n           ~~~~~~~~~~~~^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 110, in receive\n    head=self.read_exact(self.output,16)\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/protocol.py\", line 88, in read_exact\n    return super().read_exact(fd, count, timeout=timeout)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 96, in read_exact\n    part=os.read(fd,n-len(result));assert part,('early EOF',n,len(result),self.poll())\n                                          ^^^^\nAssertionError: ('early EOF', 16, 0, -4)\n",
+        "at": "event01/construct_detached_input/operation",
+        "owner_capture_error": "AssertionError(('exited before syscall', -4))"
+      },
+      "mismatches": []
+    },
+    {
+      "index": 16,
+      "name": "reshape_expanded_copy",
+      "status": "FAIL",
+      "assertions": 125,
+      "exact_words": 48,
+      "full_rng_bytes": 20224,
+      "rollback_bytes": 0,
+      "frames": 29,
+      "exit_code": -4,
+      "error": {
+        "type": "AssertionError",
+        "message": "('early EOF', 16, 0, -4)",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 601, in run\n    self.execute(event,i)\n    ~~~~~~~~~~~~^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/replay_shape26_r3.py\", line 144, in execute\n    status, record = self.issue(command, label + '/true_view')\n                     ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 142, in issue\n    status, records = self.n.w.parse(self.n.s.exchange(self.n.w.packet([command])))\n                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 120, in exchange\n    return self.receive()\n           ~~~~~~~~~~~~^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 110, in receive\n    head=self.read_exact(self.output,16)\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/protocol.py\", line 88, in read_exact\n    return super().read_exact(fd, count, timeout=timeout)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 96, in read_exact\n    part=os.read(fd,n-len(result));assert part,('early EOF',n,len(result),self.poll())\n                                          ^^^^\nAssertionError: ('early EOF', 16, 0, -4)\n",
+        "at": "event01/construct_detached_input/operation",
+        "owner_capture_error": "AssertionError(('exited before syscall', -4))"
+      },
+      "mismatches": []
+    },
+    {
+      "index": 17,
+      "name": "reshape_empty_same_shape",
+      "status": "FAIL",
+      "assertions": 125,
+      "exact_words": 0,
+      "full_rng_bytes": 20224,
+      "rollback_bytes": 0,
+      "frames": 29,
+      "exit_code": -4,
+      "error": {
+        "type": "AssertionError",
+        "message": "('early EOF', 16, 0, -4)",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 601, in run\n    self.execute(event,i)\n    ~~~~~~~~~~~~^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/replay_shape26_r3.py\", line 144, in execute\n    status, record = self.issue(command, label + '/true_view')\n                     ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 142, in issue\n    status, records = self.n.w.parse(self.n.s.exchange(self.n.w.packet([command])))\n                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 120, in exchange\n    return self.receive()\n           ~~~~~~~~~~~~^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 110, in receive\n    head=self.read_exact(self.output,16)\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/protocol.py\", line 88, in read_exact\n    return super().read_exact(fd, count, timeout=timeout)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 96, in read_exact\n    part=os.read(fd,n-len(result));assert part,('early EOF',n,len(result),self.poll())\n                                          ^^^^\nAssertionError: ('early EOF', 16, 0, -4)\n",
+        "at": "event01/construct_detached_input/operation",
+        "owner_capture_error": "AssertionError(('exited before syscall', -4))"
+      },
+      "mismatches": []
+    },
+    {
+      "index": 18,
+      "name": "bool_view_holed",
+      "status": "FAIL",
+      "assertions": 125,
+      "exact_words": 48,
+      "full_rng_bytes": 20224,
+      "rollback_bytes": 0,
+      "frames": 29,
+      "exit_code": -4,
+      "error": {
+        "type": "AssertionError",
+        "message": "('early EOF', 16, 0, -4)",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 601, in run\n    self.execute(event,i)\n    ~~~~~~~~~~~~^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/replay_shape26_r3.py\", line 144, in execute\n    status, record = self.issue(command, label + '/true_view')\n                     ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 142, in issue\n    status, records = self.n.w.parse(self.n.s.exchange(self.n.w.packet([command])))\n                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 120, in exchange\n    return self.receive()\n           ~~~~~~~~~~~~^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 110, in receive\n    head=self.read_exact(self.output,16)\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/protocol.py\", line 88, in read_exact\n    return super().read_exact(fd, count, timeout=timeout)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 96, in read_exact\n    part=os.read(fd,n-len(result));assert part,('early EOF',n,len(result),self.poll())\n                                          ^^^^\nAssertionError: ('early EOF', 16, 0, -4)\n",
+        "at": "event01/construct_detached_input/operation",
+        "owner_capture_error": "AssertionError(('exited before syscall', -4))"
+      },
+      "mismatches": []
+    },
+    {
+      "index": 19,
+      "name": "int64_view_transpose_chunk",
+      "status": "FAIL",
+      "assertions": 125,
+      "exact_words": 48,
+      "full_rng_bytes": 20224,
+      "rollback_bytes": 0,
+      "frames": 29,
+      "exit_code": -4,
+      "error": {
+        "type": "AssertionError",
+        "message": "('early EOF', 16, 0, -4)",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 601, in run\n    self.execute(event,i)\n    ~~~~~~~~~~~~^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/replay_shape26_r3.py\", line 144, in execute\n    status, record = self.issue(command, label + '/true_view')\n                     ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 142, in issue\n    status, records = self.n.w.parse(self.n.s.exchange(self.n.w.packet([command])))\n                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 120, in exchange\n    return self.receive()\n           ~~~~~~~~~~~~^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 110, in receive\n    head=self.read_exact(self.output,16)\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/protocol.py\", line 88, in read_exact\n    return super().read_exact(fd, count, timeout=timeout)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 96, in read_exact\n    part=os.read(fd,n-len(result));assert part,('early EOF',n,len(result),self.poll())\n                                          ^^^^\nAssertionError: ('early EOF', 16, 0, -4)\n",
+        "at": "event01/construct_detached_input/operation",
+        "owner_capture_error": "AssertionError(('exited before syscall', -4))"
+      },
+      "mismatches": []
+    },
+    {
+      "index": 20,
+      "name": "bool_reshape_transpose_copy",
+      "status": "FAIL",
+      "assertions": 125,
+      "exact_words": 48,
+      "full_rng_bytes": 20224,
+      "rollback_bytes": 0,
+      "frames": 29,
+      "exit_code": -4,
+      "error": {
+        "type": "AssertionError",
+        "message": "('early EOF', 16, 0, -4)",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 601, in run\n    self.execute(event,i)\n    ~~~~~~~~~~~~^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/replay_shape26_r3.py\", line 144, in execute\n    status, record = self.issue(command, label + '/true_view')\n                     ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 142, in issue\n    status, records = self.n.w.parse(self.n.s.exchange(self.n.w.packet([command])))\n                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 120, in exchange\n    return self.receive()\n           ~~~~~~~~~~~~^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 110, in receive\n    head=self.read_exact(self.output,16)\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/protocol.py\", line 88, in read_exact\n    return super().read_exact(fd, count, timeout=timeout)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 96, in read_exact\n    part=os.read(fd,n-len(result));assert part,('early EOF',n,len(result),self.poll())\n                                          ^^^^\nAssertionError: ('early EOF', 16, 0, -4)\n",
+        "at": "event01/construct_detached_input/operation",
+        "owner_capture_error": "AssertionError(('exited before syscall', -4))"
+      },
+      "mismatches": []
+    },
+    {
+      "index": 21,
+      "name": "int64_reshape_transpose_copy",
+      "status": "FAIL",
+      "assertions": 125,
+      "exact_words": 48,
+      "full_rng_bytes": 20224,
+      "rollback_bytes": 0,
+      "frames": 29,
+      "exit_code": -4,
+      "error": {
+        "type": "AssertionError",
+        "message": "('early EOF', 16, 0, -4)",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 601, in run\n    self.execute(event,i)\n    ~~~~~~~~~~~~^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/replay_shape26_r3.py\", line 144, in execute\n    status, record = self.issue(command, label + '/true_view')\n                     ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 142, in issue\n    status, records = self.n.w.parse(self.n.s.exchange(self.n.w.packet([command])))\n                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 120, in exchange\n    return self.receive()\n           ~~~~~~~~~~~~^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 110, in receive\n    head=self.read_exact(self.output,16)\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/protocol.py\", line 88, in read_exact\n    return super().read_exact(fd, count, timeout=timeout)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 96, in read_exact\n    part=os.read(fd,n-len(result));assert part,('early EOF',n,len(result),self.poll())\n                                          ^^^^\nAssertionError: ('early EOF', 16, 0, -4)\n",
+        "at": "event01/construct_detached_input/operation",
+        "owner_capture_error": "AssertionError(('exited before syscall', -4))"
+      },
+      "mismatches": []
+    },
+    {
+      "index": 22,
+      "name": "view_nonleaf_mul_input",
+      "status": "FAIL",
+      "assertions": 607,
+      "exact_words": 92,
+      "full_rng_bytes": 40448,
+      "rollback_bytes": 0,
+      "frames": 100,
+      "exit_code": -4,
+      "error": {
+        "type": "AssertionError",
+        "message": "('early EOF', 16, 0, -4)",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 601, in run\n    self.execute(event,i)\n    ~~~~~~~~~~~~^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/replay_shape26_r3.py\", line 172, in execute\n    status, record = self.issue(command, label)\n                     ~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 142, in issue\n    status, records = self.n.w.parse(self.n.s.exchange(self.n.w.packet([command])))\n                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 120, in exchange\n    return self.receive()\n           ~~~~~~~~~~~~^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 110, in receive\n    head=self.read_exact(self.output,16)\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/protocol.py\", line 88, in read_exact\n    return super().read_exact(fd, count, timeout=timeout)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 96, in read_exact\n    part=os.read(fd,n-len(result));assert part,('early EOF',n,len(result),self.poll())\n                                          ^^^^\nAssertionError: ('early EOF', 16, 0, -4)\n",
+        "at": "event03/target_view/operation",
+        "owner_capture_error": "AssertionError(('exited before syscall', -4))"
+      },
+      "mismatches": []
+    },
+    {
+      "index": 23,
+      "name": "view_own_requires_leaf_view",
+      "status": "FAIL",
+      "assertions": 125,
+      "exact_words": 48,
+      "full_rng_bytes": 20224,
+      "rollback_bytes": 0,
+      "frames": 29,
+      "exit_code": -4,
+      "error": {
+        "type": "AssertionError",
+        "message": "('early EOF', 16, 0, -4)",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 601, in run\n    self.execute(event,i)\n    ~~~~~~~~~~~~^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/replay_shape26_r3.py\", line 144, in execute\n    status, record = self.issue(command, label + '/true_view')\n                     ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 142, in issue\n    status, records = self.n.w.parse(self.n.s.exchange(self.n.w.packet([command])))\n                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 120, in exchange\n    return self.receive()\n           ~~~~~~~~~~~~^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 110, in receive\n    head=self.read_exact(self.output,16)\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/protocol.py\", line 88, in read_exact\n    return super().read_exact(fd, count, timeout=timeout)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 96, in read_exact\n    part=os.read(fd,n-len(result));assert part,('early EOF',n,len(result),self.poll())\n                                          ^^^^\nAssertionError: ('early EOF', 16, 0, -4)\n",
+        "at": "event01/construct_own_requires_view/operation",
+        "owner_capture_error": "AssertionError(('exited before syscall', -4))"
+      },
+      "mismatches": []
+    },
+    {
+      "index": 24,
+      "name": "view_derived_requires_none_edge",
+      "status": "FAIL",
+      "assertions": 125,
+      "exact_words": 48,
+      "full_rng_bytes": 20224,
+      "rollback_bytes": 0,
+      "frames": 29,
+      "exit_code": -4,
+      "error": {
+        "type": "AssertionError",
+        "message": "('early EOF', 16, 0, -4)",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 601, in run\n    self.execute(event,i)\n    ~~~~~~~~~~~~^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/replay_shape26_r3.py\", line 144, in execute\n    status, record = self.issue(command, label + '/true_view')\n                     ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 142, in issue\n    status, records = self.n.w.parse(self.n.s.exchange(self.n.w.packet([command])))\n                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 120, in exchange\n    return self.receive()\n           ~~~~~~~~~~~~^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 110, in receive\n    head=self.read_exact(self.output,16)\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/protocol.py\", line 88, in read_exact\n    return super().read_exact(fd, count, timeout=timeout)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py\", line 96, in read_exact\n    part=os.read(fd,n-len(result));assert part,('early EOF',n,len(result),self.poll())\n                                          ^^^^\nAssertionError: ('early EOF', 16, 0, -4)\n",
+        "at": "event01/construct_derived_requires_view/operation",
+        "owner_capture_error": "AssertionError(('exited before syscall', -4))"
+      },
+      "mismatches": []
+    },
+    {
+      "index": 25,
+      "name": "reshape_nonleaf_transpose_copy",
+      "status": "FAIL",
+      "assertions": 612,
+      "exact_words": 92,
+      "full_rng_bytes": 40448,
+      "rollback_bytes": 699024,
+      "frames": 101,
+      "exit_code": 0,
+      "error": {
+        "type": "RequiredOperationFailed",
+        "message": "('native rejected accepted operation', 'construct_transpose_input', 1)",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py\", line 601, in run\n    self.execute(event,i)\n    ~~~~~~~~~~~~^^^^^^^^^\n  File \"/home/qian-qi/heptatorch-continuation-20261116/runs/replay_shape26_r3.py\", line 247, in execute\n    raise support.RequiredOperationFailed(('native rejected accepted operation', label, status))\nimmutable_actual14_reader_support.RequiredOperationFailed: ('native rejected accepted operation', 'construct_transpose_input', 1)\n",
+        "at": "event03/construct_transpose_input/operation"
+      },
+      "mismatches": [
+        {
+          "path": "event03/construct_transpose_input/operation/normalized_operation_status",
+          "actual": 1,
+          "expected": 0
+        }
+      ]
+    }
+  ],
+  "passed_cases": 0,
+  "failed_cases": 26,
+  "blocked_cases": 0,
+  "executed_cases": 26,
+  "all_inputs_unchanged": true,
+  "inputs_sha256": {
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/replay_shape26_r3.py": "af290dad8ed2c815a1fe17c98296a39a451ba2de7673c16b97608ad16fc645a2",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-r4-scalar05-native-build-01/candidate-r4-scalar05/tensor-shape-scalar-session": "e1b1cf30b3993bdc87a42a1ef553730cc437cd57d9730792daaee28f475d4f33",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-r4-scalar05-native-build-01/candidate-r4-scalar05/runtime.hepta": "fb0e67313da4ae2236fa6334fd8b6cc38c1e894360fa16fc0f5a6afd02e163b6",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-r4-scalar05-native-build-01/candidate-r4-scalar05/build.json": "bfb1f50065c60182dd6f801d9d5825cee04baac12a98bf774c4d7bd4a81bc8a1",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/protocol.py": "7a30d7bca140e3a4cc9d63a3e6930b92d2ffd60ad4503895419d8a63e67c8bd9",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/owner_client.py": "dee3e4cb25ee1e5e06513e2f33478fbe274d9510ce2aaab9525815c72312946b",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/native_observer_shape02.py": "59019b5c4aeae0d7e04b362354bd9ca55917d2196791d3d18c4908a05fdbba8b",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-r4-shape-reference26-01/actual.json": "fecf1956790f78a9b1238f535c1c7cce9f1237b211c389ac0736d88687bbb9c9",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-r4-shape-reference26-01/pytorch_view_reshape_probe.py": "4dd374419e4b21a9c814c855d846481730a12ea57a30dcf229a6b962f07021c5",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/to-view-recovery-integration-01/repo/tests/differentiable_view_native_review/replay_direct_view14.py": "52c3b3242a73fb412102c83c5ba47cf8d95a4eb3c01e56f41bfe593066506d05",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-r4-scalar05-native-build-01/candidate-r4-scalar05/rng03.hepta": "a3fa507339b40435285dc1fa65e3cd519b6a0921a4c93bccf6ea834bb24763a3",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-r4-scalar05-native-build-01/candidate-r4-scalar05/rng03.o": "cd7371a9bfe71110ba64defcc5fd7d9c48374e1e14600aa9015a1c140b7867ec",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-r4-scalar05-native-build-01/candidate-r4-scalar05/wrapped_scalar_00.hepta": "d0de2f1fc4ac1c0b5a8b06b392abbcdb8a307f945456a78be8dc534cb53fe46e",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-r4-scalar05-native-build-01/candidate-r4-scalar05/wrapped_scalar_00.o": "0eacc5c747dabf9cdb4ccc464a634aae3fc06541f4b01d8100c4ad0f42453c8b",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-r4-scalar05-native-build-01/candidate-r4-scalar05/wrapped_scalar_01.hepta": "d8ff409cbeb57774c19427c5b065185202eb3025d2232fa156e3cd316f8c6607",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-r4-scalar05-native-build-01/candidate-r4-scalar05/wrapped_scalar_01.o": "abc6fea324a8a21ec67157579bed00351b3b80b2b45dcff15e16cad8c2c99bf1",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-r4-scalar05-native-build-01/candidate-r4-scalar05/wrapped_scalar_02.hepta": "e6418590fe9bb06793e87708ce79de2f2d0a9b4fc19d5e94fa1a841134eff8a4",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-r4-scalar05-native-build-01/candidate-r4-scalar05/wrapped_scalar_02.o": "64ec2c26fec49a42affb754eabb4bdda7833b86629b8f5081b7401054258d8f4",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-r4-scalar05-native-build-01/candidate-r4-scalar05/wrapped_scalar_03.hepta": "f7b177a6af1e88a54be7e61c19cb32d97ee90711e726c4ddf7cfa623853fbf0a",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-r4-scalar05-native-build-01/candidate-r4-scalar05/wrapped_scalar_03.o": "fbe6d7516753d2288d6dacd01ec97c194826a6d938cd165031a2117297f7566e",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-r4-scalar05-native-build-01/candidate-r4-scalar05/wrapped_scalar_04.hepta": "0afc9e16b640aaa3a571786015830669c114c87fce970139413707b45a8879b5",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-r4-scalar05-native-build-01/candidate-r4-scalar05/wrapped_scalar_04.o": "7f02a53ddcc3fb44e4713c2503b57d44839f07e86f953bed64c99d9344095aca",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-r4-scalar05-native-build-01/candidate-r4-scalar05/wrapped_scalar_05.hepta": "3d4ff085d3305a8a70413981f4a7b3a4e6e88527b1c17f509ca66e4c1be13559",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-r4-scalar05-native-build-01/candidate-r4-scalar05/wrapped_scalar_05.o": "76f2ec8c86135b34af63a657b01f9ffacc8dc9c776f429f9dff226798887efef",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-r4-scalar05-native-build-01/candidate-r4-scalar05/wrapped_scalar_06.hepta": "e133dacb8205dce857b3c83e788b4b17f538644f38e6081ab026694613144021",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-r4-scalar05-native-build-01/candidate-r4-scalar05/wrapped_scalar_06.o": "44470fb7d95ce87ae906881e80e6712764ccd9c561a35775280b9d8bfcf46da6",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-r4-scalar05-native-build-01/candidate-r4-scalar05/wrapped_scalar_07.hepta": "c333b2df677ef0415cfcdc3ae8148f401c8b7d3696c84d0a34a58cedc10ab443",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-r4-scalar05-native-build-01/candidate-r4-scalar05/wrapped_scalar_07.o": "01c3d6a24b19b6b7a7219364989ed3a3f0699343b76570f7c69a79c918ba2e59",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-r4-scalar05-native-build-01/candidate-r4-scalar05/wrapped_scalar_08.hepta": "46f60fcef3dd8650fdb70f6a0baba4b02d3cbaa6c510968f323c16c5c210f0e7",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-r4-scalar05-native-build-01/candidate-r4-scalar05/wrapped_scalar_08.o": "8b7deccf0b9959796a8e95129600de9b3575dc17fb7424e02daac22adafbc913",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-r4-scalar05-native-build-01/candidate-r4-scalar05/wrapped_scalar_09.hepta": "8f74206acbef6ed750d56f340c2199829afb5fcdce3f5d2741dc33c29d14308b",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-r4-scalar05-native-build-01/candidate-r4-scalar05/wrapped_scalar_09.o": "ab1b891d79e18e21f4f95a3cc53e80d2387c3673bbd746382ff2587e4825ae32",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-r4-scalar05-native-build-01/candidate-r4-scalar05/wrapped_scalar_10.hepta": "e2c40b5a937f8f1830d56d8b55dd7202bac6a7451ff1e378ca70e2080c995136",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-r4-scalar05-native-build-01/candidate-r4-scalar05/wrapped_scalar_10.o": "16849b0d36b9cef7c9b9571688df71c08ac581fbddcb71dba6ef1bfe9b4ed341",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-r4-scalar05-native-build-01/candidate-r4-scalar05/owners.hepta": "9c02b75c44eee8459c476049f4d9ebe10935d9d9ed8b27f5842c699f8e6a0884",
+    "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-r4-scalar05-native-build-01/candidate-r4-scalar05/owners.o": "da1c2c940f125a54c4ee83a0667a4b014432357965fe3d651a61143e5a15be30"
+  },
+  "assertions": 4219,
+  "exact_words": 1144,
+  "full_rng_bytes": 566272,
+  "rollback_bytes": 699024,
+  "frames": 897,
+  "all_executed_sessions_eof_exit_zero": false,
+  "all_reference_cases_executed": true
+}

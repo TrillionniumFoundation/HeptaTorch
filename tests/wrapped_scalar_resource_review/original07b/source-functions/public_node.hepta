@@ -1,0 +1,69 @@
+fn public_node(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(v0:mutbuf,v1:u64)
+  v2:u64 = const() {"value":0}
+  v3:u64 = call(v0,v2) {"function":"getw"}
+  v4:bool = compare.ne(v3,v2)
+  branch v4 b1(v0) b2(v0,v1)
+block b1(v5:mutbuf)
+  v9:u64 = const() {"value":0}
+  ret(v9)
+block b2(v7:mutbuf,v8:u64)
+  v10:u64 = call(v7,v8) {"function":"resolve_handle"}
+  v11:u64 = call(v7,v10) {"function":"so_tensor_live"}
+  v12:u64 = const() {"value":0}
+  v13:bool = compare.eq(v11,v12)
+  branch v13 b3(v7) b4(v7,v10,v11)
+block b3(v14:mutbuf)
+  v20:u64 = const() {"value":1}
+  v21:u64 = call(v14,v20) {"function":"terror"}
+  ret(v21)
+block b4(v17:mutbuf,v18:u64,v19:u64)
+  v22:u64 = const() {"value":48}
+  v23:u64 = int.add.wrap(v19,v22)
+  v24:u64 = call(v17,v23) {"function":"so_uget"}
+  v25:u64 = const() {"value":0}
+  v26:bool = compare.eq(v24,v25)
+  branch v26 b6(v17,v18,v24,v26) b5(v17,v18,v24)
+block b5(v27:mutbuf,v28:u64,v30:u64)
+  v37:u64 = const() {"value":8}
+  v38:u64 = call(v27,v37) {"function":"getw"}
+  v39:bool = compare.ge(v30,v38)
+  jump b6(v27,v28,v30,v39)
+block b6(v32:mutbuf,v33:u64,v35:u64,v36:bool)
+  branch v36 b7(v32) b8(v32,v33,v35)
+block b7(v40:mutbuf)
+  v48:u64 = const() {"value":1}
+  v49:u64 = call(v40,v48) {"function":"terror"}
+  ret(v49)
+block b8(v44:mutbuf,v45:u64,v47:u64)
+  v50:u64 = call(v44,v47) {"function":"dptr"}
+  v51:u64 = const() {"value":304}
+  v52:u64 = int.add.wrap(v50,v51)
+  v53:u64 = call(v44,v52) {"function":"getw"}
+  v54:u64 = const() {"value":0}
+  v55:bool = compare.eq(v53,v54)
+  branch v55 b10(v44,v47,v50,v55) b9(v44,v45,v47,v50)
+block b9(v56:mutbuf,v57:u64,v59:u64,v60:u64)
+  v68:u64 = const() {"value":192}
+  v69:u64 = int.add.wrap(v60,v68)
+  v70:u64 = call(v56,v69) {"function":"getw"}
+  v71:bool = compare.ne(v70,v57)
+  jump b10(v56,v59,v60,v71)
+block b10(v62:mutbuf,v65:u64,v66:u64,v67:bool)
+  branch v67 b12(v62,v65,v67) b11(v62,v65,v66)
+block b11(v72:mutbuf,v75:u64,v76:u64)
+  v84:u64 = const() {"value":200}
+  v85:u64 = int.add.wrap(v76,v84)
+  v86:u64 = call(v72,v85) {"function":"getw"}
+  v87:u64 = const() {"value":1}
+  v88:bool = compare.ne(v86,v87)
+  jump b12(v72,v75,v88)
+block b12(v78:mutbuf,v81:u64,v83:bool)
+  branch v83 b13(v78) b14(v78,v81)
+block b13(v89:mutbuf)
+  v99:u64 = const() {"value":1}
+  v100:u64 = call(v89,v99) {"function":"terror"}
+  ret(v100)
+block b14(v94:mutbuf,v97:u64)
+  ret(v97)
+end

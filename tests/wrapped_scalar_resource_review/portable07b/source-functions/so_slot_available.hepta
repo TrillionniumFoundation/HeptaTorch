@@ -1,0 +1,35 @@
+fn so_slot_available(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(v0:mutbuf,v1:u64)
+  v2:u64 = const() {"value":1}
+  jump b1(v0,v1,v2)
+block b1(v3:mutbuf,v4:u64,v5:u64)
+  v6:u64 = const() {"value":16}
+  v7:u64 = call(v3,v6) {"function":"so_uget"}
+  v8:bool = compare.le(v5,v7)
+  branch v8 b2(v3,v4,v5) b3(v3)
+block b2(v9:mutbuf,v10:u64,v11:u64)
+  v15:u64 = call(v9,v10,v11) {"function":"so_slot_at"}
+  v16:u64 = const() {"value":8}
+  v17:u64 = int.add.wrap(v15,v16)
+  v18:u64 = call(v9,v17) {"function":"so_uget"}
+  v19:u64 = const() {"value":0}
+  v20:bool = compare.eq(v18,v19)
+  branch v20 b4(v9,v10,v11,v15) b5(v9,v10,v11,v20)
+block b3(v12:mutbuf)
+  v45:u64 = const() {"value":0}
+  ret(v45)
+block b4(v21:mutbuf,v22:u64,v23:u64,v24:u64)
+  v31:u64 = call(v21,v24) {"function":"so_uget"}
+  v32:u64 = const() {"value":4294967295}
+  v33:bool = compare.lt(v31,v32)
+  jump b5(v21,v22,v23,v33)
+block b5(v26:mutbuf,v27:u64,v28:u64,v30:bool)
+  branch v30 b6(v26) b7(v26,v27,v28)
+block b6(v34:mutbuf)
+  v42:u64 = const() {"value":1}
+  ret(v42)
+block b7(v38:mutbuf,v39:u64,v40:u64)
+  v43:u64 = const() {"value":1}
+  v44:u64 = int.add.wrap(v40,v43)
+  jump b1(v38,v39,v44)
+end

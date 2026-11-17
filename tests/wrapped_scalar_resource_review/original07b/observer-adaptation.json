@@ -1,0 +1,132 @@
+{
+  "after": {
+    "bytes": 47101,
+    "mode": 420,
+    "sha256": "0dc6af8de093b3db8db98c6b93b124f29d3e6da8b8b19443492fef8f3dee3661"
+  },
+  "before": {
+    "bytes": 45917,
+    "mode": 420,
+    "sha256": "4bf58b2fbccdf1e9f670c0cef854e110c72d1a1c03453e55121e10f2048a6d1f"
+  },
+  "copied_state_execution": "NOT_RUN",
+  "edits": [
+    {
+      "after": "SOURCE = \"743c6de8c4f2e9ea6dbb880aca5a27c719c2b14ce05e7262020ece63b1ccd148\"",
+      "before": "SOURCE = \"3c2c0a125bcac6d47075bf58fc3f78c0e7b9a0b1370757981b99dcd3793b21c6\"",
+      "count": 1,
+      "label": "source-pin"
+    },
+    {
+      "after": "IMAGE = \"f05020afd1f6d80551713a031e1976137d8e3ea25e9501f44f1449dde85a44ea\"",
+      "before": "IMAGE = \"7841b19051960b6fa13cb98841dbb8e4d6ead97f03e2ad65af415e1a35b03221\"",
+      "count": 1,
+      "label": "image-pin"
+    },
+    {
+      "after": "PROFILE = \"wrapped-scalar06-656\"",
+      "before": "PROFILE = \"differentiable-view-r3-627\"",
+      "count": 1,
+      "label": "profile-pin"
+    },
+    {
+      "after": "HTVSHP02",
+      "before": "HTVAD003",
+      "count": 2,
+      "label": "state-tag"
+    },
+    {
+      "after": "HTOVSHP2",
+      "before": "HTOVAD03",
+      "count": 2,
+      "label": "backing-tag"
+    },
+    {
+      "after": "need(dtype in (0, 1, 2, 3), \"dtype-code\", node=i)",
+      "before": "need(dtype in (0, 1, 2), \"dtype-code\", node=i)",
+      "count": 1,
+      "label": "dtype-enum"
+    },
+    {
+      "after": "        if dtype == 3:\n            # The only admitted binary64 Tensor is the original wrapped scalar.\n            # Its disabled graph metadata may outlive its real Tensor row.\n            need(w(node,0) == 0 and w(node,8) == 1\n                 and not any(w(node,f) for f in (32,40,88,312,360,384,392,400,408,\n                                                584,592,608,624,632,640,648,656,664)),\n                 \"wrapped-Scalar64-role\", node=i)\n        rank = w(node, 0)\n        need(rank <= 4",
+      "before": "        rank = w(node, 0)\n        need(rank <= 4",
+      "count": 1,
+      "label": "dtype3-rank0-role"
+    },
+    {
+      "after": "width = (4, 1, 8, 8)[dtype]",
+      "before": "width = (4, 1, 8)[dtype]",
+      "count": 1,
+      "label": "dtype3-width"
+    },
+    {
+      "after": "            need(tr[5] == remaining, \"Tensor-storage-remainder\", node=i)\n            if dtype == 3:\n                need(sp[3] == 8 and sp[4] == 16 and tr[4] == 0 and tr[5] == 8,\n                     \"wrapped-Scalar64-extent\", node=i)\n                need(lookup(3,tr[3])[2] == 0, \"wrapped-Scalar64-Version\", node=i)",
+      "before": "            need(tr[5] == remaining, \"Tensor-storage-remainder\", node=i)",
+      "count": 1,
+      "label": "dtype3-real-storage-version"
+    },
+    {
+      "after": "                    if w(tn,576) == 3:\n                        need(op == 3 and slot == 1 and pairs[1][1] == 0,\n                             \"wrapped-Scalar64-Saved-other\", node=i, slot=slot)\n                    owned_refs[target] += 1; strong_arcs[i].append(target)",
+      "before": "                    owned_refs[target] += 1; strong_arcs[i].append(target)",
+      "count": 1,
+      "label": "dtype3-binary-saved-role"
+    },
+    {
+      "after": "need(row[3] in (0, 1, 2, 3) and not any(row[4:]), \"Weak-dtype-fields\", token=rid)\n                if row[3] == 3:\n                    need(lookup(2,row[2])[3] == 8, \"wrapped-Scalar64-Weak-extent\", token=rid)",
+      "before": "need(row[3] in (0, 1, 2) and not any(row[4:]), \"Weak-dtype-fields\", token=rid)",
+      "count": 1,
+      "label": "weak-enum"
+    },
+    {
+      "after": "need(row[3] in (0, 1) and row[4] in (0, 1, 2, 3) and not any(row[5:])",
+      "before": "need(row[3] in (0, 1) and row[4] in (0, 1, 2) and not any(row[5:])",
+      "count": 1,
+      "label": "hold-enum"
+    },
+    {
+      "after": "                     and (row[3] == 0 or row[4] == 0), \"Hold-dtype-fields\", token=rid)\n                if row[4] == 3:\n                    need(row[3] == 0 and lookup(2,row[2])[3] == 8,\n                         \"wrapped-Scalar64-Hold-extent\", token=rid)",
+      "before": "                     and (row[3] == 0 or row[4] == 0), \"Hold-dtype-fields\", token=rid)",
+      "count": 1,
+      "label": "hold-extent"
+    }
+  ],
+  "legacy_support_load": "support.load with old profile constants is not called; only frozen custody/raw packet/helpers are reused.",
+  "old_predicates": "All old statements preserved through the explicit edits. New dtype3 roles append constraints; Saved-layout dtype enum remains0/1/2 and private Hold dtype0 remains mandatory.",
+  "schema": "heptatorch.wrapped-scalar.owner-source-inverse.v1",
+  "state_tags_only": {
+    "after": {
+      "bytes": 4466,
+      "mode": 420,
+      "sha256": "7d98289bb7f827d12359839c40b0c2269af6c28e6aee147671b19534972ce77d"
+    },
+    "before": {
+      "bytes": 4466,
+      "mode": 420,
+      "sha256": "e6459b9545b416a95a42b894094754d617c9b6abf5c20c4e4693fc2351674fb1"
+    },
+    "inverse_equal": true
+  },
+  "unchanged_helpers": {
+    "case_transport.py": {
+      "bytes": 4870,
+      "mode": 420,
+      "sha256": "7f17be13ccbf3565e7837ffe4841e2cff876f116ae93e1e13cb560a815fb6b0b"
+    },
+    "owner_client.py": {
+      "bytes": 9780,
+      "mode": 420,
+      "sha256": "dee3e4cb25ee1e5e06513e2f33478fbe274d9510ce2aaab9525815c72312946b"
+    },
+    "protocol.py": {
+      "bytes": 4215,
+      "mode": 420,
+      "sha256": "7a30d7bca140e3a4cc9d63a3e6930b92d2ffd60ad4503895419d8a63e67c8bd9"
+    },
+    "support.py": {
+      "bytes": 4978,
+      "mode": 420,
+      "sha256": "7d616b06aea3e8acea83213f30c2bb68bcc3150a1ae7a1e0702579be3607e178"
+    }
+  },
+  "whole_inverse_equal": true
+}
