@@ -620,3 +620,189 @@ test-mixed-integer-autograd: integer-tensors
 	test -f build/hosted-mixed-integer-autograd-native.json; \
 	test -f build/mixed-integer-autograd-ci-raw-manifest.json; test -f build/mixed-integer-autograd-ci-raw.tar.xz; \
 	mkdir -p build/mixed-integer-autograd; cp -a --remove-destination "$$review/observed/producer5/native/." build/mixed-integer-autograd/
+
+# Recovered 09b HIA recipe: every source/object/image is pinned independently.
+TENSOR_TO_RECOVERED_BUILD ?= build/tensor-to-recovered
+TENSOR_TO_RECOVERED_SOURCE_CHECK ?= build/tensor-to-recovered-source
+TENSOR_TO_RECOVERED_SOURCE_SHA256 := 4f8f73f463f681b5eb29423d71a35a0b42d807fd92bf976bbf76c1970fbcee33
+TENSOR_TO_RECOVERED_NATIVE_SHA256 := 53fb43b869858f020c0b936a65f00f3b14b97d9e37038a74c357e1da471fe083
+TENSOR_TO_RECOVERED_INPUTS := $(wildcard tools/tensor_to_native_recovered/*.py tools/tensor_to_native_recovered/*.json tools/tensor_to_native_recovered/inputs/* tools/tensor_to_native_recovered/provenance/*)
+DIFFERENTIABLE_VIEW_REFERENCE_BUILD ?= build/differentiable-view-reference14
+
+.PHONY: tensor-to-recovered check-tensor-to-recovered-source test-tensor-to-recovered-tombstone test-tensor-to-recovered-live32 test-tensor-to-recovered-frozen35 test-tensor-to-recovered-copied18 test-differentiable-view-reference14
+
+tensor-to-recovered: $(TENSOR_TO_RECOVERED_BUILD)/build.json
+
+$(TENSOR_TO_RECOVERED_BUILD)/build.json: $(TENSOR_TO_RECOVERED_INPUTS) | build
+	python3 -I -S -B tools/tensor_to_native_recovered/rebuild.py \
+	  --compiler "$(abspath $(HEPTA_STACK_BUILD))/native/stack-module-compiler" \
+	  --linker "$(abspath $(HEPTA_STACK_BUILD))/native/stack-linker-session" \
+	  --output "$(abspath $(TENSOR_TO_RECOVERED_BUILD))"
+
+check-tensor-to-recovered-source: | build
+	python3 -S -B tools/tensor_to_native_recovered/self_check.py \
+	  --output "$(abspath $(TENSOR_TO_RECOVERED_SOURCE_CHECK))"
+
+test-tensor-to-recovered-tombstone: tensor-to-recovered
+	python3 -I -S -B tests/tensor_to_frozen35_accounting/test_storage_tombstone_legacy_refusal.py \
+	  --binary "$(TENSOR_TO_RECOVERED_BUILD)/tensor-to-copy-session" \
+	  --source "$(TENSOR_TO_RECOVERED_BUILD)/runtime.hepta" \
+	  --protocol tests/retained_nonleaf_review/protocol.py \
+	  --output build/frozen35-tensor-to-node/storage-tombstone
+
+test-tensor-to-recovered-live32: tensor-to-recovered
+	@printf '%s  %s\n' '554671168c7a4a408dc1e1df89a19db15c3efcefcf4ae1a300af1b6dcae40160' tests/pytorch_tensor_rng_backward_oracle.py | sha256sum -c -
+	python3 tests/pytorch_tensor_rng_backward_oracle.py \
+	  --native "$(TENSOR_TO_RECOVERED_BUILD)/tensor-to-copy-session" \
+	  --source "$(TENSOR_TO_RECOVERED_BUILD)/runtime.hepta" \
+	  --expected-native-sha256 "$(TENSOR_TO_RECOVERED_NATIVE_SHA256)" \
+	  --expected-source-sha256 "$(TENSOR_TO_RECOVERED_SOURCE_SHA256)" \
+	  --repo . --output build/pytorch-tensor-to-recovered-backward.json > build/pytorch-tensor-to-recovered-backward.stdout
+
+test-tensor-to-recovered-frozen35: tensor-to-recovered
+	@printf '%s  %s\n' '149b41c455444edeb8d25d0ad98045e29683e780f37f7e210e7985242d359597' tests/tensor_object_oracle/pytorch_tensor_objects_oracle.py | sha256sum -c -
+	python3 tests/tensor_to_frozen35_accounting/run_frozen35_accounted.py \
+	  --legacy-directory tests/tensor_object_oracle \
+	  --native-source "$(TENSOR_TO_RECOVERED_BUILD)/runtime.hepta" \
+	  --observer-output build/frozen35-tensor-to-node/614 \
+	  --observer-report build/pytorch-tensor-to-recovered-frozen35.json \
+	  -- "$(TENSOR_TO_RECOVERED_BUILD)/tensor-to-copy-session" build/pytorch-tensor-to-recovered-frozen35-original.json \
+	  --owned-reference tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py \
+	  --session-reference tests/pytorch_session_oracle.py --reference tests/pytorch_oracle.py \
+	  --lock compatibility/pytorch-oracle-lock.json --repo . \
+	  --trace-directory build/frozen35-tensor-to-node-wire/614 \
+	  --expected-native-sha256 "$(TENSOR_TO_RECOVERED_NATIVE_SHA256)"
+	python3 -I -S -B tests/tensor_to_frozen35_accounting/check_frozen35_accounted.py \
+	  --observer-report build/pytorch-tensor-to-recovered-frozen35.json \
+	  --original-report build/pytorch-tensor-to-recovered-frozen35-original.json
+
+test-tensor-to-recovered-copied18:
+	@printf '%s  %s\n' 'b276b3239d254c52b7877919fe1401e95121014975fdce64f5adc40a264a523e' tests/tensor_to_frozen35_accounting/check_owner_snapshots_672.py | sha256sum -c -
+	python3 -I -S -B tests/tensor_to_frozen35_accounting/check_owner_snapshots_672.py \
+	  --observer tests/tensor_to_frozen35_accounting/owner_accounting_to.py \
+	  --expected-profile tensor-to-copy-614-fixed35-F32-Saved \
+	  --journals build/frozen35-tensor-to-node/614/owners \
+	  --output build/frozen35-tensor-to-node/614/copied-controls
+
+test-differentiable-view-reference14: $(DIFFERENTIABLE_VIEW_REFERENCE_BUILD)/report.json
+
+$(DIFFERENTIABLE_VIEW_REFERENCE_BUILD)/report.json: tests/differentiable_view_native_review/prepare_reference.py $(wildcard validation/differentiable-view-reference14/*) | build
+	python3 -I -S -B tests/differentiable_view_native_review/prepare_reference.py \
+	  --output "$(abspath $(DIFFERENTIABLE_VIEW_REFERENCE_BUILD))"
+
+# Distinct R2 parent and R3 differentiable view profiles; all units are rebuilt.
+DIFFERENTIABLE_VIEW_R2_BUILD ?= build/differentiable-view-r2-parent
+DIFFERENTIABLE_VIEW_BUILD ?= build/differentiable-view-recovered
+DIFFERENTIABLE_VIEW_R2_SOURCE_SHA256 := 197bd52db4815f575ea3e9055d3f5556900314bd2f4fbb262e80cea76ea16ef2
+DIFFERENTIABLE_VIEW_R2_NATIVE_SHA256 := 13cee2163e8f62081db35e831885714789ac5117fb80c030a1ccaf7194e0821c
+DIFFERENTIABLE_VIEW_SOURCE_SHA256 := 3c2c0a125bcac6d47075bf58fc3f78c0e7b9a0b1370757981b99dcd3793b21c6
+DIFFERENTIABLE_VIEW_NATIVE_SHA256 := 7841b19051960b6fa13cb98841dbb8e4d6ead97f03e2ad65af415e1a35b03221
+DIFFERENTIABLE_VIEW_OBSERVER_SHA256 := 68d0f4657c6cc7062d98cbf033565b16c7b51f3381c6490247e42512c5baf4a2
+DIFFERENTIABLE_VIEW_FUNCTIONS := 627
+DIFFERENTIABLE_VIEW_UNITS := 13
+DIFFERENTIABLE_VIEW_R2_INPUTS := $(wildcard tools/differentiable_view_recovered_v2/*.py tools/differentiable_view_recovered_v2/*.json tools/differentiable_view_recovered_v2/*.hepta tools/differentiable_view_recovered_v2/provenance/*) tools/owned_optimizers/compact_functions.py
+DIFFERENTIABLE_VIEW_INPUTS := $(wildcard tools/differentiable_view_recovered_r3/*.py tools/differentiable_view_recovered_r3/*.json tools/differentiable_view_recovered_r3/*.hepta tools/differentiable_view_recovered_r3/*.md tools/differentiable_view_recovered_r3/provenance/* tools/differentiable_view_recovered_r3/generated/* tools/differentiable_view_recovered_r3/generated/units/*.hepta) tools/owned_optimizers/compact_functions.py tools/owned_tensors/authoring.py tools/owned_tensors/profile.json
+
+.PHONY: differentiable-view-r2-parent differentiable-view-recovered test-differentiable-view-native14
+
+differentiable-view-r2-parent: $(DIFFERENTIABLE_VIEW_R2_BUILD)/build.json
+
+$(DIFFERENTIABLE_VIEW_R2_BUILD)/build.json: $(DIFFERENTIABLE_VIEW_R2_INPUTS) $(TENSOR_TO_RECOVERED_BUILD)/build.json | build
+	python3 -B tools/differentiable_view_recovered_v2/build.py \
+	  --previous "$(abspath $(TENSOR_TO_RECOVERED_BUILD))" \
+	  --repository "$(CURDIR)" --upstream "$(abspath $(HEPTA_SOURCE_ROOT))" \
+	  --compactor "$(CURDIR)/tools/owned_optimizers/compact_functions.py" \
+	  --compiler "$(abspath $(HEPTA_STACK_BUILD))/native/stack-module-compiler" \
+	  --linker "$(abspath $(HEPTA_STACK_BUILD))/native/stack-linker-session" \
+	  --output "$(abspath $(DIFFERENTIABLE_VIEW_R2_BUILD))"
+	@printf '%s  %s\n' "$(DIFFERENTIABLE_VIEW_R2_SOURCE_SHA256)" "$(DIFFERENTIABLE_VIEW_R2_BUILD)/runtime.hepta" \
+	  "$(DIFFERENTIABLE_VIEW_R2_NATIVE_SHA256)" "$(DIFFERENTIABLE_VIEW_R2_BUILD)/tensor-differentiable-view-session" | sha256sum -c -
+
+differentiable-view-recovered: $(DIFFERENTIABLE_VIEW_BUILD)/build.json
+
+$(DIFFERENTIABLE_VIEW_BUILD)/build.json: $(DIFFERENTIABLE_VIEW_INPUTS) $(DIFFERENTIABLE_VIEW_R2_BUILD)/build.json | build
+	python3 -B tools/differentiable_view_recovered_r3/build.py \
+	  --previous "$(abspath $(DIFFERENTIABLE_VIEW_R2_BUILD))" \
+	  --repository "$(CURDIR)" --upstream "$(abspath $(HEPTA_SOURCE_ROOT))" \
+	  --compactor "$(CURDIR)/tools/owned_optimizers/compact_functions.py" \
+	  --compiler "$(abspath $(HEPTA_STACK_BUILD))/native/stack-module-compiler" \
+	  --linker "$(abspath $(HEPTA_STACK_BUILD))/native/stack-linker-session" \
+	  --output "$(abspath $(DIFFERENTIABLE_VIEW_BUILD))"
+	@printf '%s  %s\n' "$(DIFFERENTIABLE_VIEW_SOURCE_SHA256)" "$(DIFFERENTIABLE_VIEW_BUILD)/runtime.hepta" \
+	  "$(DIFFERENTIABLE_VIEW_NATIVE_SHA256)" "$(DIFFERENTIABLE_VIEW_BUILD)/tensor-differentiable-view-session" | sha256sum -c -
+
+test-differentiable-view-native14: differentiable-view-recovered $(DIFFERENTIABLE_VIEW_REFERENCE_BUILD)/report.json
+	@printf '%s  %s\n' 'deb9f6fafc3f91b2749bdfac030e19cb0ccdb832fa238af91ed9feb396e62eb8' tests/differentiable_view_input4_review/replay_direct_view14_profile.py | sha256sum -c -
+	python3 -I -S -B tests/differentiable_view_input4_review/replay_direct_view14_profile.py \
+	  --binary "$(DIFFERENTIABLE_VIEW_BUILD)/tensor-differentiable-view-session" \
+	  --source "$(DIFFERENTIABLE_VIEW_BUILD)/runtime.hepta" \
+	  --build-report "$(DIFFERENTIABLE_VIEW_BUILD)/build.json" \
+	  --protocol tests/differentiable_view_native_review/protocol.py \
+	  --observer tests/differentiable_view_input4_review/native_observer_direct03.py \
+	  --reference "$(DIFFERENTIABLE_VIEW_REFERENCE_BUILD)/payload/original/actual.json" \
+	  --probe "$(DIFFERENTIABLE_VIEW_REFERENCE_BUILD)/payload/original/inputs/differentiable-view14-probe-1ca74384.py" \
+	  --expected-source-sha256 "$(DIFFERENTIABLE_VIEW_SOURCE_SHA256)" \
+	  --expected-native-sha256 "$(DIFFERENTIABLE_VIEW_NATIVE_SHA256)" \
+	  --expected-observer-sha256 "$(DIFFERENTIABLE_VIEW_OBSERVER_SHA256)" \
+	  --expected-functions "$(DIFFERENTIABLE_VIEW_FUNCTIONS)" --expected-native-units "$(DIFFERENTIABLE_VIEW_UNITS)" \
+	  --output build/differentiable-view-native14
+
+# Original four immutable AsStrided regression suites recovered byte-for-byte.
+TENSOR_TO_ORIGINAL16_SUITES := copy4 reduction4 lanes2 branches6
+TENSOR_TO_ORIGINAL16_BUILD ?= build/tensor-to-recovered-bits
+TENSOR_TO_ORIGINAL16_OBSERVER_SHA256 := 42b03aaccb5fc7df828ef9aa9953b15a8ff1d911fe4d644d990e60f0348571fc
+
+.PHONY: test-tensor-to-recovered-original16 $(addprefix test-tensor-to-recovered-bits-,$(TENSOR_TO_ORIGINAL16_SUITES))
+test-tensor-to-recovered-original16: $(addprefix test-tensor-to-recovered-bits-,$(TENSOR_TO_ORIGINAL16_SUITES))
+
+$(addprefix test-tensor-to-recovered-bits-,$(TENSOR_TO_ORIGINAL16_SUITES)): test-tensor-to-recovered-bits-%: tensor-to-recovered
+	python3 -I -S -B tests/tensor_to_original16_review/replay_as_strided_$*.py \
+	  --binary "$(TENSOR_TO_RECOVERED_BUILD)/tensor-to-copy-session" \
+	  --source "$(TENSOR_TO_RECOVERED_BUILD)/runtime.hepta" \
+	  --build-report "$(TENSOR_TO_RECOVERED_BUILD)/build.json" \
+	  --protocol tests/retained_nonleaf_review/protocol.py \
+	  --observer tests/tensor_to_original16_review/native_observer09.py \
+	  --reference validation/tensor-to-original16-recovery/reference/as-strided-$*.json \
+	  --expected-source-sha256 "$(TENSOR_TO_RECOVERED_SOURCE_SHA256)" \
+	  --expected-native-sha256 "$(TENSOR_TO_RECOVERED_NATIVE_SHA256)" \
+	  --expected-observer-sha256 "$(TENSOR_TO_ORIGINAL16_OBSERVER_SHA256)" \
+	  --output "$(TENSOR_TO_ORIGINAL16_BUILD)/$*"
+
+# Restore all original input4 bytes and modes; this does not rerun Torch.
+DIFFERENTIABLE_VIEW_INPUT4_REFERENCE_BUILD ?= build/differentiable-view-input4-reference
+.PHONY: test-differentiable-view-input4-reference
+test-differentiable-view-input4-reference: $(DIFFERENTIABLE_VIEW_INPUT4_REFERENCE_BUILD)/report.json
+
+$(DIFFERENTIABLE_VIEW_INPUT4_REFERENCE_BUILD)/report.json: tests/differentiable_view_input4_review/prepare_reference.py $(wildcard validation/differentiable-view-input4-reference/*) | build
+	python3 -I -S -B tests/differentiable_view_input4_review/prepare_reference.py \
+	  --output "$(abspath $(DIFFERENTIABLE_VIEW_INPUT4_REFERENCE_BUILD))"
+
+.PHONY: test-differentiable-view-native-input4
+test-differentiable-view-native-input4: differentiable-view-recovered $(DIFFERENTIABLE_VIEW_INPUT4_REFERENCE_BUILD)/report.json
+	@printf '%s  %s\n' '5b8809eb9e405bf89a3586741d64210483fe3fbc5bc323e2cc16cb712ce4de66' tests/differentiable_view_input4_review/replay_input_boundaries4.py | sha256sum -c -
+	python3 -I -S -B tests/differentiable_view_input4_review/replay_input_boundaries4.py \
+	  --binary "$(DIFFERENTIABLE_VIEW_BUILD)/tensor-differentiable-view-session" \
+	  --source "$(DIFFERENTIABLE_VIEW_BUILD)/runtime.hepta" \
+	  --build-report "$(DIFFERENTIABLE_VIEW_BUILD)/build.json" \
+	  --protocol tests/differentiable_view_native_review/protocol.py \
+	  --observer tests/differentiable_view_input4_review/native_observer_direct03.py \
+	  --reference "$(DIFFERENTIABLE_VIEW_INPUT4_REFERENCE_BUILD)/payload/actual/actual.json" \
+	  --probe "$(DIFFERENTIABLE_VIEW_INPUT4_REFERENCE_BUILD)/payload/source/pytorch_differentiable_view_input_boundaries_probe.py" \
+	  --support-reader tests/differentiable_view_native_review/replay_direct_view14.py \
+	  --expected-source-sha256 "$(DIFFERENTIABLE_VIEW_SOURCE_SHA256)" \
+	  --expected-native-sha256 "$(DIFFERENTIABLE_VIEW_NATIVE_SHA256)" \
+	  --expected-observer-sha256 "$(DIFFERENTIABLE_VIEW_OBSERVER_SHA256)" \
+	  --expected-reference-sha256 f4abe6a750ecc791b3a7bc7aa507b4c77eb0a2fcccf45b0c6a828db0e01490d3 \
+	  --expected-functions "$(DIFFERENTIABLE_VIEW_FUNCTIONS)" --expected-native-units "$(DIFFERENTIABLE_VIEW_UNITS)" \
+	  --output build/differentiable-view-native-input4
+
+# Three finite R3 preserve-resource controls; retain all raw evidence on failures.
+.PHONY: test-differentiable-view-preserve-resources
+test-differentiable-view-preserve-resources: differentiable-view-recovered $(DIFFERENTIABLE_VIEW_INPUT4_REFERENCE_BUILD)/report.json
+	@printf '%s  %s\n' 'edb879dff167e41fb72b37f6d14d2ad7cfd7f48eef87fade1c96146cee7308bc' tests/differentiable_view_preserve_resource_review/test_preserve_resources.py | sha256sum -c -
+	python3 -S -B tests/differentiable_view_preserve_resource_review/test_preserve_resources.py \
+	  --native-build "$(abspath $(DIFFERENTIABLE_VIEW_BUILD))" \
+	  --profile tools/differentiable_view_recovered_r3/profile.json \
+	  --protocol tests/differentiable_view_preserve_resource_review/protocol.py \
+	  --reference "$(abspath $(DIFFERENTIABLE_VIEW_INPUT4_REFERENCE_BUILD))/payload/actual/actual.json" \
+	  --output "$(abspath build/differentiable-view-preserve-resources)"

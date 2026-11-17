@@ -674,6 +674,144 @@ jobs:
           fi
           exit "$status"
 
+      - name: Verify recovered tensor-to HIA sources and fixed module identities
+        run: |
+          status=0
+          make check-tensor-to-recovered-source || status=$?
+          if [ -f build/tensor-to-recovered-source/source-check.json ]; then
+            cp build/tensor-to-recovered-source/source-check.json build/tensor-to-recovered-source.json
+            python3 -I -S -B tools/emit_ci_report.py build/tensor-to-recovered-source.json
+          fi
+          exit "$status"
+
+      - name: Cold-build every recovered tensor-to HIA object and the exact image
+        run: |
+          status=0
+          make tensor-to-recovered HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget" || status=$?
+          if [ -f build/tensor-to-recovered/build.json ]; then
+            cp build/tensor-to-recovered/build.json build/tensor-to-recovered-build.json
+            python3 -I -S -B tools/emit_ci_report.py build/tensor-to-recovered-build.json
+          fi
+          exit "$status"
+
+      - name: Validate recovered tensor-to Storage tombstones and unchanged copied refusals
+        run: |
+          status=0
+          make test-tensor-to-recovered-tombstone HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget" || status=$?
+          if [ -f build/frozen35-tensor-to-node/storage-tombstone/report.json ]; then
+            cp build/frozen35-tensor-to-node/storage-tombstone/report.json build/tensor-to-recovered-storage-tombstone.json
+            python3 -I -S -B tools/emit_ci_report.py build/tensor-to-recovered-storage-tombstone.json
+          fi
+          exit "$status"
+
+      - name: Replay all four recovered AsStrided suites against their immutable original16 observations
+        run: |
+          status=0
+          mkdir -p build/tensor-to-recovered-bits
+          for suite in copy4 reduction4 lanes2 branches6; do
+            case_status=0
+            make "test-tensor-to-recovered-bits-$suite" HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget" \
+              > "build/tensor-to-recovered-bits/$suite.make.stdout" \
+              2> "build/tensor-to-recovered-bits/$suite.make.stderr" || case_status=$?
+            cat "build/tensor-to-recovered-bits/$suite.make.stdout"
+            cat "build/tensor-to-recovered-bits/$suite.make.stderr" >&2
+            if [ "$case_status" -ne 0 ]; then status="$case_status"; fi
+            report="build/tensor-to-recovered-bits/$suite/report.json"
+            if [ -f "$report" ]; then
+              cp "$report" "build/tensor-to-recovered-bits-$suite.json"
+              python3 -I -S -B tools/emit_ci_report.py "build/tensor-to-recovered-bits-$suite.json"
+            fi
+          done
+          exit "$status"
+
+      - name: Restore all fixed input4 observation bytes and original file modes
+        run: |
+          status=0
+          make test-differentiable-view-input4-reference \
+            > build/differentiable-view-input4-reference.make.stdout \
+            2> build/differentiable-view-input4-reference.make.stderr || status=$?
+          cat build/differentiable-view-input4-reference.make.stdout
+          cat build/differentiable-view-input4-reference.make.stderr >&2
+          if [ -f build/differentiable-view-input4-reference/report.json ]; then
+            cp build/differentiable-view-input4-reference/report.json build/differentiable-view-input4-reference.json
+            python3 -I -S -B tools/emit_ci_report.py build/differentiable-view-input4-reference.json
+          fi
+          exit "$status"
+
+      - name: Restore and independently admit all immutable actual view14 reference bytes
+        run: |
+          status=0
+          make test-differentiable-view-reference14 || status=$?
+          if [ -f build/differentiable-view-reference14/report.json ]; then
+            cp build/differentiable-view-reference14/report.json build/differentiable-view-reference14.json
+            python3 -I -S -B tools/emit_ci_report.py build/differentiable-view-reference14.json
+          fi
+          exit "$status"
+
+      - name: Cold-build the R2 parent and R3 HIA view geometry and coverage normalization
+        run: |
+          status=0
+          make differentiable-view-recovered \
+            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
+            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget" \
+            > build/differentiable-view-recovered.make.stdout \
+            2> build/differentiable-view-recovered.make.stderr || status=$?
+          cat build/differentiable-view-recovered.make.stdout
+          cat build/differentiable-view-recovered.make.stderr >&2
+          if [ -f build/differentiable-view-recovered/build.json ]; then
+            cp build/differentiable-view-recovered/build.json build/differentiable-view-recovered-build.json
+            python3 -I -S -B tools/emit_ci_report.py build/differentiable-view-recovered-build.json
+          fi
+          exit "$status"
+
+      - name: Replay actual14 with unchanged comparisons and the explicit R3 source profile
+        run: |
+          status=0
+          make test-differentiable-view-native14 \
+            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
+            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget" \
+            > build/differentiable-view-native14.make.stdout \
+            2> build/differentiable-view-native14.make.stderr || status=$?
+          cat build/differentiable-view-native14.make.stdout
+          cat build/differentiable-view-native14.make.stderr >&2
+          if [ -f build/differentiable-view-native14/report.json ]; then
+            cp build/differentiable-view-native14/report.json build/differentiable-view-native14.json
+            python3 -I -S -B tools/emit_ci_report.py build/differentiable-view-native14.json
+          fi
+          exit "$status"
+
+      - name: Replay all fixed input4 boundary cases on the same R3 HIA image
+        run: |
+          status=0
+          make test-differentiable-view-native-input4 \
+            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
+            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget" \
+            > build/differentiable-view-native-input4.make.stdout \
+            2> build/differentiable-view-native-input4.make.stderr || status=$?
+          cat build/differentiable-view-native-input4.make.stdout
+          cat build/differentiable-view-native-input4.make.stderr >&2
+          if [ -f build/differentiable-view-native-input4/report.json ]; then
+            cp build/differentiable-view-native-input4/report.json build/differentiable-view-native-input4.json
+            python3 -I -S -B tools/emit_ci_report.py build/differentiable-view-native-input4.json
+          fi
+          exit "$status"
+
+      - name: Qualify finite R3 preserve resource lifetime, rollback and OOM recovery
+        run: |
+          status=0
+          make test-differentiable-view-preserve-resources \
+            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
+            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget" \
+            > build/differentiable-view-preserve-resources.make.stdout \
+            2> build/differentiable-view-preserve-resources.make.stderr || status=$?
+          cat build/differentiable-view-preserve-resources.make.stdout
+          cat build/differentiable-view-preserve-resources.make.stderr >&2
+          if [ -f build/differentiable-view-preserve-resources/report.json ]; then
+            cp build/differentiable-view-preserve-resources/report.json build/differentiable-view-preserve-resources.json
+            python3 -I -S -B tools/emit_ci_report.py build/differentiable-view-preserve-resources.json
+          fi
+          exit "$status"
+
       - name: Reproduce and qualify persistent native CPU Generator objects
         run: |
           make cpu-generators test-cpu-generators \
@@ -1273,6 +1411,34 @@ jobs:
           fi
           exit "$status"
 
+      - name: Compare recovered tensor-to image with the unchanged live floating-point oracle (32 cases)
+        run: |
+          status=0
+          make test-tensor-to-recovered-live32 HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget" || status=$?
+          if [ -f build/pytorch-tensor-to-recovered-backward.json ]; then
+            python3 -I -S -B tools/emit_ci_report.py build/pytorch-tensor-to-recovered-backward.json
+          fi
+          exit "$status"
+
+      - name: Regress recovered tensor-to image on original35 with complete 672-byte Saved accounting
+        run: |
+          status=0
+          make test-tensor-to-recovered-frozen35 HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget" || status=$?
+          if [ -f build/pytorch-tensor-to-recovered-frozen35.json ]; then
+            python3 -I -S -B tools/emit_ci_report.py build/pytorch-tensor-to-recovered-frozen35.json
+          fi
+          exit "$status"
+
+      - name: Check all original18 copied refusals against complete recovered 84-word journals
+        run: |
+          status=0
+          make test-tensor-to-recovered-copied18 || status=$?
+          if [ -f build/frozen35-tensor-to-node/614/copied-controls/report.json ]; then
+            cp build/frozen35-tensor-to-node/614/copied-controls/report.json build/pytorch-tensor-to-recovered-observer-controls.json
+            python3 -I -S -B tools/emit_ci_report.py build/pytorch-tensor-to-recovered-observer-controls.json
+          fi
+          exit "$status"
+
       - name: Index complete original CI reports and checkout identity
         if: always()
         env:
@@ -1437,6 +1603,74 @@ jobs:
           path: |
             build/frozen35-mixed-integer-node/
             build/frozen35-mixed-integer-node-wire/
+          if-no-files-found: warn
+          compression-level: 9
+          retention-days: 30
+
+      - name: Index original recovered tensor-to full672 Saved journals and oracle reports
+        if: always()
+        env:
+          HEPTATORCH_SOURCE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          HEPTATORCH_OBSERVER_ARTIFACT: tensor-to-recovered-evidence-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+        run: |
+          python3 -I -S -B tests/private_node_accounting/collect_private_node_journals.py \
+            --build build --journal-root build/frozen35-tensor-to-node --wire-root build/frozen35-tensor-to-node-wire \
+            --reports build/pytorch-tensor-to-recovered-frozen35.json build/pytorch-tensor-to-recovered-frozen35-original.json \
+              build/pytorch-tensor-to-recovered-observer-controls.json build/tensor-to-recovered-storage-tombstone.json \
+              build/pytorch-tensor-to-recovered-backward.json build/tensor-to-recovered-build.json \
+              build/tensor-to-recovered-source.json build/pytorch-install.json \
+            --job-status '${{ job.status }}'
+
+      - name: Export complete recovered tensor-to HIA build and original runtime evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: tensor-to-recovered-evidence-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+          path: |
+            build/tensor-to-recovered/
+            build/tensor-to-recovered-source/
+            build/frozen35-tensor-to-node/
+            build/frozen35-tensor-to-node-wire/
+            build/pytorch-tensor-to-recovered-*
+            build/tensor-to-recovered-*.json
+          if-no-files-found: warn
+          compression-level: 9
+          retention-days: 30
+
+      - name: Export complete differentiable view build, immutable reference admission and native14 transcripts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: differentiable-view-native14-evidence-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+          path: |
+            build/differentiable-view-recovered/
+            build/differentiable-view-r2-parent/
+            build/differentiable-view-recovered.make.*
+            build/differentiable-view-native14.make.*
+            build/differentiable-view-reference14/
+            build/differentiable-view-native14/
+            build/differentiable-view-*.json
+          if-no-files-found: warn
+          compression-level: 9
+          retention-days: 30
+
+      - name: Export original16 replays and complete input4 reference and native evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: tensor-to-original16-input4-evidence-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+          path: |
+            build/tensor-to-recovered-bits/
+            build/tensor-to-recovered-bits-*.json
+            build/differentiable-view-input4-reference/
+            build/differentiable-view-input4-reference.json
+            build/differentiable-view-input4-reference.make.*
+            build/differentiable-view-native-input4/
+            build/differentiable-view-native-input4.json
+            build/differentiable-view-native-input4.make.*
+            build/differentiable-view-preserve-resources/
+            build/differentiable-view-preserve-resources.json
+            build/differentiable-view-preserve-resources.make.*
           if-no-files-found: warn
           compression-level: 9
           retention-days: 30

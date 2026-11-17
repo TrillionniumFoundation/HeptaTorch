@@ -1,0 +1,203 @@
+{
+  "schema": "heptatorch.r3-resource-ci-yaml-bash-pure.v1",
+  "status": "PASS_YAML_AND_INCREMENTAL_BASH_SYNTAX_ONLY",
+  "native_executed": false,
+  "Torch_executed": false,
+  "shell_blocks_executed": false,
+  "whole_pytorch_gate": "HOLD",
+  "closed_schemas": 0,
+  "reused_parent_review": "stage4 original763+167 bound separately; old100 run blocks not reexecuted or rechecked",
+  "workflow_sha256": "b26279e67b7183d0ec6fa3f47c347f4bd8f28d8f24c8e453bf921d8a3d3c3a21",
+  "workflow_bytes": 101201,
+  "step_count": 116,
+  "run_count": 101,
+  "status_exit_count": 50,
+  "shell_records": [
+    {
+      "ordinal": 0,
+      "job": "native",
+      "step_index": 48,
+      "name": "Qualify finite R3 preserve resource lifetime, rollback and OOM recovery",
+      "expression_substitutions_for_syntax_only": 0,
+      "original_sha256": "67bc424a131c9777e8fae15e63d989bf32583f83d9c8bb25f870cdf91aa26940",
+      "bash_n_sha256": "67bc424a131c9777e8fae15e63d989bf32583f83d9c8bb25f870cdf91aa26940"
+    }
+  ],
+  "limitations": "Ruby YAML parse and bash -n only. GitHub expression text replaced with a fixed shell word only for syntax parsing; no workflow shell block, native image, Torch or compilation executed.",
+  "checks": [
+    {
+      "name": "workflow-sha",
+      "passed": true
+    },
+    {
+      "name": "workflow-bytes",
+      "passed": true
+    },
+    {
+      "name": "transport-chunk:0",
+      "passed": true
+    },
+    {
+      "name": "transport-chunk:49152",
+      "passed": true
+    },
+    {
+      "name": "transport-chunk:98304",
+      "passed": true
+    },
+    {
+      "name": "exit0:ruby-yaml",
+      "passed": true
+    },
+    {
+      "name": "116-parsed-steps",
+      "passed": true
+    },
+    {
+      "name": "101-parsed-run-blocks",
+      "passed": true
+    },
+    {
+      "name": "50-status-exits",
+      "passed": true
+    },
+    {
+      "name": "one-incremental-shell-to-check",
+      "passed": true
+    },
+    {
+      "name": "shell-string:0",
+      "passed": true
+    },
+    {
+      "name": "exit0:bash-n-000",
+      "passed": true
+    },
+    {
+      "name": "one-new-resource-step",
+      "passed": true
+    },
+    {
+      "name": "native-job-timeout-90",
+      "passed": true
+    },
+    {
+      "name": "new-step-fails-gate",
+      "passed": true
+    },
+    {
+      "name": "new-step-token:status=0",
+      "passed": true
+    },
+    {
+      "name": "new-step-token:|| status=$?",
+      "passed": true
+    },
+    {
+      "name": "new-step-token:exit \"$status\"",
+      "passed": true
+    },
+    {
+      "name": "new-step-token:make test-differentiable-view-preserve-resources",
+      "passed": true
+    },
+    {
+      "name": "new-step-token:> build/differentiable-view-preserve-resources.make.stdout",
+      "passed": true
+    },
+    {
+      "name": "new-step-token:2> build/differentiable-view-preserve-resources.make.stderr",
+      "passed": true
+    },
+    {
+      "name": "new-step-token:cat build/differentiable-view-preserve-resources.make.stdout",
+      "passed": true
+    },
+    {
+      "name": "new-step-token:cat build/differentiable-view-preserve-resources.make.stderr >&2",
+      "passed": true
+    },
+    {
+      "name": "new-step-token:if [ -f build/differentiable-view-preserve-resources/report.json ]; then",
+      "passed": true
+    },
+    {
+      "name": "new-step-token:cp build/differentiable-view-preserve-resources/report.json build/differentiable-view-preserve-resources.json",
+      "passed": true
+    },
+    {
+      "name": "new-step-token:python3 -I -S -B tools/emit_ci_report.py build/differentiable-view-preserve-resources.json",
+      "passed": true
+    },
+    {
+      "name": "no-reader-output-precreation",
+      "passed": true
+    },
+    {
+      "name": "one-existing-artifact-step",
+      "passed": true
+    },
+    {
+      "name": "artifact-always",
+      "passed": true
+    },
+    {
+      "name": "artifact-pinned-upload",
+      "passed": true
+    },
+    {
+      "name": "artifact-path:build/differentiable-view-preserve-resources/",
+      "passed": true
+    },
+    {
+      "name": "artifact-path:build/differentiable-view-preserve-resources.json",
+      "passed": true
+    },
+    {
+      "name": "artifact-path:build/differentiable-view-preserve-resources.make.*",
+      "passed": true
+    },
+    {
+      "name": "artifact-retention30",
+      "passed": true
+    },
+    {
+      "name": "artifact-missing-warn",
+      "passed": true
+    },
+    {
+      "name": "workflow-after-unchanged",
+      "passed": true
+    }
+  ],
+  "check_count": 36,
+  "failed_checks": 0,
+  "commands": [
+    {
+      "name": "ruby-yaml",
+      "argv": [
+        "/usr/bin/ruby",
+        "-r",
+        "yaml",
+        "-r",
+        "json",
+        "-e",
+        "puts JSON.generate(YAML.load_file(ARGV[0]))",
+        "/Users/qianqi/heptatorch-to-checkpoints-20261116/hia-r3-stage5-native-b26279e.yml"
+      ],
+      "returncode": 0,
+      "stdout_sha256": "84ea90a7dad636f93aa72dc842034489746a874bbdbf3d02fcf725f32849e9c2",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "bash-n-000",
+      "argv": [
+        "/bin/bash",
+        "-n"
+      ],
+      "returncode": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

@@ -540,3 +540,72 @@ remain outside this profile. The linker is not a machine-code authenticity
 proof; source/compiler/object identity and build custody remain necessary.
 General module ABI, scalable allocation, cross-request persistence and the
 full 17-gate acceptance target therefore remain open.
+
+## Recovered Tensor.to and differentiable ViewInfo profile
+
+The recovered 614-function, 672-byte Tensor.to profile has a portable frozen-HIA
+build recipe. Its twelve source/object pairs and original 09b ELF were
+actually recreated with the fixed native tools. The direct view constructor
+then separated the immediate F32 autograd input from the ultimate-base Tensor.
+A genuine first replay failure identified retained-hook routing during lazy
+history refresh. R2 corrected that refresh branch while preserving the
+general history-capture behavior; its original fourteen-case PASS remains a
+separate historical result.
+
+The current [R3 profile](../tools/differentiable_view_recovered_r3/profile.json)
+has 627 functions, 8,245 blocks, 29,636 instructions and thirteen actually
+compiled units. Its source is
+3c2c0a125bcac6d47075bf58fc3f78c0e7b9a0b1370757981b99dcd3793b21c6
+and its executable is
+7841b19051960b6fa13cb98841dbb8e4d6ead97f03e2ad65af415e1a35b03221.
+It requires the exact R2 parent and preserves that parent's constructor and
+retained-hook repair.
+
+New actual input4 observations exposed R2's incorrect contiguous incoming
+description and lost NaN sign/payload. The complete R2 result remains
+1 PASS / 3 FAIL in the [failure history](../validation/differentiable-view-r2-input4-history/).
+R3 materializes the real incoming geometry, shared offset and Storage extent,
+releases unused private-buffer tails, and lets the actual first-gradient
+layout contract clone non-dense incoming gradients. A scoped coverage-division
+helper retains NaN sign/payload and quiets the numerator; global division
+remains unchanged. Public G Version 0 follows the clone operation.
+
+The [R3 original14](../validation/differentiable-view-r3-native14/report.json)
+and [R3 input4](../validation/differentiable-view-r3-input4/report.json) executions
+pass 14/14 and 4/4 with 96,461 and 77,432 strict assertions respectively,
+unchanged inputs and all sessions at EOF/exit zero. Semantic comparison
+methods and immutable actual references are unchanged; the original14
+profile entry explicitly binds the new 627/13 identity. Their whole-owner,
+Generator, identity, Version, Saved and Weak comparisons retain the original
+case-specific scope.
+
+The [separate multiaxis72 replay](../validation/differentiable-view-r3-multiaxis72/)
+passes 72/72, 1,224 frames and 21,312 exact gradient words. It corrects the
+historical R1 all-one input mapping to the actual probe's arange(256), without
+changing gradient comparisons. Its qualification covers gradient
+presence/length/words, exact input packets, successful protocol operations
+and EOF. Gradient Versions are only recorded; complete Tensor/Storage
+identity, layouts, Saved behavior, full Generator state and general owner
+accounting are outside that reader's claim.
+
+The recovered-parent full35 evidence and its precise eighty-four-word copied
+control correction remain separate from the new R3 image. Original host
+diagnostic failures, R1's native 13/14 result and both R2 input4 attempts stay
+recoverable. At the frozen R3 profile, original16, broader inherited runtime
+and resource/OOM qualification on R3 are NOT_RUN; no parent-image PASS is
+transferred.
+
+After that immutable profile freeze, [separate resource evidence](../validation/differentiable-view-r3-preserve-resources/qualification.json)
+qualifies three finite preserve-path controls. The first invocation remains
+2 PASS / 1 setup FAIL; source02 changes only the filler cap and case selection,
+and the successor executes only OOM, which passes. Successful controls total
+113 frames / 243 checks; all original attempts total 126 frames / 260 checks
+and four EOF exits of zero. The exact owner/RNG/mapping rollback and
+same-request recovery are bounded evidence. General resource behavior,
+broader inherited runtime and hosted source-head admission remain open.
+
+[Implementation, evidence and reproduction](tensor-to-differentiable-views.md)
+define these finite boundaries. All 2,590 native schemas, 688 derivative
+declarations and seventeen full-project gates remain in the target, with zero
+complete schema closures. Source-head hosted checks need their own actual
+jobs and raw artifacts. Overall status remains HOLD.

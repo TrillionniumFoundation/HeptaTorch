@@ -351,3 +351,36 @@ Saved Hold、以及整数 view 最后一个公开 Saved 引用释放后 Storage 
 [完整参考证据](validation/mixed-frozen35-accounting/remote10/)与该源提交自己的托管产物
 继续分别验收。计数按原参考范围保留，重叠测试不累加为 schema 覆盖率。
 整个 PyTorch 重写状态继续为 **HOLD**，完整 schema 闭合数仍为 **0／2,590**。
+
+## 可恢复的 Tensor.to 构建与可微视图历史
+
+[当前 R3 HIA 视图后继与完整证据](docs/tensor-to-differentiable-views.md)已在精确
+R2 父版本之上实际编译 **627 个函数／13 个模块**。它保留此前视图历史刷新的
+梯度 hook 修复，并真实恢复重叠、带空洞输入的梯度 Storage、偏移和 strides，
+使原有 clone 合同产生正确的公开梯度 Version；局部覆盖归一化保留实际 NaN
+符号和 payload，不修改全局浮点除法。
+
+同一 R3 映像已分别通过[原 14 项](validation/differentiable-view-r3-native14/report.json)
+（15,135 帧／96,461 项严格断言）和[新增 4 项](validation/differentiable-view-r3-input4/report.json)
+（12,353 帧／77,432 项严格断言）。完整 Tensor／Storage／Version 关系、
+Saved 与重试行为、完整 RNG、失败事务和最终 Weak 生命周期按各自实际参考比较，
+所有会话均正常 EOF。R2 在新增四项上的 **1 通过／3 失败**、更早的
+13 通过／1 失败以及宿主诊断失败均保留原始记录。
+
+[另一次 72 项梯度重放](validation/differentiable-view-r3-multiaxis72/report.json)
+通过 1,224 帧、21,312 个梯度原始字，逐会话核实输入为参考的 0 至 255 序列并
+正常 EOF。这一门不比较完整 owner／RNG，也不把记录但未比较的梯度 Version
+算作资格；旧 R1 使用全一输入的范围差异明确保留。三组检查不累加为唯一 API 数。
+
+[独立资源证据](validation/differentiable-view-r3-preserve-resources/qualification.json)
+进一步验证了三类有限行为：梯度缓存尾部释放与复用、经过两个视图节点后的
+Saved 错误与原子回滚，以及临时地址空间限制下的 OOM 回滚和恢复。首轮仍记为
+**2 通过／1 准备失败**；修正测试填充维度后仅重跑 OOM，一项通过。
+成功控制合计 113 帧／243 项检查；包含准备失败的完整历史为
+126 帧／260 项检查／4 个正常 EOF。原 R3 配置的历史 NOT_RUN 字段保持原样，
+完整资源资格与当前源码提交的托管 CI 仍需独立验收。
+
+父版本完整 35 与原始回归继续保留各自来源，新 R3 的更广继承、完整资源资格和
+该源码组合的托管 CI 必须分别取得实际证据。任意视图几何与图分支、全部
+dtype／设备／接口和高阶自动微分仍未闭合；17 项系统门禁保持开放，
+完整 schema 闭合数继续为 **0／2,590**，整体状态为 **HOLD**。

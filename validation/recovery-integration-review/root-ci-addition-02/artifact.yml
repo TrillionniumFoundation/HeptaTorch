@@ -1,0 +1,14 @@
+
+      - name: Export complete differentiable view build, immutable reference admission and native14 transcripts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: differentiable-view-native14-evidence-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+          path: |
+            build/differentiable-view-recovered/
+            build/differentiable-view-reference14/
+            build/differentiable-view-native14/
+            build/differentiable-view-*.json
+          if-no-files-found: warn
+          compression-level: 9
+          retention-days: 30

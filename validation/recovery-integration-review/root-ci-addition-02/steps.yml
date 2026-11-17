@@ -1,0 +1,24 @@
+      - name: Cold-build the differentiable HIA view profile and retained-hook refresh
+        run: |
+          status=0
+          make differentiable-view-recovered \
+            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
+            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget" || status=$?
+          if [ -f build/differentiable-view-recovered/build.json ]; then
+            cp build/differentiable-view-recovered/build.json build/differentiable-view-recovered-build.json
+            python3 -I -S -B tools/emit_ci_report.py build/differentiable-view-recovered-build.json
+          fi
+          exit "$status"
+
+      - name: Replay all actual14 view cases with the unchanged strict reader and complete native state
+        run: |
+          status=0
+          make test-differentiable-view-native14 \
+            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
+            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget" || status=$?
+          if [ -f build/differentiable-view-native14/report.json ]; then
+            cp build/differentiable-view-native14/report.json build/differentiable-view-native14.json
+            python3 -I -S -B tools/emit_ci_report.py build/differentiable-view-native14.json
+          fi
+          exit "$status"
+

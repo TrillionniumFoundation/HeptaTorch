@@ -1,0 +1,34 @@
+{
+  "schema": "heptatorch.actual14-profile-reader-inverse.v1",
+  "status": "SOURCE_ONLY_EXACT_INVERSE",
+  "original_reader_sha256": "52c3b3242a73fb412102c83c5ba47cf8d95a4eb3c01e56f41bfe593066506d05",
+  "profile_reader_sha256": "86e9dafb5b7f7da60aa61058647e220f170f344ca13ea7fc21c3ac0e438ab421",
+  "exact_whole_file_inverse": true,
+  "all_non_main_functions_and_classes_ast_identical": true,
+  "case_class_and_reference_admission_unchanged": true,
+  "replacements": [
+    [
+      "    ap.add_argument('--prepare-only',action='store_true')\n",
+      "    ap.add_argument('--prepare-only',action='store_true')\n    ap.add_argument('--expected-functions',type=int,required=True)\n"
+    ],
+    [
+      "    assert len(functions)==614\n",
+      "    assert len(functions)==a.expected_functions\n"
+    ],
+    [
+      "    assert build['descriptor_bytes']==672 and build['functions']==614 and len(build['units'])==12\n",
+      "    assert build['descriptor_bytes']==672 and build['functions']==a.expected_functions and len(build['units'])==12\n"
+    ],
+    [
+      "            'descriptor_bytes':672,'functions':614,'native_units':12,\n",
+      "            'descriptor_bytes':672,'functions':a.expected_functions,'native_units':12,\n"
+    ],
+    [
+      "            'reader_revision':'R3_PAYLOAD_DIAGNOSTIC_ENCODING',\n",
+      "            'reader_revision':'R4_EXPLICIT_HIA_FUNCTION_COUNT_BINDING',\n"
+    ]
+  ],
+  "reason": "Bind the actual new HIA function count explicitly while preserving every recorded observation and comparison.",
+  "native_executions": 0,
+  "torch_executions": 0
+}

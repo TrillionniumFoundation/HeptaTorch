@@ -1,0 +1,217 @@
+{
+  "schema": "heptatorch.dview-r3-resource-control-selection.v1",
+  "status": "SOURCE_REVIEW_COMPLETE_NATIVE_CONTROLS_NOT_RUN",
+  "profile": {
+    "functions": 627,
+    "blocks": 8245,
+    "instructions": 29636,
+    "native_units": 13,
+    "descriptor_bytes": 672,
+    "state_format": "HTVAD003",
+    "backing_format": "HTOVAD03",
+    "source_sha256": "3c2c0a125bcac6d47075bf58fc3f78c0e7b9a0b1370757981b99dcd3793b21c6",
+    "native_sha256": "7841b19051960b6fa13cb98841dbb8e4d6ead97f03e2ad65af415e1a35b03221",
+    "build_sha256": "47a17c04789e1cdc843ea186de211d4b5b279b526961a0713d24c9a9073b6bdb",
+    "build": "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-r3-native-build-01/candidate-r3"
+  },
+  "executors": {
+    "source_selection": "/root/autograd_extension",
+    "new_resource_native": "/root/hia_toolchain",
+    "original14_new4_multiaxis72_native": "/root/pytorch_scope",
+    "remote_refs": "/root"
+  },
+  "executions_here": {
+    "native": 0,
+    "Torch": 0,
+    "compilation": 0,
+    "source_extraction_jobs": [
+      "1a1e6b42830-392-3c14",
+      "1a1e6b76319-392-3c1b"
+    ]
+  },
+  "reference": {
+    "path": "/home/qian-qi/heptatorch-continuation-20261116/runs/differentiable-view-input-boundaries-04-20261116/actual.json",
+    "sha256": "f4abe6a750ecc791b3a7bc7aa507b4c77eb0a2fcccf45b0c6a828db0e01490d3",
+    "bytes": 5680715,
+    "probe_sha256": "cf569335f48624c1edf2f97a649200f2e792ebcef5b6f1df6bac73293ce02efc",
+    "admission_sha256": "ffe90f023a412c7ac7eab1d2dc8ca2c11a1f1f83ec6103c736d37906aca4",
+    "independent_checks_historical": 64059,
+    "new_reference_execution": false
+  },
+  "protocol": {
+    "sha256": "7a30d7bca140e3a4cc9d63a3e6930b92d2ffd60ad4503895419d8a63e67c8bd9",
+    "client_sha256": "dee3e4cb25ee1e5e06513e2f33478fbe274d9510ce2aaab9525815c72312946b"
+  },
+  "source_findings": [
+    {
+      "id": "preflight_order",
+      "source": "partial_execute.hepta",
+      "sha256": "11e3c5ef304443c63444ddccb6305b77607cea6c59ca7ca709932e7d79014fbb",
+      "finding": "partial_mark and workspace allocation precede ensure_backward_work; retained_reserve follows ensure_backward_work. No backward numerical node has run when reserve allocation fails."
+    },
+    {
+      "id": "reserve_order",
+      "source": "ensure_backward_work.hepta",
+      "sha256": "6bc14c91e736f304bb671d8c491e5901a559df45671f1897574ebb1fd0b842b9",
+      "finding": "mark preserve targets, then ascending reachable nodes: history_prepare_leaf, ordinary 4*numel incoming cache and VID, then the optional preserve storage reservation."
+    },
+    {
+      "id": "capacity",
+      "source": "incoming_reserve_preserve_storage.hepta",
+      "sha256": "f9018f7560ff7d047e55f800d7926fed1e87910384b03a1415fce7d00c431436",
+      "finding": "dview_preserve_capacity supplies alloc size; private VID is made only after that allocation. Capacity is max(4*parent.numel, all live current-epoch direct-op44 required spans)."
+    },
+    {
+      "id": "tail",
+      "source": "incoming_geometry.py",
+      "sha256": "bdd5c9d06093db032c3cb25ed541449f531145288ce56f6b97d3ca634064137e",
+      "finding": "dview_trim_preserve requires one private Hold, one storage strong owner, a fresh unshared Version, exact aligned current size; releases only [offset+newrounded, offset+oldrounded), then updates requested and rounded storage sizes."
+    },
+    {
+      "id": "cleanup",
+      "source": "incoming_drop_cache.hepta",
+      "sha256": "166f2578ea3e7453eaa4c692dbca0da37e54fe7cee790878babde4301d23e9d4",
+      "finding": "ordinary cache Hold/VID and preserve Hold/VID are actually released, then descriptor cache/reserve fields are zeroed. Zero metadata alone is not sufficient; the controls must also prove the full extent partition and live ownership equations."
+    }
+  ],
+  "legacy": {
+    "original_files_unchanged": true,
+    "mixed_six": {
+      "script_sha256": "b64faef4c3d52126acf2af64c2a9c0e04e4192e94f412f5389ffb7dfa8673a02",
+      "resource_support_sha256": "07248452cef312f264ccc4279479765542084c61217916eb364cf4ba3cdc4d88",
+      "executes_new_nonempty_op44_backward": false
+    },
+    "to09b_six": {
+      "script_sha256": "59d5e9b9166e67d2c4c2353e1d6fb68a0699712e9e0f4718260417ee1e205707",
+      "executes_new_nonempty_op44_backward": false,
+      "old_ordinary_admission_requires_and_nonleaf_111_refusals": "Original expected status 5 is preserved as history; these two commands were newly admitted by direct differentiable view and must not be silently retagged as current negative controls."
+    },
+    "retained_resources": {
+      "script_sha256": "74bc88794e88e37f7175c672484c2503706333e8f186bffe29a0d0563355a9e8",
+      "reuse_methods": [
+        "version-error-prefix-and-unvisited-reserves",
+        "ordinary-whole-owner-rollback",
+        "real-ENOMEM-and-recovery"
+      ],
+      "executes_op44": false
+    }
+  },
+  "controls": [
+    {
+      "id": "tail_release_reuse",
+      "kind": "new finite resource control with original finite reference words",
+      "reference_row": 0,
+      "construction": "backing97(requires=0) -> 111 input geometry -> 19 detached own leaf -> close temporary view -> 90(input,1) -> 111 direct output -> 58",
+      "input": {
+        "shape": [
+          2,
+          3
+        ],
+        "strides": [
+          0,
+          1
+        ],
+        "offset_elements": 0
+      },
+      "output": {
+        "shape": [
+          3
+        ],
+        "strides": [
+          1
+        ],
+        "offset_elements": 0
+      },
+      "preserve": {
+        "logical_bytes": 24,
+        "capacity_bytes": 24,
+        "capacity_rounded": 32,
+        "constructed_span_bytes": 12,
+        "span_rounded": 16,
+        "released_tail_bytes": 16
+      },
+      "expected": "Load the original finite-phase seed and input.G raw words/shape/strides/Version from exact f4abe row 0; use no native-derived expected fields.",
+      "obligations": [
+        "Keep independent live canary storage outside the graph and compare its full bytes.",
+        "Two fresh G materializations separated by clear; hold the first real G explicitly, verify old bytes/Version while a distinct second G exists, then release it and require Weak expiry.",
+        "Every committed command: all 84 words decoded, exact S/V/Hold/T/graph/gradient counts, all incoming/reserve transient fields zero, full pool partition without gap/overlap.",
+        "After G unbinding and public G/Weak release: same graph live counts and free extent partition as the pre-backward baseline, without asserting historical incarnation counters are unchanged.",
+        "Reset/drop all roots and preserve final descriptor-pages-only, native audit=1, transport EOF/exit=0."
+      ]
+    },
+    {
+      "id": "preserve_capacity_oom_recovery",
+      "kind": "new source-bound resource geometry; not an additional Torch observation",
+      "reference_row": 2,
+      "construction": "Use the same two-row holed mapping as original row 2, with K=131072. Detach input into an own requiring leaf so the large backing is only a storage root, not an enabled AD ancestor.",
+      "K": 131072,
+      "input": {
+        "shape": [
+          2,
+          2
+        ],
+        "strides": [
+          131072,
+          1
+        ],
+        "offset_elements": 0
+      },
+      "output": {
+        "shape": [
+          2,
+          2
+        ],
+        "strides": [
+          131072,
+          1
+        ],
+        "offset_elements": 1
+      },
+      "backing_elements": 131075,
+      "preserve": {
+        "logical_bytes": 16,
+        "capacity_bytes": 524300,
+        "capacity_rounded": 524304
+      },
+      "setup_requirements": [
+        "Freeze actual enabled AD graph and high-water; every graph node has at most four logical elements, highest<128; no retained hooks in this OOM graph.",
+        "Record actual table/descriptor-page headroom and bound all allocations preceding preserve from gradient_workspace_size/history_prepare_leaf/ensure_backward_work; forbid a new table/page allocation confounding the intended failure.",
+        "Leave approximately 64 KiB of actual free extents, enough for all preceding small allocations but strictly less than the 524304-byte preserve extent.",
+        "Install temporary child RLIMIT_AS by the already-qualified dynamic method, allow a same-capacity real query, and record /proc limits/status/maps. If the setup inequalities are untrue, record setup failure; do not loosen the expected error."
+      ],
+      "obligations": [
+        "58 must return ordinary allocation error 3 with no partial records; pointer, length, entire owner bytes, full 5056-byte Generator state and the complete mappings must equal their pre-frame values.",
+        "Always restore the original resource limit, including on failure.",
+        "The same 58 request must succeed after restoring the limit; verify the mapped original row-2 finite gradient words and Version0, original inputs/canary bytes, full partition, no reserve residue, final release and EOF.",
+        "This input is non-overlapping: the physical gap is filled but the input-overlap divide loop is not entered; it supplies no count0 arithmetic evidence."
+      ]
+    },
+    {
+      "id": "tail_then_saved_error_prefix",
+      "kind": "new source-bound finite resource control using original partial/atomic invariants",
+      "construction": "x:F32[3] requiring leaf; factor:F32[3]; m=mul(x,factor); q=111(m,[2,3],[0,1],0); t=111(q,[3],[1],0); retain q and t; mutate factor to invalidate m's Saved Version; use all-one seed.",
+      "reaches": "The t->q op44 edge takes capacity24/rounded32 -> span12/rounded16 before traversal reaches the upstream Saved error.",
+      "obligations": [
+        "58 in [marker + 1, backward, valid suffix] must commit the prefix once, return Saved error6 and skip the suffix.",
+        "Bind the exact completed-node/leaf/op result to the fixed three-node traversal; never wildcard these fields if implementation introduces additional captured nodes.",
+        "t retained G is ones with Version0; q retained G is 0.5 repeated with Version0; x.G remains None. These are explicit dyadic resource-control expectations, not an added Torch oracle.",
+        "Verify exact private reserve cleanup and complete S/V/Hold counts/extent partition after the partial error. Any preallocated unvisited G roots must be absent.",
+        "57 with the same invalid graph must preserve the entire before-owner, pointer/length, RNG and marker value/version; preserve all raw request/response/before/after files.",
+        "Release held/public Gs, reset/drop graph roots, require final pages-only and EOF0."
+      ]
+    }
+  ],
+  "binding_requirements": [
+    "Use a new test namespace; old six recipes and original expected statuses remain byte-identical.",
+    "Pin exact R3 source/image/build and all thirteen actual unit source/object hashes and exit statuses; do not inherit a twelve-unit-only loader or rename an old image.",
+    "Any observer identity/tag-only adaptation must have a whole-file inverse; all 84Q structural predicates remain. Do not project to 80 words or disable new fields.",
+    "Full raw owner bytes and wire are required for new controls, together with before/after source custody. Status summaries alone are insufficient.",
+    "These controls do not change the 2590 denominator, full rewrite HOLD, previous failures, or the scope of the original14/new4/72 numerical reports."
+  ],
+  "limits": [
+    "No new native/resource results are claimed in this selection packet.",
+    "No Torch reference is rerun.",
+    "NaN-preserving division evidence is limited to actual observed positive coverage qNaNs; count0 fallback, 0/0 NaN bit patterns and complete signaling-NaN parity remain unqualified.",
+    "A committed-state observer proves committed invariants; it does not directly observe every transient call. Explicit geometry/source path and allocation-budget bindings must accompany the runtime evidence."
+  ]
+}
