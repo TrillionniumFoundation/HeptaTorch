@@ -1,0 +1,36 @@
+{
+  "schema": "heptatorch.sum-recorded-wire-source-inverse.v1",
+  "status": "SOURCE_TEXT_INVERSE_ONLY_NOT_EXECUTED",
+  "parent_file_sha256": "20b23badd9393a8f8ed8bdc23dc7bfbcc991ebabe007257297fd5e9b40ee3529",
+  "parent_file_bytes": 63691,
+  "parent_block_sha256": "f32374fdbd57b2d86ef395472fd2751c17471ee1b1f9f7d2f87c8a50fdd42266",
+  "parent_block_bytes": 5402,
+  "generated_block_sha256": "a6badc2b817225890fc37f35da10b6414439fb556d952e0770919efff4a365dc",
+  "generated_block_bytes": 6925,
+  "generated_file_sha256": "8437b0fa6b9edd4a64af541fa935b59111b3bc59e48d55304bf918c6d2c3c82c",
+  "generated_file_bytes": 7311,
+  "edits": [
+    {
+      "label": "add-only-real-Sum-permute-Accumulator-result-capabilities",
+      "old": "108, 109, 110, 111, 112, 113, 114}",
+      "new": "108, 109, 110, 111, 112, 113, 114, 115, 116, 117}"
+    },
+    {
+      "label": "bind-original-full-transport-EOF-streams-and-owner-journal-count",
+      "old": "        t = self.transport\n",
+      "new": "        t = self.transport\n        need(set(t) == {\"pid\", \"frames\", \"executable_sha256\", \"rows\", \"exit_code\",\n             \"responses_before_stdin_eof\", \"stdout_eof\", \"stderr_eof\", \"stderr_bytes\",\n             \"stderr_sha256\", \"extra_stdout_bytes\", \"extra_stdout_sha256\",\n             \"complete_owner_boundaries\", \"owner_blobs\", \"full_transition_recomputed\",\n             \"forced_cleanup\", \"cleanup_errors\"}, \"complete-Sum-transport-fields\")\n        need(t[\"stdout_eof\"] is True and t[\"stderr_eof\"] is True\n             and t[\"forced_cleanup\"] is False and t[\"cleanup_errors\"] == []\n             and t[\"full_transition_recomputed\"] is False,\n             \"original-dual-EOF-no-forced-cleanup-no-transition-overclaim\")\n        need(t[\"complete_owner_boundaries\"] == expected_frames,\n             \"one-complete-owner-pair-per-original-frame\")\n        stderr = read(directory / \"stderr.bin\", t[\"stderr_sha256\"], t[\"stderr_bytes\"])\n        extra = read(directory / \"extra-stdout-after-frames.bin\",\n                     t[\"extra_stdout_sha256\"], t[\"extra_stdout_bytes\"])\n        need(stderr == b\"\" and extra == b\"\", \"exact-original-empty-EOF-streams\")\n        self.owner_source = None\n        self.pid, self.binary_sha256 = t[\"pid\"], t[\"executable_sha256\"]\n"
+    },
+    {
+      "label": "replace-old-unexported-read-refusal-only-when-full-original-endpoint-is-present",
+      "old": "    def owner(self, *args, **kwargs):\n        raise AssertionError(\"An intermediate /proc read was not exported; cannot synthesize it\")",
+      "new": "    def owner(self, *args, **kwargs):\n        need(not args and not kwargs, \"only-original-owner-read-interface\")\n        need(self.owner_source is not None, \"complete-owner-journal-bound-before-any-read\")\n        return self.owner_source.current(self.frames)"
+    },
+    {
+      "label": "require-all-journal-captures-before-observed-EOF",
+      "old": "        self.exit_code = self.transport[\"exit_code\"]\n",
+      "new": "        need(self.owner_source is not None, \"complete-owner-source-at-recorded-EOF\")\n        self.owner_finish_summary = self.owner_source.finish(self.frames)\n        self.exit_code = self.transport[\"exit_code\"]\n"
+    }
+  ],
+  "whole_block_inverse_exact": true,
+  "actual_execution": false
+}

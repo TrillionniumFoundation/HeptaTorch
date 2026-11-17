@@ -1,0 +1,242 @@
+{
+  "schema": "heptatorch.sum-native32.archive-path-shadow-correction.v1",
+  "status": "SOURCE_TEXT_FORWARD_AND_INVERSE_VERIFIED_ONLY",
+  "original_root": "/home/qian-qi/heptatorch-continuation-20261116/runs/sum-native32-pure-admission-source-01",
+  "original_source_manifest": {
+    "bytes": 5227,
+    "sha256": "2cef6af341e3bff3a6a5ca52a21d9edf48310f98f01506178a1e175d7b33e8f5",
+    "mode": 432
+  },
+  "new_root": "/home/qian-qi/heptatorch-continuation-20261116/runs/sum-native32-pure-admission-source-02",
+  "parent_file": "archive_custody.py",
+  "parent_bytes": 12808,
+  "parent_sha256": "7871efac801a771ec6063b7c13f79ae92e2c954f42e151c1900ad29a1d7a9657",
+  "generated_bytes": 12832,
+  "generated_sha256": "8dea187f7d971a4c0fd5777396c04bcef6a18ce29c500a48563f350cbb876bee",
+  "edits": [
+    {
+      "label": "rename-only-input-loop-variable-leave-archive-parameter-intact",
+      "old": "    for index, (path, row) in enumerate(sorted(manifest[\"input_bindings\"].items())):\n        need(set(row) == {\"path\", \"bytes\", \"sha256\", \"mode\"} and row[\"path\"] == path,\n             \"full-original-declared-input-record\")\n        name = \"inputs/%04d-%s\" % (index, Path(path).name)\n        input_members[name] = {key: row[key] for key in (\"bytes\", \"sha256\", \"mode\")}\n        input_members[name][\"source_path\"] = path\n",
+      "new": "    for index, (input_path, row) in enumerate(sorted(manifest[\"input_bindings\"].items())):\n        need(set(row) == {\"path\", \"bytes\", \"sha256\", \"mode\"} and row[\"path\"] == input_path,\n             \"full-original-declared-input-record\")\n        name = \"inputs/%04d-%s\" % (index, Path(input_path).name)\n        input_members[name] = {key: row[key] for key in (\"bytes\", \"sha256\", \"mode\")}\n        input_members[name][\"source_path\"] = input_path\n",
+      "identifier_occurrences": 4
+    }
+  ],
+  "whole_source_forward_equal": true,
+  "whole_source_inverse_equal": true,
+  "unchanged_other_payloads": 18,
+  "all_other_payloads_byte_mode_equal": true,
+  "common_unchanged": {
+    "bytes": 6232,
+    "sha256": "a4ac713abf15756548d6b0be15c1d8287f73e6f4dee40a812415c1daf160f207",
+    "mode": 432
+  },
+  "source01_actual_seal_request_status": "NOT_SUBMITTED_PRESERVED",
+  "current_qualification": false,
+  "execution": {
+    "process": false,
+    "AST": false,
+    "Python_import": false,
+    "native": false,
+    "Torch": false,
+    "sealing": false,
+    "recorded_replay": false
+  },
+  "parent_payloads": {
+    "admission_common.py": {
+      "bytes": 6232,
+      "sha256": "a4ac713abf15756548d6b0be15c1d8287f73e6f4dee40a812415c1daf160f207",
+      "mode": 432
+    },
+    "recorded_wire.py": {
+      "bytes": 7311,
+      "sha256": "fff82c83c9d5b131597298fa125d2adcb370efdd7ede811fa794f43dc5618159",
+      "mode": 432
+    },
+    "complete_owners.py": {
+      "bytes": 9316,
+      "sha256": "e8f16f9bfe718e705ccf74ba19ebd981e8b7b3c0aaf9d2cc82946dd21173e411",
+      "mode": 432
+    },
+    "recorded_observer.py": {
+      "bytes": 5808,
+      "sha256": "d15237c092e58fabb057f6e8d5fb4aa88da8590daba99d91c81bab89424879fe",
+      "mode": 432
+    },
+    "archive_custody.py": {
+      "bytes": 12808,
+      "sha256": "7871efac801a771ec6063b7c13f79ae92e2c954f42e151c1900ad29a1d7a9657",
+      "mode": 432
+    },
+    "source_custody.py": {
+      "bytes": 8134,
+      "sha256": "2e130043047ba590dfd5495f2097b1ccc23e7ad5f34b811786e5dc5686971528",
+      "mode": 432
+    },
+    "seal_raw.py": {
+      "bytes": 12490,
+      "sha256": "5ac7c0db52d81ee8363da8922a601eee8e794e6fc65a59897b5cfb88262654b3",
+      "mode": 432
+    },
+    "admit_recorded_sum32.py": {
+      "bytes": 14682,
+      "sha256": "804b4700f58d79d46a3f3a8c5709ff6fe9fb3ce471261e309ca31db13efa4b92",
+      "mode": 432
+    },
+    "profile.json": {
+      "bytes": 4353,
+      "sha256": "a2da6ed769b8e242e7f13cacecfd8f7d29fbad88316cd9bb925879dc377809dd",
+      "mode": 432
+    },
+    "README.md": {
+      "bytes": 9133,
+      "sha256": "09423f322ed590c64c06a258298a2809ffd3c8e88b78e475708d9f27eb160ac5",
+      "mode": 432
+    },
+    "source-reuse.json": {
+      "bytes": 6355,
+      "sha256": "69ba096211598d9aaf850a3dc8eab9e5230a772be5dd00afa011a3fbcf13754c",
+      "mode": 432
+    },
+    "provenance/r4-pure-admission20b23.py": {
+      "bytes": 63691,
+      "sha256": "20b23badd9393a8f8ed8bdc23dc7bfbcc991ebabe007257297fd5e9b40ee3529",
+      "mode": 432
+    },
+    "provenance/native32-source03-manifest.json": {
+      "bytes": 7599,
+      "sha256": "f13a204f5071c07b34ab35ee1b4a6dc90163137b0762fb57bd8c34abb0c8b277",
+      "mode": 432
+    },
+    "design-checkpoint.json": {
+      "bytes": 5045,
+      "sha256": "1a9b27fefee56e1865eafb532b57d587f61798cae52cf9b685555d292b37dfba",
+      "mode": 432
+    },
+    "authoring-notes.json": {
+      "bytes": 2850,
+      "sha256": "258aa2d39c148d3bbc73f91fcab88fd1218beacf46d6b174ed4bea76a8657e62",
+      "mode": 432
+    },
+    "seal-plan-template.json": {
+      "bytes": 556,
+      "sha256": "e9e99b3d1a0533bddb5c94e24391249e20f3c962f6c92d6f07bd27abd470e253",
+      "mode": 432
+    },
+    "seal-request-template.json": {
+      "bytes": 1230,
+      "sha256": "ff50c43bc39b8113edab08abcc0c2d0403ae956a795c96649d4a1468e38c8744",
+      "mode": 432
+    },
+    "admission-request-template.json": {
+      "bytes": 1407,
+      "sha256": "2ca41dfeca495f0bf34c0ea47a66e5904d0cb19176e5f87335fad6e55f139516",
+      "mode": 432
+    },
+    "recorded-wire-inverse.json": {
+      "bytes": 3344,
+      "sha256": "2e431b761d7909f5b935b53f4413f0b99f58221c989153754dd59c73ca14bfe9",
+      "mode": 432
+    }
+  },
+  "generated_payloads": {
+    "admission_common.py": {
+      "bytes": 6232,
+      "sha256": "a4ac713abf15756548d6b0be15c1d8287f73e6f4dee40a812415c1daf160f207",
+      "mode": 432
+    },
+    "recorded_wire.py": {
+      "bytes": 7311,
+      "sha256": "fff82c83c9d5b131597298fa125d2adcb370efdd7ede811fa794f43dc5618159",
+      "mode": 432
+    },
+    "complete_owners.py": {
+      "bytes": 9316,
+      "sha256": "e8f16f9bfe718e705ccf74ba19ebd981e8b7b3c0aaf9d2cc82946dd21173e411",
+      "mode": 432
+    },
+    "recorded_observer.py": {
+      "bytes": 5808,
+      "sha256": "d15237c092e58fabb057f6e8d5fb4aa88da8590daba99d91c81bab89424879fe",
+      "mode": 432
+    },
+    "archive_custody.py": {
+      "bytes": 12832,
+      "sha256": "8dea187f7d971a4c0fd5777396c04bcef6a18ce29c500a48563f350cbb876bee",
+      "mode": 432
+    },
+    "source_custody.py": {
+      "bytes": 8134,
+      "sha256": "2e130043047ba590dfd5495f2097b1ccc23e7ad5f34b811786e5dc5686971528",
+      "mode": 432
+    },
+    "seal_raw.py": {
+      "bytes": 12490,
+      "sha256": "5ac7c0db52d81ee8363da8922a601eee8e794e6fc65a59897b5cfb88262654b3",
+      "mode": 432
+    },
+    "admit_recorded_sum32.py": {
+      "bytes": 14682,
+      "sha256": "804b4700f58d79d46a3f3a8c5709ff6fe9fb3ce471261e309ca31db13efa4b92",
+      "mode": 432
+    },
+    "profile.json": {
+      "bytes": 4353,
+      "sha256": "a2da6ed769b8e242e7f13cacecfd8f7d29fbad88316cd9bb925879dc377809dd",
+      "mode": 432
+    },
+    "README.md": {
+      "bytes": 9133,
+      "sha256": "09423f322ed590c64c06a258298a2809ffd3c8e88b78e475708d9f27eb160ac5",
+      "mode": 432
+    },
+    "source-reuse.json": {
+      "bytes": 6355,
+      "sha256": "69ba096211598d9aaf850a3dc8eab9e5230a772be5dd00afa011a3fbcf13754c",
+      "mode": 432
+    },
+    "provenance/r4-pure-admission20b23.py": {
+      "bytes": 63691,
+      "sha256": "20b23badd9393a8f8ed8bdc23dc7bfbcc991ebabe007257297fd5e9b40ee3529",
+      "mode": 432
+    },
+    "provenance/native32-source03-manifest.json": {
+      "bytes": 7599,
+      "sha256": "f13a204f5071c07b34ab35ee1b4a6dc90163137b0762fb57bd8c34abb0c8b277",
+      "mode": 432
+    },
+    "design-checkpoint.json": {
+      "bytes": 5045,
+      "sha256": "1a9b27fefee56e1865eafb532b57d587f61798cae52cf9b685555d292b37dfba",
+      "mode": 432
+    },
+    "authoring-notes.json": {
+      "bytes": 2850,
+      "sha256": "258aa2d39c148d3bbc73f91fcab88fd1218beacf46d6b174ed4bea76a8657e62",
+      "mode": 432
+    },
+    "seal-plan-template.json": {
+      "bytes": 556,
+      "sha256": "e9e99b3d1a0533bddb5c94e24391249e20f3c962f6c92d6f07bd27abd470e253",
+      "mode": 432
+    },
+    "seal-request-template.json": {
+      "bytes": 1230,
+      "sha256": "ff50c43bc39b8113edab08abcc0c2d0403ae956a795c96649d4a1468e38c8744",
+      "mode": 432
+    },
+    "admission-request-template.json": {
+      "bytes": 1407,
+      "sha256": "2ca41dfeca495f0bf34c0ea47a66e5904d0cb19176e5f87335fad6e55f139516",
+      "mode": 432
+    },
+    "recorded-wire-inverse.json": {
+      "bytes": 3344,
+      "sha256": "2e431b761d7909f5b935b53f4413f0b99f58221c989153754dd59c73ca14bfe9",
+      "mode": 432
+    }
+  },
+  "package_payload_count": 19,
+  "package_payload_bytes": 182368,
+  "original_templates": "The two request templates are copied verbatim as historical01 templates. Root will create a separate02 actual request and bind the02 manifest; no request is submitted here.",
+  "executed_source_or_AST": false
+}

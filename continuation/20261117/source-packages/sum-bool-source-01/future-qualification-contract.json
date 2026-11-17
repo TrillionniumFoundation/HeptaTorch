@@ -1,0 +1,73 @@
+{
+  "schema": "heptatorch.sum-bool.followup-obligations.v1",
+  "status": "REQUIRES_NEW_REFERENCE_AND_NEW_IMAGE",
+  "old699": {
+    "source_sha256": "afd54444849ed10f7b4af53231c9db6542854b70f33e3927f8b05dfbb23ed1e3",
+    "native_sha256": "fec4f5cd7f80591fee98378cb5a8a85b6e71c5e4a7f0a00a739dad16afc24c28",
+    "original_reference24_sha256": "6c9df4b579664c89c200b9d796367dd6d41f93f8260e8ff012f17d5041d2278b",
+    "original_5_control_source_unchanged": true,
+    "original_bool_target_rejections_remain_historical": true
+  },
+  "new_owner_requirements": [
+    "Explicit dtype1 succeeds only for input dtype1/2; F32 and wrapped-F64 inputs retain rejection.",
+    "Successful output is dtype1, width1, requested bytes=numel, canonical raw bytes; the complete allocator rounding and partition predicates remain.",
+    "Output Tensor/Storage/Version are fresh and owning, independent of the input even for rank0 or no-op geometry. Version comes from the new actual reference.",
+    "requires_grad=false, grad_fn=None, no G, no Saved, no op47, no retained input/base edges; all original 84Q role equations still hold.",
+    "No old I64-success predicate may be changed to accept arbitrary widths; create an explicitly branched Bool success contract in a new observer revision with a whole inverse.",
+    "On invalid dimensions/dtype/capability and allocation failure, preserve original full-owner/RNG rollback and EOF requirements. No tests run in this package.",
+    "Follow source/output independence through input mutation, source public drop and output drop; only claim Weak lifetime actually measured by the new reference."
+  ],
+  "new_dtype_control_denominator": {
+    "total": 7,
+    "newly_supported_cases": [
+      "Bool input, explicit Bool",
+      "I64 input, explicit Bool"
+    ],
+    "continued_refusals_from_old5": [
+      "Bool input, explicit F32",
+      "I64 input, explicit F32",
+      "F32 input, explicit I64"
+    ],
+    "additional_scope_refusals": [
+      "F32 input, explicit Bool",
+      "wrapped-F64 input, explicit Bool"
+    ],
+    "note": "This is a new planned seven-control contract. It does not alter the original five-control source or result and has not run."
+  },
+  "new_reference_design": {
+    "status": "NOT_AUTHORED_OR_EXECUTED",
+    "expected_output_values": "MUST_BE_OBSERVED_FROM_FIXED_PYTORCH",
+    "dimensions": [
+      "rank0 None/[]/-1/0",
+      "None and [] separately on non-scalar input",
+      "positive/negative/unsorted multiple axes",
+      "keepdim true/false",
+      "duplicate normalized axis",
+      "positive/negative out-of-range axis"
+    ],
+    "data": [
+      "I64 [1,-1] before reduction conversion",
+      "I64 [INT64_MIN,INT64_MIN] whose integer wrap sum cancels",
+      "high-bit pairs and signed cancellation",
+      "all-zero and mixed zero/nonzero",
+      "canonical Bool false/true"
+    ],
+    "layouts": [
+      "dense",
+      "transpose or real permutation where the public typed contract supports it",
+      "non-overlapping holes and nonzero offset",
+      "overlap",
+      "zero-stride repeated values",
+      "empty reduced dimension with nonempty output",
+      "empty output"
+    ],
+    "no_numeric_expectation_generator": true
+  },
+  "same_image_regressions": [
+    "Original 24 integral cases on the new image, with unchanged expectations.",
+    "Original F32 Sum32 and affected inherited paths as assigned by root; original PASS is not transferred.",
+    "New Bool reference and new explicit seven-control contract."
+  ],
+  "qualified_cases": 0,
+  "source_only": true
+}

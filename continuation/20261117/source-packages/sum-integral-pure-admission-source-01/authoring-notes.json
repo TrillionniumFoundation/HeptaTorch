@@ -1,0 +1,51 @@
+{
+  "schema": "heptatorch.sum-integral24.pure-authoring-notes.v1",
+  "status": "SOURCE_TEXT_AND_LITERAL_INVERSES_ONLY",
+  "parent_a09619_source_bytes": 182368,
+  "source_transfer": {
+    "git_blob": "94a6d9eb509075ea7a718696831c1de1faefeb17",
+    "bytes": 225128,
+    "sha256": "7d0b5f144af8cc378b9f9bff5b2b24ec7527886eafe0a4d3b5cf18e0100c342a",
+    "read_only_fetch": true,
+    "all19_member_SHA_verified": true
+  },
+  "original_native24_case": {
+    "bytes": 21626,
+    "sha256": "63d30c09f7c2883fc9b6503eaa1822ac7a4045fa5cd54a5ff7cfdd21be9ce833"
+  },
+  "original_native_constructor": {
+    "bytes": 2514,
+    "sha256": "3ed7a51cb5ee0879851b47890f9fa62ec88bef246fd3f37f222150f990571bc5"
+  },
+  "original_controls": {
+    "bytes": 4730,
+    "sha256": "585f86c949b0ed8d7424dbf5d3aa87429a528ace503c11bc8d70ec99db89183a"
+  },
+  "unmodified_owner_reader": "e8f16f9bfe718e705ccf74ba19ebd981e8b7b3c0aaf9d2cc82946dd21173e411",
+  "unmodified_common": "a4ac713abf15756548d6b0be15c1d8287f73e6f4dee40a812415c1daf160f207",
+  "control_frame_prefix": {
+    "text": "    def __init__(self, directory, report, session, owner_module):\n        self.directory, self.report = Path(directory), report\n        self.session, self.module = session, owner_module\n        self.blobs = report[\"complete_frame_owner_blobs\"]\n        same(session.transport[\"owner_blobs\"], self.blobs,\n             \"transport-and-case-complete-owner-blob-ledger\")\n        raw = read(self.directory / \"owner-frames.jsonl\")\n        need(raw.endswith(b\"\\n\") and raw, \"complete-nonempty-owner-journal-EOF\")\n        lines = raw.splitlines()\n        need(all(lines), \"no-empty-owner-journal-record\")\n        self.journal = [json.loads(line) for line in lines]\n        need(len(self.journal) == report[\"complete_frame_count\"] == len(session.requests),\n             \"one-original-complete-owner-pair-per-frame\")\n        self.cache, self.capture_cursor = OrderedDict(), 0\n        self.seen_digests, self.current_reads = set(), 0\n        self.captured_endpoints = 0\n        self.frame_refusals, self.partial_payload_errors = 0, 0\n        self.rollback_bytes = 0\n        referenced = set()\n        previous = None\n        for index, row in enumerate(self.journal, 1):\n            need(set(row) == {\"frame\", \"request_sha256\", \"request_bytes\", \"commands\", \"before\",\n                 \"response_sha256\", \"response_bytes\", \"after\", \"frame_status\", \"record_count\", \"checks\"},\n                 \"complete-successful-observer-journal-fields\", frame=index)\n            request, response = session.requests[index-1], session.responses[index-1]\n            status, records, commands = session.decoded[index-1]\n            need(row[\"frame\"] == index and row[\"request_sha256\"] == SHA(request)\n                 and row[\"request_bytes\"] == len(request) and row[\"response_sha256\"] == SHA(response)\n                 and row[\"response_bytes\"] == len(response), \"raw-wire-journal-binding\", frame=index)\n            same(row[\"commands\"], [list(command) for command in commands],\n                 \"exact-journal-command-words\")\n            need(row[\"frame_status\"] == status and row[\"record_count\"] == len(records),\n                 \"actual-wire-header-status-and-record-count\", frame=index)\n            for label, frame in ((\"before\", index-1), (\"after\", index)):\n                ref = row[label]\n                need(set(ref) == {\"label\", \"frame\", \"pointer\", \"length\", \"sha256\", \"verified_summary\"},\n                     \"complete-original-endpoint-fields\", frame=index, phase=label)\n                need(ref[\"label\"] == label and ref[\"frame\"] == frame\n                     and type(ref[\"pointer\"]) is int and ref[\"pointer\"] >= 0\n                     and type(ref[\"length\"]) is int and 0 <= ref[\"length\"] <= 64*(1 << 20)\n                     and (ref[\"pointer\"] == 0) == (ref[\"length\"] == 0),\n                     \"exact-endpoint-state-and-length\", frame=index, phase=label)\n                need(ref[\"sha256\"] in self.blobs, \"declared-complete-endpoint-blob\")\n                entry = self.blobs[ref[\"sha256\"]]\n                need(set(entry) == {\"path\", \"bytes\", \"sha256\", \"compressed_bytes\", \"compressed_sha256\", \"mode\"}\n                     and entry[\"sha256\"] == ref[\"sha256\"] and entry[\"bytes\"] == ref[\"length\"]\n                     and entry[\"path\"] == \"complete-owner/\"+ref[\"sha256\"]+\".bin.xz\",\n                     \"whole-owner-ledger-and-canonical-name\")\n                referenced.add(ref[\"sha256\"])\n            if previous is not None:\n                need(all(previous[key] == row[\"before\"][key]\n                         for key in (\"pointer\", \"length\", \"sha256\")),\n                     \"after-N-equals-before-N-plus-one-complete-owner\", frame=index)\n                # SHA binding is independently checked against the complete bytes\n                # when every capture is consumed; neither endpoint is synthesized.\n            previous = row[\"after\"]\n            if status:\n                need(all(row[\"before\"][key] == row[\"after\"][key]\n                         for key in (\"pointer\", \"length\", \"sha256\")),\n                     \"original-header-error-whole-owner-rollback\", frame=index)\n                self.frame_refusals += 1\n                self.rollback_bytes += row[\"before\"][\"length\"]\n            for record in records:\n                if record[\"opcode\"] == 58 and record[\"value\"] != 0:\n                    need(status == 0, \"partial-backward-payload-is-not-a-frame-error\", frame=index)\n                    self.partial_payload_errors += 1\n        need(referenced == set(self.blobs), \"no-missing-or-unreferenced-complete-owner-member\")\n        need(report[\"full_transition_recomputed\"] is False,\n             \"original-general-transition-scope-preserved\")\n",
+    "bytes": 4647,
+    "sha256": "854f62e883eadd95ffe4d47be06bc16ae6b192a72d724adea572a3bb3ec3cac2",
+    "before": "complete_owners.py",
+    "after": "control_owners.py"
+  },
+  "adaptation": "Every original19 file has exact whole-file forward and reverse proof; newly added control layer uses only real original records.",
+  "current_report_bytes_not_wholly_read_by_author": true,
+  "actual_execution": {
+    "process": false,
+    "AST": false,
+    "Python_import": false,
+    "Torch": false,
+    "native": false,
+    "compiler": false,
+    "emitter": false,
+    "sealing": false,
+    "recorded_replay": false
+  },
+  "remote_delivery": "PENDING; no new H request during authoring",
+  "original_failed_history_reclassified": false,
+  "qualification": false,
+  "schema_closure": false,
+  "full_project_status": "HOLD"
+}

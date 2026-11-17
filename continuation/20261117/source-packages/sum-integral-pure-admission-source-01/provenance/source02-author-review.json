@@ -1,0 +1,357 @@
+{
+  "schema": "heptatorch.sum-native32.pure-source02-source-review.v1",
+  "status": "SOURCE_ONLY_REVIEW_COMPLETED_NO_EXECUTION",
+  "defect": {
+    "id": "PURE-SUM-ARCHIVE-PATH-001",
+    "original_file": "/home/qian-qi/heptatorch-continuation-20261116/runs/sum-native32-pure-admission-source-01/archive_custody.py",
+    "original_sha256": "7871efac801a771ec6063b7c13f79ae92e2c954f42e151c1900ad29a1d7a9657",
+    "discovered_by": "root full-source review before any seal/admission execution",
+    "cause": "verify_archive input_bindings loop overwrote its archive path parameter. Later archive digest/XZ/TAR reads would address the final input file.",
+    "fix": "Only the loop binding and its three references become input_path. No predicate or archive argument changes.",
+    "source01_outcome": "SOURCE_DEFECT_IDENTIFIED_NOT_EXECUTED",
+    "source01_original_files_unchanged": true
+  },
+  "corrected_file": {
+    "path": "/home/qian-qi/heptatorch-continuation-20261116/runs/sum-native32-pure-admission-source-02/archive_custody.py",
+    "bytes": 12832,
+    "sha256": "8dea187f7d971a4c0fd5777396c04bcef6a18ce29c500a48563f350cbb876bee",
+    "mode": 432
+  },
+  "inverse": {
+    "path": "/home/qian-qi/heptatorch-continuation-20261116/runs/sum-native32-pure-source02-custody-01/archive-path-whole-source-inverse.json",
+    "bytes": 8958,
+    "sha256": "70de4a3aa9167277c4a8d95e06adad561cfaa426e55fac55751a1e3b2c94f289",
+    "mode": 432
+  },
+  "import_review": {
+    "method": "Read frozen source text and explicit module-load chain; no Python import/AST/process performed.",
+    "modules": [
+      {
+        "source_root": "/home/qian-qi/heptatorch-continuation-20261116/runs/sum-dims-native32-source-03",
+        "relative_path": "vendor/protocol.py",
+        "bytes": 4215,
+        "sha256": "7a30d7bca140e3a4cc9d63a3e6930b92d2ffd60ad4503895419d8a63e67c8bd9",
+        "import_statements": [
+          "from pathlib import Path",
+          "import importlib.util",
+          "import hashlib",
+          "import struct"
+        ],
+        "direct_subprocess_ctypes_Torch_import": false
+      },
+      {
+        "source_root": "/home/qian-qi/heptatorch-continuation-20261116/runs/sum-dims-native32-source-03",
+        "relative_path": "vendor/owner_client.py",
+        "bytes": 9780,
+        "sha256": "dee3e4cb25ee1e5e06513e2f33478fbe274d9510ce2aaab9525815c72312946b",
+        "import_statements": [
+          "from pathlib import Path",
+          "import fcntl",
+          "import hashlib",
+          "import json",
+          "import os",
+          "import resource",
+          "import select",
+          "import signal",
+          "import struct",
+          "import time"
+        ],
+        "direct_subprocess_ctypes_Torch_import": false
+      },
+      {
+        "source_root": "/home/qian-qi/heptatorch-continuation-20261116/runs/sum-dims-native32-source-03",
+        "relative_path": "vendor/replay_direct_view14.py",
+        "bytes": 41857,
+        "sha256": "52c3b3242a73fb412102c83c5ba47cf8d95a4eb3c01e56f41bfe593066506d05",
+        "import_statements": [
+          "import argparse",
+          "import ast",
+          "import hashlib",
+          "import importlib.util",
+          "import itertools",
+          "import json",
+          "import lzma",
+          "import math",
+          "from pathlib import Path",
+          "import re",
+          "import shutil",
+          "import struct",
+          "import sys",
+          "import traceback"
+        ],
+        "direct_subprocess_ctypes_Torch_import": false
+      },
+      {
+        "source_root": "/home/qian-qi/heptatorch-continuation-20261116/runs/sum-dims-native32-source-03",
+        "relative_path": "replay_sum32.py",
+        "bytes": 45500,
+        "sha256": "bf42be125e4c14d6edc51375096e45e8e47d0de143149fdba521e63a7707b9ae",
+        "import_statements": [
+          "import argparse",
+          "import hashlib",
+          "import importlib.util",
+          "import json",
+          "from pathlib import Path, PurePosixPath",
+          "import re",
+          "import struct",
+          "import sys",
+          "import traceback",
+          "from admit_reference32 import (admit_reference, file_bytes, product, require,",
+          "from admit_build import admit_build"
+        ],
+        "direct_subprocess_ctypes_Torch_import": false
+      },
+      {
+        "source_root": "/home/qian-qi/heptatorch-continuation-20261116/runs/sum-dims-native32-source-03",
+        "relative_path": "admit_build.py",
+        "bytes": 41398,
+        "sha256": "c7fb3b4399e2a98ae395f3184dbc0ee28681f72adf5cbfcd4930fe62f42936d4",
+        "import_statements": [
+          "import json",
+          "from pathlib import Path",
+          "import re",
+          "import struct",
+          "from admit_reference32 import file_bytes, require, sha"
+        ],
+        "direct_subprocess_ctypes_Torch_import": false
+      },
+      {
+        "source_root": "/home/qian-qi/heptatorch-continuation-20261116/runs/sum-dims-native32-source-03",
+        "relative_path": "admit_reference32.py",
+        "bytes": 26961,
+        "sha256": "7121e1ff7f856eb2e4cb1fcee197c3092b08f10eafb0744f201629639e3f0ec8",
+        "import_statements": [
+          "import hashlib",
+          "import itertools",
+          "import json",
+          "from pathlib import Path, PurePosixPath",
+          "import re",
+          "import stat",
+          "import struct"
+        ],
+        "direct_subprocess_ctypes_Torch_import": false
+      },
+      {
+        "source_root": "/home/qian-qi/heptatorch-continuation-20261116/runs/sum-dims-native32-source-03",
+        "relative_path": "owner_sum47_48.py",
+        "bytes": 70480,
+        "sha256": "0eadfed89c33fb8d8615dd2f976b08b66ef6bc309ddbeca3685f25517634449d",
+        "import_statements": [
+          "from collections import Counter",
+          "from pathlib import Path",
+          "import hashlib",
+          "import json",
+          "import os",
+          "import re",
+          "import struct",
+          "import time"
+        ],
+        "direct_subprocess_ctypes_Torch_import": false
+      },
+      {
+        "source_root": "/home/qian-qi/heptatorch-continuation-20261116/runs/sum-dims-native32-source-03",
+        "relative_path": "native_observer_sum02.py",
+        "bytes": 16085,
+        "sha256": "0f3108343883329bc06d9251721890b6cf93b111acec029261a7799c137fe06a",
+        "import_statements": [
+          "import hashlib",
+          "import importlib.util",
+          "from pathlib import Path",
+          "import re",
+          "import struct",
+          "import json",
+          "import lzma",
+          "import os",
+          "import signal",
+          "import time",
+          "import traceback"
+        ],
+        "direct_subprocess_ctypes_Torch_import": false
+      }
+    ],
+    "protocol_loads_only_original_owner_client": true,
+    "owner_client_fork_exec_are_method_bodies_not_top_level_calls": true,
+    "recorded_session_replaces_original_constructor_before_Case_creation": true,
+    "R4_original_source_is_read_as_text_not_imported": true,
+    "confirmed_current_subprocess_import_conflict": false,
+    "unchanged_common": {
+      "path": "/home/qian-qi/heptatorch-continuation-20261116/runs/sum-native32-pure-admission-source-02/admission_common.py",
+      "bytes": 6232,
+      "sha256": "a4ac713abf15756548d6b0be15c1d8287f73e6f4dee40a812415c1daf160f207",
+      "mode": 432
+    },
+    "actual_process_network_ctypes_proc_guards_unchanged": true,
+    "limitation": "This is source-only review of the frozen program import chain, not an executed CPython-stdlib import test."
+  },
+  "complete_readback": {
+    "files": [
+      {
+        "name": "admission_common.py",
+        "bytes": 6232,
+        "sha256": "a4ac713abf15756548d6b0be15c1d8287f73e6f4dee40a812415c1daf160f207",
+        "version": "66306:46188304:6232:1794904317805691505:1794904317807524173",
+        "eof": true,
+        "mode": 432
+      },
+      {
+        "name": "recorded_wire.py",
+        "bytes": 7311,
+        "sha256": "fff82c83c9d5b131597298fa125d2adcb370efdd7ede811fa794f43dc5618159",
+        "version": "66306:46188310:7311:1794904320665347243:1794904320667524686",
+        "eof": true,
+        "mode": 432
+      },
+      {
+        "name": "complete_owners.py",
+        "bytes": 9316,
+        "sha256": "e8f16f9bfe718e705ccf74ba19ebd981e8b7b3c0aaf9d2cc82946dd21173e411",
+        "version": "66306:46188316:9316:1794904324580186424:1794904324581525388",
+        "eof": true,
+        "mode": 432
+      },
+      {
+        "name": "recorded_observer.py",
+        "bytes": 5808,
+        "sha256": "d15237c092e58fabb057f6e8d5fb4aa88da8590daba99d91c81bab89424879fe",
+        "version": "66306:46188322:5808:1794904327963783726:1794904327965525995",
+        "eof": true,
+        "mode": 432
+      },
+      {
+        "name": "archive_custody.py",
+        "bytes": 12832,
+        "sha256": "8dea187f7d971a4c0fd5777396c04bcef6a18ce29c500a48563f350cbb876bee",
+        "version": "66306:46188328:12832:1794904330871526516:1794904330874526517",
+        "eof": true,
+        "mode": 432
+      },
+      {
+        "name": "source_custody.py",
+        "bytes": 8134,
+        "sha256": "2e130043047ba590dfd5495f2097b1ccc23e7ad5f34b811786e5dc5686971528",
+        "version": "66306:46188334:8134:1794904333338953066:1794904333340526959",
+        "eof": true,
+        "mode": 432
+      },
+      {
+        "name": "seal_raw.py",
+        "bytes": 12490,
+        "sha256": "5ac7c0db52d81ee8363da8922a601eee8e794e6fc65a59897b5cfb88262654b3",
+        "version": "66306:46188340:12490:1794904335945124654:1794904335946527427",
+        "eof": true,
+        "mode": 432
+      },
+      {
+        "name": "admit_recorded_sum32.py",
+        "bytes": 14682,
+        "sha256": "804b4700f58d79d46a3f3a8c5709ff6fe9fb3ce471261e309ca31db13efa4b92",
+        "version": "66306:46188346:14682:1794904342353541612:1794904342355528578",
+        "eof": true,
+        "mode": 432
+      },
+      {
+        "name": "profile.json",
+        "bytes": 4353,
+        "sha256": "a2da6ed769b8e242e7f13cacecfd8f7d29fbad88316cd9bb925879dc377809dd",
+        "version": "66306:46188352:4353:1794904344849529026:1794904344852529026",
+        "eof": true,
+        "mode": 432
+      },
+      {
+        "name": "README.md",
+        "bytes": 9133,
+        "sha256": "09423f322ed590c64c06a258298a2809ffd3c8e88b78e475708d9f27eb160ac5",
+        "version": "66306:46188358:9133:1794904347760582408:1794904347762529549",
+        "eof": true,
+        "mode": 432
+      },
+      {
+        "name": "source-reuse.json",
+        "bytes": 6355,
+        "sha256": "69ba096211598d9aaf850a3dc8eab9e5230a772be5dd00afa011a3fbcf13754c",
+        "version": "66306:46188364:6355:1794904350162060593:1794904350162060593",
+        "eof": true,
+        "mode": 432
+      },
+      {
+        "name": "provenance/r4-pure-admission20b23.py",
+        "bytes": 63691,
+        "sha256": "20b23badd9393a8f8ed8bdc23dc7bfbcc991ebabe007257297fd5e9b40ee3529",
+        "version": "66306:46188373:63691:1794904355270996219:1794904355272530899",
+        "eof": true,
+        "mode": 432
+      },
+      {
+        "name": "provenance/native32-source03-manifest.json",
+        "bytes": 7599,
+        "sha256": "f13a204f5071c07b34ab35ee1b4a6dc90163137b0762fb57bd8c34abb0c8b277",
+        "version": "66306:46188382:7599:1794904357656605757:1794904357658531328",
+        "eof": true,
+        "mode": 432
+      },
+      {
+        "name": "design-checkpoint.json",
+        "bytes": 5045,
+        "sha256": "1a9b27fefee56e1865eafb532b57d587f61798cae52cf9b685555d292b37dfba",
+        "version": "66306:46188383:5045:1794904360407740603:1794904360409531822",
+        "eof": true,
+        "mode": 432
+      },
+      {
+        "name": "authoring-notes.json",
+        "bytes": 2850,
+        "sha256": "258aa2d39c148d3bbc73f91fcab88fd1218beacf46d6b174ed4bea76a8657e62",
+        "version": "66306:46188394:2850:1794904363285962484:1794904363287532340",
+        "eof": true,
+        "mode": 432
+      },
+      {
+        "name": "seal-plan-template.json",
+        "bytes": 556,
+        "sha256": "e9e99b3d1a0533bddb5c94e24391249e20f3c962f6c92d6f07bd27abd470e253",
+        "version": "66306:46188395:556:1794904366075725482:1794904366075725482",
+        "eof": true,
+        "mode": 432
+      },
+      {
+        "name": "seal-request-template.json",
+        "bytes": 1230,
+        "sha256": "ff50c43bc39b8113edab08abcc0c2d0403ae956a795c96649d4a1468e38c8744",
+        "version": "66306:46188406:1230:1794904369097533385:1794904369100533386",
+        "eof": true,
+        "mode": 432
+      },
+      {
+        "name": "admission-request-template.json",
+        "bytes": 1407,
+        "sha256": "2ca41dfeca495f0bf34c0ea47a66e5904d0cb19176e5f87335fad6e55f139516",
+        "version": "66306:46188407:1407:1794904372733312986:1794904372734534040",
+        "eof": true,
+        "mode": 432
+      },
+      {
+        "name": "recorded-wire-inverse.json",
+        "bytes": 3344,
+        "sha256": "2e431b761d7909f5b935b53f4413f0b99f58221c989153754dd59c73ca14bfe9",
+        "version": "66306:46188418:3344:1794904375272704274:1794904375274534497",
+        "eof": true,
+        "mode": 432
+      }
+    ],
+    "all19_full_bytes_and_SHA_verified": true,
+    "all19_original0660_modes_verified": true
+  },
+  "archive_input_guard_unchanged": true,
+  "all_owner_117_fullraw_checks_unchanged": true,
+  "no_qualification_transfer": true,
+  "execution": {
+    "process": false,
+    "AST": false,
+    "Python_import": false,
+    "native": false,
+    "Torch": false,
+    "compiler": false,
+    "sealing": false,
+    "recorded_admission": false
+  }
+}

@@ -1,0 +1,212 @@
+{
+  "schema": "heptatorch.sum-integral24.recorded-source-reuse.v1",
+  "status": "SOURCE_TEXT_REVIEW_ONLY_NOT_EXECUTED",
+  "original_R4_pure_source": {
+    "path": "/home/qian-qi/heptatorch-continuation-20261116/runs/r4-scalar07b-raw-admission-source-02/admit_scalar07b_raw.py",
+    "bytes": 63691,
+    "sha256": "20b23badd9393a8f8ed8bdc23dc7bfbcc991ebabe007257297fd5e9b40ee3529",
+    "original_mode": 384,
+    "copy": "provenance/r4-pure-admission20b23.py",
+    "copy_mode": 432,
+    "copy_bytes_unchanged": true
+  },
+  "exact_common_functions": {
+    "need": {
+      "bytes": 148,
+      "sha256": "4a2b54cd36477a10ab43d41bd09de385a10c450dc9154fe9d3c19a04b01a2c0e",
+      "body": "def need(condition, assertion_label, **facts):\n    if not condition:\n        raise AssertionError({\"raw_admission_rule\": assertion_label, **facts})\n"
+    },
+    "same": {
+      "bytes": 175,
+      "sha256": "bdb4c60aefc3109cc33b06e66c16e634d74e2078ae4e76f37e2c86031d90f38c",
+      "body": "def same(a, b, label):\n    # Python json retains exact u64 integers; no JS Number or float conversion.\n    need(json.loads(json.dumps(a)) == json.loads(json.dumps(b)), label)\n"
+    },
+    "single_xz": {
+      "bytes": 446,
+      "sha256": "bc9107d26dbbcf90d5cd58e8df6d508eb4b49690440c51aab2f1aa3a7e9d4d59",
+      "body": "def single_xz(path, expected):\n    packed = read(path, expected[\"compressed_sha256\"], expected[\"compressed_bytes\"])\n    decoder = lzma.LZMADecompressor(format=lzma.FORMAT_XZ)\n    raw = decoder.decompress(packed)\n    need(decoder.eof and not decoder.unused_data, \"one-complete-owner-XZ\", path=str(path))\n    need(len(raw) == expected[\"bytes\"] and SHA(raw) == expected[\"sha256\"],\n         \"decompressed-whole-owner\", path=str(path))\n    return raw\n"
+    },
+    "unpack_frames": {
+      "bytes": 447,
+      "sha256": "059a2e9bff9bedc8050943aa9dd736471ccaa963b0cd16a48728bc9b7d3218ce",
+      "body": "def unpack_frames(raw, magic):\n    rows, at = [], 0\n    while at < len(raw):\n        need(at + 16 <= len(raw), \"whole-wire-frame-header\")\n        tag, size = struct.unpack_from(\"<8sQ\", raw, at)\n        at += 16\n        need(tag == magic and 32 <= size <= 1 << 20 and at + size <= len(raw),\n             \"whole-wire-frame-bound\")\n        rows.append(raw[at:at+size])\n        at += size\n    need(at == len(raw), \"wire-complete-EOF\")\n    return rows\n"
+    }
+  },
+  "transport": {
+    "original_block": "f32374fdbd57b2d86ef395472fd2751c17471ee1b1f9f7d2f87c8a50fdd42266",
+    "new_block": "a6badc2b817225890fc37f35da10b6414439fb556d952e0770919efff4a365dc",
+    "edits": 4,
+    "proof": "recorded-wire-inverse.json",
+    "adaptations": [
+      "Add only real115/116/117 Tensor result capabilities.",
+      "Bind original full EOF streams and complete owner boundary count.",
+      "Replace old missing-owner refusal only with the complete original per-frame endpoint.",
+      "Require every original journal endpoint consumed before observed EOF."
+    ],
+    "whole_class_unchanged_from_pure32": true,
+    "only_new_full_file_change": "IMAGE literal is the actual 699 ELF; every class method is unchanged."
+  },
+  "original_pure32_source_package": {
+    "path": "/home/qian-qi/heptatorch-continuation-20261116/runs/sum-native32-pure-admission-source-02/source-manifest.json",
+    "bytes": 6409,
+    "sha256": "a0968c1dfdf00d9f5a2c67d181d15dc9b9b3ea6bfd671ac1c672dd2badcd2dd3",
+    "mode": 432,
+    "copy": "provenance/pure32-source02-manifest.json"
+  },
+  "original_native24_package": {
+    "root": "/home/qian-qi/heptatorch-continuation-20261116/runs/sum-integral-native24-source-01",
+    "manifest": {
+      "path": "/home/qian-qi/heptatorch-continuation-20261116/runs/sum-integral-native24-source-01/source-manifest.json",
+      "bytes": 4791,
+      "sha256": "6eee1fcd26367af3fba97488118e419788d64f41f90901b37cc594fe38154a9f",
+      "mode": 432
+    }
+  },
+  "original_native32_parent_package": {
+    "root": "/home/qian-qi/heptatorch-continuation-20261116/runs/sum-dims-native32-source-03",
+    "manifest": {
+      "path": "/home/qian-qi/heptatorch-continuation-20261116/runs/sum-dims-native32-source-03/source-manifest.json",
+      "bytes": 7599,
+      "sha256": "f13a204f5071c07b34ab35ee1b4a6dc90163137b0762fb57bd8c34abb0c8b277",
+      "mode": 432
+    }
+  },
+  "original_whole_IntegralCase": {
+    "path": "replay_integral24.py",
+    "begin": "\ndef case_class(",
+    "end": "\ndef unchanged_inputs(",
+    "bytes": 21626,
+    "sha256": "63d30c09f7c2883fc9b6503eaa1822ac7a4045fa5cd54a5ff7cfdd21be9ce833",
+    "parent_case_path": "vendor/replay_direct_view14.py",
+    "parent_case_sha256": "52c3b3242a73fb412102c83c5ba47cf8d95a4eb3c01e56f41bfe593066506d05"
+  },
+  "original_whole_bounded_control_driver": {
+    "path": "typed_scope_controls.py",
+    "bytes": 5768,
+    "sha256": "fb585a857619f83e4005646c294e287436412fe8628c920d5b4617e08d8ec6e2",
+    "begin": "def run_controls(",
+    "end": "EOF",
+    "function_bytes": 4730,
+    "function_sha256": "585f86c949b0ed8d7424dbf5d3aa87429a528ace503c11bc8d70ec99db89183a",
+    "case_count": 5,
+    "Torch_parity_claim": false
+  },
+  "original_exchange_wrapper": {
+    "path": "native_observer_integral.py",
+    "begin": "    def __init__",
+    "begin_after": "class Native(",
+    "end": "\n    def capture_owner",
+    "bytes": 2514,
+    "sha256": "3ed7a51cb5ee0879851b47890f9fa62ec88bef246fd3f37f222150f990571bc5"
+  },
+  "original_owner_predicates": {
+    "path": "owner_integral.py",
+    "sha256": "c39600e7c37dea390f88cf9e74d86dfa924301456e0f32e127d82c98ad6778b0",
+    "unchanged": true,
+    "source_is_admitted_by_original_native24_package": true,
+    "full_84Q_and47_48_roles": true,
+    "full_raw117_publication_inverse": true,
+    "whole_frame_header_error_rollback": true,
+    "partial58_payload_is_not_a_frame_header_error": true
+  },
+  "byte_identical_parent_files": [
+    "admission_common.py",
+    "complete_owners.py",
+    "provenance/r4-pure-admission20b23.py",
+    "provenance/native32-source03-manifest.json"
+  ],
+  "complete_reference_owner_reader": {
+    "bytes": 9316,
+    "sha256": "e8f16f9bfe718e705ccf74ba19ebd981e8b7b3c0aaf9d2cc82946dd21173e411",
+    "all_original_case_owner_and_frame_predicates_unchanged": true
+  },
+  "control_owner_extension": {
+    "module": "control_owners.py",
+    "original_frame_constructor_prefix": {
+      "text": "    def __init__(self, directory, report, session, owner_module):\n        self.directory, self.report = Path(directory), report\n        self.session, self.module = session, owner_module\n        self.blobs = report[\"complete_frame_owner_blobs\"]\n        same(session.transport[\"owner_blobs\"], self.blobs,\n             \"transport-and-case-complete-owner-blob-ledger\")\n        raw = read(self.directory / \"owner-frames.jsonl\")\n        need(raw.endswith(b\"\\n\") and raw, \"complete-nonempty-owner-journal-EOF\")\n        lines = raw.splitlines()\n        need(all(lines), \"no-empty-owner-journal-record\")\n        self.journal = [json.loads(line) for line in lines]\n        need(len(self.journal) == report[\"complete_frame_count\"] == len(session.requests),\n             \"one-original-complete-owner-pair-per-frame\")\n        self.cache, self.capture_cursor = OrderedDict(), 0\n        self.seen_digests, self.current_reads = set(), 0\n        self.captured_endpoints = 0\n        self.frame_refusals, self.partial_payload_errors = 0, 0\n        self.rollback_bytes = 0\n        referenced = set()\n        previous = None\n        for index, row in enumerate(self.journal, 1):\n            need(set(row) == {\"frame\", \"request_sha256\", \"request_bytes\", \"commands\", \"before\",\n                 \"response_sha256\", \"response_bytes\", \"after\", \"frame_status\", \"record_count\", \"checks\"},\n                 \"complete-successful-observer-journal-fields\", frame=index)\n            request, response = session.requests[index-1], session.responses[index-1]\n            status, records, commands = session.decoded[index-1]\n            need(row[\"frame\"] == index and row[\"request_sha256\"] == SHA(request)\n                 and row[\"request_bytes\"] == len(request) and row[\"response_sha256\"] == SHA(response)\n                 and row[\"response_bytes\"] == len(response), \"raw-wire-journal-binding\", frame=index)\n            same(row[\"commands\"], [list(command) for command in commands],\n                 \"exact-journal-command-words\")\n            need(row[\"frame_status\"] == status and row[\"record_count\"] == len(records),\n                 \"actual-wire-header-status-and-record-count\", frame=index)\n            for label, frame in ((\"before\", index-1), (\"after\", index)):\n                ref = row[label]\n                need(set(ref) == {\"label\", \"frame\", \"pointer\", \"length\", \"sha256\", \"verified_summary\"},\n                     \"complete-original-endpoint-fields\", frame=index, phase=label)\n                need(ref[\"label\"] == label and ref[\"frame\"] == frame\n                     and type(ref[\"pointer\"]) is int and ref[\"pointer\"] >= 0\n                     and type(ref[\"length\"]) is int and 0 <= ref[\"length\"] <= 64*(1 << 20)\n                     and (ref[\"pointer\"] == 0) == (ref[\"length\"] == 0),\n                     \"exact-endpoint-state-and-length\", frame=index, phase=label)\n                need(ref[\"sha256\"] in self.blobs, \"declared-complete-endpoint-blob\")\n                entry = self.blobs[ref[\"sha256\"]]\n                need(set(entry) == {\"path\", \"bytes\", \"sha256\", \"compressed_bytes\", \"compressed_sha256\", \"mode\"}\n                     and entry[\"sha256\"] == ref[\"sha256\"] and entry[\"bytes\"] == ref[\"length\"]\n                     and entry[\"path\"] == \"complete-owner/\"+ref[\"sha256\"]+\".bin.xz\",\n                     \"whole-owner-ledger-and-canonical-name\")\n                referenced.add(ref[\"sha256\"])\n            if previous is not None:\n                need(all(previous[key] == row[\"before\"][key]\n                         for key in (\"pointer\", \"length\", \"sha256\")),\n                     \"after-N-equals-before-N-plus-one-complete-owner\", frame=index)\n                # SHA binding is independently checked against the complete bytes\n                # when every capture is consumed; neither endpoint is synthesized.\n            previous = row[\"after\"]\n            if status:\n                need(all(row[\"before\"][key] == row[\"after\"][key]\n                         for key in (\"pointer\", \"length\", \"sha256\")),\n                     \"original-header-error-whole-owner-rollback\", frame=index)\n                self.frame_refusals += 1\n                self.rollback_bytes += row[\"before\"][\"length\"]\n            for record in records:\n                if record[\"opcode\"] == 58 and record[\"value\"] != 0:\n                    need(status == 0, \"partial-backward-payload-is-not-a-frame-error\", frame=index)\n                    self.partial_payload_errors += 1\n        need(referenced == set(self.blobs), \"no-missing-or-unreferenced-complete-owner-member\")\n        need(report[\"full_transition_recomputed\"] is False,\n             \"original-general-transition-scope-preserved\")\n",
+      "bytes": 4647,
+      "sha256": "854f62e883eadd95ffe4d47be06bc16ae6b192a72d724adea572a3bb3ec3cac2",
+      "before": "complete_owners.py",
+      "after": "control_owners.py"
+    },
+    "original_Case_owner_ledger_fabricated": false,
+    "source_of_memory": "Only the actual archived complete frame endpoints, including both exported manual capture_owner references.",
+    "manual_capture_labels": [
+      "bounded-dtype-before",
+      "bounded-dtype-after"
+    ],
+    "frame_request_response_bytes_bound": true,
+    "all_full_owner_members_consumed": true,
+    "complete_before_after_no_projection": true,
+    "no_descriptor_page_exclusion": true
+  },
+  "runtime_injections": [
+    {
+      "name": "wire.Session",
+      "change": "Only exact original requests are accepted; return the corresponding original response bytes without a child."
+    },
+    {
+      "name": "Native.capture_owner",
+      "change": "Return decoded original complete raw bytes and recomputed summary. Two control labels are bound to their original frame endpoints."
+    },
+    {
+      "name": "Native.finish",
+      "change": "Require original exit/dual EOF/capability cleanup and byte-identical entire frame journal, with no process or file descriptor observation."
+    },
+    {
+      "name": "five-control Native factory",
+      "change": "Select each original control tape before calling the original Native constructor; run_controls and all its predicates remain unchanged."
+    }
+  ],
+  "no_Case_method_overrides": true,
+  "no_control_function_overrides": true,
+  "all24_reference_cases_and260_events_required": true,
+  "bounded_controls": {
+    "case_count": 5,
+    "reference_cases_added": 0,
+    "Torch_parity_claim": false,
+    "all_original_checks_required": true
+  },
+  "full_case_control_and_top_reports_compared_without_projection": true,
+  "original_top_report_byte_identity_required": true,
+  "unavailable_or_unexported_observation": "Explicit failure; no summary-derived memory or expected Tensor.",
+  "current_executions": {
+    "process": false,
+    "AST": false,
+    "Python_import": false,
+    "native": false,
+    "Torch": false,
+    "compiler": false,
+    "emitter": false,
+    "raw_sealing": false,
+    "recorded_admission": false
+  },
+  "history": {
+    "source02_failure_history": {
+      "status": "FAIL",
+      "passed": 21,
+      "failed": 11,
+      "blocked": 0,
+      "completed_events": 618,
+      "original_events": 626,
+      "report_sha256": "de7d0db53ae00730d57ca182ee23fdc9625e1081f2928d1ee13f9a9c6b1e089d",
+      "root_preserved_archive": {
+        "path": "/home/qian-qi/heptatorch-continuation-20261116/runs/root-sum02-failed-evidence-packet-01/complete.tar.xz",
+        "bytes": 60862368,
+        "sha256": "fa4e44719e7a8114dde49fb2a741ba32c8018e0fb94da37e23337b681174bb62"
+      },
+      "root_preserved_manifest_sha256": "cbc4f80511cd3107f2d46ce384cf4d9c6695d549acb6f333d28e6a0c7e122765",
+      "reclassified": false,
+      "replayed_by_this_reader": false
+    },
+    "original_pure32_manifest_preserved": true,
+    "archive_shadow_correction_preserved": {
+      "inverse": "provenance/source02-archive-inverse.json",
+      "review": "provenance/source02-author-review.json"
+    },
+    "old32_and76_not_replayed": true
+  },
+  "qualification": false,
+  "schema_closure": false,
+  "full_project_status": "HOLD"
+}
