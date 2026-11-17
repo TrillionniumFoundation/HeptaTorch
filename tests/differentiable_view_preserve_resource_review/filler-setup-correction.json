@@ -1,0 +1,58 @@
+{
+  "schema": "heptatorch.r3-preserve-filler-setup-correction.v1",
+  "status": "SOURCE_PREPARED_NOT_RUN",
+  "original_driver_sha256": "84d5b39fe8491eae25551da05e8ec87d8ea66d33dd8f0f9e07fcd223f63503ca",
+  "successor_driver_sha256": "edb879dff167e41fb72b37f6d14d2ad7cfd7f48eef87fade1c96146cee7308bc",
+  "whole_file_inverse_sha256": "84d5b39fe8491eae25551da05e8ec87d8ea66d33dd8f0f9e07fcd223f63503ca",
+  "whole_file_inverse_exact": true,
+  "changed_top_level_definitions": [
+    "preserve_capacity_oom_recovery",
+    "main"
+  ],
+  "edits": [
+    {
+      "before": "        count=((free-64*1024)//4)&~3\n",
+      "after": "        count=min(262144,((free-64*1024)//4)&~3)\n"
+    },
+    {
+      "before": "    p.add_argument('--prepare-only',action='store_true')\n",
+      "after": "    p.add_argument('--prepare-only',action='store_true')\n    p.add_argument('--case',choices=('all','tail_release_reuse','preserve_capacity_oom_recovery','tail_then_saved_error_prefix'),default='all')\n"
+    },
+    {
+      "before": "        'old_six_recipes_executed':False,'isolated_transition_gate_executed':False,\n",
+      "after": "        'old_six_recipes_executed':False,'isolated_transition_gate_executed':False,'requested_case':a.case,\n"
+    },
+    {
+      "before": "            for f in (tail_release_reuse,preserve_capacity_oom_recovery,tail_then_saved_error_prefix):\n",
+      "after": "            for f in (tail_release_reuse,preserve_capacity_oom_recovery,tail_then_saved_error_prefix):\n                if a.case!='all' and a.case!=f.__name__:continue\n"
+    },
+    {
+      "before": "            report['status']='PASS' if len(report['cases'])==3 and all(r['status']=='PASS' for r in report['cases']) else 'FAIL'\n",
+      "after": "            report['status']='PASS' if len(report['cases'])==(3 if a.case=='all' else 1) and all(r['status']=='PASS' for r in report['cases']) else 'FAIL'\n"
+    }
+  ],
+  "primary_failure": {
+    "job_id": "1a1e6c9158b-392-3c3b",
+    "source_manifest_sha256": "16a82163c844813b5804263e2f24ed07b427e4ef73044ec48a59b3dd7cca2f5f",
+    "status": "SETUP_FAILED_BEFORE_TEMPORARY_PRLIMIT_AND_BACKWARD",
+    "filler_dimension": 332548,
+    "actual_status": 3,
+    "first_owner_sha256": "ccc4885ff9db62293eeae03de7a1f26a7820a347cd3bc784f481e6a08da42ffd"
+  },
+  "source_cause": {
+    "chain": [
+      "full_tensor",
+      "tnew",
+      "descriptor",
+      "typed_descriptor"
+    ],
+    "native_source_sha256": "3c2c0a125bcac6d47075bf58fc3f78c0e7b9a0b1370757981b99dcd3793b21c6",
+    "typed_descriptor_sha256": "eed87bc2f1ff9db405584a249d0548a47703d73a8df4df3f0a6c3cb386925ff2",
+    "per_dimension_limit": 262144,
+    "failure_branch": "v215 > v216(262144) -> b20 -> terror(3)",
+    "diagnostic_job_id": "1a1e6cd2518-392-3c43"
+  },
+  "numeric_version_rollback_expectations_changed": false,
+  "production_changed": false,
+  "successor_execution_scope": "Only preserve_capacity_oom_recovery; both existing PASS controls remain at the original execution identity."
+}

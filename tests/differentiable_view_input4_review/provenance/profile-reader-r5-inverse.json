@@ -1,0 +1,34 @@
+{
+  "schema": "heptatorch.actual14-profile-reader-r5-inverse.v1",
+  "status": "SOURCE_ONLY_EXACT_INVERSE",
+  "prior_r4_reader_sha256": "86e9dafb5b7f7da60aa61058647e220f170f344ca13ea7fc21c3ac0e438ab421",
+  "new_r5_reader_sha256": "deb9f6fafc3f91b2749bdfac030e19cb0ccdb832fa238af91ed9feb396e62eb8",
+  "original_comparison_reader_sha256": "52c3b3242a73fb412102c83c5ba47cf8d95a4eb3c01e56f41bfe593066506d05",
+  "exact_inverse_to_r4": true,
+  "all_non_main_functions_and_classes_ast_identical_to_original_r3": true,
+  "expected_profile_arguments_required": [
+    "expected-functions",
+    "expected-native-units"
+  ],
+  "replacements": [
+    [
+      "    ap.add_argument('--expected-functions',type=int,required=True)\n",
+      "    ap.add_argument('--expected-functions',type=int,required=True)\n    ap.add_argument('--expected-native-units',type=int,required=True)\n"
+    ],
+    [
+      "    assert build['descriptor_bytes']==672 and build['functions']==a.expected_functions and len(build['units'])==12\n",
+      "    assert build['descriptor_bytes']==672 and build['functions']==a.expected_functions and len(build['units'])==a.expected_native_units\n"
+    ],
+    [
+      "            'descriptor_bytes':672,'functions':a.expected_functions,'native_units':12,\n",
+      "            'descriptor_bytes':672,'functions':a.expected_functions,'native_units':a.expected_native_units,\n"
+    ],
+    [
+      "            'reader_revision':'R4_EXPLICIT_HIA_FUNCTION_COUNT_BINDING',\n",
+      "            'reader_revision':'R5_EXPLICIT_HIA_PROFILE_BINDING',\n"
+    ]
+  ],
+  "native_executions": 0,
+  "torch_executions": 0,
+  "prior_r4_native_executions": 0
+}

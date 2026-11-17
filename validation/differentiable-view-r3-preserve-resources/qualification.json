@@ -1,0 +1,143 @@
+{
+  "schema": "heptatorch.r3-preserve-resources-qualification.v1",
+  "status": "PASS_THREE_FINITE_CONTROLS_ACROSS_TWO_INVOCATIONS",
+  "source_sha256": "3c2c0a125bcac6d47075bf58fc3f78c0e7b9a0b1370757981b99dcd3793b21c6",
+  "native_sha256": "7841b19051960b6fa13cb98841dbb8e4d6ead97f03e2ad65af415e1a35b03221",
+  "functions": 627,
+  "native_units": 13,
+  "descriptor_bytes": 672,
+  "actual_reference_sha256": "f4abe6a750ecc791b3a7bc7aa507b4c77eb0a2fcccf45b0c6a828db0e01490d3",
+  "unique_controls_passed": 3,
+  "successful_control_frames": 113,
+  "successful_control_checks": 243,
+  "original_native_process_count": 4,
+  "all_original_native_frames_including_setup_failure": 126,
+  "all_original_EOF_exit_codes": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "first": {
+    "job_id": "1a1e6c9158b-392-3c3b",
+    "report": {
+      "bytes": 205132,
+      "sha256": "184636ba83de144c6f4543bf4fdfbeb63b83fb633cb1b45ca069c3086f24727f",
+      "mode": 384
+    },
+    "original_status": "FAIL",
+    "cases": 3,
+    "passed": 2,
+    "setup_failed": 1,
+    "frames": 96,
+    "checks": 199,
+    "failure_scope": "Filler dimension332548 exceeded frozen per-dimension262144 guard before temporary prlimit/backward."
+  },
+  "successor": {
+    "job_id": "1a1e6cf93a2-392-3c4b",
+    "report": {
+      "bytes": 72943,
+      "sha256": "846bcad6839c542948b603e51d11eb6a833ac35daef9d5bc38d28b74860ae9f0",
+      "mode": 384
+    },
+    "original_status": "PASS",
+    "cases": 1,
+    "passed": 1,
+    "frames": 30,
+    "checks": 61,
+    "case_selection": "preserve_capacity_oom_recovery"
+  },
+  "oom_budget_actual": {
+    "highest": 8,
+    "reachable_nodes": [
+      4,
+      5
+    ],
+    "reachable_numels": {
+      "4": 4,
+      "5": 4
+    },
+    "pool": 2097152,
+    "free": 65536,
+    "preserve_requested": 524300,
+    "preserve_rounded": 524304,
+    "workspace_upper": 352,
+    "all_pre_preserve_small_allocations_upper": 448,
+    "table_free_slots": {
+      "1": 57,
+      "2": 57,
+      "3": 59,
+      "4": 64,
+      "5": 64,
+      "6": 62,
+      "7": 63,
+      "8": 64
+    },
+    "page_headroom": 247,
+    "candidate_preserve_capacities": {
+      "4": 524300,
+      "5": 16
+    },
+    "filler_count": 2,
+    "setup_budget_source": {
+      "schema": "heptatorch.dview-r3-preserve-oom-source-budget.v1",
+      "source_sha256": {
+        "gradient_workspace_size": "58a5918e412f5045e03015ffac8fb520032daec8727331109398efa8e99e7e46",
+        "history_prepare_leaf": "a111c50c3d97db2fd47b87a1f43fa3c7e210b5820b7f709305d29b83c602a548",
+        "gradient_new": "622e5631fb34db0a2a21014e42ab004ee8b419106fdad794da9e4ef79c5adada",
+        "descriptor": "6d099df3c6e89788479ba289c0e252dc663a2e5f0efab1a2bdd25612c906772e",
+        "typed_descriptor": "eed87bc2f1ff9db405584a249d0548a47703d73a8df4df3f0a6c3cb386925ff2",
+        "descriptor_page": "4a99931d1f1f09330ddfee7763602ee9dc6cd817ef452a2949930cee22f89eb3",
+        "alloc": "5faf663af54408412185027cb6ef47814a0fdd526acb28cedc52e72afdf21621",
+        "storage_capacity": "78cc8cc6b058ab735e518883dfdd51638966c849e9cb5fa4b171567bac494ac9",
+        "dview_previous_mark_preserve_targets": "a13155c4479af27cfba6244bdcb51faf36f4d27ad073c020bcf63ba0ccec1e53",
+        "incoming_mark_preserve_targets": "58071702960c733dab18cea23b8fce23018242ae36f0aa80d6416f1abc0eac50"
+      },
+      "real_workspace_reduction": "maximum over reachable nodes, not sum",
+      "workspace_scratch_upper": 112,
+      "per_small_extent_upper": 16,
+      "bound": "align16(24+24*(highest+1)+112)+16*(E+L+Psmall); use L<=E/Psmall<=E conservatively",
+      "requirements": [
+        "enabled nodes onlyop0/op44; each0<numel<=4",
+        "exactlyone large preserve capacity524300/rounded524304; other candidate capacities<=16",
+        "highest<128,E<=4,each needed descriptorpage already live",
+        "eachkind free slots>=3*E+4; at mostE new gradients fit existing page",
+        "total free60KiB..68KiB and largestfree>=conservativepre-preserve bound",
+        "samecapacityquery succeeds underlimit; original limit restored in finally"
+      ],
+      "new_native_executions": 0
+    },
+    "original_rlimit": [
+      134217728,
+      134217728
+    ],
+    "current_vm": 16130048,
+    "soft_limit": 18477056
+  },
+  "oom_whole_owner_rollback_bytes": 2271888,
+  "original_limit_restored": true,
+  "same_wire_backward_failed_then_succeeded": true,
+  "prefix_error_result": [
+    6,
+    2,
+    0,
+    3
+  ],
+  "atomic57_original_rollback_preserved": true,
+  "tail_and_prefix_not_reexecuted": true,
+  "all_three_with_source02_in_one_invocation": "NOT_RUN_LOCALLY; CI may run default all.",
+  "new_Torch_executions": 0,
+  "full_84_word_committed_snapshots": true,
+  "isolated_transition_gate_executed": false,
+  "whole_pytorch_gate": "HOLD",
+  "closed_schemas": 0,
+  "native_cold_build_executed_in_this_resource_task": false,
+  "scope_limit": "Three finite resource compositions; no general OOM or whole PyTorch claim. Frozen production profile historical fields are unchanged.",
+  "raw_archive_sha256": "105f618251cf6847f3a090a3fb13575919fe99614179668ee107467ee63b4e25",
+  "raw_manifest_sha256": "e473b621112ef6a6283fd2587c3791b9d41a653241cfbb7f520c168e5fff082b",
+  "peer_source_review": {
+    "archive_sha256": "01eaa48043a03283fbbd9fb0ebf580bb29942f58b2d430fab134f4ffc45d84c8",
+    "native_executions": 0,
+    "Torch_executions": 0
+  }
+}

@@ -1,0 +1,40 @@
+      - name: Verify recovered tensor-to HIA sources and fixed module identities
+        run: |
+          status=0
+          make check-tensor-to-recovered-source || status=$?
+          if [ -f build/tensor-to-recovered-source/source-check.json ]; then
+            cp build/tensor-to-recovered-source/source-check.json build/tensor-to-recovered-source.json
+            python3 -I -S -B tools/emit_ci_report.py build/tensor-to-recovered-source.json
+          fi
+          exit "$status"
+
+      - name: Cold-build every recovered tensor-to HIA object and the exact image
+        run: |
+          status=0
+          make tensor-to-recovered HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget" || status=$?
+          if [ -f build/tensor-to-recovered/build.json ]; then
+            cp build/tensor-to-recovered/build.json build/tensor-to-recovered-build.json
+            python3 -I -S -B tools/emit_ci_report.py build/tensor-to-recovered-build.json
+          fi
+          exit "$status"
+
+      - name: Validate recovered tensor-to Storage tombstones and unchanged copied refusals
+        run: |
+          status=0
+          make test-tensor-to-recovered-tombstone HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget" || status=$?
+          if [ -f build/frozen35-tensor-to-node/storage-tombstone/report.json ]; then
+            cp build/frozen35-tensor-to-node/storage-tombstone/report.json build/tensor-to-recovered-storage-tombstone.json
+            python3 -I -S -B tools/emit_ci_report.py build/tensor-to-recovered-storage-tombstone.json
+          fi
+          exit "$status"
+
+      - name: Restore and independently admit all immutable actual view14 reference bytes
+        run: |
+          status=0
+          make test-differentiable-view-reference14 || status=$?
+          if [ -f build/differentiable-view-reference14/report.json ]; then
+            cp build/differentiable-view-reference14/report.json build/differentiable-view-reference14.json
+            python3 -I -S -B tools/emit_ci_report.py build/differentiable-view-reference14.json
+          fi
+          exit "$status"
+

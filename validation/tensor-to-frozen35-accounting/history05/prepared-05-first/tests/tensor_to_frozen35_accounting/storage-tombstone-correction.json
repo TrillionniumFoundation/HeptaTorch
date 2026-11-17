@@ -1,0 +1,22 @@
+{
+  "schema": "heptatorch.owner640-storage-tombstone-correction.v1",
+  "original_source_sha256": "6ea9e8b33164089034a2a71a03f4850e1ec18ed1a09155d7841f700ef311c833",
+  "corrected_source_sha256": "f503df2d1dbce8242591e77211b96a7787201e991db8186c9f1cca6576244409",
+  "source_only_exact_inverse_original_bytes": true,
+  "edits": [
+    {
+      "before": "            need(row[2] == row[3] == row[4] == 0, \"expired-Storage-extent\", token=sid)",
+      "after": "            # so_storage_release clears offset/rounded/strong but retains\n            # requested bytes in a same-generation Weak tombstone.\n            need(row[2] == row[4] == 0, \"expired-Storage-extent\", token=sid)\n            need(row[3] <= pool, \"expired-Storage-requested-bound\", token=sid)",
+      "count": 1
+    }
+  ],
+  "native_source_sha256": "6ffe509afce28ff15705b4c7b269eaef8f8f89f9d8b2486d4d9fa45b6be66ef3",
+  "native_changed": false,
+  "historical_original4native24copied_results_not_relabelled": true,
+  "actual_full35_first_failure": {
+    "original_report_sha256": "d37500707fec0c9e225c2df1cade0ad360435ee0959a1f36a86e8b0d4ae01a55",
+    "cases": 35,
+    "failed_cases": 4,
+    "all4_rule": "expired-Storage-extent"
+  }
+}
