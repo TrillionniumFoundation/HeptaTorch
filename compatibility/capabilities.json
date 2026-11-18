@@ -1,1156 +1,350 @@
 {
-  "schema": "heptatorch.scoped-capabilities.v1",
+  "schema": "heptatorch.current-capabilities.v2",
   "upstream_version": "2.15.0",
   "upstream_commit": "31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457",
   "whole_pytorch_rewrite_complete": false,
   "full_upstream_schema_parity_count": 0,
   "native_schema_inventory_count": 2590,
-  "runtime_implementation": "HIA primitive Core v8, directly compiled to static Linux x86-64",
-  "device": "CPU",
-  "dtype": "IEEE binary32, software arithmetic",
-  "rank_range": [
-    0,
-    4
-  ],
-  "storage_layouts": [
-    "dense contiguous",
-    "strided layouts produced by transpose",
-    "contiguous shared view",
-    "detached shared storage",
-    "owned channels-last output selected by cat and rank-three last-axis stack"
-  ],
-  "maximum_tensor_descriptors": 255,
-  "buffer_capacity_bytes": 1048576,
-  "maximum_convolution_terms": 16777216,
-  "native_runtime_dependencies": [
-    "Linux x86-64 kernel and hardware"
-  ],
-  "external_B0_bootstrap_dependencies": [
-    "pinned Hepta Python assembler/verifier/emitter",
-    "GNU ld"
-  ],
-  "capabilities": [
-    {
-      "name": "tensor-arithmetic",
-      "hia_functions": [
-        "binary"
-      ],
-      "scope": "add/sub alpha=1, mul/div; right-aligned broadcasting including empty dimensions",
-      "forward": "implemented",
-      "backward": "implemented where mathematically applicable",
-      "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
-      "full_upstream_schema_qualified": false
-    },
-    {
-      "name": "unary",
-      "hia_functions": [
-        "unary"
-      ],
-      "scope": "ReLU, neg, sqrt, exp, log, sigmoid, tanh; no inplace/out variants",
-      "forward": "implemented",
-      "backward": "implemented where mathematically applicable",
-      "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
-      "full_upstream_schema_qualified": false
-    },
-    {
-      "name": "reductions",
-      "hia_functions": [
-        "reduce",
-        "reduce_axis"
-      ],
-      "scope": "all-axis or single-axis sum/mean, keepdim, signed axes; explicit binary32 dtype",
-      "forward": "implemented",
-      "backward": "implemented where mathematically applicable",
-      "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
-      "full_upstream_schema_qualified": false
-    },
-    {
-      "name": "matmul",
-      "hia_functions": [
-        "matmul",
-        "mm",
-        "back_matmul"
-      ],
-      "scope": "rank1..4 vector/matrix/broadcast-batched products, transposed layouts and empty dimensions; mm remains rank2-only; at most16777216 contraction terms; broadcast-reduced first-order reverse gradients",
-      "forward": "implemented",
-      "backward": "implemented where mathematically applicable",
-      "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
-      "full_upstream_schema_qualified": false
-    },
-    {
-      "name": "storage-views",
-      "hia_functions": [
-        "transpose",
-        "view",
-        "clone",
-        "detach"
-      ],
-      "scope": "shared owner/version; view only for contiguous layouts and explicit dimensions; ordinary empty strides use max(dim,1); zero-aware numel admission validates every dimension first",
-      "forward": "implemented",
-      "backward": "implemented where mathematically applicable",
-      "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
-      "full_upstream_schema_qualified": false
-    },
-    {
-      "name": "autograd",
-      "hia_functions": [
-        "backward",
-        "backward_seed",
-        "zero_grad"
-      ],
-      "scope": "implicit unit seed for one-element outputs or exact-shape explicit binary32 seed; strided/empty seeds; retained graph, accumulated leaf gradients and conservative version preflight; variable cat/stack parents and delayed indexed source-gradient checks; no forward/higher-order AD",
-      "forward": "implemented",
-      "backward": "implemented where mathematically applicable",
-      "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
-      "full_upstream_schema_qualified": false
-    },
-    {
-      "name": "softmax",
-      "hia_functions": [
-        "softmax"
-      ],
-      "scope": "single-axis softmax/log-softmax, stable shifted accumulation",
-      "forward": "implemented",
-      "backward": "implemented where mathematically applicable",
-      "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
-      "full_upstream_schema_qualified": false
-    },
-    {
-      "name": "linear-mse",
-      "hia_functions": [
-        "linear",
-        "mse"
-      ],
-      "scope": "rank1..4 Linear input with rank2 OI weight and optional vector bias; mean-squared loss with supported broadcasting",
-      "forward": "implemented",
-      "backward": "implemented where mathematically applicable",
-      "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
-      "full_upstream_schema_qualified": false
-    },
-    {
-      "name": "conv2d",
-      "hia_functions": [
-        "conv2d",
-        "back_spatial"
-      ],
-      "scope": "NCHW/OIHW, groups/depthwise, height/width stride/dilation/symmetric padding; bias composed separately; bounded work",
-      "forward": "implemented",
-      "backward": "implemented where mathematically applicable",
-      "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
-      "full_upstream_schema_qualified": false
-    },
-    {
-      "name": "pool2d",
-      "hia_functions": [
-        "pool2d",
-        "back_spatial"
-      ],
-      "scope": "floor avg/max pooling, unit dilation, avg include/exclude pad; no returned indices/ceil_mode/divisor_override; conservative16777216 padded-window term budget",
-      "forward": "implemented",
-      "backward": "implemented where mathematically applicable",
-      "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
-      "full_upstream_schema_qualified": false
-    },
-    {
-      "name": "layernorm",
-      "hia_functions": [
-        "layernorm"
-      ],
-      "scope": "last dimension; optional vector affine; finite nonnegative epsilon",
-      "forward": "implemented",
-      "backward": "implemented where mathematically applicable",
-      "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
-      "full_upstream_schema_qualified": false
-    },
-    {
-      "name": "batchnorm-evaluation",
-      "hia_functions": [
-        "batchnorm_eval"
-      ],
-      "scope": "rank2..4 channel1; frozen non-gradient running statistics; optional vector affine",
-      "forward": "implemented",
-      "backward": "implemented where mathematically applicable",
-      "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
-      "full_upstream_schema_qualified": false
-    },
-    {
-      "name": "cross-entropy",
-      "hia_functions": [
-        "cross_entropy_probs"
-      ],
-      "scope": "rank-two probability targets, mean over batch; no index-target/ignore-index/weight/label-smoothing variants",
-      "forward": "implemented",
-      "backward": "implemented where mathematically applicable",
-      "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
-      "full_upstream_schema_qualified": false
-    },
-    {
-      "name": "optimizers",
-      "hia_functions": [
-        "sgd",
-        "sgd_momentum",
-        "adam",
-        "fmaf",
-        "lerpf"
-      ],
-      "scope": "SGD, momentum/Nesterov, Adam/AdamW; explicit owned state and caller step; no grad=None/AMSGrad/parameter groups; stable lerp first moment and software fused final multiply-add for Adam second moment",
-      "forward": "implemented",
-      "backward": "implemented where mathematically applicable",
-      "qualification": "independent numerical/analytical/finite-difference and native regression checks; hosted live PyTorch result recorded separately",
-      "full_upstream_schema_qualified": false
-    },
-    {
-      "name": "index-select",
-      "hia_functions": [
-        "index_select",
-        "back_index_select"
-      ],
-      "scope": "rank1..4 input, signed axis, exact raw signed-i64 index vector payload; immutable copied indices; new storage; duplicate-gradient scatter-add; no integer tensor dtype/out variants",
-      "forward": "implemented",
-      "backward": "implemented",
-      "qualification": "independent NumPy and analytical checks; native regression fixtures; hosted153-case gate recorded separately",
-      "full_upstream_schema_qualified": false
-    },
-    {
-      "name": "gather",
-      "hia_functions": [
-        "gather",
-        "back_gather"
-      ],
-      "scope": "rank0..4, signed axis, exact raw signed-i64 shaped index payload; no broadcast, empty-index fast path; immutable copied indices and duplicate-gradient scatter-add; no integer tensor dtype/sparse-grad/out variants",
-      "forward": "implemented",
-      "backward": "implemented",
-      "qualification": "independent NumPy and analytical checks; native regression fixtures; hosted153-case gate recorded separately",
-      "full_upstream_schema_qualified": false
-    },
-    {
-      "name": "training-graph-reclamation",
-      "hia_functions": [
-        "graph_reset",
-        "live_id",
-        "valid",
-        "descriptor",
-        "mark_graph",
-        "backward_seed"
-      ],
-      "scope": "fixed initial owned-leaf prefix; preserve parameter/optimizer values, gradients and versions; reclaim all other descriptors and arena bytes; generation-checked transient IDs; no implicit zero_grad; bounded single request",
-      "forward": "implemented",
-      "backward": "retained leaves accept new graphs across generations",
-      "qualification": "native regressions and independent long-training, handle and whole-workspace failure-atomicity checks; hosted real PyTorch comparison recorded separately",
-      "full_upstream_schema_qualified": false
-    },
-    {
-      "name": "cat",
-      "hia_functions": [
-        "cat",
-        "tensor_join",
-        "concat_layout",
-        "mark_concat",
-        "back_concat"
-      ],
-      "scope": "rank 1..4 binary32 tensors; signed axes; strided inputs; skip only exact (0,) for shape matching; all-(0,) accepts any signed64 axis; repeated parent VJP accumulation; rank-four channels-last selected from exact input stride suggestions; no out/inplace/promotion variants",
-      "forward": "implemented",
-      "backward": "first-order slice-and-accumulate, with conservative full saved-parent ID/version preflight",
-      "qualification": "merged native 81-case cat/stack review and 16 refusal-atomicity cases; actual hosted empty/layout observations replayed separately; both 268-case / 12,932-value pinned PyTorch gates PASS in run 43788929713",
-      "full_upstream_schema_qualified": false,
-      "evidence": [
-        "validation/tensor-composition-native.json",
-        "validation/hosted-boundary-observations.json"
-      ]
-    },
-    {
-      "name": "stack",
-      "hia_functions": [
-        "stack",
-        "tensor_join",
-        "concat_layout",
-        "mark_concat",
-        "back_concat"
-      ],
-      "scope": "equal-shape rank 0..3 inputs, rank 1..4 output; signed insertion axes; strided inputs and empty dimensions; last-axis rank-three path follows virtual-unsqueeze layout selection; no out/promotion variants",
-      "forward": "implemented",
-      "backward": "first-order select-and-accumulate, including repeated or shared parents; conservative version preflight",
-      "qualification": "merged native cat/stack review, exact strides and VJP; actual hosted layout observations replayed; both 268-case / 12,932-value pinned PyTorch gates PASS in run 43788929713",
-      "full_upstream_schema_qualified": false,
-      "evidence": [
-        "validation/tensor-composition-native.json",
-        "validation/hosted-boundary-observations.json"
-      ]
-    },
-    {
-      "name": "scatter-add",
-      "hia_functions": [
-        "indexed_add",
-        "indexed_add_validate",
-        "indexed_add_forward",
-        "indexed_add_backward_check",
-        "back_indexed_add"
-      ],
-      "scope": "rank 0..4 binary32 self/source and exact signed-i64 shaped index config; effective scalar rank one; strided values, repeated indices, shared parents and empty-index shape fast path; new storage; no inplace/out/dtype variants",
-      "forward": "implemented",
-      "backward": "identity self derivative plus gathered source derivative when it reduces to source shape; incompatible tracked source shape returns status 5 during preflight before gradient/work changes",
-      "qualification": "merged 100-case indexed review, 9 supplemental cases and shared composition; actual hosted boundary observation replay; both 268-case / 12,932-value pinned PyTorch gates PASS in run 43788929713",
-      "full_upstream_schema_qualified": false,
-      "evidence": [
-        "validation/tensor-composition-native.json",
-        "validation/hosted-boundary-observations.json"
-      ]
-    },
-    {
-      "name": "index-add",
-      "hia_functions": [
-        "indexed_add",
-        "indexed_add_validate",
-        "indexed_add_forward",
-        "indexed_add_backward_check",
-        "back_indexed_add"
-      ],
-      "scope": "rank 0..4 equal-rank binary32 self/source; scalar or vector signed-i64 index config; exact off-axis shape match; explicit binary32 alpha with zero upper32 bits; strided/shared inputs, duplicates and empty dimensions; no inplace/out/promotion variants",
-      "forward": "implemented; rank above one uses software fmaf for alpha update, rank zero/one uses separately rounded multiply/add for the pinned tested CPU/ISA profile",
-      "backward": "identity self derivative plus selected, alpha-scaled source derivative; saved out-of-range indices skipped by empty multidimensional forward return status 7 in preflight when source requires gradients",
-      "qualification": "merged indexed review and 6 actual hosted alpha observations / 102 values; actual boundary replay and shared composition; both 268-case / 12,932-value pinned PyTorch gates PASS in run 43788929713; no all-ISA bitwise claim",
-      "full_upstream_schema_qualified": false,
-      "evidence": [
-        "validation/tensor-composition-native.json",
-        "validation/hosted-boundary-observations.json"
-      ]
-    },
-    {
-      "name": "native-borrowed-modules",
-      "hia_functions": [],
-      "scope": "separate profile extension; independent native compilation and HIA static linking of same-compiler scalar/readbuf/mutbuf interfaces, scalar/unit results, native signature/effect/borrowing and module-DAG checks; authoritative 143-function source partitioned into 63 kernel and 80 runtime functions with 52 imports",
-      "forward": "implemented default native module compilation/admission/linking; linked runtime passed 461 packet fixtures; monolithic reference retained",
-      "backward": "existing HIA reverse graph executes through the linked function partition; no new AD mode",
-      "qualification": "native linked runtime and independent module-boundary checks, identities recorded separately from single-unit executable",
-      "full_upstream_schema_qualified": false,
-      "evidence": [
-        "validation/native-modules.json"
-      ]
-    }
-  ],
-  "unimplemented_subsystems": [
-    "general public tensor/object ABI, foreign-resource provenance and unrestricted module graphs",
-    "other dtypes and type promotion",
-    "arbitrary as_strided and general indexing",
-    "sparse/compressed/nested/complex/quantized layouts",
-    "remaining operator families and overloads",
-    "forward-mode and higher-order differentiation",
-    "Python/C++ frontend compatibility",
-    "CUDA/ROCm/MPS/XPU",
-    "distributed collectives/DDP/FSDP/DTensor",
-    "torch.compile/graph capture/export and compiler optimization",
-    "dataset/dataloader/multiprocessing",
-    "RNG/dropout",
-    "full checkpoint and serialization",
-    "cross-platform execution",
-    "large model memory management and device kernels",
-    "general owned/resizable lifetime/allocator management and process-restart durability"
-  ],
-  "maximum_pooling_terms": 16777216,
-  "maximum_matmul_terms": 16777216,
-  "native_compilation_unit": {
-    "functions": 143,
-    "blocks": 1783,
-    "instructions": 7064,
-    "maximum_functions": 256,
-    "maximum_blocks": 2560,
-    "maximum_instructions": 8192,
-    "general_module_linking": false,
-    "compiler_workspace_bytes": 2097152,
-    "profile": "heptatorch.hia.compiler.f256-b2560-w2m.v1",
-    "bounded_borrowed_module_linking": true
-  },
-  "tensor_descriptor_limit_scope": "255 simultaneously live slots; command33 reclaims transient graph slots within the current request",
-  "tensor_handles": {
-    "slot_bits": 8,
-    "generation_bits": 56,
-    "retained_prefix_ids": "unchanged original IDs",
-    "transient_ids": "(generation << 8) | slot",
-    "wrong_generation": "rejected with status1",
-    "scope": "one bounded request; no cross-request persistence"
-  },
-  "maximum_tensor_dimension": 262144,
-  "maximum_tensor_numel": 262144,
-  "empty_shape_admission": {
-    "all_dimensions_validated_first": true,
-    "zero_dimension_makes_numel_zero": true,
-    "ordinary_contiguous_stride_rule": "multiply by max(dimension, 1) from the last dimension",
-    "maximum_empty_stride_product": 18014398509481984,
-    "large_prefix_before_zero": "admitted if every dimension and rank are within the profile",
-    "invalid_dimension_in_empty_shape": "still rejected with status 3"
-  },
-  "native_module_profile": {
-    "profile": "heptatorch.hia.borrowed-modules.v1",
-    "native_compilation_and_linking_executed": true,
-    "formal_build_integration": "default build/heptatorch uses module compiler/linker; monolithic and test-monolithic retain the ordinary compiler reference",
-    "authoritative_source": "src/heptatorch.hepta",
-    "source_sha256": "264e9c5c4e8ea1834724cc0d8d859952016daffe4af330a8daa7745e7a5e5233",
-    "linked_executable_sha256": "cf78556c3c512227ffe123635b76e5a6af97697606e8ba3535c56f5101f4f80d",
-    "partitions": [
-      {
-        "name": "ht_kernel",
-        "functions": 63,
-        "imports": 0,
-        "exports": 52
-      },
-      {
-        "name": "ht_runtime",
-        "functions": 80,
-        "imports": 52,
-        "exports": 1
-      }
-    ],
-    "function_bodies_preserved": true,
-    "admitted_boundary_parameters": [
-      "exact scalar types",
-      "readbuf",
-      "mutbuf"
-    ],
-    "admitted_boundary_results": "zero or one scalar/unit",
-    "owned_resource_boundary": false,
-    "borrowed_resource_return": false,
-    "arbitrary_foreign_pointer_provenance": false,
-    "general_module_abi_complete": false,
-    "evidence": "validation/native-modules.json",
-    "build_variables": {
-      "HEPTA_COMPILER": "ordinary expanded compiler c5a9c2b95a3061e080a21298f5b26000936ed9dac519690d845b0699a15744c6",
-      "HEPTA_MODULE_COMPILER": "module compiler e250d93bc0b2a5ff878d2188c95780abf7e7ebaf186e4531b136fa2735b2af59",
-      "HEPTA_MODULE_LINKER": "module linker 1ba40ffe025abfcc2edd8d69f1ad689817598571138c11806af7aa60047fc7b8"
-    }
-  },
-  "composition_protocol": {
-    "34": {
-      "operation": "cat",
-      "fields": [
-        "signed_axis",
-        "tensor_list_config_offset"
-      ],
-      "config": "u64 count, count full u64 tensor IDs; count must be positive"
-    },
-    "35": {
-      "operation": "stack",
-      "fields": [
-        "signed_axis",
-        "tensor_list_config_offset"
-      ],
-      "config": "same as command 34"
-    },
-    "36": {
-      "operation": "scatter_add",
-      "fields": [
-        "self",
-        "source",
-        "signed_axis",
-        "index_config_offset"
-      ],
-      "config": "u64 rank 0..4, rank u64 dimensions, zero-aware numel signed-i64 values"
-    },
-    "37": {
-      "operation": "index_add",
-      "fields": [
-        "self",
-        "source",
-        "signed_axis",
-        "index_config_offset",
-        "alpha_binary32_bits"
-      ],
-      "config": "u64 rank 0 or 1, dimensions, signed-i64 values; alpha upper32 bits must be zero"
-    },
-    "config_alignment_bytes": 8,
-    "saved_payload_lifetime": "private arena storage reclaimed with the operation by graph_reset",
-    "output_descriptors_per_command": 1
-  },
+  "derivative_declaration_inventory_count": 688,
   "full_project_acceptance": {
     "ledger": "compatibility/full-acceptance.json",
     "gates": 17,
+    "in_progress": 10,
+    "open": 7,
     "fully_closed_gates": 0,
     "status": "HOLD"
   },
-  "current_composition_qualification": {
-    "source_sha256": "264e9c5c4e8ea1834724cc0d8d859952016daffe4af330a8daa7745e7a5e5233",
-    "single_unit_executable_sha256": "5b992e5f07fe1167aacf31d9fd07a053b3b02fc1bd1149c06f8ccd164ef96bb0",
-    "independent_native_reviews": "PASS; see source-bound component and merged records",
-    "native_evidence": "validation/tensor-composition-native.json",
-    "regression_fixture_pairs": 461,
-    "combined_fixture_replay": "PASS: 461 pairs each on the native-linked and monolithic builds; actual hosted run 43788929713",
-    "hosted_boundary_observations": "validation/hosted-boundary-observations.json",
-    "hosted_main_oracle": {
-      "expected_cases": 268,
-      "preceding_cases": 159,
-      "new_cat_stack_cases": 35,
-      "new_indexed_cases": 74,
-      "status": "PASS",
-      "execution_targets": [
-        "default linked executable",
-        "monolithic reference executable"
-      ],
-      "receipt": "validation/hosted-tensor-composition.json",
-      "workflow_run_id": 43788929713,
-      "tested_commit": "724cbf2eb19d2ef8d400615d7196f5397cb402f6",
-      "compared_values_per_build": 12932,
-      "oracle_provenance_checks_per_build": 11,
-      "failed_cases_per_build": 0
-    },
-    "default_linked_executable_sha256": "cf78556c3c512227ffe123635b76e5a6af97697606e8ba3535c56f5101f4f80d"
-  },
-  "native_persistent_session": {
-    "profile": "heptatorch.native-persistent-session-profile.v1",
-    "mode": "opt-in interactive same-process execution",
-    "request_magic": "HTOSES01",
-    "response_magic": "HTOSRP01",
-    "per_frame_body_limit_bytes": 1048576,
-    "workspace_bytes_each": 1048576,
-    "workspace_copies": 2,
-    "transaction": "shadow full arena; status0 commits; failure preserves durable state and emits count0 response",
-    "native_modular_executable_sha256": "193c1b59323ced38fc5e2cf9ec939ade70ccb62e239bb65d01e22c188409b6db",
-    "native_monolithic_executable_sha256": "ce6ffe8f8530b0ad68ac93e01f47d3473b2749697021590c41c18e6c847d4077",
-    "canonical_function_bodies_unchanged": 142,
-    "independent_native_cases_per_build": 477,
-    "general_storage_complete": false,
-    "process_restart_durability": false,
-    "contract": "tools/session/CONTRACT.md",
-    "evidence": "validation/persistent-session-native.json",
-    "real_pytorch_session_oracle_cases_expected": 21,
-    "real_pytorch_session_oracle_at_native_receipt_assembly": "NOT_RUN",
-    "hosted_qualification": {
-      "status": "PASS_FOR_RECORDED_SCOPE",
-      "cases_per_build": 21,
-      "frames_per_build": 4681,
-      "compared_values_per_build": 491847,
-      "oracle_provenance_checks_per_build": 11,
-      "tested_commit": "c627e1f7a5ab44a882a047a6c63ee4c8ca8a3c3a",
-      "evidence": "validation/hosted-persistent-session.json",
-      "absolute_pytorch_version_counter_parity": false
-    }
-  },
-  "native_owned_module_profile": {
-    "profile": "heptatorch.hia.owned-modules.v1",
-    "scope": "Same pinned ABI2 native producer; scalar/readbuf/mutbuf/buffer/chain parameters, scalar/owner/unit results up to three, linear resource transfer, borrowed returns refused",
-    "compiler_sha256": "0ccdb524ea327ab290b2e70feaac49a4789abb2fee6da8746a095f435c17af73",
-    "runtime_linker_sha256": "23eed229e329fb5b7e2116012f74f210d5de4acd2b4f8475e364890748da86ee",
-    "allocator": "native Linux mmap/munmap; private16-byte header; no target libc allocator",
-    "qualification_counted_cases": 385,
-    "native_compiler_generation_count": 3,
-    "ordinary_runtime_bytes_unchanged": true,
-    "general_tensor_storage_complete": false,
-    "owned_interactive_entry_qualified_by_this_profile": false,
-    "foreign_owner_pointers_accepted": false,
-    "contract": "tools/owned_modules/CONTRACT.md",
-    "evidence": "validation/native-owned-modules.json",
-    "hosted_qualification": {
-      "status": "PASS_FOR_RECORDED_SCOPE",
-      "counted_native_cases": 385,
-      "workflow_steps_passed": 32,
-      "tested_commit": "030694be9373aefc9a6740c3ccc8d742098e5c51",
-      "evidence": "validation/hosted-owned-modules.json"
-    }
-  },
-  "native_retained_gradient_profile": {
-    "status": "HOSTED_SCOPED_QUALIFIED",
-    "source_sha256": "666230f05cc6942470006d1f184135321d8cbc26a6c6ba0bf7e3cf9857fe515b",
-    "executable_sha256": "7568c0a4ec40d82d3a0b46d1e8a27499dd96e8fe3fd15433523131a196da89b5",
-    "functions": 446,
-    "blocks": 5922,
-    "instructions": 21904,
-    "native_modules": 9,
-    "descriptor_bytes": 576,
-    "state_format": "HTRET001",
-    "backing_format": "HTORET01",
-    "source_inputs": "tools/retained_gradients/package-manifest.json",
-    "protocol": "tools/retained_gradients/PROTOCOL.md",
-    "build_target": "retained-gradients",
-    "qualification_target": "test-retained-gradients",
-    "actual_retained_nonleaf_variants": 12,
-    "retained_gradient_first_write": "Real contiguous Tensor/Storage/Version clone",
-    "retained_gradient_accumulation": "Fresh out-of-place Tensor/Storage/Version; previously held gradient retains its identity and bytes",
-    "atomic_commands": "7/29/57 preserve complete owner rollback",
-    "explicit_partial_backward": "58 may commit completed retain hook before its own Saved6/10 error",
-    "source_bound_local_evidence": "validation/retained-gradients-root/root-cold-and-strict-01.json",
-    "independent_integration_evidence": "validation/retained-integration-review/aggregate-report-custody.json",
-    "observer_profile_evidence": "validation/retained-observer-profile/qualification.json",
-    "live32_and_frozen35_on_this_image": "NOT_YET_EXECUTED_AT_PACKAGE_CREATION",
-    "newly_closed_full_upstream_schemas": 0,
-    "full_autodiff_complete": false,
-    "full_optimizer_API_complete": false,
-    "subsequent_hosted_qualification": "validation/hosted-retained-gradients-cef47/qualification.json",
-    "live32_and_frozen35_current_status": "PASS_SOURCE_CEF47_AFTER_ORIGINAL_PACKAGE_CREATION",
-    "source_commit": "cef47b8fc36e4afefad4b4c4e53625f8f62e0a57",
-    "merged_commit": "e0ea769c979236b0542af4b258890726cd01a99a"
-  },
-  "public_gradient_and_distribution_hosted_qualification": {
-    "status": "PASS_FOR_RECORDED_SCOPE",
-    "tested_head": "af33d1065a3b097990e9536df5b22b1a3fb315cf",
-    "merge_commit": "7e7e37be38457d88f214d45f261924983dc96b56",
-    "evidence": "validation/hosted-gradient-adam-distributions-af33/qualification.json",
-    "native_profiles": [
-      355,
-      428
-    ],
-    "main_successful_steps_per_job": 76,
-    "quick_successful_steps_per_profile": 13,
-    "independent_offline_checks": 59251,
-    "full_schema_parity": 0
-  },
-  "native_dropout_dtype_history_profile": {
-    "status": "LOCAL_AND_ROG_SCOPED_QUALIFIED_GITHUB_PENDING",
-    "source_sha256": "6ffe509afce28ff15705b4c7b269eaef8f8f89f9d8b2486d4d9fa45b6be66ef3",
-    "executable_sha256": "830f0b4ef8d6ad8c6a105be56d383628b45c84e3e43905fee6812c7c52d35a51",
-    "functions": 523,
-    "blocks": 6881,
-    "instructions": 25112,
-    "native_modules": 11,
-    "descriptor_bytes": 640,
-    "state_format": "HTDTYP03",
-    "backing_format": "HTODTY03",
-    "supported_dtypes": [
-      "IEEE binary32",
-      "bool: actual one-byte Storage"
-    ],
-    "native_operations": {
-      "96": "dtype and actual identity metadata",
-      "97": "typed Tensor construction",
-      "98": "typed logical raw-byte read",
-      "99": "native_dropout with actual mask Tensor",
-      "100": "typed fill",
-      "101": "actual detach_",
-      "102": "actual bool logical_not_"
-    },
-    "captured_history": "Immutable captured AD edges and actual AccumulateGrad targets; explicit strong-cycle ownership and detach_ release",
-    "source_inputs": "tools/native_dropout/package-manifest.json",
-    "protocol": "tools/native_dropout/PROTOCOL.md",
-    "producer_qualification": "validation/native-dropout/qualification.json",
-    "independent_actual9_qualification": "validation/native-dropout-identity9/qualification.json",
-    "independent_resource_qualification": "validation/dtype-resource-review/cli.json",
-    "owner_accounting_package": "validation/dtype-owner-accounting/package-manifest.json",
-    "old_183_reference_report_unchanged": true,
-    "original_native_dropout8_additive_qualification": true,
-    "full_523_live32_and_frozen35": "PASS_ACTUAL_LOCKED_ROG_REFERENCE_EXECUTION",
-    "full_generic_dtype_promotion_complete": false,
-    "full_python_surface_parity": false,
-    "newly_closed_full_upstream_schemas": 0,
-    "whole_pytorch_rewrite_complete": false,
-    "integrated_cold_qualification": {
-      "report": "validation/native-dropout/integration-final/report.json",
-      "sha256": "69887f9611db4d74218032879f302bf0afbcaf151782452ad6978c5cbb2eec67",
-      "independent_gates": 6,
-      "fresh_native_build": true
-    },
-    "full_523_reference_execution": {
-      "report": "validation/dtype-frozen35-accounting/evidence/qualification-summary.json",
-      "sha256": "07aaf151c190069aa3f384c5bbf52453b34c39df55c4e0c913bf411ffa02d226",
-      "live_cases": 32,
-      "frozen_cases": 35,
-      "frozen_frames": 6344,
-      "frozen_compared_values": 2590274,
-      "provenance_checks": 11,
-      "explicit_state_absolute_version_differences": 283,
-      "direct_parameter_absolute_version_mismatches": 0,
-      "original_EOF_and_post_close_Version_gates_executed": true,
-      "native_rebuilt_for_reference_runs": false,
-      "github_source_CI_executed": false,
-      "original_failures_preserved": true,
-      "remote_raw_members": 450,
-      "supplemental_raw_members": 328
-    }
-  },
-  "integer_tensor_profile": {
-    "status": "HOSTED_QUALIFIED_AND_MERGED_IN_STATED_SCOPE",
-    "source_sha256": "adf6cae67666273aa6fb77989080ca3b1e3632188d2d7956a6d8b71808787e62",
-    "native_sha256": "b7324639bade3312981d1cbf9c2491b9fcff04fb6c3f808e9c5e1a7c2ca88f08",
-    "functions": 544,
-    "blocks": 7263,
-    "instructions": 26361,
-    "native_modules": 11,
-    "descriptor_bytes": 640,
-    "state_format": "HTINT002",
-    "backing_format": "HTOINT02",
-    "dtypes_in_scoped_services": [
-      "binary32",
-      "bool",
-      "int64"
-    ],
-    "int64_storage_bytes_per_element": 8,
-    "qualified_operations": [
-      "typed construction/raw-read/fill",
-      "admitted add/subtract/multiply/bitwise-and/or/xor/true-divide",
-      "qualified int64 Tensor-RHS inplace variants",
-      "Scalar int64 add_ alpha1",
-      "actual common-dtype temporary materialization and release",
-      "round-to-nearest-even signed64-to-binary32",
-      "int64 true ultimate-base view roots and qualified lifetime",
-      "explicit int64 dropout late-error prefix/RNG commit and suffix stop"
-    ],
-    "public_Tensor_to_implemented": false,
-    "mixed_dtype_autograd_supported": false,
-    "F32_bool_command69_true_view_implemented": false,
-    "producer_qualification": "validation/integer-tensors/qualification.json",
-    "independent_inplace40": "validation/int64-inplace-review/candidate07/report.json",
-    "independent_resources": "validation/integer-resource-review/qualification.json",
-    "independent_typed_handoff": "validation/integer-resource-review/typed-handoff-07/qualification.json",
-    "fresh_integration": {
-      "report": "validation/integer-tensors/integration-final/report.json",
-      "sha256": "245257046806b765aee09d4c37d32d99cde8ed31e612f00772021ef9eb1bb781",
-      "four_native_gate_groups_passed": true,
-      "checked_inputs": 219,
-      "raw_members": 1772
-    },
-    "separate_live32_full35_status": "PASS_ACTUAL_ROG_AND_BOTH_EXACT_SOURCE_HOSTED_NATIVE_JOBS",
-    "counting_boundary": "Overlapping named suites are not summed into unique tests or schemas.",
-    "newly_closed_full_upstream_schemas": 0,
-    "whole_pytorch_rewrite_complete": false,
-    "pytorch_api_denominator": 2590,
-    "whole_pytorch_gate": "HOLD",
-    "subsequent_hosted_qualification": {
-      "source_head": "3430891413ae0eac1fdcc65eb6fcd202ad108331",
-      "merge_commit": "26f3b2d0013cf463d981910ae879a705920165d5",
-      "tree": "a5a39214f69025502ba92e6b0fe3cfdb016c81c4",
-      "evidence": "validation/hosted-integer-tensors-343/FINAL.json",
-      "actual_native_steps_per_job": 96,
-      "checks": 9,
-      "original_zip_files": 17,
-      "original_zip_bytes": 237878878,
-      "pr_independent_checks": 217481,
-      "push_independent_checks": 217482,
-      "root_push_report_byte_identical": true,
-      "fixed35_frames_per_profile": 6344,
-      "fixed35_domain": "Original F32 workload; separate from general int64 role coverage.",
-      "old_failures_and_owner_buffer_evidence_limit_preserved": true,
-      "newly_closed_full_upstream_schemas": 0
-    }
-  },
-  "mixed_integer_autograd_profile": {
-    "status": "LOCAL_FRESH7_INDEPENDENT_NATIVE_AND_FIXED_REFERENCE_QUALIFIED",
-    "source_sha256": "5f8ab1f7ca1593dc21b8b6a3537e210cfbc42b37ddefcb322239c5a316d88c49",
-    "native_sha256": "69045063c00395d07fc6c0101ed1b8aba18376cb1daea54e0a01c2c5caeb49b6",
-    "functions": 556,
-    "blocks": 7420,
-    "instructions": 26889,
-    "descriptor_bytes": 640,
-    "state_format": "HTMXAD02",
-    "backing_format": "HTOMXD02",
-    "native_modules": 11,
-    "producer_source_manifest": "tools/mixed_integer_autograd/package-manifest.json",
-    "producer_evidence": "validation/mixed-integer-autograd-evidence/qualification.json",
-    "independent_owner_evidence": "validation/mixed-integer-owner-review/qualification.json",
-    "independent_Saved_lifetime_evidence": "validation/saved-public-lifetime/qualification.json",
-    "qualified_scope": [
-      "Bounded F32/int64 add/sub/mul/true-divide differentiation with actual original Saved inputs",
-      "Original Tensor/Storage/Version identity and int64 value conversion during backward",
-      "Command107 original Saved getter with distinct absent/spent/Version conditions",
-      "Real two-slot private Hold, repeated strong Tensor references and audited release",
-      "Release of original Saved roots during guarded gradient detach",
-      "I64 view Tensor-row lifetime separated from remaining graph metadata"
-    ],
-    "producer_cold_gates": 5,
-    "reference_mixed_cases": 36,
-    "reference_Saved_lifetime_cases": 14,
-    "independent_owner_cases": 4,
-    "independent_copied_role_refusals": 17,
-    "independent_resource_cases": 6,
-    "independent_entry_cases": 5,
-    "independent_Saved_entry_cases": 6,
-    "independent_typed_handoff_directions": 2,
-    "fresh_seven_command_integration": {
-      "status": "PASS",
-      "report": "validation/mixed-integer-autograd-root/report.json",
-      "sha256": "77ae37fddbce0ad15628c0bf265c9e41649f9614714deaec99b91c15b7c3fbb5",
-      "coordinator_sha256": "78978f2665e68c78a66d5e21d0c359a7bfdb426199902dff2be5a720f858f905",
-      "outer_commands": 7,
-      "producer_cold_gates": 5,
-      "inputs_captured_before_execution": 474,
-      "total_bound_files_at_completion": 648,
-      "raw_members": 2225,
-      "original_file_bytes": 259777728,
-      "source_bound_byte_custody": "validation/mixed-integer-autograd-root/root-byte-verification.json",
-      "git_archive_transport": {
-        "index": "validation/mixed-integer-autograd-root/transport/index.json",
-        "index_sha256": "1b0b65130be46449ebbc9c33b7e5617d52d2ba53afc691025528e800f47317a3",
-        "parts": 2,
-        "original_archive_unchanged": true,
-        "parts_only_full_byte_review": "validation/mixed-integer-autograd-root/transport/root-parts-byte-review.json"
-      }
-    },
-    "new_profile_live32_full35": {
-      "status": "PASS_ACTUAL_ROG_EXECUTIONS_AND_COMPLETE_LOCAL_RAW_CUSTODY",
-      "qualification": "validation/mixed-frozen35-accounting/remote10/qualification.json",
-      "evidence_manifest_sha256": "04b54ba1a0d9cd84482ed400911b0f107667f5a98ee3d6f2aa17568a322bd7f5",
-      "actual_live32_cases": 32,
-      "live32_frames": 2132,
-      "live32_exact_words": 17455,
-      "live32_RNG_bytes": 1137600,
-      "actual_full35_cases": 35,
-      "full35_frames": 6344,
-      "full35_compared_values": 2590274,
-      "provenance_checks_per_original_reference": 11,
-      "original_EOF_and_postclose_Version_gates_preserved": true,
-      "state_absolute_Version_differences_preserved": 283,
-      "parameter_Version_differences": 0,
-      "copied_positive_controls": 4,
-      "copied_negative_controls": 18,
-      "raw_archive_members": 271,
-      "raw_archive_file_bytes": 49233889,
-      "root_independent_transition_recomputation": 6344,
-      "root_unique_snapshot_records": 6321,
-      "root_byte_review": "validation/mixed-frozen35-accounting/remote10/root-byte-review.json",
-      "root_byte_review_sha256": "e21918492f41c62305505ed738945881e06682e1688f79bd18deddeda8e3314f",
-      "root_byte_review_adds_native_or_Torch_execution": false
-    },
-    "current_source_head_hosted_qualification": "NOT_RUN",
-    "old_revision08_and09_failures_preserved": true,
-    "public_Tensor_to_implemented": false,
-    "higher_order_autograd_complete": false,
-    "arbitrary_Python_wrapper_refcounts_qualified": false,
-    "full_autodiff_complete": false,
-    "newly_closed_full_upstream_schemas": 0,
-    "whole_pytorch_rewrite_complete": false,
-    "pytorch_api_denominator": 2590,
-    "whole_pytorch_gate": "HOLD",
-    "counting_boundary": "Overlapping named groups are not summed into unique APIs or complete schemas.",
-    "storage_tombstone_regression": {
-      "status": "PASS_ACTUAL_NATIVE1_AND_COPIED4",
-      "qualification": "validation/mixed-frozen35-accounting/tombstone-legacy-refusal/qualification.json",
-      "original_test_and_failure_preserved": true,
-      "new_test_sha256": "55f308ac9c3e821dd4770f9f8eb42def43113c6f78e35f63a8f6dafcf72c968c",
-      "legacy_refusal_predicate_sha256": "6ea9e8b33164089034a2a71a03f4850e1ec18ed1a09155d7841f700ef311c833",
-      "source19_manifest_unchanged": true,
-      "native_production_changed": false
-    }
-  },
-  "tensor_to_recovered_profile": {
-    "status": "EXACT_TWELVE_UNIT_COLD_BUILD_AND_ORIGINAL_FULL35_CUSTODY",
-    "source_sha256": "4f8f73f463f681b5eb29423d71a35a0b42d807fd92bf976bbf76c1970fbcee33",
-    "native_sha256": "53fb43b869858f020c0b936a65f00f3b14b97d9e37038a74c357e1da471fe083",
-    "functions": 614,
-    "blocks": 8078,
-    "instructions": 29033,
-    "descriptor_bytes": 672,
-    "native_modules": 12,
-    "recipe_manifest": "tools/tensor_to_native_recovered/package-manifest.json",
-    "recipe_manifest_sha256": "a679ba86335a94ec197c4ea3832518632291c27b131cb699ce9f2d3884406681",
-    "replacement_recipe_does_not_claim_lost_authoring_identity": true,
-    "full35_evidence": "validation/tensor-to-frozen35-remote09b/admission.json",
-    "full35_original_cases": 35,
-    "full35_original_frames": 6344,
-    "full35_compared_values": 2590274,
-    "full35_original_overall_failure_retained": true,
-    "original_state_version_differences": 283,
-    "parameter_version_differences": 0,
-    "copied_controls": {
-      "positive": 4,
-      "negative": 18,
-      "only_change": "synthetic reset high-water node width80 to84",
-      "new_native_executions": 0,
-      "new_torch_executions": 0
-    },
-    "full_schema_qualified": false,
-    "whole_project_status": "HOLD",
-    "original_authoring_source_recovered": {
-      "source_sha256": "a6f91b1d6134255652a7ac2fea5538dc084e96f521866063abafe88a9ac35c62",
-      "source_bytes": 96402,
-      "package_manifest": "validation/tensor-to-original-source-recovery/package-manifest.json",
-      "package_manifest_sha256": "f769663e271d95138decfcc7e8da333d97bef2a647d49e60e42e17a5049f6591",
-      "original_execution_failure_retained": true,
-      "reexecuted": false
-    }
-  },
-  "differentiable_view_profile": {
-    "status": "ACTUAL_FIXED14_PLUS_INPUT4_QUALIFIED",
-    "source_sha256": "3c2c0a125bcac6d47075bf58fc3f78c0e7b9a0b1370757981b99dcd3793b21c6",
-    "native_sha256": "7841b19051960b6fa13cb98841dbb8e4d6ead97f03e2ad65af415e1a35b03221",
-    "native_build_report_sha256": "47a17c04789e1cdc843ea186de211d4b5b279b526961a0713d24c9a9073b6bdb",
-    "functions": 627,
-    "blocks": 8245,
-    "instructions": 29636,
-    "descriptor_bytes": 672,
-    "native_modules": 13,
-    "state_format": "HTVAD003",
-    "backing_format": "HTOVAD03",
-    "producer_manifest": "tools/differentiable_view_recovered_r3/package-manifest.json",
-    "producer_manifest_sha256": "0bdf5985b936d99b7e55c22fb0b9d24af8df8f1e9eb54b7c86d2a4a1df625d1e",
-    "producer_profile": "tools/differentiable_view_recovered_r3/profile.json",
-    "producer_profile_sha256": "7f06102c97fae80643b57a737112272bb3897b46659bd35a0343436adcf59836",
-    "runtime_qualification_scope": "fixed-original14-plus-input4-only",
-    "parent": {
-      "revision": "R2",
-      "source_sha256": "197bd52db4815f575ea3e9055d3f5556900314bd2f4fbb262e80cea76ea16ef2",
-      "native_sha256": "13cee2163e8f62081db35e831885714789ac5117fb80c030a1ccaf7194e0821c",
-      "functions": 614,
-      "native_units": 12,
-      "build_directory": "build/differentiable-view-r2-parent"
-    },
-    "qualification_sets": {
-      "original14": {
-        "all_inputs_unchanged": true,
-        "all_sessions_eof_exit_zero": true,
-        "assertions": 96461,
-        "cases": 14,
-        "exact_words": 14126,
-        "frames": 15135,
-        "full_rng_bytes": 2325760,
-        "observer_sha256": "68d0f4657c6cc7062d98cbf033565b16c7b51f3381c6490247e42512c5baf4a2",
-        "probe_sha256": "1ca74384675f4f5bbe1b477be827e1d405bf3ca04bc3eeaa22e4628dfe0cc1ac",
-        "reference_sha256": "2270d5ba925bcf91c56db94fac663695e69079c74edbf80aff8fa086e7c81665",
-        "report": "validation/differentiable-view-r3-native14/report.json",
-        "report_sha256": "c3147b161f32a85a87ccf00da47f3d2fc8bc2a5c47e159cf1f7ad1f8938606a1",
-        "rollback_bytes": 459258768,
-        "status": "PASS",
-        "evidence_manifest": "validation/differentiable-view-r3-native14/package-manifest.json",
-        "evidence_manifest_sha256": "037975001a3aaa0a1261aa3d15f8233536f68fd7a26087b2662cecda8b47027a",
-        "failed_cases": 0,
-        "native_reader_sha256": "deb9f6fafc3f91b2749bdfac030e19cb0ccdb832fa238af91ed9feb396e62eb8",
-        "unchanged_comparison_base_sha256": "52c3b3242a73fb412102c83c5ba47cf8d95a4eb3c01e56f41bfe593066506d05",
-        "reader_profile_binding": "main explicitly requires expected_functions=627 and expected_native_units=13; non-main functions, Case and reference admission unchanged"
-      },
-      "input4": {
-        "all_inputs_unchanged": true,
-        "all_sessions_eof_exit_zero": true,
-        "assertions": 77432,
-        "cases": 4,
-        "exact_words": 10120,
-        "frames": 12353,
-        "full_rng_bytes": 1102208,
-        "observer_sha256": "68d0f4657c6cc7062d98cbf033565b16c7b51f3381c6490247e42512c5baf4a2",
-        "probe_sha256": "cf569335f48624c1edf2f97a649200f2e792ebcef5b6f1df6bac73293ce02efc",
-        "reference_sha256": "f4abe6a750ecc791b3a7bc7aa507b4c77eb0a2fcccf45b0c6a828db0e01490d3",
-        "report": "validation/differentiable-view-r3-input4/report.json",
-        "report_sha256": "59851d848c383305d8e827d0ef3f1ef1b5fba6f513f5ecfda088fa9ced544d68",
-        "rollback_bytes": 374676864,
-        "status": "PASS",
-        "evidence_manifest": "validation/differentiable-view-r3-input4/package-manifest.json",
-        "evidence_manifest_sha256": "caae8fd09bda0dfd23632da711ffc08d9c20e6045eecc89c875e8bed607f44c2",
-        "failed_cases": 0,
-        "native_reader_sha256": "5b8809eb9e405bf89a3586741d64210483fe3fbc5bc323e2cc16cb712ce4de66",
-        "attempted_events": 103,
-        "backward_operations": 7,
-        "comparison_methods_unchanged": 21
-      }
-    },
-    "additional_scoped_gradient_evidence": {
-      "name": "multiaxis72",
-      "status": "PASS_GRADIENT_WORDS_EXACT_INPUT_AND_EOF_ONLY",
-      "reference_sha256": "2512acdfeaf98f0aa8d8f44ce37dec48b926244ae274066e6e5b86e919a806e9",
-      "report": "validation/differentiable-view-r3-multiaxis72/report.json",
-      "report_sha256": "d4ab2a822f0ab78595ebf9006770b507502e75a3031f9ca09a6fb149d9c9c70d",
-      "execution": "validation/differentiable-view-r3-multiaxis72/execution.json",
-      "execution_sha256": "0495041aee6666f1947a6c15773b1f0415320f851c103905e630af1edc84ed10",
-      "evidence_manifest": "validation/differentiable-view-r3-multiaxis72/package-manifest.json",
-      "evidence_manifest_sha256": "5e54025c86e1d69ae0cb096e773c93d35a1e08e6b267b99685d2c768b7c9f6b0",
-      "native_reader_sha256": "7e85f91d22accd3667272585ed0b37b146c530721f67693f6f4046e68131cf12",
-      "reader_inverse_sha256": "8a6455792f06649cd629504803e65aa37c8b51b4d01531999ced83a17a9df44c",
-      "cases": 72,
-      "failed_cases": 0,
-      "frames": 1224,
-      "exact_gradient_words": 21312,
-      "bound_inputs": 58,
-      "all_inputs_unchanged": true,
-      "arange_256_input_packet_checks": 72,
-      "all_sessions_eof_exit_zero": true,
-      "comparison_scope": [
-        "base/view gradient presence",
-        "base/view logical gradient lengths and binary32 words",
-        "successful wire operations",
-        "exact arange(256) input packets",
-        "session EOF and exit zero"
-      ],
-      "gradient_versions_recorded_not_compared": true,
-      "not_qualified_by_this_reader": [
-        "complete Tensor/Storage identity",
-        "layout",
-        "Saved behavior",
-        "full Generator state",
-        "general owner accounting",
-        "arbitrary CPU dispatch"
-      ],
-      "r1_original_gradient_result_retained": true,
-      "r1_input_mapping_limitation": "R1 used all-one base values; the actual reference uses arange(256). R3 corrects input mapping without changing gradient comparisons.",
-      "new_torch_execution": false
-    },
-    "r2_profile_history_key": "differentiable_view_r2_history",
-    "r2_input4_failure_history_key": "differentiable_view_input4_history",
-    "earlier_native_13_of_14_failure_retained": true,
-    "earlier_host_serialization_failure_retained": true,
-    "earlier_r2_input4_1_pass_3_fail_retained": true,
-    "finite_scope": [
-      "Differentiable F32 direct strided views and captured immediate-input edges in original14",
-      "Recorded Tensor/Storage/Version, Saved errors, retained-gradient, retry and Weak behavior",
-      "Fixed zero-stride and nonzero-stride input overlaps with real clone-contract public gradient Version",
-      "Fixed holed input logical footprint and distinct retained sibling join",
-      "Scoped NaN sign/payload preservation during input-coverage normalization"
-    ],
-    "broader_qualification_at_producer_profile_freeze": {
-      "original16_on_this_r3": "NOT_RUN",
-      "broader_inherited_runtime_on_this_r3": "NOT_RUN",
-      "resource_oom_and_general_owner_on_this_r3": "NOT_RUN"
-    },
-    "additional_qualification_open": [
-      "Arbitrary input geometry and sibling graph fanout",
-      "General view and reshape behavior, all Tensor.to overloads, dtypes, devices and layouts",
-      "Higher-order and forward AD and wider full-project gates"
-    ],
-    "hosted_status_at_documentation_update": "NOT_ADMITTED_FOR_THIS_SOURCE_COMPOSITION",
-    "full_schema_qualified": false,
-    "newly_closed_full_upstream_schemas": 0,
-    "whole_pytorch_rewrite_complete": false,
-    "whole_project_status": "HOLD",
-    "additional_resource_evidence": {
-      "status": "PASS_THREE_FINITE_CONTROLS_ACROSS_TWO_INVOCATIONS",
-      "report": "validation/differentiable-view-r3-preserve-resources/qualification.json",
-      "report_sha256": "81640e4809ad8d13c58b28e6270c54e1ecd8a3928e2d92c029c6b9d36ca06429",
-      "delivery_manifest": "validation/differentiable-view-r3-preserve-resources/delivery-manifest.json",
-      "delivery_manifest_sha256": "aac42d592613b4ebd86e441bf8d1b509d62d9d797f4c05a046726fc017f71c1d",
-      "source_package_manifest_sha256": "d55a2f656e3a7649f21099fedfb74f1b5817ba720343477b26333fbcac086211",
-      "driver_sha256": "edb879dff167e41fb72b37f6d14d2ad7cfd7f48eef87fade1c96146cee7308bc",
-      "controls": 3,
-      "successful_control_frames": 113,
-      "successful_control_checks": 243,
-      "all_original_frames_including_setup_failure": 126,
-      "all_original_checks": 260,
-      "all_original_EOF_exit_codes": [
-        0,
-        0,
-        0,
-        0
-      ],
-      "first_report_status": "FAIL",
-      "first_report_sha256": "184636ba83de144c6f4543bf4fdfbeb63b83fb633cb1b45ca069c3086f24727f",
-      "successor_report_status": "PASS",
-      "successor_report_sha256": "846bcad6839c542948b603e51d11eb6a833ac35daef9d5bc38d28b74860ae9f0",
-      "successor_case": "preserve_capacity_oom_recovery",
-      "unchanged_successful_cases_not_reexecuted": true,
-      "all_three_source02_together": "NOT_RUN_LOCALLY",
-      "frozen_producer_profile_unchanged": true,
-      "raw_archive_sha256": "105f618251cf6847f3a090a3fb13575919fe99614179668ee107467ee63b4e25",
-      "raw_manifest_sha256": "e473b621112ef6a6283fd2587c3791b9d41a653241cfbb7f520c168e5fff082b",
-      "scope": "Three finite resource compositions; no general OOM or whole PyTorch claim. Frozen production profile historical fields are unchanged."
-    }
-  },
-  "differentiable_view_r2_history": {
-    "status": "ACTUAL_FIXED14_NATIVE_QUALIFIED",
-    "source_sha256": "197bd52db4815f575ea3e9055d3f5556900314bd2f4fbb262e80cea76ea16ef2",
-    "native_sha256": "13cee2163e8f62081db35e831885714789ac5117fb80c030a1ccaf7194e0821c",
-    "functions": 614,
-    "blocks": 8090,
-    "instructions": 29094,
-    "descriptor_bytes": 672,
-    "native_modules": 12,
-    "state_format": "HTVAD002",
-    "backing_format": "HTOVAD02",
-    "producer_manifest": "tools/differentiable_view_recovered_v2/package-manifest.json",
-    "producer_manifest_sha256": "c03c1a66c286010d19a4faef25a76f3e6bbefbe98870acddb85c796563607cd6",
-    "evidence": "validation/differentiable-view-r2-native14/package-manifest.json",
-    "evidence_manifest_sha256": "5674ffd9c4c07e742d783abed410549cc4473e2bae44630e0f8609280f5071df",
-    "actual_report_sha256": "0b987fcb1d7fb74fe8a6d1edb994bed53851f07acbc3dfe6af6f754489e598d4",
-    "fixed_reference_sha256": "2270d5ba925bcf91c56db94fac663695e69079c74edbf80aff8fa086e7c81665",
-    "unchanged_reader_sha256": "52c3b3242a73fb412102c83c5ba47cf8d95a4eb3c01e56f41bfe593066506d05",
-    "cases": 14,
-    "failed_cases": 0,
-    "frames": 15135,
-    "assertions": 96461,
-    "exact_words": 14126,
-    "full_rng_bytes": 2325760,
-    "whole_owner_rollback_bytes": 459258768,
-    "all_sessions_eof_exit_zero": true,
-    "earlier_native_13_of_14_failure_retained": true,
-    "earlier_host_serialization_failure_retained": true,
-    "finite_scope": [
-      "Differentiable F32 direct strided views with immediate-input AD edges",
-      "Recorded Tensor/Storage/Version and captured-edge identities",
-      "Saved release/Version errors, retained gradients, retries and Weak expiry",
-      "Moving a retained hook on lazy ViewInfo history refresh"
-    ],
-    "additional_qualification_open": [
-      "input itself overlapping",
-      "holes in input logical footprint",
-      "distinct sibling views joining a graph"
-    ],
-    "hosted_status_at_package_creation": "NOT_RUN_FOR_THIS_SOURCE_COMPOSITION",
-    "full_schema_qualified": false,
-    "newly_closed_full_upstream_schemas": 0,
-    "whole_pytorch_rewrite_complete": false,
-    "whole_project_status": "HOLD"
-  },
-  "differentiable_view_input4_history": {
-    "status": "R2_ACTUAL_1_PASS_3_FAIL",
-    "source_sha256": "197bd52db4815f575ea3e9055d3f5556900314bd2f4fbb262e80cea76ea16ef2",
-    "native_sha256": "13cee2163e8f62081db35e831885714789ac5117fb80c030a1ccaf7194e0821c",
-    "actual_reference_sha256": "f4abe6a750ecc791b3a7bc7aa507b4c77eb0a2fcccf45b0c6a828db0e01490d3",
-    "native_report_sha256": "c7c745e00788b6961a289dec59c0453acffe98838bc9b33693b80b43ce98e8cd",
-    "native_reader_sha256": "5b8809eb9e405bf89a3586741d64210483fe3fbc5bc323e2cc16cb712ce4de66",
-    "evidence_manifest": "validation/differentiable-view-r2-input4-history/package-manifest.json",
-    "evidence_manifest_sha256": "919542af77fc4c2579e1ec1fa5a9f5fd05481ed2ad801363b276b59fba99d319",
-    "passed_cases": 1,
-    "failed_cases": 3,
-    "frames": 12353,
-    "assertions": 77432,
-    "exact_words": 10120,
-    "whole_owner_rollback_bytes": 374676864,
-    "all_sessions_eof_exit_zero": true,
-    "all_inputs_unchanged": true,
-    "original_first_reader_failure_retained": true,
-    "observed_defects": [
-      "Overlapping and holed input public gradient Version differs from actual clone-contract result",
-      "Overlapping input normalization loses NaN sign and payload"
-    ],
-    "one_fixed_sibling_case_passes": true,
-    "newly_closed_full_upstream_schemas": 0,
-    "whole_pytorch_rewrite_complete": false,
-    "whole_project_status": "HOLD"
-  },
-  "differentiable_view_r4_profile": {
-    "status": "LOCAL_NATIVE_AND_RAW_ADMISSION_PASS_HOSTED_QUALIFICATION_NOT_RUN_AT_FREEZE",
-    "profile": "compatibility/view-reshape-r4-profile.json",
-    "documentation": "docs/view-reshape-scalar-r4.md",
-    "source_sha256": "c436e21c45355891f8423f174a47e7c40fc8e1d6aef9a112043fac8787255d7a",
-    "native_sha256": "0799496559ffdfb051e34bc7a543db238b81d09c970a5cb4a8235151e0335b74",
-    "functions": 658,
-    "native_modules": 13,
-    "native_cases": 76,
-    "scalar_resource_cases": 3,
-    "backward_private_preserve_resource_cases": 1,
-    "newly_closed_full_upstream_schemas": 0,
-    "full_schema_qualified": false,
-    "whole_pytorch_rewrite_complete": false,
-    "whole_project_status": "HOLD",
-    "hosted_status_at_profile_freeze": "NOT_RUN"
-  },
-  "legacy_top_level_fields_scope": "The original top-level dtype/layout/descriptor/arena limits and capability rows describe the 143-function baseline. Historical named profiles retain their frozen claims. The default runtime is specified by current_runtime_profile; finite qualification never implies complete schema parity.",
   "current_runtime_profile": {
-    "name": "sum-f32-cat-empty-01",
+    "name": "current",
     "canonical_source": "tools/current_runtime/source/runtime.hepta",
     "source_manifest": "tools/current_runtime/source/manifest.json",
+    "identity_authority": "The current source manifest supplies source/ELF hashes, function inventory and complete ordered compilation units; actual execution requires its matching cold-build receipt.",
     "builder": "tools/current_runtime/build.py",
-    "source_sha256": "82360ce87dae6f9a004ef50be4f991b6f83905a83f4b17ca8d6634827b7bd313",
-    "native_sha256": "80445a8c433f20314d3bc7b00ebb68f6a70fa200ee2e6aba193cff21aabfbc17",
-    "core_functions": 701,
-    "core_blocks": 9352,
-    "core_instructions": 33473,
-    "compilation_units": 14,
-    "tensor_descriptor_bytes": 672,
+    "build_admission": "tools/current_runtime/qualification.py",
     "default_build": "make",
     "default_qualification": "make test",
     "qualification_coordinator": "tests/qualify_current_runtime.py",
     "workflow": ".github/workflows/current-runtime.yml",
-    "current_image_suites": {
-      "bool_reference_cases": 27,
-      "original_view_scalar_cases": 76,
-      "original_f32_sum_cases": 32,
-      "original_integral_sum_cases": 24,
-      "integral_to_f32_sum_cases": 17,
-      "original_live_object_cases": 35,
-      "original_numeric_training_cases": 270,
-      "original_rng_backward_cases": 32
-    },
-    "local_execution_receipts": "validation/current-runtime701/evidence.json",
-    "fixed_reference_manifest": "validation/current-runtime-references/manifest.json",
     "audit": "docs/current-audit.md",
-    "historical_application_elf_required_for_current_build": false,
-    "runtime_dependencies": [
-      "Linux x86-64 kernel and hardware"
-    ],
-    "host_build_and_test_tools_include_python": true,
+    "target": {
+      "os": "Linux",
+      "architecture": "x86_64",
+      "device": "CPU",
+      "tensor_descriptor_bytes": 672,
+      "runtime_dependencies": [
+        "Linux x86-64 kernel and hardware"
+      ],
+      "host_build_and_test_tools_include_python": true,
+      "historical_application_elf_required_for_current_build": false
+    },
+    "bounded_types": {
+      "0": "IEEE binary32 Tensor: documented arithmetic, AD and conversion paths",
+      "1": "Bool Tensor with one-byte elements: documented typed/logical/reduction paths",
+      "2": "signed int64 Tensor with eight-byte elements: documented typed/integer/mixed/reduction paths",
+      "3": "internal rank-zero wrapped IEEE binary64 Scalar only; no general F64 Tensor service"
+    },
+    "resource_bounds": {
+      "rank_range": [
+        0,
+        4
+      ],
+      "maximum_tensor_dimension": 262144,
+      "general_construction_numel_limit": 16777216,
+      "command115_118_119_numel_limit": 262144,
+      "request_body_bytes": 1048576,
+      "response_body_bytes": 1048576,
+      "storage": "Documented nonnegative strides, offsets and empty layouts; distinct allocation, work and pool limits still apply.",
+      "scope": "These finite implementation caps are not PyTorch limits and are not all simultaneously attainable."
+    },
+    "new_command_contracts": {
+      "115": {
+        "operation": "sum",
+        "result_dtype_codes": {
+          "0": "F32",
+          "1": "Bool",
+          "2": "I64",
+          "UINT64_MAX": "inferred"
+        },
+        "scope": "Only admitted source/result combinations; Bool/I64-to-F32 converts each element before F32 reduction. Empty axis tuple reduces all dimensions. Floating requires_grad plus Bool output is refused after axis validation."
+      },
+      "118": {
+        "operation": "any",
+        "result_dtype_code": 1,
+        "empty_axis_tuple": "no reduction",
+        "empty_reduction_identity": false
+      },
+      "119": {
+        "operation": "all",
+        "result_dtype_code": 1,
+        "empty_axis_tuple": "no reduction",
+        "empty_reduction_identity": true
+      },
+      "common": "Rank0..4 and <=262144 logical elements; signed axes, keepdim0/1, zero reserved words, complete bounded axis payload. Scalar axis0/-1 is accepted. No out= or unimplemented dtype/backend contract is inferred."
+    },
+    "current_image_qualification": {
+      "status": "PASS_COMPONENT_EXECUTIONS_UNIFIED_683_CI_PENDING",
+      "cold_build": "PASS_NATIVE_BUILD_ONLY",
+      "required_groups": {
+        "bool27": 27,
+        "original76": 76,
+        "integral24": 24,
+        "sum_f32_17": 17,
+        "current35": 35,
+        "base270": 270,
+        "sum32": 32,
+        "live32": 32,
+        "logical147": 147,
+        "resource7": 7,
+        "asstrided16": 16
+      },
+      "required_group_count": 11,
+      "required_cases_total": 683,
+      "success_rule": "All eleven groups must actually run and pass on the same current source, ELF and cold-build receipt, including every separate control, exact original denominator, process exit/EOF and unchanged input binding.",
+      "historical_qualification_transferred": false,
+      "full_683_executed": false,
+      "execution_evidence": "validation/current-runtime-20261118/manifest.json",
+      "observed_executions": [
+        {
+          "scope": "original complete ten-group run before reference packaging and live32 readback changes",
+          "cases": 667,
+          "status": "PASS_CURRENT_RUNTIME_FOCUSED",
+          "qualification_sha256": "aa168047fc9a0392707f3c1c08b8ab4cb88c2bc16e1732c4c37c2a3994cc14c0"
+        },
+        {
+          "scope": "post-migration original76, Sum32 and strengthened live32",
+          "cases": 140,
+          "status": "PASS_PARTIAL_POST_667_REGRESSION",
+          "qualification_sha256": "0c21f10e1836c9282e9d8dece81d55b14652b1368575c53368691fa9b35396b3"
+        },
+        {
+          "scope": "post-migration complete original resource7",
+          "cases": 7,
+          "status": "PASS",
+          "qualification_sha256": "a45f05345dce0299365c36560bddcba0c4135d7450be4a099146eb1d46c5817d"
+        },
+        {
+          "scope": "source02 complete original AsStrided16 with all four original readers",
+          "cases": 16,
+          "status": "PASS",
+          "qualification_sha256": "8300788a5927e0862b0e3ff6561ce878f8509b2f7276933bbb913e077dabf003"
+        }
+      ]
+    },
+    "controls_required": {
+      "original35_positive": 4,
+      "original35_negative": 18,
+      "original270_actual_prefix_refusal_pairs": 14,
+      "logical_packet_and_rollback": 18,
+      "logical_allocation_and_recovery": 2,
+      "live_reference_provenance_checks_per_group": 11,
+      "other_controls": "All original Bool/Integral dtype observations, F32 dtype/axis/entry controls and both conversion/output allocation stages remain mandatory. Explicitly superseded refusal results retain their original FAIL records.",
+      "inherited_resource_allocation_recoveries": 3
+    },
+    "reference_policy": "Fixed independently produced reference bytes or the exact pinned live Torch CPU interpreter; no native-result-derived expected values.",
+    "torch_reference_lock": "compatibility/pytorch-oracle-lock.json",
+    "torch_reference_interpreter_make_variable": "HEPTA_TORCH_PYTHON",
     "full_upstream_schema_qualified": false,
-    "whole_pytorch_rewrite_complete": false,
-    "required_cases_total": 513,
-    "torch_reference_interpreter_make_variable": "HEPTA_TORCH_PYTHON"
-  }
+    "whole_pytorch_rewrite_complete": false
+  },
+  "capabilities": [
+    {
+      "name": "tensor-arithmetic",
+      "implementation": "PRESENT_IN_CURRENT_HIA_SOURCE",
+      "scope": "Selected CPU F32 pointwise add/subtract/multiply/divide with right-aligned broadcasting; scoped Bool/I64 and mixed-type paths are separate, explicit contracts.",
+      "required_current_image_suites": [
+        "base270",
+        "current35"
+      ],
+      "current_image_qualification": "PASS_COMPONENT_EXECUTIONS_UNIFIED_683_CI_PENDING",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "unary-and-softmax",
+      "implementation": "PRESENT_IN_CURRENT_HIA_SOURCE",
+      "scope": "F32 ReLU/neg/sqrt/exp/log/sigmoid/tanh and single-axis softmax/log-softmax in the documented bounded layouts.",
+      "required_current_image_suites": [
+        "base270",
+        "current35"
+      ],
+      "current_image_qualification": "PASS_COMPONENT_EXECUTIONS_UNIFIED_683_CI_PENDING",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "sum-and-mean",
+      "implementation": "PRESENT_IN_CURRENT_HIA_SOURCE",
+      "scope": "Existing F32 reductions and command115 sum with None, empty or signed axis tuples and keepdim; Bool/I64 outputs and explicit conversion to F32 are bounded, separately tested paths.",
+      "required_current_image_suites": [
+        "sum32",
+        "integral24",
+        "bool27",
+        "sum_f32_17",
+        "asstrided16"
+      ],
+      "current_image_qualification": "PASS_COMPONENT_EXECUTIONS_UNIFIED_683_CI_PENDING",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "logical-reductions",
+      "implementation": "PRESENT_IN_CURRENT_HIA_SOURCE",
+      "scope": "Commands118 any and119 all accept Bool, I64, F32 and existing rank-zero wrapped F64 Scalars, and return independent detached Bool Tensor/Storage/Version objects. Empty axis tuples mean no reduction; empty reductions use the appropriate logical identity.",
+      "required_current_image_suites": [
+        "logical147"
+      ],
+      "current_image_qualification": "PASS_COMPONENT_EXECUTIONS_UNIFIED_683_CI_PENDING",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "bool-sum",
+      "implementation": "PRESENT_IN_CURRENT_HIA_SOURCE",
+      "scope": "Command115 explicit Bool result accepts the same source types. Its empty axis tuple means all dimensions. Invalid axes are checked before the requires_grad refusal; floating inputs requiring gradients remain refused.",
+      "required_current_image_suites": [
+        "logical147",
+        "bool27"
+      ],
+      "current_image_qualification": "PASS_COMPONENT_EXECUTIONS_UNIFIED_683_CI_PENDING",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "matmul",
+      "implementation": "PRESENT_IN_CURRENT_HIA_SOURCE",
+      "scope": "Rank1..4 vector/matrix/broadcast-batched F32 products, selected strided/empty inputs and broadcast-reduced first-order reverse gradients; mm remains rank2-only.",
+      "required_current_image_suites": [
+        "base270",
+        "current35"
+      ],
+      "current_image_qualification": "PASS_COMPONENT_EXECUTIONS_UNIFIED_683_CI_PENDING",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "typed-storage-and-views",
+      "implementation": "PRESENT_IN_CURRENT_HIA_SOURCE",
+      "scope": "Real byte-wide Bool, eight-byte I64 and four-byte F32 Storage; selected typed construction/read/fill/casts, transpose, as_strided, view and reshape, alias identity and shared Version behavior. Wrapped F64 remains scalar-only.",
+      "required_current_image_suites": [
+        "original76",
+        "integral24",
+        "current35",
+        "asstrided16"
+      ],
+      "current_image_qualification": "PASS_COMPONENT_EXECUTIONS_UNIFIED_683_CI_PENDING",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "first-order-autograd",
+      "implementation": "PRESENT_IN_CURRENT_HIA_SOURCE",
+      "scope": "Explicit or implicit F32 seeds, leaf and selected retained gradients, Saved/Version checks, captured mutation history, scoped mixed F32/I64 gradients and original partial-backward behavior; no full forward/higher-order AD.",
+      "required_current_image_suites": [
+        "original76",
+        "current35",
+        "live32"
+      ],
+      "current_image_qualification": "PASS_COMPONENT_EXECUTIONS_UNIFIED_683_CI_PENDING",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "linear-and-losses",
+      "implementation": "PRESENT_IN_CURRENT_HIA_SOURCE",
+      "scope": "Selected F32 Linear, broadcast mean-squared loss and rank-two probability-target cross entropy; unsupported overloads and options remain outside the profile.",
+      "required_current_image_suites": [
+        "base270",
+        "current35"
+      ],
+      "current_image_qualification": "PASS_COMPONENT_EXECUTIONS_UNIFIED_683_CI_PENDING",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "convolution-and-pooling",
+      "implementation": "PRESENT_IN_CURRENT_HIA_SOURCE",
+      "scope": "Bounded NCHW/OIHW conv2d with documented groups/stride/dilation/padding and floor avg/max pool variants; no complete module or backend coverage.",
+      "required_current_image_suites": [
+        "base270",
+        "current35"
+      ],
+      "current_image_qualification": "PASS_COMPONENT_EXECUTIONS_UNIFIED_683_CI_PENDING",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "normalization",
+      "implementation": "PRESENT_IN_CURRENT_HIA_SOURCE",
+      "scope": "Last-dimension LayerNorm and selected evaluation BatchNorm with explicit affine/statistics contracts.",
+      "required_current_image_suites": [
+        "base270",
+        "current35"
+      ],
+      "current_image_qualification": "PASS_COMPONENT_EXECUTIONS_UNIFIED_683_CI_PENDING",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "indexing-and-scatter",
+      "implementation": "PRESENT_IN_CURRENT_HIA_SOURCE",
+      "scope": "Selected F32 index_select, gather, scatter_add and index_add with signed-I64 index payloads, duplicate accumulation, empty handling and explicit failure contracts.",
+      "required_current_image_suites": [
+        "base270",
+        "current35"
+      ],
+      "current_image_qualification": "PASS_COMPONENT_EXECUTIONS_UNIFIED_683_CI_PENDING",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "cat-and-stack",
+      "implementation": "PRESENT_IN_CURRENT_HIA_SOURCE",
+      "scope": "Documented rank1..4 F32 cat and rank0..3-to-rank1..4 stack, repeated-parent VJP, qualified layout selection and skipped rank-one empty cat gradient accumulation.",
+      "required_current_image_suites": [
+        "base270",
+        "current35"
+      ],
+      "current_image_qualification": "PASS_COMPONENT_EXECUTIONS_UNIFIED_683_CI_PENDING",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "tensor-object-lifetime",
+      "implementation": "PRESENT_IN_CURRENT_HIA_SOURCE",
+      "scope": "Owned Tensor/Storage/Version/Weak/Saved/Hold objects, revocable public capabilities, ViewInfo roots, gradient aliases, growing pools and source-bound reset/reference equations.",
+      "required_current_image_suites": [
+        "current35",
+        "original76",
+        "logical147",
+        "resource7"
+      ],
+      "current_image_qualification": "PASS_COMPONENT_EXECUTIONS_UNIFIED_683_CI_PENDING",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "optimizers-and-training",
+      "implementation": "PRESENT_IN_CURRENT_HIA_SOURCE",
+      "scope": "Selected SGD, momentum/Nesterov and owned Adam/AdamW state/update paths with documented gradient-presence behavior and finite training trajectories; full optimizer/scheduler/API parity is open.",
+      "required_current_image_suites": [
+        "base270",
+        "current35",
+        "live32"
+      ],
+      "current_image_qualification": "PASS_COMPONENT_EXECUTIONS_UNIFIED_683_CI_PENDING",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "rng-and-distributions",
+      "implementation": "PRESENT_IN_CURRENT_HIA_SOURCE",
+      "scope": "Native CPU MT19937 Generators with complete 5056-byte state, selected uniform/Bernoulli/dropout paths and documented partial errors; the finite tests do not qualify all distributions or devices.",
+      "required_current_image_suites": [
+        "live32",
+        "current35",
+        "logical147"
+      ],
+      "current_image_qualification": "PASS_COMPONENT_EXECUTIONS_UNIFIED_683_CI_PENDING",
+      "full_upstream_schema_qualified": false
+    }
+  ],
+  "unimplemented_subsystems": [
+    "Complete frontend, dispatcher, overloads, contexts and public API compatibility",
+    "Full contracts for all 2590 native declarations and 688 derivative declarations",
+    "General dtype promotion/casting, complex/quantized/sparse/nested layouts and every device variant",
+    "Higher-order/create_graph, forward AD, hooks and full transform/alias/mutation semantics",
+    "All NN modules, optimizers, schedulers and complete state/mode behavior",
+    "Checkpoint/state serialization, compatibility and interrupted/distributed restoration",
+    "CUDA/ROCm/MPS/XPU and all device allocation, transfers, streams and kernels",
+    "Distributed process groups, collectives, DDP/FSDP/DTensor and failure semantics",
+    "PyTorch graph capture, symbolic shapes, compile/export and artifact compatibility",
+    "Dataset/dataloader, workers, multiprocessing, sampling and cancellation",
+    "All required platforms, packaging, extension/profiling interfaces and final whole-project acceptance"
+  ],
+  "historical_metadata_policy": "Superseded profile descriptions and old execution identities are available through Git history and their original immutable evidence. They are not current-image qualification."
 }

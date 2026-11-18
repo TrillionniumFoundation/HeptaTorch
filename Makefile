@@ -21,11 +21,10 @@ SESSION_PACKER_SHA256 := 22600cee8853b6a49dfbf66154ddcdc99bdbbc6fcfb2face2605ad7
 SESSION_INPUTS := src/heptatorch.hepta tools/session/build_runtime.py tools/session/entry.hepta tools/session/profile.json tools/modules/split_runtime.py Makefile
 STORAGE_INPUTS := $(wildcard tools/storage_objects/*.py tools/storage_objects/*.authoring tools/storage_objects/*.hia.in) tools/storage_objects/source-lock.json Makefile
 OWNED_TENSOR_INPUTS := src/heptatorch.hepta docs/functions.json tools/modules/split_runtime.py $(wildcard tools/owned_tensors/*.py tools/owned_tensors/*.hepta tools/owned_tensors/*.json) Makefile
-CURRENT_RUNTIME_UNITS := rng03 owners $(addprefix cat_f32_,00 01 02 03 04 05 06 07 08 09 10 11)
 CURRENT_RUNTIME_INPUTS := tools/current_runtime/build.py tools/stack_budget/inspect_stack.py \
-  tools/current_runtime/source/manifest.json tools/current_runtime/source/partition.json \
+  tools/current_runtime/source/manifest.json \
   tools/current_runtime/source/runtime.hepta \
-  $(addprefix tools/current_runtime/source/units/,$(addsuffix .hepta,$(CURRENT_RUNTIME_UNITS))) Makefile
+  $(wildcard tools/current_runtime/source/units/*.hepta) Makefile
 
 .PHONY: all current-runtime legacy monolithic session session-monolithic storage-objects owned-tensors test test-legacy test-monolithic test-session test-session-monolithic test-storage-objects test-owned-tensors check-compiler check-module-tools check-session-tools check-session-packer check-storage-tools acceptance-status full-acceptance clean
 
@@ -599,7 +598,7 @@ build/unhex: tools/unhex.hepta | build check-compiler
 
 test: current-runtime
 	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/current-runtime-review.XXXXXX"); \
-	python3 -I -S -B tests/qualify_current_runtime.py \
+	"$(HEPTA_TORCH_PYTHON)" -I -S -B tests/qualify_current_runtime.py \
 	  --build-directory "$(CURDIR)/build/current-runtime" --torch-python "$(HEPTA_TORCH_PYTHON)" \
 	  --output "$$review/results"
 

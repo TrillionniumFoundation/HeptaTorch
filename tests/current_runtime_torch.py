@@ -5,6 +5,7 @@ import hashlib
 import importlib.metadata
 import importlib.util
 import json
+import os
 from pathlib import Path
 import platform
 import runpy
@@ -86,6 +87,8 @@ def main(argv=None):
             loaded = {name: str(Path(getattr(sys.modules[name], '__file__')).resolve(strict=True))
                       for name in ('torch', 'torch._subclasses.functional_tensor')}
             receipt['actual_loaded'] = loaded
+            receipt['cpu_capability'] = sys.modules['torch'].backends.cpu.get_cpu_capability()
+            receipt['aten_cpu_capability_override'] = os.environ.get('ATEN_CPU_CAPABILITY')
             require(loaded['torch'] == str(torch_init)
                     and loaded['torch._subclasses.functional_tensor'] == before['path'],
                     'original reader actually imported the observed fixed Torch source')

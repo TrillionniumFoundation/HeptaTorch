@@ -1,22 +1,18 @@
-# Build the complete current HIA runtime
+# Build and qualify the current HIA runtime
 
-`tools/current_runtime/build.py` builds the complete runtime directly from its
-published HIA source and ordered module manifest. It needs the fixed ABI3 HIA
-compiler and session linker. It does not load a parent executable, reconstruct
-the sequence of historical authoring overlays, or reuse a compiled application
-object.
+The authoritative application source is
+[`tools/current_runtime/source/runtime.hepta`](../tools/current_runtime/source/runtime.hepta).
+Its [manifest](../tools/current_runtime/source/manifest.json) identifies every
+ordered compilation unit, complete core function body and expected native
+object/executable. There is one default application profile, named `current`.
 
-The current source package is `tools/current_runtime/source/`. It contains the
-701-function F32-sum and empty-cat-gradient successor, its fourteen compilation units and
-`manifest.json`. Tensor arithmetic, allocation, gradients and session execution
-remain HIA implementations. Python partitions source, invokes native build
-tools and checks their output; it does not execute Tensor operations.
+Tensor arithmetic, shape planning, allocation, reference lifetime, gradients,
+RNG and command execution run in HIA machine code. Standard Python organizes
+builds and independent tests. The produced static Linux x86-64 executable has
+no Python, PyTorch, NumPy, libm or libc execution dependency. Bootstrap of the
+HIA toolchain remains a separate reproducibility boundary.
 
-## Source checks
-
-This command checks every source hash, the complete function-body partition,
-exports, imported signatures/effects, module dependencies and fixed unit limits.
-It starts no subprocesses and needs no compiler installation:
+## Source validation
 
 ```sh
 python3 -I -S -B tools/current_runtime/build.py \
@@ -25,25 +21,28 @@ python3 -I -S -B tools/current_runtime/build.py \
   --check-only --output build/current-source-check
 ```
 
-The output directory must be new. A successful check reports
-`SOURCE_CHECKED_NATIVE_NOT_RUN`; it is not a native compilation or runtime test.
+The output directory must be new. This verifies source hashes, every complete
+function body, imported/exported signatures and effects, acyclic dependencies,
+module counts and compiler limits. It runs no native compiler or application;
+the result is explicitly `SOURCE_CHECKED_NATIVE_NOT_RUN`.
 
 ## Cold native build
 
-The default Make target selects this current profile:
+The default Make target requires GNU Make 4.3 or newer:
 
 ```sh
 make HEPTA_CURRENT_COMPILER=/absolute/path/to/stack-module-compiler \
      HEPTA_CURRENT_LINKER=/absolute/path/to/stack-linker-session
 ```
 
-GNU Make 4.3 or newer is required for the paired build-report/executable target.
-The final tools otherwise default to `HEPTA_STACK_BUILD/native/`. Make compiles
-in a new staging directory, publishes only a successful complete build and keeps
-any recognized previous build in that staging directory. Failed builds retain
-their original reports. Deleting either generated target causes both to rebuild.
+The two tools otherwise default to `HEPTA_STACK_BUILD/native/`.
+The application is `build/current-runtime/heptatorch`; the actual build receipt
+is `build/current-runtime/build.json`. Make compiles in a fresh staging
+directory, then publishes a successful build. A recognized previous local
+build and any failed staging attempt are retained for diagnosis. Removing
+either paired output causes both to rebuild.
 
-The underlying standalone build command is:
+The standalone equivalent is:
 
 ```sh
 python3 -I -S -B tools/current_runtime/build.py \
@@ -51,198 +50,196 @@ python3 -I -S -B tools/current_runtime/build.py \
   --source-root tools/current_runtime/source \
   --compiler /absolute/path/to/stack-module-compiler \
   --linker /absolute/path/to/stack-linker-session \
-  --output build/current-runtime
+  --output /new/current-runtime-build
 ```
 
-The builder reads the exact tool bytes, checks their SHA-256 values and uses
-private executable copies for this build. Every `.o` is produced in a new
-compiler process from its full `.hepta` unit. The final `heptatorch` executable is
-produced by the native HIA linker using `HIASTKS1`, entry `step`, and zero startup
-workspace. The production `step` and `close` ownership contract is unchanged.
-The builder does not run the resulting executable.
+Every object is compiled from its complete HIA unit in a new native process.
+The builder takes private copies of the two verified tools; it never reads a
+historical application ELF or reuses an application object. The native linker
+receives the exact new objects through `HIASTKS1`, with entry `step` and zero
+startup workspace. The existing `step`/`close` ownership ABI is preserved.
+The resulting application is not executed by the builder.
 
-The direct builder first cold-compiled the following three historical profiles. R4 and
-Integral699 reproduced every original object and the original executable SHA;
-Bool700 produced its first native image from the new complete source. All
-compiler/linker processes exited zero with complete stdout/stderr EOF.
-
-| Profile | Core functions / units | Native executable SHA-256 |
-| --- | ---: | --- |
-| R4 Scalar07b | 658 / 13 | `0799496559ffdfb051e34bc7a543db238b81d09c970a5cb4a8235151e0335b74` |
-| Integral699 | 699 / 14 | `fec4f5cd7f80591fee98378cb5a8a85b6e71c5e4a7f0a00a739dad16afc24c28` |
-| Bool700 | 700 / 14 | `c6afeedc14ba8cc408a62d6fbef0abb5b78dff0039b8099f3449d813e290a90e` |
-| Current F32-sum / empty-cat | 701 / 14 | `80445a8c433f20314d3bc7b00ebb68f6a70fa200ee2e6aba193cff21aabfbc17` |
-
-Those three builds each measured a 131,824-byte maximum native call path and
-135,920 bytes including the existing reserve. These are build results; the
-builder did not execute any of the Tensor applications. Eight separate source
-controls also rejected changed core bodies, changed support code, missing
-units/exports, mismatched imported effects, cyclic imports, path traversal and
-an uncorrected source hash.
-
-| Tool | Required SHA-256 |
+| Required native tool | SHA-256 |
 | --- | --- |
-| ABI3 compiler | `b1c851a0896fa6071f800e1146c3c27d0c6cf85059e9a6281b46d42908a3f59f` |
+| ABI3 module compiler | `b1c851a0896fa6071f800e1146c3c27d0c6cf85059e9a6281b46d42908a3f59f` |
 | ABI3 session linker | `aae650e8822ef0b1e74d15108ad1d0f17ec791205ed5a158ec60b709f48f0e16` |
 
-The original [stack profile](../tools/stack_budget/profile.json) and
-[ABI3 contract](../tools/stack_budget/CONTRACT.md) remain authoritative for tool
-reproduction. Initial reproduction of those tools still uses their existing
-bootstrap recipe. A normal application build only needs the two final tools;
-it does not need the older Tensor executables.
+The fixed Hepta source commit is
+`f33d8da316de8fdf27b504371f1a5310997ff548`. Tool reproduction is specified by
+the [stack profile](../tools/stack_budget/profile.json) and
+[ABI3 contract](../tools/stack_budget/CONTRACT.md). The hosted
+[current-runtime workflow](../.github/workflows/current-runtime.yml)
+rebuilds the tools through their native fixed points before building the
+application. Its initial bootstrap uses Python and GNU ld.
 
-The compiler retains its 1 MiB source/object limit, 256 function slots including
-imports, 2,560 blocks, 256 blocks per function and 8,192 instructions per unit.
-The linker retains its 64-object and 8 MiB input/output limits. Its native
-interface, ownership, machine-call and stack checks are preserved. The usable
-private stack is 8 MiB with guard pages; admitted paths are at most 8,384,512
-bytes, leaving the unchanged 4,096-byte reserve. The pinned independent stack
-inspector additionally compares the new object metadata and decoded frames
-against the actual source call graph before linking.
+The fixed compiler admits at most 1 MiB per source/object, 256 functions
+including imports, 2,560 blocks, 256 blocks per function and 8,192 instructions
+per unit. The linker admits 64 objects and 8 MiB input/output. The private
+stack has 8 MiB with guard pages; the native path limit is 8,384,512 bytes,
+leaving the fixed 4,096-byte reserve. The pinned independent stack inspector
+checks object metadata and decoded frames against the actual source call
+graph before linking. Actual demand is recorded in each build receipt.
 
-`build/current-runtime/build.json` records source and tool identities, each new
-object, the final image, stack demand and the exit status and EOF of every
-compiler/linker process. Successful compilation reports
-`PASS_NATIVE_BUILD_ONLY`. Runtime and PyTorch comparison suites must bind this
-exact source, executable and report before granting their own qualification.
-The full-project [acceptance ledger](../compatibility/full-acceptance.json)
-continues to track the separate whole-PyTorch target.
+A successful build reports `PASS_NATIVE_BUILD_ONLY`. This records complete
+source/tool/object/image identities and actual compiler/linker exit and EOF;
+it does not grant runtime or whole-PyTorch qualification.
 
-## Current-image runtime qualification
+## Current-image tests
+
+The default test command requires the fixed native tools and a pinned live
+PyTorch reference interpreter. All eleven groups are mandatory:
 
 ```sh
 make test HEPTA_CURRENT_COMPILER=/absolute/path/to/stack-module-compiler \
           HEPTA_CURRENT_LINKER=/absolute/path/to/stack-linker-session \
-          HEPTA_TORCH_PYTHON=/absolute/path/to/pinned-env/bin/python
+          HEPTA_TORCH_PYTHON=/absolute/path/to/pinned/python
 ```
 
-Make selects a new qualification directory. The equivalent standalone command
-is:
+The reference environment requires CPython 3.12, the exact CPU wheel in
+[`pytorch-oracle-lock.json`](../compatibility/pytorch-oracle-lock.json), and
+the original pip installation report at its locked repository path. All eleven
+wheel/build/install provenance checks remain mandatory. The interpreter runs
+the test harness and the independent oracle; numerical operations in the
+application run in native HIA. Use this same CPython 3.12 interpreter for the
+coordinator and all original-reader stages. Their strict source-identity proofs
+retain Python AST digests, whose serialization can differ across Python minor
+versions.
+
+| Group | Cases | Required checks |
+| --- | ---: | --- |
+| Bool sum | 27 | Original fixed observations, exact dtype contract changes, entry and resource controls |
+| View/scalar | 76 | Original view26/scalar32/view14/input4, full owner and RNG checks |
+| Integral sum | 24 | Original 260 events and full-width integer/overflow behavior |
+| Integral-to-F32 sum | 17 | Cast before reduction, noncontiguous/empty layouts and two allocation-failure stages |
+| Original lifecycle | 35 | 6,344 frames, 2,590,274 numeric values, strict owner checks, four positive and eighteen negative controls |
+| Original operators/training | 270 | All ten original groups, 284 real frames and fourteen success-prefix/refusal pairs |
+| Original F32 sum | 32 | All 626 original events, original comparison classes and complete native EOF |
+| Live Tensor/RNG/backward | 32 | 2,132 frames, 17,455 exact binary32 words and 1,137,600 Generator-state bytes |
+| Logical reductions | 147 | Any/all/Bool sum, invalid-axis gradient precedence, eighteen packet controls and two real allocation/rollback/retry controls |
+| Original resource controls | 7 | Original R4 resource3, backward private-cache1 and R3 preserve3, full 84-word owner/RNG rollback and three actual allocation-limit recoveries |
+| Original AsStrided | 16 | Original copy4/reduction4/lanes2/branches6, 1,920 frames, 10,272 checks, 176 complete owner archives, sixteen actual native exits and 32 EOF observations |
+
+These total **683 finite comparison cases**. They are not 683 complete upstream
+schemas. Original lifecycle35, operator/training270 and live32 execute the
+actual pinned Torch oracle. The other eight groups consume exact frozen actual
+reference results, including all provenance checks applicable to each package.
+
+To choose a new output directory explicitly:
 
 ```sh
-python3 -I -S -B tests/qualify_current_runtime.py \
+/absolute/path/to/pinned/python -I -S -B tests/qualify_current_runtime.py \
   --build-directory build/current-runtime \
-  --torch-python /absolute/path/to/pinned-env/bin/python \
-  --output build/current-runtime-qualification
+  --torch-python /absolute/path/to/pinned/python \
+  --output /new/current-runtime-qualification
 ```
 
-The output directory must not exist. The explicit Torch interpreter must be the
-fixed CPython 3.12 Linux x86-64 environment described by
-`compatibility/pytorch-oracle-lock.json`. Its original pip installation receipt
-must exist at `build/pytorch-install.json`. The workflow prepares that exact
-environment; the local gate does not install packages or access the network.
-The interpreter's original path is used to preserve virtual-environment
-selection; its resolved executable bytes are also bound as an input.
+Make and hosted CI invoke this same coordinator. Every group runs against the
+same actual source, image and cold-build receipt. It attempts remaining groups
+after an ordinary group failure, retains complete original streams and checks
+all reports. A prepared adapter, earlier image's PASS, missing report, timeout,
+changed input or incomplete stream cannot satisfy the gate.
 
-The same coordinator runs eight mandatory groups against one complete source,
-image and actual cold-build receipt: Bool27, original view/scalar76, Integral24,
-Bool/I64-to-F32 Sum17, original live35, original live270, original live32, and
-F32 Sum32. Their case total is 513. Extra event, frame, numeric, lifetime, RNG and control counts
-retain their own denominators.
+[`qualification.py`](../tools/current_runtime/qualification.py) is the shared
+build-admission code. It binds the current source and manifest, private native
+tool copies, every source/object, native compiler/link input/output bytes and
+process EOFs. It reconstructs the exact link request and independently
+recomputes the actual object/source stack requirement under the fixed limits.
+Runtime comparison values remain independent of this build metadata.
 
-The five recorded-reference groups (Bool27, original76, Integral24, Sum32 and
-Sum17) use exact frozen independent reference observations. The original76
-fixture contains only its eight original reference/probe files, with every
-byte and original member mode retained. Its compact archive is 131,848 bytes;
-the separate historical complete packet has a verified recovery index.
-The original35, original270 and original32 run the fixed real Torch oracle and all eleven
-provenance checks. All original numerical inputs, expectations, tolerances,
-training loops, exception phases and comparison bodies remain fixed apart from
-the documented complete, reversible transport/identity adaptations.
+New dtype functionality intentionally supersedes some historical refusal
+controls. Their original executions and FAIL reports remain unchanged. The
+current admission records the exact changed indices, checks the actual native
+wire, and requires separate independent reference comparisons for the newly
+successful result. The original numerical cases, error controls outside that
+extension and resource assertions remain mandatory. This does not turn an old
+failed expectation into a claimed historical PASS.
 
-The original270 bridge keeps 256 complete successful requests. Its fourteen
-refusals use the same process for the genuine success prefix and one genuine
-terminal refusal frame because the current owner rolls back a failed complete
-frame and returns count0. It retains both actual replies; it does not synthesize
-an old-format error record. Qualification requires 270 new native processes,
-284 frames, the exact actual executable, every exit0, empty native stderr and
-both actual EOFs. The original35 additionally executes its strict report checker
-and the unchanged four positive/eighteen negative copied-observation controls.
+Current full35 uses one explicit ViewInfo adapter. It binds the real HIA retain,
+release and layout bodies, then adds actual base edges to the exact lifetime
+and graph-reset equations. It retains the original numerical assertions,
+672-byte descriptor, strict report checker and all positive/negative controls.
+The original270 package retains all original case bodies and transport; its
+adapter only binds the current source/owner identity and complete build.
 
-The original live32 keeps its whole original main, serializer, comparison and
-close logic. It requires 32 real native children, 2,132 frames, 17,455 exact
-binary32 words, 1,137,600 serialized Generator-state bytes, 238 absolute-Version
-comparisons and 166 gradient-presence comparisons. The final admission rereads
-every request/response and all 4,264 complete owner snapshots, runs the unchanged
-84-word structural checker, and requires every original stream digest and
-normal exit with both EOFs. All four original partial-backward prefixes and
-the original uniform-interval refusal remain real native responses.
+Live32 retains the complete immutable PR39 source package, including the
+original oracle, capture code and owner equations. An explicit, reversible
+identity adapter binds the current function inventory, source, ELF and actual
+cold build. Its independent readback reopens all 2,132 request/response pairs
+and 4,264 raw and decoded 84-word owner snapshots, checks 32 native exits and
+64 native EOF observations, and preserves all original partial-write/refusal
+controls. The pre-migration 667 run and this later reader
+qualification have distinct source and execution receipts.
 
-This current-image gate replaces thirteen duplicate old live32 steps in the
-Native workflow and the corresponding step in three old observer profiles.
-Their other build, lifecycle, numerical and resource gates remain. The slow
-Sum32 group runs last; all eight per-group budgets total 155 minutes.
+Resource7 retains the seven original resource recipes, reference values, full
+owner equations and allocation thresholds. Its source admission proves exact
+retained function bodies and the unchanged allocation path for the actual
+F32 nodes. It accepts the actual cold-build receipt supplied by the coordinator;
+the source and ELF remain fixed. Each worker and native child must finish with
+complete EOF, and each actual OOM case must restore its original process limit.
 
-The old Bool27 dtype controls still report FAIL at indices2/3 after F32 output
-is implemented. The old Integral24 controls still report FAIL at indices0/1/2/3
-after Bool and F32 output are implemented. Their original reports and nonzero
-reader exits are retained. A strict outer gate requires every original numeric
-case, unchanged refusal, exact expected extension and final native EOF; the new
-Sum17 controls independently qualify the extended contract.
+AsStrided16 preserves all four original readers and owner observers through
+eight byte-exact source inverses. The shared admission binds the actual current
+cold build, and an independent reader checks every original frame and complete
+owner archive. A read-only normal-return observer binds the original finish
+function and records actual exit/EOF; its claim is limited to the reviewed
+original call graph, which has no early output-close path. No expected values,
+reader assertions or process finish implementation are replaced.
 
-Each runner's complete stdout/stderr, hashes, exit and EOF are retained. The
-supervisor tracks exact process incarnations and sends cleanup signals through
-pidfds; it does not authorize a signal using a recycled PID or session number.
-The original SID-reuse counterexample and corrected pure-Python cleanup checks
-are retained. A timeout, prepared-only/missing report, incomplete stream,
-changed input or ordinary case failure blocks the overall focused PASS, while
-the remaining groups still run.
+Execution records remain distinct: the original complete 667 run passed;
+post-migration original76/Sum32/live32 passed 140 cases, resource7 passed seven,
+and final AsStrided16 passed sixteen. The new complete eleven-group 683 gate
+still requires its own actual CI run. The earlier reports retain their original
+denominators and source snapshots.
 
-The focused workflow has a 180-minute job budget, archives complete available
-build/source/reference/native evidence, and reports whole-project HOLD even
-when `PASS_CURRENT_RUNTIME_FOCUSED` is obtained. Actual source-bound results
-are indexed in `validation/current-runtime701/evidence.json`; historical
-qualification is never copied to a changed executable.
+The compact view/scalar reference archive contains exactly the eight original
+reference/probe files and retains their original bytes and archived modes.
+The complete historical native76 archive remains recoverable through its
+[location index](../validation/view-reshape-r4-native76/archive-location.json);
+current tests consume the compact fixed subset.
 
-## A single complete source, reproducible units
+CI archives actual source/build inputs, tool bootstrap outputs, native wire,
+owner snapshots, original references and reports after success or failure.
+Published results are indexed by the [current audit](current-audit.md).
+The [full acceptance ledger](../compatibility/full-acceptance.json) remains the
+authority for whole-PyTorch closure.
 
-The aggregate `runtime.hepta` is the authoritative collection of core function
-bodies. `partition.py` reproduces module sources without invoking the old
-authoring stack:
+## Reproduce compilation units
+
+The aggregate HIA source is authoritative. Reproduce its units directly:
 
 ```sh
 python3 -I -S -B tools/current_runtime/partition.py \
   --runtime tools/current_runtime/source/runtime.hepta \
-  --rng tools/current_runtime/source/units/rng03.hepta \
-  --owners tools/current_runtime/source/units/owners.hepta \
-  --name sum-f32-cat-empty-01 --prefix cat_f32 \
-  --output build/current-repartitioned
+  --name current --prefix runtime \
+  --output /new/current-repartitioned
 ```
 
-Dependency traversal, name sorting, 65-function / 3,600-instruction /
-1,000-block grouping and declaration generation follow the existing R4 and
-Integral699 partition algorithm. These grouping thresholds are more
-conservative than the unchanged native compiler limits. Every complete core
-function occurs once in the partition and must match the aggregate bytes.
-Private RNG helpers remain scoped to the fixed RNG unit. The two support unit
-identities are fixed in the builder; changing their ownership or RNG contract
-requires a reviewed profile change.
+The RNG and owner support units default to the current source package.
+Dependency traversal and deterministic grouping use at most 65 functions,
+3,600 instructions and 1,000 blocks per group, below native tool limits.
+Every core function occurs exactly once and its full bytes must match the
+aggregate. The fixed RNG and owner support identities are checked separately.
 
-When reproducing an already built profile, `--expected-build path/to/build.json`
-requires the original aggregate SHA, all unit names and source SHAs in order,
-the same native tools and successful link status. It carries the original
-object and executable SHAs into the new manifest. The cold build then requires
-every newly compiled object and linked executable to match those identities.
-No historical object or application ELF is read or executed.
+For a byte-for-byte reproduction, add
+`--expected-build /absolute/path/to/build.json`. This requires the same source,
+unit ordering, unit bytes and native tools, and carries the actual object and
+ELF hashes into the generated manifest. A subsequent cold build must reproduce
+every hash. No previous application binary is used to produce the new one.
+The generated `partition.json` is a local receipt; it is not a second published
+source version.
 
-The R4 comparison manifest at
-`tools/current_runtime/profiles/r4-scalar07b.json` exercises this same direct
-builder against the existing 658-function source package. It references the
-already published source and original output identities without copying them.
-Use the repository root as `--source-root` for that manifest.
+## Implementation changes and retirement
 
-## Updating the current source
+Edit the canonical runtime, regenerate units, review the exact function and
+manifest changes, and cold-build in a new directory. A new implementation
+first records its actual object/image hashes; all applicable current-image
+suites then run against that build. Qualification of an earlier source never
+transfers merely because the new manifest was updated.
 
-Apply an implementation change to the complete runtime, generate fresh units
-with `partition.py`, review the source/manifest changes and run the cold builder
-in a new directory. A first build of a new source has no claimed historical
-object or ELF hash; its actual outputs are bound by the new build report.
-Functional tests use independently fixed reference results and execute that
-same image. Updating a source manifest never transfers the earlier image's
-runtime qualification to the changed image.
-
-This direct source path removes historical application builds from the current
-build dependency graph. It does not by itself authorize deleting older source
-packages, original failure records or test inputs that other acceptance suites
-still reference. Those references can be consolidated after the current
-runtime passes their relevant regression suites.
+Current application builds have no historical application-build dependency.
+Some original independent validators and separate toolchain/component tests
+still bind historical source fixtures. Their dependencies must be migrated
+with equivalent checks before retiring them. Unreachable application bodies
+and redundant generated current-source versions can be removed immediately
+once the complete call graph and actual current-image regressions justify it.

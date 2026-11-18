@@ -2,6 +2,8 @@ name: Native HIA
 
 on:
   push:
+    branches:
+      - main
   pull_request:
   workflow_dispatch:
 
@@ -704,26 +706,6 @@ jobs:
           fi
           exit "$status"
 
-      - name: Replay all four recovered AsStrided suites against their immutable original16 observations
-        run: |
-          status=0
-          mkdir -p build/tensor-to-recovered-bits
-          for suite in copy4 reduction4 lanes2 branches6; do
-            case_status=0
-            make "test-tensor-to-recovered-bits-$suite" HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget" \
-              > "build/tensor-to-recovered-bits/$suite.make.stdout" \
-              2> "build/tensor-to-recovered-bits/$suite.make.stderr" || case_status=$?
-            cat "build/tensor-to-recovered-bits/$suite.make.stdout"
-            cat "build/tensor-to-recovered-bits/$suite.make.stderr" >&2
-            if [ "$case_status" -ne 0 ]; then status="$case_status"; fi
-            report="build/tensor-to-recovered-bits/$suite/report.json"
-            if [ -f "$report" ]; then
-              cp "$report" "build/tensor-to-recovered-bits-$suite.json"
-              python3 -I -S -B tools/emit_ci_report.py "build/tensor-to-recovered-bits-$suite.json"
-            fi
-          done
-          exit "$status"
-
       - name: Restore all fixed input4 observation bytes and original file modes
         run: |
           status=0
@@ -793,22 +775,6 @@ jobs:
           if [ -f build/differentiable-view-native-input4/report.json ]; then
             cp build/differentiable-view-native-input4/report.json build/differentiable-view-native-input4.json
             python3 -I -S -B tools/emit_ci_report.py build/differentiable-view-native-input4.json
-          fi
-          exit "$status"
-
-      - name: Qualify finite R3 preserve resource lifetime, rollback and OOM recovery
-        run: |
-          status=0
-          make test-differentiable-view-preserve-resources \
-            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
-            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget" \
-            > build/differentiable-view-preserve-resources.make.stdout \
-            2> build/differentiable-view-preserve-resources.make.stderr || status=$?
-          cat build/differentiable-view-preserve-resources.make.stdout
-          cat build/differentiable-view-preserve-resources.make.stderr >&2
-          if [ -f build/differentiable-view-preserve-resources/report.json ]; then
-            cp build/differentiable-view-preserve-resources/report.json build/differentiable-view-preserve-resources.json
-            python3 -I -S -B tools/emit_ci_report.py build/differentiable-view-preserve-resources.json
           fi
           exit "$status"
 
@@ -1651,17 +1617,12 @@ jobs:
         with:
           name: tensor-to-original16-input4-evidence-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
           path: |
-            build/tensor-to-recovered-bits/
-            build/tensor-to-recovered-bits-*.json
             build/differentiable-view-input4-reference/
             build/differentiable-view-input4-reference.json
             build/differentiable-view-input4-reference.make.*
             build/differentiable-view-native-input4/
             build/differentiable-view-native-input4.json
             build/differentiable-view-native-input4.make.*
-            build/differentiable-view-preserve-resources/
-            build/differentiable-view-preserve-resources.json
-            build/differentiable-view-preserve-resources.make.*
           if-no-files-found: warn
           compression-level: 9
           retention-days: 30

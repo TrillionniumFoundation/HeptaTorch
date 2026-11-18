@@ -12,9 +12,7 @@ BASELINE_MANIFEST_SHA = 'e4ac41437792606e36524d85e1f2049c106527ffcbf8055cebf068c
 F32_REFERENCE_ARCHIVE_SHA = '1494c31492261a84b3311d568109992c48c5062b52802b2909da5f82f9f5604d'
 F32_REFERENCE_MANIFEST_SHA = '5f08c46df30f4f747968270e332687861add4449d8771cebb3d26018a2b13903'
 F32_READER_MANIFEST_SHA = 'a97c262047f17c50a9ad77815754644e1df19350ec2511f274997b4711dda974'
-LEGACY_PROOF_SHA = '581225ffc3534ba00abf1f962712a3b8758feb774d92a3fa1f462a165c940f7d'
-CURRENT35_ARCHIVE_SHA = '188655c40e46bcdc9ec2f12385c293941f3a7556a8ab30761619e5752e67362f'
-CURRENT35_MANIFEST_SHA = '0241d2f320765f1ad53aa28721a4e30304aedc21d7cca8a44668ee5567510f57'
+LEGACY_PROOF_SHA = 'cea99a513d9e85378eef24d6f6e3de163e95027dba402b911ea786ab8148cc38'
 CURRENT270_ARCHIVE_SHA = '47afac432997a33aa5b874c2c088fa1b238262903f7d2c230abc2be34a2ad40a'
 CURRENT270_MANIFEST_SHA = '45e251c6cd275797c5bf121a7e190c5e89232e2f6592ae95bed37369a313ecef'
 LIVE32_ARCHIVE_SHA = 'e94e11a2997a24c7629cfbe5afc5aac7503ed039701c956a77dcb09357f6f927'
@@ -135,13 +133,6 @@ def restore_f32_reference(repository, destination, inputs=None):
                    'heptatorch.current-runtime.fixed-f32-reference17.v1', inputs)
 
 
-def restore_current35(repository, destination, inputs=None):
-    return restore(repository, destination, 'validation/current-runtime35-source',
-                   CURRENT35_ARCHIVE_SHA, CURRENT35_MANIFEST_SHA,
-                   'heptatorch.current701-cat-empty-original35.prepared-package.v1',
-                   inputs, embedded_manifest=True)
-
-
 def restore_current270(repository, destination, inputs=None):
     return restore(repository, destination, 'validation/current-runtime270-source',
                    CURRENT270_ARCHIVE_SHA, CURRENT270_MANIFEST_SHA,
@@ -200,7 +191,7 @@ def verify_legacy_sources(repository, baseline, inputs=None):
     repository, baseline = Path(repository), Path(baseline)
     proof = json.loads(read(repository / 'tests/current_runtime_legacy/identity-proof.json',
                             LEGACY_PROOF_SHA, inputs))
-    require(proof['schema'] == 'heptatorch.current-runtime.legacy701-identity.v1'
+    require(proof['schema'] == 'heptatorch.current-runtime.legacy-identity.v2'
             and proof['comparison_predicate_or_expected_value_edits'] == []
             and set(proof['files']) == {'tests/current_runtime_legacy/run.py',
                                        'tests/current_runtime_legacy/sum32.py'},

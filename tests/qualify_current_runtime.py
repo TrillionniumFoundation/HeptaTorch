@@ -2,7 +2,7 @@
 """Execute all focused current-runtime suites and retain their original evidence.
 
 This coordinator transports fixed observations and invokes independent native
-readers and the fixed live Torch references for original35, base270 and live32. It implements no
+readers and the fixed live Torch references for original35, base270, and live32. It implements no
 Tensor arithmetic, edits no old report, and grants no whole-project qualification
 from these finite suites.
 """
@@ -10,6 +10,7 @@ from these finite suites.
 import argparse
 import hashlib
 import io
+import importlib.util
 import json
 import lzma
 from pathlib import Path, PurePosixPath
@@ -26,8 +27,17 @@ import current_runtime_fixtures as fixed_fixtures
 from current_runtime_process import execute as execute_process
 from current_runtime_admission import qualify_historical, qualify_f32, qualify_current35, qualify_current270
 from current_runtime_live32 import qualify_live32
-SOURCE = "82360ce87dae6f9a004ef50be4f991b6f83905a83f4b17ca8d6634827b7bd313"
-IMAGE = "80445a8c433f20314d3bc7b00ebb68f6a70fa200ee2e6aba193cff21aabfbc17"
+_asstrided_path = ROOT / "tests/current_runtime_asstrided/qualify.py"
+_asstrided_spec = importlib.util.spec_from_file_location("current_runtime_asstrided_admission", _asstrided_path)
+current_asstrided = importlib.util.module_from_spec(_asstrided_spec)
+_asstrided_spec.loader.exec_module(current_asstrided)
+qualify_asstrided16 = current_asstrided.qualify_asstrided16
+_profile_path = ROOT / "tools/current_runtime/qualification.py"
+_profile_spec = importlib.util.spec_from_file_location("current_runtime_build_admission", _profile_path)
+current_profile = importlib.util.module_from_spec(_profile_spec)
+_profile_spec.loader.exec_module(current_profile)
+SOURCE, IMAGE = current_profile.SOURCE, current_profile.IMAGE
+FUNCTIONS, UNITS = current_profile.FUNCTIONS, current_profile.UNITS
 COMPILER = "b1c851a0896fa6071f800e1146c3c27d0c6cf85059e9a6281b46d42908a3f59f"
 LINKER = "aae650e8822ef0b1e74d15108ad1d0f17ec791205ed5a158ec60b709f48f0e16"
 BOOL_REFERENCE = "21dd75aeb86414818f7aa381f8b866d78b16f9bb3f5738e9a60d27ac3d15dd28"
@@ -37,9 +47,10 @@ INTEGRAL_REFERENCE = "6c9df4b579664c89c200b9d796367dd6d41f93f8260e8ff012f17d5041
 SHARED_ARCHIVE = "validation/current-runtime-references/complete.tar.xz"
 SHARED_ARCHIVE_SHA = "3a29420768a1bf7808976f04cb3ce3e6091db55ff6ae7858879f1b7ff70b69ea"
 SHARED_MANIFEST_SHA = "666fa775586679cfd42606c95656ad261c8856332431931ed4b0fcfd8865057e"
-GROUPS = ("bool27", "original76", "integral24", "sum_f32_17", "current35", "base270", "live32", "sum32")
+GROUPS = ("bool27", "original76", "integral24", "sum_f32_17", "current35", "base270", "sum32", "live32", "logical147", "resource7", "asstrided16")
 SUITE_TIMEOUT_SECONDS = {"bool27": 600, "original76": 900, "integral24": 900,
-                         "sum_f32_17": 600, "current35": 900, "base270": 900, "live32": 900, "sum32": 3600}
+                         "sum_f32_17": 900, "current35": 1800, "base270": 1800, "sum32": 3600,
+                         "live32": 1800, "logical147": 1200, "resource7": 1200, "asstrided16": 1200}
 
 
 def require(condition, message):
@@ -89,25 +100,8 @@ class Inputs:
 
 
 def build_binding(directory, inputs):
-    raw = inputs.bind(directory / "build.json")
-    built = json.loads(raw)
-    require(built["schema"] == "heptatorch.complete-runtime-build.v1"
-            and built["status"] == "PASS_NATIVE_BUILD_ONLY", "an actual cold build is required")
-    require(built["functions"] == built["complete_core_bodies_matched"] == 701
-            and built["units_planned"] == len(built["units"]) == 14
-            and len(built["processes"]) == 15, "the entire current runtime must be built")
-    require(built["objects_reused"] is False and built["all_inputs_unchanged"] is True,
-            "cold-build input custody failed")
-    require(built["source_sha256"] == SOURCE and built["native_sha256"] == IMAGE
-            and built["compiler_sha256"] == COMPILER and built["linker_sha256"] == LINKER
-            and built["link_exit"] == 0, "current source, image or tool identity changed")
-    require(built["runtime_qualified"] is False and built["full_pytorch_rewrite_complete"] is False,
-            "build receipt must not claim runtime or project qualification")
-    inputs.bind(directory / "runtime.hepta", SOURCE)
-    image = inputs.bind(directory / "heptatorch", IMAGE)
-    require(len(image) == built["native_bytes"] and image.startswith(b"\x7fELF"),
-            "current ELF byte count or header changed")
-    return sha(raw)
+    current_profile.admit_build(directory, inputs.bind)
+    return sha(inputs.bind(directory / "build.json"))
 
 
 class Fixtures:
@@ -231,20 +225,6 @@ class Fixtures:
                 ROOT, self.output / "f32-reader", self.baseline(), self.inputs)
         return self.cache["f32_reader"]
 
-    def current270(self):
-        if "current270" not in self.cache:
-            self.cache["current270"] = fixed_fixtures.restore_current270(
-                ROOT, self.output / "original270-source", self.inputs)
-        return self.cache["current270"]
-
-
-    def live32(self):
-        if "live32" not in self.cache:
-            self.cache["live32"] = fixed_fixtures.restore_live32(
-                ROOT, self.output / "original-live32-source", self.inputs)
-        return self.cache["live32"]
-
-
 
 def runner_command(name, build, build_sha, output, fixtures, inputs, torch_python):
     common = ["--build-directory", str(build), "--expected-build-sha256", build_sha]
@@ -271,23 +251,45 @@ def runner_command(name, build, build_sha, output, fixtures, inputs, torch_pytho
             "--reference-source", str(source / "reference32-source"),
             "--reference", str(source / "reference32/actual.json")]
     elif name == "sum_f32_17":
-        script = fixtures.f32_reader() / "native.py"
+        script = ROOT / "tests/sum_f32_review/fusion.py"
+        reader = fixtures.f32_reader()
+        for path in sorted(script.parent.glob("*.py")):
+            inputs.bind(path)
         flags = ["-E", "-S", "-B"]
         args = ["--repository", str(ROOT), "--binary", str(build / "heptatorch"),
             "--source", str(build / "runtime.hepta"), "--build-report", str(build / "build.json"),
             "--reference", str(fixtures.f32_reference()), "--expected-source-sha256", SOURCE,
             "--expected-native-sha256", IMAGE, "--expected-build-sha256", build_sha,
-            "--expected-reference-sha256", "c86b0a9384c788eaf7765480b022416075a0e3aa38455f48dcbd7f40476cecb0"]
+            "--expected-reference-sha256", "c86b0a9384c788eaf7765480b022416075a0e3aa38455f48dcbd7f40476cecb0",
+            "--reader-directory", str(reader)]
     elif name == "current35":
         script = ROOT / "tests/current_runtime35.py"
         args = common + ["--torch-python", str(torch_python)]
-    elif name in ("base270", "live32"):
-        script = (fixtures.current270() if name == "base270" else fixtures.live32()) / "run.py"
+    elif name == "base270":
+        script = ROOT / "tests/current_runtime270.py"
         inputs.bind(torch_python.resolve())
         python, flags = str(torch_python), ["-B"]
-        args = common + ["--repository", str(ROOT), "--binary", str(build / "heptatorch"),
-            "--source", str(build / "runtime.hepta"), "--expected-source-sha256", SOURCE,
-            "--expected-native-sha256", IMAGE]
+        args = common
+    elif name == "live32":
+        script = ROOT / "tests/current_runtime_live32.py"
+        args = common + ["--torch-python", str(torch_python)]
+    elif name == "logical147":
+        script = ROOT / "tests/logical_reductions/qualify.py"
+        for path in sorted(script.parent.glob("*.py")):
+            inputs.bind(path)
+        args = ["--build-directory", str(build)]
+    elif name == "resource7":
+        script = ROOT / "tests/current_runtime_resources/qualify.py"
+        for path in sorted(script.parent.iterdir()):
+            if path.is_file():
+                inputs.bind(path)
+        args = common + ["--repository", str(ROOT)]
+    elif name == "asstrided16":
+        script = ROOT / "tests/current_runtime_asstrided/qualify.py"
+        for path in sorted(script.parent.iterdir()):
+            if path.is_file():
+                inputs.bind(path)
+        args = common + ["--repository", str(ROOT)]
     else:
         raise ValueError("unknown mandatory suite")
     inputs.bind(script)
@@ -341,6 +343,116 @@ def qualify_sum32(report, build_sha):
     return {"cases": 32, "events": 626, "frames": report["frames"], "assertions": report["assertions"]}
 
 
+def qualify_logical(report, build_sha, directory, inputs):
+    require(report['schema'] == 'heptatorch.logical-reductions.qualification.v1'
+            and report['status'] == 'PASS' and report['actual_build_sha256'] == build_sha
+            and report['source_sha256'] == SOURCE and report['native_sha256'] == IMAGE,
+            'logical reductions must qualify the same complete current build')
+    require(report['cases'] == 147 and report['packet_controls'] == 18
+            and report['allocation_controls'] == 2 and report['native_children'] == 150
+            and report['native_executed'] is True and report['torch_executed'] is False
+            and report['all_native_EOF'] is True and report['all_inputs_unchanged'] is True,
+            'all logical cases, packet controls, real allocation failures and children are required')
+    runner = report['runner']
+    require(runner['started'] is True and runner['exit_code'] == 0
+            and runner['stdout_EOF'] is True and runner['stderr_EOF'] is True
+            and runner['stderr_bytes'] == 0 and not runner.get('timed_out')
+            and not runner.get('forced_cleanup'), 'complete actual logical runner process')
+    raw = inputs.bind(directory / 'native/report.json', report['native_report_sha256'])
+    native = json.loads(raw)
+    require(native['status'] == 'PASS' and native['cases'] == native['expected_cases'] == 147
+            and len(native['rows']) == 147 and all(row['status'] == 'PASS' for row in native['rows'])
+            and native['native_sha256'] == IMAGE and native['source_sha256'] == SOURCE,
+            'all actual native logical comparisons')
+    reference = inputs.bind(directory / 'reference.json', report['reference_sha256'])
+    require(json.loads(reference)['status'] == 'OBSERVED' and report['full_pytorch_rewrite_complete'] is False
+            and report['schema_closure'] is False, 'independent logical reference and finite scope')
+    return dict(cases=147, frames=report['frames'], assertions=report['total_checks'],
+                native_sessions=150, packet_controls=18, allocation_controls=2)
+
+
+def qualify_resource7(report, build_sha, directory, inputs):
+    expected = {
+        'r4': ['entry_guards_and_relative_tokens', 'saved_scalar_and_temporary_lifetime',
+               'result_allocation_oom_recovery'],
+        'backward': ['backward_private_preserve_allocation_oom_recovery'],
+        'r3': ['tail_release_reuse', 'preserve_capacity_oom_recovery', 'tail_then_saved_error_prefix'],
+    }
+    require(report['schema'] == 'heptatorch.current700.resource7.v1'
+            and report['status'] == 'PASS_CURRENT_RESOURCE7'
+            and report['actual_build_sha256'] == build_sha
+            and report['source_sha256'] == SOURCE and report['native_sha256'] == IMAGE
+            and report['functions'] == FUNCTIONS and report['units'] == UNITS,
+            'resource7 must qualify the same complete actual cold build')
+    require(report['selected_suites'] == list(expected) and report['required_cases'] == expected
+            and report['required_case_count'] == report['cases'] == 7
+            and report['prepare_only'] is False and report['failures'] == []
+            and report['native_executed'] is True and report['all_inputs_unchanged'] is True
+            and report['Torch_executed'] is False and report['compiler_executed'] is False,
+            'all seven original resource recipes must actually execute')
+    require(report['old_pass_transferred'] is False and report['schema_closure'] is False
+            and report['full_pytorch_rewrite_complete'] is False,
+            'finite resource controls do not close a whole schema or project')
+    require([row['suite'] for row in report['suites']] == list(expected), 'all three resource readers')
+    frames = checks = children = restored_limits = 0
+    for row in report['suites']:
+        name = row['suite']
+        folder = directory / name
+        runner = row['process']
+        require(row['status'] == 'PASS' and row['case_names'] == expected[name]
+                and runner['started'] is True and runner['exit_code'] == 0
+                and runner['stdout_EOF'] is True and runner['stderr_EOF'] is True
+                and runner['stderr_bytes'] == 0 and not runner.get('timed_out')
+                and not runner.get('forced_cleanup') and not runner.get('execution_error')
+                and not runner.get('error') and not runner.get('cleanup_errors')
+                and not runner.get('running_descendants_after_cleanup'), 'complete actual resource worker')
+        for stream in ('stdout', 'stderr'):
+            raw = inputs.bind(folder / ('runner.' + stream), runner[stream + '_sha256'])
+            require(len(raw) == runner[stream + '_bytes'], 'complete original resource worker stream')
+        actual = json.loads(inputs.bind(folder / 'actual/report.json', row['report_sha256']))
+        proof = json.loads(inputs.bind(folder / 'adaptation/source-bindings.json'))
+        require(actual['status'] == 'PASS' and actual['native_executed'] is True
+                and actual['source_sha256'] == SOURCE and actual['native_sha256'] == IMAGE
+                and actual['all_inputs_unchanged'] is True
+                and actual['case_count'] == actual['passed'] == row['cases'] == len(expected[name])
+                and [case['name'] for case in actual['cases']] == expected[name], 'all original resource cases')
+        require(proof['actual_build_sha256'] == build_sha and proof['source_sha256'] == SOURCE
+                and proof['native_sha256'] == IMAGE and proof['functions'] == FUNCTIONS
+                and proof['units'] == UNITS and proof['all_original_inputs_unchanged'] is True
+                and proof['whole_file_inverse_exact'] is True and proof['original_pass_transferred'] is False
+                and proof['numeric_expectations_modified'] is False
+                and proof['resource_thresholds_modified'] is False
+                and proof['owner_equations_modified'] is False, 'exact resource source and allocation obligations')
+        transports = row['native_transports']
+        require([item['case'] for item in transports] == expected[name], 'one native child per original recipe')
+        for case, transport in zip(actual['cases'], transports):
+            # The fixed original OwnerSession.finish requires waitpid exit 0,
+            # then reads both output and error streams and asserts literal EOF.
+            # Only after these checks does the original case set EOF_exit_code.
+            require(case['status'] == 'PASS' and case['EOF_exit_code'] == transport['exit_code'] == 0,
+                    'original native finish and both EOF checks must succeed')
+            child = folder / 'actual' / case['name'] / 'transport'
+            ledger = json.loads(inputs.bind(child / 'transport.json'))
+            require(ledger['executable_sha256'] == IMAGE and ledger['exit_code'] == 0
+                    and ledger['responses_before_stdin_eof'] is True
+                    and ledger['frames'] == len(ledger['rows']) == case['frames_before_EOF'] == transport['frames'],
+                    'actual native resource frame ledger')
+            inputs.bind(child / 'requests.frames.bin', transport['requests_sha256'])
+            inputs.bind(child / 'responses.frames.bin', transport['responses_sha256'])
+            if 'oom' in case['name']:
+                require(case['original_limit_restored'] is True, 'actual process allocation limit restored')
+                restored_limits += 1
+            children += 1
+        require(row['frames'] == actual['frames_before_EOF'] and row['checks'] == actual['checks'],
+                'original resource reader totals')
+        frames += row['frames']
+        checks += row['checks']
+    require(children == 7 and restored_limits == 3 and report['frames'] == frames and report['checks'] == checks,
+            'complete resource comparisons and all three actual limit recoveries')
+    return dict(cases=7, frames=frames, assertions=checks, native_sessions=7,
+                worker_sessions=3, allocation_controls=3)
+
+
 
 
 
@@ -361,17 +473,17 @@ def main(argv=None):
     inputs, suites, failures = Inputs(), [], []
     started = time.monotonic()
     result = {"schema": "heptatorch.current-runtime.qualification.v1", "status": "RUNNING",
-              "source_sha256": SOURCE, "native_sha256": IMAGE, "functions": 701, "units": 14,
+              "source_sha256": SOURCE, "native_sha256": IMAGE, "functions": FUNCTIONS, "units": UNITS,
               "required_suites": list(GROUPS), "required_cases": {"bool27": 27, "original76": 76,
               "sum32": 32, "integral24": 24, "sum_f32_17": 17, "current35": 35, "base270": 270,
-              "live32": 32}, "required_cases_total": 513,
+              "live32": 32, "logical147": 147, "resource7": 7, "asstrided16": 16}, "required_cases_total": 683,
               "required_controls": {"historical_Bool_dtypes": 7, "historical_Integral_dtypes": 5,
                   "current_dtypes": 7, "F32_axes": 4, "entry_and_capability": 10,
                   "Bool_allocation": 1, "F32_allocation_stages": 2,
                   "original35_copied_positive": 4, "original35_copied_negative": 18,
                   "original270_actual_prefix_refusal_pairs": 14,
-                  "original_live32_partial_backward_prefixes": 4,
-                  "original_live32_uniform_refusal": 1},
+                  "logical_packet_controls": 18, "logical_allocation_stages": 2,
+                  "inherited_resource_allocation_recoveries": 3},
               "suite_timeout_seconds": SUITE_TIMEOUT_SECONDS,
               "suites": suites, "failures": failures, "full_pytorch_rewrite_complete": False,
               "schema_closure": False, "full_project_status": "HOLD", "Torch_executed": False}
@@ -382,7 +494,7 @@ def main(argv=None):
     try:
         inputs.bind(Path(__file__).resolve())
         for name in ("current_runtime_fixtures.py", "current_runtime_process.py", "current_runtime_admission.py",
-                     "current_runtime_torch.py", "current_runtime_live32.py"):
+                     "current_runtime_torch.py", "current_runtime_live32.py", "current_runtime_live32_readback.py"):
             inputs.bind(ROOT / "tests" / name)
         build_sha = build_binding(build, inputs)
         result["actual_build_sha256"] = build_sha
@@ -426,10 +538,16 @@ def main(argv=None):
                     counts = qualify_f32(report, ROOT, build, build_sha, directory, inputs)
                 elif name == "current35":
                     counts = qualify_current35(report, build_sha, directory, inputs)
-                elif name == "live32":
-                    counts = qualify_live32(report, build, build_sha, directory, fixtures.live32(), inputs)
-                else:
+                elif name == "base270":
                     counts = qualify_current270(report, build_sha, directory, inputs)
+                elif name == "live32":
+                    counts = qualify_live32(report, build_sha, directory, inputs)
+                elif name == "logical147":
+                    counts = qualify_logical(report, build_sha, directory, inputs)
+                elif name == "resource7":
+                    counts = qualify_resource7(report, build_sha, directory, inputs)
+                else:
+                    counts = qualify_asstrided16(report, build_sha, directory, inputs)
                 row.update(status="PASS", qualified=True, **counts)
             except Exception as error:
                 row.update(status="FAIL", error={"type": type(error).__name__, "message": str(error),
@@ -445,7 +563,15 @@ def main(argv=None):
         if errors:
             failures.append("bound inputs changed during qualification")
         complete = len(suites) == len(GROUPS) and [row["name"] for row in suites] == list(GROUPS)
-        passed = complete and all(row["qualified"] is True and row["status"] == "PASS" for row in suites) and not failures
+        counts_match = complete and all(row.get("cases") == result["required_cases"][row["name"]]
+                                        for row in suites)
+        observed_cases = sum(row.get("cases", 0) for row in suites)
+        if complete and all(row["qualified"] is True for row in suites) and (
+                not counts_match or observed_cases != result["required_cases_total"]):
+            failures.append("the complete actual case denominator differs from the mandatory inventory")
+        passed = complete and counts_match and observed_cases == result["required_cases_total"] and all(
+            row["qualified"] is True and row["status"] == "PASS" for row in suites) and not failures
+        result["executed_cases_total"] = observed_cases
         result.update(status="PASS_CURRENT_RUNTIME_FOCUSED" if passed else "FAIL",
                       all_suites_executed=complete and all(row.get("runner", {}).get("started") is True for row in suites),
                       all_inputs_unchanged=not errors, input_recheck_errors=errors,

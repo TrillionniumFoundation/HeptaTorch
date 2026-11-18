@@ -18,7 +18,7 @@ import time
 import traceback
 
 sys.path.insert(0,str(Path(__file__).resolve().parent))
-from profile import (SOURCE,IMAGE,BOOL_PINS,INTEGRAL_SHA,SUPPORT_SHA,OWNER_SHA,
+from profile import (SOURCE,IMAGE,FUNCTIONS,BOOL_PINS,INTEGRAL_SHA,SUPPORT_SHA,OWNER_SHA,
                      dump,require,sha,read_pin,make_profile,execute_worker)
 
 BOOL_REFERENCE='21dd75aeb86414818f7aa381f8b866d78b16f9bb3f5738e9a60d27ac3d15dd28'
@@ -62,7 +62,7 @@ def native_transports(directory,expected):
         require(t['executable_sha256']==IMAGE and t['exit_code']==0 and t['stdout_eof'] is True
                 and t['stderr_eof'] is True and t['responses_before_stdin_eof'] is True
                 and t['forced_cleanup'] is False and t['cleanup_errors']==[],
-                'actual same701 image/clean exit/double EOF')
+                'actual current image/clean exit/double EOF')
         require(t['stderr_bytes']==t['extra_stdout_bytes']==0,'no unexplained native output')
         require((path.parent/'stderr.bin').read_bytes()==b'' and
                 (path.parent/'extra-stdout-after-frames.bin').read_bytes()==b'',
@@ -119,7 +119,7 @@ def passing_case(row):
 
 def common_report(report,config):
     require(report['source_sha256']==SOURCE and report['native_sha256']==IMAGE and report['native_executed'] is True
-            and report['Torch_executed'] is False,'same701 actual native report')
+            and report['Torch_executed'] is False,'same current image actual native report')
     require(report['schema_closure'] is False and report['full_project_status']=='HOLD','bounded qualification')
     key=str(Path(config['build_directory'])/'build.json')
     require(report['inputs'][key]['sha256']==config['expected_build_sha256'],'same actual cold build input')
@@ -129,7 +129,7 @@ def common_report(report,config):
 def qualify_bool(report,config):
     common_report(report,config)
     require(report['schema']=='heptatorch.sum-bool.native27.v1' and report['error'] is None
-            and report['inputs_unchanged'] is True and report['build_functions']==701 and report['cold_units']==14,
+            and report['inputs_unchanged'] is True and report['build_functions']==FUNCTIONS and report['cold_units']==14,
             'complete original Bool execution and inputs')
     require(report['reference_sha256']==BOOL_REFERENCE and report['passed']==report['expected_cases']==len(report['cases'])==27
             and report['failed']==0,'all27 original Bool cases')
@@ -139,7 +139,7 @@ def qualify_bool(report,config):
     require([r['name'] for r in report['dtype_controls']]==names,'all7 original dtype controls')
     changed=[]
     for index,row in enumerate(report['dtype_controls']):
-        if index not in (2,3):
+        if index not in (2,3,5,6):
             passing_case(row);continue
         require(row['status']=='FAIL' and row['exit_code']==0 and row['error']['type']=='AssertionError'
                 and 'EOF_failure' not in row['error'],'original explicit F32 refusal failure')
@@ -153,7 +153,8 @@ def qualify_bool(report,config):
                 'original dtype operation actually completed successfully')
         op=row['operations'][0]
         wire=raw_observation(Path(config['original_output'])/f'dtype-{index:02}',op['request_hex'],op['response_hex'],0,1)
-        require(wire['command'][0]==115 and wire['command'][5]==0,'only explicitly added F32 target')
+        require(wire['command'][0]==115 and wire['command'][5]==(0 if index in (2,3) else 1),
+                'only explicitly added F32 or extended Bool target')
         changed.append(dict(index=index,name=row['name'],original_status='FAIL',original_expected_status=7,**wire))
     require(len(report['entry_controls'])==len(report['allocation_controls'])==1,'original packet/OOM controls present')
     for row in report['entry_controls']+report['allocation_controls']:passing_case(row)
@@ -165,14 +166,14 @@ def qualify_bool(report,config):
     allocation=report['allocation_controls'][0]['operations']
     require([r['label'] for r in allocation]==['Bool-result-Storage-allocation-failure','same-Bool-operation-after-resource-recovery']
             and [r['normalized_status'] for r in allocation]==[3,0],'original Bool actual OOM/recovery')
-    return dict(original_cases_passed=27,original_dtype_control_count=7,original_dtype_passed=5,original_dtype_failed=2,
+    return dict(original_cases_passed=27,original_dtype_control_count=7,original_dtype_passed=3,original_dtype_failed=4,
                 original_entry_controls_passed=10,original_Bool_allocation_control_passed=1,
-                explicitly_changed_control_indices=[2,3],changed_controls=changed,original_report_status='FAIL')
+                explicitly_changed_control_indices=[2,3,5,6],changed_controls=changed,original_report_status='FAIL')
 
 
 def qualify_integral(report,config):
     common_report(report,config)
-    require(report['schema']=='heptatorch.current-runtime.integral24.v1' and report['functions']==701
+    require(report['schema']=='heptatorch.current-runtime.integral24.v1' and report['functions']==FUNCTIONS
             and report['native_units']==14 and report['actual_build_sha256']==config['expected_build_sha256']
             and report['all_inputs_unchanged'] is True and report['original_input_recheck_errors']==[],
             'complete Integral original execution/custody')

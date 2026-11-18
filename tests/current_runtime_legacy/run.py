@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Run the original 76 view/scalar cases against the complete Bool700 image."""
+"""Run the original 76 view/scalar cases against the complete current image."""
 
 import argparse
 import hashlib
 import io
+import importlib.util
 import json
 from pathlib import Path
 import struct
@@ -18,8 +19,12 @@ INTENT = ROOT / "continuation/20261117/evidence/root-sum-integral-original76-rev
 INTENT_SHA = "2fb7e1f6a95e5cd6d0fe80468e414d65731f7b9d87852a33ec3c1812fbff07e8"
 ARCHIVE = ROOT / "validation/current-runtime76-reference/complete.tar.xz"
 ARCHIVE_SHA = "ce4aff6daaf5bb727fa6a520cbecf98dd8e09e67ffffa6cb60171a210b82e490"
-SOURCE_SHA = "82360ce87dae6f9a004ef50be4f991b6f83905a83f4b17ca8d6634827b7bd313"
-NATIVE_SHA = "80445a8c433f20314d3bc7b00ebb68f6a70fa200ee2e6aba193cff21aabfbc17"
+_profile_path = ROOT / "tools/current_runtime/qualification.py"
+_profile_spec = importlib.util.spec_from_file_location("current_runtime_qualification", _profile_path)
+current_profile = importlib.util.module_from_spec(_profile_spec)
+_profile_spec.loader.exec_module(current_profile)
+SOURCE_SHA, NATIVE_SHA = current_profile.SOURCE, current_profile.IMAGE
+FUNCTIONS, UNITS = current_profile.FUNCTIONS, current_profile.UNITS
 COMPILER_SHA = "b1c851a0896fa6071f800e1146c3c27d0c6cf85059e9a6281b46d42908a3f59f"
 LINKER_SHA = "aae650e8822ef0b1e74d15108ad1d0f17ec791205ed5a158ec60b709f48f0e16"
 BUILDER_SHA = "b9d039c365a8a3988e3add120e8cffa46a4e1297878f4cced30103953b030bfb"
@@ -131,54 +136,20 @@ def reference_inputs(configuration, args, out, bind):
 
 
 def build_binding(directory, expected, out, bind):
+    built = current_profile.admit_build(directory, bind, expected)
     original = bind(directory / "build.json", expected)
-    built = json.loads(original)
-    require(built["schema"] == "heptatorch.complete-runtime-build.v1"
-            and built["status"] == "PASS_NATIVE_BUILD_ONLY", "expected an actual complete-runtime cold build")
-    require(built["source_sha256"] == SOURCE_SHA and built["native_sha256"] == NATIVE_SHA
-            and built["functions"] == 701 and built["units_planned"] == 14, "unexpected current runtime profile")
-    require(built["compiler_sha256"] == COMPILER_SHA and built["linker_sha256"] == LINKER_SHA
-            and built["link_exit"] == 0 and built["all_inputs_unchanged"] is True,
-            "native tool or successful build binding mismatch")
-    require(built["objects_reused"] is False and built["runtime_qualified"] is False,
-            "build receipt cannot transfer runtime qualification")
-    builder = ROOT / "tools/current_runtime/build.py"
-    bind(builder, BUILDER_SHA)
-    require(any(Path(path).name == "build.py" and row["sha256"] == BUILDER_SHA for path, row in built["inputs"].items()),
-            "actual build does not bind the fixed current builder")
-    require(len(built["units"]) == 14 and len(built["processes"]) == 15, "incomplete cold build")
-    require([p["name"] for p in built["processes"]] == [u["name"] for u in built["units"]] + ["link"],
-            "cold build process order mismatch")
-    require(all(p["started"] is True and p["exit_code"] == 0 and p["stdout_EOF"] is True
-                and p["stderr_EOF"] is True and p["stderr_bytes"] == 0 for p in built["processes"]),
-            "cold build process incomplete or failed")
     profile = out / "profile"
     profile.mkdir()
-    image = bind(directory / "heptatorch", NATIVE_SHA)
-    source = bind(directory / "runtime.hepta", SOURCE_SHA)
-    (profile / "heptatorch").write_bytes(image); (profile / "heptatorch").chmod(0o500)
-    (profile / "runtime.hepta").write_bytes(source)
+    for name, pin in (("heptatorch", NATIVE_SHA), ("runtime.hepta", SOURCE_SHA)):
+        raw = bind(directory / name, pin)
+        (profile / name).write_bytes(raw)
+    (profile / "heptatorch").chmod(0o500)
     (profile / "actual-build.json").write_bytes(original)
-    objects = []
-    for unit, process in zip(built["units"], built["processes"]):
-        name = unit["name"]
-        require(Path(name).name == name and unit["compiler_exit"] == 0
-                and unit["compiler_stderr_bytes"] == 0, "invalid native unit")
-        require(process["input_sha256"] == unit["source_sha256"]
-                and process["stdout_sha256"] == unit["object_sha256"], "unit process binding mismatch")
+    for unit in built["units"]:
         for suffix, key in ((".hepta", "source_sha256"), (".o", "object_sha256")):
-            raw = bind(directory / (name + suffix), unit[key])
-            (profile / (name + suffix)).write_bytes(raw)
-            if suffix == ".o":
-                objects.append(raw)
-        require(not bind(directory / (name + ".stderr")), "compiler stderr is not empty")
-    request = b"HIASTKS1" + struct.pack("<3Q", 14, 4, 0) + b"step"
-    request += b"".join(struct.pack("<Q", len(obj)) + obj for obj in objects)
-    actual_request = bind(directory / "link.request.bin", built["processes"][-1]["input_sha256"])
-    require(actual_request == request and not bind(directory / "link.stderr"), "native link request/stderr mismatch")
-    require(built["processes"][-1]["stdout_sha256"] == NATIVE_SHA, "native link output mismatch")
-    # A separate, explicitly named metadata bridge leaves the actual receipt untouched.
-    # The 672-byte descriptor and two tags belong to this exact source/image profile.
+            name = unit["name"] + suffix
+            (profile / name).write_bytes(bind(directory / name, unit[key]))
+    # This bridge adds the stable wire layout, without changing the actual build receipt.
     bridge = {**built, "schema": "heptatorch.current-runtime.legacy76-build-binding.v1",
               "descriptor_bytes": 672, "state_format": "HTSINT02", "backing_format": "HTOSIN02",
               "original_build_schema": built["schema"], "original_build_sha256": sha(original),
@@ -201,7 +172,7 @@ def main():
     inputs, rows = {}, []
     report = {"schema": "heptatorch.current-runtime.original76.v1", "status": "PREPARING",
               "source_sha256": SOURCE_SHA, "native_sha256": NATIVE_SHA,
-              "expected_cases": 76, "functions": 701, "native_units": 14,
+              "expected_cases": 76, "functions": FUNCTIONS, "native_units": UNITS,
               "state_format": "HTSINT02", "backing_format": "HTOSIN02", "descriptor_bytes": 672,
               "actual_build_sha256": args.expected_build_sha256,
               "old_pass_transferred": False, "torch_executed": False, "native_suites": rows,
@@ -236,7 +207,7 @@ def main():
                 "--observer", str(observer), "--reference", str(references[name, "reference"]),
                 "--probe", str(references[name, "probe"]), "--expected-source-sha256", SOURCE_SHA,
                 "--expected-native-sha256", NATIVE_SHA, "--expected-observer-sha256", sha(observer.read_bytes()),
-                "--expected-functions", "701", "--expected-native-units", "14", "--output", str(out / name)]
+                "--expected-functions", str(FUNCTIONS), "--expected-native-units", str(UNITS), "--output", str(out / name)]
             if name != "view14":
                 command += ["--support-reader", str(dependencies["replay_direct_view14.py"])]
             if name in {"view26", "input4"}:

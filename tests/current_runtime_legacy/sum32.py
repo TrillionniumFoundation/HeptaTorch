@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Replay all original F32 Sum32 observations on the current Bool700 image.
+"""Replay all original F32 Sum32 observations on the current native image.
 
 The frozen SumCase and reference admission retain all original assertions. This
 entry point binds the new cold build and explicitly relocates old input paths;
@@ -17,7 +17,7 @@ import traceback
 
 
 ROOT = Path(__file__).resolve().parents[2]
-LEGACY_RUNNER_SHA = "4d591e085bf5e1d071622746d0c3eab036af248edffb00bc412f3217c23c6d16"
+LEGACY_RUNNER_SHA = "e4f3c6118ce66bcec7489533a876652075674bca86ecb05cb4183b0a1780cb42"
 ORIGINAL_SHA = "4676870b32dd341f9e6c30d170e8c5a4abbc401668ed3cdae492d9712233e138"
 PARENT_SHA = "f13a204f5071c07b34ab35ee1b4a6dc90163137b0762fb57bd8c34abb0c8b277"
 INTEGRAL_SHA = "6eee1fcd26367af3fba97488118e419788d64f41f90901b37cc594fe38154a9f"
@@ -146,7 +146,7 @@ def derived(original, edits, path, inputs):
             "edits": [{"before": a.decode(), "after": b.decode(), "count": n} for a, b, n in edits]}
 
 
-def admit_sources(args, out, inputs):
+def admit_sources(args, out, inputs, functions):
     original = args.original_source.resolve()
     parent = args.parent_source.resolve()
     package(original, ORIGINAL_SHA, inputs)
@@ -191,11 +191,12 @@ def admit_sources(args, out, inputs):
     require(constructor(observer_raw) == constructor(parent_observer) and len(constructor(observer_raw)) == 2514
             and sha(constructor(observer_raw)) == CONSTRUCTOR_SHA, "the complete original Native constructor differs")
     tags = [(b"HTSINT01", b"HTSINT02", 2), (b"HTOSIN01", b"HTOSIN02", 2)]
-    owner_edits = tags + [(b"functions == 699", b"functions == 701", 1),
-        (b"sum-integral-source01-UNBOUND-699", b"sum-bool-source01-UNBOUND-701", 1),
+    owner_edits = tags + [(b"functions == 699", ("functions == %d" % functions).encode(), 1),
+        (b"sum-integral-source01-UNBOUND-699", ("current-runtime-UNBOUND-%d" % functions).encode(), 1),
         (b"sum-integral-source01-%d-preserved47-48", b"sum-bool-source01-%d-preserved47-48", 1),
         (b"heptatorch.sum-integral-owner-source01.v1", b"heptatorch.sum-bool-owner.v1", 1)]
-    owner_path, observer_path = adaptation / "owner_bool700.py", adaptation / "observer_bool700.py"
+    owner_edits = [edit for edit in owner_edits if edit[0] != edit[1]]
+    owner_path, observer_path = adaptation / "owner_current.py", adaptation / "observer_current.py"
     proofs["owner"] = derived(owner_raw, owner_edits, owner_path, inputs)
     proofs["observer"] = derived(observer_raw, [(a, b, 1) for a, b, _ in tags], observer_path, inputs)
     require(constructor(observer_path.read_bytes()) == constructor(observer_raw), "derived Native constructor changed")
@@ -291,7 +292,7 @@ def main():
     inputs, reports = Inputs(), []
     started = time.monotonic()
     result = {"schema": "heptatorch.current-runtime.original-sum32-comparison.v1", "status": "PREPARING",
-              "profile": "SumF32-Cat-701/HTSINT02/HTOSIN02", "functions": 701, "units": 14, "descriptor_bytes": 672,
+              "profile": "current/HTSINT02/HTOSIN02", "descriptor_bytes": 672,
               "state_format": "HTSINT02", "backing_format": "HTOSIN02", "case_count": 32, "event_count": 626,
               "reference_sha256": REFERENCE_SHA, "native_executed": False, "Torch_executed": False,
               "compiler_executed": False, "cases": reports, "old_PASS_transferred": False,
@@ -308,9 +309,10 @@ def main():
         inputs.bind(profile / "runtime.hepta", helper.SOURCE_SHA)
         inputs.bind(profile / "actual-build.json", args.expected_build_sha256)
         result.update(source_sha256=helper.SOURCE_SHA, native_sha256=helper.NATIVE_SHA,
+                      functions=helper.FUNCTIONS, units=helper.UNITS,
                       actual_build_sha256=args.expected_build_sha256,
                       build_admission_code_sha256=LEGACY_RUNNER_SHA)
-        replay, reference_reader, owner, observer = admit_sources(args, out, inputs)
+        replay, reference_reader, owner, observer = admit_sources(args, out, inputs, helper.FUNCTIONS)
         reference, contract, admission = admit_reference(args, out, inputs, reference_reader)
         result["reference_admission"] = admission
         if args.prepare_only:
@@ -318,7 +320,7 @@ def main():
         else:
             parent_root = args.parent_source.resolve()
             parent = load(parent_root / "vendor/replay_direct_view14.py", "current_sum32_original_case")
-            observer.configure(owner, helper.SOURCE_SHA, helper.NATIVE_SHA, 701)
+            observer.configure(owner, helper.SOURCE_SHA, helper.NATIVE_SHA, helper.FUNCTIONS)
             Case = replay.case_class(parent, owner)
             run_args = argparse.Namespace(binary=profile / "heptatorch", source=profile / "runtime.hepta",
                                           protocol=parent_root / "vendor/protocol.py")
