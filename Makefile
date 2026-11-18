@@ -12,6 +12,7 @@ HEPTA_OWNED_SESSION_LINKER ?= $(HEPTA_OWNED_SESSION_BUILD)/production-native/own
 HEPTA_STACK_BUILD ?= build/stack-budget-tools
 HEPTA_CURRENT_COMPILER ?= $(HEPTA_STACK_BUILD)/native/stack-module-compiler
 HEPTA_CURRENT_LINKER ?= $(HEPTA_STACK_BUILD)/native/stack-linker-session
+HEPTA_TORCH_PYTHON ?= $(shell python3 -c 'import sys; print(sys.executable)')
 COMPILER_SHA256 := c5a9c2b95a3061e080a21298f5b26000936ed9dac519690d845b0699a15744c6
 MODULE_COMPILER_SHA256 := e250d93bc0b2a5ff878d2188c95780abf7e7ebaf186e4531b136fa2735b2af59
 MODULE_LINKER_SHA256 := 1ba40ffe025abfcc2edd8d69f1ad689817598571138c11806af7aa60047fc7b8
@@ -20,7 +21,7 @@ SESSION_PACKER_SHA256 := 22600cee8853b6a49dfbf66154ddcdc99bdbbc6fcfb2face2605ad7
 SESSION_INPUTS := src/heptatorch.hepta tools/session/build_runtime.py tools/session/entry.hepta tools/session/profile.json tools/modules/split_runtime.py Makefile
 STORAGE_INPUTS := $(wildcard tools/storage_objects/*.py tools/storage_objects/*.authoring tools/storage_objects/*.hia.in) tools/storage_objects/source-lock.json Makefile
 OWNED_TENSOR_INPUTS := src/heptatorch.hepta docs/functions.json tools/modules/split_runtime.py $(wildcard tools/owned_tensors/*.py tools/owned_tensors/*.hepta tools/owned_tensors/*.json) Makefile
-CURRENT_RUNTIME_UNITS := rng03 owners $(addprefix sum_bool_,00 01 02 03 04 05 06 07 08 09 10 11)
+CURRENT_RUNTIME_UNITS := rng03 owners $(addprefix cat_f32_,00 01 02 03 04 05 06 07 08 09 10 11)
 CURRENT_RUNTIME_INPUTS := tools/current_runtime/build.py tools/stack_budget/inspect_stack.py \
   tools/current_runtime/source/manifest.json tools/current_runtime/source/partition.json \
   tools/current_runtime/source/runtime.hepta \
@@ -599,7 +600,8 @@ build/unhex: tools/unhex.hepta | build check-compiler
 test: current-runtime
 	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/current-runtime-review.XXXXXX"); \
 	python3 -I -S -B tests/qualify_current_runtime.py \
-	  --build-directory "$(CURDIR)/build/current-runtime" --output "$$review/results"
+	  --build-directory "$(CURDIR)/build/current-runtime" --torch-python "$(HEPTA_TORCH_PYTHON)" \
+	  --output "$$review/results"
 
 test-legacy: legacy
 	sh tests/run.sh

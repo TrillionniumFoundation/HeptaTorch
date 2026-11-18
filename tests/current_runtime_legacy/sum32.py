@@ -17,7 +17,7 @@ import traceback
 
 
 ROOT = Path(__file__).resolve().parents[2]
-LEGACY_RUNNER_SHA = "6009bad95b9ea33b72ed246630574f7ef089816960d977191ad4dd31e439d006"
+LEGACY_RUNNER_SHA = "62c8fa7c87d27b7bab11617fba29cdf0d86ca4a4fd950face6188bbffff6879f"
 ORIGINAL_SHA = "4676870b32dd341f9e6c30d170e8c5a4abbc401668ed3cdae492d9712233e138"
 PARENT_SHA = "f13a204f5071c07b34ab35ee1b4a6dc90163137b0762fb57bd8c34abb0c8b277"
 INTEGRAL_SHA = "6eee1fcd26367af3fba97488118e419788d64f41f90901b37cc594fe38154a9f"
@@ -191,8 +191,8 @@ def admit_sources(args, out, inputs):
     require(constructor(observer_raw) == constructor(parent_observer) and len(constructor(observer_raw)) == 2514
             and sha(constructor(observer_raw)) == CONSTRUCTOR_SHA, "the complete original Native constructor differs")
     tags = [(b"HTSINT01", b"HTSINT02", 2), (b"HTOSIN01", b"HTOSIN02", 2)]
-    owner_edits = tags + [(b"functions == 699", b"functions == 700", 1),
-        (b"sum-integral-source01-UNBOUND-699", b"sum-bool-source01-UNBOUND-700", 1),
+    owner_edits = tags + [(b"functions == 699", b"functions == 701", 1),
+        (b"sum-integral-source01-UNBOUND-699", b"sum-bool-source01-UNBOUND-701", 1),
         (b"sum-integral-source01-%d-preserved47-48", b"sum-bool-source01-%d-preserved47-48", 1),
         (b"heptatorch.sum-integral-owner-source01.v1", b"heptatorch.sum-bool-owner.v1", 1)]
     owner_path, observer_path = adaptation / "owner_bool700.py", adaptation / "observer_bool700.py"
@@ -291,7 +291,7 @@ def main():
     inputs, reports = Inputs(), []
     started = time.monotonic()
     result = {"schema": "heptatorch.current-runtime.original-sum32-comparison.v1", "status": "PREPARING",
-              "profile": "Bool700/HTSINT02/HTOSIN02", "functions": 700, "units": 14, "descriptor_bytes": 672,
+              "profile": "SumF32-Cat-701/HTSINT02/HTOSIN02", "functions": 701, "units": 14, "descriptor_bytes": 672,
               "state_format": "HTSINT02", "backing_format": "HTOSIN02", "case_count": 32, "event_count": 626,
               "reference_sha256": REFERENCE_SHA, "native_executed": False, "Torch_executed": False,
               "compiler_executed": False, "cases": reports, "old_PASS_transferred": False,
@@ -318,7 +318,7 @@ def main():
         else:
             parent_root = args.parent_source.resolve()
             parent = load(parent_root / "vendor/replay_direct_view14.py", "current_sum32_original_case")
-            observer.configure(owner, helper.SOURCE_SHA, helper.NATIVE_SHA, 700)
+            observer.configure(owner, helper.SOURCE_SHA, helper.NATIVE_SHA, 701)
             Case = replay.case_class(parent, owner)
             run_args = argparse.Namespace(binary=profile / "heptatorch", source=profile / "runtime.hepta",
                                           protocol=parent_root / "vendor/protocol.py")
