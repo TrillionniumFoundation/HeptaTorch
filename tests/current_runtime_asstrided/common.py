@@ -10,9 +10,9 @@ import sys
 import types
 
 HERE = Path(__file__).resolve().parent
-SOURCE = '04ae430e3e851831fcb97a3fab700b16b6318361d52e90fcea90d2183d1d564b'
-IMAGE = '4749413ea952bfd9d1fe41770f94ce1b9b9e3efabb407aa90f725cf33d59c4db'
-SOURCES_SHA = '32c3e40cd4738a624808673cab04257a3c488dbfd0a7bf7f550e61bc6e6881a4'
+SOURCE = '51820849f7becec549be15babace00f00687601ae7f53bcee0e636ca02f721f9'
+IMAGE = 'aa3cc8f0c8738a9505d31c9e8ba5a523b7e08b591b61fc7bfb8592295491618b'
+SOURCES_SHA = '1d87f372b2d6aa556a351b11181b0eefe674f7275fbdd50873f72c9a8ce00419'
 SUITES = ('copy4', 'reduction4', 'lanes2', 'branches6')
 COUNTS = dict(copy4=4, reduction4=4, lanes2=2, branches6=6)
 CHECKS = {'python_matches', 'platform_matches', 'version_backend_matches',
@@ -109,7 +109,7 @@ def admit(repository, build, expected_build_sha, reference_root, suite, inputs):
             'explicit actual cold-build receipt SHA required')
     pins = json.loads(inputs.bind(HERE/'sources.json', SOURCES_SHA))
     require(pins['suites']==list(SUITES) and pins['cases']==COUNTS, 'original16 denominator changed')
-    require(pins['target']==dict(source_sha256=SOURCE,native_sha256=IMAGE,functions=729,units=14),
+    require(pins['target']==dict(source_sha256=SOURCE,native_sha256=IMAGE,functions=736,units=14),
             'current source profile changed')
     for relative, row in pins['repository_files'].items():
         path = repository/relative
@@ -138,13 +138,13 @@ def admit(repository, build, expected_build_sha, reference_root, suite, inputs):
                 'fixed original recovery custody differs: '+name)
     current = module(repository/'tools/current_runtime/qualification.py',
                      'asstrided16_current_admission', inputs)
-    require((current.SOURCE,current.IMAGE,current.FUNCTIONS,current.UNITS)==(SOURCE,IMAGE,729,14),
+    require((current.SOURCE,current.IMAGE,current.FUNCTIONS,current.UNITS)==(SOURCE,IMAGE,736,14),
             'canonical current manifest changed')
     built = current.admit_build(build, inputs.bind, expected_build_sha)
     raw = inputs.bind(build/'runtime.hepta', SOURCE)
     found = list(re.finditer(rb'^fn ([A-Za-z_][A-Za-z0-9_]*)\(.*?^end\n',raw,re.M|re.S))
     functions = {m[1].decode():m[0] for m in found}
-    require(len(found)==len(functions)==729, 'complete current function denominator changed')
+    require(len(found)==len(functions)==736, 'complete current function denominator changed')
     layout = []
     for name,pin in pins['original_observer_layout_functions'].items():
         body = functions[name]
@@ -174,7 +174,7 @@ def admit(repository, build, expected_build_sha, reference_root, suite, inputs):
     require(provenance['lock_sha256']==pins['repository_files']['compatibility/pytorch-oracle-lock.json']['sha256'],
             'the original reference must use the canonical fixed Torch lock')
     proof = dict(source_sha256=SOURCE,native_sha256=IMAGE,actual_build_sha256=expected_build_sha,
-        functions=729,units=14,original_layout_functions=layout,current_tag_functions=tags,
+        functions=736,units=14,original_layout_functions=layout,current_tag_functions=tags,
         original_source=pins['original_source'],reference_sha256=reference_pin['reference_sha256'],
         probe_sha256=reference_pin['probe_sha256'],reference_provenance=provenance['checks'],
         original_finish=pins['original_finish'],original_denominators=pins['original_denominators'][suite])

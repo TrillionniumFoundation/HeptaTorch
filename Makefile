@@ -670,7 +670,7 @@ build/unhex: tools/unhex.hepta | build check-compiler
 	@set -eu; tmp=$$(mktemp build/.unhex.XXXXXX); trap 'rm -f "$$tmp"' EXIT HUP INT TERM; \
 	"$(HEPTA_COMPILER)" < "$<" > "$$tmp"; test -s "$$tmp"; chmod 755 "$$tmp"; mv "$$tmp" "$@"
 
-# The common gate requires fifteen groups / 1020 cases, main image plus separate Generator probes.
+# The common gate requires eighteen groups / 1127 cases, main image plus separate Generator probes.
 test: current-runtime
 	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/current-runtime-review.XXXXXX"); \
 	"$(HEPTA_TORCH_PYTHON)" -I -S -B tests/qualify_current_runtime.py \

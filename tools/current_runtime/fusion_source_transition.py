@@ -1,6 +1,6 @@
-"""Reverse the complete fixed729 source to exact cat700 source04.
+"""Reverse the complete fixed736 source to exact cat700 source04.
 
-Only source bytes are transformed. The actual executable/profile remains729.
+Only source bytes are transformed. The actual executable/profile remains736.
 This invokes no native tool or runtime and transfers no historical PASS.
 """
 import hashlib
@@ -9,9 +9,9 @@ from pathlib import Path
 import re
 
 HERE = Path(__file__).resolve().parent
-SOURCE = '04ae430e3e851831fcb97a3fab700b16b6318361d52e90fcea90d2183d1d564b'
+SOURCE = '51820849f7becec549be15babace00f00687601ae7f53bcee0e636ca02f721f9'
 PARENT_SOURCE = 'ba96abc05717643eaf4f2056325089d9a51f5a2e9838f89473e9a4e76e46fd99'
-DELTA_SHA = '85a619dc25cdd8107ba53aa0646f8eab945d39588917de88fd35c33d574f4d6b'
+DELTA_SHA = '1d47ee1f02e33cc29b4277afa0019dc55c7519a39b23022b0e5e97217bc9de53'
 
 
 def sha(raw):
@@ -35,29 +35,29 @@ def functions(raw, expected):
 def restore_source(source, bind):
     """Return the exact700 parent for old source proofs, plus the outer proof."""
     bind(Path(__file__).resolve())
-    require(sha(source) == SOURCE, 'only the exact admitted729 source')
+    require(sha(source) == SOURCE, 'only the exact admitted736 source')
     raw = bind(HERE/'fusion_source_transition.json',DELTA_SHA)
     delta = json.loads(raw)
-    require(delta['schema'] == 'heptatorch.fusion729-to-cat700.complete-source-delta.v1'
+    require(delta['schema'] == 'heptatorch.fusion736-to-cat700.complete-source-delta.v1'
         and delta['source_sha256'] == SOURCE and delta['parent_source_sha256'] == PARENT_SOURCE
-        and delta['functions'] == 729 and delta['parent_functions'] == 700
+        and delta['functions'] == 736 and delta['parent_functions'] == 700
         and delta['unchanged_parent_functions'] == 682
-        and len(delta['changed_functions']) == 18 and len(delta['added_functions']) == 29,
-        'exact729/700 function delta')
-    actual = functions(source,729)
+        and len(delta['changed_functions']) == 18 and len(delta['added_functions']) == 36,
+        'exact736/700 function delta')
+    actual = functions(source,736)
     require(source.split(b'\n',1)[0].decode() == delta['header']
         and len(source) == delta['source_bytes'], 'exact canonical source header and extent')
     parent_order, added = delta['parent_function_order'],delta['added_functions']
     changed = delta['changed_functions']
     require(len(parent_order) == len(set(parent_order)) == 700
-        and len(added) == len(set(added)) == 29 and not set(parent_order)&set(added)
+        and len(added) == len(set(added)) == 36 and not set(parent_order)&set(added)
         and list(actual) == parent_order+added
         and len(changed) == len(set(changed)) == 18 and set(changed) <= set(parent_order)
         and set(delta['bodies']) == set(changed) and set(delta['added_bodies']) == set(added),
         'exact declaration order and finite change sets')
     suffix = b''.join(actual[name] for name in added)
     require(source.endswith(suffix) and len(suffix) == delta['added_suffix_bytes']
-        and sha(suffix) == delta['added_suffix_sha256'], 'complete appended29 suffix')
+        and sha(suffix) == delta['added_suffix_sha256'], 'complete appended36 suffix')
     for name in added:
         row,body = delta['added_bodies'][name],actual[name]
         require(len(body) == row['bytes'] and sha(body) == row['sha256'],
@@ -84,9 +84,9 @@ def restore_source(source, bind):
     for name in changed:
         require(forward.count(originals[name]) == 1, 'unique full-body forward reconstruction')
         forward = forward.replace(originals[name],actual[name],1)
-    require(forward+suffix == source, 'complete729 source round trip')
-    proof = dict(schema='heptatorch.fusion729-to-cat700.complete-source-inverse.v1',
-        source_sha256=SOURCE,parent_source_sha256=PARENT_SOURCE,functions=729,parent_functions=700,
+    require(forward+suffix == source, 'complete736 source round trip')
+    proof = dict(schema='heptatorch.fusion736-to-cat700.complete-source-inverse.v1',
+        source_sha256=SOURCE,parent_source_sha256=PARENT_SOURCE,functions=736,parent_functions=700,
         changed_functions=changed,unchanged_parent_functions=682,added_functions=added,
         delta_sha256=DELTA_SHA,whole_source_inverse_exact=True,whole_round_trip_exact=True,
         every_other_byte_constrained_by_complete_parent_sha256=True,

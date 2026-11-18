@@ -15,7 +15,8 @@ from pathlib import Path, PurePosixPath
 
 GROUPS = ('bool27', 'original76', 'integral24', 'sum_f32_17', 'current35',
           'base270', 'sum32', 'live32', 'logical147', 'resource7', 'asstrided16',
-          'cat4', 'metadata10', 'generator131', 'public_f64_logical192')
+          'cat4', 'metadata10', 'generator131', 'public_f64_logical192',
+          'f64_48', 'half47', 'half_refusals12')
 TOOLCHAINS = ('hepta-compiler', 'hepta-profile-sources', 'hepta-expanded',
               'hepta-capacity-review', 'hepta-modules-sources', 'hepta-modules-native',
               'hepta-owned-modules', 'hepta-owned-session-tools', 'hepta-stack-budget',
@@ -36,17 +37,26 @@ REPOSITORY_PATHS = (
     'validation/cat-metadata10-reference', 'validation/current-generator-original26',
     'validation/current-generator-candidate', 'validation/current-generator131-source',
     'validation/public-f64-logical192-reference',
+    'validation/current-f64-48-source', 'validation/current-f64-48-reference',
+    'validation/current-half47-source', 'validation/current-half47-reference',
+    'validation/current-runtime736/qualification-plan.json',
 )
 REFERENCE_INTERPRETER_PACKAGES = (
     'validation/cat-metadata10-reference', 'validation/public-f64-logical192-reference',
 )
 REQUIRED_OUTPUTS = ('build/build.json', 'build/heptatorch', 'build/runtime.hepta',
                     'qualification.json', 'review/qualification.json') + tuple(
-                        'review/' + name + '/report.json' for name in GROUPS)
+                        'review/' + name + '/report.json' for name in GROUPS) + (
+                        'review/f64_48/physical-qualification.json',
+                        'review/half47/physical-qualification.json',
+                        'review/half_refusals12/physical-qualification.json')
 INPUT_REPORTS = ('build/build.json', 'review/qualification.json',) + tuple(
     'review/' + name + '/report.json' for name in GROUPS) + (
         'review/base270/current-adapter.json', 'review/base270/cold-build-admission.json',
-        'review/public_f64_logical192/native/report.json')
+        'review/public_f64_logical192/native/report.json',
+        'review/f64_48/physical-qualification.json',
+        'review/half47/physical-qualification.json',
+        'review/half_refusals12/physical-qualification.json')
 INPUT_TABLES = ('checked_inputs', 'inputs', 'files', 'source_custody')
 
 
@@ -338,7 +348,7 @@ def main(argv=None):
         scope='File-byte and original POSIX-mode custody only; original numerical reports retain their statuses.',
         required_output_paths=list(REQUIRED_OUTPUTS), required_repository_paths=list(REPOSITORY_PATHS),
         required_toolchain_directories=list(TOOLCHAINS),
-        required_suites=list(GROUPS), required_cases_total=1020,
+        required_suites=list(GROUPS), required_cases_total=1127,
         reference_interpreters=[], execution_interpreter=None,
         reference_process_executables=[], missing=[], errors=[])
     selected, declared, parsed_lists, input_declarations = {}, {}, {}, []
@@ -463,9 +473,9 @@ def main(argv=None):
                 report['original_required_cases'] = document.get('required_cases_total')
                 if (document.get('schema') != 'heptatorch.current-runtime.qualification.v1'
                         or document.get('required_suites') != list(GROUPS)
-                        or document.get('required_cases_total') != 1020):
+                        or document.get('required_cases_total') != 1127):
                     problem('qualification-inventory', path,
-                            ValueError('current fifteen-group qualification input inventory differs'))
+                            ValueError('current eighteen-group qualification input inventory differs'))
             if relative == 'review/metadata10/report.json':
                 worker = document.get('worker_interpreter')
                 if worker is not None:
