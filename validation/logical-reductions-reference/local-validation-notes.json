@@ -1,0 +1,75 @@
+{
+  "correction": {
+    "change": "Use the established vm + PAGE(owner_length + 16) + PAGE(5056 + 16) + 65536 limit, then require the same-capacity query to succeed, actual output growth to fail, full owner rollback, and identical-request success after restoring the original limit.",
+    "expected_tensor_observations_changed": false,
+    "first_result": "The finite address-space limit omitted allocation header/page rounding and the existing RNG copy, so the required same-capacity query failed before a logical-reduction allocation was tested.",
+    "reference_changed": false,
+    "runtime_changed": false,
+    "scope": "allocation-test resource setup"
+  },
+  "latest": {
+    "actual_allocation_failures_and_retries": 2,
+    "case_assertions": 6330,
+    "frames": 3141,
+    "native_children": 150,
+    "native_sha256": "6ff13ccab1b30db389307900958937496905e0ed842893081d878788aa7c754c",
+    "packet_controls": 18,
+    "reference_cases": 147,
+    "runtime_source_sha256": "0c1c0dd3acf0285a887a2766c1308dfd992acf3fe51849dcd98749bb64a00f3b",
+    "status": "PASS",
+    "total_assertions": 6396
+  },
+  "note": "These native verification notes are separate from the frozen actual-Torch reference; no schema or whole-project gate is closed by these finite cases.",
+  "runs": [
+    {
+      "allocation_controls_complete": false,
+      "error": {
+        "message": "(3, [])",
+        "traceback": "Traceback (most recent call last):\n  File \"/workspace/scratch/49c929e8308c/HeptaTorch/tests/logical_reductions/native.py\", line 289, in main\n    report['allocation_controls']=[allocation_control(args,wire,args.output/('allocation-%d'%op),op) for op in (118,119)]\n                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/49c929e8308c/HeptaTorch/tests/logical_reductions/native.py\", line 228, in allocation_control\n    n.one(96,source,0)\n  File \"/workspace/scratch/49c929e8308c/HeptaTorch/tests/logical_reductions/native.py\", line 73, in one\n    return self.s.run([cmd])[0]\n           ^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/49c929e8308c/HeptaTorch/tests/differentiable_view_native_review/protocol.py\", line 92, in run\n    assert status == 0 and len(records) == len(commands), (status, records)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: (3, [])\n",
+        "type": "AssertionError"
+      },
+      "name": "native138-01",
+      "native_runner_sha256": "54bcdbd96886df2bd65f71797238e07246d4cc3d5f70865b0001a5569c3cd9c1",
+      "native_sha256": "eaf10776c5f56aabbc6464e8b085922ae83e5e2645c37e8ed24f8bff0002bc3b",
+      "observed_case_passes": 138,
+      "packet_controls_passed": 18,
+      "report_bytes": 28225,
+      "report_sha256": "70c67c47b4a988af9a6c97a3742104c034148bf4a610c7db55c954e930734e54",
+      "runtime_source_sha256": "1f38322231d3945871500e74305d060959e3b2b558578c7e8e5b3322095bda97",
+      "status": "FAIL"
+    },
+    {
+      "allocation_controls_complete": true,
+      "error": null,
+      "name": "native138-02",
+      "native_runner_sha256": "7466bc489339073693f127bdb267093118c3b774320d4c4ba02cb9a897b677e6",
+      "native_sha256": "eaf10776c5f56aabbc6464e8b085922ae83e5e2645c37e8ed24f8bff0002bc3b",
+      "observed_case_passes": 138,
+      "packet_controls_passed": 18,
+      "report_bytes": 28051,
+      "report_sha256": "c590e61b5945c71c748c4d76446664219e6d1647982014b89440b850836b9828",
+      "runtime_source_sha256": "1f38322231d3945871500e74305d060959e3b2b558578c7e8e5b3322095bda97",
+      "status": "PASS"
+    },
+    {
+      "actual_build_sha256": "aae73ebfbc0d04401a02467f896b48e4cf886ca47f27835f25f24512a2ba57d9",
+      "allocation_controls_complete": true,
+      "case_assertions": 6330,
+      "complete_stdout_and_stderr_EOF": true,
+      "error": null,
+      "frames": 3141,
+      "name": "integration-logical147-01",
+      "native_children": 150,
+      "native_report_sha256": "8807850b7b18f3b27a63fa0a1df8a8f257494dcda971f50e5a6df6472c739e66",
+      "native_runner_sha256": "7466bc489339073693f127bdb267093118c3b774320d4c4ba02cb9a897b677e6",
+      "native_sha256": "6ff13ccab1b30db389307900958937496905e0ed842893081d878788aa7c754c",
+      "observed_case_passes": 147,
+      "packet_controls_passed": 18,
+      "runtime_source_sha256": "0c1c0dd3acf0285a887a2766c1308dfd992acf3fe51849dcd98749bb64a00f3b",
+      "status": "PASS",
+      "total_assertions": 6396,
+      "wrapper_report_sha256": "6723a727e4701794fb1fd2f394812f6fda91427fd681f10754711315e0d9559b"
+    }
+  ],
+  "schema": "heptatorch.logical-reductions.local-validation-notes.v1"
+}

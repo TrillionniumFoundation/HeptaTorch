@@ -1,12 +1,39 @@
 # HeptaTorch
 
-HIA 原生张量、自动微分与训练运行时。当前默认源码包含 **701 个 HIA 核心函数、14 个独立编译单元**，直接生成 Linux x86-64 静态可执行文件。张量数值、分配、梯度传播、随机数和参数更新均由该 HIA 程序执行。
+HeptaTorch 的当前应用运行时由 **HIA 原生源码**实现，直接生成 Linux x86-64 静态可执行文件。张量数值、对象分配、梯度传播、随机数和参数更新均在该 HIA 程序中执行。当前完整源码为 700 个核心函数、14 个独立编译单元；精确源码、ELF 身份及分区以[当前 manifest](tools/current_runtime/source/manifest.json)为准。
 
-**整个 PyTorch 的全量重写仍未完成，项目状态为 HOLD。** 目标固定为 PyTorch **2.15.0**，原始分母为 **2,590 条原生算子声明、688 条导数声明、17 项系统验收门禁**。目前 10 项进行中、7 项开放，没有完整上游 schema 或整项系统门禁被标为闭合。[当前审计](docs/current-audit.md)列出实现范围、实际执行结果、剩余工作与退役条件。
+**整个 PyTorch 的全量重写尚未完成，项目状态为 HOLD。** 固定目标是 PyTorch **2.15.0**，分母保留 **2,590 条原生算子声明、688 条导数声明、17 项系统验收门禁**。目前 10 项进行中、7 项开放，完整上游 schema 和整项门禁的闭合数均为 0。[当前审计](docs/current-audit.md)说明已有实现、实际证据和剩余范围。
 
-## 一个默认源码和验收入口
+**当前 HIA 映像已实际通过原统一 10 组、667 个案例及全部附加控制。** 参考包迁移与 live32 读回强化后，原 76、Sum32、live32 合计 140 例，以及资源 7 例分别重跑通过；新增的原 AsStrided 16 例也已独立通过。默认入口现要求 **11 组、683 例**，这一完整组合尚待发布后 CI 实跑，以上独立结果不合并冒充一次 683 运行。首轮 660 的跨 Python AST 身份拒绝仍保留原 FAIL。精确记录见[当前执行证据](validation/current-runtime-20261118/manifest.json)和[实际执行状态](docs/current-audit.md)。
 
-完整应用源码与有序分区清单位于 [`tools/current_runtime/source/`](tools/current_runtime/source/)。默认构建不读取旧应用 ELF，也不重放历次应用补丁链；14 个对象均由固定的 HIA ABI3 编译器新编译，再由原生 HIA 链接器生成当前映像。
+## 当前实现
+
+当前接口是受限的原生二进制命令协议，包含 CPU F32 算术和一阶反向 AD、Bool/I64 的选定张量路径、Tensor/Storage/Version 所有权、Saved 和可微视图、原生 CPU Generator、选定 NN 算子以及 SGD/Adam/AdamW。完整 Python 前端、dispatcher 和所有上游重载仍需实现。
+
+本次融合加入以下功能与修正：
+
+- **`any` / `all`**：命令 118 / 119 接受 Bool、I64、F32 和已有的 rank-zero wrapped F64 Scalar，输出拥有独立 Storage/Version 的 Bool 张量。实际真值转换、归约和分配均由 HIA 执行。
+- **`sum(dtype=bool)`**：命令 115 扩展到上述源类型，保留它与 `any` / `all` 不同的空轴语义。浮点输入需要梯度时，先检查重复／越界轴，再按契约拒绝 Bool 求和。
+- **`sum(dtype=float32)`**：Bool/I64 逐元素转成 F32 后进入 F32 求和内核，保留舍入次序；私有转换对象在成功和失败路径都回收。
+- **F32 累加次序与空 `cat` 梯度**：保留 PR38 对固定参考 SumKernel 的 8-lane 累加次序修正，以及重复、被跳过的一维空 `cat` 输入的梯度缓存／Version 修正。
+- **统一原始回归**：当前映像接入完整原 35 生命周期案例、原 270 基础／NN／训练案例、原 32 Tensor/RNG/backward 轨迹、原 7 个资源配方和原 16 个 AsStrided 案例。原数值比较、分配预算、来源条件和失败记录保留。
+
+### 明确的边界
+
+| 项目 | 当前范围 |
+| --- | --- |
+| 平台与设备 | Linux x86-64 CPU |
+| dtype | F32 为主要数值／AD 路径；Bool、I64 仅实现明确支持的操作；F64 仅有已有的 wrapped Scalar 表示，尚非通用 F64 Tensor 服务 |
+| rank 与规模 | rank 0–4；每维最多 262,144；命令 115 / 118 / 119 最多 262,144 个逻辑元素；其他操作保留各自的工作、存储及输出限制 |
+| `any` / `all` | 空轴元组不归约；空归约分别返回 False / True；带梯度浮点输入的结果为 detached Bool |
+| Bool `sum` | 空轴元组归约全部轴；带梯度浮点输入被拒绝；无 `out=` 或未实现 dtype/backend 的完整契约 |
+| AD 与系统功能 | 一阶反向 AD 的受限路径；高阶／前向 AD、完整序列化、加速器、分布式、compile/export 和数据管线尚未闭合 |
+
+新命令的字段、轴和错误优先级见[逻辑归约说明](tests/logical_reductions/README.md)。当前能力边界集中在[能力清单](compatibility/capabilities.json)，专题文档中的历史有限资格不自动授予当前映像。
+
+## 一个默认源码与构建入口
+
+完整应用源码及有序分区位于 [`tools/current_runtime/source/`](tools/current_runtime/source/)。默认构建直接编译该目录的当前源码；每个对象均由固定 HIA ABI3 编译器新生成，再由原生 HIA 链接器生成当前 ELF。
 
 ```sh
 make HEPTA_CURRENT_COMPILER=/absolute/path/to/stack-module-compiler \
@@ -17,61 +44,50 @@ make test HEPTA_CURRENT_COMPILER=/absolute/path/to/stack-module-compiler \
           HEPTA_TORCH_PYTHON=/absolute/path/to/pinned-env/bin/python
 ```
 
-默认产物为 `build/current-runtime/heptatorch`。`build.json` 绑定完整源码、14 个新对象、最终 ELF、独立栈检查以及全部 15 个编译／链接进程的退出和双流 EOF。工具身份、冷构建及单独执行命令见 [当前构建说明](docs/current-runtime.md)。
+默认产物是 `build/current-runtime/heptatorch`。`build.json` 绑定完整源码、全部新对象、最终 ELF、独立栈检查和所有编译／链接进程的退出及双流 EOF。`PASS_NATIVE_BUILD_ONLY` 只表示构建成功。工具身份、准备步骤及单独运行命令见[当前构建说明](docs/current-runtime.md)。
 
-验收使用固定 CPython 3.12、Linux x86-64 和官方 CPU PyTorch 2.15.0 wheel，核对 11 项来源条件及真实安装回执 `build/pytorch-install.json`。使用 [锁文件](compatibility/pytorch-oracle-lock.json)和 [CI 安装步骤](.github/workflows/current-runtime.yml)准备参考环境，再通过 `HEPTA_TORCH_PYTHON` 明确选择它；`make test` 不会隐式联网安装依赖。
+HIA 应用运行时依赖 Linux 内核与 x86-64 硬件。Python 用于构建组织、独立观察和验收；固定 PyTorch 只用于独立参考。编译器最初的 bootstrap 仍有明确宿主依赖，见[工具链构建](docs/build.md)。
 
-HIA 应用运行时不依赖 Python、PyTorch、NumPy、libm 或 libc。Python 用于构建组织、独立观察与验收；三组完整 live-reference 测试使用固定 PyTorch 计算独立期望。编译器的初始 bootstrap 另有明确的宿主依赖，见 [工具链构建](docs/build.md)。
+参考环境固定为 CPython 3.12、Linux x86-64 和官方 CPU PyTorch 2.15.0 wheel，必须通过 11 项来源检查及真实安装回执。按[锁文件](compatibility/pytorch-oracle-lock.json)和 [CI 安装步骤](.github/workflows/current-runtime.yml)准备环境，再使用 `HEPTA_TORCH_PYTHON` 选择它。`make test` 使用这一解释器运行协调器及各检查阶段，避免不同 Python 版本的 AST 结构摘要差异；它不会隐式联网安装。
 
-## 同一映像上的八组必需检查
+## 同一映像上的十一组必需门禁
 
-`make test` 与 [Current runtime CI](.github/workflows/current-runtime.yml)调用同一个 coordinator。每组均绑定当前源码、实际 ELF 和本次冷构建报告。总门禁必须执行以下 **513 个案例**，并完成各自额外的错误、生命周期和资源控制；它们不是 513 个完整上游 schema。
+`make test` 与 [Current runtime CI](.github/workflows/current-runtime.yml)共用 [`tests/qualify_current_runtime.py`](tests/qualify_current_runtime.py)。每组必须绑定同一份当前源码、实际 ELF 和本次冷构建报告。固定分母为 **683 个案例**，各组额外控制另行保留；案例数不等于完整上游 schema 数。
 
-| 组 | 案例数 | 保留的主要检查 |
+| 组名 | 案例数 | 保留的主要检查 |
 | --- | ---: | --- |
-| Bool 求和 | 27 | 原参考、完整 owner/RNG、dtype 与入口控制、真实分配失败和恢复 |
-| 原视图／reshape／标量 | 76 | 26 + 32 + 14 + 4 原案例、82,503 帧、481,580 项断言 |
-| 原 F32 求和 | 32 | 全部原参考事件、数值、布局、身份与完整 owner 检查 |
-| 原整数求和 | 24 | 全宽整数、溢出、空／非连续布局与原生命周期检查 |
-| Bool/I64 `sum(dtype=float32)` | 17 | 先逐元素转 F32 再求和，精确参考字节、私有转换对象回收、两阶段 OOM |
-| 原跨帧与对象生命周期 | 35 | 6,344 帧、2,590,274 个数值；11 项 provenance 与原独立正／负控制 |
-| 原基础算子与训练 | 270 | 广播、NN、优化器、长训练、拼接、索引及 14 个原拒绝案例；270 个原生进程、284 帧 |
-| 原 Tensor／RNG／反向传播 | 32 | 2,132 帧、17,455 个精确 binary32 字、1,137,600 个状态字节；完整 owner、4 个真实部分失败和 1 个拒绝 |
+| `bool27` | 27 | 原 Bool 求和参考、完整 owner/RNG、原 dtype／入口观察和分配失败恢复 |
+| `original76` | 76 | 原 26 + 32 + 14 + 4 视图／reshape／标量案例；82,503 帧、481,580 项断言 |
+| `integral24` | 24 | 原 260 个事件、全宽整数、溢出、空／非连续布局及生命周期 |
+| `sum_f32_17` | 17 | 逐元素 cast 后求和、精确参考字节、临时对象回收与两阶段 OOM |
+| `current35` | 35 | 6,344 帧、2,590,274 个数值；11 项来源条件及原 4 正／18 负控制 |
+| `base270` | 270 | 基础算子、NN、优化器、训练、拼接与索引；270 个原生进程、284 帧和 14 个真实前缀／拒绝对 |
+| `sum32` | 32 | 原 F32 求和的 626 个事件、64,415 帧、460,075 项断言及完整 owner |
+| `live32` | 32 | Tensor/RNG/backward；2,132 帧、17,455 个精确 binary32 字、1,137,600 字节 Generator 状态 |
+| `logical147` | 147 | 49 份固定输入分别比较 any、all、Bool sum；另有 18 个包／回滚控制和 2 个真实分配失败／恢复控制 |
+| `resource7` | 7 | 原 R4 resource3、backward private cache1、R3 preserve3；378 帧、1,060 项检查，包含完整 owner/RNG 和 3 个真实 RLIMIT 分配失败／恢复控制 |
+| `asstrided16` | 16 | 原 copy4、reduction4、lanes2、branches6；1,920 帧、10,272 项检查、176 份完整 owner 归档，以及 16 个原生退出／32 次 EOF |
 
-缺失、跳过、仅准备、失败、超时、不完整 EOF 或输入变化都不能生成总 PASS。旧控制中已经被明确扩展功能取代的“应拒绝”期望仍保留原 FAIL，由当前独立控制验证新增契约。实际运行状态与完整报告身份见 [执行清单](validation/current-runtime701/evidence.json)。
+`current35`、`base270`、`live32` 运行固定 live Torch 参考；其余八组使用独立产生并固定字节的参考。缺失、跳过、仅准备、失败、超时、不完整 EOF 或输入变化都不能得到统一 PASS。
 
-## 当前实现与本次修正
+功能扩展已取代的旧“应拒绝”控制仍保留原 FAIL。当前独立测试单独验证新增契约，不能改写旧期望或把旧失败重分类。原 35 中的 283 项显式 optimizer-state 绝对 Version 差异继续单独记录；参数 Version 比较仍要求原断言通过。
 
-当前 CPU 受限配置包含 F32 数值与一阶反向 AD、Bool/I64 张量及部分混合路径、Tensor/Storage/Version 所有权、强弱引用和 Saved 生命周期、视图与原地历史、原生 CPU RNG、选定 NN 算子及 SGD/Adam/AdamW。具体 dtype、布局、设备和接口边界以 [能力清单](compatibility/capabilities.json)和各专题文档为准。
+## 仓库整理
 
-本次实现新增 Bool/I64 到 F32 的求和路径，并修复两项真实执行发现的问题：
+默认目录只提供一个当前完整 HIA 源码和一组当前分区。已删除从真实 owner 入口调用图不可达的 7 个核心函数，并将完整原始回归通过当前身份层接入同一构建；full35 只保留一个当前执行入口。原 76 参考包由 12,561,956 字节缩减为 131,848 字节，所需 8 个文件与旧归档逐字、逐权限核对一致；完整旧证据由固定 Git 历史和封存位置索引保护。已撤下 18 次由当前必需组替代的重复 CI 调用。
 
-- 固定参考 wheel 的求和内核使用 AVX2 的 8 个 F32 lane。HIA 现在按该实际累加顺序执行；首次错误结果及独立 cast／sum 诊断保留。
-- 重复出现、只有自身需要梯度的空 `cat` 输入，使用可累加的自有空梯度缓存。修正保留原成功返回值和共享存储保护；原 270 项中的首次失败与修复后的完整新运行分别记录。
-
-源码 SHA-256：`82360ce87dae6f9a004ef50be4f991b6f83905a83f4b17ca8d6634827b7bd313`
-
-冷构建 ELF SHA-256：`80445a8c433f20314d3bc7b00ebb68f6a70fa200ee2e6aba193cff21aabfbc17`
-
-当前源码有 9,352 个核心块、33,473 条核心指令，Tensor 描述符仍为 672 字节。完整源码的变化与三层逆向证明按实际身份绑定；改变源码或清单不会转移旧映像的资格。
-
-## 仓库整理与继续工作
-
-默认目录保留当前完整源码及其当前分区。旧的 12 个 `sum_bool_*` 分区由新的 `cat_f32_*` 分区替代；仍需作为独立参考的旧比较器与原聚合源码集中为一次 hash／mode 绑定的 fixture。README 不再逐批重复旧默认实现和过程记录。原 76 案例只保留运行所需的 8 份固定参考文件，压缩包从 12,561,956 字节减为 131,848 字节；完整历史归档的原字节已核对并保留恢复索引。
-
-尚有实际依赖的旧文件必须先迁移：编译器 bootstrap 与固定来源证明、旧协议的 461 对夹具、Generator24 的仓库入口、独立 dtype／优化器／资源门禁，以及 F64 验证器对旧 143 函数源的绑定。原 live32 已纳入八组默认门禁，旧 Native 工作流的 13 次和观察器矩阵的 3 次重复调用已退役；它们各自其他独立检查与构建依赖保留。不能通过删掉测试或改写失败记录完成退役。[继续执行计划](docs/continuation-plan.md)与 [当前审计](docs/current-audit.md)记录这些依赖。
+README 与能力清单只描述当前版本。旧默认 profile 的长篇过程元数据可从 Git 历史追溯。仍被比较器、来源证明或 bootstrap 实际使用的 fixture 保留原 SHA／模式；它们需要先完成对应迁移与真实回归，才能删除旧路径。清理不会缩减 2,590 / 688 / 17 的目标，也不会取消门禁。
 
 | 文档 | 内容 |
 | --- | --- |
-| [当前构建](docs/current-runtime.md) | 唯一默认源码、工具身份、冷编译与八组验收 |
-| [当前审计](docs/current-audit.md) | 实际证据、17 项未闭合门禁、清理边界 |
-| [继续执行](docs/continuation-plan.md) | 当前身份、工作顺序与原始证据规则 |
-| [上游审计](docs/upstream-audit.md) | 固定目标、schema 分母与覆盖约束 |
-| [整数张量](docs/integer-tensors.md)／[混合 AD](docs/mixed-integer-autograd.md) | 独立来源的 dtype 和自动微分范围 |
-| [可微视图](docs/tensor-to-differentiable-views.md)／[R4 视图与标量](docs/view-reshape-scalar-r4.md) | view、mutation、Saved、Version 及其边界 |
-| [公开梯度](docs/gradient-objects-and-composition.md)／[保留梯度](docs/retained-gradients.md) | 对象生命周期与组合验证 |
-| [CPU 分布](docs/cpu-distributions.md)／[owned Adam](docs/owned-adam.md) | RNG、优化器状态与历史有限资格 |
+| [当前构建](docs/current-runtime.md) | 唯一默认源码、固定工具与同一映像验收 |
+| [当前审计](docs/current-audit.md) | 基线、PR38／PR39 融合、真实执行状态、删除证明与未闭合范围 |
+| [继续执行](docs/continuation-plan.md) | 后续工作及独立证据要求 |
+| [上游审计](docs/upstream-audit.md) | 固定目标、原始声明分母和覆盖要求 |
+| [逻辑归约](tests/logical_reductions/README.md) | any/all、Bool sum 的协议、独立参考及资源控制 |
+| [原 35 适配](tests/current_runtime_original35/README.md) | 原比较器、完整 owner 方程和显式 ViewInfo 根引用 |
+| [原资源 7 适配](tests/current_runtime_resources/README.md) | 原配方／预算、真实分配失败、限额恢复与完整源码逆证明 |
+| [原 AsStrided 16 适配](tests/current_runtime_asstrided/README.md) | 四套原比较器、完整帧／owner 读回、源码逆证明与真实进程退出 |
+| [视图与标量](docs/view-reshape-scalar-r4.md)／[梯度对象](docs/gradient-objects-and-composition.md) | 视图、mutation、Saved、Version 与梯度生命周期的受限实现 |
 
-`make acceptance-status`核对清单一致性。`make full-acceptance`在全量目标尚未闭合时保持失败。完整前端／调度、全部 dtype 与布局、全算子／AD 契约、序列化、加速器、分布式、编译导出、数据管线和全部平台仍需实现与验收。
-
-许可证与上游通知保留在 [LICENSE](LICENSE) 和 [`third_party/pytorch/`](third_party/pytorch/)。
+`make acceptance-status` 检查目标账本一致性；`make full-acceptance` 在全量目标未闭合时保持失败。许可证与上游通知保留在 [LICENSE](LICENSE) 和 [`third_party/pytorch/`](third_party/pytorch/)。

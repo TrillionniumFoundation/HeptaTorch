@@ -1,0 +1,85 @@
+{
+  "execution_performed": true,
+  "host": "rog",
+  "job_id": "1a1edebe690-392-49f5",
+  "observed_exit_code": 0,
+  "original_receipt_bytes": 9451,
+  "original_receipt_sha256": "6f04606813188ac672b7d775e67e36f1dd7d7872c76d770166b1d57ed0a4f64f",
+  "process": {
+    "at_unix_ms": 1794993025817,
+    "audit_recorded": true,
+    "automatic_retry": false,
+    "cancelled": false,
+    "exit_code": 0,
+    "job_id": "1a1edebe690-392-49f5",
+    "launch_nonce": "be6d95b946ba2ec0f5725637dd06c6cd",
+    "log_bytes": {
+      "stderr": {
+        "seen": 371,
+        "stored": 371
+      },
+      "stdout": {
+        "seen": 405,
+        "stored": 405
+      }
+    },
+    "log_errors": {
+      "stderr": null,
+      "stdout": null
+    },
+    "log_synced": {
+      "stderr": true,
+      "stdout": true
+    },
+    "log_truncated": {
+      "stderr": false,
+      "stdout": false
+    },
+    "output_complete": true,
+    "output_durable": true,
+    "state": "succeeded",
+    "terminal_publication_confirmed": true,
+    "terminal_publication_protocol": 1,
+    "timed_out": false
+  },
+  "report": {
+    "metadata": {
+      "acl_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gid": 1000,
+      "link_count": 1,
+      "metadata_platform": "linux",
+      "mode": 384,
+      "uid": 1000,
+      "xattr_names": [],
+      "xattr_sha256": {}
+    },
+    "mode": 384,
+    "path": "/home/qian-qi/heptatorch-current-49c929e8308c/logical-reference-147/report.json",
+    "sha256": "e2874986d52e62725d54767ea5824a76d066e948b5d54a99e3b24f9e32c0e425",
+    "size": 223897,
+    "version": "66306:34606845:223897:1794993025041493427:1794993025041493427"
+  },
+  "request": {
+    "args": [
+      "-I",
+      "-S",
+      "-B",
+      "-c",
+      "from pathlib import Path\nimport os,tarfile,hashlib,json\nbase=Path('/home/qian-qi/heptatorch-current-49c929e8308c');archive=base/'logical147-source.tar.xz';assert hashlib.sha256(archive.read_bytes()).hexdigest()=='9f4aedb7abdac84edd1a4fcec24a578930f6b615b10f4934a31f810f59684998'\nwith tarfile.open(archive) as t:\n for m in t:\n  assert m.isfile() and m.name in ['logical147-source/cases.py','logical147-source/reference.py'];p=base/m.name;p.parent.mkdir(exist_ok=True);assert not p.exists();b=t.extractfile(m).read();p.write_bytes(b);print(json.dumps({'path':str(p),'sha256':hashlib.sha256(b).hexdigest()}),flush=True)\nrepo=base/'repo';os.chdir(repo);python='/home/qian-qi/heptatorch-continuation-20261116/runs/pr28-observer-repair/torch-venv/bin/python'\nos.execv(python,[python,'-B','-s',str(base/'logical147-source/reference.py'),'--repository',str(repo),'--output',str(base/'logical-reference-147')])\n"
+    ],
+    "executable": "/usr/bin/python3",
+    "host": "rog",
+    "idempotency_key": "heptatorch-20261118-logical-reference147-49c929e8308c-v1",
+    "timeout_seconds": 180
+  },
+  "schema": "heptatorch.logical-reductions.actual-execution.v1",
+  "source_transfer": {
+    "bytes": 3648,
+    "path": "/workspace/scratch/49c929e8308c/compute-prep/logical147-source.tar.xz",
+    "sha256": "9f4aedb7abdac84edd1a4fcec24a578930f6b615b10f4934a31f810f59684998"
+  },
+  "stderr": "/home/qian-qi/heptatorch-continuation-20261116/runs/pr28-observer-repair/torch-venv/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)\n  cpu = _conversion_method_template(device=torch.device(\"cpu\"))\n",
+  "stderr_EOF": true,
+  "stdout": "{\"path\": \"/home/qian-qi/heptatorch-current-49c929e8308c/logical147-source/cases.py\", \"sha256\": \"347bb0d518fc34d589a6018a49729a18f62ce0b29cc2cc028952da38c64b57a5\"}\n{\"path\": \"/home/qian-qi/heptatorch-current-49c929e8308c/logical147-source/reference.py\", \"sha256\": \"fcdae0181548b0de2e13399d453d3319c2e0e2d4c7dcbcf20f1dcad2ad9b145f\"}\n{\"status\": \"OBSERVED\", \"cases\": 147, \"expected_cases\": 147, \"error\": null}\n",
+  "stdout_EOF": true
+}

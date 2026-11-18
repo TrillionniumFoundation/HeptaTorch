@@ -1,242 +1,163 @@
-# Current HIA rewrite audit
+# 当前 HIA 重写审计
 
-## Result and scope
+## 结论与当前状态
 
-The default application is a complete **701-core-function HIA source** with
-fourteen independent compilation units. Whole-PyTorch acceptance remains
-**HOLD**: the pinned PyTorch2.15.0 target contains2,590 native declarations,
-688 derivative declarations and17 whole-system gates. Ten gates are IN_PROGRESS
-and seven OPEN; no complete upstream schema or whole-system gate is qualified.
+当前默认应用由一份完整 HIA 源码直接冷编译为 Linux x86-64 原生 ELF。当前清单包含 **700 个核心函数、14 个编译单元、672 字节 Tensor 描述符**；源码、ELF、完整函数统计和有序分区以 [`tools/current_runtime/source/manifest.json`](../tools/current_runtime/source/manifest.json)为唯一身份依据。
 
-PR37 merged the first direct current700 build into main
-`b22622b371d79478864cb80154b1782e708a5a81`. Its tested tree was
-`dbbbc4b0ad0a95fd01b7ae369532bf7a10c3f0f7`; all ten exact-head checks and five
-workflow runs passed. That original current700 qualification remains distinct
-from every new701 execution described here.
+**全量 PyTorch 重写仍为 HOLD。** 固定目标及分母来自[上游锁文件](../compatibility/upstream-lock.json)：PyTorch 2.15.0、2,590 条原生声明、688 条导数声明。完整 schema 资格为 0；[17 项系统门禁](../compatibility/full-acceptance.json)保持 10 项 IN_PROGRESS、7 项 OPEN、0 项 CLOSED。受限算子、案例或函数数量均不能换算为全量完成率。
 
-`make` now selects the complete current source; `make test` and the focused
-workflow share eight mandatory groups. The application builder consumes no
-parent application ELF or historical overlay chain. The final HIA compiler and
-linker are fixed; their original bootstrap and compiler witnesses remain
-separate toolchain dependencies.
+本轮融合源码的冷构建已实际通过，共享 admission 已检查原始输入、完整分区、所有新对象、link request、ELF、栈预算及编译／链接进程的退出和双流 EOF。首轮 9 组、660 个案例的执行实际返回 FAIL：8 组通过，`current35` 的后续检查因跨 Python 版本的 AST 身份差异被拒绝。原失败与只读诊断保留，未被重新标成成功。
 
-| Current build property | Actual value |
-| --- | --- |
-| Profile | `sum-f32-cat-empty-01` |
-| Core functions / blocks / instructions | 701 / 9,352 / 33,473 |
-| HIA units / compiler-linker processes | 14 / 15, all newly executed with exit0 and both EOFs |
-| Tensor descriptor | 672 bytes |
-| ELF size | 3,624,960 bytes |
-| Maximum call path / with reserve | 131,824 / 135,920 bytes |
-| Complete source SHA-256 | `82360ce87dae6f9a004ef50be4f991b6f83905a83f4b17ca8d6634827b7bd313` |
-| ELF SHA-256 | `80445a8c433f20314d3bc7b00ebb68f6a70fa200ee2e6aba193cff21aabfbc17` |
-| Original cold-build report SHA-256 | `ff065dcd35698ffbf4b456fed0740049cbd5804fec324c4a305b6ee81810c0d8` |
+**第二次完整执行已通过全部 10 组、667 个案例和附加控制。** 所有组均在固定 CPython 3.12 下重新执行，使用相同 HIA 源、ELF 和实际冷构建回执；全部 1,699 个仓库输入在运行前后逐字节、逐模式复核不变。外层实际 exit 0、stdout 6,464 字节、stderr 0 字节，双流 EOF 完整，无超时或强制清理。完整资格报告 SHA 为 `aa168047fc9a0392707f3c1c08b8ab4cb88c2bc16e1732c4c37c2a3994cc14c0`，证据索引见[当前验证包](../validation/current-runtime-20261118/manifest.json)。
 
-The builder and independent stack inspector are unchanged. Source admission
-checks complete function-body partitions, imported signatures/effects,
-dependencies, fixed compiler/linker limits and every actual object. A build
-reports `PASS_NATIVE_BUILD_ONLY`; it cannot grant application qualification.
+## GitHub 起点与并行变更
 
-## Current same-image acceptance
+本轮起点是 main [`b22622b371d79478864cb80154b1782e708a5a81`](https://github.com/TrillionniumFoundation/HeptaTorch/commit/b22622b371d79478864cb80154b1782e708a5a81)，对应 tree `dbbbc4b0ad0a95fd01b7ae369532bf7a10c3f0f7`。当时默认完整源码已有 700 个核心函数，但当前映像的统一门禁只有四组、159 个案例。树清单包含 5,747 个 blob，其中 236 个 `.hepta`、993 个 `.py`；文件数量说明仓库同时承载运行时、工具、比较器和历史证明，不能用语言后缀比例判断原生实现完成度。
 
-The required total is513 cases across eight groups. Their complete original
-reference/comparison contracts and separate control denominators remain intact.
-Actual completion and original report hashes are recorded in
-[the execution index](../validation/current-runtime701/evidence.json); a group
-still in progress is not admitted as PASS.
+已读取的基线 CI 中，[Current HIA Runtime 44255480944](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/44255480944) 和 [Native HIA 44255480937](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/44255480937)均在该 main 身份上成功。它们只证明当时所执行的源与范围。
 
-| Group | Required cases | Relevant independent checks |
-| --- | ---: | --- |
-| Bool27 | 27 | Complete owner/RNG, seven original dtype observations, ten entry controls and real allocation rollback/recovery |
-| Original view/scalar76 | 76 | Original26+32+14+4,82,503 frames and481,580 assertions |
-| Original F32 Sum32 | 32 | Original626 reference events,64,415 frames,460,075 assertions and full owner state |
-| Original Integral24 | 24 | Original260 events, full-width integer results, overflow, empty/strided inputs and lifetime |
-| Bool/I64-to-F32 Sum17 | 17 | Exact original cast witnesses/results,17 cases, four axis controls, seven dtype controls, ten entry checks and two actual allocation failures |
-| Original live35 | 35 | 6,344 frames,2,590,274 values, eleven provenance checks and independent4/18 copied controls |
-| Original live270 | 270 | All ten original groups,270 actual processes,284 frames,13,076 values and fourteen true refusals |
-| Original live32 | 32 | 2,132 frames,17,455 exact binary32 words,1,137,600 Generator-state bytes,32 native children and all original structural/partial-error/EOF checks |
+2026-11-18 09:13 UTC 的分支／PR 复核发现并行 [PR38](https://github.com/TrillionniumFoundation/HeptaTorch/pull/38)：`codex/hia-current701-native-20261118` 的头为 `329facee729bf8c07348db8a4f128510e078df15`，相对上述 main ahead 1 / behind 0，共 68 个变更文件。此前 38 个非 main 分支仍是 main 的祖先；新分支包含未合并工作，不能作为冗余分支删除。
 
-Old current700 controls are not rewritten. Bool27 retains two original FAIL
-results at dtype indices2/3. Integral24 retains four original FAIL results at
-indices0/1/2/3. The strict outer qualification requires these exact, explained
-extension results, all original numeric cases and all remaining refusals. The
-new Sum17 dtype/entry/OOM suite tests the implemented F32 output contract.
+PR38 已合并为 main `33b4b542e99551846ddeaf57f1d7c17a3453935e`，其全部 11 个检查已成功。当前工作树保留 PR38 的 Bool/I64→F32 求和、共享 F32 累加次序、空 `cat` 梯度和固定参考迁移，并融合本轮 any/all、扩展 Bool sum、错误优先级及原资源 7。随后读取并融合 [PR39](https://github.com/TrillionniumFoundation/HeptaTorch/pull/39) 的固定头 `5e21e85a58a3b5d25d8d105fbb8ef000d31e6411`：保留其 live32 原始帧／owner 读回、压缩参考包及 16 次旧 CI 调用退休，不覆盖并行工作。
 
-The live270 numerical oracle was previously exercised only on the old143-function
-application. All143 names exist in the new source, but79 whole function bodies
-had changed; old PASS results could not qualify this image. The current bridge
-uses genuine result references and returned typed Tensor identities. It never
-predicts native slots from the old client's logical handle counter. Four
-transport comparison functions have complete inverse proofs; all other case
-functions, Torch inputs/expectations, tolerances and seeds are unchanged.
+## 一个当前运行时与构建链
 
-For14 original refusal cases, the current transactional owner emits only a
-32-byte count0 failure. The bridge executes the genuine success prefix and
-terminal refusal in the same process, retains both real frames and requires
-complete owner rollback. No old error record is fabricated. It does not claim
-an independent complete private-allocation transition ledger for each operation
-inside a long successful multi-reset request.
+默认构建读取 [`tools/current_runtime/source/`](../tools/current_runtime/source/)，由固定 HIA ABI3 编译器生成全部 14 个新对象，再由固定 HIA 原生链接器生成 ELF。它不需要旧应用 ELF 或逐批应用补丁链。工具链最初的 bootstrap 与编译器证据仍是独立依赖，详见[构建说明](current-runtime.md)和[工具链文档](build.md)。
 
-## Actual failures found and repaired
+[`qualification.py`](../tools/current_runtime/qualification.py)把测试与当前 manifest、本次实际 build report 绑定。构建的 `PASS_NATIVE_BUILD_ONLY` 不授予运行资格；案例、资源错误、对象生命周期和固定参考比较必须另行执行。Python 负责宿主组织与独立观察，张量计算、对象分配、随机数、梯度和更新由 HIA 执行。
 
-The first701 source added `sf_sum_f32`: Bool/I64 input is converted element by
-element to F32 with its format preserved, then reduced by the shared F32 kernel.
-The private conversion Tensor/Storage/Version is reclaimed on success and on
-failure. Integer summation followed by a final cast is not an equivalent
-implementation and is not used.
+对外接口仍是受限二进制协议。CPU F32 是主要数值／AD 路径；Bool、I64 仅有明确支持的类型和混合路径，F64 只保留已有 rank-zero wrapped Scalar。rank 上限为 4；一般构造与各操作的工作上限分别检查，不能把一个命令的上限推广到整个库。命令 115 / 118 / 119 限定最多 262,144 个逻辑元素，输入／输出 body 各最多 1 MiB。完整边界集中在[当前能力清单](../compatibility/capabilities.json)。
 
-The first17 native run passed15 and failed2. A separate real diagnostic confirmed
-that command108 conversion matched the original Torch cast bytes while the
-subsequent F32 sum reproduced the numerical difference. The fixed wheel
-advertises AVX512, but its pinned SumKernel registration supplies no AVX512
-implementation and dispatches to AVX2 with8 F32 lanes. Six constants in
-`sd_vector_inner` and `sd_loop2d` were corrected to that actual accumulation
-order; references and tolerances were unchanged. The corrected r2 image passed
-all211 then-connected cases. Its separate raw17 audit checked31 children,
-8,118 frames,2,598 complete owner blobs and62 EOFs without executing native or
-Torch again. These r2 results retain their own source/image identities.
+## 本轮原生功能与真实错误修正
 
-The first live270 run on r2 passed269 and failed `cat-skipped-only-grad`, with
-a genuine `status=9,count=0` response. The skipped one-dimensional empty cat
-parent incorrectly set incoming mode1. Its second duplicate edge then reached
-the shared-cache protection instead of the ordinary accumulation path. The
-final source changes only this branch to mode2, preserving return1 and every
-guard. The other700 complete r2 function bodies are unchanged. A new actual
-live270 run on the final image passed all270 cases and284 frames.
+### 逻辑归约和 Bool sum
 
-The complete source proof reverses final701→r2→first701→original700. Relative
-to original700,696 bodies are unchanged, four are modified and one is added.
-The separate reader proof first binds actual new physical source files, then
-executes the original proofs on explicitly verified inverse bytes. It does not
-pretend reconstructed bytes were physical file observations.
+命令 118 `any`、119 `all` 与命令 115 的显式 Bool sum 共享 HIA 归约几何、真值转换和结果分配。输入覆盖 Bool、I64、F32 及已有 wrapped F64 Scalar；±0 为 False，非零次正规数、NaN 和无穷为 True。结果有独立 Tensor/Storage/Version，不持有输入的梯度或 Saved 边。
 
-Original failed execution reports, the first Integral path-admission failure,
-diagnostics and all available raw evidence remain unchanged. The r2 complete
-seal contains36,712 files /936,547,734 payload bytes; its152,885,096-byte archive
-has SHA-256 `c87dac4b653d41cab69c3517445dce2b3467b75f87ba8c42ad1b5dc4c77f7cdb`.
-Its original270 FAIL is still FAIL. An earlier local first701 Sum32 run lost
-during an environment reset remains `UNKNOWN_AFTER_ENVIRONMENT_RESET`; later
-runs are distinct executions, never recovery of that lost run.
+`any` / `all` 的空轴元组表示不归约；`sum` 的空轴元组表示归约全部维度。标量允许轴 0 或 -1；负轴先规范化再检查重复；空归约使用各操作的恒等值。浮点 `any` / `all` 可以接受 requires_grad 输入并返回 detached Bool，浮点 Bool sum 保留明确的梯度拒绝。
 
-The original699 Native24 report was recovered and admitted from its original
-bytes without rerunning native or Torch. That earlier pure-recorded admission
-and the first current700 local/hosted results remain at
-[`validation/current-runtime-local/`](../validation/current-runtime-local/).
-Shared original Sum32/Integral24 references remain the exact113-file pack
-documented by [its manifest](../validation/current-runtime-references/manifest.json).
-The new17 reference is its original actual Torch production, not regenerated
-from native output.
+审查发现首次 Bool sum 将梯度拒绝放在轴验证之前，与固定 Torch 的重复／越界轴错误优先级不符。本轮已将轴验证移到梯度拒绝之前，并新增三份 requires_grad + 非法轴配方，分别用于三种操作。独立参考总数由 138 扩展为 147，前 138 份实际观察保持原字节。完整协议、参考生成与 18 个包／回滚和 2 个分配／恢复控制见[逻辑归约说明](../tests/logical_reductions/README.md)。
 
-## Remaining whole-system gates
+### F32 cast 后求和与空 cat
 
-The following table summarizes the fixed ledger. “Implemented foundation” means
-finite source-bound work exists; it does not assert completion of every dtype,
-layout, device, overload or error contract in that row.
+PR38 的 `sf_sum_f32` 逐元素把 Bool/I64 转为 F32，再执行 F32 归约；它不会先按整数求和再最终 cast。私有转换对象在成功和失败时都释放。其首次实际 17 案例报告中的 2 个数值失败及 cast／sum 分离诊断保持原身份和结果。
 
-| Gate | Ledger state | Implemented foundation | Required remaining work |
-| --- | --- | --- | --- |
-| module-abi | IN_PROGRESS | Native modular compilation, owned resource interfaces, native linking and stack admission | General public Tensor ABI, foreign-resource provenance and unrestricted module/resource graphs |
-| storage-lifetime | IN_PROGRESS | Owned Tensor/Storage/Version records, strong/weak/saved lifetime, growing pools and tested transactional failures | General external/device/concurrent allocation, all alias/lifetime modes and restart durability |
-| dtype-layout | IN_PROGRESS | Qualified binary32 operations, separate scalar dtype kernels, scoped I64/Bool Tensor operations and layouts | Complete dtype promotion/casting, complex/quantized/sparse/nested layouts and device variants |
-| native-schemas | IN_PROGRESS | Arithmetic, reductions, composition, indexing, selected NN and optimizer kernels | Full contracts and executable qualification for all 2,590 frozen declarations |
-| views-mutation | IN_PROGRESS | R4 view/reshape/scalar paths, shared versions, tracked history and failure observations | General alias/mutation rules across all layouts, ranks, dtypes and devices |
-| autodiff-transforms | IN_PROGRESS | First-order reverse AD, saved versions, public/retained gradients and finite training regressions | Higher-order/create_graph, forward AD, hooks, transforms and all differentiable schema cases |
-| frontend-dispatch | OPEN | Bounded native binary command interface | Full frontend, dispatcher, overload, context and public API compatibility |
-| neural-networks | IN_PROGRESS | Selected Linear, losses, normalization, convolution and pooling kernels | Complete modules, state, training/evaluation modes and all operator/backend variants |
-| optimizers | IN_PROGRESS | Scoped SGD/momentum and owned Adam/AdamW paths | Complete optimizers/schedulers, state dictionaries, modes and dtype/device behavior |
-| rng-determinism | IN_PROGRESS | Native CPU MT19937, persistent Generators, selected Tensor distributions and dropout | All distributions/devices, shared/concurrent state and deterministic execution controls |
-| serialization | OPEN | No complete checkpoint implementation | Formats, state/storage alias preservation, compatibility, interrupted/distributed restoration |
-| accelerators | OPEN | Current runtime is Linux x86-64 CPU | CUDA/ROCm/MPS/XPU allocation, transfers, streams/events, kernels and backend errors |
-| distributed | OPEN | No native distributed subsystem | Rendezvous, process groups, collectives, work/failure semantics, DDP/FSDP/DTensor |
-| compiler-export | OPEN | Native HIA source compilation | PyTorch graph capture, symbolic shapes, compile/export, transformations and artifact compatibility |
-| data-pipelines | OPEN | No native worker/data-loading subsystem | Dataset/dataloader, sampling, worker lifecycle, multiprocessing, cancellation and reproducibility |
-| platform-packaging | IN_PROGRESS | Reproducible fixed Linux x86-64 native profile | Other required platforms/architectures, installation, extensions and profiling interfaces |
-| final-integration | OPEN | Source-bound component/regression CI and a current application build | Full application/upstream acceptance, resource/performance/error review and verified retirement |
+共享求和内核的修正来自固定参考 wheel 的 SumKernel 注册／累加次序证据；按该路径使用 8 个 F32 lane。仓库说明中的 AVX512 硬件能力与 AVX2 内核次序是不同事实，不能把来源说明当作本次硬件观测。最终数值资格仍取决于当前映像的独立实际比较。
 
-The separate binary64 foundation still retains its original strict Torch sqrt
-differences; its independent rounding qualification does not turn those old
-strict failures into PASS. Likewise, preserved distribution/optimizer reports
-retain their original OPEN or partial classifications, even when later images
-have additive evidence. Current-source evidence must be explicitly joined;
-historical report fields must not be overwritten.
+空 `cat` 修正只改变被跳过、rank 与输出不一致的一维空父输入的 incoming mode：从 1 改为 2，成功返回值仍为 1。它允许自有空梯度缓存的正确采用和后续重复边累加，修复 Storage/Version 与所有权路径。原 `cat-skipped-only-grad` 的失败报告仍保留；不会靠修改空张量数值期待来消除该失败。
 
-The authoritative contracts remain
-[`full-acceptance.json`](../compatibility/full-acceptance.json),
-[`upstream-schemas.json`](../compatibility/upstream-schemas.json) and
-[`upstream-lock.json`](../compatibility/upstream-lock.json).
-`make acceptance-status` verifies consistent accounting.
-`make full-acceptance` deliberately fails while complete qualification is absent.
+## 当前十一组 683 个案例的必需门禁
 
-## Repository cleanup and retirement
+[`tests/qualify_current_runtime.py`](../tests/qualify_current_runtime.py)是本地和 [CI](../.github/workflows/current-runtime.yml)共用的当前入口。现要求全部十一组、683 例在同一源、ELF 和 build receipt 上实际执行。原十组统一 667 已实际通过，迁移后的 140／7 和新增 16 也分别通过；完整 683 尚待本次发布后的 CI 重新执行。组名和原始分母如下，额外控制不合并为新的 schema 数量。
 
-The repository already contains HIA runtime implementations; it is not carrying
-an entire second PyTorch C++ runtime that can simply be deleted to finish the
-rewrite. The vendored PyTorch material is a small licensed reference subset.
-Python files include builders, fixed-reference producers and independent
-observers, and their existence is not evidence that Python executes Tensor
-operations in the native image. Removing them would not implement the missing
-subsystems listed above.
+| 组 | 案例 | 额外分母或关键约束 | 已有实际记录 |
+| --- | ---: | --- | --- |
+| `bool27` | 27 | 原 owner/RNG、dtype／入口观察、真实分配失败与恢复 | PASS |
+| `original76` | 76 | 原 26 + 32 + 14 + 4；82,503 帧、481,580 断言 | PASS |
+| `integral24` | 24 | 260 原始事件、全宽整数、溢出与生命周期 | PASS |
+| `sum_f32_17` | 17 | cast 后求和、dtype／axis／入口、两阶段 OOM | PASS |
+| `current35` | 35 | 6,344 帧、2,590,274 数值、11 来源条件、4 正／18 负控制 | PASS |
+| `base270` | 270 | 十个原组、270 原生进程、284 帧、14 真实前缀／拒绝对 | PASS |
+| `sum32` | 32 | 626 事件、64,415 帧、460,075 断言 | PASS |
+| `live32` | 32 | 2,132 帧、17,455 精确 F32 字、1,137,600 RNG 状态字节 | PASS |
+| `logical147` | 147 | 49 配方 × 3 操作；18 包／回滚控制和 2 分配／恢复控制 | PASS |
+| `resource7` | 7 | 原 R4 3 + backward 1 + R3 3；378 帧、1,060 检查、3 次实际限额恢复 | PASS |
+| `asstrided16` | 16 | 原 copy4／reduction4／lanes2／branches6；1,920 帧、10,272 检查、完整 owner／RNG、16 个退出／32 次 EOF | 独立 source02 运行 PASS |
 
-The initial main tree contained 5,578 blobs totaling 741,310,752 path bytes,
-including 214 `.hepta`, 951 `.py` and no `.rs` files. There were 645 same-blob
-path groups with 1,100 repeated path references totaling 56,976,602 path bytes.
-These are tree/path counts, not an estimate of Git object-store savings; Git
-already shares identical blobs. They were measured on the initial main tree
-`ac57b80733defcd76feb16cac1f2a32f351f79d6`, before adding the current integration.
+表中前十组的 PASS 来自同一次原始 667 运行；最后一组来自独立的 16 例运行。`current35`、`base270`、`live32` 使用固定 live Torch；其余八组消费独立产生的固定参考字节。固定环境必须满足 11 项来源条件；原源码、输入、实际回执和全部进程 EOF 都要重新绑定。仅准备、跳过、超时、输入变化或任何未经解释的失败均不能得到总 PASS。
 
-Current production selection is consolidated: one complete source package,
-one default build and one focused qualification coordinator. Historical
-application ELFs and overlay rebuilds are removed from that dependency graph.
-The current reference package shares original inputs used by both Sum suites.
-The first audited branch inventory had main, 36 already merged branch heads and
-one unmerged continuation archive. Merged branch ancestry and current ref leases
-must be checked again before any remote ref cleanup.
+旧拒绝控制的合法契约扩展采用双层记录：原比较器继续产生原 FAIL，当前资格器只允许明确列出的扩展差异，并由独立新控制验证真实结果。不会修改原始期望、改写原报告或把历史失败直接重分类。
 
-Older builders, source packages, original failed/unknown receipts and test inputs
-are still required by the historical workflow or the independent acceptance
-readers. Their removal is conditional on replacing those dependencies and
-passing the corresponding complete current-image contracts. Identical blob
-content alone does not prove that a path is redundant: original manifests and
-recorded input identities can intentionally refer to both paths.
+### PR39 融合后的独立回归
 
-Retirement proceeds by an explicit dependency inventory: move a needed original
-input into a hash/mode-bound fixture once; point current readers at its verified
-location without changing comparisons; run the replacement on the current
-image; preserve original failures and provenance; then remove the obsolete
-production path. Deleting evidence, emptying the schema inventory, changing
-statuses or disabling a gate is not retirement. The request to retain only the
-final native stack remains an open final-integration obligation until the full
-replacement meets those conditions.
+统一 667 使用迁移前的原始输入快照。此后迁移参考包存放及 source／build 身份适配，并加强 live32 原始读回；HIA 源、ELF 和实际冷构建不变。所有涉及的原比较器和数值期望保持。原资源 7 已在新包装上重新实跑通过；原 76、Sum32 与加强后的 live32 合计 140 例也已全部实际通过，报告 SHA 为 `0c21f10e1836c9282e9d8dece81d55b14652b1368575c53368691fa9b35396b3`。外层 exit 0、stdout 4,076 字节、stderr 0 字节，双流 EOF 完整，无超时、取消或输入变化。
 
-### Verified retirement boundary in this integration
+加强后的 live32 逐个读取 2,132 对实际帧、4,264 份原始／解码 owner、17,455 个精确 F32 字和 1,137,600 字节 RNG 状态，并核实 32 个原生退出／64 次 EOF、11 项来源条件及原部分写入／拒绝控制。该独立回归明确记录 `full_667_executed=false`。原 667 的报告、输入清单和成功范围保持不变，未把后续测试源变更追记到旧运行。
 
-The twelve old `sum_bool_00..11.hepta` files contain exactly the700 original
-core bodies, all byte-identical to the preserved original aggregate. They are
-replaced by the current twelve `cat_f32_00..11.hepta` files; fixed `rng03` and
-`owners` remain unchanged. Five old Bool helper files move into the verified
-single baseline fixture alongside the original comparison/aggregate inputs.
-The Bool compatibility entry remains explicit. This removes obsolete default
-derived files while retaining the exact original input identities once.
+### 原 AsStrided 16 的当前映像迁移
 
-The original live32 also passed a separate new execution on the same source
-and image: 32 native children, 2,132 frames, 17,455 exact binary32 words,
-1,137,600 serialized Generator-state bytes, 238 absolute-Version and 166
-gradient-presence comparisons. All eleven live-Torch provenance checks,
-original comparisons, full structural owner observations and child EOF checks
-passed. Its complete evidence is recorded separately in the execution index.
-It is now the eighth mandatory group. Thirteen old Native steps and the
-corresponding step in three observer profiles are retired. The other steps,
-independent qualifiers and required build dependencies remain byte-identical.
+[`tests/current_runtime_asstrided/qualify.py`](../tests/current_runtime_asstrided/qualify.py)保留原 copy4、reduction4、lanes2、branches6 的完整比较器与 owner 观察器。八份完整源码逆证明只允许四处 build admission 替换和四个观察器的当前身份标签替换；原数值比较、完整帧、finish 函数和系统调用不变。
 
-Whole historical retirement remains blocked by real consumers: the fixed
-compiler bootstrap packages,461 old protocol fixtures,
-Generator24, source-bound dtype/optimizer/resource suites, and the F64 oracle's
-whole-source proof against `src/heptatorch.hepta`. The original76 gate now uses
-the eight original reference members in the 131,848-byte compact fixture
-([manifest](../validation/current-runtime76-reference/manifest.json)). Its
-12,561,956-byte complete historical packet remains recoverable through the
-[archive index](../validation/view-reshape-r4-native76/archive-location.json);
-the sealed member was read in full and matched the original bytes before
-removing the Git working-tree copy. Other remaining consumers must be migrated
-and executed on the replacement image before their source paths are removed.
-No whole gate was disabled and no schema denominator was reduced.
+最终 source02 已在新目录实际运行全部 16 例：1,920 帧、10,272 项检查、21,892 个精确数值字、1,860,608 字节 RNG 状态，以及 176 份完整 owner 压缩归档全部通过。实际报告 SHA 为 `8300788a5927e0862b0e3ff6561ce878f8509b2f7276933bbb913e077dabf003`。四个 worker 和 16 个互异的原生进程均真实退出成功，完整双流 EOF、源码绑定及输入前后身份齐全；安装后的独立纯读回入口再次核验全部原件。
+
+退出观察以只读方式绑定原 finish 的精确代码对象，并要求正常返回及真实关闭证据。EOF 证明限定于已审核的四套原调用图，其中没有提前关闭输出的路径。错误 build receipt、缺组、错误案例分母和未执行 native 均不能获准。原有恢复构建仍有其他消费者，故只退休已被新必需组替代的旧 16 调用及两个专用上传路径。
+
+### 首轮 660 执行与解释器修正
+
+首轮完整协调器实际尝试全部九组，输入复查未变；`bool27`、`original76`、`integral24`、`sum_f32_17`、`base270`、`sum32`、`live32`、`logical147` 均通过。`current35` 的 native/live 阶段已经通过原 35 个案例，但 strict checker 和 copied controls 在执行比较前被身份入场拒绝，因此该组和总报告保持 FAIL。
+
+原因是 native/live 阶段使用固定 CPython 3.12，而后续阶段继承系统 CPython 3.14。同一源码的 `ast.dump` 在这两个版本产生不同的 7 个 AST 摘要字段。只读诊断未执行新的 native 或 Torch 用例，确认 3.12 的完整适配身份与原实际报告一致，3.14 仅上述 7 个字段不同。原 660 总报告 SHA 为 `b822874a60ff322577e49ee098f8ce73e2c0d90cc86246a71ed88fecace46c47`。
+
+修正是使用固定 CPython 3.12 运行协调器及全部阶段；所有原数值、owner、来源与身份比较继续保持。`make test` 现通过 `HEPTA_TORCH_PYTHON` 同时选择协调器和 Torch 解释器。修正后的 667 门禁已完整重跑并通过；首轮 FAIL 与两版本的只读诊断仍以原字节保留。
+
+### 原 35 与完整 owner
+
+唯一当前入口为 [`tests/current_runtime35.py`](../tests/current_runtime35.py)，复用固定 SHA 的原 launcher、checker 和 controls。所有原数字、训练轨迹、EOF 和关闭后的参数 Version 比较保留；原有 283 项 optimizer-state 绝对 Version 差异继续单独记录，参数 Version 断言不放宽。
+
+首次迁移时 7 个案例因旧 fixed35 方程未计入已有 ViewInfo 根引用而失败。当前适配器通过已发布的 6 个 HIA 根引用函数和 20 个构造／布局函数 pin，明确把每个实际 ViewInfo base 纳入 `600/208` 精确方程及 reset 闭包。原完整 84 字段结构检查继续执行；历史字段 608/616/624/632 仍必须为零。三处变换均保留完整逆向证明，没有快照裁剪或残差计数。
+
+该适配器在第二次统一 667 中已通过全部 35、6,344 帧、2,590,274 数值及原 4 正／18 负控制。首次迁移的 7 FAIL、跨解释器失败和最终成功均分别保留。当前 observer 报告增加 cold-build receipt 前的完整字节另存，原数字报告不改写。实现详见[原 35 适配说明](../tests/current_runtime_original35/README.md)。
+
+### 原 270 与 live32
+
+原 270 的固定 archive 保留 runner、四个比较器、wire 和 transport。当前入口只明确重绑实际 owner 身份／标签和共享 cold-build admission；原 Torch 输入、seed、容差、十组案例函数不变。14 个拒绝案例在同一实际进程中执行成功前缀和末尾拒绝，保留两个真实响应及完整 owner 回滚，不能合成旧错误记录。
+
+原 live32 是独立必需组，与 F32 `sum32` 分别保留 32 个案例分母。PR39 强化后的入口保留原 Audit、transport taps、`check_actual`、帧解码及 owner 读回函数的完整字节；显式、可逆地绑定当前 source／ELF、700 个函数及完整冷构建。它重新读取 2,132 对实际请求／响应和 4,264 份原始／解码的完整 84Q owner 快照，检查 32 个真实子进程退出与 64 次 EOF，并保留原 partial-write／refusal 控制。
+
+### 原资源 7 配方与实际恢复
+
+[`tests/current_runtime_resources/qualify.py`](../tests/current_runtime_resources/qualify.py)执行原 R4 resource3、backward private cache1 和 R3 preserve3。它保留原入口／相对 token、Saved／临时对象、完整 84Q owner 方程、完整 RNG、分配预算、错误状态和恢复比较。固定原包包含全部外层 manifest，两个原参考分别保留 11 项来源检查。三个 worker 启动七个真实原生子进程，逐帧绑定 378 个请求／响应与 1,060 项原检查；三个 OOM 配方真实设置并恢复子进程 RLIMIT_AS，再验证原命令恢复成功。
+
+R4 的旧 dispatcher 完整保留于命名后的函数，新前导分支对原配方使用的命令直接委托。R3 的十个分配证明函数中八个逐字未变，另外两个保留完整原函数体及只改变函数名的逆证明；实际全部 live node 均为 F32、op0 或 op44，新分支在该路径不可达。R3 配方只替换这一源码入场证明，其余原数值预算和断言逐字保留。
+
+独立重新冷构建后的最终资源运行通过 7/7，原请求／响应、双 EOF、完整源码逆转换和三次限额恢复均已复核。实际 build receipt 由 CLI 显式传入；旧 receipt 控制在启动前拒绝，避免把本地构建路径写死为 CI 身份。失败记录中的 native 执行事实单独保留为 true／false／unknown，不能把运行后失败误记成未运行。资源 7 随后在统一 667 和压缩参考包后的独立运行中分别全量通过。后一次原报告 SHA 为 `a45f05345dce0299365c36560bddcba0c4135d7450be4a099146eb1d46c5817d`；仍不关闭完整系统门禁。详情见[资源适配说明](../tests/current_runtime_resources/README.md)。
+
+## 已验证的清理范围
+
+从真实 [`owners.hepta`](../tools/current_runtime/source/units/owners.hepta) 的 9 个 external 根出发，遍历 HIA 完整调用闭包：`clone_state`、`entry`、`frame_valid`、`getw`、`init_state`、`object_size`、`reply_error`、`so_uget`、`state_header`。PR38 的 701 个核心函数中只有以下 7 个不可达，合计 15,647 字节；本轮已删除。
+
+| 删除的函数 | 原函数字节 |
+| --- | ---: |
+| `growth_capacity` | 546 |
+| `init` | 1,087 |
+| `integer_view_end` | 1,427 |
+| `integer_view_root_valid` | 4,565 |
+| `mark_concat` | 1,019 |
+| `to_as_strided_direct_copy` | 3,133 |
+| `to_view_root_valid` | 3,870 |
+
+相对 PR38，当前源包含 689 个原样保留的完整函数体、5 个修改函数、6 个新增共享／逻辑归约函数和上述 7 个删除函数。PR38 的 `incoming_describe_cat`、`sd_loop2d`、`sd_vector_inner`、`sf_sum_f32` 四个修正函数体完整保留。最终 700 个核心函数全部在实际入口调用闭包内。该静态证明界定删除范围，不代替运行回归。
+
+README 和能力清单已移除旧 143 函数默认配置及多代 profile 的冗长过程元数据，只描述当前源、边界与十一组要求。旧元数据可从 Git 历史追溯，删除清单和字节差异单独记录。已移除未使用的旧 current35 源包、冗余 profile／fixture-relocation 元数据和未使用恢复入口。
+
+原 76 参考 archive 从 12,561,956 字节压缩为 131,848 字节，恰好保留 8 个实际必需文件、33,559,322 字节原内容及原 0600 模式。删除当前树中的旧完整 archive 前，逐成员与旧包直接比较，并保留[完整旧证据的固定 Git／封存恢复索引](../validation/view-reshape-r4-native76/archive-location.json)。PR39 的 16 次重复 CI 调用、本轮 R3 重复调用及原 AsStrided16 调用合计 18 次已退休。R4 的另外两次资源调用仍由 `tools/seal_r4_ci_evidence.py` 消费；其封包依赖迁移前保留，不能只删调用导致原证据链缺项。
+
+仍活跃的 fixture 保留：固定编译器 bootstrap／来源证明、461 对旧协议夹具、原始比较器与参考 archive、Generator24、尚未迁移的 dtype／优化器／资源门禁，以及 F64 验证器仍消费的旧源证明。原 live32 的当前入口已经迁移，其他历史 CI 消费者仍按依赖逐项处理。相同字节的两条路径也可能分别被固定 manifest 引用，不能仅按重复 hash 删除。
+
+退役顺序是识别真实消费者，将必要原输入集中为经 SHA／mode 绑定的 fixture，迁移当前读者并真实执行全部原契约，再移除旧路径。删除原报告、减少上游声明或关闭门禁不构成退役。
+
+## 全量目标仍需闭合的 17 项
+
+下表以[系统账本](../compatibility/full-acceptance.json)为准；已有受限基础不等于完成所有 dtype、布局、设备、重载和错误契约。
+
+| 门禁 | 状态 | 仍需完成 |
+| --- | --- | --- |
+| `module-abi` | IN_PROGRESS | 通用公开 Tensor ABI、外部资源来源和不限于当前图的模块／资源组合 |
+| `storage-lifetime` | IN_PROGRESS | 全部别名／生命周期、外部与设备分配、并发和重启持久性 |
+| `dtype-layout` | IN_PROGRESS | 完整类型提升／转换、complex／quantized／sparse／nested 布局及设备变体 |
+| `native-schemas` | IN_PROGRESS | 2,590 条固定原生声明的完整契约和可执行资格 |
+| `views-mutation` | IN_PROGRESS | 全布局、rank、dtype 和设备上的 alias／mutation 规则 |
+| `autodiff-transforms` | IN_PROGRESS | 高阶、create_graph、前向 AD、hooks、transforms 及全部可微重载 |
+| `frontend-dispatch` | OPEN | 完整前端、dispatcher、重载、上下文和公开 API |
+| `neural-networks` | IN_PROGRESS | 全部模块、状态、训练／评估模式及算子／后端变体 |
+| `optimizers` | IN_PROGRESS | 全优化器／scheduler、state_dict、模式及 dtype／device 行为 |
+| `rng-determinism` | IN_PROGRESS | 全分布／设备、共享／并发 Generator 和确定性控制 |
+| `serialization` | OPEN | checkpoint、格式兼容、存储别名、故障与分布式恢复 |
+| `accelerators` | OPEN | CUDA／ROCm／MPS／XPU 的分配、传输、stream／event、内核和错误行为 |
+| `distributed` | OPEN | rendezvous、process group、collectives、DDP／FSDP／DTensor 和失败语义 |
+| `compiler-export` | OPEN | graph capture、符号 shape、compile／export、转换和产物兼容 |
+| `data-pipelines` | OPEN | dataset／dataloader、worker、multiprocessing、采样和取消 |
+| `platform-packaging` | IN_PROGRESS | 其余平台／架构、安装、扩展、profiling 接口和可复现工具链 |
+| `final-integration` | OPEN | 全应用／上游验收、资源／性能／错误审查和旧路径最终退役 |
+
+`make acceptance-status` 只验证账本一致性。`make full-acceptance` 在上述目标未闭合时保持失败。十一组 683 即使全部通过，也只能授予当前受限配置的统一运行资格；全量完成标志仍保持 false。

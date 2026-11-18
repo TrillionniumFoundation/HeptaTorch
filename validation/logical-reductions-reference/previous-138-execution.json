@@ -1,0 +1,74 @@
+{
+  "controller": "h Mac HeptaRuntime",
+  "execution_performed": true,
+  "host": "rog",
+  "job_id": "1a1eddd80ad-392-499b",
+  "native_executed": false,
+  "observed_exit_code": 0,
+  "original_receipt_sha256": "f3153cedd782000218a63acdd2df470119d96a46e2e7aead4fa6e25fc15f40a6",
+  "process": {
+    "at_unix_ms": 1794992081888,
+    "audit_recorded": true,
+    "automatic_retry": false,
+    "cancelled": false,
+    "exit_code": 0,
+    "job_id": "1a1eddd80ad-392-499b",
+    "launch_nonce": "0c4b5396b28ac78137693698e409f125",
+    "log_bytes": {
+      "stderr": {
+        "seen": 371,
+        "stored": 371
+      },
+      "stdout": {
+        "seen": 429,
+        "stored": 429
+      }
+    },
+    "log_errors": {
+      "stderr": null,
+      "stdout": null
+    },
+    "log_synced": {
+      "stderr": true,
+      "stdout": true
+    },
+    "log_truncated": {
+      "stderr": false,
+      "stdout": false
+    },
+    "output_complete": true,
+    "output_durable": true,
+    "state": "succeeded",
+    "terminal_publication_confirmed": true,
+    "terminal_publication_protocol": 1,
+    "timed_out": false
+  },
+  "report": {
+    "path": "/home/qian-qi/heptatorch-current-49c929e8308c/logical-reference-138/report.json",
+    "sha256": "661f556b50c26e5ff7c48300f088bd52934450007dd46ee43bab3c0c10403a8a",
+    "size": 212566,
+    "version": "66306:35185413:212566:1794992081198703519:1794992081198703519"
+  },
+  "request": {
+    "args": [
+      "-I",
+      "-S",
+      "-B",
+      "-c",
+      "from pathlib import Path\nimport os,sys,tarfile,hashlib,json\nbase=Path('/home/qian-qi/heptatorch-current-49c929e8308c');archive=base/'logical-source.tar.xz'\nassert hashlib.sha256(archive.read_bytes()).hexdigest()=='a92a5d74a61125a6894110535fd0bfe8139dfedd2189de38660b1e493b3ce9b2'\nwith tarfile.open(archive) as tar:\n for member in tar:\n  assert member.isfile() and member.name in ['repo/tests/logical_reductions/cases.py','repo/tests/logical_reductions/reference.py']\n  p=base/member.name;p.parent.mkdir(parents=True,exist_ok=True);assert not p.exists();b=tar.extractfile(member).read();p.write_bytes(b)\n  print(json.dumps({'path':str(p),'sha256':hashlib.sha256(b).hexdigest()}),flush=True)\nrepo=base/'repo';os.chdir(repo)\npython='/home/qian-qi/heptatorch-continuation-20261116/runs/pr28-observer-repair/torch-venv/bin/python'\nos.execv(python,[python,'-B','-s',str(repo/'tests/logical_reductions/reference.py'),'--repository',str(repo),'--output',str(base/'logical-reference-138')])\n"
+    ],
+    "executable": "/usr/bin/python3",
+    "host": "rog",
+    "idempotency_key": "heptatorch-20261118-logical-reference138-49c929e8308c-v1",
+    "timeout_seconds": 180
+  },
+  "schema": "heptatorch.logical-reductions.reference-execution.v1",
+  "source_archive": {
+    "bytes": 3620,
+    "sha256": "a92a5d74a61125a6894110535fd0bfe8139dfedd2189de38660b1e493b3ce9b2"
+  },
+  "stderr": "/home/qian-qi/heptatorch-continuation-20261116/runs/pr28-observer-repair/torch-venv/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)\n  cpu = _conversion_method_template(device=torch.device(\"cpu\"))\n",
+  "stderr_EOF": true,
+  "stdout": "{\"path\": \"/home/qian-qi/heptatorch-current-49c929e8308c/repo/tests/logical_reductions/cases.py\", \"sha256\": \"b6ab1af51be331107a78c1d53d98312a7c5b18ac26ff900de00d19ec583b1cd8\"}\n{\"path\": \"/home/qian-qi/heptatorch-current-49c929e8308c/repo/tests/logical_reductions/reference.py\", \"sha256\": \"fcdae0181548b0de2e13399d453d3319c2e0e2d4c7dcbcf20f1dcad2ad9b145f\"}\n{\"status\": \"OBSERVED\", \"cases\": 138, \"expected_cases\": 138, \"error\": null}\n",
+  "stdout_EOF": true
+}

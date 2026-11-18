@@ -2,7 +2,7 @@
 
 `run.py` executes all original view26, scalar32, view14, and input4 cases.
 `sum32.py` executes the complete original F32 Sum32 comparator and all 626
-reference events. Both bind the current 701-function source, ELF, and actual
+reference events. Both bind the current 700-function source, ELF, and actual
 cold-build receipt. All original case loops, comparisons, error expectations,
 owner checks, and EOF assertions remain unchanged.
 

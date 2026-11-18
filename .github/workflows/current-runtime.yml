@@ -291,7 +291,7 @@ jobs:
             --borrowed-tools "$RUNNER_TEMP/hepta-modules-native" \
             --output "$RUNNER_TEMP/hepta-stack-budget"
 
-      - name: Cold-build the complete current 701-function runtime
+      - name: Cold-build the complete canonical HIA runtime
         id: current_build
         run: |
           python3 -I -S -B tools/current_runtime/build.py \
@@ -329,7 +329,7 @@ jobs:
           PYTORCH_INSTALL
 
 
-      - name: Qualify all eight suites on the same current image
+      - name: Qualify all eleven suites on the same current image
         id: current_qualification
         if: ${{ !cancelled() && steps.current_build.outcome == 'success' }}
         run: |
@@ -365,9 +365,11 @@ jobs:
               binding = {'path': 'review/qualification.json', 'bytes': len(raw),
                          'sha256': hashlib.sha256(raw).hexdigest()}
               if qualification['status'] != 'PASS_CURRENT_RUNTIME_FOCUSED':
-                  failures.append('the mandatory eight-suite qualifier did not pass')
-              if qualification['required_cases_total'] != 513 or qualification['required_suites'] != [
-                      'bool27', 'original76', 'integral24', 'sum_f32_17', 'current35', 'base270', 'live32', 'sum32']:
+                  failures.append('the mandatory eleven-suite qualifier did not pass')
+              if (qualification['required_cases_total'] != 683
+                      or qualification['executed_cases_total'] != 683
+                      or qualification['required_suites'] != [
+                      'bool27', 'original76', 'integral24', 'sum_f32_17', 'current35', 'base270', 'sum32', 'live32', 'logical147', 'resource7', 'asstrided16']):
                   failures.append('the mandatory case denominator or suite order changed')
               if qualification['all_suites_executed'] is not True or qualification['all_inputs_unchanged'] is not True:
                   failures.append('actual execution or input custody incomplete')
@@ -383,9 +385,9 @@ jobs:
           print(json.dumps(summary, indent=2, sort_keys=True))
           with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a') as stream:
               stream.write('## Current HIA runtime\n\n' + summary['status'] + '\n\n')
-              stream.write('The common local/CI gate requires one complete cold build and all 513 comparisons: '
+              stream.write('The common local/CI gate requires one complete cold build and all 683 comparisons: '
                            'Bool27, view/scalar76, Integral24, explicit-F32 Sum17, lifecycle35, '
-                           'base/NN270, original Tensor/RNG/backward32, and original F32 Sum32. '
+                           'base/NN270, original F32 Sum32, live Tensor/RNG/backward32, logical147, resource7 and original AsStrided16. '
                            'Every suite must execute and pass.\n\n')
               stream.write('Current controls include seven dtype cases, four axis errors, ten entry checks, '
                            'both F32 allocation stages, the original Bool allocation case, '
@@ -393,8 +395,14 @@ jobs:
                            'same-process prefix/refusal pairs. Original Bool and Integral reports '
                            'retain their exact expected-refusal FAIL results; their explicit changes '
                            'are admitted separately and the current dtype contract is independently tested.\n\n')
-              stream.write('Lifecycle35, base/NN270 and original Tensor/RNG/backward32 run the fixed live Torch reference. '
-                           'The other five suites consume fixed observed reference bytes.\n\n')
+              stream.write('Lifecycle35, base/NN270 and live32 run the fixed live Torch reference. '
+                           'The other eight suites consume fixed observed reference bytes. '
+                           'Logical147 also requires eighteen packet controls and two actual '
+                           'allocation/rollback/retry controls. Resource7 retains all original '
+                           'R4 resource3, backward-private-cache1 and R3 preserve3 recipes, '
+                           'including three actual allocation-limit restorations. AsStrided16 preserves all four original '
+                           'suites and checks 1,920 observed frames, sixteen native process exits '
+                           'and both output EOFs for every process.\n\n')
               stream.write('Full PyTorch rewrite: HOLD. This finite gate does not assert project closure.\n')
               if qualification:
                   for suite in qualification.get('suites', []):
@@ -438,14 +446,17 @@ jobs:
                   if path.exists():
                       bundle.add(path, arcname='toolchain/' + name)
               for relative in ('.github/workflows/current-runtime.yml', 'tools/current_runtime',
+                               'tools/differentiable_view_recovered_r3/profile.json',
                                'build/pytorch-install.json',
                                'tests', 'compatibility', 'continuation/20261117/evidence',
                                'continuation/20261117/source-packages/sum-bool-source-01/hia',
                                'validation/sum-bool27-reference', 'validation/current-runtime-references',
                                'validation/current-runtime76-reference',
                                'validation/current-runtime-baseline', 'validation/sum-f32-reference17',
-                               'validation/current-runtime35-source', 'validation/current-runtime270-source',
-                               'validation/current-runtime32-source'):
+                               'validation/current-runtime270-source', 'validation/current-runtime32-source',
+                               'validation/tensor-to-original16-recovery',
+                               'validation/logical-reductions-reference',
+                               'validation/bool-dtype-extension-reference'):
                   path = Path(relative)
                   if path.exists():
                       bundle.add(path, arcname='repository/' + relative)

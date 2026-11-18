@@ -1,0 +1,107 @@
+{
+  "correction": {
+    "change": "Record the complete 5056-byte RNG values as hex strings before the unchanged exact equality check.",
+    "expected_tensor_values_changed": false,
+    "frozen_reader_changed": false,
+    "frozen_reference_changed": false,
+    "runtime_changed": false,
+    "scope": "new test report serialization"
+  },
+  "latest": "fusion-native17-02",
+  "note": "Native verification evidence is separate from the immutable observed Torch reference. The original frozen reader files, historical refusal expectations and original FAIL reports were not edited. No finite suite closes the full project.",
+  "runs": [
+    {
+      "cause": "The new control recorder attempted to serialize the complete RNG bytes directly as JSON after the F32-to-Bool numerical, metadata, release and rollback checks had passed.",
+      "error": {
+        "message": "complete original reader exit and EOF",
+        "traceback": "Traceback (most recent call last):\n  File \"/workspace/scratch/49c929e8308c/HeptaTorch-integration/tests/sum_f32_review/fusion.py\", line 209, in main\n    require(receipt['started'] is True and receipt['stdout_EOF'] is True and receipt['stderr_EOF'] is True\n  File \"/workspace/scratch/49c929e8308c/HeptaTorch-integration/tests/sum_f32_review/fusion_support.py\", line 27, in require\n    raise AssertionError(rule)\nAssertionError: complete original reader exit and EOF\n",
+        "type": "AssertionError"
+      },
+      "failed_wrapper_sha256": "3da57a92cdf2a8cde217ca4b3b006b12d6c0e5c39f1b31e80494bbef272818f6",
+      "name": "fusion-native17-01",
+      "native_runtime_changed": false,
+      "original_F32_cases_passed": 17,
+      "original_dtype_failures_retained": [
+        5,
+        6
+      ],
+      "original_native_sessions_completed": 31,
+      "report_bytes": 5540,
+      "report_sha256": "4a32a5ca8f1e646c07d0ae8be73be8d42c793cf168d9b12debbd84d2b4766c8a",
+      "status": "FAIL",
+      "stderr_sha256": "eeb2da090b33959b904b3446d02d89df08cc5031b7b9f057e43f6fe73990b25d"
+    },
+    {
+      "actual_Bool_extension_cases": 2,
+      "actual_build_sha256": "aae73ebfbc0d04401a02467f896b48e4cf886ca47f27835f25f24512a2ba57d9",
+      "all_inputs_unchanged": true,
+      "all_native_exit_zero": true,
+      "complete_stdout_and_stderr_EOF": true,
+      "error": null,
+      "extension_report": {
+        "bytes": 118681,
+        "path": "extension/report.json",
+        "sha256": "bc811d543d301cdd72a2e5d667acda874bceaf4f049984ae4179a2dbeeab2f84"
+      },
+      "frames": 8194,
+      "independent_final_report_admission": "PASS",
+      "name": "fusion-native17-02",
+      "native_children": 33,
+      "native_sha256": "6ff13ccab1b30db389307900958937496905e0ed842893081d878788aa7c754c",
+      "original_F32_cases_passed": 17,
+      "original_dtype_failures_retained": [
+        5,
+        6
+      ],
+      "original_report": {
+        "bytes": 17521015,
+        "path": "original/report.json",
+        "sha256": "14f455b40151657d1911dc2a67ab1866c090632803e430c4f647a2540bb80377"
+      },
+      "report_bytes": 17665001,
+      "report_sha256": "11df771c991563afaa9d42bd4ca48de965e2afba126046cc88f81b40aa3b94d8",
+      "runtime_source_sha256": "0c1c0dd3acf0285a887a2766c1308dfd992acf3fe51849dcd98749bb64a00f3b",
+      "status": "PASS",
+      "wrapper_sha256": "d40259dd324b3f97e5b2a96e241249acd15e9e13fdbfcfc5e75d8b5f88e7112c"
+    }
+  ],
+  "same_image_historical_readers": [
+    {
+      "all_native_exit_zero": true,
+      "cases": 27,
+      "children": 36,
+      "complete_stdout_and_stderr_EOF": true,
+      "frames": 6099,
+      "independent_final_report_admission": "PASS",
+      "name": "fusion-bool27-native-01",
+      "original_refusal_failures_retained": [
+        2,
+        3,
+        5,
+        6
+      ],
+      "report_bytes": 23444,
+      "report_sha256": "588ba177ffe3c7c3f742e7d2294000c82b211c76bfc64dc77adf757ade26ec3c",
+      "status": "PASS_701_COMPARISONS_WITH_ORIGINAL_FAILURES_RETAINED"
+    },
+    {
+      "all_native_exit_zero": true,
+      "cases": 24,
+      "children": 29,
+      "complete_stdout_and_stderr_EOF": true,
+      "frames": 14504,
+      "independent_final_report_admission": "PASS",
+      "name": "fusion-integral24-native-01",
+      "original_refusal_failures_retained": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "report_bytes": 21998,
+      "report_sha256": "0a88b5d6351a5aaccb66ff51562709dd78df22f983eef7000952af67ad4c2609",
+      "status": "PASS_701_COMPARISONS_WITH_ORIGINAL_FAILURES_RETAINED"
+    }
+  ],
+  "schema": "heptatorch.current-fusion.local-validation-notes.v1"
+}

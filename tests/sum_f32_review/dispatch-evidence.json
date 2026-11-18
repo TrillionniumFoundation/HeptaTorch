@@ -1,0 +1,45 @@
+{
+  "findings": [
+    "In CPU_CAPABILITY_AVX512 compilation, ordinary REGISTER_DISPATCH registers a null kernel pointer; ALSO_REGISTER_AVX512_DISPATCH is the explicit opt-in.",
+    "The pinned SumKernel.cpp registers sum_stub with ordinary REGISTER_DISPATCH, not that AVX512 opt-in.",
+    "cascade_sum uses the compiled Vectorized element width to choose the inner or outer vector reduction path; sum_kernel_impl selects cascade_sum for the relevant floating output dtype."
+  ],
+  "inference": "The global AVX512 CPU-capability observation does not imply a sixteen-F32-lane sum kernel. Retain the exact PR38 eight-lane HIA reduction fix and validate actual output bytes against the pinned Torch reference.",
+  "native_evidence": {
+    "actual_final_fusion_report_sha256": "11df771c991563afaa9d42bd4ca48de965e2afba126046cc88f81b40aa3b94d8",
+    "actual_final_status": "PASS",
+    "final_native_sha256": "6ff13ccab1b30db389307900958937496905e0ed842893081d878788aa7c754c",
+    "final_source_sha256": "0c1c0dd3acf0285a887a2766c1308dfd992acf3fe51849dcd98749bb64a00f3b",
+    "fixed_reference_cases": 17,
+    "fixed_reference_report_sha256": "c86b0a9384c788eaf7765480b022416075a0e3aa38455f48dcbd7f40476cecb0",
+    "original_failed_numeric_observation_summary": "validation/current-runtime701/evidence.json#retained_original_results"
+  },
+  "schema": "heptatorch.pinned-sum-dispatch.source-evidence.v1",
+  "scope": "This is a pinned-source explanation plus finite observed comparisons. It is not a universal CPU-dispatch claim or a substitute for rerunning original Sum32.",
+  "source_evidence": [
+    {
+      "bytes": 16463,
+      "commit": "d0f2af8b66b20da4baa50644c0cd3f887a2eae2e",
+      "git_blob_sha1": "73fbd1da1b9e051240f25b1d727493862521dc86",
+      "inspected_lines": [
+        493,
+        501
+      ],
+      "path": "aten/src/ATen/native/DispatchStub.h",
+      "sha256": "67d6047b5fc1dd93158d70b209d18a01ea2e136320c39a71f5833c2cac4e534a",
+      "url": "https://github.com/pytorch/pytorch/blob/d0f2af8b66b20da4baa50644c0cd3f887a2eae2e/aten/src/ATen/native/DispatchStub.h"
+    },
+    {
+      "bytes": 23903,
+      "commit": "d0f2af8b66b20da4baa50644c0cd3f887a2eae2e",
+      "git_blob_sha1": "14641f37fef0d5a0ff3e787510f249519a9447b6",
+      "inspected_lines": [
+        612,
+        677
+      ],
+      "path": "aten/src/ATen/native/cpu/SumKernel.cpp",
+      "sha256": "d9e19a2a6646fc6dac5ea041b8badaf6bd5b8492899899dfff09db650edd5e0d",
+      "url": "https://github.com/pytorch/pytorch/blob/d0f2af8b66b20da4baa50644c0cd3f887a2eae2e/aten/src/ATen/native/cpu/SumKernel.cpp"
+    }
+  ]
+}

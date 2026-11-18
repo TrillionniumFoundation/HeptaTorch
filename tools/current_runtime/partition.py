@@ -66,8 +66,8 @@ def partition(runtime, rng, owners, prefix):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--runtime", type=Path, required=True)
-    parser.add_argument("--rng", type=Path, default=ROOT / "tools/differentiable_view_scalar_r4/generated/units/rng03.hepta")
-    parser.add_argument("--owners", type=Path, default=ROOT / "tools/differentiable_view_scalar_r4/generated/units/owners.hepta")
+    parser.add_argument("--rng", type=Path, default=HERE / "source/units/rng03.hepta")
+    parser.add_argument("--owners", type=Path, default=HERE / "source/units/owners.hepta")
     parser.add_argument("--name", required=True)
     parser.add_argument("--prefix", required=True)
     parser.add_argument("--expected-build", type=Path, help="Require every old source/object/ELF pin when reproducing a known build.")

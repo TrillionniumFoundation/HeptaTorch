@@ -9,8 +9,11 @@ import types
 
 SOURCE_700 = 'b83a8346b162e12c5ed77e0287d626619a18f84bf7a1ab02a2514d30ae4295b4'
 IMAGE_700 = 'c6afeedc14ba8cc408a62d6fbef0abb5b78dff0039b8099f3449d813e290a90e'
-SOURCE = '82360ce87dae6f9a004ef50be4f991b6f83905a83f4b17ca8d6634827b7bd313'
-IMAGE = '80445a8c433f20314d3bc7b00ebb68f6a70fa200ee2e6aba193cff21aabfbc17'
+ROOT = Path(__file__).resolve().parents[2]
+_profile_spec = importlib.util.spec_from_file_location('historical_current_profile', ROOT/'tools/current_runtime/qualification.py')
+_profile = importlib.util.module_from_spec(_profile_spec)
+_profile_spec.loader.exec_module(_profile)
+SOURCE, IMAGE, FUNCTIONS = _profile.SOURCE, _profile.IMAGE, _profile.FUNCTIONS
 SUPPORT_SHA = '5e0a66b1a45c469f6c80ec611ff49d26288230b736b6939f957cba8a7ad21ec1'
 OWNER_SHA = '4ef9545bb42dbc1ef5da603814a157163bed18418992d9b2489fd39378c3a4aa'
 INTEGRAL_SHA = '845f38cbe7588bc181009bd40637c2597a84fea5fb036ee52fb0af60af90cd4c'
@@ -50,19 +53,21 @@ def read_pin(path, pin):
 
 def identity_edits(name):
     if name == 'native.py':
-        return [(SOURCE_700,SOURCE,1),(IMAGE_700,IMAGE,1),
-            ('build["complete_core_bodies_matched"] == 700','build["complete_core_bodies_matched"] == 701',1),
-            ('build["functions"] == 700','build["functions"] == 701',1)]
-    if name == 'common.py':
-        return [('b"functions == 700"','b"functions == 701"',1),
-            ('b"sum-bool-source01-UNBOUND-700"','b"sum-bool-source01-UNBOUND-701"',1),
-            ('len(functions) == len(matches) == 700','len(functions) == len(matches) == 701',1)]
-    if name == 'owner_adapter.py':
-        return [('observer.configure(owner, source_sha, image_sha, 700)',
-                 'observer.configure(owner, source_sha, image_sha, 701)',1)]
-    if name == 'integral24.py':
-        return [(SOURCE_700,SOURCE,1),(IMAGE_700,IMAGE,1)]
-    return []
+        edits = [(SOURCE_700,SOURCE,1),(IMAGE_700,IMAGE,1),
+            ('build["complete_core_bodies_matched"] == 700',f'build["complete_core_bodies_matched"] == {FUNCTIONS}',1),
+            ('build["functions"] == 700',f'build["functions"] == {FUNCTIONS}',1)]
+    elif name == 'common.py':
+        edits = [('b"functions == 700"',f'b"functions == {FUNCTIONS}"',1),
+            ('b"sum-bool-source01-UNBOUND-700"',f'b"sum-bool-source01-UNBOUND-{FUNCTIONS}"',1),
+            ('len(functions) == len(matches) == 700',f'len(functions) == len(matches) == {FUNCTIONS}',1)]
+    elif name == 'owner_adapter.py':
+        edits = [('observer.configure(owner, source_sha, image_sha, 700)',
+                  f'observer.configure(owner, source_sha, image_sha, {FUNCTIONS})',1)]
+    elif name == 'integral24.py':
+        edits = [(SOURCE_700,SOURCE,1),(IMAGE_700,IMAGE,1)]
+    else:
+        edits = []
+    return [edit for edit in edits if edit[0] != edit[1]]
 
 
 def derive(raw, name):
@@ -80,8 +85,8 @@ def derive(raw, name):
                if isinstance(n,(ast.FunctionDef,ast.ClassDef))}
     new_def = {n.name: ast.dump(n, include_attributes=False) for n in new_ast.body
                if isinstance(n,(ast.FunctionDef,ast.ClassDef))}
-    allowed = {'native.py':{'admit_build'}, 'common.py':{'adapted_parent','source_functions'},
-               'owner_adapter.py':{'make_observer'}}.get(name,set())
+    allowed = ({'native.py':{'admit_build'}, 'common.py':{'adapted_parent','source_functions'},
+                'owner_adapter.py':{'make_observer'}}.get(name,set()) if FUNCTIONS != 700 else set())
     require(old_def.keys() == new_def.keys(), 'complete class/function inventory')
     changed = {key for key in old_def if old_def[key] != new_def[key]}
     require(changed == allowed, 'only identity-bearing admission bodies may differ: ' + name)
@@ -117,7 +122,8 @@ def make_profile(repository, destination):
         runtime_hooks=['Integral ROOT relocated to explicitly selected unchanged repository',
             'Integral bool_support admits all six original pins, then returns the derived 701 admissions',
             'Integral ReferencePaths permits only exact physical native-package members independently bound to the original fixed manifests; its original paths/read guards remain unchanged',
-            'Keep original Bool owner predicates and RNG frame checker; add the separately pinned 701 F32 metadata predicate only for command115, target0, Bool/I64 input'],
+            'Keep original Bool1/2 owner predicates and RNG frame checker; add fixed F32 metadata for target0 and the explicit Bool source0/3 extension',
+            'Admit the real current cold build and exact 700-to-PR38 source inverse before all three original source-inverse layers'],
         original_FAIL_reports_must_remain_FAIL=True,native_executed=False,Torch_executed=False)
     dump(destination/'source-proof.json',result)
     return result
@@ -200,24 +206,46 @@ def execute_worker(config):
     sfroot=Path(config['owner_directory'])
     read_pin(sfroot/'native_support.py',SUPPORT_SHA)
     read_pin(sfroot/'owner_adapter.py',OWNER_SHA)
-    sf_support=load_module(sfroot/'native_support.py','native_support')
-    sf_adapter=load_module(sfroot/'owner_adapter.py','additional_f32_owner_adapter')
+    fusion=load_module(root/'tests/sum_f32_review/fusion_support.py','historical_fusion_support')
+    # Load only the fixed F32 support and explicit owner extension here.
+    # Importing its case runner would collide with the original Bool module
+    # names; those original Bool imports and comparison loops stay intact.
+    sf_support=fusion.load(sfroot/'native_support.py','native_support')
+    sf_support.adapted_parent=fusion.adapted_parent
+    sf_adapter=fusion.owner_adapter(sfroot)
+    current=fusion.current_profile()
+
+    def admit_build(args, inputs):
+        fusion.bind_frozen_reader(sfroot,inputs)
+        inputs.bind(root/'tools/current_runtime/qualification.py')
+        require(args.expected_source_sha256 == SOURCE and args.expected_native_sha256 == IMAGE,
+                'explicit current requested identities')
+        build=current.admit_build(args.build_report.parent,inputs.bind,args.expected_build_sha256)
+        require(args.source == args.build_report.parent/'runtime.hepta'
+                and args.binary == args.build_report.parent/'heptatorch','exact current build product locations')
+        build['admitted_source_transition']=fusion.source_inverse(inputs.bind(args.source,SOURCE),inputs,sf_support)
+        return build
+
+    # Replace only the original build admission. All original case loops,
+    # numerical comparisons and old refusal expectations execute unchanged.
+    native.admit_build=admit_build
 
     def observer_hook(repository, inputs, source_sha, image_sha):
-        require(source_sha == SOURCE and image_sha == IMAGE,'fixed701 observer identity')
+        require(source_sha == SOURCE and image_sha == IMAGE,'current fusion observer identity')
         for relative,row in proof['files'].items():inputs.bind(folder/relative,row['derived_sha256'])
         inputs.bind(sfroot/'native_support.py',SUPPORT_SHA)
         inputs.bind(sfroot/'owner_adapter.py',OWNER_SHA)
-        source_inverse=sf_support.source_inverse(inputs.bind(Path(config['build_directory'])/'runtime.hepta',SOURCE),inputs)
+        source_inverse=fusion.source_inverse(inputs.bind(Path(config['build_directory'])/'runtime.hepta',SOURCE),inputs,sf_support)
         observer,owner,old_proof=original_make(repository,inputs,source_sha,image_sha)
         unused_observer,new_owner,new_proof=sf_adapter.make_observer(repository,inputs,source_sha,image_sha)
         previous_metadata=owner._command_metadata
         additional_metadata=new_owner._command_metadata
 
         def metadata(before,after,command,record,body):
-            if command[0] == 115 and command[5] == 0:
+            if command[0] == 115:
                 source=owner.public_node(before,command[1])
-                if owner.w(before['nodes'][str(source)],576) in (1,2):
+                dtype=owner.w(before['nodes'][str(source)],576)
+                if (command[5] == 0 and dtype in (1,2)) or (command[5] == 1 and dtype in (0,3)):
                     return additional_metadata(before,after,command,record,body)
             return previous_metadata(before,after,command,record,body)
 
@@ -225,7 +253,7 @@ def execute_worker(config):
         return observer,owner,dict(original_Bool_owner=old_proof,additional_F32_owner=new_proof,
             source_inverse=source_inverse,identity_source_proof=proof,
             original_Bool_and_integral_predicates_unchanged=True,
-            added_route='command115 target F32 and source Bool/I64 only',
+            added_route='command115 target F32 source Bool/I64; target Bool source F32/wrapped F64',
             original_frozen_control_expectations_unchanged=True)
 
     native.make_observer=observer_hook

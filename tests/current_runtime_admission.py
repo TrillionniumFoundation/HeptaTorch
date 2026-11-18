@@ -8,8 +8,12 @@ import sys
 import struct
 from current_runtime_torch import FUNCTIONAL_SOURCE_SHA, FUNCTIONAL_SOURCE_BYTES, NUMPY_WARNING_SUFFIX
 
-SOURCE = '82360ce87dae6f9a004ef50be4f991b6f83905a83f4b17ca8d6634827b7bd313'
-IMAGE = '80445a8c433f20314d3bc7b00ebb68f6a70fa200ee2e6aba193cff21aabfbc17'
+_profile_path = Path(__file__).resolve().parents[1] / "tools/current_runtime/qualification.py"
+_profile_spec = importlib.util.spec_from_file_location("current_runtime_report_profile", _profile_path)
+current_profile = importlib.util.module_from_spec(_profile_spec)
+_profile_spec.loader.exec_module(current_profile)
+SOURCE, IMAGE = current_profile.SOURCE, current_profile.IMAGE
+FUNCTIONS, UNITS = current_profile.FUNCTIONS, current_profile.UNITS
 F32_REFERENCE = 'c86b0a9384c788eaf7765480b022416075a0e3aa38455f48dcbd7f40476cecb0'
 
 
@@ -65,6 +69,9 @@ def current35_live_runner(receipt, directory, inputs):
     require(observation['schema'] == 'heptatorch.current-runtime.live-torch-source.v1'
             and observation['status'] == 'PASS_SOURCE_OBSERVATION_ONLY'
             and observation['before'] == observation['after'], 'complete actual fixed Torch source observation')
+    require(isinstance(observation['cpu_capability'], str) and observation['cpu_capability']
+            and observation['aten_cpu_capability_override'] is None,
+            'record the actual CPU capability without overriding Torch dispatch')
     before = observation['before']
     require(before['sha256'] == FUNCTIONAL_SOURCE_SHA and before['bytes'] == FUNCTIONAL_SOURCE_BYTES
             and Path(before['path']).is_absolute()
@@ -101,6 +108,7 @@ def current35_live_runner(receipt, directory, inputs):
                 stderr_kind='EMPTY' if receipt['stderr_bytes'] == 0 else 'SINGLE_FIXED_TORCH_NUMPY_WARNING',
                 stderr_bytes=receipt['stderr_bytes'], stderr_sha256=receipt['stderr_sha256'],
                 original_stderr_retained=True, native_stderr_rule_unchanged=True,
+                cpu_capability=observation['cpu_capability'], aten_cpu_capability_override=None,
                 fixed_functional_source_sha256=FUNCTIONAL_SOURCE_SHA)
 
 
@@ -134,7 +142,7 @@ def qualify_historical(report, suite, repository, build, build_sha, directory, i
                   original_output=str(directory / 'original'))
     facts = (reader.qualify_bool if suite == 'bool27' else reader.qualify_integral)(inner, config)
     require(all(report[key] == value for key, value in facts.items()), 'repeat original complete comparison admission')
-    children, cases, changed = (36, 27, [2, 3]) if suite == 'bool27' else (29, 24, [0, 1, 2, 3])
+    children, cases, changed = (36, 27, [2, 3, 5, 6]) if suite == 'bool27' else (29, 24, [0, 1, 2, 3])
     require(report['explicitly_changed_control_indices'] == changed
             and report['original_cases_passed'] == cases, 'exact retained denominator and contract changes')
     transports = reader.native_transports(directory / 'original', children)
@@ -148,7 +156,7 @@ def qualify_historical(report, suite, repository, build, build_sha, directory, i
 
 
 def qualify_f32(report, repository, build, build_sha, directory, inputs):
-    require(report['schema'] == 'heptatorch.sum-integral-f32.native17.v1'
+    require(report['schema'] == 'heptatorch.current-fusion.f32.v1'
             and report['status'] == 'PASS' and report['error'] is None,
             'new F32 comparison report must actually pass')
     require(report['source_sha256'] == SOURCE and report['native_sha256'] == IMAGE
@@ -156,8 +164,8 @@ def qualify_f32(report, repository, build, build_sha, directory, inputs):
             and report['inputs'][str(build / 'build.json')]['sha256'] == build_sha,
             'new F32 source, image, actual build and frozen reference bindings')
     require(report['native_executed'] is True and report['Torch_executed'] is False
-            and report['inputs_unchanged'] is True and report['build_functions'] == 701
-            and report['cold_units'] == 14, 'new F32 actual execution and input custody')
+            and report['inputs_unchanged'] is True and report['build_functions'] == FUNCTIONS
+            and report['cold_units'] == UNITS, 'new F32 actual execution and input custody')
     require(report['expected_cases'] == report['passed'] == 17 and report['failed'] == 0
             and [len(report[key]) for key in ('cases', 'axis_controls', 'dtype_controls',
                                             'entry_controls', 'allocation_controls')] == [17, 4, 7, 1, 2],
@@ -167,12 +175,52 @@ def qualify_f32(report, repository, build, build_sha, directory, inputs):
             'new F32 control denominator unchanged')
     rows = sum((report[key] for key in ('cases', 'axis_controls', 'dtype_controls',
                                       'entry_controls', 'allocation_controls')), [])
-    require(len(rows) == report['children'] == 31 and
+    require(len(rows) == 31 and report['children'] == 33 and
             all(row['status'] == 'PASS' and row['error'] is None and row['exit_code'] == 0
                 and row['frames'] > 0 and row['checks']
                 and all(check['passed'] is True for check in row['checks']) for row in rows),
-            'all thirty-one actual F32 native sessions and original assertions must pass')
-    require(report['frames'] == sum(row['frames'] for row in rows), 'complete F32 frame count')
+            'all thirty-one successful current-contract sessions and original assertions must pass')
+    original_row, extension_row = report['original_report'], report['extension_report']
+    require(original_row['path'] == 'original/report.json' and extension_row['path'] == 'extension/report.json',
+            'original F32 refusal results and new accepted controls remain separate')
+    original_raw = inputs.bind(directory / original_row['path'], original_row['sha256'])
+    extension_raw = inputs.bind(directory / extension_row['path'], extension_row['sha256'])
+    require(len(original_raw) == original_row['bytes'] and len(extension_raw) == extension_row['bytes'],
+            'complete original and extended F32 reports')
+    original, extension = json.loads(original_raw), json.loads(extension_raw)
+    require(original['status'] == 'FAIL' and original['error'] is None
+            and original['children'] == 31 and original['passed'] == 17 and original['failed'] == 0
+            and report['original_report_status'] == 'FAIL_RETAINED'
+            and report['original_dtype_failed_indices'] == [5, 6]
+            and report['original_dtype_controls'] == original['dtype_controls']
+            and all(report[key] == original[key] for key in ('cases', 'axis_controls', 'entry_controls', 'allocation_controls')),
+            'all original comparisons and the exact two old refusal failures are retained')
+    require(extension['schema'] == 'heptatorch.bool-dtype-extension.native.v1'
+            and extension['status'] == 'PASS' and extension['children'] == len(extension['cases']) == 2
+            and extension['inputs_unchanged'] is True and extension['native_executed'] is True
+            and extension['source_sha256'] == SOURCE and extension['native_sha256'] == IMAGE
+            and extension['actual_build_sha256'] == build_sha
+            and extension['reference']['actual_torch_cases'] == 2
+            and extension['reference']['report_sha256'] == '7b38959d3e052a0105c0a5e17fe9688dc8bcda975501b388a805f35599a1537c'
+            and report['new_Bool_dtype_reference'] == extension['reference']
+            and report['dtype_controls'] == original['dtype_controls'][:5] + extension['cases'],
+            'both new successes use their independently observed exact recipes and same image')
+    for row in original['dtype_controls'][5:]:
+        failed = [check for check in row['checks'] if check['passed'] is not True]
+        require(row['status'] == 'FAIL' and row['exit_code'] == 0
+                and row['error']['type'] == 'AssertionError' and 'EOF_failure' not in row['error']
+                and failed == [dict(label='documented-current-dtype-boundary', actual=0, expected=7, passed=False)]
+                and len(row['operations']) == 1
+                and row['operations'][0]['normalized_status'] == row['operations'][0]['frame_status'] == 0,
+                'only the original unsupported-dtype expectation changed')
+    complete_runner(report['original_runner'], expected_exit=1)
+    for stream in ('stdout', 'stderr'):
+        raw = inputs.bind(directory / ('runner.' + stream), report['original_runner'][stream + '_sha256'])
+        require(len(raw) == report['original_runner'][stream + '_bytes'], 'complete original worker streams')
+    require(report['frames'] == original['frames'] + extension['frames']
+            and report['frames'] == sum(row['frames'] for row in rows)
+                + sum(row['frames'] for row in original['dtype_controls'][5:]),
+            'every original success/failure frame and both new native control sessions')
     require([row['name'] for row in report['axis_controls']] ==
             ['duplicate_normalized_axis', 'positive_axis_out_of_range', 'negative_axis_out_of_range',
              'scalar_axis_out_of_range'], 'four original axis error cases')
@@ -180,7 +228,7 @@ def qualify_f32(report, repository, build, build_sha, directory, inputs):
             ['Bool_explicit_Bool', 'I64_explicit_Bool', 'Bool_explicit_F32', 'I64_explicit_F32',
              'F32_explicit_I64', 'F32_explicit_Bool', 'wrapped_F64_explicit_Bool'], 'all seven current dtype controls')
     require([row['operations'][0]['normalized_status'] for row in report['dtype_controls']]
-            == [0, 0, 0, 0, 7, 7, 7], 'four independently observed successes and three preserved refusals')
+            == [0, 0, 0, 0, 7, 0, 0], 'six independently observed successes and one preserved refusal')
     operations = report['entry_controls'][0]['operations']
     require([row['label'] for row in operations] ==
             ['invalid_public_capability', 'invalid_keepdim', 'unsupported_dtype_code',
@@ -198,7 +246,22 @@ def qualify_f32(report, repository, build, build_sha, directory, inputs):
                 and [op['normalized_status'] for op in operations]
                 == ([3, 3, 0] if stage == 'cast-storage' else [0, 3, 0]),
                 'actual cast witness, exact sum failure, and same-command recovery')
-    transition = report['source_transition']
+    fusion = report['source_transition']
+    require(fusion['schema'] == 'heptatorch.current-logical-fusion.source-proof.v1'
+            and fusion['whole_inverse_exact'] is True and fusion['source_sha256'] == SOURCE
+            and fusion['current_functions'] == FUNCTIONS and fusion['original_functions'] == 701
+            and fusion['unchanged_functions'] == 689
+            and fusion['modified_functions'] == ['entry', 'sb_sum_bool', 'si_dispatch_sum', 'si_plan', 'to_command']
+            and fusion['added_functions'] == ['logical_axis_mask', 'logical_dispatch', 'logical_plan',
+                                             'logical_reduce', 'logical_truth', 'reduction_plan']
+            and fusion['removed_functions'] == ['growth_capacity', 'init', 'integer_view_end',
+                'integer_view_root_valid', 'mark_concat', 'to_as_strided_direct_copy', 'to_view_root_valid']
+            and fusion['pr38_source_reconstructed_sha256'] == fusion['parent_source_sha256']
+                == '82360ce87dae6f9a004ef50be4f991b6f83905a83f4b17ca8d6634827b7bd313'
+            and fusion['original_FAIL_reports_modified'] is False
+            and fusion['runtime_qualification_transferred'] is False,
+            'exact whole-current-source inverse preserves every PR38 numerical and cat fix')
+    transition = fusion['pr38_to_baseline']
     require(transition['whole_inverse_exact'] is True and transition['unchanged_functions'] == 696
             and transition['modified_functions'] == ['incoming_describe_cat', 'sd_loop2d', 'sd_vector_inner', 'si_dispatch_sum']
             and transition['added_functions'] == ['sf_sum_f32']
@@ -222,16 +285,16 @@ def qualify_f32(report, repository, build, build_sha, directory, inputs):
             and transition['original_avx2_original270_failure_modified'] is False
             and transition['runtime_qualification_transferred'] is False,
             'all prior failures remain unchanged and no earlier PASS transfers')
-    require(report['historical_Bool7_changed_indices'] == [2, 3]
+    require(report['historical_Bool7_changed_indices'] == [2, 3, 5, 6]
             and report['original_Bool7_unchanged_all_pass'] is False
             and report['original700_or_original_controls_modified'] is False
             and report['schema_closure'] is False and report['full_project_status'] == 'HOLD',
             'new contract qualification must not relabel historical results or whole project')
-    transports = historical_reader(repository, inputs).native_transports(directory, 31)
+    transports = historical_reader(repository, inputs).native_transports(directory, 33)
     require(transports['frames'] == report['frames'], 'all F32 raw frames and double EOFs')
-    return dict(cases=17, native_sessions=31, frames=report['frames'], axis_controls=4,
+    return dict(cases=17, native_sessions=33, frames=report['frames'], axis_controls=4,
                 dtype_controls=7, entry_controls=10, allocation_controls=2,
-                original_dtype_failures_retained=True)
+                original_dtype_failures_retained=True, independently_observed_Bool_extensions=2)
 
 
 def qualify_current35(report, build_sha, directory, inputs):

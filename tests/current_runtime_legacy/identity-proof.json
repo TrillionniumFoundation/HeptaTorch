@@ -3,58 +3,34 @@
   "files": {
     "tests/current_runtime_legacy/run.py": {
       "comparison_predicate_or_expected_value_edits": [],
-      "derived_bytes": 17317,
-      "derived_sha256": "4d591e085bf5e1d071622746d0c3eab036af248edffb00bc412f3217c23c6d16",
+      "derived_bytes": 14963,
+      "derived_sha256": "e4f3c6118ce66bcec7489533a876652075674bca86ecb05cb4183b0a1780cb42",
       "edits": [
         {
-          "after": "82360ce87dae6f9a004ef50be4f991b6f83905a83f4b17ca8d6634827b7bd313",
-          "before": "b83a8346b162e12c5ed77e0287d626619a18f84bf7a1ab02a2514d30ae4295b4",
-          "count": 1,
-          "meaning": "actual cat-corrected source identity"
+          "after": "#!/usr/bin/env python3\n\"\"\"Run the original 76 view/scalar cases against the complete current image.\"\"\"\n\nimport argparse\nimport hashlib\nimport io\nimport importlib.util\nimport json\nfrom pathlib import Path\nimport struct\n",
+          "before": "#!/usr/bin/env python3\n\"\"\"Run the original 76 view/scalar cases against the complete Bool700 image.\"\"\"\n\nimport argparse\nimport hashlib\nimport io\nimport json\nfrom pathlib import Path\nimport struct\n",
+          "count": 1
         },
         {
-          "after": "80445a8c433f20314d3bc7b00ebb68f6a70fa200ee2e6aba193cff21aabfbc17",
-          "before": "c6afeedc14ba8cc408a62d6fbef0abb5b78dff0039b8099f3449d813e290a90e",
-          "count": 1,
-          "meaning": "actual cat-corrected ELF identity"
+          "after": "INTENT_SHA = \"2fb7e1f6a95e5cd6d0fe80468e414d65731f7b9d87852a33ec3c1812fbff07e8\"\nARCHIVE = ROOT / \"validation/current-runtime76-reference/complete.tar.xz\"\nARCHIVE_SHA = \"ce4aff6daaf5bb727fa6a520cbecf98dd8e09e67ffffa6cb60171a210b82e490\"\n_profile_path = ROOT / \"tools/current_runtime/qualification.py\"\n_profile_spec = importlib.util.spec_from_file_location(\"current_runtime_qualification\", _profile_path)\ncurrent_profile = importlib.util.module_from_spec(_profile_spec)\n_profile_spec.loader.exec_module(current_profile)\nSOURCE_SHA, NATIVE_SHA = current_profile.SOURCE, current_profile.IMAGE\nFUNCTIONS, UNITS = current_profile.FUNCTIONS, current_profile.UNITS\nCOMPILER_SHA = \"b1c851a0896fa6071f800e1146c3c27d0c6cf85059e9a6281b46d42908a3f59f\"\nLINKER_SHA = \"aae650e8822ef0b1e74d15108ad1d0f17ec791205ed5a158ec60b709f48f0e16\"\nBUILDER_SHA = \"b9d039c365a8a3988e3add120e8cffa46a4e1297878f4cced30103953b030bfb\"\n",
+          "before": "INTENT_SHA = \"2fb7e1f6a95e5cd6d0fe80468e414d65731f7b9d87852a33ec3c1812fbff07e8\"\nARCHIVE = ROOT / \"validation/view-reshape-r4-native76/complete.tar.xz\"\nARCHIVE_SHA = \"511dff328018a0a2d6a56a94fde4d2e0d64ff10ea66bb0cb71f89bb61ab2a3fb\"\nSOURCE_SHA = \"b83a8346b162e12c5ed77e0287d626619a18f84bf7a1ab02a2514d30ae4295b4\"\nNATIVE_SHA = \"c6afeedc14ba8cc408a62d6fbef0abb5b78dff0039b8099f3449d813e290a90e\"\nCOMPILER_SHA = \"b1c851a0896fa6071f800e1146c3c27d0c6cf85059e9a6281b46d42908a3f59f\"\nLINKER_SHA = \"aae650e8822ef0b1e74d15108ad1d0f17ec791205ed5a158ec60b709f48f0e16\"\nBUILDER_SHA = \"b9d039c365a8a3988e3add120e8cffa46a4e1297878f4cced30103953b030bfb\"\n",
+          "count": 1
         },
         {
-          "after": "built[\"functions\"] == 701",
-          "before": "built[\"functions\"] == 700",
-          "count": 1,
-          "meaning": "actual function count"
+          "after": "\n\ndef build_binding(directory, expected, out, bind):\n    built = current_profile.admit_build(directory, bind, expected)\n    original = bind(directory / \"build.json\", expected)\n    profile = out / \"profile\"\n    profile.mkdir()\n    for name, pin in ((\"heptatorch\", NATIVE_SHA), (\"runtime.hepta\", SOURCE_SHA)):\n        raw = bind(directory / name, pin)\n        (profile / name).write_bytes(raw)\n    (profile / \"heptatorch\").chmod(0o500)\n    (profile / \"actual-build.json\").write_bytes(original)\n    for unit in built[\"units\"]:\n        for suffix, key in ((\".hepta\", \"source_sha256\"), (\".o\", \"object_sha256\")):\n            name = unit[\"name\"] + suffix\n            (profile / name).write_bytes(bind(directory / name, unit[key]))\n    # This bridge adds the stable wire layout, without changing the actual build receipt.\n    bridge = {**built, \"schema\": \"heptatorch.current-runtime.legacy76-build-binding.v1\",\n              \"descriptor_bytes\": 672, \"state_format\": \"HTSINT02\", \"backing_format\": \"HTOSIN02\",\n              \"original_build_schema\": built[\"schema\"], \"original_build_sha256\": sha(original),\n",
+          "before": "\n\ndef build_binding(directory, expected, out, bind):\n    original = bind(directory / \"build.json\", expected)\n    built = json.loads(original)\n    require(built[\"schema\"] == \"heptatorch.complete-runtime-build.v1\"\n            and built[\"status\"] == \"PASS_NATIVE_BUILD_ONLY\", \"expected an actual complete-runtime cold build\")\n    require(built[\"source_sha256\"] == SOURCE_SHA and built[\"native_sha256\"] == NATIVE_SHA\n            and built[\"functions\"] == 700 and built[\"units_planned\"] == 14, \"unexpected current runtime profile\")\n    require(built[\"compiler_sha256\"] == COMPILER_SHA and built[\"linker_sha256\"] == LINKER_SHA\n            and built[\"link_exit\"] == 0 and built[\"all_inputs_unchanged\"] is True,\n            \"native tool or successful build binding mismatch\")\n    require(built[\"objects_reused\"] is False and built[\"runtime_qualified\"] is False,\n            \"build receipt cannot transfer runtime qualification\")\n    builder = ROOT / \"tools/current_runtime/build.py\"\n    bind(builder, BUILDER_SHA)\n    require(any(Path(path).name == \"build.py\" and row[\"sha256\"] == BUILDER_SHA for path, row in built[\"inputs\"].items()),\n            \"actual build does not bind the fixed current builder\")\n    require(len(built[\"units\"]) == 14 and len(built[\"processes\"]) == 15, \"incomplete cold build\")\n    require([p[\"name\"] for p in built[\"processes\"]] == [u[\"name\"] for u in built[\"units\"]] + [\"link\"],\n            \"cold build process order mismatch\")\n    require(all(p[\"started\"] is True and p[\"exit_code\"] == 0 and p[\"stdout_EOF\"] is True\n                and p[\"stderr_EOF\"] is True and p[\"stderr_bytes\"] == 0 for p in built[\"processes\"]),\n            \"cold build process incomplete or failed\")\n    profile = out / \"profile\"\n    profile.mkdir()\n    image = bind(directory / \"heptatorch\", NATIVE_SHA)\n    source = bind(directory / \"runtime.hepta\", SOURCE_SHA)\n    (profile / \"heptatorch\").write_bytes(image); (profile / \"heptatorch\").chmod(0o500)\n    (profile / \"runtime.hepta\").write_bytes(source)\n    (profile / \"actual-build.json\").write_bytes(original)\n    objects = []\n    for unit, process in zip(built[\"units\"], built[\"processes\"]):\n        name = unit[\"name\"]\n        require(Path(name).name == name and unit[\"compiler_exit\"] == 0\n                and unit[\"compiler_stderr_bytes\"] == 0, \"invalid native unit\")\n        require(process[\"input_sha256\"] == unit[\"source_sha256\"]\n                and process[\"stdout_sha256\"] == unit[\"object_sha256\"], \"unit process binding mismatch\")\n        for suffix, key in ((\".hepta\", \"source_sha256\"), (\".o\", \"object_sha256\")):\n            raw = bind(directory / (name + suffix), unit[key])\n            (profile / (name + suffix)).write_bytes(raw)\n            if suffix == \".o\":\n                objects.append(raw)\n        require(not bind(directory / (name + \".stderr\")), \"compiler stderr is not empty\")\n    request = b\"HIASTKS1\" + struct.pack(\"<3Q\", 14, 4, 0) + b\"step\"\n    request += b\"\".join(struct.pack(\"<Q\", len(obj)) + obj for obj in objects)\n    actual_request = bind(directory / \"link.request.bin\", built[\"processes\"][-1][\"input_sha256\"])\n    require(actual_request == request and not bind(directory / \"link.stderr\"), \"native link request/stderr mismatch\")\n    require(built[\"processes\"][-1][\"stdout_sha256\"] == NATIVE_SHA, \"native link output mismatch\")\n    # A separate, explicitly named metadata bridge leaves the actual receipt untouched.\n    # The 672-byte descriptor and two tags belong to this exact source/image profile.\n    bridge = {**built, \"schema\": \"heptatorch.current-runtime.legacy76-build-binding.v1\",\n              \"descriptor_bytes\": 672, \"state_format\": \"HTSINT02\", \"backing_format\": \"HTOSIN02\",\n              \"original_build_schema\": built[\"schema\"], \"original_build_sha256\": sha(original),\n",
+          "count": 1
         },
         {
-          "after": "\"expected_cases\": 76, \"functions\": 701,",
-          "before": "\"expected_cases\": 76, \"functions\": 700,",
-          "count": 1,
-          "meaning": "actual report function count"
+          "after": "    inputs, rows = {}, []\n    report = {\"schema\": \"heptatorch.current-runtime.original76.v1\", \"status\": \"PREPARING\",\n              \"source_sha256\": SOURCE_SHA, \"native_sha256\": NATIVE_SHA,\n              \"expected_cases\": 76, \"functions\": FUNCTIONS, \"native_units\": UNITS,\n              \"state_format\": \"HTSINT02\", \"backing_format\": \"HTOSIN02\", \"descriptor_bytes\": 672,\n              \"actual_build_sha256\": args.expected_build_sha256,\n              \"old_pass_transferred\": False, \"torch_executed\": False, \"native_suites\": rows,\n",
+          "before": "    inputs, rows = {}, []\n    report = {\"schema\": \"heptatorch.current-runtime.original76.v1\", \"status\": \"PREPARING\",\n              \"source_sha256\": SOURCE_SHA, \"native_sha256\": NATIVE_SHA,\n              \"expected_cases\": 76, \"functions\": 700, \"native_units\": 14,\n              \"state_format\": \"HTSINT02\", \"backing_format\": \"HTOSIN02\", \"descriptor_bytes\": 672,\n              \"actual_build_sha256\": args.expected_build_sha256,\n              \"old_pass_transferred\": False, \"torch_executed\": False, \"native_suites\": rows,\n",
+          "count": 1
         },
         {
-          "after": "\"--expected-functions\", \"701\",",
-          "before": "\"--expected-functions\", \"700\",",
-          "count": 1,
-          "meaning": "original readers actual count"
-        },
-        {
-          "after": "validation/current-runtime76-reference/complete.tar.xz",
-          "before": "validation/view-reshape-r4-native76/complete.tar.xz",
-          "count": 1,
-          "meaning": "fixed eight-reference fixture default; original function bodies unchanged"
-        },
-        {
-          "after": "ce4aff6daaf5bb727fa6a520cbecf98dd8e09e67ffffa6cb60171a210b82e490",
-          "before": "511dff328018a0a2d6a56a94fde4d2e0d64ff10ea66bb0cb71f89bb61ab2a3fb",
-          "count": 1,
-          "meaning": "exact compact archive identity; all eight original member bytes unchanged"
+          "after": "                \"--observer\", str(observer), \"--reference\", str(references[name, \"reference\"]),\n                \"--probe\", str(references[name, \"probe\"]), \"--expected-source-sha256\", SOURCE_SHA,\n                \"--expected-native-sha256\", NATIVE_SHA, \"--expected-observer-sha256\", sha(observer.read_bytes()),\n                \"--expected-functions\", str(FUNCTIONS), \"--expected-native-units\", str(UNITS), \"--output\", str(out / name)]\n            if name != \"view14\":\n                command += [\"--support-reader\", str(dependencies[\"replay_direct_view14.py\"])]\n            if name in {\"view26\", \"input4\"}:\n",
+          "before": "                \"--observer\", str(observer), \"--reference\", str(references[name, \"reference\"]),\n                \"--probe\", str(references[name, \"probe\"]), \"--expected-source-sha256\", SOURCE_SHA,\n                \"--expected-native-sha256\", NATIVE_SHA, \"--expected-observer-sha256\", sha(observer.read_bytes()),\n                \"--expected-functions\", \"700\", \"--expected-native-units\", \"14\", \"--output\", str(out / name)]\n            if name != \"view14\":\n                command += [\"--support-reader\", str(dependencies[\"replay_direct_view14.py\"])]\n            if name in {\"view26\", \"input4\"}:\n",
+          "count": 1
         }
-      ],
-      "identical_function_and_class_AST": [
-        "dump",
-        "frozen_sources",
-        "reference_inputs",
-        "require",
-        "sha"
       ],
       "identity_wrapper_AST_changes": [
         "build_binding",
@@ -66,50 +42,44 @@
     },
     "tests/current_runtime_legacy/sum32.py": {
       "comparison_predicate_or_expected_value_edits": [],
-      "derived_bytes": 22112,
-      "derived_sha256": "53f319f8a01eb443e0248291aa803252d90f049e070b18a5494c1bbb9a0b4c0b",
+      "derived_bytes": 22296,
+      "derived_sha256": "7cec93c961401e5013ea4e2b1b2cf227ba18a91bf5ae06d4fd75e15520ecabca",
       "edits": [
         {
-          "after": "4d591e085bf5e1d071622746d0c3eab036af248edffb00bc412f3217c23c6d16",
-          "before": "6009bad95b9ea33b72ed246630574f7ef089816960d977191ad4dd31e439d006",
-          "count": 1,
-          "meaning": "exact current cold-build helper"
+          "after": "#!/usr/bin/env python3\n\"\"\"Replay all original F32 Sum32 observations on the current native image.\n\nThe frozen SumCase and reference admission retain all original assertions. This\nentry point binds the new cold build and explicitly relocates old input paths;\n",
+          "before": "#!/usr/bin/env python3\n\"\"\"Replay all original F32 Sum32 observations on the current Bool700 image.\n\nThe frozen SumCase and reference admission retain all original assertions. This\nentry point binds the new cold build and explicitly relocates old input paths;\n",
+          "count": 1
         },
         {
-          "after": "b\"functions == 701\"",
-          "before": "b\"functions == 700\"",
-          "count": 1,
-          "meaning": "actual owner count"
+          "after": "\n\nROOT = Path(__file__).resolve().parents[2]\nLEGACY_RUNNER_SHA = \"e4f3c6118ce66bcec7489533a876652075674bca86ecb05cb4183b0a1780cb42\"\nORIGINAL_SHA = \"4676870b32dd341f9e6c30d170e8c5a4abbc401668ed3cdae492d9712233e138\"\nPARENT_SHA = \"f13a204f5071c07b34ab35ee1b4a6dc90163137b0762fb57bd8c34abb0c8b277\"\nINTEGRAL_SHA = \"6eee1fcd26367af3fba97488118e419788d64f41f90901b37cc594fe38154a9f\"\n",
+          "before": "\n\nROOT = Path(__file__).resolve().parents[2]\nLEGACY_RUNNER_SHA = \"6009bad95b9ea33b72ed246630574f7ef089816960d977191ad4dd31e439d006\"\nORIGINAL_SHA = \"4676870b32dd341f9e6c30d170e8c5a4abbc401668ed3cdae492d9712233e138\"\nPARENT_SHA = \"f13a204f5071c07b34ab35ee1b4a6dc90163137b0762fb57bd8c34abb0c8b277\"\nINTEGRAL_SHA = \"6eee1fcd26367af3fba97488118e419788d64f41f90901b37cc594fe38154a9f\"\n",
+          "count": 1
         },
         {
-          "after": "b\"sum-bool-source01-UNBOUND-701\"",
-          "before": "b\"sum-bool-source01-UNBOUND-700\"",
-          "count": 1,
-          "meaning": "actual unbound profile count"
+          "after": "            \"edits\": [{\"before\": a.decode(), \"after\": b.decode(), \"count\": n} for a, b, n in edits]}\n\n\ndef admit_sources(args, out, inputs, functions):\n    original = args.original_source.resolve()\n    parent = args.parent_source.resolve()\n    package(original, ORIGINAL_SHA, inputs)\n",
+          "before": "            \"edits\": [{\"before\": a.decode(), \"after\": b.decode(), \"count\": n} for a, b, n in edits]}\n\n\ndef admit_sources(args, out, inputs):\n    original = args.original_source.resolve()\n    parent = args.parent_source.resolve()\n    package(original, ORIGINAL_SHA, inputs)\n",
+          "count": 1
         },
         {
-          "after": "\"profile\": \"SumF32-Cat-701/HTSINT02/HTOSIN02\", \"functions\": 701,",
-          "before": "\"profile\": \"Bool700/HTSINT02/HTOSIN02\", \"functions\": 700,",
-          "count": 1,
-          "meaning": "actual profile and count"
+          "after": "    require(constructor(observer_raw) == constructor(parent_observer) and len(constructor(observer_raw)) == 2514\n            and sha(constructor(observer_raw)) == CONSTRUCTOR_SHA, \"the complete original Native constructor differs\")\n    tags = [(b\"HTSINT01\", b\"HTSINT02\", 2), (b\"HTOSIN01\", b\"HTOSIN02\", 2)]\n    owner_edits = tags + [(b\"functions == 699\", (\"functions == %d\" % functions).encode(), 1),\n        (b\"sum-integral-source01-UNBOUND-699\", (\"current-runtime-UNBOUND-%d\" % functions).encode(), 1),\n        (b\"sum-integral-source01-%d-preserved47-48\", b\"sum-bool-source01-%d-preserved47-48\", 1),\n        (b\"heptatorch.sum-integral-owner-source01.v1\", b\"heptatorch.sum-bool-owner.v1\", 1)]\n    owner_edits = [edit for edit in owner_edits if edit[0] != edit[1]]\n    owner_path, observer_path = adaptation / \"owner_current.py\", adaptation / \"observer_current.py\"\n    proofs[\"owner\"] = derived(owner_raw, owner_edits, owner_path, inputs)\n    proofs[\"observer\"] = derived(observer_raw, [(a, b, 1) for a, b, _ in tags], observer_path, inputs)\n    require(constructor(observer_path.read_bytes()) == constructor(observer_raw), \"derived Native constructor changed\")\n",
+          "before": "    require(constructor(observer_raw) == constructor(parent_observer) and len(constructor(observer_raw)) == 2514\n            and sha(constructor(observer_raw)) == CONSTRUCTOR_SHA, \"the complete original Native constructor differs\")\n    tags = [(b\"HTSINT01\", b\"HTSINT02\", 2), (b\"HTOSIN01\", b\"HTOSIN02\", 2)]\n    owner_edits = tags + [(b\"functions == 699\", b\"functions == 700\", 1),\n        (b\"sum-integral-source01-UNBOUND-699\", b\"sum-bool-source01-UNBOUND-700\", 1),\n        (b\"sum-integral-source01-%d-preserved47-48\", b\"sum-bool-source01-%d-preserved47-48\", 1),\n        (b\"heptatorch.sum-integral-owner-source01.v1\", b\"heptatorch.sum-bool-owner.v1\", 1)]\n    owner_path, observer_path = adaptation / \"owner_bool700.py\", adaptation / \"observer_bool700.py\"\n    proofs[\"owner\"] = derived(owner_raw, owner_edits, owner_path, inputs)\n    proofs[\"observer\"] = derived(observer_raw, [(a, b, 1) for a, b, _ in tags], observer_path, inputs)\n    require(constructor(observer_path.read_bytes()) == constructor(observer_raw), \"derived Native constructor changed\")\n",
+          "count": 1
         },
         {
-          "after": "observer.configure(owner, helper.SOURCE_SHA, helper.NATIVE_SHA, 701)",
-          "before": "observer.configure(owner, helper.SOURCE_SHA, helper.NATIVE_SHA, 700)",
-          "count": 1,
-          "meaning": "actual observer count"
+          "after": "    inputs, reports = Inputs(), []\n    started = time.monotonic()\n    result = {\"schema\": \"heptatorch.current-runtime.original-sum32-comparison.v1\", \"status\": \"PREPARING\",\n              \"profile\": \"current/HTSINT02/HTOSIN02\", \"descriptor_bytes\": 672,\n              \"state_format\": \"HTSINT02\", \"backing_format\": \"HTOSIN02\", \"case_count\": 32, \"event_count\": 626,\n              \"reference_sha256\": REFERENCE_SHA, \"native_executed\": False, \"Torch_executed\": False,\n              \"compiler_executed\": False, \"cases\": reports, \"old_PASS_transferred\": False,\n",
+          "before": "    inputs, reports = Inputs(), []\n    started = time.monotonic()\n    result = {\"schema\": \"heptatorch.current-runtime.original-sum32-comparison.v1\", \"status\": \"PREPARING\",\n              \"profile\": \"Bool700/HTSINT02/HTOSIN02\", \"functions\": 700, \"units\": 14, \"descriptor_bytes\": 672,\n              \"state_format\": \"HTSINT02\", \"backing_format\": \"HTOSIN02\", \"case_count\": 32, \"event_count\": 626,\n              \"reference_sha256\": REFERENCE_SHA, \"native_executed\": False, \"Torch_executed\": False,\n              \"compiler_executed\": False, \"cases\": reports, \"old_PASS_transferred\": False,\n",
+          "count": 1
+        },
+        {
+          "after": "        inputs.bind(profile / \"runtime.hepta\", helper.SOURCE_SHA)\n        inputs.bind(profile / \"actual-build.json\", args.expected_build_sha256)\n        result.update(source_sha256=helper.SOURCE_SHA, native_sha256=helper.NATIVE_SHA,\n                      functions=helper.FUNCTIONS, units=helper.UNITS,\n                      actual_build_sha256=args.expected_build_sha256,\n                      build_admission_code_sha256=LEGACY_RUNNER_SHA)\n        replay, reference_reader, owner, observer = admit_sources(args, out, inputs, helper.FUNCTIONS)\n        reference, contract, admission = admit_reference(args, out, inputs, reference_reader)\n        result[\"reference_admission\"] = admission\n        if args.prepare_only:\n",
+          "before": "        inputs.bind(profile / \"runtime.hepta\", helper.SOURCE_SHA)\n        inputs.bind(profile / \"actual-build.json\", args.expected_build_sha256)\n        result.update(source_sha256=helper.SOURCE_SHA, native_sha256=helper.NATIVE_SHA,\n                      actual_build_sha256=args.expected_build_sha256,\n                      build_admission_code_sha256=LEGACY_RUNNER_SHA)\n        replay, reference_reader, owner, observer = admit_sources(args, out, inputs)\n        reference, contract, admission = admit_reference(args, out, inputs, reference_reader)\n        result[\"reference_admission\"] = admission\n        if args.prepare_only:\n",
+          "count": 1
+        },
+        {
+          "after": "        else:\n            parent_root = args.parent_source.resolve()\n            parent = load(parent_root / \"vendor/replay_direct_view14.py\", \"current_sum32_original_case\")\n            observer.configure(owner, helper.SOURCE_SHA, helper.NATIVE_SHA, helper.FUNCTIONS)\n            Case = replay.case_class(parent, owner)\n            run_args = argparse.Namespace(binary=profile / \"heptatorch\", source=profile / \"runtime.hepta\",\n                                          protocol=parent_root / \"vendor/protocol.py\")\n",
+          "before": "        else:\n            parent_root = args.parent_source.resolve()\n            parent = load(parent_root / \"vendor/replay_direct_view14.py\", \"current_sum32_original_case\")\n            observer.configure(owner, helper.SOURCE_SHA, helper.NATIVE_SHA, 700)\n            Case = replay.case_class(parent, owner)\n            run_args = argparse.Namespace(binary=profile / \"heptatorch\", source=profile / \"runtime.hepta\",\n                                          protocol=parent_root / \"vendor/protocol.py\")\n",
+          "count": 1
         }
-      ],
-      "identical_function_and_class_AST": [
-        "Inputs",
-        "admit_reference",
-        "derived",
-        "dump",
-        "load",
-        "package",
-        "recover_integral",
-        "require",
-        "sha"
       ],
       "identity_wrapper_AST_changes": [
         "admit_sources",
@@ -120,14 +90,5 @@
       "whole_source_inverse_exact": true
     }
   },
-  "native_executed_by_derivation": false,
-  "reference_fixture_migration": {
-    "all_current701_function_and_class_AST_unchanged": true,
-    "archive_sha256": "ce4aff6daaf5bb727fa6a520cbecf98dd8e09e67ffffa6cb60171a210b82e490",
-    "comparison_predicate_or_expected_value_edits": [],
-    "manifest_sha256": "a3d49014e99b68a98a7cc41a787d4fa6102129b63aed720dc857b5d6e862ef4d",
-    "original_archive_identity_retained_in_fixed_reference_manifest": true
-  },
-  "repository_ROOT_relative_path_unchanged": true,
-  "schema": "heptatorch.current-runtime.legacy701-identity.v1"
+  "schema": "heptatorch.current-runtime.legacy-identity.v2"
 }

@@ -1,0 +1,126 @@
+{
+  "request": {
+    "host": "rog",
+    "executable": "/usr/bin/python3",
+    "args": [
+      "-I",
+      "-S",
+      "-B",
+      "-c",
+      "from pathlib import Path,PurePosixPath\nimport hashlib,tarfile,os,json\nbase=Path('/home/qian-qi/heptatorch-current-49c929e8308c');archive=base/'bool-dtype2-source.tar.xz';target=base/'bool-dtype2-source';assert not target.exists()\nassert hashlib.sha256(archive.read_bytes()).hexdigest()=='c97ee5d5be30527bff7ecb170a823c23f4e5ef73deaf6235f3cb824ec693b485'\ntarget.mkdir()\nexpected={'cases.py':'18fe625378606ad6e448adca6705baabe16b256b84858200af10ad1f966afd49','reference.py':'fcdae0181548b0de2e13399d453d3319c2e0e2d4c7dcbcf20f1dcad2ad9b145f'}\nwith tarfile.open(archive) as t:\n for m in t:\n  assert m.isfile() and m.name in expected;b=t.extractfile(m).read()\n  assert hashlib.sha256(b).hexdigest()==expected[m.name]\n  (target/m.name).write_bytes(b)\nassert {p.name for p in target.iterdir()}==set(expected)\nrepo=base/'repo';os.chdir(repo)\npython='/home/qian-qi/heptatorch-continuation-20261116/runs/pr28-observer-repair/torch-venv/bin/python'\nos.execv(python,[python,'-B','-s',str(target/'reference.py'),'--repository',str(repo),'--output',str(base/'bool-dtype2-reference')])\n"
+    ],
+    "idempotency_key": "heptatorch-20261118-bool-dtype2-reference-v1",
+    "timeout_seconds": 180
+  },
+  "start": {
+    "audit_recorded": true,
+    "job": {
+      "args": [
+        "-I",
+        "-S",
+        "-B",
+        "-c",
+        "from pathlib import Path,PurePosixPath\nimport hashlib,tarfile,os,json\nbase=Path('/home/qian-qi/heptatorch-current-49c929e8308c');archive=base/'bool-dtype2-source.tar.xz';target=base/'bool-dtype2-source';assert not target.exists()\nassert hashlib.sha256(archive.read_bytes()).hexdigest()=='c97ee5d5be30527bff7ecb170a823c23f4e5ef73deaf6235f3cb824ec693b485'\ntarget.mkdir()\nexpected={'cases.py':'18fe625378606ad6e448adca6705baabe16b256b84858200af10ad1f966afd49','reference.py':'fcdae0181548b0de2e13399d453d3319c2e0e2d4c7dcbcf20f1dcad2ad9b145f'}\nwith tarfile.open(archive) as t:\n for m in t:\n  assert m.isfile() and m.name in expected;b=t.extractfile(m).read()\n  assert hashlib.sha256(b).hexdigest()==expected[m.name]\n  (target/m.name).write_bytes(b)\nassert {p.name for p in target.iterdir()}==set(expected)\nrepo=base/'repo';os.chdir(repo)\npython='/home/qian-qi/heptatorch-continuation-20261116/runs/pr28-observer-repair/torch-venv/bin/python'\nos.execv(python,[python,'-B','-s',str(target/'reference.py'),'--repository',str(repo),'--output',str(base/'bool-dtype2-reference')])\n"
+      ],
+      "created_unix_ms": 1794993900426,
+      "cwd": null,
+      "env_keys": [],
+      "executable": "/usr/bin/python3",
+      "execution_mode": "operator",
+      "host": "rog",
+      "id": "1a1edf94b8a-392-4a25",
+      "idempotency_key": "heptatorch-20261118-bool-dtype2-reference-v1",
+      "launch_error": null,
+      "launch_state": "launched",
+      "remote_job_dir": "/home/qian-qi/.local/state/hepta-runtime-mac-worker/jobs/1a1edf94b8a-392-4a25",
+      "request_digest": "e7380b40985498bd726adc3101d5ebc2fff02ec8b7a3fe0853dcb434baa85a0c",
+      "request_fingerprint": 16661079193518643000,
+      "ssh_target": "rog-ts",
+      "system_jobctl": false,
+      "unit": "hepta-runtime-job-1a1edf94b8a-392-4a25"
+    },
+    "launch": {
+      "backend": "systemd",
+      "launcher_pid": null,
+      "ok": true,
+      "unit": "hepta-runtime-job-1a1edf94b8a-392-4a25"
+    },
+    "local_record_pending": false,
+    "reused": false
+  },
+  "status": {
+    "at_unix_ms": 1794993903761,
+    "audit_recorded": true,
+    "automatic_retry": false,
+    "cancelled": false,
+    "exit_code": 0,
+    "job_id": "1a1edf94b8a-392-4a25",
+    "launch_nonce": "fe96bb2bbb591fe62db11a18dcfcc37a",
+    "log_bytes": {
+      "stderr": {
+        "seen": 371,
+        "stored": 371
+      },
+      "stdout": {
+        "seen": 71,
+        "stored": 71
+      }
+    },
+    "log_errors": {
+      "stderr": null,
+      "stdout": null
+    },
+    "log_synced": {
+      "stderr": true,
+      "stdout": true
+    },
+    "log_truncated": {
+      "stderr": false,
+      "stdout": false
+    },
+    "output_complete": true,
+    "output_durable": true,
+    "state": "succeeded",
+    "terminal_publication_confirmed": true,
+    "terminal_publication_protocol": 1,
+    "timed_out": false
+  },
+  "logs": {
+    "audit_recorded": true,
+    "job_id": "1a1edf94b8a-392-4a25",
+    "stderr": {
+      "bytes_hex": "2f686f6d652f7169616e2d71692f6865707461746f7263682d636f6e74696e756174696f6e2d32303236313131362f72756e732f707232382d6f627365727665722d7265706169722f746f7263682d76656e762f6c69622f707974686f6e332e31322f736974652d7061636b616765732f746f7263682f5f737562636c61737365732f66756e6374696f6e616c5f74656e736f722e70793a3337373a20557365725761726e696e673a204661696c656420746f20696e697469616c697a65204e756d50793a204e6f206d6f64756c65206e616d656420276e756d707927202854726967676572656420696e7465726e616c6c79206174202f5f5f772f7079746f7263682f7079746f7263682f746f7263682f637372632f7574696c732f74656e736f725f6e756d70792e6370703a38322e290a2020637075203d205f636f6e76657273696f6e5f6d6574686f645f74656d706c617465286465766963653d746f7263682e64657669636528226370752229290a",
+      "eof": true,
+      "next_offset": 371,
+      "offset": 0,
+      "size": 371,
+      "text": "/home/qian-qi/heptatorch-continuation-20261116/runs/pr28-observer-repair/torch-venv/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)\n  cpu = _conversion_method_template(device=torch.device(\"cpu\"))\n"
+    },
+    "stdout": {
+      "bytes_hex": "7b22737461747573223a20224f42534552564544222c20226361736573223a20322c202265787065637465645f6361736573223a20322c20226572726f72223a206e756c6c7d0a",
+      "eof": true,
+      "next_offset": 71,
+      "offset": 0,
+      "size": 71,
+      "text": "{\"status\": \"OBSERVED\", \"cases\": 2, \"expected_cases\": 2, \"error\": null}\n"
+    }
+  },
+  "source_archive": {
+    "size": 2720,
+    "sha256": "c97ee5d5be30527bff7ecb170a823c23f4e5ef73deaf6235f3cb824ec693b485"
+  },
+  "upload": {
+    "mode": 384,
+    "sha256": "c97ee5d5be30527bff7ecb170a823c23f4e5ef73deaf6235f3cb824ec693b485",
+    "size": 2720,
+    "version": "66306:34258267:2720:1794993860305325962:1794993860306138232",
+    "written": 2720
+  },
+  "report": {
+    "eof": true,
+    "path": "/home/qian-qi/heptatorch-current-49c929e8308c/bool-dtype2-reference/report.json",
+    "sha256": "7b38959d3e052a0105c0a5e17fe9688dc8bcda975501b388a805f35599a1537c",
+    "size": 20389,
+    "version": "66306:34783074:20389:1794993903033388735:1794993903033388735"
+  }
+}

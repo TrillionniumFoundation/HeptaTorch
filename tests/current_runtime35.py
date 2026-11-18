@@ -8,7 +8,6 @@ import traceback
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tests'))
-from current_runtime_fixtures import restore_current35
 from current_runtime_process import execute
 from current_runtime_admission import SOURCE, IMAGE, require, sha, complete_runner, current35_live_runner, qualify_current35
 
@@ -40,28 +39,23 @@ def main(argv=None):
         lock = json.loads(inputs.bind(ROOT / 'compatibility/pytorch-oracle-lock.json',
             'ca2e54ce65083bbe0ab3d47b6878971271765ab35a9dd70725fa345fceed3944'))
         inputs.bind(ROOT / lock['oracle']['install_report'])
-        package = restore_current35(ROOT, output / 'source-package', inputs)
+        package = ROOT / 'tests/current_runtime_original35'
+        for path in sorted(package.glob('*.py')):
+            inputs.bind(path)
+        common = [
+            '--build-directory', str(build),
+            '--expected-build-sha256', args.expected_build_sha256,
+            '--output', str(output),
+        ]
         commands = [
-            ('native_and_live_reference', 730, [str(torch_python), '-B', str(ROOT / 'tests/current_runtime_torch.py'),
-                '--source-observation', str(output / 'torch-source.json'), '--', str(package / 'run.py'),
-                '--legacy-directory', str(ROOT / 'tests/tensor_object_oracle'),
-                '--native-source', str(build / 'runtime.hepta'), '--build-directory', str(build),
-                '--expected-build-sha256', args.expected_build_sha256,
-                '--observer-output', str(output / 'observer'),
-                '--observer-report', str(output / 'observer-report.json'), '--',
-                str(build / 'heptatorch'), str(output / 'original-report.json'),
-                '--owned-reference', str(ROOT / 'tests/owned_tensor_oracle/pytorch_owned_tensor_oracle.py'),
-                '--session-reference', str(ROOT / 'tests/pytorch_session_oracle.py'),
-                '--reference', str(ROOT / 'tests/pytorch_oracle.py'),
-                '--lock', str(ROOT / 'compatibility/pytorch-oracle-lock.json'), '--repo', str(ROOT),
-                '--trace-directory', str(output / 'wire'), '--expected-native-sha256', IMAGE]),
-            ('strict_report', 60, [sys.executable, '-I', '-S', '-B', str(package / 'check_report.py'),
-                '--observer-report', str(output / 'observer-report.json'),
-                '--original-report', str(output / 'original-report.json')]),
-            ('copied_controls', 90, [sys.executable, '-I', '-S', '-B', str(package / 'controls.py'),
-                '--observer', str(package / 'observer701.py'),
-                '--expected-profile', 'current701-cat-empty-original35-F32-ViewInfo-Saved',
-                '--journals', str(output / 'observer/owners'), '--output', str(output / 'copied-controls')]),
+            ('native_and_live_reference', 730, [str(torch_python), '-B',
+                str(ROOT / 'tests/current_runtime_torch.py'),
+                '--source-observation', str(output / 'torch-source.json'), '--',
+                str(package / 'worker.py'), '--phase', 'native', *common]),
+            ('strict_report', 60, [sys.executable, '-I', '-S', '-B',
+                str(package / 'worker.py'), '--phase', 'strict', *common]),
+            ('copied_controls', 90, [sys.executable, '-I', '-S', '-B',
+                str(package / 'worker.py'), '--phase', 'controls', *common]),
         ]
         for name, budget, command in commands:
             directory = output / (name + '-execution')
@@ -78,6 +72,17 @@ def main(argv=None):
                 if (directory / 'runner.json').exists():
                     report['executions'][name] = json.loads((directory / 'runner.json').read_text())
                 failures.append(name + ': ' + repr(error))
+        report['current_adapter_stages'] = {}
+        for phase in ('native', 'strict', 'controls'):
+            stage_raw = inputs.bind(output / (phase + '-stage.json'))
+            stage = json.loads(stage_raw)
+            require(stage['status'] == 'PASS' and stage['changed_inputs'] == []
+                    and stage['source_sha256'] == SOURCE and stage['native_sha256'] == IMAGE
+                    and stage['actual_build_sha256'] == args.expected_build_sha256
+                    and stage['reference_or_numeric_assertions_changed'] is False,
+                    'all explicit current35 adapter stages must pass on the same complete build')
+            report['current_adapter_stages'][phase] = dict(
+                path=phase + '-stage.json', bytes=len(stage_raw), sha256=sha(stage_raw))
         paths = {'original': 'original-report.json', 'observer': 'observer-report.json',
                  'strict': 'strict_report-execution/runner.stdout', 'controls': 'copied-controls/report.json'}
         decoded = {}

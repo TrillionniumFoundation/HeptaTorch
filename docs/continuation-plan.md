@@ -21,63 +21,78 @@ entire subsystem or a complete upstream schema by itself.
 
 ## Current implementation and next work
 
-The canonical application is the701-function `sum-f32-cat-empty-01` profile:
-9,352 core blocks,33,473 instructions,14 newly compiled units and the existing
-672-byte descriptor. Its complete source and manifest are in
-`tools/current_runtime/source/`. Source SHA-256:
-`82360ce87dae6f9a004ef50be4f991b6f83905a83f4b17ca8d6634827b7bd313`; native ELF SHA-256:
-`80445a8c433f20314d3bc7b00ebb68f6a70fa200ee2e6aba193cff21aabfbc17`.
+The single canonical HIA application is `tools/current_runtime/source/`.
+Its manifest is authoritative for complete source, functions, ordered units
+and native object/image identities. `make` cold-builds every application object
+from this source with the fixed ABI3 HIA compiler and session linker.
 
-`make` directly cold-builds this source with the fixed final ABI3 HIA compiler
-and session linker. `make test` and `current-runtime.yml` share eight mandatory
-same-image groups totaling513 cases: Bool27, view/scalar76, Integral24,
-Bool/I64-to-F32 Sum17, original live35, original live270, original live32 and
-F32 Sum32. Select the pinned
-Torch environment with `HEPTA_TORCH_PYTHON`; the three live groups require actual
-independent Torch execution and eleven provenance checks. Other groups retain
-their exact original frozen observations. The focused CI budget is180 minutes.
+`make test` and current-runtime CI share eleven mandatory groups totaling 683
+finite cases: original Bool27, view/scalar76, Integral24, integral-to-F32 Sum17,
+original lifecycle35, original operator/training270, F32 Sum32, live
+Tensor/RNG/backward32, logical147, inherited resource7 and original AsStrided16.
+The three live groups use the fixed actual
+Torch oracle; all frozen groups preserve original observations. New source
+identities require new execution of every affected group.
 
-[Current build](current-runtime.md), [current audit](current-audit.md),
-[source-bound executions](../validation/current-runtime701/evidence.json) and
-the exact tested Git head are the current authority. The original current700
-main baseline was merged in PR37 at `b22622b371d79478864cb80154b1782e708a5a81`;
-its ten checks and all five workflows passed. New source hashes require their
-own executions and hosted acceptance.
+The first nine-group 660 run remains FAIL: eight groups passed, while the
+current35 strict/control stages rejected cross-version AST identities after
+the original 35 native/live cases passed. Read-only diagnosis confirmed seven
+AST digest differences between CPython 3.12 and 3.14. Run the coordinator and
+all stages under the same pinned CPython 3.12; keep every original identity and
+numerical assertion. The second ten-group 667 execution actually passed all
+groups, with every suite executed anew, all inputs unchanged, and complete
+outer exit/EOF. Its original qualification SHA is
+`aa168047fc9a0392707f3c1c08b8ab4cb88c2bc16e1732c4c37c2a3994cc14c0`.
 
-The new F32-sum path is cast-then-reduce with actual private temporary cleanup.
-Its first two numerical failures identified the fixed SumKernel's AVX2
-eight-lane accumulation order. The subsequent old270 run found the duplicate
-skipped-empty cat gradient mode bug; the one-function repair passed a new full
-270/284-frame run. All earlier FAILs and the lost local first701 Sum32 UNKNOWN
-remain original. Third-layer inverse proofs bind final701→r2→first701→700;
-they do not transfer runtime qualification.
+The inherited resource7 group preserves R4 resource3, backward private cache1
+and R3 preserve3. An independently cold-built current image has passed all
+seven original recipes, 378 frames and 1,060 checks, including three real
+RLIMIT allocation refusals and successful recovery after restoring the limits.
+Whole-file source inverses preserve the original recipes and budgets. This
+separate result was also rerun successfully inside the final common 667
+qualification. After compact reference migration, the same seven recipes
+were independently executed again and passed. Original76, Sum32 and the
+strengthened live32 also passed all 140 cases in a separate post-migration
+run, with every original assertion and all 32 live native exits/64 EOFs checked.
+Final AsStrided16 separately passed all four original suites, 1,920 frames,
+10,272 checks, complete owner archives and actual native exits/EOFs. These
+executions have distinct source and result receipts. The new common 683 gate
+requires its own complete published-head CI execution; do not attribute later
+source changes or added cases to the earlier immutable 667 run.
 
-Continue migrating real remaining historical gates onto the canonical image.
-The unchanged original live32 has now independently passed on this image:
-32 trajectories, 2,132 frames, 17,455 exact binary32 words and 1,137,600
-serialized Generator-state bytes. Its default mandatory gate replaces the
-thirteen old Native steps and three old observer-profile executions. Other
-independent gates and their build prerequisites remain required.
-Generator24 still needs actual native raw-output/epoch/allocation contracts
-and a real entropy entry; it cannot be replaced by synthesized host outputs.
-Its independent native/entry/resource tests and optimizer companions remain.
-The old270 adapter covers its full original numeric/exception cases but does not
-replace461 raw legacy-protocol fixtures or full lifetime/resource assertions.
-The F64 oracle still binds the old143 complete source as a numerical-origin
-witness; migrate that exact proof before deleting `src/heptatorch.hepta`.
-Compiler bootstrap packages and their fixed source/test inputs are a separate
-dependency family and remain required by clean CI reconstruction.
+The implementation combines the prior integral-to-F32 and empty-cat fixes with
+native any/all and extended Bool sum. It retains the source-proved eight-lane
+sum accumulation order, converts each integral element before F32 reduction,
+reclaims private temporaries, and preserves the empty-cat gradient cache's
+success and ownership guards. Logical reductions share native planning and
+truth conversion. Independent error-priority probes also require axis errors
+to precede the Bool-sum autograd refusal.
 
-The obsolete twelve default Bool partitions are replaced by the twelve current
-cat/F32 partitions. Needed old Bool comparison helpers and the original700
-aggregate are restored from one hash/mode-bound fixture. Do not rebuild the
-old application overlay chain merely to build the current app. Do not delete
-failure evidence, loosen assertions or omit a gate to retire a path.
+The latest actual results, failures and source identities belong in the
+[current audit](current-audit.md) and its bound execution manifest. Source
+preparation, source inverses and cold compilation are recorded separately from
+runtime PASS. Earlier failures remain tied to their original inputs and image.
 
-Then implement and independently qualify the missing dtype/promotion,
-operator, AD, frontend/dispatch, serialization, device, distributed,
-compiler/export, data-pipeline and platform contracts against the fixed full
-inventory. The whole ledger remains HOLD with all seventeen gates unclosed.
+Continue migrating remaining historical gates onto the canonical image before
+removing their live dependencies. Generator24 still requires native raw-output,
+epoch/allocation contracts and real entropy; a synthesized host output is not
+an equivalent implementation. The original270 numeric suite does not replace
+461 legacy raw-protocol fixture pairs or the separate full resource gates.
+The F64 oracle still uses the old complete143 source as a numerical-origin
+witness; migrate that proof before deleting `src/heptatorch.hepta`. Native
+compiler bootstrap packages and their fixed inputs are a separate dependency
+family required by clean toolchain reconstruction.
+
+Remove unreachable application functions and duplicate current partitions once
+source reachability and actual regressions justify their retirement. Keep one
+current full35 entry and one canonical application implementation. Necessary
+original reference fixtures and licenses are part of the final test contract;
+repeated process narratives and obsolete default profiles are not.
+
+Then complete the missing dtype/promotion, operator, AD, frontend/dispatch,
+serialization, device, distributed, compiler/export, data-pipeline and platform
+contracts against the unchanged complete inventory. All seventeen whole-system
+gates remain open or in progress until their actual full requirements pass.
 
 ## Dependency order
 
@@ -126,116 +141,3 @@ or distributed correctness.
 remain internally consistent. `make full-acceptance` uses the same checks and
 returns status 2 while the whole rewrite remains unqualified. Neither target
 replaces the native regression suite or the full subsystem qualification work.
-
-## Historical int64 checkpoint: bounded progress
-
-The following checkpoint describes the older 544-function snapshot. Its next-step wording is historical; the current 701-function scope and work order are defined above.
-
-The separately frozen544-function profile now has real eight-byte int64
-Storage, internal CPU promotion materialization, integer-to-binary32 nearest
-even rounding, typed arithmetic and in-place operations, and actual ultimate
-base Tensor roots for int64 views. The first source-bound integration executes
-a new eleven-unit cold build and all four native gate groups. Original
-failures, inputs and raw process evidence are preserved in
-[the integration record](../validation/integer-tensors/integration-final/custody.json).
-
-Keep new-image live32/full35 and each new source head's hosted admission
-separate. Complete mixed F32/int64 AD next: current requires-grad admission
-refuses it explicitly with full rollback. Public Tensor.to, general dtype
-promotion and kernels, arbitrary views/overlap, Python frontend/dispatch,
-serialization, devices and every remaining full-system obligation remain open.
-The denominator is unchanged:2,590 schemas,688 derivatives,seventeen gates and
-zero complete-schema parity. Continue source-bound implementation and
-independent qualification without replacing full closure with bounded suites.
-
-## Earlier historical checkpoints
-
-The following paragraphs record earlier milestones and their next steps at that
-time. They are retained as historical context; the current source and work order
-above supersede their “current”, “pending” and default-build wording.
-
-
-The latest merged combined owner is the 446-core-function retained-gradient
-profile, source
-`666230f05cc6942470006d1f184135321d8cbc26a6c6ba0bf7e3cf9857fe515b` and ELF
-`7568c0a4ec40d82d3a0b46d1e8a27499dd96e8fe3fd15433523131a196da89b5`.
-PR #31 is merged at `e0ea769c979236b0542af4b258890726cd01a99a`. Its exact
-source tree passed both 80-step native jobs, all three 13-step observer jobs,
-its own unchanged live32/frozen35 tests and 106,570 independent offline checks.
-[Complete admission and original failure history](../validation/hosted-retained-gradients-cef47/)
-binds the source, actual jobs, original reports and six original artifact ZIPs.
-
-The standalone int64 lane foundation is now merged through PR #29 at
-`7e157f7b1cfa4f77e004fa118a06892f255116b0`, with the tested tree
-`51b2bf3b1d15e8662253668c0f6ee458885dd3de`. Its 33-case, 351,174-value
-dedicated gates passed actual CPython and fixed PyTorch execution, both full
-Native jobs passed eighty steps, and all eleven GitHub checks succeeded.
-Independent original-artifact reads passed 106,633 checks for each Native run;
-the PR report was separately reproduced with identical bytes. The
-[complete checkpoint and merge receipt](../validation/hosted-native-int64-2e66/)
-retain the original failures and source identities. The int8 branch
-is being integrated with this admitted main and requires its own new CI.
-
-The current separately qualified successor has 523 core functions, 11 native
-units and a 640-byte descriptor. Source
-`6ffe509afce28ff15705b4c7b269eaef8f8f89f9d8b2486d4d9fa45b6be66ef3` and ELF
-`830f0b4ef8d6ad8c6a105be56d383628b45c84e3e43905fee6812c7c52d35a51` implement
-actual one-byte bool Storage, native_dropout mask Tensor identity, immutable
-captured AD history, actual detach_ and bool logical_not_. Its cold producer
-qualifies thirteen named steps. Independent actual9, actual26, typed-owner,
-short-output and finite640 accounting checks remain distinct.
-[Successor scope and evidence](native-dropout-history.md) describes the exact
-claims and preserved failures. The integrated cold coordinator passes all six
-independent gates. Actual locked ROG execution passes its own unchanged
-live32 and complete frozen35 with exact 640-byte accounting, all eleven
-provenance checks and the original EOF/post-close Version gates. Full original
-bytes and both earlier observer failures are preserved under
-`validation/dtype-frozen35-accounting/evidence/`. The new GitHub source
-combination still requires its own actual CI and artifact admission.
-
-Complete this successor's current-tree GitHub integration before treating
-that CI gate as qualified. Finish the int8 packet kernel's new combined-tree
-byte-preserving differential CI and serial main integration. The merged int64
-lane kernel and pending int8 kernel do not implement general Tensor dispatch.
-Then extend actual Tensor dtype/promotion, layouts, operator families and
-frontends against the fixed upstream inventory. Preserve the original183
-distribution report, including its18OPEN classifications; additive replays are
-recorded separately. Full-system gates remain open until their complete native
-behavior and executable acceptance contracts are qualified. Historical baseline
-entries below identify earlier build paths; source-bound successor receipts
-take precedence for current work.
-
-The tensor-composition source is `264e9c5c4e8ea1834724cc0d8d859952016daffe4af330a8daa7745e7a5e5233`.
-It contains 143 HIA functions, 1,783 blocks and 7,064 instructions. That historical
-native build compiles two complete source units independently and resolves 1,108
-symbolic call relocations with the HIA linker. The monolithic build remains an
-independently compiled comparison. Both actual build paths pass all 461 native
-packet pairs, including 186 new pairs. Their source, compiler and executable
-identities are recorded in `validation/`.
-
-| Workstream | Implemented and locally qualified | Remaining next work |
-| --- | --- | --- |
-| Native module compilation | True external declarations, borrowed buffer signatures, effects and lifetime checks, symbolic ELF relocations, two-unit execution and 69/204/19/18 boundary suites | General public tensor ABI, foreign-resource provenance, recursive graphs and whole-program resource bounds |
-| Owned module resources | Separate ABI2 compiler and native mmap/munmap allocator; up to three scalar/owner results, linear buffer/chain calls, three reproduced compiler generations and 385 native qualification cases | General tensor ABI, foreign resources and whole-program bounds |
-| Native stack admission | Separate ABI3 verifies real call sites and prologues, resolves the maximum call path and uses an 8 MiB guarded stack; 86 native cases plus 9 independent metadata witnesses; the unchanged 151-function Tensor program requires 61,488 path bytes plus reserve | Preserve source/object custody; qualify each new program and producer; arbitrary foreign machine effects, asynchronous recovery and other platform backends remain outside this profile |
-| Owned interactive storage | Independent Storage/Version identities, strong/weak/saved lifetime, reusable/growing owned pool, full-frame transactions and actual allocation-failure recovery; 131 owner-entry/transport cases, 12 groups / 63 frames on each entry path, 5 current guards and a 2,952-frame independent model | Connect numerical Tensor kernels, shape/stride/dtype and AD/optimizer state; concurrent/device/external allocation and restart persistence remain open |
-| Independent numerical objects | Candidate09 connects binary32 kernels to independent Tensor/Storage/Version/Saved/Weak/Hold records; both native ABI images reproduce and execute 731 suite frames plus 19 bridge frames each | Run the frozen 35-case actual PyTorch comparison on both images; implement default backward Saved release and retain_graph; preserve all earlier strict gates |
-| Tensor composition | Native `cat` and `stack`, variable-parent reverse AD, empty shapes, layout selection, version checks and graph reset | Complete dtype/device/layout variants, mutation/out forms and full upstream schema qualification |
-| Indexed accumulation | Native `scatter_add` and `index_add`, exact integer index payloads, duplicate accumulation, alpha rounding and reverse AD preflight | Complete dtype/device/layout variants, mutation/out forms and full upstream schema qualification |
-| Persistent execution | Two native interactive builds, complete-frame arena transactions, 477 independent live-session cases each, 22 packer / 18 flat-linker / 3 actual growth checks | Both hosted session images now pass 21 cases / 4,681 frames / 491,847 values each; general owned/resizable storage, absolute torch._version parity and cross-process durability remain open |
-| Qualification | Both ordinary builds pass 461 packet pairs and 270 pinned PyTorch cases each, with 13,076 compared values and 11 provenance checks per build; all 159 prior case functions remain unchanged | Extend source-bound qualification with every new implementation; component success does not close the whole-project gates |
-
-`validation/hosted-boundary-observations.json` contains actual pinned PyTorch
-observations used to establish empty, index, alpha and layout behavior. Those
-observations alone do not qualify the changed native runtime.
-`validation/hosted-tensor-composition.json` records the successful actual
-dual-build run 43788929713 at commit
-`724cbf2eb19d2ef8d400615d7196f5397cb402f6`, binding the new source, both executables,
-oracle and fixture inventory. Historical 159-case receipts keep their identities.
-
-Borrowed modules and a separate checked owned-resource ABI2 are implemented.
-The latter adds native buffer/chain allocation, transfer, returns and release;
-it does not establish a general public tensor object ABI.
-The byte-storage foundation now has independent Tensor/Storage/Version records, reference lifetimes, genuinely growing native owned pools and an owned interactive entry. The next implementation work connects the existing numerical Tensor/AD/optimizer path to scalable storage and then completes typed object and dtype/layout services. Bounded borrowed-arena persistence is implemented separately in `tools/session`; it does not establish external heap-owner transactions. Independent
-operator and AD work may continue without treating restricted packet features
-as complete upstream schema coverage.
