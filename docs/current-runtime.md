@@ -5,8 +5,8 @@ The authoritative application source is
 Its [manifest](../tools/current_runtime/source/manifest.json) identifies every
 ordered compilation unit, complete core function body and expected native
 object/executable. There is one default application profile, named `current`.
-The present candidate has 729 core functions and 14 units. Its combined
-fifteen-group / 1020-case qualification is pending; no earlier runtime PASS
+The present candidate has 736 core functions and 14 units. Its combined
+eighteen-group / 1127-case qualification is pending actual CI; no earlier runtime PASS
 is transferred to this candidate.
 
 Tensor arithmetic, shape planning, allocation, reference lifetime, gradients,
@@ -101,7 +101,7 @@ it does not grant runtime or whole-PyTorch qualification.
 ## Current-image tests
 
 The default test command requires the fixed native tools and a pinned live
-PyTorch reference interpreter. All fifteen groups are mandatory:
+PyTorch reference interpreter. All eighteen groups are mandatory:
 
 ```sh
 make test HEPTA_SOURCE_ROOT=/absolute/path/to/fixed-hepta-source \
@@ -137,12 +137,15 @@ versions.
 | Cat metadata | 10 | Independently observed Torch metadata and raw data, complete native frame/owner reconstruction, 62,207 repeated empty gradients and 62,208-input forward control |
 | CPU Generator | 131 | Original24 + native11 + entry59 + dispatch37; exact Tensor/Generator owner and state, real entropy, unchanged controls, newly linked current-object ABI/reordered probes and actual exit/EOF |
 | Public F64 logical | 192 | Original direct dtype4 dense no-gradient any/all/Bool sum comparisons; eighteen packet controls, two real allocation rollback/retry controls, 196 native children and complete frames/owner/EOF; two scope controls remain outside Torch compatibility |
+| Original F64 | 48 | Original 33 numeric, twelve boundary, one entry and two OOM recipes; all 87 refusal controls, complete original numeric/owner/frame predicates and actual exits/EOFs |
+| Original Half | 47 | Original 26 numeric, sixteen boundary, one entry and four OOM recipes; 908,216 numeric values, all 239 refusals, 2,401 frames and 10,575 checks |
+| Half unsupported controls | 12 | Six direct status-7 refusals and six separately admitted failed-frame rollback cases; 180 frames, 222 checks, complete owner/RNG equality and twelve actual exits with both EOFs |
 
-These total **1020 finite comparison cases**. They are not 1020 complete upstream
-schemas. Original lifecycle35, operator/training270, live32 and the original
-Generator24 subset execute the actual pinned Torch oracle. Ten groups consume exact frozen actual
-reference results, including all provenance checks applicable to each package.
-Cat4 consumes four fixed original packet fixtures.
+These total **1127 finite cases**, including explicit unsupported-protocol
+controls. They are not 1127 complete upstream schemas or uniformly Torch comparisons. Original lifecycle35, operator/training270, live32 and the original
+Generator24 subset execute the actual pinned Torch oracle. Frozen-reference
+groups consume exact observed results, including all provenance checks applicable
+to each package. Half refusal12 is an independent protocol control group.
 Cat4 consumes four complete legacy protocol fixtures. Metadata10 consumes a
 separate immutable actual Torch reference with all eleven provenance checks;
 its fifteen-member custody package retains original bytes and records explicit
@@ -159,12 +162,12 @@ To choose a new output directory explicitly:
   --output /new/current-runtime-qualification
 ```
 
-Make and hosted CI invoke this same coordinator. The thirteen inherited
-groups, Generator production cases and public F64 logical192 bind the same actual main source,
+Make and hosted CI invoke this same coordinator. All eighteen groups bind the
+same actual main source,
 image and cold-build receipt. Generator131 additionally compiles/links
 and executes separate ABI and reordered images from the actual current
 objects. Their identities are checked separately; this is not an
-1020-case single-executable claim. Both tool paths are explicit CLI
+1127-case single-executable claim. Both tool paths are explicit CLI
 arguments, and the entropy `build.json` SHA is computed from the actual
 bound file rather than copied from a local or historical run. It attempts remaining groups
 after an ordinary group failure, retains complete original streams and checks
@@ -223,9 +226,9 @@ PR40 was merged with the same executed file tree. The retained 700-function
 cat predecessor changed three complete HIA function bodies; the other 697 bodies are constrained by a
 whole-source inverse to that exact previous image's source, followed by every
 original logical/PR38/AVX2/baseline proof. That 700-function cat image
-separately passed Cat4 and the ten fixed metadata comparisons. The 729
+separately passed Cat4 and the ten fixed metadata comparisons. The 736
 candidate retains its exact full-source inverse to that predecessor.
-The new complete fifteen-group 1020 gate requires fresh execution; all earlier runs retain their original
+The new complete eighteen-group 1127 gate requires fresh execution; all earlier runs retain their original
 denominators and source snapshots.
 
 Metadata10 preserves the full original driver with only its two source/image
@@ -259,7 +262,36 @@ is not executed by fixture restoration. Two native scope controls require the
 current requires-grad and as_strided refusals; neither is counted as Torch
 compatibility. Original logical147 remains mandatory because its Bool/I64/F32,
 private dtype3, view and gradient constructions differ from direct public F64.
-All 1020 cases still require a new combined execution on the admitted build.
+All 1127 cases still require a new combined execution on the admitted build.
+
+Original F64 48 and Half47 are separate mandatory groups. Their immutable source
+and reference packages retain the original numerical loops, boundary recipes,
+entry refusal controls and allocation/retry thresholds. Two malformed Half
+factory status adaptations in the F64 entry group are explicit; the other
+85 expectations and the original failure records remain unchanged. Current adapters prove
+complete source inverses and bind the actual 736-function cold build; the pure
+readers reopen complete raw frames, owner archives and actual process streams.
+Half47 includes all 239 original refusals and four real allocation/recovery
+recipes. Half refusal12 adds six direct unsupported commands and six failed-frame
+transactions without extending the original single-command owner rule to the
+compound frames. Both groups retain all complete state and RNG rollback checks.
+
+Historical reference custody has a specific limit: the original F64 and Half
+reference records do not supply an actual producer argv or executable Python
+entity. Available source inputs, observed results and provenance are preserved;
+F64's available historical terminal projection and streams remain distinct from
+the Half reference's missing terminal evidence. A current CI interpreter or the
+interpreter in another reference package cannot fill either historical gap.
+The original standalone Half47 worker also did not bind its Python entity before
+execution. Future combined runs bind the coordinator's resolved interpreter as
+a separate current execution input; this does not change that original record.
+
+The current CI sealer retains its original six archive/custody functions and two
+reference-executable role functions. It requires all eighteen original group
+reports, the three new physical-qualification reports and all four added source/
+reference packages. Missing active inputs remain errors and still trigger
+best-effort archival. The [qualification plan](../validation/current-runtime736/qualification-plan.json)
+records the exact group order and the pending combined-run boundary.
 
 The compact view/scalar reference archive contains exactly the eight original
 reference/probe files and retains their original bytes and archived modes.

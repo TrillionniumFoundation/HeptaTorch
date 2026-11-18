@@ -1,4 +1,4 @@
-hia-asm.v1 hepta.hia.program.v8 logical_f64_06
+hia-asm.v1 hepta.hia.program.v8 logical_half_06
 exports(stack,concat_command,spatial_extent,spatial_pair,conv2d,reduce,reduce_axis,softmax_group,softmax,cross_entropy_probs,detach,finish_command,full_tensor,gather,gather_command,graph_collect,graph_reset,index_select,index_select_command,fmaf,indexed_add_forward,indexed_add_validate,indexed_add,indexed_add_command,to_view_public,retained_parameter_blocker,tgrad,dtype_original_inspect_command,view_previous_inspect_command,inspect_command,layernorm,matmul_point,matmul,scalar_previous_transpose,transpose,linear,mm,mse,view_previous_backward_command,backward_command,scalar_previous_data_alias,data_alias,drop_tensor,gradient_present,public_hold,hold_logical,object_stats,partial_execute,view_previous_partial_command,partial_command,private_hold,public_hold_release,public_saved,scalar_previous_save_public,save_public,dtype_original_saved_logical,saved_logical,saved_public_check,saved_public_release,binary_saved_audit,history_audit,to_view_audit)
 fn absf(v0:u64) -> (u64) effects(read,write,trap) external()
 fn addf(v0:u64,v1:u64) -> (u64) effects(read,write,trap) external()
@@ -4037,7 +4037,13 @@ block b2(v7:mutbuf,v8:u64)
   v21:bool = compare.eq(v10,v20)
   v22:bool = compare.eq(v10,v11)
   v12:bool = bool.or(v22,v21)
-  branch v12 b3(v7) b4(v7,v8)
+  v23:u64 = const() {"value":5}
+  v24:u64 = const() {"value":6}
+  v25:bool = compare.eq(v10,v23)
+  v26:bool = compare.eq(v10,v24)
+  v27:bool = bool.or(v25,v26)
+  v28:bool = bool.or(v12,v27)
+  branch v28 b3(v7) b4(v7,v8)
 block b3(v13:mutbuf)
   v17:u64 = const() {"value":7}
   v18:u64 = call(v13,v17) {"function":"terror"}
@@ -4819,7 +4825,13 @@ block b2(v7:mutbuf,v8:u64)
   v21:bool = compare.eq(v10,v20)
   v22:bool = compare.eq(v10,v11)
   v12:bool = bool.or(v22,v21)
-  branch v12 b3(v7) b4(v7,v8)
+  v23:u64 = const() {"value":5}
+  v24:u64 = const() {"value":6}
+  v25:bool = compare.eq(v10,v23)
+  v26:bool = compare.eq(v10,v24)
+  v27:bool = bool.or(v25,v26)
+  v28:bool = bool.or(v12,v27)
+  branch v28 b3(v7) b4(v7,v8)
 block b3(v13:mutbuf)
   v17:u64 = const() {"value":7}
   v18:u64 = call(v13,v17) {"function":"terror"}

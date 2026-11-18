@@ -26,15 +26,16 @@ Its manifest is authoritative for complete source, functions, ordered units
 and native object/image identities. `make` cold-builds every application object
 from this source with the fixed ABI3 HIA compiler and session linker.
 
-`make test` and current-runtime CI share fifteen mandatory groups totaling 1020
-finite cases in the 729-function candidate: original Bool27, view/scalar76, Integral24, integral-to-F32 Sum17,
+`make test` and current-runtime CI share eighteen mandatory groups totaling 1127
+finite cases in the 736-function candidate: original Bool27, view/scalar76, Integral24, integral-to-F32 Sum17,
 original lifecycle35, original operator/training270, F32 Sum32, live
 Tensor/RNG/backward32, logical147, inherited resource7, original AsStrided16,
-Cat4, independently referenced cat Metadata10, Generator131 and public F64 logical192.
-The original thirteen groups retain all parameters, cases and controls.
+Cat4, independently referenced cat Metadata10, Generator131, public F64 logical192,
+original F64 48, original Half47 and independent Half refusal12.
+The original fifteen groups retain all parameters, cases and controls.
 Generator131 preserves original24 + native11 + entry59 + dispatch37,
 including separately linked/executed current-object ABI and reordered
-probe images. Production cases share the main image; the entire 1020
+probe images. Production cases share the main image; the entire 1127
 must not be described as one executable. Its full combined run remains
 pending. The original three live groups and Generator24 use the fixed actual
 Torch oracle; all frozen groups preserve original observations. New source
@@ -65,8 +66,9 @@ Final AsStrided16 separately passed all four original suites, 1,920 frames,
 executions have distinct source and result receipts. The complete 683 gate later
 passed on PR40's exact published tree, and PR40 was merged as
 `584b95d7f6615f27e95618bc61215df5633c4ca4`. The later 700-function cat
-correction and the current 729-function fusion each change the image.
-The new common 1020 gate therefore requires its own complete execution.
+correction, the 729-function fusion and the current 736-function Half integration
+each change the image. The new common 1127 gate therefore requires its own
+complete execution on the exact admitted source and image.
 Do not attribute new source or added cases to an earlier immutable run.
 
 The implementation combines the prior integral-to-F32 and empty-cat fixes with
@@ -79,9 +81,21 @@ empty cat inputs through the existing zero factory, guards saved-list allocation
 failure, and removes the unnecessary empty-axis prefix scan and ordinary
 metadata parent-mask lookups. The original four packets and ten independent
 Torch metadata recipes passed on their explicitly recorded 700-function
-cat image; those successes do not transfer to the current 729 candidate. Logical reductions
+cat image; those successes do not transfer to the current 736 candidate. Logical reductions
 share native planning and truth conversion. Independent error-priority probes
 also require axis errors to precede the Bool-sum autograd refusal.
+
+Original F64 48 and Half47 retain their complete source/reference inputs and
+all case counts, including 87 F64 and 239 Half refusal controls. The two
+malformed Half factory status adaptations in the F64 entry group are explicit;
+the other 85 expectations and historical failure records remain unchanged.
+The additional Half refusal12 group checks six direct unsupported operations
+and six separately scoped failed-frame transactions. These controls preserve
+complete owner and RNG rollback; they do not implement Half any/all or Bool sum.
+Independent current-image successes are retained with their own inputs and
+denominators. They cannot be combined into an unexecuted eighteen-group PASS.
+Historical reference argv and interpreter-entity gaps remain explicit, and the
+actual current CI interpreter has a separate evidence role.
 
 The latest actual results, failures and source identities belong in the
 [current audit](current-audit.md) and its bound execution manifest. Source

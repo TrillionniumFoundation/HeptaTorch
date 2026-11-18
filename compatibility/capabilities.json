@@ -42,7 +42,9 @@
       "1": "Bool Tensor with one-byte elements: documented typed/logical/reduction paths",
       "2": "signed int64 Tensor with eight-byte elements: documented typed/integer/mixed/reduction paths",
       "3": "internal rank-zero wrapped IEEE binary64 Scalar only; no general F64 Tensor service",
-      "4": "public dense no-grad binary64 candidate paths; 192 logical comparisons are mandatory in the pending 1020 gate; requires_grad creation and as_strided remain separately recorded native refusal boundaries"
+      "4": "public dense no-grad binary64 candidate paths; original F64 48 and 192 logical comparisons are mandatory in the pending 1127 gate; requires_grad creation and as_strided remain separately recorded native refusal boundaries",
+      "5": "public F16 storage/copy/fill and F32 conversion candidate paths; original Half47 and independent refusal12 are mandatory; no general Half arithmetic, AD, any/all or explicit Bool sum is inferred",
+      "6": "public BF16 storage/copy/fill and F32 conversion candidate paths; original Half47 and independent refusal12 are mandatory; no general Half arithmetic, AD, any/all or explicit Bool sum is inferred"
     },
     "resource_bounds": {
       "rank_range": [
@@ -83,12 +85,12 @@
       "common": "Rank0..4 and <=262144 logical elements; signed axes, keepdim0/1, zero reserved words, complete bounded axis payload. Scalar axis0/-1 is accepted. No out= or unimplemented dtype/backend contract is inferred."
     },
     "current_image_qualification": {
-      "status": "CURRENT729_UNIFIED_1020_PENDING",
-      "cold_build": "MATCHING_CURRENT729_RECEIPT_REQUIRED",
+      "status": "CURRENT736_UNIFIED_1127_PENDING",
+      "cold_build": "MATCHING_CURRENT736_RECEIPT_REQUIRED",
       "candidate_identity": {
-        "source_sha256": "04ae430e3e851831fcb97a3fab700b16b6318361d52e90fcea90d2183d1d564b",
-        "native_sha256": "4749413ea952bfd9d1fe41770f94ce1b9b9e3efabb407aa90f725cf33d59c4db",
-        "functions": 729,
+        "source_sha256": "51820849f7becec549be15babace00f00687601ae7f53bcee0e636ca02f721f9",
+        "native_sha256": "aa3cc8f0c8738a9505d31c9e8ba5a523b7e08b591b61fc7bfb8592295491618b",
+        "functions": 736,
         "units": 14
       },
       "required_groups": {
@@ -106,11 +108,14 @@
         "cat4": 4,
         "metadata10": 10,
         "generator131": 131,
-        "public_f64_logical192": 192
+        "public_f64_logical192": 192,
+        "f64_48": 48,
+        "half47": 47,
+        "half_refusals12": 12
       },
-      "required_group_count": 15,
-      "required_cases_total": 1020,
-      "success_rule": "All fifteen groups must actually run and pass. Production cases bind the same current main source, ELF and cold-build receipt; Generator131 additionally links and executes separately identified current-object ABI and reordered probe images. Every original control, denominator, process exit/EOF and unchanged input binding remains mandatory.",
+      "required_group_count": 18,
+      "required_cases_total": 1127,
+      "success_rule": "All eighteen groups must actually run and pass. Production cases bind the same current main source, ELF and cold-build receipt; Generator131 additionally links and executes separately identified current-object ABI and reordered probe images. Every original control, denominator, process exit/EOF and unchanged input binding remains mandatory. The twelve independent Half unsupported-protocol controls are not Torch compatibility comparisons.",
       "historical_qualification_transferred": false,
       "observed_executions": [
         {
@@ -164,7 +169,7 @@
       "full_828_executed": false,
       "full_1020_executed": false,
       "generator131": {
-        "status": "PENDING_ACTUAL_CURRENT729_RUN",
+        "status": "PENDING_ACTUAL_CURRENT736_COMBINED_RUN",
         "subgroups": {
           "original24": 24,
           "native11": 11,
@@ -180,7 +185,7 @@
         "historical_probe_pass_transferred": false
       },
       "public_f64_logical192": {
-        "status": "PENDING_ACTUAL_COMBINED_CURRENT729_RUN",
+        "status": "PENDING_ACTUAL_COMBINED_CURRENT736_RUN",
         "cases": 192,
         "reader": "tests/public_f64_logical/qualify.py",
         "pure_admission": "tests/current_runtime_public_f64_logical192.py",
@@ -195,7 +200,72 @@
         "boundary_controls_counted_as_torch_compatibility": false,
         "original147_replaced": false
       },
-      "historical_execution_evidence": "validation/current-runtime-20261118/manifest.json"
+      "historical_execution_evidence": "validation/current-runtime-20261118/manifest.json",
+      "full_1127_executed": false,
+      "f64_48": {
+        "status": "PENDING_ACTUAL_COMBINED_CURRENT736_RUN",
+        "cases": 48,
+        "original_subgroups": {
+          "numeric": 33,
+          "boundary": 12,
+          "entry": 1,
+          "allocation": 2
+        },
+        "original_refusal_controls": 87,
+        "pure_admission": "tests/current_runtime_f64_readback.py",
+        "original_unmodified_refusal_expectations": 85,
+        "explicit_malformed_half_status_adaptations": 2,
+        "historical_refusal_failures_preserved": true,
+        "required_frames": 2856,
+        "required_assertions": 15355,
+        "fixture_restorer": "tests/current_runtime_f64_fixtures.py",
+        "source_package": "validation/current-f64-48-source",
+        "reference_package": "validation/current-f64-48-reference",
+        "historical_reference_actual_argv_available": false,
+        "historical_reference_interpreter_entity_available": false,
+        "original_reference_provenance_checks": 11,
+        "historical_pass_transferred": false
+      },
+      "half47": {
+        "status": "PENDING_ACTUAL_COMBINED_CURRENT736_RUN",
+        "cases": 47,
+        "original_subgroups": {
+          "numeric": 26,
+          "boundary": 16,
+          "entry": 1,
+          "allocation": 4
+        },
+        "original_refusal_controls": 239,
+        "numeric_values": 908216,
+        "original_frames": 2401,
+        "original_assertions": 10575,
+        "pure_admission": "tests/current_runtime_half_readback.py",
+        "fixture_restorer": "tests/current_runtime_half_fixtures.py",
+        "source_package": "validation/current-half47-source",
+        "reference_package": "validation/current-half47-reference",
+        "historical_reference_actual_argv_available": false,
+        "historical_reference_interpreter_entity_available": false,
+        "historical_reference_terminal_streams_available": false,
+        "original_reference_provenance_checks": 11,
+        "original_standalone_worker_interpreter_prebound": false,
+        "historical_pass_transferred": false
+      },
+      "half_refusals12": {
+        "status": "PENDING_ACTUAL_COMBINED_CURRENT736_RUN",
+        "cases": 12,
+        "direct_controls": 6,
+        "failed_frame_controls": 6,
+        "original_frames": 180,
+        "original_assertions": 222,
+        "reader": "tests/current_runtime_half_refusals12.py",
+        "pure_admission": "tests/current_runtime_half_readback.py",
+        "expected_status": 7,
+        "empty_response_records": true,
+        "complete_owner_and_rng_rollback_required": true,
+        "failed_frame_scope_separate_from_original_single_command_owner_rule": true,
+        "counted_as_torch_compatibility": false
+      },
+      "qualification_plan": "validation/current-runtime736/qualification-plan.json"
     },
     "controls_required": {
       "original35_positive": 4,
@@ -209,7 +279,13 @@
       "cat_expanded_capacity": 1,
       "public_f64_packet_and_rollback": 18,
       "public_f64_allocation_and_recovery": 2,
-      "public_f64_native_scope_controls_not_compatibility": 2
+      "public_f64_native_scope_controls_not_compatibility": 2,
+      "f64_original_refusals": 87,
+      "f64_original_allocation_recoveries": 2,
+      "half_original_refusals": 239,
+      "half_original_allocation_recoveries": 4,
+      "half_independent_direct_refusals": 6,
+      "half_independent_failed_frame_refusals": 6
     },
     "reference_policy": "Fixed independently produced reference bytes or the exact pinned live Torch CPU interpreter; no native-result-derived expected values.",
     "torch_reference_lock": "compatibility/pytorch-oracle-lock.json",
@@ -226,7 +302,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "CURRENT729_UNIFIED_1020_PENDING",
+      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
       "full_upstream_schema_qualified": false
     },
     {
@@ -237,7 +313,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "CURRENT729_UNIFIED_1020_PENDING",
+      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
       "full_upstream_schema_qualified": false
     },
     {
@@ -251,30 +327,32 @@
         "sum_f32_17",
         "asstrided16"
       ],
-      "current_image_qualification": "CURRENT729_UNIFIED_1020_PENDING",
+      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
       "full_upstream_schema_qualified": false
     },
     {
       "name": "logical-reductions",
       "implementation": "PRESENT_IN_CURRENT_HIA_SOURCE",
-      "scope": "Commands118 any and119 all accept Bool, I64, F32, existing rank-zero wrapped F64 Scalars and public dense no-grad F64, and return independent detached Bool Tensor/Storage/Version objects. Empty axis tuples mean no reduction; empty reductions use the appropriate logical identity.",
+      "scope": "Commands118 any and119 all accept Bool, I64, F32, existing rank-zero wrapped F64 Scalars and public dense no-grad F64, and return independent detached Bool Tensor/Storage/Version objects. Empty axis tuples mean no reduction; empty reductions use the appropriate logical identity. Public F16/BF16 input remains explicitly refused with complete rollback.",
       "required_current_image_suites": [
         "logical147",
-        "public_f64_logical192"
+        "public_f64_logical192",
+        "half_refusals12"
       ],
-      "current_image_qualification": "CURRENT729_UNIFIED_1020_PENDING",
+      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
       "full_upstream_schema_qualified": false
     },
     {
       "name": "bool-sum",
       "implementation": "PRESENT_IN_CURRENT_HIA_SOURCE",
-      "scope": "Command115 explicit Bool result accepts the same source types. Its empty axis tuple means all dimensions. Invalid axes are checked before the requires_grad refusal; floating inputs requiring gradients remain refused.",
+      "scope": "Command115 explicit Bool result accepts the same source types. Its empty axis tuple means all dimensions. Invalid axes are checked before the requires_grad refusal; floating inputs requiring gradients remain refused. Public F16/BF16 input remains explicitly refused with complete rollback.",
       "required_current_image_suites": [
         "logical147",
         "bool27",
-        "public_f64_logical192"
+        "public_f64_logical192",
+        "half_refusals12"
       ],
-      "current_image_qualification": "CURRENT729_UNIFIED_1020_PENDING",
+      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
       "full_upstream_schema_qualified": false
     },
     {
@@ -285,7 +363,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "CURRENT729_UNIFIED_1020_PENDING",
+      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
       "full_upstream_schema_qualified": false
     },
     {
@@ -298,7 +376,7 @@
         "current35",
         "asstrided16"
       ],
-      "current_image_qualification": "CURRENT729_UNIFIED_1020_PENDING",
+      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
       "full_upstream_schema_qualified": false
     },
     {
@@ -310,7 +388,7 @@
         "current35",
         "live32"
       ],
-      "current_image_qualification": "CURRENT729_UNIFIED_1020_PENDING",
+      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
       "full_upstream_schema_qualified": false
     },
     {
@@ -321,7 +399,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "CURRENT729_UNIFIED_1020_PENDING",
+      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
       "full_upstream_schema_qualified": false
     },
     {
@@ -332,7 +410,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "CURRENT729_UNIFIED_1020_PENDING",
+      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
       "full_upstream_schema_qualified": false
     },
     {
@@ -343,7 +421,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "CURRENT729_UNIFIED_1020_PENDING",
+      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
       "full_upstream_schema_qualified": false
     },
     {
@@ -354,7 +432,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "CURRENT729_UNIFIED_1020_PENDING",
+      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
       "full_upstream_schema_qualified": false
     },
     {
@@ -365,7 +443,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "CURRENT729_UNIFIED_1020_PENDING",
+      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
       "full_upstream_schema_qualified": false
     },
     {
@@ -378,7 +456,7 @@
         "logical147",
         "resource7"
       ],
-      "current_image_qualification": "CURRENT729_UNIFIED_1020_PENDING",
+      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
       "full_upstream_schema_qualified": false
     },
     {
@@ -390,20 +468,42 @@
         "current35",
         "live32"
       ],
-      "current_image_qualification": "CURRENT729_UNIFIED_1020_PENDING",
+      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
       "full_upstream_schema_qualified": false
     },
     {
       "name": "rng-and-distributions",
       "implementation": "PRESENT_IN_CURRENT_HIA_SOURCE",
-      "scope": "Native CPU MT19937 Generators with complete 5056-byte state, selected distributions and documented partial errors. Mandatory Generator131 preserves original24/native11/entry59/dispatch37, real entropy and separate current-object probes; current729 full execution is pending and this does not qualify every distribution or device.",
+      "scope": "Native CPU MT19937 Generators with complete 5056-byte state, selected distributions and documented partial errors. Mandatory Generator131 preserves original24/native11/entry59/dispatch37, real entropy and separate current-object probes; current736 full execution is pending and this does not qualify every distribution or device.",
       "required_current_image_suites": [
         "live32",
         "current35",
         "logical147",
         "generator131"
       ],
-      "current_image_qualification": "CURRENT729_UNIFIED_1020_PENDING",
+      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "public-f64-original-paths",
+      "implementation": "PRESENT_IN_CURRENT_HIA_SOURCE",
+      "scope": "Bounded public dense no-gradient F64 paths with all original 33 numeric, 12 boundary, 1 entry and 2 allocation recipes retained. This is not complete F64 arithmetic, layout or AD parity.",
+      "required_current_image_suites": [
+        "f64_48",
+        "public_f64_logical192"
+      ],
+      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "half-storage-and-conversion",
+      "implementation": "PRESENT_IN_CURRENT_HIA_SOURCE",
+      "scope": "Public F16/BF16 storage, selected same-dtype alias/copy/fill and F32 narrow/widen conversion paths. Complete original Half47 and independent refusal12 are mandatory. Half arithmetic, AD, any/all and explicit Bool sum are not qualified.",
+      "required_current_image_suites": [
+        "half47",
+        "half_refusals12"
+      ],
+      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
       "full_upstream_schema_qualified": false
     }
   ],

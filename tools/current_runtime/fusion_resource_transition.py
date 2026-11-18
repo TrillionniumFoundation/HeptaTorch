@@ -1,4 +1,4 @@
-"""Exact source729 path obligations for the unchanged seven resource recipes.
+"""Exact source736 path obligations for the unchanged seven resource recipes.
 
 This proves a conditional source relation on the original public0/1/2/private3
 domain. The unchanged complete owner and resource recipes must still execute.
@@ -13,9 +13,9 @@ import re
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
-SOURCE = '04ae430e3e851831fcb97a3fab700b16b6318361d52e90fcea90d2183d1d564b'
-IMAGE = '4749413ea952bfd9d1fe41770f94ce1b9b9e3efabb407aa90f725cf33d59c4db'
-OUTER = 'ca68c251be10292f0e2e47c4f010a19ec8542cb26b30c92a2d27d37dddba1ae8'
+SOURCE = '51820849f7becec549be15babace00f00687601ae7f53bcee0e636ca02f721f9'
+IMAGE = 'aa3cc8f0c8738a9505d31c9e8ba5a523b7e08b591b61fc7bfb8592295491618b'
+OUTER = '68bee6229293c90537fd974ea07ae0a4fb25d35f5a7d52e1efcaa4967720f1c3'
 OBLIGATIONS = '4fa8028bec733a72ac2857dce326e25d6d378aafd1045c2504bb5828553cf2bb'
 OWNER = 'e54509ceba0ef3bf171f5fc1018665dc97e56eeccec0cba1e8c14f9a7ed81501'
 CHANGED = ('command_argument', 'dtype_audit', 'to_command', 'typed_command', 'typed_fill')
@@ -48,14 +48,14 @@ def calls(body):
 def prove(source, bind):
     """Purely inspect complete actual source; return no runtime PASS."""
     bind(Path(__file__).resolve())
-    require(sha(source) == SOURCE, 'exact source729 actual resource subject')
+    require(sha(source) == SOURCE, 'exact source736 actual resource subject')
     path = HERE / 'fusion_source_transition.py'
     bind(path, OUTER)
-    spec = importlib.util.spec_from_file_location('resource729_complete_outer_inverse', path)
+    spec = importlib.util.spec_from_file_location('resource736_complete_outer_inverse', path)
     outer = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(outer)
     historical, complete = outer.restore_source(source, bind)
-    actual, parent = outer.functions(source, 729), outer.functions(historical, 700)
+    actual, parent = outer.functions(source, 736), outer.functions(historical, 700)
     original = json.loads(bind(ROOT / 'tests/wrapped_scalar_resource_review/portable07b/source-obligations.json', OBLIGATIONS))
     pins = original['functions']
     require([n for n in pins if actual[n] != parent[n]] == list(CHANGED),
@@ -75,11 +75,21 @@ def prove(source, bind):
   v132:bool = bool.and(v123,v131)
   v133:bool = compare.eq(v84,v85)
   v86:bool = bool.or(v133,v132)
+  v134:u64 = const() {"value":5}
+  v135:u64 = const() {"value":6}
+  v136:bool = compare.eq(v84,v134)
+  v137:bool = compare.eq(v84,v135)
+  v138:bool = bool.or(v136,v137)
+  v139:bool = bool.and(v127,v129)
+  v140:bool = bool.and(v138,v139)
+  v141:bool = bool.or(v86,v140)
+  branch v141 b9(v72,v73,v76) b10(v72,v76,v141)
 '''
     rows['command_argument'] = dict(inverse=reverse(actual['command_argument'], after,
-        b'  v86:bool = compare.eq(v84,v85)\n', parent['command_argument'], 'command_argument'),
-        relation='old dtype3 branch plus dtype4-only restriction; identical predicate for dtype0/1/2/3',
-        new_branch_requires_dtype=4, new_branch_opcode_exceptions=[2,12,13],
+        b'  v86:bool = compare.eq(v84,v85)\n  branch v86 b9(v72,v73,v76) b10(v72,v76,v86)\n',
+        parent['command_argument'], 'command_argument'),
+        relation='old dtype3 predicate plus dtype4 and dtype5/6 restrictions; both added predicates are false for dtype0/1/2/3',
+        new_branch_requires_dtype=[4,5,6], new_branch_opcode_exceptions={'4':[2,12,13],'5/6':[12,13]},
         additional_calls=[], additional_writes_or_allocations=False)
 
     after = b'''  v94:u64 = const() {"value":4}
@@ -89,29 +99,51 @@ def prove(source, bind):
   v98:bool = bool.and(v95,v97)
   v99:bool = compare.eq(v58,v59)
   v60:bool = bool.or(v99,v98)
+  v100:u64 = const() {"value":5}
+  v101:u64 = const() {"value":6}
+  v102:bool = compare.eq(v58,v100)
+  v103:bool = compare.eq(v58,v101)
+  v104:bool = bool.or(v102,v103)
+  v105:bool = bool.and(v104,v97)
+  v106:bool = bool.or(v60,v105)
+  jump b4(v36,v37,v38,v39,v40,v41,v42,v43,v44,v106)
 '''
     rows['typed_command'] = dict(inverse=reverse(actual['typed_command'], after,
-        b'  v60:bool = compare.eq(v58,v59)\n', parent['typed_command'], 'typed_command'),
-        relation='old dtype3 branch plus dtype4-only restriction except fill100; original domain unchanged',
-        new_branch_requires_dtype=4, new_branch_opcode_exceptions=[100],
+        b'  v60:bool = compare.eq(v58,v59)\n  jump b4(v36,v37,v38,v39,v40,v41,v42,v43,v44,v60)\n',
+        parent['typed_command'], 'typed_command'),
+        relation='old dtype3 predicate plus dtype4/5/6 restriction except fill100; every added dtype comparison is false for dtype0/1/2/3',
+        new_branch_requires_dtype=[4,5,6], new_branch_opcode_exceptions=[100],
         additional_calls=[], additional_writes_or_allocations=False)
 
     after = b'''  v160:u64 = const() {"value":4}
   v161:bool = compare.ne(v19,v160)
   v162:bool = bool.and(v27,v161)
   v30:bool = bool.and(v162,v29)
+  v31:bool = bool.or(v25,v30)
+  v163:u64 = const() {"value":5}
+  v164:u64 = const() {"value":6}
+  v165:bool = compare.eq(v19,v163)
+  v166:bool = compare.eq(v19,v164)
+  v167:bool = bool.or(v165,v166)
+  v168:u64 = const() {"value":65535}
+  v169:bool = compare.gt(v13,v168)
+  v170:bool = bool.and(v167,v169)
+  v171:bool = bool.or(v31,v170)
+  branch v171 b3(v11) b4(v11,v12,v13,v14,v16,v19,v20)
 '''
     rows['typed_fill'] = dict(inverse=reverse(actual['typed_fill'], after,
-        b'  v30:bool = bool.and(v27,v29)\n', parent['typed_fill'], 'typed_fill'),
-        relation='only dtype4 is exempted from original upper32-bit rejection; dtype0/1/2/3 unchanged',
-        new_exception_requires_dtype=4, additional_calls=[], additional_writes_or_allocations=False)
+        b'  v30:bool = bool.and(v27,v29)\n  v31:bool = bool.or(v25,v30)\n  branch v31 b3(v11) b4(v11,v12,v13,v14,v16,v19,v20)\n',
+        parent['typed_fill'], 'typed_fill'),
+        relation='dtype4 upper32-bit exception and dtype5/6 upper16-bit guard; both dtype tests leave dtype0/1/2/3 unchanged',
+        new_exception_requires_dtype=4, new_upper16_guard_requires_dtype=[5,6],
+        additional_calls=[], additional_writes_or_allocations=False)
 
     audit_inverse = reverse(actual['dtype_audit'],
-        b'  v1:u64 = call(v0) {"function":"f64_dtype_audit"}\n',
+        b'  v1:u64 = call(v0) {"function":"half_dtype_audit"}\n',
         b'  v1:u64 = call(v0) {"function":"scalar_previous_dtype_audit"}\n',
         parent['dtype_audit'], 'dtype_audit')
     bound_inverse = reverse(actual['scalar_previous_dtype_audit'],
-        b'  v89:u64 = const() {"value":4}\n', b'  v89:u64 = const() {"value":3}\n',
+        b'  v89:u64 = const() {"value":6}\n', b'  v89:u64 = const() {"value":3}\n',
         parent['scalar_previous_dtype_audit'], 'scalar_previous_dtype_audit')
     audit = actual['f64_dtype_audit']
     require(set(calls(audit)) == {b'scalar_previous_dtype_audit',b'getw',b'dptr'}
@@ -120,11 +152,21 @@ def prove(source, bind):
         and b'  branch v14 b1(v12) b2(v0)\n' in audit
         and b'  v28:u64 = const() {"value":4}\n  v29:bool = compare.eq(v27,v28)\n  v30:bool = bool.and(v24,v29)\n  branch v30 b5(v5,v6,v19) b6(v5,v6)\n' in audit,
         'fixed original audit first, then read-only scan whose checks require live dtype4')
+    half_audit = actual['half_dtype_audit']
+    require(set(calls(half_audit)) == {b'f64_dtype_audit',b'getw',b'dptr'}
+        and half_audit.count(b'{"function":"f64_dtype_audit"}') == 1
+        and b'  v12:u64 = call(v0) {"function":"f64_dtype_audit"}\n' in half_audit
+        and b'  branch v14 b1(v12) b2(v0)\n' in half_audit
+        and b'  v23:u64 = const() {"value":5}\n  v24:bool = compare.eq(v22,v23)\n  v25:u64 = const() {"value":6}\n  v26:bool = compare.eq(v22,v25)\n  v27:bool = bool.or(v24,v26)\n' in half_audit
+        and b'  v32:bool = compare.ne(v30,v31)\n  v33:bool = bool.and(v32,v27)\n  branch v33 b5(v5,v6,v19) b6(v5,v6)\n' in half_audit,
+        'original audits first, then read-only scan whose checks require live dtype5/6')
     rows['dtype_audit'] = dict(inverse=audit_inverse, original_audit_bound_inverse=bound_inverse,
         additional_audit_sha256=sha(audit), additional_audit_bytes=len(audit),
         additional_audit_complete_call_set=sorted(x.decode() for x in set(calls(audit))),
-        relation='original audit plus live-dtype4-only checks; extra scan has no writes or allocations',
-        new_branch_requires_dtype=4, additional_writes_or_allocations=False)
+        half_audit_sha256=sha(half_audit), half_audit_bytes=len(half_audit),
+        half_audit_complete_call_set=sorted(x.decode() for x in set(calls(half_audit))),
+        relation='original audit bound is extended to6; readonly F64 and Half scans only inspect live dtype4/5/6 nodes, excluded by original owner domain',
+        new_branch_requires_dtype=[4,5,6], additional_writes_or_allocations=False)
 
     delegated = actual['f64_previous_to_command']
     require(delegated.count(b'fn f64_previous_to_command(') == 1
@@ -135,29 +177,35 @@ def prove(source, bind):
         b'terror',b'shape_command_finish',b'f64_previous_to_command'}
         and wrapper.count(b'{"function":"f64_previous_to_command"}') == 1
         and b'  v52:u64 = call(v25,v26,v27,v28,v29,v30) {"function":"f64_previous_to_command"}\n  ret(v52)\n' in wrapper
-        and b'  v44:u64 = const() {"value":4}\n  v45:bool = compare.eq(v43,v44)\n  branch v45 b3(v15,v14,v17,v19) b4(v13,v14,v15,v16,v17,v18)\n' in wrapper
+        and b'  v44:u64 = const() {"value":4}\n  v45:bool = compare.eq(v43,v44)\n  v80:u64 = const() {"value":5}\n  v81:u64 = const() {"value":6}\n  v82:bool = compare.eq(v43,v80)\n  v83:bool = compare.eq(v43,v81)\n  v84:bool = bool.or(v82,v83)\n  v85:bool = bool.or(v45,v84)\n  branch v85 b3(v15,v14,v17,v19) b4(v13,v14,v15,v16,v17,v18)\n' in wrapper
         and b'  branch v42 b4(v6,v7,v8,v9,v10,v11) b2(v6,v7,v8,v9,v10,v11,v12,v40)\n' in wrapper,
-        'fixed complete F64 wrapper delegates the original domain and unresolved source with all six arguments')
+        'fixed complete F64/Half wrapper delegates the original domain and unresolved source with all six arguments')
     after = b'''  v427:u64 = const() {"value":4}
   v428:bool = compare.ne(v395,v427)
   v429:bool = bool.and(v397,v428)
-  branch v429 b33(v377,v378,v379,v381,v383,v384) b35(v377,v378,v379,v380,v381,v382)
+  v430:u64 = const() {"value":5}
+  v431:u64 = const() {"value":6}
+  v432:bool = compare.ne(v395,v430)
+  v433:bool = compare.ne(v395,v431)
+  v434:bool = bool.and(v429,v432)
+  v435:bool = bool.and(v434,v433)
+  branch v435 b33(v377,v378,v379,v381,v383,v384) b35(v377,v378,v379,v380,v381,v382)
 '''
     dispatch_inverse = reverse(actual['sd_previous_to_command'], after,
         b'  branch v397 b33(v377,v378,v379,v381,v383,v384) b35(v377,v378,v379,v380,v381,v382)\n',
         parent['sd_previous_to_command'], 'sd_previous_to_command')
     normalized = parent['sd_previous_to_command'].replace(b'fn sd_previous_to_command(', b'fn to_command(', 1)
-    require(sha(normalized) == pins['to_command'], 'original full R4 dispatcher retained after finite target4 extension')
+    require(sha(normalized) == pins['to_command'], 'original full R4 dispatcher retained after finite target4/5/6 extension')
     front = parent['to_command'].split(b'block b6(', 1)[0]
     require(sha(front) == '56bbfa7109fe9774deb3ab7b3485fb970ed1433157f0690695197dc370ea74a6'
         and calls(front) == [b'getr',b'sd_permute_command',b'sd_accumulator_command',b'sd_previous_to_command'],
         'all original R4 opcode routes retain the existing700 dispatcher proof')
-    rows['to_command'] = dict(relation='new dtype4-only guard, exact renamed700 delegation, then exact original R4 delegation',
+    rows['to_command'] = dict(relation='new dtype4/5/6 guard is false on original dtype0/1/2/3, exact renamed700 delegation, then exact original R4 delegation',
         additional_wrapper_sha256=sha(wrapper), retained700_dispatcher_sha256=sha(delegated),
         declaration_name_inverse_exact=True, retained_R4_dispatcher_inverse=dispatch_inverse,
         reconstructed_original_R4_dispatcher_sha256=sha(normalized), original700_prefix_sha256=sha(front),
         immediate_delegation_opcodes=[108,109,118,119], immediate_delegation_sum115_target_dtype=1,
-        new_refusal_requires_valid_public_dtype=4, unresolved_source_delegates=True,
+        new_refusal_requires_valid_public_dtype=[4,5,6], unresolved_source_delegates=True,
         delegated_argument_order_unchanged=True, original_invalid_token_precedence_preserved=True)
 
     for name in ('getr','getw','dptr','scalar_peek_public','scalar_peek_resolved','so_tensor_live','so_uget','tensor_dtype'):
@@ -174,9 +222,9 @@ def prove(source, bind):
     fn = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'verify_snapshot')
     body = ast.get_source_segment(owner.decode(), fn).encode()
     require(body.count(b'need(dtype in (0, 1, 2, 3), "dtype-code", node=i)') == 1,
-            'unchanged full owner still rejects public4 in the original resource recipe domain')
-    return dict(schema='heptatorch.fusion729.resource7-source-paths.v1', source_sha256=SOURCE,
-        native_sha256=IMAGE, functions=729, units=14, outer_source_inverse=complete,
+            'unchanged full owner still rejects public4/5/6 in the original resource recipe domain')
+    return dict(schema='heptatorch.fusion736.resource7-source-paths.v1', source_sha256=SOURCE,
+        native_sha256=IMAGE, functions=736, units=14, outer_source_inverse=complete,
         changed_R4_obligations=list(CHANGED), obligations={n:rows[n] for n in CHANGED},
         original_owner_sha256=OWNER, original_verify_snapshot_sha256=sha(body),
         domain_must_still_be_checked_by_original_runtime_owner=True,

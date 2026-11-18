@@ -1,7 +1,7 @@
 """Restore the exact public F64 reference and reread the unchanged 192 observer.
 
 This module performs only byte transport, source admission and evidence reading.
-The coordinator launches the frozen qualify.py separately. Two native scope
+The coordinator launches the source-derived qualify736.py separately. Two native scope
 controls and six outside-scope Torch observations are not compatibility cases.
 """
 from contextlib import contextmanager
@@ -30,6 +30,12 @@ READER_FILES = {
     'qualify.py': '98b150d9295451c3be9ff4209d9f42350430e46ec0c3cd42ab3e84eab91b84f2',
     'reference.py': '2531920b4b13c991b33a3608ea2c168b184e4e7d6891b870ae874e95b1c9e296',
     'run.py': 'a155cea27556e7c8647835f11641b4732557dd882d3ec024820a06cd96aeab5f',
+}
+
+WRAPPER_FILES = {
+    'derive736.py': '4c9435a8b38a8be01719069f2274b69c577f90ab9e20161e0e0dccf2eb1c0a3d',
+    'run736.py': 'f272f83d2b77635a61223d1b8bbc717182ec5d7e7917e7075ccf2323afbae09d',
+    'qualify736.py': '1756617c260cdc77a97c99cb640c7c3ec9bbe7f249c8e4aeb9f9fc0d043ac7b0',
 }
 
 
@@ -155,11 +161,13 @@ def restore_reference(repository, directory, inputs):
 
 @contextmanager
 def frozen_reader(repository, inputs):
-    """Load exact old module bytes under their original local import names."""
+    """Load the original modules and verify both complete 736 entry derivations."""
     here = repository / 'tests/public_f64_logical'
-    for name, expected in READER_FILES.items():
-        inputs.bind(here / name, expected)
-    names = ('cases', 'common', 'native', 'run', '_current_public_f64_qualification')
+    original_source = {name: inputs.bind(here / name, expected)
+                       for name, expected in READER_FILES.items()}
+    wrapper_source = {name: inputs.bind(here / name, expected)
+                      for name, expected in WRAPPER_FILES.items()}
+    names = ('cases', 'common', 'native', 'derive736', 'run736', '_current_public_f64_qualification')
     absent = object()
     previous = {name: sys.modules.get(name, absent) for name in names}
     old_path, old_bytecode = sys.path[:], sys.dont_write_bytecode
@@ -168,13 +176,17 @@ def frozen_reader(repository, inputs):
         sys.path.insert(0, str(here))
         modules = {}
         for name in names:
-            filename = 'qualify.py' if name == names[-1] else name + '.py'
+            filename = 'qualify736.py' if name == names[-1] else name + '.py'
             spec = importlib.util.spec_from_file_location(name, here / filename)
             module = importlib.util.module_from_spec(spec)
             sys.modules[name] = module
             spec.loader.exec_module(module)
             modules[name] = module
-        require(modules['run'].ROOT == repository, 'public F64 reader physical checkout differs')
+        generated, _ = modules['derive736'].derive(original_source, wrapper_source['derive736.py'])
+        require(set(generated) == {'run736.py', 'qualify736.py'}
+                and all(raw == wrapper_source[name] for name, raw in generated.items()),
+                'complete public F64 736 source derivation differs')
+        require(modules['run736'].ROOT == repository, 'public F64 reader physical checkout differs')
         yield modules[names[-1]]
     finally:
         sys.path[:] = old_path
@@ -238,9 +250,9 @@ def qualify_public192(report, repository, build, build_sha, directory, reference
     cli = reader_cli(repository, build, build_sha, reference)
     here = repository / 'tests/public_f64_logical'
     outer, outer_streams = read_process(execution_directory, inputs,
-        ['-I', '-S', '-B', str(here / 'qualify.py'), *cli, '--output', str(directory)], 1200)
+        ['-I', '-S', '-B', str(here / 'qualify736.py'), *cli, '--output', str(directory)], 1200)
     inner, inner_streams = read_process(directory, inputs,
-        ['-E', '-S', '-B', str(here / 'run.py'), *cli, '--output', str(directory / 'native')], 900)
+        ['-E', '-S', '-B', str(here / 'run736.py'), *cli, '--output', str(directory / 'native')], 900)
     require(report['runner'] == inner and Path(outer['argv'][0]).resolve() == Path(inner['argv'][0]).resolve(),
             'outer and inner public F64 runner custody differs')
     for path, identity in report['inputs'].items():
@@ -250,6 +262,10 @@ def qualify_public192(report, repository, build, build_sha, directory, reference
     for path in [here / name for name in READER_FILES] + [Path(inner['argv'][0]).resolve()]:
         require(str(path) in report['inputs'] and report['inputs'][str(path)] == inputs.records[str(path)],
                 'public F64 qualifier omitted an original source or actual interpreter input')
+    for name in WRAPPER_FILES:
+        path = here / name
+        require(str(path) in report['inputs'] and report['inputs'][str(path)] == inputs.records[str(path)],
+                'public F64 qualifier omitted an actual source-derived entry or derivation input')
     args = reader_arguments(repository, build, build_sha, directory, reference)
     with frozen_reader(repository, inputs) as original:
         built, actual_reference, actual_execution, cold_inputs = original.run.admit(args, inputs)
