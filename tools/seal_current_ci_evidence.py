@@ -1,0 +1,452 @@
+#!/usr/bin/env python3
+"""Seal current CI bytes and modes; never grant a numerical qualification."""
+import argparse
+import hashlib
+import io
+import json
+import lzma
+import re
+import stat
+import sys
+import tarfile
+import traceback
+from pathlib import Path, PurePosixPath
+
+
+GROUPS = ('bool27', 'original76', 'integral24', 'sum_f32_17', 'current35',
+          'base270', 'sum32', 'live32', 'logical147', 'resource7', 'asstrided16',
+          'cat4', 'metadata10', 'generator131', 'public_f64_logical192')
+TOOLCHAINS = ('hepta-compiler', 'hepta-profile-sources', 'hepta-expanded',
+              'hepta-capacity-review', 'hepta-modules-sources', 'hepta-modules-native',
+              'hepta-owned-modules', 'hepta-owned-session-tools', 'hepta-stack-budget',
+              'hepta-current-entropy')
+REPOSITORY_PATHS = (
+    '.github/workflows/current-runtime.yml', 'Makefile', 'tools/seal_current_ci_evidence.py',
+    'tools/current_runtime', 'tools/differentiable_view_recovered_r3/profile.json',
+    'tools/stack_budget/inspect_stack.py',
+    'validation/view-reshape-r4-native76/archive-location.json',
+    'build/pytorch-install.json', 'tests', 'compatibility',
+    'continuation/20261117/evidence',
+    'continuation/20261117/source-packages/sum-bool-source-01/hia',
+    'validation/sum-bool27-reference', 'validation/current-runtime-references',
+    'validation/current-runtime76-reference', 'validation/current-runtime-baseline',
+    'validation/sum-f32-reference17', 'validation/current-runtime270-source',
+    'validation/current-runtime32-source', 'validation/tensor-to-original16-recovery',
+    'validation/logical-reductions-reference', 'validation/bool-dtype-extension-reference',
+    'validation/cat-metadata10-reference', 'validation/current-generator-original26',
+    'validation/current-generator-candidate', 'validation/current-generator131-source',
+    'validation/public-f64-logical192-reference',
+)
+REFERENCE_INTERPRETER_PACKAGES = (
+    'validation/cat-metadata10-reference', 'validation/public-f64-logical192-reference',
+)
+REQUIRED_OUTPUTS = ('build/build.json', 'build/heptatorch', 'build/runtime.hepta',
+                    'qualification.json', 'review/qualification.json') + tuple(
+                        'review/' + name + '/report.json' for name in GROUPS)
+INPUT_REPORTS = ('build/build.json', 'review/qualification.json',) + tuple(
+    'review/' + name + '/report.json' for name in GROUPS) + (
+        'review/base270/current-adapter.json', 'review/base270/cold-build-admission.json',
+        'review/public_f64_logical192/native/report.json')
+INPUT_TABLES = ('checked_inputs', 'inputs', 'files', 'source_custody')
+
+
+def digest(raw):
+    return hashlib.sha256(raw).hexdigest()
+
+
+def dump(path, obj):
+    with Path(path).open('xb') as stream:
+        stream.write((json.dumps(obj, indent=2, sort_keys=True, allow_nan=False) + '\n').encode())
+
+
+def info(path):
+    before = path.lstat()
+    if not stat.S_ISREG(before.st_mode) or path.is_symlink():
+        raise ValueError(('regular file required', str(path)))
+    raw = path.read_bytes()
+    after = path.stat()
+    attrs = ('st_dev', 'st_ino', 'st_size', 'st_mode', 'st_mtime_ns', 'st_ctime_ns')
+    if any(getattr(before, key) != getattr(after, key) for key in attrs):
+        raise ValueError(('file changed', str(path)))
+    return raw, {'bytes': len(raw), 'sha256': digest(raw), 'mode': stat.S_IMODE(before.st_mode)}
+
+
+def matches(actual, expected):
+    return all(actual[key] == value for key, value in expected.items())
+
+
+def verify_archive(archive, members):
+    """Repeat the original R4 single-XZ, member, mode and zero-tail checks."""
+    _, archive_meta = info(archive)
+    decoder = lzma.LZMADecompressor()
+    with archive.open('rb') as stream:
+        while not decoder.eof:
+            piece = stream.read(65536) if decoder.needs_input else b''
+            if not piece and decoder.needs_input:
+                raise ValueError('truncated XZ')
+            decoder.decompress(piece, max_length=1048576)
+        if decoder.unused_data or stream.read(1):
+            raise ValueError('trailing or concatenated XZ')
+    with tarfile.open(archive, 'r:xz') as bundle:
+        rows = bundle.getmembers()
+        if (len(rows) != len(members) or len({row.name for row in rows}) != len(members)
+                or {row.name for row in rows} != set(members)):
+            raise ValueError('archive member denominator')
+        for row in rows:
+            if not row.isfile():
+                raise ValueError(('nonregular archive member', row.name))
+            raw = bundle.extractfile(row).read()
+            expected = members[row.name]
+            if (len(raw) != row.size or len(raw) != expected['bytes']
+                    or digest(raw) != expected['sha256'] or row.mode != expected['mode']):
+                raise ValueError(('archived bytes or mode', row.name))
+        end = max(row.offset_data + ((row.size + 511) // 512) * 512 for row in rows)
+        bundle.fileobj.seek(end)
+        tail = bundle.fileobj.read()
+        if len(tail) < 1024 or any(tail):
+            raise ValueError('TAR zero end padding')
+    if info(archive)[1] != archive_meta:
+        raise ValueError('archive changed during independent readback')
+    return archive_meta
+
+
+def seal_archive(archive, selected, declared, parsed_lists):
+    """Read original bytes, archive them once, then independently read both copies."""
+    members, errors = {}, []
+    source_paths = {str(path) for path in selected.values()}
+    for path in sorted((set(declared) | set(parsed_lists)) - source_paths):
+        errors.append(('declared-input-not-selected', path))
+    for path, expected in parsed_lists.items():
+        try:
+            if info(Path(path))[1] != expected:
+                raise ValueError(('parsed input list changed before archive', path))
+        except BaseException as error:
+            errors.append(('parsed-input-list', path, repr(error)))
+    with tarfile.open(archive, 'x:xz', format=tarfile.PAX_FORMAT, preset=1) as bundle:
+        for name, path in sorted(selected.items()):
+            try:
+                raw, meta = info(path)
+            except BaseException as error:
+                errors.append(('archive-read', str(path), repr(error)))
+                continue
+            if str(path) in parsed_lists and meta != parsed_lists[str(path)]:
+                errors.append(('input-list-at-archive', str(path)))
+            for expected in declared.get(str(path), []):
+                if not matches(meta, expected):
+                    errors.append(('input-at-archive', str(path), meta, expected))
+            entry = tarfile.TarInfo(name)
+            entry.size, entry.mode, entry.mtime = len(raw), meta['mode'], 0
+            bundle.addfile(entry, io.BytesIO(raw))
+            members[name] = {**meta, 'source_path': str(path)}
+    if not members:
+        raise ValueError('no readable actual evidence was archived')
+    archive_meta = verify_archive(archive, members)
+    for name, archived in members.items():
+        try:
+            _, current = info(selected[name])
+            if current != {key: archived[key] for key in ('bytes', 'sha256', 'mode')}:
+                raise ValueError(('evidence changed', name))
+            for expected in declared.get(str(selected[name]), []):
+                if not matches(current, expected):
+                    raise ValueError(('declared input changed', name))
+        except BaseException as error:
+            errors.append(('post-archive-custody', str(selected[name]), repr(error)))
+    return members, archive_meta, errors
+
+
+def reference_interpreter_role(repo, relative):
+    """Read a historical Python entity inside its original package; never execute it."""
+    root = repo / relative
+    manifest_path, archive = root / 'manifest.json', root / 'complete.tar.xz'
+    manifest_raw, manifest_meta = info(manifest_path)
+    manifest = json.loads(manifest_raw)
+    schemas = {
+        'validation/cat-metadata10-reference': 'heptatorch.cat-metadata10.reference-package.v1',
+        'validation/public-f64-logical192-reference': 'heptatorch.public-f64-logical192.reference-package.v1',
+    }
+    if relative not in schemas or manifest.get('schema') != schemas[relative]:
+        raise ValueError(('unsupported fixed historical reference schema', relative))
+    member = manifest['roles']['python']
+    if member != 'interpreter/python3.12':
+        raise ValueError(('unsupported fixed historical Python member', relative))
+    safe = PurePosixPath(member)
+    if (not isinstance(member, str) or safe.is_absolute() or '..' in safe.parts
+            or safe.as_posix() != member or '\\' in member):
+        raise ValueError('unsafe historical Python member')
+    expected = manifest['files'][member]
+    archive_declaration = manifest['archive']
+    if (not isinstance(archive_declaration, dict)
+            or set(archive_declaration) != {'path', 'bytes', 'sha256'}
+            or archive_declaration['path'] != 'complete.tar.xz'):
+        raise ValueError(('unsupported fixed reference archive metadata', relative))
+    if not isinstance(expected, dict) or set(expected) != {'bytes', 'sha256', 'mode'}:
+        raise ValueError(('unsupported fixed historical Python metadata', relative))
+    for declaration in (archive_declaration, expected):
+        if (type(declaration['bytes']) is not int or declaration['bytes'] < 0
+                or not isinstance(declaration['sha256'], str)
+                or re.fullmatch('[0-9a-f]{64}', declaration['sha256']) is None):
+            raise ValueError(('invalid historical byte extent or digest', relative))
+    if type(expected['mode']) is not int or not 0 <= expected['mode'] <= 0o7777:
+        raise ValueError(('historical mode must be integer POSIX permission bits', relative))
+    archive_expected = {key: archive_declaration[key] for key in ('bytes', 'sha256')}
+    path_map = manifest['input_path_map']
+    if (not isinstance(path_map, dict) or any(not isinstance(path, str) or not isinstance(mapped, str)
+                                              for path, mapped in path_map.items())):
+        raise ValueError(('historical input path map required', relative))
+    mapped_python_paths = sorted(path for path, mapped in path_map.items() if mapped == member)
+    if relative == 'validation/cat-metadata10-reference':
+        original_paths = mapped_python_paths
+        provenance_field = 'input_path_map'
+    else:
+        if mapped_python_paths:
+            raise ValueError(('public192 Python provenance is separate from its six report inputs', relative))
+        original_paths = [manifest['python_original_resolved_path']]
+        provenance_field = 'python_original_resolved_path'
+    if (len(original_paths) != 1 or not isinstance(original_paths[0], str)
+            or not PurePosixPath(original_paths[0]).is_absolute()):
+        raise ValueError(('one original absolute historical Python path required', relative))
+    _, archive_meta = info(archive)
+    if not matches(archive_meta, archive_expected):
+        raise ValueError(('historical reference archive identity', relative))
+    with tarfile.open(archive, 'r:xz') as bundle:
+        rows = bundle.getmembers()
+        selected = [row for row in rows if row.name == member]
+        if len({row.name for row in rows}) != len(rows) or len(selected) != 1:
+            raise ValueError(('historical Python member denominator', relative))
+        row = selected[0]
+        if not row.isfile():
+            raise ValueError(('historical Python must be a regular archived entity', relative))
+        raw = bundle.extractfile(row).read()
+        actual = {'bytes': len(raw), 'sha256': digest(raw), 'mode': row.mode}
+        if len(raw) != row.size or actual != expected:
+            raise ValueError(('historical Python archived bytes or mode', relative, actual, expected))
+    if info(archive)[1] != archive_meta or info(manifest_path)[1] != manifest_meta:
+        raise ValueError(('historical Python package changed while reading', relative))
+    role = {'role': 'HISTORICAL_REFERENCE_INTERPRETER_NOT_THIS_CI_EXECUTION',
+            'archive_member': 'repository/' + relative + '/complete.tar.xz',
+            'inner_member': member, 'original_entity': actual,
+            'original_paths_are_provenance_only': True,
+            'original_absolute_paths': original_paths,
+            'original_python_provenance_field': provenance_field,
+            'archive': archive_meta, 'manifest': manifest_meta,
+            'entity_executed_by_custody': False}
+    return role, manifest_path, manifest_meta, archive, archive_expected
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--repository', type=Path, required=True)
+    parser.add_argument('--current-output', type=Path, required=True)
+    parser.add_argument('--toolchain-root', type=Path, required=True)
+    parser.add_argument('--source-commit', required=True)
+    parser.add_argument('--output-prefix', type=Path, required=True)
+    args = parser.parse_args(argv)
+    repo, current, temporary = (value.resolve() for value in
+                                (args.repository, args.current_output, args.toolchain_root))
+    prefix = args.output_prefix.resolve()
+    if re.fullmatch('[0-9a-f]{40}', args.source_commit) is None:
+        raise ValueError('source commit must be a full Git SHA')
+    if prefix.is_relative_to(current) or prefix.is_relative_to(repo):
+        raise ValueError('archive output must be outside the selected current output and repository')
+    destinations = {key: Path(str(prefix) + suffix) for key, suffix in (
+        ('archive', '.tar.xz'), ('manifest', '.manifest.json'),
+        ('report', '.custody.json'), ('sha256', '.sha256'))}
+    if any(path.exists() or path.is_symlink() for path in destinations.values()):
+        raise ValueError('fresh evidence destinations required')
+    prefix.parent.mkdir(parents=True, exist_ok=True)
+    report = dict(schema='heptatorch.current.ci-byte-mode-custody.v2', status='RUNNING',
+        source_commit=args.source_commit, repository=str(repo), current_output=str(current),
+        native_executed=False, Torch_executed=False, compiler_executed=False,
+        case_admissions_executed_here=0, full_pytorch_rewrite_complete=False,
+        whole_pytorch_gate='HOLD',
+        scope='File-byte and original POSIX-mode custody only; original numerical reports retain their statuses.',
+        required_output_paths=list(REQUIRED_OUTPUTS), required_repository_paths=list(REPOSITORY_PATHS),
+        required_toolchain_directories=list(TOOLCHAINS),
+        required_suites=list(GROUPS), required_cases_total=1020,
+        reference_interpreters=[], execution_interpreter=None, missing=[], errors=[])
+    selected, declared, parsed_lists, input_declarations = {}, {}, {}, []
+    report_declared_paths = set()
+    roots = [(current, 'current-runtime'), (repo, 'repository')] + [
+        (temporary / name, 'toolchain/' + name) for name in TOOLCHAINS]
+    roots.sort(key=lambda row: len(row[0].parts), reverse=True)
+    interpreter = Path(sys.executable).resolve()
+
+    def problem(stage, path, error):
+        report['errors'].append(dict(stage=stage, path=str(path), error=repr(error)))
+
+    def add(path):
+        if path.is_symlink():
+            raise ValueError(('symlink forbidden', str(path)))
+        resolved = path.resolve()
+        if any(resolved == target for target in destinations.values()):
+            raise ValueError('cannot archive own output')
+        if resolved == interpreter:
+            name = 'external/ci-execution-python/' + resolved.name
+        else:
+            name = None
+            for root, alias in roots:
+                if resolved.is_relative_to(root):
+                    name = alias + '/' + resolved.relative_to(root).as_posix()
+                    break
+            if name is None:
+                raise ValueError(('undeclared external input', str(resolved)))
+        if name in selected and selected[name] != resolved:
+            raise ValueError(('member collision', name))
+        selected[name] = resolved
+
+    def select(path, label):
+        if not path.exists() or path.is_symlink():
+            report['missing'].append(label)
+            return
+        try:
+            members = sorted(path.rglob('*')) if path.is_dir() else [path]
+        except BaseException as error:
+            problem('directory-traversal', path, error)
+            return
+        for member in members:
+            try:
+                if member.is_symlink():
+                    raise ValueError(('symlink in evidence', str(member)))
+                if member.is_file():
+                    add(member)
+                elif not member.is_dir():
+                    raise ValueError(('nonregular evidence', str(member)))
+            except BaseException as error:
+                problem('directory-member', member, error)
+
+    try:
+        # This ordinary original entity is always selected, including early failures.
+        # It is never substituted for either historical reference package entity.
+        try:
+            add(interpreter)
+            _, interpreter_meta = info(interpreter)
+            declared.setdefault(str(interpreter), []).append(interpreter_meta)
+            input_declarations.append(dict(input_report='sealer-process', table='execution_interpreter',
+                                           source_path=str(interpreter), expected=interpreter_meta))
+            report['execution_interpreter'] = dict(
+                requested_path=sys.executable, original_path=str(interpreter),
+                member='external/ci-execution-python/' + interpreter.name, **interpreter_meta,
+                role='THIS_CI_EXECUTION_INTERPRETER_NOT_HISTORICAL_REFERENCE_INTERPRETER',
+                archived_entity_executed=False, metadata10_worker_identity_checked=False)
+        except BaseException as error:
+            problem('execution-interpreter', interpreter, error)
+        select(current, 'current-runtime/')
+        for relative in REPOSITORY_PATHS:
+            select(repo / relative, 'repository/' + relative)
+        for name in TOOLCHAINS:
+            select(temporary / name, 'toolchain/' + name)
+        for relative in REQUIRED_OUTPUTS:
+            if not (current / relative).is_file():
+                report['missing'].append('current-runtime/' + relative)
+        for relative in REFERENCE_INTERPRETER_PACKAGES:
+            try:
+                role, path, meta, archive, archive_expected = reference_interpreter_role(repo, relative)
+                parsed_lists[str(path)] = meta
+                declared.setdefault(str(archive), []).append(archive_expected)
+                input_declarations.append(dict(input_report=relative + '/manifest.json', table='archive',
+                                               source_path=str(archive), expected=archive_expected))
+                report['reference_interpreters'].append(role)
+            except BaseException as error:
+                problem('historical-reference-interpreter', repo / relative, error)
+        input_reports = [(relative, current / relative) for relative in INPUT_REPORTS]
+        input_reports.append(('toolchain/hepta-current-entropy/build.json',
+                              temporary / 'hepta-current-entropy/build.json'))
+        for relative, path in input_reports:
+            if not path.is_file():
+                report['missing'].append(relative if relative.startswith('toolchain/') else 'current-runtime/' + relative)
+                continue
+            try:
+                raw, meta = info(path)
+                parsed_lists[str(path)] = meta
+                document = json.loads(raw)
+                if not isinstance(document, dict):
+                    raise ValueError('input report object required')
+            except BaseException as error:
+                problem('input-report', path, error)
+                continue
+            if relative == 'review/qualification.json':
+                report['original_qualification_status'] = document.get('status')
+                report['original_required_suites'] = document.get('required_suites')
+                report['original_required_cases'] = document.get('required_cases_total')
+                if (document.get('schema') != 'heptatorch.current-runtime.qualification.v1'
+                        or document.get('required_suites') != list(GROUPS)
+                        or document.get('required_cases_total') != 1020):
+                    problem('qualification-inventory', path,
+                            ValueError('current fifteen-group qualification input inventory differs'))
+            if relative == 'review/metadata10/report.json':
+                worker = document.get('worker_interpreter')
+                if worker is not None:
+                    try:
+                        actual = report['execution_interpreter']
+                        if actual is None or any(worker[key] != actual[key] for key in
+                                                  ('original_path', 'bytes', 'sha256', 'mode')):
+                            raise ValueError('metadata10 actual worker interpreter differs from this CI interpreter')
+                        actual['metadata10_worker_identity_checked'] = True
+                    except BaseException as error:
+                        problem('execution-interpreter-binding', path, error)
+            for key in INPUT_TABLES:
+                table = document.get(key)
+                if table is None:
+                    continue
+                if not isinstance(table, dict):
+                    problem('input-table', path, ValueError(('input metadata table required', relative, key)))
+                    continue
+                for spelling, metadata in table.items():
+                    try:
+                        source = Path(spelling)
+                        if not source.is_absolute() or str(source.resolve()) != spelling:
+                            raise ValueError(('noncanonical bound input', spelling))
+                        if (not isinstance(metadata, dict) or type(metadata.get('bytes')) is not int
+                                or metadata['bytes'] < 0
+                                or re.fullmatch('[0-9a-f]{64}', str(metadata.get('sha256'))) is None):
+                            raise ValueError(('complete declared SHA and extent required', relative, key, spelling))
+                        expected = {name: metadata[name] for name in ('bytes', 'sha256')}
+                        if 'mode' in metadata:
+                            if type(metadata['mode']) is not int or not 0 <= metadata['mode'] <= 4095:
+                                raise ValueError(('invalid original declared mode', spelling))
+                            expected['mode'] = metadata['mode']
+                        declared.setdefault(spelling, []).append(expected)
+                        if relative in INPUT_REPORTS:
+                            report_declared_paths.add(spelling)
+                        input_declarations.append(dict(input_report=relative, table=key,
+                                                       source_path=spelling, expected=expected))
+                        add(source)
+                        _, actual = info(source)
+                        if not matches(actual, expected):
+                            raise ValueError(('input custody mismatch', spelling, actual, expected))
+                    except BaseException as error:
+                        problem('declared-input', spelling, error)
+        if not selected:
+            raise ValueError('no actual evidence available')
+        if not report_declared_paths:
+            problem('declared-inputs', current, ValueError('nonempty declared inputs required'))
+        members, archive_meta, errors = seal_archive(destinations['archive'], selected, declared, parsed_lists)
+        report['errors'].extend(errors)
+        manifest = dict(schema='heptatorch.current.ci-complete-members.v2', source_commit=args.source_commit,
+            repository=str(repo), current_output=str(current), member_count=len(members),
+            member_bytes=sum(row['bytes'] for row in members.values()), members=members,
+            archive=archive_meta, input_list_bindings=parsed_lists, declared_input_bindings=input_declarations,
+            execution_interpreter=report['execution_interpreter'],
+            reference_interpreters=report['reference_interpreters'],
+            external_path_mapping=[dict(original_root=str(root), prefix=alias) for root, alias in roots]
+                + [dict(original_file=str(interpreter), member='external/ci-execution-python/' + interpreter.name)])
+        dump(destinations['manifest'], manifest)
+        destinations['sha256'].write_text(archive_meta['sha256'] + '  ' + destinations['archive'].name + '\n')
+        report.update(member_count=len(members), member_bytes=manifest['member_bytes'],
+            archive=archive_meta, manifest=info(destinations['manifest'])[1],
+            complete_single_XZ_EOF=True, complete_TAR_zero_padding=True,
+            all_original_member_modes_preserved=True, all_selected_files_unchanged=not report['errors'],
+            declared_input_count=len(declared), input_declaration_count=len(input_declarations),
+            declared_runtime_report_input_count=len(report_declared_paths),
+            unarchived_selected_members=sorted(set(selected) - set(members)))
+        report['missing'] = sorted(set(report['missing']))
+        report['status'] = 'FAIL' if report['missing'] or report['errors'] else 'PASS'
+    except BaseException as error:
+        report.update(status='FAIL', error=repr(error), traceback=traceback.format_exc())
+    dump(destinations['report'], report)
+    print(json.dumps({key: report.get(key) for key in ('status', 'member_count', 'member_bytes', 'missing', 'error')}))
+    return int(report['status'] != 'PASS')
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

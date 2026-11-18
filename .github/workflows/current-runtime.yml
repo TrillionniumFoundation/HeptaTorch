@@ -489,118 +489,17 @@ jobs:
         if: ${{ always() }}
         run: |
           export CURRENT_OUTPUT="${CURRENT_OUTPUT:-$RUNNER_TEMP/heptatorch-current}"
-          python3 -I -S -B - <<'ARCHIVE'
-          from pathlib import Path
-          import hashlib
-          import json
-          import os
-          import stat
-          import tarfile
-          import sys
-
-          temporary = Path(os.environ['RUNNER_TEMP'])
-          output = Path(os.environ['CURRENT_OUTPUT'])
-          output.mkdir(parents=True, exist_ok=True)
-          # Preserve this CI interpreter separately from the historical Torch
-          # reference package. Original report paths are never rewritten.
-          source = Path(sys.executable).resolve(strict=True)
-          assert source.is_file() and not source.is_symlink(), source
-          before = source.stat()
-          assert stat.S_ISREG(before.st_mode), source
-          raw = source.read_bytes()
-          after = source.stat()
-          identity = lambda row: (row.st_dev, row.st_ino, row.st_mode, row.st_size,
-                                  row.st_mtime_ns, row.st_ctime_ns)
-          assert identity(before) == identity(after), 'CI interpreter changed while copying'
-          digest = hashlib.sha256(raw).hexdigest()
-          mode = stat.S_IMODE(after.st_mode)
-          custody = output / 'execution-interpreter'
-          custody.mkdir(exist_ok=False)
-          copy = custody / 'python'
-          with copy.open('xb') as stream:
-              stream.write(raw)
-          copy.chmod(mode)
-          assert (copy.is_file() and not copy.is_symlink() and copy.stat().st_nlink == 1
-                  and copy.read_bytes() == raw and stat.S_IMODE(copy.stat().st_mode) == mode)
-          assert identity(source.stat()) == identity(after), 'CI interpreter changed during copy'
-          worker_path = output / 'review/metadata10/report.json'
-          worker_bound = False
-          if worker_path.is_file():
-              worker = json.loads(worker_path.read_bytes()).get('worker_interpreter')
-              if worker is not None:
-                  assert (worker['original_path'] == str(source) and worker['sha256'] == digest
-                          and worker['bytes'] == len(raw) and worker['mode'] == mode)
-                  worker_bound = True
-          receipt = {'schema': 'heptatorch.current-runtime.ci-interpreter-custody.v1',
-                     'requested_path': sys.executable, 'original_path': str(source),
-                     'member': 'execution-interpreter/python', 'bytes': len(raw),
-                     'sha256': digest, 'mode': mode, 'python_version': sys.version,
-                     'ordinary_single_link_copy': True, 'source_unchanged_while_copying': True,
-                     'metadata10_worker_identity_checked': worker_bound,
-                     'role': 'THIS_CI_EXECUTION_INTERPRETER_NOT_HISTORICAL_REFERENCE_INTERPRETER',
-                     'original_report_paths_modified': False, 'copied_interpreter_executed': False}
-          (custody / 'receipt.json').write_text(json.dumps(receipt, indent=2, sort_keys=True) + '\n')
-          for required in ('tools/stack_budget/inspect_stack.py',
-                           'validation/view-reshape-r4-native76/archive-location.json',
-                           'validation/cat-metadata10-reference/manifest.json',
-                           'validation/cat-metadata10-reference/complete.tar.xz',
-                           'validation/current-generator-original26/manifest.json',
-                           'validation/current-generator-original26/complete.tar.xz',
-                           'validation/current-generator-candidate/manifest.json',
-                           'validation/current-generator-candidate/complete.tar.xz',
-                           'validation/current-generator131-source/manifest.json',
-                           'validation/current-generator131-source/complete.tar.xz',
-                           'validation/public-f64-logical192-reference/manifest.json',
-                           'validation/public-f64-logical192-reference/complete.tar.xz'):
-              path = Path(required)
-              assert path.is_file() and not path.is_symlink(), path
-          inventory = []
-          for path in sorted(output.rglob('*')):
-              if path.is_file():
-                  assert not path.is_symlink(), path
-                  raw = path.read_bytes()
-                  inventory.append({'path': str(path.relative_to(output)), 'bytes': len(raw),
-                                    'sha256': hashlib.sha256(raw).hexdigest(),
-                                    'mode': stat.S_IMODE(path.stat().st_mode)})
-          (output / 'files.json').write_text(json.dumps(inventory, indent=2) + '\n')
-          archive = temporary / 'heptatorch-current-evidence.tar.xz'
-          with tarfile.open(archive, 'w:xz', preset=3) as bundle:
-              bundle.add(output, arcname='current-runtime')
-              for name in ('hepta-compiler', 'hepta-profile-sources', 'hepta-expanded',
-                           'hepta-capacity-review', 'hepta-modules-sources', 'hepta-modules-native',
-                           'hepta-owned-modules', 'hepta-owned-session-tools', 'hepta-stack-budget',
-                           'hepta-current-entropy'):
-                  path = temporary / name
-                  if path.exists():
-                      bundle.add(path, arcname='toolchain/' + name)
-              for relative in ('.github/workflows/current-runtime.yml', 'Makefile', 'tools/current_runtime',
-                               'tools/differentiable_view_recovered_r3/profile.json',
-                               'tools/stack_budget/inspect_stack.py',
-                               'build/pytorch-install.json',
-                               'tests', 'compatibility', 'continuation/20261117/evidence',
-                               'continuation/20261117/source-packages/sum-bool-source-01/hia',
-                               'validation/sum-bool27-reference', 'validation/current-runtime-references',
-                               'validation/current-runtime76-reference',
-                               'validation/view-reshape-r4-native76/archive-location.json',
-                               'validation/cat-metadata10-reference',
-                               'validation/current-generator-original26',
-                               'validation/current-generator-candidate',
-                               'validation/current-generator131-source',
-                               'validation/public-f64-logical192-reference',
-                               'validation/current-runtime-baseline', 'validation/sum-f32-reference17',
-                               'validation/current-runtime270-source', 'validation/current-runtime32-source',
-                               'validation/tensor-to-original16-recovery',
-                               'validation/logical-reductions-reference',
-                               'validation/bool-dtype-extension-reference'):
-                  path = Path(relative)
-                  if path.exists():
-                      bundle.add(path, arcname='repository/' + relative)
-          digest = hashlib.sha256(archive.read_bytes()).hexdigest()
-          (temporary / 'heptatorch-current-evidence.sha256').write_text(digest + '  ' + archive.name + '\n')
-          print(json.dumps({'archive': archive.name, 'bytes': archive.stat().st_size,
-                            'sha256': digest, 'current_output_files': len(inventory),
-                            'original_file_modes_preserved': True}))
-          ARCHIVE
+          custody_exit_code=0
+          python3 -I -S -B tools/seal_current_ci_evidence.py \
+            --repository "$GITHUB_WORKSPACE" \
+            --current-output "$CURRENT_OUTPUT" \
+            --toolchain-root "$RUNNER_TEMP" \
+            --source-commit "$GITHUB_SHA" \
+            --output-prefix "$RUNNER_TEMP/heptatorch-current-evidence" \
+            > "$RUNNER_TEMP/heptatorch-current-evidence.sealer.stdout" \
+            2> "$RUNNER_TEMP/heptatorch-current-evidence.sealer.stderr" || custody_exit_code=$?
+          printf '%s\n' "$custody_exit_code" > "$RUNNER_TEMP/heptatorch-current-evidence.sealer-exit-code"
+          exit "$custody_exit_code"
 
       - name: Upload complete current runtime native evidence
         if: ${{ always() }}
@@ -609,7 +508,12 @@ jobs:
           name: current-runtime-native-evidence
           path: |
             ${{ runner.temp }}/heptatorch-current-evidence.tar.xz
+            ${{ runner.temp }}/heptatorch-current-evidence.manifest.json
+            ${{ runner.temp }}/heptatorch-current-evidence.custody.json
             ${{ runner.temp }}/heptatorch-current-evidence.sha256
+            ${{ runner.temp }}/heptatorch-current-evidence.sealer.stdout
+            ${{ runner.temp }}/heptatorch-current-evidence.sealer.stderr
+            ${{ runner.temp }}/heptatorch-current-evidence.sealer-exit-code
             ${{ runner.temp }}/heptatorch-current/qualification.json
           if-no-files-found: error
           compression-level: 0

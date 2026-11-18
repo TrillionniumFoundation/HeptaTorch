@@ -152,7 +152,7 @@ PR40 阶段相对 PR38 保留 689 个完整函数体、修改 5 个、新增 6 �
 
 README 和能力清单已移除旧 143 函数默认配置及多代 profile 的冗长过程元数据，只描述当前源、边界与十四组待运行要求。旧元数据可从 Git 历史追溯，删除清单和字节差异单独记录。已移除未使用的旧 current35 源包、冗余 profile／fixture-relocation 元数据和未使用恢复入口。
 
-原 76 参考 archive 从 12,561,956 字节压缩为 131,848 字节，恰好保留 8 个实际必需文件、33,559,322 字节原内容及原 0600 模式。删除当前树中的旧完整 archive 前，逐成员与旧包直接比较，并保留[完整旧证据的固定 Git／封存恢复索引](../validation/view-reshape-r4-native76/archive-location.json)。PR39 的 16 次重复 CI 调用、本轮 R3 重复调用及原 AsStrided16 调用合计 18 次已退休。R4 的另外两次资源调用仍由 `tools/seal_r4_ci_evidence.py` 消费；其封包依赖迁移前保留，不能只删调用导致原证据链缺项。
+原 76 参考 archive 从 12,561,956 字节压缩为 131,848 字节，恰好保留 8 个实际必需文件、33,559,322 字节原内容及原 0600 模式。删除当前树中的旧完整 archive 前，逐成员与旧包直接比较，并保留[完整旧证据的固定 Git／封存恢复索引](../validation/view-reshape-r4-native76/archive-location.json)。PR39 的 16 次重复 CI 调用、R3 重复调用、原 AsStrided16 调用及本次两项 R4 资源调用合计 20 次已从调用层退休。两项 R4 配方已由当前必需 `resource7/r4` 和 `resource7/backward` 承接；PR42 的完整 13 组／697 例及当前 729 映像的独立资源 7 例均有各自真实报告。原 R4 的完整 4,486 成员／330,652,261 字节已核验并由所有者保留，六条退出生成路径对应 523 个唯一成员；[固定退休索引](../validation/r4-resource-retirement/index.json)绑定原公开 CI carrier、完整 manifest、规范成员映射与两个当前运行的精确身份。`tools/seal_r4_ci_evidence.py` 的 v3 契约严格保留 19 个目录、8 个顶层报告、2 份输入清单、原 2 份参考和 3 份源码，并要求固定 SHA 的退休索引；未把任意缺项改为可选。原资源源码和 `compatibility/view-reshape-r4-profile.json` 历史记录保持原字节。退休后的 v3 hosted CI 尚待执行；这次源码与文件保全迁移不继承旧 CI 的运行 PASS，也不关闭完整 PyTorch 门禁。
 
 仍活跃的 fixture 保留：固定编译器 bootstrap／来源证明、461 对旧协议夹具、原始比较器与参考 archive、Generator24、尚未迁移的 dtype／优化器／资源门禁，以及 F64 验证器仍消费的旧源证明。原 live32 的当前入口已经迁移，其他历史 CI 消费者仍按依赖逐项处理。相同字节的两条路径也可能分别被固定 manifest 引用，不能仅按重复 hash 删除。
 

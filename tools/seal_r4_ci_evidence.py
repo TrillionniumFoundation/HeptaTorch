@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Preserve complete R4 CI evidence with original file bytes and POSIX modes."""
+"""Preserve remaining R4 CI evidence under the explicit v3 retirement contract."""
 import argparse, hashlib, io, json, lzma, os, stat, sys, tarfile, traceback
 from pathlib import Path
 DIRECTORIES=(
@@ -7,7 +7,7 @@ DIRECTORIES=(
  'build/differentiable-view-r4-shape','build/differentiable-view-r4-scalar07b',
  'build/view-reshape-r4-reference26','build/view-reshape-r4-reference32',
  'build/differentiable-view-reference14','build/differentiable-view-input4-reference',
- 'build/view-reshape-r4-native','build/view-reshape-r4-resource3','build/view-reshape-r4-backward-resource',
+ 'build/view-reshape-r4-native',
  'tools/differentiable_view_r4_build_review','tools/differentiable_view_shape_r4',
  'tools/differentiable_view_scalar_r4','tests/differentiable_view_shape_review',
  'tests/differentiable_view_shape_reference_review','tests/differentiable_view_native_review',
@@ -15,15 +15,15 @@ DIRECTORIES=(
  'tests/backward_private_cache_resource_review',
  'validation/differentiable-view-shape-reference26','validation/wrapped-f64-reference32')
 REPORTS=tuple('build/view-reshape-r4-'+x+'.json' for x in
- ('reference26','reference32','shape-build','scalar07b-build','view26','scalar32','view14','input4','resource3','backward-resource'))
+ ('reference26','reference32','shape-build','scalar07b-build','view26','scalar32','view14','input4'))
 INPUT_LISTS=(
  'build/differentiable-view-r4-shape/inputs-before.json',
- 'build/differentiable-view-r4-scalar07b/inputs-before.json',
- 'build/view-reshape-r4-resource3/inputs-before.json',
- 'build/view-reshape-r4-backward-resource/inputs-before.json')
+ 'build/differentiable-view-r4-scalar07b/inputs-before.json')
 REFERENCE_REPORTS=('build/view-reshape-r4-reference26/report.json',
                    'build/view-reshape-r4-reference32/report.json')
 SOURCE_FILES=('Makefile','.github/workflows/native.yml','tools/seal_r4_ci_evidence.py')
+RETIREMENT_INDEX='validation/r4-resource-retirement/index.json'
+RETIREMENT_SHA256='f1ea7b5bb52962ae47dfe31261d1dcc39e2433b645673bfe1a86f6620975c8f8'
 def digest(raw):return hashlib.sha256(raw).hexdigest()
 def dump(path,obj):
     with Path(path).open('xb') as f:f.write((json.dumps(obj,indent=2,sort_keys=True)+'\n').encode())
@@ -44,13 +44,17 @@ def main():
     if len(a.source_commit)!=40 or any(c not in '0123456789abcdef' for c in a.source_commit):raise ValueError('source commit must be a full Git SHA')
     if not out.is_relative_to(repo/'build'):raise ValueError('output must be below repository build')
     out.mkdir(parents=True,exist_ok=False)
-    report={'schema':'heptatorch.r4.ci-byte-mode-custody.v2','status':'RUNNING',
+    report={'schema':'heptatorch.r4.ci-byte-mode-custody.v3','status':'RUNNING',
             'source_commit':a.source_commit,'repository':str(repo),'stack_build':str(stack),
             'native_executed':False,'Torch_executed':False,'compiler_executed':False,
             'case_admissions_executed_here':0,'closed_schema_count':0,'whole_pytorch_gate':'HOLD',
             'scope':'File-byte and original POSIX-mode custody only; original reports keep their own statuses.',
             'required_reports':list(REPORTS),'required_directories':list(DIRECTORIES),
+            'required_input_lists':list(INPUT_LISTS),'required_reference_reports':list(REFERENCE_REPORTS),
+            'required_source_files':list(SOURCE_FILES),
+            'retirement_index':{'path':RETIREMENT_INDEX,'expected_sha256':RETIREMENT_SHA256},
             'missing':[],'errors':[]}
+    retirement_index_binding={}
     selected={};required_input_bindings={};declared_input_bindings=[];verified_input_paths=set();input_list_bindings={}
     def problem(stage,path,error):
         report['errors'].append({'stage':stage,'path':str(path),'error':repr(error)})
@@ -79,12 +83,18 @@ def main():
                     if path.is_file():add(path)
                     elif not path.is_dir():raise ValueError(('nonregular evidence',str(path)))
                 except BaseException as error:problem('directory-member',path,error)
-        for name in (*REPORTS,*SOURCE_FILES):
+        for name in (*REPORTS,*SOURCE_FILES,RETIREMENT_INDEX):
             path=repo/name
             if not path.is_file():report['missing'].append(name)
             else:
                 try:add(path)
                 except BaseException as error:problem('required-file',path,error)
+        path=repo/RETIREMENT_INDEX
+        try:
+            raw,meta=info(path);retirement_index_binding={'source_path':str(path),**meta}
+            if meta['sha256']!=RETIREMENT_SHA256:raise ValueError('fixed retirement index SHA mismatch')
+        except BaseException as error:problem('retirement-index',path,error)
+        report['retirement_index_observed']=retirement_index_binding
         for pattern in ('view-reshape-r4-*.make.stdout','view-reshape-r4-*.make.stderr'):
             paths=[]
             try:
@@ -123,6 +133,8 @@ def main():
                 try:raw,meta=info(path)
                 except BaseException as error:
                     verified_input_paths.discard(str(path));problem('archive-read',path,error);continue
+                if name==RETIREMENT_INDEX and meta!={k:retirement_index_binding.get(k) for k in ('bytes','sha256','mode')}:
+                    problem('retirement-index-at-archive',path,ValueError('fixed retirement index changed before archive'))
                 if str(path) in input_list_bindings and meta!=input_list_bindings[str(path)]:
                     problem('input-list-at-archive',path,ValueError(('parsed input list changed before archive',meta,input_list_bindings[str(path)])))
                 for declared in declared_input_bindings:
@@ -156,14 +168,16 @@ def main():
                 if meta!={k:archived[k] for k in ('bytes','sha256','mode')}:raise ValueError(('evidence changed',name))
             except BaseException as error:
                 verified_input_paths.discard(str(path));problem('post-archive-custody',path,error)
-        manifest={'schema':'heptatorch.r4.ci-complete-members.v2','source_commit':a.source_commit,
+        manifest={'schema':'heptatorch.r4.ci-complete-members.v3','source_commit':a.source_commit,
                   'repository':str(repo),'stack_build':str(stack),
                   'member_count':len(members),'member_bytes':sum(m['bytes'] for m in members.values()),
                   'members':members,'archive':archive_meta,
                   'external_path_mapping':{'prefix':'external/stack-toolchain/','original_root':str(stack)},
                   'required_input_bindings':required_input_bindings,
                   'declared_input_bindings':declared_input_bindings,
-                  'input_list_bindings':input_list_bindings}
+                  'input_list_bindings':input_list_bindings,
+                  'retirement_index_binding':retirement_index_binding,
+                  'retirement_index_expected_sha256':RETIREMENT_SHA256}
         dump(out/'file-manifest.json',manifest)
         report.update(member_count=len(members),member_bytes=manifest['member_bytes'],archive=archive_meta,
                       manifest=info(out/'file-manifest.json')[1],all_selected_files_unchanged=not report['errors'],
