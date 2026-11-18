@@ -233,6 +233,82 @@ def reference_interpreter_role(repo, relative):
     return role, manifest_path, manifest_meta, archive, archive_expected
 
 
+def generator_reference_compilers(current):
+    """Bind the actual native11 g++ process to its original checked input.
+
+    This is a narrow file-custody role.  It does not execute the compiler or
+    infer numerical success from a subprocess exit or a completed archive.
+    """
+    qualification_path = current / 'review/qualification.json'
+    generator_path = current / 'review/generator131/report.json'
+    qualification_raw, qualification_meta = info(qualification_path)
+    generator_raw, generator_meta = info(generator_path)
+    qualification = json.loads(qualification_raw)
+    generator = json.loads(generator_raw)
+    native11 = generator.get('groups', {}).get('native11', {})
+    rows = native11.get('independent_reference_processes', [])
+    if not isinstance(rows, list):
+        raise ValueError('Generator native11 reference process list required')
+    roles, bindings = [], {str(qualification_path): qualification_meta,
+                           str(generator_path): generator_meta}
+    process_root = current / 'review/generator131/native11/independent-reference-processes'
+    reference_source = current / 'review/generator131-source/reference.cpp'
+    reference_image = current / 'review/generator131/native11/original/std-mt-reference'
+    for index, row in enumerate(rows):
+        argv = row['argv']
+        if (not isinstance(argv, list) or not argv or any(not isinstance(x, str) for x in argv)
+                or not Path(argv[0]).is_absolute()):
+            raise ValueError('absolute original reference process argv required')
+        resolved = Path(argv[0]).resolve(strict=True)
+        if resolved.is_relative_to(current):
+            continue
+        if (argv[0] not in ('/bin/g++', '/usr/bin/g++')
+                or resolved.parent != Path('/usr/bin')
+                or re.fullmatch(r'x86_64-linux-gnu-g\+\+-[0-9]+', resolved.name) is None
+                or argv[1:] != ['-std=c++17', '-O2', str(reference_source), '-o', str(reference_image)]
+                or index != 0 or row['index'] != 0 or row['production_runtime'] is not False):
+            raise ValueError(('unsupported external Generator reference executable', argv))
+        expected = row['executable']
+        if (not isinstance(expected, dict) or set(expected) != {'bytes', 'sha256', 'mode'}
+                or type(expected['bytes']) is not int or expected['bytes'] < 0
+                or type(expected['mode']) is not int or not 0 <= expected['mode'] <= 0o7777
+                or not isinstance(expected['sha256'], str)
+                or re.fullmatch('[0-9a-f]{64}', expected['sha256']) is None):
+            raise ValueError('complete original reference compiler byte/mode identity required')
+        _, actual = info(resolved)
+        declared = qualification['checked_inputs'].get(str(resolved))
+        if actual != expected or declared != expected:
+            raise ValueError(('reference process, actual compiler and checked input differ', str(resolved)))
+        directory = Path(row['directory'])
+        if (directory != process_root / 'process-0000' or directory.resolve(strict=True) != directory):
+            raise ValueError('exact original reference compiler process directory required')
+        process_path = directory / 'process.json'
+        process_raw, process_meta = info(process_path)
+        if json.loads(process_raw) != row:
+            raise ValueError('reference compiler process record differs from Generator report')
+        bindings[str(process_path)] = process_meta
+        for stream in ('stdout', 'stderr'):
+            path = directory / (stream + '.bin')
+            raw, meta = info(path)
+            if len(raw) != row[stream + '_bytes'] or digest(raw) != row[stream + '_sha256']:
+                raise ValueError(('original reference compiler stream identity differs', stream))
+            bindings[str(path)] = meta
+        bindings[str(resolved)] = actual
+        roles.append(dict(role='THIS_CI_GENERATOR_NATIVE11_REFERENCE_COMPILER',
+            requested_path=argv[0], original_path=str(resolved),
+            member='external/generator-native11-reference-compiler/' + resolved.name, **actual,
+            qualification_member='current-runtime/review/qualification.json',
+            generator_report_member='current-runtime/review/generator131/report.json',
+            process_member='current-runtime/' + process_path.relative_to(current).as_posix(),
+            original_process={key: row[key] for key in
+                              ('index', 'argv', 'exit_code', 'error', 'stdout_EOF', 'stderr_EOF', 'production_runtime')},
+            actual_executable_matches_process_and_checked_input=True,
+            entity_executed_by_custody=False, runtime_qualification_granted=False))
+    if len(roles) > 1:
+        raise ValueError('at most one original native11 reference compiler process is supported')
+    return roles, bindings
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--repository', type=Path, required=True)
@@ -263,13 +339,15 @@ def main(argv=None):
         required_output_paths=list(REQUIRED_OUTPUTS), required_repository_paths=list(REPOSITORY_PATHS),
         required_toolchain_directories=list(TOOLCHAINS),
         required_suites=list(GROUPS), required_cases_total=1020,
-        reference_interpreters=[], execution_interpreter=None, missing=[], errors=[])
+        reference_interpreters=[], execution_interpreter=None,
+        reference_process_executables=[], missing=[], errors=[])
     selected, declared, parsed_lists, input_declarations = {}, {}, {}, []
     report_declared_paths = set()
     roots = [(current, 'current-runtime'), (repo, 'repository')] + [
         (temporary / name, 'toolchain/' + name) for name in TOOLCHAINS]
     roots.sort(key=lambda row: len(row[0].parts), reverse=True)
     interpreter = Path(sys.executable).resolve()
+    external_executables = {interpreter: 'external/ci-execution-python/' + interpreter.name}
 
     def problem(stage, path, error):
         report['errors'].append(dict(stage=stage, path=str(path), error=repr(error)))
@@ -280,8 +358,8 @@ def main(argv=None):
         resolved = path.resolve()
         if any(resolved == target for target in destinations.values()):
             raise ValueError('cannot archive own output')
-        if resolved == interpreter:
-            name = 'external/ci-execution-python/' + resolved.name
+        if resolved in external_executables:
+            name = external_executables[resolved]
         else:
             name = None
             for root, alias in roots:
@@ -330,6 +408,21 @@ def main(argv=None):
                 archived_entity_executed=False, metadata10_worker_identity_checked=False)
         except BaseException as error:
             problem('execution-interpreter', interpreter, error)
+        try:
+            reference_roles, reference_bindings = generator_reference_compilers(current)
+            for role in reference_roles:
+                path = Path(role['original_path'])
+                if path in external_executables:
+                    raise ValueError('reference compiler cannot replace the actual CI interpreter role')
+                external_executables[path] = role['member']
+                add(path)
+                report['reference_process_executables'].append(role)
+            for spelling, metadata in reference_bindings.items():
+                declared.setdefault(spelling, []).append(metadata)
+                input_declarations.append(dict(input_report='generator-reference-process-evidence',
+                    table='reference_executable_custody', source_path=spelling, expected=metadata))
+        except BaseException as error:
+            problem('generator-reference-executable', current / 'review/generator131/report.json', error)
         select(current, 'current-runtime/')
         for relative in REPOSITORY_PATHS:
             select(repo / relative, 'repository/' + relative)
@@ -428,8 +521,10 @@ def main(argv=None):
             archive=archive_meta, input_list_bindings=parsed_lists, declared_input_bindings=input_declarations,
             execution_interpreter=report['execution_interpreter'],
             reference_interpreters=report['reference_interpreters'],
+            reference_process_executables=report['reference_process_executables'],
             external_path_mapping=[dict(original_root=str(root), prefix=alias) for root, alias in roots]
-                + [dict(original_file=str(interpreter), member='external/ci-execution-python/' + interpreter.name)])
+                + [dict(original_file=str(path), member=name)
+                   for path, name in sorted(external_executables.items(), key=lambda row: str(row[0]))])
         dump(destinations['manifest'], manifest)
         destinations['sha256'].write_text(archive_meta['sha256'] + '  ' + destinations['archive'].name + '\n')
         report.update(member_count=len(members), member_bytes=manifest['member_bytes'],
