@@ -1,4 +1,4 @@
-hia-asm.v1 hepta.hia.program.v8 runtime_00
+hia-asm.v1 hepta.hia.program.v8 logical_f64_00
 exports(so_data_base,so_uget,object_address,getw,so_slot_at,so_slot_lookup,so_storage_live,putw,terror,binary_saved_base,binary_saved_needed,dptr,so_version_live,so_saved_live,so_saved_check,graph_saved_check,so_tensor_live,private_tensor,so_fill_range,so_slot_drop,so_handle,so_uput,so_slot_new,so_align16,so_extent_room,so_slot_available,storage_capacity,valid,retained_publish_original,retained_row,publish_tensor,binary_saved_get,getr,resolve_handle,public_node,binary_saved_command,tensor_dtype,dtype_backward_admit,memory_fill,so_extent_remove,so_extent_allocate,alloc,descriptor_page,dtype_width,scalar_previous_typed_descriptor,typed_descriptor,descriptor,node_retain,gradient_reference_retain,is_dense,gradient_new,history_accumulator_target,history_prepare_leaf,graph_edge_enabled,graph_parent_at,gradient_parent_at,dview_previous_mark_preserve_targets,scalar_previous_incoming_mark_preserve_targets,incoming_mark_preserve_targets,dview_geometry_end,dview_shared_offset,dview_span_bytes,dview_preserve_capacity,incoming_reserve_preserve_storage,ensure_backward_work)
 fn so_data_base(v0:u64) -> (u64) effects(read,write,trap) entry(b0)
 block b0(v0:u64)
@@ -1848,7 +1848,10 @@ block b4(v9:u64)
   v15:bool = bool.or(v12,v14)
   v16:u64 = const() {"value":8}
   v17:u64 = const() {"value":0}
-  v18:u64 = select(v15,v16,v17)
+  v19:u64 = const() {"value":4}
+  v20:bool = compare.eq(v9,v19)
+  v21:bool = bool.or(v15,v20)
+  v18:u64 = select(v21,v16,v17)
   ret(v18)
 end
 fn scalar_previous_typed_descriptor(v0:mutbuf,v1:u64,v2:u64,v3:u64,v4:u64,v5:u64) -> (u64) effects(read,write,trap) entry(b0)

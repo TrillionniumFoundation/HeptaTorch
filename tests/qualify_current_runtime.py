@@ -2,7 +2,9 @@
 """Execute all focused current-runtime suites and retain their original evidence.
 
 This coordinator transports fixed observations and invokes independent native
-readers and the fixed live Torch references for original35, base270, and live32. It implements no
+readers and the fixed live Torch references for original35, base270, live32,
+and the original Generator24 subset. Generator131 also builds and executes
+separate current-object ABI and reordered-link probe images. It implements no
 Tensor arithmetic, edits no old report, and grants no whole-project qualification
 from these finite suites.
 """
@@ -24,6 +26,9 @@ import traceback
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tests"))
 import current_runtime_fixtures as fixed_fixtures
+import current_runtime_generator_fixtures as generator_fixtures
+import current_runtime_public_f64_logical192 as public_f64_logical192
+from current_runtime_generator131 import qualify_generator131
 from current_runtime_process import execute as execute_process
 from current_runtime_admission import qualify_historical, qualify_f32, qualify_current35, qualify_current270
 from current_runtime_live32 import qualify_live32
@@ -49,7 +54,8 @@ _profile_spec.loader.exec_module(current_profile)
 SOURCE, IMAGE = current_profile.SOURCE, current_profile.IMAGE
 FUNCTIONS, UNITS = current_profile.FUNCTIONS, current_profile.UNITS
 COMPILER = "b1c851a0896fa6071f800e1146c3c27d0c6cf85059e9a6281b46d42908a3f59f"
-LINKER = "aae650e8822ef0b1e74d15108ad1d0f17ec791205ed5a158ec60b709f48f0e16"
+LINKER = "761a941fd7a2d53eb9b45869fcfc20e970640e9dd11d60f7c61a89812b61d74e"
+FUSION_RESOURCE_SHA = '20045388dc13fe4702ba5adea137d5af800a9460cfb7106be6b17135dd5310ce'
 BOOL_REFERENCE = "21dd75aeb86414818f7aa381f8b866d78b16f9bb3f5738e9a60d27ac3d15dd28"
 BOOL_ARCHIVE = "353a8b2853773bc6678bb62fc9559d6f4244c571ba40c6b80f352b2649cd6edd"
 SUM32_REFERENCE = "c14e4b18f657429ad5dac5498c3abcae303b6a7e7550db7d15a3c9179bdcd728"
@@ -57,10 +63,10 @@ INTEGRAL_REFERENCE = "6c9df4b579664c89c200b9d796367dd6d41f93f8260e8ff012f17d5041
 SHARED_ARCHIVE = "validation/current-runtime-references/complete.tar.xz"
 SHARED_ARCHIVE_SHA = "3a29420768a1bf7808976f04cb3ce3e6091db55ff6ae7858879f1b7ff70b69ea"
 SHARED_MANIFEST_SHA = "666fa775586679cfd42606c95656ad261c8856332431931ed4b0fcfd8865057e"
-GROUPS = ("bool27", "original76", "integral24", "sum_f32_17", "current35", "base270", "sum32", "live32", "logical147", "resource7", "asstrided16", "cat4", "metadata10")
+GROUPS = ("bool27", "original76", "integral24", "sum_f32_17", "current35", "base270", "sum32", "live32", "logical147", "resource7", "asstrided16", "cat4", "metadata10", "generator131", "public_f64_logical192")
 SUITE_TIMEOUT_SECONDS = {"bool27": 600, "original76": 900, "integral24": 900,
                          "sum_f32_17": 900, "current35": 1800, "base270": 1800, "sum32": 3600,
-                         "live32": 1800, "logical147": 1200, "resource7": 1200, "asstrided16": 1200, "cat4": 600, "metadata10": 1200}
+                         "live32": 1800, "logical147": 1200, "resource7": 1200, "asstrided16": 1200, "cat4": 600, "metadata10": 1200, "generator131": 600, "public_f64_logical192": 1200}
 
 
 def require(condition, message):
@@ -115,18 +121,26 @@ def build_binding(directory, inputs):
 
 
 def cat_source_binding(directory, inputs):
-    """Admit only the exact three reviewed cat bodies; transfer no old result."""
+    """Admit exact729 and three reviewed cat bodies; transfer no old result."""
+    outer_path = ROOT / 'tools/current_runtime/fusion_source_transition.py'
+    inputs.bind(outer_path, 'ca68c251be10292f0e2e47c4f010a19ec8542cb26b30c92a2d27d37dddba1ae8')
+    outer_spec = importlib.util.spec_from_file_location('current_runtime729_source_transition', outer_path)
+    outer = importlib.util.module_from_spec(outer_spec)
+    outer_spec.loader.exec_module(outer)
+    historical700, outer_proof = outer.restore_source(inputs.bind(directory / 'runtime.hepta', SOURCE), inputs.bind)
     path = ROOT / 'tools/current_runtime/cat_source_transition.py'
     inputs.bind(path)
     spec = importlib.util.spec_from_file_location('current_runtime_cat_source_transition', path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    restored, proof = module.restore_source(inputs.bind(directory / 'runtime.hepta', SOURCE), inputs.bind)
-    require(module.SOURCE == SOURCE and FUNCTIONS == 700 and UNITS == 14
-            and sha(restored) == module.PARENT_SOURCE,
-            'current complete profile and exact pre-cat source')
-    return proof
-
+    restored, proof = module.restore_source(historical700, inputs.bind)
+    require(module.SOURCE == outer.PARENT_SOURCE == sha(historical700)
+            and FUNCTIONS == 729 and UNITS == 14 and sha(restored) == module.PARENT_SOURCE,
+            'actual729 profile, exact historical700 and exact pre-cat source')
+    return dict(schema='heptatorch.current729-cat.complete-source-inverse.v1',
+        source_sha256=SOURCE, parent_source_sha256=module.PARENT_SOURCE,
+        functions=729, historical_functions=700, outer_source_inverse=outer_proof,
+        cat_transition=proof, runtime_qualification_transferred=False)
 
 class Fixtures:
     def __init__(self, output, inputs):
@@ -250,6 +264,26 @@ class Fixtures:
         return self.cache["f32_reader"]
 
 
+    def generator(self):
+        if "generator" not in self.cache:
+            self.cache["generator"] = {
+                "original26": generator_fixtures.restore_original26(
+                    ROOT, self.output / "references/generator-original26", self.inputs),
+                "candidate": generator_fixtures.restore_candidate(
+                    ROOT, self.output / "references/generator-candidate", self.inputs),
+                "package": generator_fixtures.restore_qualifier(
+                    ROOT, self.output / "generator131-source", self.inputs),
+            }
+        return self.cache["generator"]
+
+
+    def public_f64_logical192(self):
+        if "public_f64_logical192" not in self.cache:
+            self.cache["public_f64_logical192"] = public_f64_logical192.restore_reference(
+                ROOT, self.output / "references/public-f64-logical192", self.inputs)
+        return self.cache["public_f64_logical192"]
+
+
 def runner_command(name, build, build_sha, output, fixtures, inputs, torch_python):
     common = ["--build-directory", str(build), "--expected-build-sha256", build_sha]
     python = sys.executable
@@ -326,6 +360,24 @@ def runner_command(name, build, build_sha, output, fixtures, inputs, torch_pytho
             if path.is_file():
                 inputs.bind(path)
         args = common + ["--repository", str(ROOT)]
+    elif name == "generator131":
+        sources = fixtures.generator()
+        script = sources["package"] / "run.py"
+        tool_build, stack_build = fixtures.cache["generator_tool_paths"]
+        inputs.bind(torch_python.resolve())
+        python, flags = str(torch_python), ["-B"]
+        tool_sha = sha(inputs.bind(tool_build / "build.json"))
+        args = common + ["--repository", str(ROOT), "--candidate", str(sources["candidate"]),
+            "--original-package-root", str(sources["original26"]),
+            "--tool-build", str(tool_build), "--stack-build", str(stack_build),
+            "--expected-native-sha256", IMAGE, "--expected-tool-build-sha256", tool_sha,
+            "--group", "all"]
+    elif name == "public_f64_logical192":
+        source = fixtures.public_f64_logical192()
+        script = ROOT / "tests/public_f64_logical/qualify.py"
+        for filename, expected in public_f64_logical192.READER_FILES.items():
+            inputs.bind(script.parent / filename, expected)
+        args = public_f64_logical192.reader_cli(ROOT, build, build_sha, source)
     else:
         raise ValueError("unknown mandatory suite")
     inputs.bind(script)
@@ -414,7 +466,7 @@ def qualify_resource7(report, build_sha, directory, inputs):
         'backward': ['backward_private_preserve_allocation_oom_recovery'],
         'r3': ['tail_release_reuse', 'preserve_capacity_oom_recovery', 'tail_then_saved_error_prefix'],
     }
-    require(report['schema'] == 'heptatorch.current700.resource7.v1'
+    require(report['schema'] == 'heptatorch.current729.resource7.v1'
             and report['status'] == 'PASS_CURRENT_RESOURCE7'
             and report['actual_build_sha256'] == build_sha
             and report['source_sha256'] == SOURCE and report['native_sha256'] == IMAGE
@@ -430,6 +482,12 @@ def qualify_resource7(report, build_sha, directory, inputs):
             and report['full_pytorch_rewrite_complete'] is False,
             'finite resource controls do not close a whole schema or project')
     require([row['suite'] for row in report['suites']] == list(expected), 'all three resource readers')
+    helper_path = ROOT / 'tools/current_runtime/fusion_resource_transition.py'
+    inputs.bind(helper_path, FUSION_RESOURCE_SHA)
+    helper_spec = importlib.util.spec_from_file_location('qualified729_resource_source_paths', helper_path)
+    helper = importlib.util.module_from_spec(helper_spec)
+    helper_spec.loader.exec_module(helper)
+    expected_source_paths = helper.prove(inputs.bind(ROOT / 'tools/current_runtime/source/runtime.hepta', SOURCE), inputs.bind)
     frames = checks = children = restored_limits = 0
     for row in report['suites']:
         name = row['suite']
@@ -447,6 +505,8 @@ def qualify_resource7(report, build_sha, directory, inputs):
             require(len(raw) == runner[stream + '_bytes'], 'complete original resource worker stream')
         actual = json.loads(inputs.bind(folder / 'actual/report.json', row['report_sha256']))
         proof = json.loads(inputs.bind(folder / 'adaptation/source-bindings.json'))
+        require(proof['fusion_source_path_proof'] == expected_source_paths,
+                'outer independent actual729 resource path proof differs')
         require(actual['status'] == 'PASS' and actual['native_executed'] is True
                 and actual['source_sha256'] == SOURCE and actual['native_sha256'] == IMAGE
                 and actual['all_inputs_unchanged'] is True
@@ -501,10 +561,16 @@ def main(argv=None):
     parser.add_argument("--build-directory", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--torch-python", type=Path, default=Path(sys.executable))
+    parser.add_argument("--tool-build", type=Path, required=True)
+    parser.add_argument("--stack-build", type=Path, required=True)
     args = parser.parse_args(argv)
     require(not sys.flags.optimize, "all original assertions must remain enabled")
     build, output = args.build_directory.resolve(), args.output.resolve()
     require(output != build and not output.is_relative_to(build), "qualification output must be separate from its build")
+    tool_build, stack_build = args.tool_build.resolve(), args.stack_build.resolve()
+    require(tool_build.is_dir() and stack_build.is_dir(), "physical entropy and stack tool builds are required")
+    require(all(output != path and not output.is_relative_to(path)
+                for path in (tool_build, stack_build)), "qualification output must be separate from tool inputs")
     output.mkdir(parents=True, exist_ok=False)
     inputs, suites, failures = Inputs(), [], []
     started = time.monotonic()
@@ -512,14 +578,23 @@ def main(argv=None):
               "source_sha256": SOURCE, "native_sha256": IMAGE, "functions": FUNCTIONS, "units": UNITS,
               "required_suites": list(GROUPS), "required_cases": {"bool27": 27, "original76": 76,
               "sum32": 32, "integral24": 24, "sum_f32_17": 17, "current35": 35, "base270": 270,
-              "live32": 32, "logical147": 147, "resource7": 7, "asstrided16": 16, "cat4": 4, "metadata10": 10}, "required_cases_total": 697,
+              "live32": 32, "logical147": 147, "resource7": 7, "asstrided16": 16, "cat4": 4, "metadata10": 10, "generator131": 131, "public_f64_logical192": 192}, "required_cases_total": 1020,
+              "generator_subgroups": {"oracle24": 24, "native11": 11, "entry59": 59, "dispatch37": 37},
+              "image_scope": "All thirteen inherited groups and Generator production cases bind the current main image; "
+                  "Generator131 also requires separately linked current-object ABI and reordered probe images. "
+                  "Public F64 logical192 uses the same current main image.",
+              "public_f64_scope": {"dense_no_grad_cases": 192, "native_boundary_controls": 2,
+                  "outside_native_scope_torch_observations": 6,
+                  "boundary_controls_counted_as_torch_compatibility": False, "original147_replaced": False},
               "required_controls": {"historical_Bool_dtypes": 7, "historical_Integral_dtypes": 5,
                   "current_dtypes": 7, "F32_axes": 4, "entry_and_capability": 10,
                   "Bool_allocation": 1, "F32_allocation_stages": 2,
                   "original35_copied_positive": 4, "original35_copied_negative": 18,
                   "original270_actual_prefix_refusal_pairs": 14,
                   "logical_packet_controls": 18, "logical_allocation_stages": 2,
-                  "inherited_resource_allocation_recoveries": 3, "cat_expanded_capacity": 1},
+                  "inherited_resource_allocation_recoveries": 3, "cat_expanded_capacity": 1,
+                  "public_f64_packet_controls": 18, "public_f64_allocation_stages": 2,
+                  "public_f64_native_scope_controls": 2},
               "suite_timeout_seconds": SUITE_TIMEOUT_SECONDS,
               "suites": suites, "failures": failures, "full_pytorch_rewrite_complete": False,
               "schema_closure": False, "full_project_status": "HOLD", "Torch_executed": False}
@@ -534,12 +609,22 @@ def main(argv=None):
                      "current_runtime_cat4/qualify.py", "current_runtime_metadata10/qualify.py",
                      "current_runtime_metadata10/common.py", "current_runtime_metadata10/worker.py",
                      "current_runtime_metadata10/readback.py", "current_runtime_metadata10/source.json",
-                     "current_runtime_metadata10/frozen/native_v2.py"):
+                     "current_runtime_metadata10/frozen/native_v2.py",
+                     "current_runtime_generator131.py", "current_runtime_generator_fixtures.py",
+                     "current_runtime_generator_binding.py", "current_runtime_generator_binding.json",
+                     "current_runtime_public_f64_logical192.py",
+                     "pytorch_cpu_generator_oracle.py"):
             inputs.bind(ROOT / "tests" / name)
         build_sha = build_binding(build, inputs)
         result["actual_build_sha256"] = build_sha
         result["cat_source_transition"] = cat_source_binding(build, inputs)
+        tool_raw = inputs.bind(tool_build / "build.json")
+        inputs.bind(tool_build / "generator-session-linker", LINKER)
+        result["entropy_tool_build"] = {"path": str(tool_build / "build.json"),
+            "bytes": len(tool_raw), "sha256": sha(tool_raw)}
+        result["stack_build"] = str(stack_build)
         fixtures = Fixtures(output, inputs)
+        fixtures.cache["generator_tool_paths"] = (tool_build, stack_build)
         for name in GROUPS:
             execution = output / (name + "-execution")
             execution.mkdir()
@@ -559,6 +644,8 @@ def main(argv=None):
                                               "bytes": len(raw), "sha256": sha(raw)}
                     row["original_report_status"] = report.get("status")
                     if name in ("current35", "base270", "live32") and result["Torch_executed"] is not True:
+                        result["Torch_executed"] = report.get("Torch_executed")
+                    if name == "generator131" and result["Torch_executed"] is not True:
                         result["Torch_executed"] = report.get("Torch_executed")
                 require(receipt["started"] is True and receipt["exit_code"] == 0
                         and receipt["stdout_EOF"] is True and receipt["stderr_EOF"] is True
@@ -591,6 +678,14 @@ def main(argv=None):
                     counts = qualify_asstrided16(report, build_sha, directory, inputs)
                 elif name == "cat4":
                     counts = qualify_cat4(report, ROOT, build, build_sha, directory, inputs)
+                elif name == "generator131":
+                    sources = fixtures.generator()
+                    counts = qualify_generator131(report, ROOT, build, build_sha, directory, sources["package"],
+                        sources["candidate"], sources["original26"], tool_build, stack_build, inputs)
+                elif name == "public_f64_logical192":
+                    source = fixtures.public_f64_logical192()
+                    counts = public_f64_logical192.qualify_public192(report, ROOT, build, build_sha,
+                        directory, source["root"], inputs, execution)
                 else:
                     counts = qualify_metadata10(report, ROOT, build, build_sha, directory, inputs, execution)
                 row.update(status="PASS", qualified=True, **counts)

@@ -21,7 +21,7 @@ IMAGE = PROFILE["expected_native_sha256"]
 FUNCTIONS = PROFILE["runtime"]["functions"]
 UNITS = len(PROFILE["units"])
 COMPILER = "b1c851a0896fa6071f800e1146c3c27d0c6cf85059e9a6281b46d42908a3f59f"
-LINKER = "aae650e8822ef0b1e74d15108ad1d0f17ec791205ed5a158ec60b709f48f0e16"
+LINKER = "761a941fd7a2d53eb9b45869fcfc20e970640e9dd11d60f7c61a89812b61d74e"
 
 
 def sha(raw):
@@ -111,7 +111,7 @@ def admit_build(directory, bind, expected=None):
                 and not process.get("execution_error") and not process.get("error")
                 and not process.get("cleanup_errors") and not process.get("running_descendants_after_cleanup"),
                 "incomplete native tool execution: " + process["name"])
-    request = b"HIASTKS1" + struct.pack("<3Q", UNITS, 4, 0) + b"step"
+    request = b"HIACGS01" + struct.pack("<3Q", UNITS, 4, 0) + b"step"
     request += b"".join(struct.pack("<Q", len(obj)) + obj for obj in objects)
     require(bind(directory / "link.request.bin") == request, "link input differs from newly compiled objects")
     image = bind(directory / "heptatorch", IMAGE)

@@ -26,12 +26,17 @@ Its manifest is authoritative for complete source, functions, ordered units
 and native object/image identities. `make` cold-builds every application object
 from this source with the fixed ABI3 HIA compiler and session linker.
 
-`make test` and current-runtime CI share thirteen mandatory groups totaling 697
-finite cases: original Bool27, view/scalar76, Integral24, integral-to-F32 Sum17,
+`make test` and current-runtime CI share fifteen mandatory groups totaling 1020
+finite cases in the 729-function candidate: original Bool27, view/scalar76, Integral24, integral-to-F32 Sum17,
 original lifecycle35, original operator/training270, F32 Sum32, live
 Tensor/RNG/backward32, logical147, inherited resource7, original AsStrided16,
-Cat4 and independently referenced cat Metadata10.
-The three live groups use the fixed actual
+Cat4, independently referenced cat Metadata10, Generator131 and public F64 logical192.
+The original thirteen groups retain all parameters, cases and controls.
+Generator131 preserves original24 + native11 + entry59 + dispatch37,
+including separately linked/executed current-object ABI and reordered
+probe images. Production cases share the main image; the entire 1020
+must not be described as one executable. Its full combined run remains
+pending. The original three live groups and Generator24 use the fixed actual
 Torch oracle; all frozen groups preserve original observations. New source
 identities require new execution of every affected group.
 
@@ -59,8 +64,9 @@ Final AsStrided16 separately passed all four original suites, 1,920 frames,
 10,272 checks, complete owner archives and actual native exits/EOFs. These
 executions have distinct source and result receipts. The complete 683 gate later
 passed on PR40's exact published tree, and PR40 was merged as
-`584b95d7f6615f27e95618bc61215df5633c4ca4`. The current cat correction changes
-the image again, so the new common 697 gate requires its own complete execution.
+`584b95d7f6615f27e95618bc61215df5633c4ca4`. The later 700-function cat
+correction and the current 729-function fusion each change the image.
+The new common 1020 gate therefore requires its own complete execution.
 Do not attribute new source or added cases to an earlier immutable run.
 
 The implementation combines the prior integral-to-F32 and empty-cat fixes with
@@ -72,7 +78,8 @@ remaining empty-cat Version mismatch. The current correction routes rank-one
 empty cat inputs through the existing zero factory, guards saved-list allocation
 failure, and removes the unnecessary empty-axis prefix scan and ordinary
 metadata parent-mask lookups. The original four packets and ten independent
-Torch metadata recipes pass on the new cold-built image. Logical reductions
+Torch metadata recipes passed on their explicitly recorded 700-function
+cat image; those successes do not transfer to the current 729 candidate. Logical reductions
 share native planning and truth conversion. Independent error-priority probes
 also require axis errors to precede the Bool-sum autograd refusal.
 
@@ -82,9 +89,21 @@ preparation, source inverses and cold compilation are recorded separately from
 runtime PASS. Earlier failures remain tied to their original inputs and image.
 
 Continue migrating remaining historical gates onto the canonical image before
-removing their live dependencies. Generator24 still requires native raw-output,
-epoch/allocation contracts and real entropy; a synthesized host output is not
-an equivalent implementation. The original270 numeric suite does not replace
+removing their live dependencies. Generator131 now has a source-only
+current-profile adapter and mandatory gate, but actual full qualification
+is still required before retiring any historical consumer. Its original24
+requires native raw-output, epoch/allocation contracts and real entropy;
+a synthesized host output is not an equivalent implementation. The
+coordinator requires explicit physical `--tool-build` and `--stack-build`
+paths, the dynamic actual entropy receipt SHA, full original inputs and
+fresh current-object probe/reordered execution. Preserve the original
+tool streams even when Make publishes an exact copy of the build.
+Public F64 logical192 now contributes 192 mandatory dense no-gradient comparisons.
+Its eighteen packet controls, two actual allocation recovery controls, complete
+196-child raw evidence and unchanged six-module reader remain required. Two
+native requires-grad/as_strided boundary controls and six outside-scope Torch
+observations are preserved separately and do not count as compatibility. The
+original logical147 remains required for other dtypes, private3, views and gradients. The original270 numeric suite does not replace
 461 legacy raw-protocol fixture pairs or the separate full resource gates.
 The F64 oracle still uses the old complete143 source as a numerical-origin
 witness; migrate that proof before deleting `src/heptatorch.hepta`. Native
