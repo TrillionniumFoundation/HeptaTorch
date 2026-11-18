@@ -5,6 +5,9 @@ The authoritative application source is
 Its [manifest](../tools/current_runtime/source/manifest.json) identifies every
 ordered compilation unit, complete core function body and expected native
 object/executable. There is one default application profile, named `current`.
+The present candidate has 729 core functions and 14 units. Its combined
+fifteen-group / 1020-case qualification is pending; no earlier runtime PASS
+is transferred to this candidate.
 
 Tensor arithmetic, shape planning, allocation, reference lifetime, gradients,
 RNG and command execution run in HIA machine code. Standard Python organizes
@@ -31,11 +34,19 @@ the result is explicitly `SOURCE_CHECKED_NATIVE_NOT_RUN`.
 The default Make target requires GNU Make 4.3 or newer:
 
 ```sh
-make HEPTA_CURRENT_COMPILER=/absolute/path/to/stack-module-compiler \
-     HEPTA_CURRENT_LINKER=/absolute/path/to/stack-linker-session
+make HEPTA_SOURCE_ROOT=/absolute/path/to/fixed-hepta-source \
+     HEPTA_STACK_BUILD=/absolute/path/to/stack-budget-tools \
+     HEPTA_ENTROPY_BUILD=/absolute/path/to/current-entropy-tools
 ```
 
-The two tools otherwise default to `HEPTA_STACK_BUILD/native/`.
+The compiler defaults to `HEPTA_STACK_BUILD/native/stack-module-compiler`.
+The four-argument session linker defaults to
+`HEPTA_ENTROPY_BUILD/generator-session-linker`. Make reproduces this tool
+through the fixed two-process native compiler/linker recipe, retaining the
+original 40 inputs and raw streams. Its actual `build.json` is mandatory;
+a prebuilt linker alone cannot satisfy Generator131 admission. The
+[entropy tool source](../tools/current_runtime/entropy_linker/README.md)
+and hosted workflow specify its fixed bootstrap inputs.
 The application is `build/current-runtime/heptatorch`; the actual build receipt
 is `build/current-runtime/build.json`. Make compiles in a fresh staging
 directory, then publishes a successful build. A recognized previous local
@@ -49,21 +60,23 @@ python3 -I -S -B tools/current_runtime/build.py \
   --manifest tools/current_runtime/source/manifest.json \
   --source-root tools/current_runtime/source \
   --compiler /absolute/path/to/stack-module-compiler \
-  --linker /absolute/path/to/stack-linker-session \
+  --linker /absolute/path/to/current-entropy-tools/generator-session-linker \
   --output /new/current-runtime-build
 ```
 
 Every object is compiled from its complete HIA unit in a new native process.
 The builder takes private copies of the two verified tools; it never reads a
 historical application ELF or reuses an application object. The native linker
-receives the exact new objects through `HIASTKS1`, with entry `step` and zero
-startup workspace. The existing `step`/`close` ownership ABI is preserved.
+receives the exact new objects through `HIACGS01`, with entry `step` and zero
+startup workspace. The current four-argument `step` ABI includes the
+read-only host entropy input; its owned runtime and `close` contracts
+remain independently checked by the original Generator controls.
 The resulting application is not executed by the builder.
 
 | Required native tool | SHA-256 |
 | --- | --- |
 | ABI3 module compiler | `b1c851a0896fa6071f800e1146c3c27d0c6cf85059e9a6281b46d42908a3f59f` |
-| ABI3 session linker | `aae650e8822ef0b1e74d15108ad1d0f17ec791205ed5a158ec60b709f48f0e16` |
+| Four-argument entropy session linker | `761a941fd7a2d53eb9b45869fcfc20e970640e9dd11d60f7c61a89812b61d74e` |
 
 The fixed Hepta source commit is
 `f33d8da316de8fdf27b504371f1a5310997ff548`. Tool reproduction is specified by
@@ -88,11 +101,12 @@ it does not grant runtime or whole-PyTorch qualification.
 ## Current-image tests
 
 The default test command requires the fixed native tools and a pinned live
-PyTorch reference interpreter. All thirteen groups are mandatory:
+PyTorch reference interpreter. All fifteen groups are mandatory:
 
 ```sh
-make test HEPTA_CURRENT_COMPILER=/absolute/path/to/stack-module-compiler \
-          HEPTA_CURRENT_LINKER=/absolute/path/to/stack-linker-session \
+make test HEPTA_SOURCE_ROOT=/absolute/path/to/fixed-hepta-source \
+          HEPTA_STACK_BUILD=/absolute/path/to/stack-budget-tools \
+          HEPTA_ENTROPY_BUILD=/absolute/path/to/current-entropy-tools \
           HEPTA_TORCH_PYTHON=/absolute/path/to/pinned/python
 ```
 
@@ -121,11 +135,14 @@ versions.
 | Original AsStrided | 16 | Original copy4/reduction4/lanes2/branches6, 1,920 frames, 10,272 checks, 176 complete owner archives, sixteen actual native exits and 32 EOF observations |
 | Original cat/stack packets | 4 | Three complete original successful byte streams and one explicit expanded-capacity control, full owner snapshots and actual exit/EOF |
 | Cat metadata | 10 | Independently observed Torch metadata and raw data, complete native frame/owner reconstruction, 62,207 repeated empty gradients and 62,208-input forward control |
+| CPU Generator | 131 | Original24 + native11 + entry59 + dispatch37; exact Tensor/Generator owner and state, real entropy, unchanged controls, newly linked current-object ABI/reordered probes and actual exit/EOF |
+| Public F64 logical | 192 | Original direct dtype4 dense no-gradient any/all/Bool sum comparisons; eighteen packet controls, two real allocation rollback/retry controls, 196 native children and complete frames/owner/EOF; two scope controls remain outside Torch compatibility |
 
-These total **697 finite comparison cases**. They are not 697 complete upstream
-schemas. Original lifecycle35, operator/training270 and live32 execute the
-actual pinned Torch oracle. The other eight groups consume exact frozen actual
+These total **1020 finite comparison cases**. They are not 1020 complete upstream
+schemas. Original lifecycle35, operator/training270, live32 and the original
+Generator24 subset execute the actual pinned Torch oracle. Ten groups consume exact frozen actual
 reference results, including all provenance checks applicable to each package.
+Cat4 consumes four fixed original packet fixtures.
 Cat4 consumes four complete legacy protocol fixtures. Metadata10 consumes a
 separate immutable actual Torch reference with all eleven provenance checks;
 its fifteen-member custody package retains original bytes and records explicit
@@ -136,12 +153,20 @@ To choose a new output directory explicitly:
 ```sh
 /absolute/path/to/pinned/python -I -S -B tests/qualify_current_runtime.py \
   --build-directory build/current-runtime \
+  --tool-build /absolute/path/to/current-entropy-tools \
+  --stack-build /absolute/path/to/stack-budget-tools \
   --torch-python /absolute/path/to/pinned/python \
   --output /new/current-runtime-qualification
 ```
 
-Make and hosted CI invoke this same coordinator. Every group runs against the
-same actual source, image and cold-build receipt. It attempts remaining groups
+Make and hosted CI invoke this same coordinator. The thirteen inherited
+groups, Generator production cases and public F64 logical192 bind the same actual main source,
+image and cold-build receipt. Generator131 additionally compiles/links
+and executes separate ABI and reordered images from the actual current
+objects. Their identities are checked separately; this is not an
+1020-case single-executable claim. Both tool paths are explicit CLI
+arguments, and the entropy `build.json` SHA is computed from the actual
+bound file rather than copied from a local or historical run. It attempts remaining groups
 after an ordinary group failure, retains complete original streams and checks
 all reports. A prepared adapter, earlier image's PASS, missing report, timeout,
 changed input or incomplete stream cannot satisfy the gate.
@@ -194,12 +219,13 @@ reader assertions or process finish implementation are replaced.
 
 The previous published image passed the complete eleven-group 683 gate in
 [actual CI](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/44294832902).
-PR40 was merged with the same executed file tree. The current cat fixes change
-three complete HIA function bodies; the other 697 bodies are constrained by a
+PR40 was merged with the same executed file tree. The retained 700-function
+cat predecessor changed three complete HIA function bodies; the other 697 bodies are constrained by a
 whole-source inverse to that exact previous image's source, followed by every
-original logical/PR38/AVX2/baseline proof. The current image has separately passed
-Cat4 and the ten fixed metadata comparisons. The new complete thirteen-group
-697 gate requires fresh execution; all earlier runs retain their original
+original logical/PR38/AVX2/baseline proof. That 700-function cat image
+separately passed Cat4 and the ten fixed metadata comparisons. The 729
+candidate retains its exact full-source inverse to that predecessor.
+The new complete fifteen-group 1020 gate requires fresh execution; all earlier runs retain their original
 denominators and source snapshots.
 
 Metadata10 preserves the full original driver with only its two source/image
@@ -210,6 +236,30 @@ frame, logical Storage byte and Tensor/Storage/Version relation before applying
 the unchanged comparator. Original comparisons, cleanup code and native commands
 remain intact. The historical seven-case Version mismatch remains a failure
 record for its original image.
+
+Generator131 uses the three strict restore APIs in
+[`current_runtime_generator_fixtures.py`](../tests/current_runtime_generator_fixtures.py).
+The original26 reference inputs, complete source-only 712 predecessor and
+portable qualifier are restored with every SHA and mode intact. Its
+[pure admission](../tests/current_runtime_generator131.py) reopens actual
+raw frames, complete owner/state captures, compiler/link requests,
+production and probe exits/EOFs, and the complete current cold/tool
+admission. Original case and control bodies are not replaced. The
+worker keeps its original `-B` invocation, since its sibling imports and
+live Torch oracle require the normal package environment.
+
+Public F64 logical192 is a separate mandatory group. Its six source modules are
+byte-identical to the frozen reader, and the outer admission reapplies its
+strict 69-input cold-build admission and complete 196-child frame/owner
+readback. The sixteen-file reference package preserves the original 192 dense
+cases, two allocation observations, six outside-scope Torch observations,
+producer sources, all six provenance inputs, actual interpreter entity and
+public execution/transport streams. The archived interpreter is evidence and
+is not executed by fixture restoration. Two native scope controls require the
+current requires-grad and as_strided refusals; neither is counted as Torch
+compatibility. Original logical147 remains mandatory because its Bool/I64/F32,
+private dtype3, view and gradient constructions differ from direct public F64.
+All 1020 cases still require a new combined execution on the admitted build.
 
 The compact view/scalar reference archive contains exactly the eight original
 reference/probe files and retains their original bytes and archived modes.

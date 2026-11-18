@@ -1,6 +1,6 @@
 # R4 可微 view/reshape、wrapped scalar 与资源恢复
 
-本轮在固定 HIA 运行时上推进具体 view/reshape 和 wrapped F64 scalar 行为，并补齐独立的资源失败与恢复验证。生产 Tensor、Storage、算术和自动微分继续由 HIA 原生程序执行；Python 负责源码生成、协议传输和证据读取。
+本文保留 R4 阶段固定 HIA 运行时的历史实现与实际结果。当前资源验证已迁入统一运行时的 `resource7` 必需组；下面的 658 函数 profile 和原始结果继续作为来源证据。R4 阶段推进了具体 view/reshape 和 wrapped F64 scalar 行为，并补齐独立的资源失败与恢复验证。生产 Tensor、Storage、算术和自动微分继续由 HIA 原生程序执行；Python 负责源码生成、协议传输和证据读取。
 
 **全项目仍为 HOLD。** 本轮没有把任何完整上游 schema 标记为闭合：固定 PyTorch 2.15.0 / commit 31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457 的 2,590 个 schema、688 个导数声明和 17 项系统门槛继续作为总分母。完整状态见 [全量验收账本](../compatibility/full-acceptance.json)，本轮机器可读记录见 [R4 profile](../compatibility/view-reshape-r4-profile.json)。
 
@@ -43,30 +43,34 @@
 
 原件归档核对单一 XZ 流的 EOF、TAR 成员集合、大小、SHA-256、POSIX 模式与完整尾部零块。外层安装为 Git 可携带的文件模式时，原来的成员模式继续由归档和清单保存。
 
-## 可复现入口
+## 当前可复现入口与旧调用退休
 
-设置固定工具链来源和 stack 构建目录后执行：
+当前统一门禁通过 `make test` 执行，`resource7` 是必需组。准备固定工具来源、stack 工具、entropy linker 构建目录和固定 Torch 解释器后运行：
 
 ~~~sh
-make differentiable-view-r4-scalar07b \
+make test \
   HEPTA_SOURCE_ROOT=/absolute/path/to/pinned/hepta \
-  HEPTA_STACK_BUILD=/absolute/path/to/stack-build
-
-make test-differentiable-view-r4-native76 \
-  HEPTA_SOURCE_ROOT=/absolute/path/to/pinned/hepta \
-  HEPTA_STACK_BUILD=/absolute/path/to/stack-build
-
-make test-differentiable-view-r4-resource3 \
-  test-differentiable-view-r4-backward-resource \
-  HEPTA_SOURCE_ROOT=/absolute/path/to/pinned/hepta \
-  HEPTA_STACK_BUILD=/absolute/path/to/stack-build
+  HEPTA_STACK_BUILD=/absolute/path/to/stack-build \
+  HEPTA_ENTROPY_BUILD=/absolute/path/to/current-entropy-build \
+  HEPTA_TORCH_PYTHON=/absolute/path/to/pinned/python
 ~~~
 
-两个资源入口都依赖新构建的 Scalar07b 成功标记和完整 scalar32 参考包。便携 wrapper 检查全部源码、13 个构建单元、实际编译/链接结果及当前构建报告，不接受仅复制旧报告作为本次执行。
+已有完整当前冷构建时，可在新的输出目录独立执行全部原始资源 7 例：
 
-CI 保留此前 116 个步骤，加入 10 个 R4 步骤，合计 126 个。新增的 11 份顶层报告在总索引之前生成。文件保全步骤使用 always()，尽量保存失败时仍可读取的原件，并把缺失或变化记录为 FAIL；它自己的两条实时日志由外层 artifact 单独保存，避免把尚在写入的日志当成稳定输入。
+~~~sh
+python3 -I -S -B tests/current_runtime_resources/qualify.py \
+  --repository /absolute/path/to/HeptaTorch \
+  --build-directory /absolute/path/to/HeptaTorch/build/current-runtime \
+  --output /absolute/path/to/fresh/resource7-output
+~~~
 
-**此文冻结时，新集成提交的 hosted CI 尚未运行。** 便携资源入口已通过源码一致性检查；其实际 CI 执行状态需要由新提交对应的原始报告确认。CI 文件保全的 PASS 只说明保存和核验了文件，13 个单元构建和各用例的语义结果仍分别接受独立准入。
+统一协调器把本次真实 `build.json` 的 SHA 显式交给资源入口；单独调用会先计算并核验所选构建的实际 receipt。所有原配方、资源预算、owner、RNG、分配失败、限额恢复及参考比较保持。原三项标量资源配方位于 `resource7/r4`，原私有缓存配方位于 `resource7/backward`；其余三项 R3 preserve 配方仍属于同一必需组。
+
+[两项调用退休索引](../validation/r4-resource-retirement/index.json)固定原 R4 的完整 4,486 成员清单、原 ZIP／内层 archive 身份及 523 个退出成员的规范映射 SHA。原件已完成字节、POSIX 模式、XZ EOF 和 TAR 尾块核验，并由所有者保留完整副本。当前只移除 Native workflow 的两处重复执行及对应的两个 Make launch target；原始资源源码包、参考和历史报告均保留。冻结的 [R4 profile](../compatibility/view-reshape-r4-profile.json) 中旧 target 名是历史来源记录，文件保持原字节，不再表示当前可调用入口。
+
+旧 R4 封存器采用明确的 v3 契约：19 个必需目录、8 个必需顶层报告、2 份输入清单；原 2 份参考报告及 3 份源码仍为必需，并额外固定退休索引 SHA。仅六条明确退休的生成路径退出选择器。任何在用必需输入缺失或索引不符仍产生 FAIL，并尽量先封存可读取的证据。外层继续单独保存封存器的两条实时日志。
+
+原 R4 文档记录的“此前 116 步、加入 10 步、合计 126 步”以及首次发布时 hosted CI 尚未运行，均属于当时的历史状态。后续 PR42 已实际通过同一 700 函数映像的 13 组／697 例；当前 729 函数映像的独立 `resource7` 也已实际通过 7 例、378 帧和 1,060 项检查。两份原报告及各自 source／ELF／build 身份在退休索引中分别绑定，不互相转移 PASS。**本次两调用退休后的 v3 hosted CI 尚待执行。** 当前完整 15 组／1,020 例与新封存器的状态由对应提交的真实 CI 报告确定，文件保全成功不代替用例语义验收。
 
 ## 未闭合范围
 

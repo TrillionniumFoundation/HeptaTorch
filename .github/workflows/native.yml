@@ -882,38 +882,6 @@ jobs:
           fi
           exit "$status"
 
-      - name: Qualify three finite R4 scalar resource lifetime and rollback controls
-        run: |
-          status=0
-          make test-differentiable-view-r4-resource3 \
-            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
-            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget" \
-            > build/view-reshape-r4-resource3.make.stdout \
-            2> build/view-reshape-r4-resource3.make.stderr || status=$?
-          cat build/view-reshape-r4-resource3.make.stdout
-          cat build/view-reshape-r4-resource3.make.stderr >&2
-          if [ -f build/view-reshape-r4-resource3/report.json ]; then
-            cp build/view-reshape-r4-resource3/report.json build/view-reshape-r4-resource3.json
-            python3 -I -S -B tools/emit_ci_report.py build/view-reshape-r4-resource3.json
-          fi
-          exit "$status"
-
-      - name: Qualify finite backward private preserve cache OOM and recovery
-        run: |
-          status=0
-          make test-differentiable-view-r4-backward-resource \
-            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
-            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget" \
-            > build/view-reshape-r4-backward-resource.make.stdout \
-            2> build/view-reshape-r4-backward-resource.make.stderr || status=$?
-          cat build/view-reshape-r4-backward-resource.make.stdout
-          cat build/view-reshape-r4-backward-resource.make.stderr >&2
-          if [ -f build/view-reshape-r4-backward-resource/report.json ]; then
-            cp build/view-reshape-r4-backward-resource/report.json build/view-reshape-r4-backward-resource.json
-            python3 -I -S -B tools/emit_ci_report.py build/view-reshape-r4-backward-resource.json
-          fi
-          exit "$status"
-
       - name: Reproduce and qualify persistent native CPU Generator objects
         run: |
           make cpu-generators test-cpu-generators \
@@ -1638,8 +1606,6 @@ jobs:
             build/view-reshape-r4-reference26/
             build/view-reshape-r4-reference32/
             build/view-reshape-r4-native/
-            build/view-reshape-r4-resource3/
-            build/view-reshape-r4-backward-resource/
             build/view-reshape-r4-custody/
             build/r4-custody-seal.stdout
             build/r4-custody-seal.stderr

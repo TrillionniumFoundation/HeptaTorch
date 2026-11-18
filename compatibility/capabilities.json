@@ -41,7 +41,8 @@
       "0": "IEEE binary32 Tensor: documented arithmetic, AD and conversion paths",
       "1": "Bool Tensor with one-byte elements: documented typed/logical/reduction paths",
       "2": "signed int64 Tensor with eight-byte elements: documented typed/integer/mixed/reduction paths",
-      "3": "internal rank-zero wrapped IEEE binary64 Scalar only; no general F64 Tensor service"
+      "3": "internal rank-zero wrapped IEEE binary64 Scalar only; no general F64 Tensor service",
+      "4": "public dense no-grad binary64 candidate paths; 192 logical comparisons are mandatory in the pending 1020 gate; requires_grad creation and as_strided remain separately recorded native refusal boundaries"
     },
     "resource_bounds": {
       "rank_range": [
@@ -82,8 +83,14 @@
       "common": "Rank0..4 and <=262144 logical elements; signed axes, keepdim0/1, zero reserved words, complete bounded axis payload. Scalar axis0/-1 is accepted. No out= or unimplemented dtype/backend contract is inferred."
     },
     "current_image_qualification": {
-      "status": "PASS_CAT14_ONLY_UNIFIED_697_PENDING",
-      "cold_build": "PASS_NATIVE_BUILD_ONLY",
+      "status": "CURRENT729_UNIFIED_1020_PENDING",
+      "cold_build": "MATCHING_CURRENT729_RECEIPT_REQUIRED",
+      "candidate_identity": {
+        "source_sha256": "04ae430e3e851831fcb97a3fab700b16b6318361d52e90fcea90d2183d1d564b",
+        "native_sha256": "4749413ea952bfd9d1fe41770f94ce1b9b9e3efabb407aa90f725cf33d59c4db",
+        "functions": 729,
+        "units": 14
+      },
       "required_groups": {
         "bool27": 27,
         "original76": 76,
@@ -97,11 +104,13 @@
         "resource7": 7,
         "asstrided16": 16,
         "cat4": 4,
-        "metadata10": 10
+        "metadata10": 10,
+        "generator131": 131,
+        "public_f64_logical192": 192
       },
-      "required_group_count": 13,
-      "required_cases_total": 697,
-      "success_rule": "All thirteen groups must actually run and pass on the same current source, ELF and cold-build receipt, including every separate control, exact original denominator, process exit/EOF and unchanged input binding.",
+      "required_group_count": 15,
+      "required_cases_total": 1020,
+      "success_rule": "All fifteen groups must actually run and pass. Production cases bind the same current main source, ELF and cold-build receipt; Generator131 additionally links and executes separately identified current-object ABI and reordered probe images. Every original control, denominator, process exit/EOF and unchanged input binding remains mandatory.",
       "historical_qualification_transferred": false,
       "observed_executions": [
         {
@@ -116,7 +125,7 @@
           "qualification_transferred": false
         },
         {
-          "scope": "current image, four original cat/stack packets including one explicit expanded-capacity control",
+          "scope": "previous 700-function cat image, four original cat/stack packets including one explicit expanded-capacity control",
           "cases": 4,
           "status": "PASS_CAT4_ONLY",
           "source_sha256": "ba96abc05717643eaf4f2056325089d9a51f5a2e9838f89473e9a4e76e46fd99",
@@ -125,7 +134,7 @@
           "original_failure_reference_reclassified": false
         },
         {
-          "scope": "current image, ten independent fixed Torch cat metadata recipes",
+          "scope": "previous 700-function cat image, ten independent fixed Torch cat metadata recipes",
           "cases": 10,
           "status": "MATCH_ALL_TEN_FIXED_REFERENCE_FIELDS",
           "source_sha256": "ba96abc05717643eaf4f2056325089d9a51f5a2e9838f89473e9a4e76e46fd99",
@@ -133,9 +142,59 @@
           "qualification_sha256": "025237173c936d4ed13c76cd27a7c4752b701d7fb9fb936aecf4157d807e5bab",
           "reference_sha256": "2b80fe6a5a9c83d305b73a6eb86e3d788196eb9e11297402e7ba4e8a33ca6243",
           "different_fields": 0
+        },
+        {
+          "scope": "previous merged 700-function cat image, actual complete thirteen-group GitHub CI",
+          "cases": 697,
+          "groups": 13,
+          "status": "PASS_CURRENT_RUNTIME_FOCUSED",
+          "source_sha256": "ba96abc05717643eaf4f2056325089d9a51f5a2e9838f89473e9a4e76e46fd99",
+          "native_sha256": "d179d2f8b818e6a1b69d6b81e5cc0233c0148f3afac86f16f7cb6fd2db57dca4",
+          "qualification_sha256": "387d5f03fd521320f8b69cfc571f217be1f4b197543102f64e8a8a8072a7f920",
+          "actual_build_sha256": "bedcafb22dd9b0942345265cffbaf771dd2decf4df6d07340241ac1ef84d5df4",
+          "workflow_run": "https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/44315544747",
+          "actual_checkout": "60b20b74a0d88849dbc5d46e48388612240c20f5",
+          "executed_tree": "79a3f8f522b955670c6e5970ac94b15560651686",
+          "merged_main": "d1f455aa5def8e2fb2a3fe7979efa82e68bb3433",
+          "physical_input_count": 24950,
+          "qualification_transferred": false
         }
       ],
       "full_697_executed": false,
+      "full_828_executed": false,
+      "full_1020_executed": false,
+      "generator131": {
+        "status": "PENDING_ACTUAL_CURRENT729_RUN",
+        "subgroups": {
+          "original24": 24,
+          "native11": 11,
+          "entry59": 59,
+          "dispatch37": 37
+        },
+        "pure_admission": "tests/current_runtime_generator131.py",
+        "fixture_restorer": "tests/current_runtime_generator_fixtures.py",
+        "tool_build_cli": "--tool-build",
+        "stack_build_cli": "--stack-build",
+        "tool_receipt_sha256": "DYNAMIC_ACTUAL_FILE",
+        "main_plus_independent_probe_images": true,
+        "historical_probe_pass_transferred": false
+      },
+      "public_f64_logical192": {
+        "status": "PENDING_ACTUAL_COMBINED_CURRENT729_RUN",
+        "cases": 192,
+        "reader": "tests/public_f64_logical/qualify.py",
+        "pure_admission": "tests/current_runtime_public_f64_logical192.py",
+        "reference_package": "validation/public-f64-logical192-reference",
+        "original_six_modules_unchanged": true,
+        "construction": "direct97_public_dtype4_dense_no_grad",
+        "packet_controls": 18,
+        "actual_allocation_controls": 2,
+        "native_sessions": 196,
+        "native_boundary_controls": 2,
+        "outside_native_scope_torch_observations": 6,
+        "boundary_controls_counted_as_torch_compatibility": false,
+        "original147_replaced": false
+      },
       "historical_execution_evidence": "validation/current-runtime-20261118/manifest.json"
     },
     "controls_required": {
@@ -147,7 +206,10 @@
       "live_reference_provenance_checks_per_group": 11,
       "other_controls": "All original Bool/Integral dtype observations, F32 dtype/axis/entry controls and both conversion/output allocation stages remain mandatory. Explicitly superseded refusal results retain their original FAIL records.",
       "inherited_resource_allocation_recoveries": 3,
-      "cat_expanded_capacity": 1
+      "cat_expanded_capacity": 1,
+      "public_f64_packet_and_rollback": 18,
+      "public_f64_allocation_and_recovery": 2,
+      "public_f64_native_scope_controls_not_compatibility": 2
     },
     "reference_policy": "Fixed independently produced reference bytes or the exact pinned live Torch CPU interpreter; no native-result-derived expected values.",
     "torch_reference_lock": "compatibility/pytorch-oracle-lock.json",
@@ -164,7 +226,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "PASS_CAT14_ONLY_UNIFIED_697_PENDING",
+      "current_image_qualification": "CURRENT729_UNIFIED_1020_PENDING",
       "full_upstream_schema_qualified": false
     },
     {
@@ -175,7 +237,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "PASS_CAT14_ONLY_UNIFIED_697_PENDING",
+      "current_image_qualification": "CURRENT729_UNIFIED_1020_PENDING",
       "full_upstream_schema_qualified": false
     },
     {
@@ -189,17 +251,18 @@
         "sum_f32_17",
         "asstrided16"
       ],
-      "current_image_qualification": "PASS_CAT14_ONLY_UNIFIED_697_PENDING",
+      "current_image_qualification": "CURRENT729_UNIFIED_1020_PENDING",
       "full_upstream_schema_qualified": false
     },
     {
       "name": "logical-reductions",
       "implementation": "PRESENT_IN_CURRENT_HIA_SOURCE",
-      "scope": "Commands118 any and119 all accept Bool, I64, F32 and existing rank-zero wrapped F64 Scalars, and return independent detached Bool Tensor/Storage/Version objects. Empty axis tuples mean no reduction; empty reductions use the appropriate logical identity.",
+      "scope": "Commands118 any and119 all accept Bool, I64, F32, existing rank-zero wrapped F64 Scalars and public dense no-grad F64, and return independent detached Bool Tensor/Storage/Version objects. Empty axis tuples mean no reduction; empty reductions use the appropriate logical identity.",
       "required_current_image_suites": [
-        "logical147"
+        "logical147",
+        "public_f64_logical192"
       ],
-      "current_image_qualification": "PASS_CAT14_ONLY_UNIFIED_697_PENDING",
+      "current_image_qualification": "CURRENT729_UNIFIED_1020_PENDING",
       "full_upstream_schema_qualified": false
     },
     {
@@ -208,9 +271,10 @@
       "scope": "Command115 explicit Bool result accepts the same source types. Its empty axis tuple means all dimensions. Invalid axes are checked before the requires_grad refusal; floating inputs requiring gradients remain refused.",
       "required_current_image_suites": [
         "logical147",
-        "bool27"
+        "bool27",
+        "public_f64_logical192"
       ],
-      "current_image_qualification": "PASS_CAT14_ONLY_UNIFIED_697_PENDING",
+      "current_image_qualification": "CURRENT729_UNIFIED_1020_PENDING",
       "full_upstream_schema_qualified": false
     },
     {
@@ -221,7 +285,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "PASS_CAT14_ONLY_UNIFIED_697_PENDING",
+      "current_image_qualification": "CURRENT729_UNIFIED_1020_PENDING",
       "full_upstream_schema_qualified": false
     },
     {
@@ -234,7 +298,7 @@
         "current35",
         "asstrided16"
       ],
-      "current_image_qualification": "PASS_CAT14_ONLY_UNIFIED_697_PENDING",
+      "current_image_qualification": "CURRENT729_UNIFIED_1020_PENDING",
       "full_upstream_schema_qualified": false
     },
     {
@@ -246,7 +310,7 @@
         "current35",
         "live32"
       ],
-      "current_image_qualification": "PASS_CAT14_ONLY_UNIFIED_697_PENDING",
+      "current_image_qualification": "CURRENT729_UNIFIED_1020_PENDING",
       "full_upstream_schema_qualified": false
     },
     {
@@ -257,7 +321,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "PASS_CAT14_ONLY_UNIFIED_697_PENDING",
+      "current_image_qualification": "CURRENT729_UNIFIED_1020_PENDING",
       "full_upstream_schema_qualified": false
     },
     {
@@ -268,7 +332,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "PASS_CAT14_ONLY_UNIFIED_697_PENDING",
+      "current_image_qualification": "CURRENT729_UNIFIED_1020_PENDING",
       "full_upstream_schema_qualified": false
     },
     {
@@ -279,7 +343,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "PASS_CAT14_ONLY_UNIFIED_697_PENDING",
+      "current_image_qualification": "CURRENT729_UNIFIED_1020_PENDING",
       "full_upstream_schema_qualified": false
     },
     {
@@ -290,7 +354,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "PASS_CAT14_ONLY_UNIFIED_697_PENDING",
+      "current_image_qualification": "CURRENT729_UNIFIED_1020_PENDING",
       "full_upstream_schema_qualified": false
     },
     {
@@ -301,7 +365,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "PASS_CAT14_ONLY_UNIFIED_697_PENDING",
+      "current_image_qualification": "CURRENT729_UNIFIED_1020_PENDING",
       "full_upstream_schema_qualified": false
     },
     {
@@ -314,7 +378,7 @@
         "logical147",
         "resource7"
       ],
-      "current_image_qualification": "PASS_CAT14_ONLY_UNIFIED_697_PENDING",
+      "current_image_qualification": "CURRENT729_UNIFIED_1020_PENDING",
       "full_upstream_schema_qualified": false
     },
     {
@@ -326,19 +390,20 @@
         "current35",
         "live32"
       ],
-      "current_image_qualification": "PASS_CAT14_ONLY_UNIFIED_697_PENDING",
+      "current_image_qualification": "CURRENT729_UNIFIED_1020_PENDING",
       "full_upstream_schema_qualified": false
     },
     {
       "name": "rng-and-distributions",
       "implementation": "PRESENT_IN_CURRENT_HIA_SOURCE",
-      "scope": "Native CPU MT19937 Generators with complete 5056-byte state, selected uniform/Bernoulli/dropout paths and documented partial errors; the finite tests do not qualify all distributions or devices.",
+      "scope": "Native CPU MT19937 Generators with complete 5056-byte state, selected distributions and documented partial errors. Mandatory Generator131 preserves original24/native11/entry59/dispatch37, real entropy and separate current-object probes; current729 full execution is pending and this does not qualify every distribution or device.",
       "required_current_image_suites": [
         "live32",
         "current35",
-        "logical147"
+        "logical147",
+        "generator131"
       ],
-      "current_image_qualification": "PASS_CAT14_ONLY_UNIFIED_697_PENDING",
+      "current_image_qualification": "CURRENT729_UNIFIED_1020_PENDING",
       "full_upstream_schema_qualified": false
     }
   ],

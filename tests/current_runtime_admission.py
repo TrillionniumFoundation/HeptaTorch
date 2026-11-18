@@ -252,19 +252,30 @@ def qualify_f32(report, repository, build, build_sha, directory, inputs):
     cat_spec = importlib.util.spec_from_file_location('qualified_current_cat_source_transition', cat_path)
     cat = importlib.util.module_from_spec(cat_spec)
     cat_spec.loader.exec_module(cat)
-    restored, cat_proof = cat.restore_source(inputs.bind(Path(build) / 'runtime.hepta', SOURCE), inputs.bind)
-    require(cat_transition['schema'] == 'heptatorch.current-cat.source-proof.v1'
+    outer_path = Path(repository) / 'tools/current_runtime/fusion_source_transition.py'
+    inputs.bind(outer_path, 'ca68c251be10292f0e2e47c4f010a19ec8542cb26b30c92a2d27d37dddba1ae8')
+    outer_spec = importlib.util.spec_from_file_location('qualified_current729_source_transition', outer_path)
+    outer = importlib.util.module_from_spec(outer_spec)
+    outer_spec.loader.exec_module(outer)
+    historical700, outer_proof = outer.restore_source(inputs.bind(Path(build) / 'runtime.hepta', SOURCE), inputs.bind)
+    require(FUNCTIONS == 729 and UNITS == 14 and sha(historical700) == cat.SOURCE == outer.PARENT_SOURCE,
+            'actual729 profile and exact historical700 source subject')
+    restored, cat_proof = cat.restore_source(historical700, inputs.bind)
+    require(cat_transition['schema'] == 'heptatorch.current729-cat.source-proof.v1'
             and cat_transition['source_sha256'] == SOURCE
             and cat_transition['parent_source_sha256'] == cat.PARENT_SOURCE == sha(restored)
             and cat_transition['whole_inverse_exact'] is True
             and cat_transition['cat_transition'] == cat_proof
+            and cat_transition['outer_source_inverse'] == outer_proof
+            and cat_transition['actual_functions'] == 729 and cat_transition['historical_functions'] == 700
+            and cat_transition['historical_count_binding_separated'] is True
             and cat_transition['original_source_proofs_modified'] is False
             and cat_transition['runtime_qualification_transferred'] is False,
             'exact complete three-function cat inverse before all original source proofs')
     fusion = cat_transition['logical_fusion']
     require(fusion['schema'] == 'heptatorch.current-logical-fusion.source-proof.v1'
             and fusion['whole_inverse_exact'] is True and fusion['source_sha256'] == cat.PARENT_SOURCE
-            and fusion['current_functions'] == FUNCTIONS and fusion['original_functions'] == 701
+            and fusion['current_functions'] == 700 and fusion['original_functions'] == 701
             and fusion['unchanged_functions'] == 689
             and fusion['modified_functions'] == ['entry', 'sb_sum_bool', 'si_dispatch_sum', 'si_plan', 'to_command']
             and fusion['added_functions'] == ['logical_axis_mask', 'logical_dispatch', 'logical_plan',

@@ -1,0 +1,1545 @@
+
+def link(s:readbuf, o:mutbuf, w:mutbuf) -> u32:
+    if length(w) < 16777216:
+        return 4294967294
+    if length(s) < 32 or length(s) > 8388608:
+        return 4294967295
+    if uint(s, 0, 8) != 3544424472276715848 or uint(s, 24, 8) != 0:
+        return 4294967295
+    count = uint(s, 8, 8)
+    name = uint(s, 16, 8)
+    if count == 0 or count > 64 or name == 0 or name > 4096 or name > length(s) - 32:
+        return 4294967295
+    if name != 4 or uint(s, 32, 4) != 1885697139:
+        return 4294967295
+    fill_range(w, 0, 256, 0)
+    put(w, 0, count)
+    put(w, 40, 4096)
+    put(w, 72, 32)
+    put(w, 80, name)
+    if objects(s, w) == 0:
+        return 4294967295
+    data = aligned(get(w, 40), 4096)
+    if data > 8388608 or get(w, 48) > 8388608 - data:
+        return 4294967294
+    total = data + get(w, 48)
+    if length(o) < total:
+        return 4294967294
+    put(w, 56, data)
+    put(w, 64, total)
+    i = 0
+    while i < get(w, 8):
+        sec = 16384 + i * 48
+        if (get(w, sec + 16) & 3) == 3:
+            put(w, sec + 24, get(w, sec + 24) + data)
+        i = i + 1
+    if symbols(s, w) == 0:
+        return 4294967295
+    if module_contracts(s, w) == 0:
+        return 4294967295
+    if stack_contracts(s, w) == 0:
+        return 4294967295
+    found = global_find(s, w, 32, name)
+    if found == 0:
+        return 4294967295
+    record = get(w, found + 16)
+    if module_entry(s, w, record) == 0:
+        return 4294967295
+    flags = get(w, record + 24)
+    if ((flags >> 8) & 255) != 2 or ((flags >> 16) & 255) != 1 or ((flags >> 24) & 4) == 0:
+        return 4294967295
+    put(w, 88, get(w, record + 16) - 4194304)
+    fill_range(w, 3145728, 8388608, 0)
+    if relocations(s, w) == 0:
+        return 4294967295
+    fill_range(o, 0, total, 0)
+    headers(o, w)
+    i = 0
+    while i < get(w, 8):
+        sec = 16384 + i * 48
+        if (get(w, sec + 16) & 2) != 0 and get(w, sec + 32) == 1:
+            copy_bytes(s, o, get(w, sec), get(w, sec + 24), get(w, sec + 8))
+        i = i + 1
+    i = 0
+    while i < get(w, 32):
+        patch = 1572864 + i * 24
+        write(o, get(w, patch), get(w, patch + 16), get(w, patch + 8))
+        i = i + 1
+    return total
+
+def objects(s:readbuf, w:mutbuf) -> u64:
+    pos = 32 + get(w, 80)
+    obj = 0
+    while obj < get(w, 0):
+        if within(length(s), pos, 8) == 0:
+            return 0
+        size = uint(s, pos, 8)
+        pos = pos + 8
+        if size < 64 or within(length(s), pos, size) == 0:
+            return 0
+        if uint(s, pos, 7) != 282584257676671 or (byte(s, pos + 7) != 0 and byte(s, pos + 7) != 3) or byte(s, pos + 8) != 0:
+            return 0
+        if uint(s, pos + 16, 8) != 4299030529 or uint(s, pos + 24, 8) != 0 or uint(s, pos + 32, 8) != 0:
+            return 0
+        if uint(s, pos + 48, 4) != 0 or uint(s, pos + 52, 2) != 64 or uint(s, pos + 56, 2) != 0 or uint(s, pos + 58, 2) != 64:
+            return 0
+        table = uint(s, pos + 40, 8)
+        count = uint(s, pos + 60, 2)
+        strings = uint(s, pos + 62, 2)
+        if count == 0 or count > 4096 - get(w, 8) or strings >= count or table < 64 or within(size, table, count * 64) == 0:
+            return 0
+        record = 4096 + obj * 80
+        fill_range(w, record, 80, 0)
+        put(w, record, pos)
+        put(w, record + 8, size)
+        put(w, record + 16, get(w, 8))
+        put(w, record + 24, count)
+        put(w, record + 72, count)
+        i = 0
+        while i < count:
+            h = pos + table + i * 64
+            kind = uint(s, h + 4, 4)
+            flags = uint(s, h + 8, 8)
+            offset = uint(s, h + 24, 8)
+            extent = uint(s, h + 32, 8)
+            align = uint(s, h + 48, 8)
+            if i == 0:
+                j = 0
+                while j < 64:
+                    if byte(s, h + j) != 0:
+                        return 0
+                    j = j + 1
+            if kind != 8 and within(size, offset, extent) == 0:
+                return 0
+            if align == 0:
+                align = 1
+            if align > 4096 or (align & (align - 1)) != 0:
+                return 0
+            # Our startup has neither CET feature. GNU FEATURE_1_AND therefore
+            # intersects to zero, just as ld with this startup object. Admit
+            # only that understood property; never discard a needed/unknown
+            # property or arbitrary allocated note.
+            if kind == 7 and (flags & 2) != 0:
+                if flags != 2 or property_note(s, pos + offset, extent) == 0:
+                    return 0
+                flags = 0
+            sec = 16384 + (get(w, 8) + i) * 48
+            put(w, sec, pos + offset)
+            put(w, sec + 8, extent)
+            put(w, sec + 16, flags)
+            put(w, sec + 24, 0)
+            put(w, sec + 32, kind)
+            put(w, sec + 40, align)
+            if (flags & 2) != 0:
+                if (kind != 1 and kind != 8) or (flags & 18446744073709551608) != 0 or (flags & 5) == 5 or (kind == 8 and (flags & 4) != 0):
+                    return 0
+                field = 40
+                if (flags & 1) != 0:
+                    field = 48
+                out = aligned(get(w, field), align)
+                if out > 8388608 or extent > 8388608 - out:
+                    return 0
+                put(w, sec + 24, out)
+                put(w, field, out + extent)
+            if kind == 2:
+                if get(w, record + 72) != count or flags != 0 or uint(s, h + 56, 8) != 24 or extent == 0 or extent % 24 != 0:
+                    return 0
+                link = uint(s, h + 40, 4)
+                if link >= count:
+                    return 0
+                sh = pos + table + link * 64
+                str_at = uint(s, sh + 24, 8)
+                str_size = uint(s, sh + 32, 8)
+                if uint(s, sh + 4, 4) != 3 or uint(s, sh + 8, 8) != 0 or str_size == 0 or within(size, str_at, str_size) == 0 or byte(s, pos + str_at) != 0:
+                    return 0
+                if extent // 24 > 32768 - get(w, 16) or uint(s, h + 44, 4) > extent // 24:
+                    return 0
+                put(w, record + 32, h)
+                put(w, record + 40, extent // 24)
+                put(w, record + 48, pos + str_at)
+                put(w, record + 56, str_size)
+                put(w, record + 64, get(w, 16))
+                put(w, record + 72, i)
+                put(w, 16, get(w, 16) + extent // 24)
+            if kind == 9 and extent != 0:
+                return 0
+            i = i + 1
+        if get(w, record + 72) == count:
+            return 0
+        put(w, 8, get(w, 8) + count)
+        pos = pos + size
+        obj = obj + 1
+    if pos != length(s):
+        return 0
+    return 1
+
+def symbols(s:readbuf, w:mutbuf) -> u64:
+    obj = 0
+    while obj < get(w, 0):
+        record = 4096 + obj * 80
+        i = 0
+        while i < get(w, record + 40):
+            if read_symbol(s, w, record, i) == 0:
+                return 0
+            i = i + 1
+        obj = obj + 1
+    return 1
+
+def read_symbol(s:readbuf, w:mutbuf, record:u64, i:u64) -> u64:
+    h = get(w, record + 32)
+    table = get(w, record) + uint(s, h + 24, 8)
+    local = uint(s, h + 44, 4)
+    at = table + i * 24
+    sym = 262144 + (get(w, record + 64) + i) * 32
+    name = uint(s, at, 4)
+    binding = byte(s, at + 4) >> 4
+    kind = byte(s, at + 4) & 15
+    section = uint(s, at + 6, 2)
+    value = uint(s, at + 8, 8)
+    extent = uint(s, at + 16, 8)
+    if (binding != 0 and binding != 1 and binding != 2) or kind > 4 or byte(s, at + 5) > 3:
+        return 0
+    if (i < local and binding != 0) or (i >= local and binding == 0):
+        return 0
+    n = string_size(s, get(w, record + 48), get(w, record + 56), name)
+    if n == 4294967295 or (binding != 0 and n == 0):
+        return 0
+    put(w, sym, get(w, record + 48) + name)
+    put(w, sym + 8, n)
+    defined = 0
+    flags = 0
+    if i == 0:
+        j = 0
+        while j < 24:
+            if byte(s, at + j) != 0:
+                return 0
+            j = j + 1
+    if section == 0:
+        if value != 0 or extent != 0:
+            return 0
+    else:
+        if section == 65521:
+            defined = 2
+        else:
+            if section >= get(w, record + 24):
+                return 0
+            sec = 16384 + (get(w, record + 16) + section) * 48
+            flags = get(w, sec + 16)
+            if (flags & 2) == 0:
+                # File/debug-only symbols have no runtime address;
+                # record them as undefined, refusing any actual use.
+                defined = 0
+            else:
+                if value > get(w, sec + 8) or extent > get(w, sec + 8) - value:
+                    return 0
+                defined = 1
+                value = 4194304 + get(w, sec + 24) + value
+    put(w, sym + 16, value)
+    put(w, sym + 24, binding | (kind << 8) | (defined << 16) | (flags << 24))
+    if binding != 0 and defined != 0:
+        old = global_find(s, w, get(w, sym), n)
+        if old != 0:
+            previous = get(w, old + 24)
+            if previous == 1 and binding == 1:
+                return 0
+            if previous == 2 and binding == 1:
+                put(w, old + 16, sym)
+                put(w, old + 24, binding)
+        else:
+            if get(w, 24) >= 8192:
+                return 0
+            old = 1310720 + get(w, 24) * 32
+            put(w, old, get(w, sym))
+            put(w, old + 8, n)
+            put(w, old + 16, sym)
+            put(w, old + 24, binding)
+            put(w, 24, get(w, 24) + 1)
+    return 1
+
+def relocations(s:readbuf, w:mutbuf) -> u64:
+    obj = 0
+    while obj < get(w, 0):
+        record = 4096 + obj * 80
+        table = get(w, record) + uint(s, get(w, record) + 40, 8)
+        i = 0
+        while i < get(w, record + 24):
+            h = table + i * 64
+            if uint(s, h + 4, 4) == 4:
+                count = uint(s, h + 32, 8)
+                target = uint(s, h + 44, 4)
+                if uint(s, h + 56, 8) != 24 or count % 24 != 0 or uint(s, h + 40, 4) != get(w, record + 72) or target >= get(w, record + 24):
+                    return 0
+                sec = 16384 + (get(w, record + 16) + target) * 48
+                if (get(w, sec + 16) & 2) == 0:
+                    if count != 0:
+                        return 0
+                j = 0
+                while j < count:
+                    at = get(w, record) + uint(s, h + 24, 8) + j
+                    if relocate_one(s, w, record, sec, at) == 0:
+                        return 0
+                    j = j + 24
+            i = i + 1
+        obj = obj + 1
+    return 1
+
+def relocate_one(s:readbuf, w:mutbuf, record:u64, sec:u64, at:u64) -> u64:
+    offset = uint(s, at, 8)
+    kind = uint(s, at + 8, 4)
+    symbol = uint(s, at + 12, 4)
+    addend = uint(s, at + 16, 8)
+    if kind != 0:
+        width = 4
+        if kind == 1:
+            width = 8
+        else:
+            if kind != 2 and kind != 4 and kind != 10 and kind != 11:
+                return 0
+        if within(get(w, sec + 8), offset, width) == 0 or symbol >= get(w, record + 40):
+            return 0
+        sym = 262144 + (get(w, record + 64) + symbol) * 32
+        info = get(w, sym + 24)
+        address = get(w, sym + 16)
+        if (info & 255) != 0:
+            found = global_find(s, w, get(w, sym), get(w, sym + 8))
+            if found == 0:
+                if (info & 255) != 2:
+                    return 0
+                address = 0
+            else:
+                address = get(w, get(w, found + 16) + 16)
+        else:
+            if ((info >> 16) & 255) == 0:
+                if symbol != 0:
+                    return 0
+                address = 0
+        patch = get(w, sec + 24) + offset
+        value = address + addend
+        if kind == 2 or kind == 4:
+            value = value - (4194304 + patch)
+        if kind == 10 and value > 4294967295:
+            return 0
+        if (kind == 2 or kind == 4 or kind == 11) and value > 2147483647 and value < 18446744071562067968:
+            return 0
+        if get(w, 32) >= 32768:
+            return 0
+        k = 0
+        while k < width:
+            if byte(w, 3145728 + patch + k) != 0:
+                return 0
+            store(w, 3145728 + patch + k, 1)
+            k = k + 1
+        p = 1572864 + get(w, 32) * 24
+        put(w, p, patch)
+        put(w, p + 8, width)
+        put(w, p + 16, value)
+        put(w, 32, get(w, 32) + 1)
+    return 1
+
+def headers(o:mutbuf,w:mutbuf) -> u64:
+    write(o,0,282584257676671,8)
+    write(o,8,0,8)
+    write(o,16,4299030530,8)
+    write(o,24,4194480,8)
+    write(o,32,64,8)
+    write(o,40,0,8)
+    write(o,48,15762873573703680,8)
+    write(o,56,2,8)
+    write(o,64,21474836481,8)
+    write(o,72,0,8)
+    write(o,80,4194304,8)
+    write(o,88,4194304,8)
+    write(o,96,0,8)
+    write(o,104,0,8)
+    write(o,112,4096,8)
+    write(o,120,27455186257,8)
+    write(o,128,0,8)
+    write(o,136,0,8)
+    write(o,144,0,8)
+    write(o,152,0,8)
+    write(o,160,0,8)
+    write(o,168,16,8)
+    write(o,176,18412139149151470408,8)
+    write(o,184,1153131507854868484,8)
+    write(o,192,4683743612527837216,8)
+    write(o,200,13891151839996420794,8)
+    write(o,208,13315227950015053823,8)
+    write(o,216,4415784996619419657,8)
+    write(o,224,344106526283132929,8)
+    write(o,232,11856088602495221760,8)
+    write(o,240,13762772862337345572,8)
+    write(o,248,13421239472444416000,8)
+    write(o,256,18428948791546609698,8)
+    write(o,264,700530955521097727,8)
+    write(o,272,89306754180972544,8)
+    write(o,280,1283692978765808,8)
+    write(o,288,220059167967488,8)
+    write(o,296,228855265052928,8)
+    write(o,304,13298364441681723392,8)
+    write(o,312,9223372852898566144,8)
+    write(o,320,772367336094284288,8)
+    write(o,328,13872573413748375552,8)
+    write(o,336,10036553244644902159,8)
+    write(o,344,10180386957684122756,8)
+    write(o,352,11856087760526901408,8)
+    write(o,360,7244401739951036452,8)
+    write(o,368,3091740708,8)
+    write(o,376,2631379028916830208,8)
+    write(o,384,2631447198637752544,8)
+    write(o,392,4294967488,8)
+    write(o,400,1374998021961,8)
+    write(o,408,10180668432648617728,8)
+    write(o,416,628887468996830324,8)
+    write(o,424,58921582592,8)
+    write(o,432,3425004836159489295,8)
+    write(o,440,13709491118557626371,8)
+    write(o,448,695887781167120,8)
+    write(o,456,17059874374912,8)
+    write(o,464,16322187515161430272,8)
+    write(o,472,3216544628738,8)
+    write(o,480,5930773757521606728,8)
+    write(o,488,9587921732254642480,8)
+    write(o,496,2626877645492585176,8)
+    write(o,504,4503603897256200,8)
+    write(o,512,10181794332602107663,8)
+    write(o,520,3379951520610002092,8)
+    write(o,528,12791647636155269122,8)
+    write(o,536,10278841511575554,8)
+    write(o,544,10386572365793329153,8)
+    write(o,552,9550245574620479488,8)
+    write(o,560,9550244749164714020,8)
+    write(o,568,8972095147001053220,8)
+    write(o,576,157788764375076,8)
+    write(o,584,4992032741239834624,8)
+    write(o,592,10278480737546318,8)
+    write(o,600,131413366013968,8)
+    write(o,608,4512553501935872,8)
+    write(o,616,448908952320,8)
+    write(o,624,1100126915917,8)
+    write(o,632,4519362226066865729,8)
+    write(o,640,9893545854390763521,8)
+    write(o,648,17907235729932694006,8)
+    write(o,656,5260204364357963772,8)
+    write(o,664,165592154245,8)
+    write(o,672,32465925192012,8)
+    write(o,680,1136641352772176128,8)
+    write(o,688,9567697297232349573,8)
+    write(o,696,8796093061156,8)
+    write(o,704,13848850329142225152,8)
+    write(o,712,653447694665,8)
+    write(o,720,1100124293449,8)
+    write(o,728,17592798711113,8)
+    write(o,736,4939122093616040265,8)
+    write(o,744,5289517639126288420,8)
+    write(o,752,5260222025676653709,8)
+    write(o,760,2613432802009695369,8)
+    write(o,768,4939121680959144056,8)
+    write(o,776,5271503309369843748,8)
+    write(o,784,5260204366918616201,8)
+    write(o,792,3530822110142567561,8)
+    write(o,800,9892473396636764608,8)
+    write(o,808,13845337145904473156,8)
+    write(o,816,5260204364768739328,8)
+    write(o,824,5260204367455487113,8)
+    write(o,832,5260204367589704841,8)
+    write(o,840,5260204367723922569,8)
+    write(o,848,5260204367858140297,8)
+    write(o,856,2644894227458456717,8)
+    write(o,864,9459903655441334432,8)
+    write(o,872,5188146770746018028,8)
+    write(o,880,9550808095346181251,8)
+    write(o,888,10703729203724984356,8)
+    write(o,896,4938558730737330212,8)
+    write(o,904,4695042557032865828,8)
+    write(o,912,5260204367723922571,8)
+    write(o,920,9892649373586965641,8)
+    write(o,928,9892438056504403076,8)
+    write(o,936,9892438056504927364,8)
+    write(o,944,9892438056505451652,8)
+    write(o,952,9892438056505975940,8)
+    write(o,960,9892438056506500228,8)
+    write(o,968,9892438056507024516,8)
+    write(o,976,9892438056507548804,8)
+    write(o,984,9892438056508073092,8)
+    write(o,992,14360008886864323716,8)
+    write(o,1000,281474989302916,8)
+    write(o,1008,9446340095222284288,8)
+    write(o,1016,878355357944,8)
+    write(o,1024,13945131264118882365,8)
+    write(o,1032,5716273783359143936,8)
+    write(o,1040,4938558942001450583,8)
+    write(o,1048,4688287260738392100,8)
+    write(o,1056,25306359624896702,8)
+    write(o,1064,1152961828130455552,8)
+    write(o,1072,16724157299212222480,8)
+    write(o,1080,18446034789925388359,8)
+    write(o,1088,13656002977418751,8)
+    write(o,1096,9893563070569054208,8)
+    write(o,1104,9459816583343459566,8)
+    write(o,1112,18446743942781205752,8)
+    write(o,1120,142421379810632,8)
+    write(o,1128,5260204365012274944,8)
+    write(o,1136,18430957037342541057,8)
+    write(o,1144,484625859346431,8)
+    write(o,1152,9516095590052855808,8)
+    write(o,1160,1889785610288,8)
+    write(o,1168,9893282481426251520,8)
+    write(o,1176,9459816583343459566,8)
+    write(o,1184,18446743917011401976,8)
+    write(o,1192,63282312414536,8)
+    write(o,1200,16845196853040466176,8)
+    write(o,1208,203151953100743,8)
+    write(o,1216,16802970086498959360,8)
+    write(o,1224,2989297238061,8)
+    write(o,1232,2227364423038224640,8)
+    write(o,1240,15971909632,8)
+    write(o,1248,4478517626833225,8)
+    write(o,1256,5260204364847906816,8)
+    write(o,1264,1001535063177,8)
+    write(o,1272,9460154221225265408,8)
+    write(o,1280,1080863910581511356,8)
+    write(o,1288,4939121680690730628,8)
+    write(o,1296,5271503309369843748,8)
+    write(o,1304,2617868231647708297,8)
+    write(o,1312,2316051464813818216,8)
+    write(o,1320,9567696370127898953,8)
+    write(o,1328,49188,8)
+    write(o,1336,10180774142472440064,8)
+    write(o,1344,6071133772682634420,8)
+    write(o,1352,996582130504,8)
+    write(o,1360,3556789311628331008,8)
+    write(o,1368,9892543765380942272,8)
+    write(o,1376,3468990570123764804,8)
+    write(o,1384,997047176009,8)
+    write(o,1392,859609795401,8)
+    write(o,1400,893969009481,8)
+    write(o,1408,5189570638288784312,8)
+    write(o,1416,139671355525,8)
+    write(o,1424,9024794643630412,8)
+    write(o,1432,5189570638288784312,8)
+    write(o,1440,36592140421,8)
+    write(o,1448,89822562628,8)
+    write(o,1456,3070935976379583,8)
+    write(o,1464,16789419411923468288,8)
+    write(o,1472,66760971649024,8)
+    write(o,1480,47496630016,5)
+    put(o,96,get(w,64))
+    put(o,104,get(w,64))
+    write(o,875,get(w,88)-879,4)
+    write(o,1357,get(w,96)-1361,4)
+    put(o,372,get(w,104)+4096)
+    return 0
+
+def property_note(s:readbuf, at:u64, size:u64) -> u64:
+    if size < 16 or uint(s, at, 4) != 4 or uint(s, at + 8, 4) != 5 or uint(s, at + 12, 4) != 5590599:
+        return 0
+    desc = uint(s, at + 4, 4)
+    if desc != size - 16 or (desc & 7) != 0:
+        return 0
+    i = 16
+    while i < size:
+        if size - i < 16 or uint(s, at + i, 4) != 3221225474 or uint(s, at + i + 4, 4) != 4 or uint(s, at + i + 8, 4) > 3:
+            return 0
+        i = i + 16
+    return 1
+
+def global_find(s:readbuf, w:mutbuf, at:u64, size:u64) -> u64:
+    i = 0
+    while i < get(w, 24):
+        row = 1310720 + i * 32
+        if get(w, row + 8) == size:
+            j = 0
+            while j < size and byte(s, at + j) == byte(s, get(w, row) + j):
+                j = j + 1
+            if j == size:
+                return row
+        i = i + 1
+    return 0
+
+def string_size(s:readbuf, at:u64, size:u64, offset:u64) -> u64:
+    if offset >= size:
+        return 4294967295
+    i = 0
+    while i < size - offset and i <= 4096:
+        if byte(s, at + offset + i) == 0:
+            return i
+        i = i + 1
+    return 4294967295
+
+def within(size:u64, at:u64, count:u64) -> u64:
+    if count > size:
+        return 0
+    if at > size - count:
+        return 0
+    return 1
+
+def aligned(value:u64, align:u64) -> u64:
+    return (value + align - 1) & (0 - align)
+
+def uint(s:readbuf, at:u64, size:u64) -> u64:
+    value = 0
+    i = 0
+    while i < size:
+        value = value | (byte(s, at + i) << (i * 8))
+        i = i + 1
+    return value
+
+def get(w:mutbuf, at:u64) -> u64:
+    value = 0
+    i = 0
+    while i < 8:
+        value = value | (byte(w, at + i) << (i * 8))
+        i = i + 1
+    return value
+
+def write(o:mutbuf, at:u64, value:u64, size:u64) -> u64:
+    i = 0
+    while i < size:
+        store(o, at + i, (value >> (i * 8)) & 255)
+        i = i + 1
+    return 0
+
+def put(w:mutbuf, at:u64, value:u64) -> u64:
+    return write(w, at, value, 8)
+
+def copy_bytes(s:readbuf, o:mutbuf, source:u64, target:u64, size:u64) -> u64:
+    i = 0
+    while i < size:
+        store(o, target + i, byte(s, source + i))
+        i = i + 1
+    return 0
+
+def module_section(s:readbuf, h:u64, name:u64, kind:u64, flags:u64, align:u64, item:u64) -> u64:
+    if uint(s, h, 4) != name or uint(s, h + 4, 4) != kind or uint(s, h + 8, 8) != flags:
+        return 0
+    if uint(s, h + 16, 8) != 0 or uint(s, h + 48, 8) != align or uint(s, h + 56, 8) != item:
+        return 0
+    return 1
+
+def module_names(s:readbuf, at:u64) -> u64:
+    if uint(s, at + 0, 8) != 3314777386191695360:
+        return 0
+    if uint(s, at + 8, 8) != 3314757496449366387:
+        return 0
+    if uint(s, at + 16, 8) != 3314757496449692787:
+        return 0
+    if uint(s, at + 24, 8) != 7089075323386685555:
+        return 0
+    if uint(s, at + 32, 8) != 5129148576381677056:
+        return 0
+    if uint(s, at + 40, 8) != 7738135737529095502:
+        return 0
+    if uint(s, at + 48, 8) != 8371735875514674688:
+        return 0
+    if uint(s, at + 56, 8) != 7019256041019045989:
+        return 0
+    if uint(s, at + 64, 8) != 7018422849374153006:
+        return 0
+    if uint(s, at + 72, 8) != 3342068294654911843:
+        return 0
+    if uint(s, at + 80, 6) != 461228831859:
+        return 0
+    return 1
+
+def module_identifier(s:readbuf, at:u64, size:u64) -> u64:
+    if size == 0 or size > 128:
+        return 0
+    i = 0
+    while i < size:
+        c = byte(s, at + i)
+        good = 0
+        if (c >= 65 and c <= 90) or (c >= 97 and c <= 122) or c == 95:
+            good = 1
+        if i != 0 and c >= 48 and c <= 57:
+            good = 1
+        if good == 0:
+            return 0
+        i = i + 1
+    return 1
+
+def module_layout(s:readbuf, w:mutbuf, record:u64) -> u64:
+    pos = get(w, record)
+    if get(w, record + 24) != 9 or get(w, record + 72) != 2 or uint(s, pos + 62, 2) != 4:
+        return 0
+    table = pos + uint(s, pos + 40, 8)
+    if module_section(s, table + 64, 1, 1, 6, 16, 0) == 0:
+        return 0
+    if module_section(s, table + 128, 7, 2, 0, 8, 24) == 0:
+        return 0
+    if module_section(s, table + 192, 15, 3, 0, 1, 0) == 0:
+        return 0
+    if module_section(s, table + 256, 23, 3, 0, 1, 0) == 0:
+        return 0
+    if module_section(s, table + 320, 33, 1, 0, 1, 0) == 0:
+        return 0
+    if module_section(s, table + 384, 49, 4, 0, 8, 24) == 0:
+        return 0
+    if module_section(s, table + 448, 60, 1, 0, 8, 0) == 0:
+        return 0
+    if module_section(s, table + 512, 75, 1, 0, 8, 0) == 0:
+        return 0
+    if uint(s, table + 128 + 40, 8) != 8589934595 or uint(s, table + 384 + 40, 8) != 4294967298:
+        return 0
+    i = 1
+    while i < 9:
+        if i != 2 and i != 6 and uint(s, table + i * 64 + 40, 8) != 0:
+            return 0
+        i = i + 1
+    text = uint(s, table + 64 + 32, 8)
+    if text == 0 or uint(s, table + 64 + 24, 8) != 64:
+        return 0
+    symbols = uint(s, table + 128 + 24, 8)
+    symbol_bytes = uint(s, table + 128 + 32, 8)
+    strings = uint(s, table + 192 + 24, 8)
+    string_bytes = uint(s, table + 192 + 32, 8)
+    names = uint(s, table + 256 + 24, 8)
+    if symbols != aligned(64 + text, 8) or strings != symbols + symbol_bytes or names != strings + string_bytes:
+        return 0
+    if uint(s, table + 256 + 32, 8) != 86:
+        return 0
+    if module_names(s, pos + names) == 0:
+        return 0
+    if uint(s, table + 320 + 24, 8) != names + 86 or uint(s, table + 320 + 32, 8) != 0:
+        return 0
+    relocs = uint(s, table + 384 + 24, 8)
+    relocation_bytes = uint(s, table + 384 + 32, 8)
+    metadata = uint(s, table + 448 + 24, 8)
+    metadata_bytes = uint(s, table + 448 + 32, 8)
+    if relocs != aligned(names + 86, 8) or (relocation_bytes % 24) != 0 or metadata != relocs + relocation_bytes:
+        return 0
+    stack = uint(s, table + 512 + 24, 8)
+    stack_bytes = uint(s, table + 512 + 32, 8)
+    if metadata_bytes < 64 or stack_bytes < 64 or stack != metadata + metadata_bytes or table != pos + stack + stack_bytes or get(w, record + 8) != stack + stack_bytes + 576:
+        return 0
+    at = pos + metadata
+    count = uint(s, at + 16, 8)
+    functions = uint(s, at + 24, 8)
+    exports = uint(s, at + 32, 8)
+    imports = uint(s, at + 40, 8)
+    if uint(s, at, 8) != 3544414555398555976 or uint(s, at + 8, 8) != 3 or uint(s, at + 48, 8) != 256 or uint(s, at + 56, 8) != 0:
+        return 0
+    if count == 0 or count > 256 or functions < count or functions > 256 or exports == 0 or exports > count or imports != count - exports:
+        return 0
+    if metadata_bytes != 64 + count * 256 or get(w, record + 40) != count + 2:
+        return 0
+    # The only local symbol is the complete text section. All other symbols
+    # must have exactly one checked interface record in canonical order.
+    if uint(s, pos + symbols + 24, 8) != 281487861612544 or uint(s, pos + symbols + 32, 8) != 0 or uint(s, pos + symbols + 40, 8) != 0:
+        return 0
+    i = 0
+    while i < relocation_bytes:
+        relocation = pos + relocs + i
+        offset = uint(s, relocation, 8)
+        if i != 0 and offset <= uint(s, relocation - 24, 8):
+            return 0
+        symbol = uint(s, relocation + 12, 4)
+        if uint(s, relocation + 8, 4) != 4 or uint(s, relocation + 16, 8) != 18446744073709551612:
+            return 0
+        if symbol < exports + 2 or symbol >= count + 2 or offset == 0 or within(text, offset, 4) == 0:
+            return 0
+        if byte(s, pos + 64 + offset - 1) != 232 or uint(s, pos + 64 + offset, 4) != 0:
+            return 0
+        i = i + 24
+    return at
+
+def module_signature_valid(s:readbuf, at:u64) -> u64:
+    parameters = uint(s, at + 16, 8)
+    results = uint(s, at + 24, 8)
+    effects = uint(s, at + 32, 8)
+    if parameters > 16 or results > 3 or (effects & 18446744073709551600) != 0:
+        return 0
+    i = 0
+    while i < 3:
+        offset = 40
+        if i > 0:
+            offset = 168 + i * 8
+        result = uint(s, at + offset, 8)
+        if i < results:
+            if result == 0 or result > 16 or result == 6 or result == 7:
+                return 0
+        else:
+            if result != 0:
+                return 0
+        i = i + 1
+    i = 0
+    while i < 16:
+        t = uint(s, at + 48 + i * 8, 8)
+        if i < parameters:
+            if t == 0 or t > 15:
+                return 0
+        else:
+            if t != 0:
+                return 0
+        i = i + 1
+    i = 200
+    while i < 256:
+        if uint(s, at + i, 8) != 0:
+            return 0
+        i = i + 8
+    return 1
+
+def module_symbols(s:readbuf, w:mutbuf, object:u64, metadata:u64) -> u64:
+    record = 4096 + object * 80
+    count = uint(s, metadata + 16, 8)
+    exports = uint(s, metadata + 32, 8)
+    symtab = get(w, record) + uint(s, get(w, record + 32) + 24, 8)
+    string_cursor = 1
+    i = 0
+    while i < count:
+        contract = metadata + 64 + i * 256
+        ordinal = i + 2
+        imported = 0
+        if i >= exports:
+            imported = 1
+        if uint(s, contract, 8) != ordinal or uint(s, contract + 8, 8) != imported:
+            return 0
+        if module_signature_valid(s, contract) == 0:
+            return 0
+        if uint(s, contract + 192, 8) >= uint(s, metadata + 24, 8):
+            return 0
+        symbol = symtab + ordinal * 24
+        name = uint(s, symbol, 4)
+        if name != string_cursor or byte(s, symbol + 4) != 18 or byte(s, symbol + 5) != 0:
+            return 0
+        size = string_size(s, get(w, record + 48), get(w, record + 56), name)
+        if size == 4294967295 or module_identifier(s, get(w, record + 48) + name, size) == 0:
+            return 0
+        string_cursor = string_cursor + size + 1
+        if uint(s, symbol + 6, 2) != 1 - imported:
+            return 0
+        if imported == 0 and uint(s, symbol + 16, 8) == 0:
+            return 0
+        index = get(w, record + 64) + ordinal
+        put(w, 12582912 + index * 8, contract)
+        put(w, 12845056 + index * 8, object + 1)
+        i = i + 1
+    if string_cursor != get(w, record + 56):
+        return 0
+    return 1
+
+def module_links(s:readbuf, w:mutbuf) -> u64:
+    object = 0
+    while object < get(w, 0):
+        record = 4096 + object * 80
+        metadata = get(w, 13111808 + object * 8)
+        count = uint(s, metadata + 16, 8)
+        i = uint(s, metadata + 32, 8)
+        while i < count:
+            imported = metadata + 64 + i * 256
+            sym = 262144 + (get(w, record + 64) + i + 2) * 32
+            found = global_find(s, w, get(w, sym), get(w, sym + 8))
+            if found == 0:
+                return 0
+            target_index = (get(w, found + 16) - 262144) // 32
+            target = get(w, 12582912 + target_index * 8)
+            provider = get(w, 12845056 + target_index * 8)
+            if target == 0 or provider == 0 or provider > get(w, 0):
+                return 0
+            if uint(s, target + 8, 8) != 0:
+                return 0
+            j = 16
+            while j < 192:
+                if uint(s, imported + j, 8) != uint(s, target + j, 8):
+                    return 0
+                j = j + 8
+            store(w, 13107200 + object * 64 + provider - 1, 1)
+            i = i + 1
+        object = object + 1
+    return 1
+
+def module_graph(w:mutbuf) -> u64:
+    step = 0
+    count = get(w, 0)
+    while step < count:
+        object = 0
+        pending = 0
+        while object < count:
+            if get(w, 13111296 + object * 8) == 0:
+                ready = 1
+                target = 0
+                while target < count:
+                    if byte(w, 13107200 + object * 64 + target) != 0 and get(w, 13111296 + target * 8) == 0:
+                        ready = 0
+                    target = target + 1
+                if ready == 1:
+                    put(w, 13111296 + object * 8, 1)
+                else:
+                    pending = pending + 1
+            object = object + 1
+        if pending == 0:
+            return 1
+        step = step + 1
+    return 0
+
+def module_contracts(s:readbuf, w:mutbuf) -> u64:
+    fill_range(w, 12582912, 524288, 0)
+    fill_range(w, 13107200, 5120, 0)
+    object = 0
+    while object < get(w, 0):
+        metadata = module_layout(s, w, 4096 + object * 80)
+        if metadata == 0:
+            return 0
+        put(w, 13111808 + object * 8, metadata)
+        if module_symbols(s, w, object, metadata) == 0:
+            return 0
+        object = object + 1
+    if module_links(s, w) == 0:
+        return 0
+    return module_graph(w)
+
+def module_entry(s:readbuf, w:mutbuf, symbol:u64) -> u64:
+    index = (symbol - 262144) // 32
+    at = get(w, 12582912 + index * 8)
+    if at == 0:
+        return 0
+    if uint(s, at + 8, 8) != 0 or uint(s, at + 16, 8) != 4 or uint(s, at + 24, 8) != 2 or uint(s, at + 32, 8) != 15:
+        return 0
+    if uint(s, at + 40, 8) != 8 or uint(s, at + 176, 8) != 3:
+        return 0
+    if uint(s, at + 48, 8) != 6 or uint(s, at + 56, 8) != 7 or uint(s, at + 64, 8) != 8 or uint(s, at + 72, 8) != 6:
+        return 0
+    i = 0
+    while i < get(w, 24):
+        row = 1310720 + i * 32
+        if get(w, row + 8) == 5:
+            name = get(w, row)
+            if uint(s, name, 4) == 1936682083 and byte(s, name + 4) == 101:
+                close_symbol = get(w, row + 16)
+                close_index = (close_symbol - 262144) // 32
+                close_at = get(w, 12582912 + close_index * 8)
+                if close_at == 0:
+                    return 0
+                if uint(s, close_at + 8, 8) != 0 or uint(s, close_at + 16, 8) != 1 or uint(s, close_at + 24, 8) != 0 or uint(s, close_at + 32, 8) != 9:
+                    return 0
+                if uint(s, close_at + 48, 8) != 8:
+                    return 0
+                flags = get(w, close_symbol + 24)
+                if ((flags >> 8) & 255) != 2 or ((flags >> 16) & 255) != 1 or ((flags >> 24) & 4) == 0:
+                    return 0
+                put(w, 96, get(w, close_symbol + 16) - 4194304)
+                return 1
+        i = i + 1
+    return 0
+
+def stack_frame_valid(s:readbuf, text:u64, size:u64, extent:u64) -> u64:
+    if size < 15 or extent < 608 or extent > 33360 or (extent & 15) != 0:
+        return 0
+    if uint(s, text, 4) != 3850979413:
+        return 0
+    pos = 4
+    remain = extent
+    while remain > 0:
+        amount = remain
+        if amount > 4096:
+            amount = 4096
+        if within(size, pos, 11) == 0:
+            return 0
+        if uint(s, text + pos, 3) != 15499592 or uint(s, text + pos + 3, 4) != amount:
+            return 0
+        if uint(s, text + pos + 7, 4) != 604277576:
+            return 0
+        pos = pos + 11
+        remain = remain - amount
+    return 1
+
+def stack_code_valid(s:readbuf, pos:u64, text_size:u64, function:u64, end:u64) -> u64:
+    start = uint(s, function + 8, 8)
+    size = uint(s, function + 16, 8)
+    extent = uint(s, function + 24, 8)
+    imported = uint(s, function + 40, 8)
+    variables = uint(s, function + 48, 8)
+    if uint(s, function + 56, 8) != 0 or imported > 1:
+        return 18446744073709551615
+    if imported == 1:
+        if start != 0 or size != 0 or extent != 0 or variables != 0:
+            return 18446744073709551615
+        return end
+    if variables > 2047 or extent != (variables + 2) * 16 + 576:
+        return 18446744073709551615
+    if start != end or within(text_size, start, size) == 0:
+        return 18446744073709551615
+    if stack_frame_valid(s, pos + 64 + start, size, extent) == 0:
+        return 18446744073709551615
+    return start + size
+
+def stack_symbol_valid(s:readbuf, w:mutbuf, object:u64, at:u64, i:u64) -> u64:
+    record = 4096 + object * 80
+    metadata = get(w, 13111808 + object * 8)
+    function = at + 64 + i * 64
+    symbol = uint(s, function + 32, 8)
+    imported = uint(s, function + 40, 8)
+    if uint(s, function, 8) != i:
+        return 0
+    if imported == 1:
+        if symbol < uint(s, metadata + 32, 8) + 2 or symbol >= uint(s, metadata + 16, 8) + 2:
+            return 0
+    else:
+        if symbol == 0:
+            return 1
+        if symbol < 2 or symbol >= uint(s, metadata + 32, 8) + 2:
+            return 0
+    contract = metadata + 64 + (symbol - 2) * 256
+    if uint(s, contract + 192, 8) != i or uint(s, contract + 8, 8) != imported:
+        return 0
+    symbols = get(w, record) + uint(s, get(w, record + 32) + 24, 8)
+    if uint(s, symbols + symbol * 24 + 8, 8) != uint(s, function + 8, 8):
+        return 0
+    if uint(s, symbols + symbol * 24 + 16, 8) != uint(s, function + 16, 8):
+        return 0
+    return 1
+
+def stack_row_valid(s:readbuf, at:u64, i:u64) -> u64:
+    count = uint(s, at + 16, 8)
+    width = uint(s, at + 40, 8)
+    imported = uint(s, at + 64 + i * 64 + 40, 8)
+    j = 0
+    while j < width:
+        bits = byte(s, at + 64 + count * 64 + i * width + j)
+        if imported == 1 and bits != 0:
+            return 0
+        if j == i // 8 and (bits & (1 << (i % 8))) != 0:
+            return 0
+        if j + 1 == width and count % 8 != 0 and (bits >> (count % 8)) != 0:
+            return 0
+        j = j + 1
+    return 1
+
+def stack_members(s:readbuf, w:mutbuf, object:u64, at:u64) -> u64:
+    record = 4096 + object * 80
+    pos = get(w, record)
+    table = pos + uint(s, pos + 40, 8)
+    count = uint(s, at + 16, 8)
+    end = 0
+    i = 0
+    while i < count:
+        end = stack_code_valid(s, pos, uint(s, table + 96, 8), at + 64 + i * 64, end)
+        if end == 18446744073709551615:
+            return 0
+        if stack_symbol_valid(s, w, object, at, i) == 0 or stack_row_valid(s, at, i) == 0:
+            return 0
+        i = i + 1
+    metadata = get(w, 13111808 + object * 8)
+    i = 0
+    while i < uint(s, metadata + 16, 8):
+        contract = metadata + 64 + i * 256
+        ordinal = uint(s, contract + 192, 8)
+        if uint(s, at + 64 + ordinal * 64 + 32, 8) != i + 2:
+            return 0
+        i = i + 1
+    i = 64 + count * 64 + count * uint(s, at + 40, 8)
+    while i < uint(s, table + 544, 8):
+        if byte(s, at + i) != 0:
+            return 0
+        i = i + 1
+    return stack_machine_calls(s, w, object, at, end)
+
+def stack_layout(s:readbuf, w:mutbuf, object:u64) -> u64:
+    record = 4096 + object * 80
+    pos = get(w, record)
+    table = pos + uint(s, pos + 40, 8)
+    at = pos + uint(s, table + 536, 8)
+    size = uint(s, table + 544, 8)
+    metadata = get(w, 13111808 + object * 8)
+    count = uint(s, metadata + 24, 8)
+    width = (count + 7) // 8
+    if size != 64 + count * 64 + aligned(count * width, 8):
+        return 0
+    if uint(s, at, 8) != 3688530920362559816 or uint(s, at + 8, 8) != 1:
+        return 0
+    if uint(s, at + 16, 8) != count or uint(s, at + 24, 8) != count - uint(s, metadata + 40, 8):
+        return 0
+    if uint(s, at + 32, 8) != 64 or uint(s, at + 40, 8) != width or uint(s, at + 48, 8) != 40:
+        return 0
+    if stack_members(s, w, object, at) == 0:
+        return 0
+    return at
+
+def stack_unit_cost(s:readbuf, w:mutbuf, object:u64) -> u64:
+    at = get(w, 13112320 + object * 8)
+    count = uint(s, at + 16, 8)
+    width = uint(s, at + 40, 8)
+    matrix = at + 64 + count * 64
+    costs = 13112832 + object * 2048
+    record = 4096 + object * 80
+    fill_range(w, 13244416, 2048, 0)
+    i = 0
+    while i < count:
+        function = at + 64 + i * 64
+        if uint(s, function + 40, 8) == 1:
+            symbol = uint(s, function + 32, 8)
+            sym = 262144 + (get(w, record + 64) + symbol) * 32
+            found = global_find(s, w, get(w, sym), get(w, sym + 8))
+            if found == 0:
+                return 0
+            index = (get(w, found + 16) - 262144) // 32
+            target = get(w, 12582912 + index * 8)
+            provider = get(w, 12845056 + index * 8)
+            if target == 0 or provider == 0 or provider > get(w, 0):
+                return 0
+            ordinal = uint(s, target + 192, 8)
+            if ordinal >= uint(s, get(w, 13112320 + (provider - 1) * 8) + 16, 8):
+                return 0
+            value = get(w, 13112832 + (provider - 1) * 2048 + ordinal * 8)
+            if value == 0:
+                return 0
+            put(w, costs + i * 8, value)
+            put(w, 13244416 + i * 8, 2)
+        i = i + 1
+    i = 0
+    while i < count:
+        if get(w, 13244416 + i * 8) == 0:
+            depth = 1
+            put(w, 13246464, i)
+            put(w, 13246472, 0)
+            put(w, 13246480, 0)
+            put(w, 13244416 + i * 8, 1)
+            while depth > 0:
+                cursor = 13246464 + (depth - 1) * 24
+                current = get(w, cursor)
+                next = get(w, cursor + 8)
+                best = get(w, cursor + 16)
+                if next == count:
+                    value = uint(s, at + 64 + current * 64 + 24, 8) + 16
+                    if value > 8384512 or best > 8384512 - value:
+                        return 0
+                    value = value + best
+                    put(w, costs + current * 8, value)
+                    put(w, 13244416 + current * 8, 2)
+                    if value > get(w, 104):
+                        put(w, 104, value)
+                    depth = depth - 1
+                    if depth > 0:
+                        parent = 13246464 + (depth - 1) * 24
+                        if value > get(w, parent + 16):
+                            put(w, parent + 16, value)
+                else:
+                    put(w, cursor + 8, next + 1)
+                    bits = byte(s, matrix + current * width + next // 8)
+                    if (bits & (1 << (next % 8))) != 0:
+                        color = get(w, 13244416 + next * 8)
+                        if color == 1:
+                            return 0
+                        if color == 2:
+                            value = get(w, costs + next * 8)
+                            if value > best:
+                                put(w, cursor + 16, value)
+                        else:
+                            if depth >= count:
+                                return 0
+                            child = 13246464 + depth * 24
+                            put(w, child, next)
+                            put(w, child + 8, 0)
+                            put(w, child + 16, 0)
+                            put(w, 13244416 + next * 8, 1)
+                            depth = depth + 1
+        i = i + 1
+    return 1
+
+def stack_contracts(s:readbuf, w:mutbuf) -> u64:
+    fill_range(w, 13112320, 140288, 0)
+    object = 0
+    while object < get(w, 0):
+        at = stack_layout(s, w, object)
+        if at == 0:
+            return 0
+        put(w, 13112320 + object * 8, at)
+        object = object + 1
+    step = 0
+    while step < get(w, 0):
+        object = 0
+        pending = 0
+        while object < get(w, 0):
+            if get(w, 13243904 + object * 8) == 0:
+                ready = 1
+                provider = 0
+                while provider < get(w, 0):
+                    if byte(w, 13107200 + object * 64 + provider) != 0 and get(w, 13243904 + provider * 8) == 0:
+                        ready = 0
+                    provider = provider + 1
+                if ready == 1:
+                    if stack_unit_cost(s, w, object) == 0:
+                        return 0
+                    put(w, 13243904 + object * 8, 1)
+                else:
+                    pending = pending + 1
+            object = object + 1
+        if pending == 0:
+            return 1
+        step = step + 1
+    return 0
+
+def stack_modrm_size(s:readbuf, at:u64, end:u64) -> u64:
+    if at >= end:
+        return 0
+    modrm = byte(s, at)
+    mode = modrm >> 6
+    rm = modrm & 7
+    size = 1
+    if mode != 3:
+        if rm == 4:
+            if at + size >= end:
+                return 0
+            base = byte(s, at + size) & 7
+            size = size + 1
+            if mode == 0 and base == 5:
+                size = size + 4
+        if mode == 0 and rm == 5:
+            size = size + 4
+        if mode == 1:
+            size = size + 1
+        if mode == 2:
+            size = size + 4
+    if size > end - at:
+        return 0
+    return size
+
+def stack_instruction(s:readbuf, at:u64, end:u64) -> u64:
+    if at >= end:
+        return 0
+    pos = at
+    rex = 0
+    opcode = byte(s, pos)
+    if opcode >= 64 and opcode <= 79:
+        rex = opcode
+        pos = pos + 1
+        if pos >= end:
+            return 0
+        opcode = byte(s, pos)
+    pos = pos + 1
+    kind = 0
+    immediate = 0
+    modrm = 0
+    if opcode == 232:
+        if rex != 0:
+            return 0
+        immediate = 4
+        kind = 1
+    else:
+        if opcode == 233:
+            immediate = 4
+            kind = 2
+        else:
+            if opcode == 235 or (opcode >= 112 and opcode <= 127):
+                immediate = 1
+                kind = 3
+            else:
+                if opcode >= 184 and opcode <= 191:
+                    immediate = 4
+                    if (rex & 8) != 0:
+                        immediate = 8
+                else:
+                    if opcode == 15:
+                        if pos >= end:
+                            return 0
+                        second = byte(s, pos)
+                        pos = pos + 1
+                        if second >= 128 and second <= 143:
+                            immediate = 4
+                            kind = 2
+                        else:
+                            if second == 175 or second == 182 or second == 190 or second == 191 or (second >= 64 and second <= 79) or (second >= 144 and second <= 159):
+                                modrm = 1
+                            else:
+                                if second != 11:
+                                    return 0
+                    else:
+                        if opcode == 1 or opcode == 9 or opcode == 33 or opcode == 41 or opcode == 49 or opcode == 57 or opcode == 99 or opcode == 133 or opcode == 136 or opcode == 137 or opcode == 138 or opcode == 139 or opcode == 141 or opcode == 211:
+                            modrm = 1
+                        else:
+                            if opcode == 129:
+                                modrm = 1
+                                immediate = 4
+                            else:
+                                if opcode == 131 or opcode == 193:
+                                    modrm = 1
+                                    immediate = 1
+                                else:
+                                    if opcode == 247:
+                                        if pos >= end or (byte(s, pos) & 56) < 16:
+                                            return 0
+                                        modrm = 1
+                                    else:
+                                        if opcode == 37:
+                                            immediate = 4
+                                        else:
+                                            if opcode == 243:
+                                                if rex != 0 or pos >= end:
+                                                    return 0
+                                                second = byte(s, pos)
+                                                if second != 164 and second != 170:
+                                                    return 0
+                                                pos = pos + 1
+                                            else:
+                                                if opcode >= 80 and opcode <= 95:
+                                                    if opcode == 85 and (rex & 1) == 0:
+                                                        kind = 4
+                                                else:
+                                                    if opcode != 144 and opcode != 153 and opcode != 195 and opcode != 201 and opcode != 252 and opcode != 253:
+                                                        return 0
+    if modrm != 0:
+        size = stack_modrm_size(s, pos, end)
+        if size == 0:
+            return 0
+        pos = pos + size
+    if immediate > end - pos:
+        return 0
+    pos = pos + immediate
+    if pos - at > 15:
+        return 0
+    return (kind << 8) | (pos - at)
+
+def stack_relative(s:readbuf, absolute:u64, operand:u64, size:u64) -> u64:
+    value = uint(s, absolute, size)
+    next = operand + size
+    sign = 1 << (size * 8 - 1)
+    if value >= sign:
+        amount = sign * 2 - value
+        if amount > next:
+            return 18446744073709551615
+        return next - amount
+    return next + value
+
+def stack_relocation(s:readbuf, at:u64, count:u64, offset:u64) -> u64:
+    low = 0
+    high = count
+    while low < high:
+        middle = low + (high - low) // 2
+        item = at + middle * 24
+        value = uint(s, item, 8)
+        if value == offset:
+            return item
+        if value < offset:
+            low = middle + 1
+        else:
+            high = middle
+    return 0
+
+def stack_target_function(s:readbuf, w:mutbuf, offset:u64) -> u64:
+    low = 0
+    high = get(w, 13393968)
+    at = get(w, 13393920)
+    while low < high:
+        middle = low + (high - low) // 2
+        ordinal = get(w, 13391872 + middle * 8)
+        value = uint(s, at + 64 + ordinal * 64 + 8, 8)
+        if value == offset:
+            return ordinal
+        if value < offset:
+            low = middle + 1
+        else:
+            high = middle
+    return 18446744073709551615
+
+def stack_bind_call(s:readbuf, w:mutbuf, caller:u64, operand:u64) -> u64:
+    at = get(w, 13393920)
+    text = get(w, 13393928)
+    relocation = stack_relocation(s, get(w, 13393944), get(w, 13393952), operand)
+    target = 18446744073709551615
+    if relocation != 0:
+        symbol = uint(s, relocation + 12, 4)
+        contract = get(w, 13393960) + 64 + (symbol - 2) * 256
+        target = uint(s, contract + 192, 8)
+        if uint(s, at + 64 + target * 64 + 40, 8) != 1:
+            return 0
+        put(w, 13394008, get(w, 13394008) + 1)
+    else:
+        offset = stack_relative(s, text + operand, operand, 4)
+        if offset >= get(w, 13393936):
+            return 0
+        if offset >= get(w, 13393976):
+            if offset == get(w, 13393984) or offset == get(w, 13393992) or offset == get(w, 13394000):
+                return 1
+            return 0
+        target = stack_target_function(s, w, offset)
+    if target >= uint(s, at + 16, 8) or target == caller:
+        return 0
+    position = 13252608 + caller * uint(s, at + 40, 8) + target // 8
+    store(w, position, byte(w, position) | (1 << (target % 8)))
+    return 1
+
+def stack_scan_function(s:readbuf, w:mutbuf, ordinal:u64, phase:u64) -> u64:
+    at = get(w, 13393920)
+    function = at + 64 + ordinal * 64
+    start = uint(s, function + 8, 8)
+    end = start + uint(s, function + 16, 8)
+    text = get(w, 13393928)
+    body = start + 4 + ((uint(s, function + 24, 8) + 4095) // 4096) * 11
+    pos = start
+    while pos < end:
+        decoded = stack_instruction(s, text + pos, text + end)
+        size = decoded & 255
+        kind = decoded >> 8
+        if size == 0:
+            return 0
+        if kind == 4 and pos != start:
+            return 0
+        if phase == 0:
+            boundary = 13260800 + pos // 8
+            store(w, boundary, byte(w, boundary) | (1 << (pos % 8)))
+            if kind == 1:
+                if stack_bind_call(s, w, ordinal, pos + size - 4) == 0:
+                    return 0
+        else:
+            if kind == 2 or kind == 3:
+                width = 4
+                if kind == 3:
+                    width = 1
+                operand = pos + size - width
+                target = stack_relative(s, text + operand, operand, width)
+                if target < body or target >= end:
+                    return 0
+                if (byte(w, 13260800 + target // 8) & (1 << (target % 8))) == 0:
+                    return 0
+        pos = pos + size
+    return 1
+
+def stack_machine_calls(s:readbuf, w:mutbuf, object:u64, at:u64, end:u64) -> u64:
+    record = 4096 + object * 80
+    pos = get(w, record)
+    table = pos + uint(s, pos + 40, 8)
+    text = pos + 64
+    text_size = uint(s, table + 96, 8)
+    if text_size > 1048576:
+        return 0
+    flags = uint(s, at + 56, 8)
+    if flags != 0 and flags != 2 and flags != 3:
+        return 0
+    if stack_helper_bytes(s, text, text_size, end, flags) == 0:
+        return 0
+    fill_range(w, 13252608, 8192, 0)
+    fill_range(w, 13260800, (text_size + 7) // 8, 0)
+    put(w, 13393920, at)
+    put(w, 13393928, text)
+    put(w, 13393936, text_size)
+    put(w, 13393944, pos + uint(s, table + 408, 8))
+    put(w, 13393952, uint(s, table + 416, 8) // 24)
+    put(w, 13393960, get(w, 13111808 + object * 8))
+    put(w, 13393976, end)
+    put(w, 13393984, 18446744073709551615)
+    put(w, 13393992, 18446744073709551615)
+    put(w, 13394000, 18446744073709551615)
+    put(w, 13394008, 0)
+    helper = end
+    if flags == 3:
+        put(w, 13393984, helper)
+        helper = helper + 102
+    if flags >= 2:
+        put(w, 13393992, helper)
+        put(w, 13394000, helper + 149)
+    count = uint(s, at + 16, 8)
+    locals = 0
+    i = 0
+    while i < count:
+        if uint(s, at + 64 + i * 64 + 40, 8) == 0:
+            put(w, 13391872 + locals * 8, i)
+            locals = locals + 1
+        i = i + 1
+    put(w, 13393968, locals)
+    phase = 0
+    while phase < 2:
+        i = 0
+        while i < locals:
+            if stack_scan_function(s, w, get(w, 13391872 + i * 8), phase) == 0:
+                return 0
+            i = i + 1
+        phase = phase + 1
+    if get(w, 13394008) != get(w, 13393952):
+        return 0
+    matrix = at + 64 + count * 64
+    size = count * uint(s, at + 40, 8)
+    i = 0
+    while i < size:
+        if byte(s, matrix + i) != byte(w, 13252608 + i):
+            return 0
+        i = i + 1
+    return 1
+
+def stack_helper_bytes(s:readbuf, text:u64, size:u64, end:u64, flags:u64) -> u64:
+    expected = end
+    if flags == 3:
+        expected = expected + 102
+    if flags >= 2:
+        expected = expected + 196
+    if expected != size:
+        return 0
+    at = text + end
+    if flags == 3:
+        if uint(s, at + 0, 8) != 1219491749199169621:
+            return 0
+        if uint(s, at + 8, 8) != 18444700671211995136:
+            return 0
+        if uint(s, at + 16, 8) != 18446735919903473663:
+            return 0
+        if uint(s, at + 24, 8) != 18722551954229503:
+            return 0
+        if uint(s, at + 32, 8) != 18152868544512:
+            return 0
+        if uint(s, at + 40, 8) != 18446744007230441472:
+            return 0
+        if uint(s, at + 48, 8) != 5188146770743036744:
+            return 0
+        if uint(s, at + 56, 8) != 23690477445:
+            return 0
+        if uint(s, at + 64, 8) != 13658089459768407784:
+            return 0
+        if uint(s, at + 72, 8) != 187917704101880:
+            return 0
+        if uint(s, at + 80, 8) != 18446744007230572544:
+            return 0
+        if uint(s, at + 88, 8) != 16861477004749670728:
+            return 0
+        if uint(s, at + 96, 6) != 215272350810030:
+            return 0
+        at = at + 102
+    if flags >= 2:
+        if uint(s, at + 0, 8) != 9604180155123140936:
+            return 0
+        if uint(s, at + 8, 8) != 5188146772920569810:
+            return 0
+        if uint(s, at + 16, 8) != 521906667653:
+            return 0
+        if uint(s, at + 24, 8) != 1080863910849970504:
+            return 0
+        if uint(s, at + 32, 8) != 13872573392021908610:
+            return 0
+        if uint(s, at + 40, 8) != 9892156581525817359:
+            return 0
+        if uint(s, at + 48, 8) != 12536006:
+            return 0
+        if uint(s, at + 56, 8) != 4098606759936:
+            return 0
+        if uint(s, at + 64, 8) != 2502392807306559488:
+            return 0
+        if uint(s, at + 72, 8) != 5260204364768739328:
+            return 0
+        if uint(s, at + 80, 8) != 18446744073709551544:
+            return 0
+        if uint(s, at + 88, 8) != 12143103:
+            return 0
+        if uint(s, at + 96, 8) != 10687086592000:
+            return 0
+        if uint(s, at + 104, 8) != 5189570638288781312:
+            return 0
+        if uint(s, at + 112, 8) != 18446744073708503481:
+            return 0
+        if uint(s, at + 120, 8) != 4366228457605375:
+            return 0
+        if uint(s, at + 128, 8) != 758217441280:
+            return 0
+        if uint(s, at + 136, 8) != 71949174784:
+            return 0
+        if uint(s, at + 144, 8) != 18412202657154418883:
+            return 0
+        if uint(s, at + 152, 8) != 9315695829218329615:
+            return 0
+        if uint(s, at + 160, 8) != 13225743895540797679:
+            return 0
+        if uint(s, at + 168, 8) != 3298844120973312:
+            return 0
+        if uint(s, at + 176, 8) != 364510094840299520:
+            return 0
+        if uint(s, at + 184, 8) != 2766223213896:
+            return 0
+        if uint(s, at + 192, 4) != 3272281856:
+            return 0
+    return 1

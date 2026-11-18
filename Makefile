@@ -11,7 +11,8 @@ HEPTA_OWNED_SESSION_BUILD ?= build/owned-session-tools
 HEPTA_OWNED_SESSION_LINKER ?= $(HEPTA_OWNED_SESSION_BUILD)/production-native/owned-session-linker
 HEPTA_STACK_BUILD ?= build/stack-budget-tools
 HEPTA_CURRENT_COMPILER ?= $(HEPTA_STACK_BUILD)/native/stack-module-compiler
-HEPTA_CURRENT_LINKER ?= $(HEPTA_STACK_BUILD)/native/stack-linker-session
+HEPTA_ENTROPY_BUILD ?= build/current-runtime-entropy
+HEPTA_CURRENT_LINKER ?= $(HEPTA_ENTROPY_BUILD)/generator-session-linker
 HEPTA_TORCH_PYTHON ?= $(shell python3 -c 'import sys; print(sys.executable)')
 COMPILER_SHA256 := c5a9c2b95a3061e080a21298f5b26000936ed9dac519690d845b0699a15744c6
 MODULE_COMPILER_SHA256 := e250d93bc0b2a5ff878d2188c95780abf7e7ebaf186e4531b136fa2735b2af59
@@ -26,16 +27,88 @@ CURRENT_RUNTIME_INPUTS := tools/current_runtime/build.py tools/stack_budget/insp
   tools/current_runtime/source/runtime.hepta \
   $(wildcard tools/current_runtime/source/units/*.hepta) Makefile
 
-.PHONY: all current-runtime legacy monolithic session session-monolithic storage-objects owned-tensors test test-legacy test-monolithic test-session test-session-monolithic test-storage-objects test-owned-tensors check-compiler check-module-tools check-session-tools check-session-packer check-storage-tools acceptance-status full-acceptance clean
+.PHONY: all current-runtime current-entropy-linker legacy monolithic session session-monolithic storage-objects owned-tensors test test-legacy test-monolithic test-session test-session-monolithic test-storage-objects test-owned-tensors check-compiler check-module-tools check-session-tools check-session-packer check-storage-tools acceptance-status full-acceptance clean
 
 all: current-runtime
 
-current-runtime: build/current-runtime/build.json build/current-runtime/heptatorch
+current-runtime: current-entropy-linker build/current-runtime/build.json build/current-runtime/heptatorch
+
+# The complete fixed upstream authoring closure is required by the tool-only
+# entropy linker build. The original application builder main is never called.
+ENTROPY_AUTHORING_INPUTS := $(addprefix $(HEPTA_SOURCE_ROOT)/,\
+  docs/HIA_SELFHOST_CORE_SUPPORT.json \
+  hepta/__init__.py \
+  hepta/artifact_publication.py \
+  hepta/hia_agent_assembly.py \
+  hepta/hia_capability_flow.py \
+  hepta/hia_core_admission_native.py \
+  hepta/hia_function_shape_native.py \
+  hepta/hia_instruction_policy_native.py \
+  hepta/hia_json_canonical_native.py \
+  hepta/hia_json_decode.py \
+  hepta/hia_json_decode_native.py \
+  hepta/hia_json_preflight.py \
+  hepta/hia_json_preflight_native.py \
+  hepta/hia_machine_x64.py \
+  hepta/hia_opcodes.py \
+  hepta/hia_program.py \
+  hepta/hia_program_shape_native.py \
+  hepta/hia_program_tools.py \
+  hepta/hia_schema.py \
+  hepta/hia_sha256_native.py \
+  tools/generate_hia_selfhost.py \
+  tools/generate_hia_elf_linker.py \
+  tools/hia_selfhost_chain_elf.py \
+  tools/hia_selfhost_cli.py \
+  tools/hia_selfhost_effects.py \
+  tools/hia_selfhost_exports.py \
+  tools/hia_selfhost_keywords.py \
+  tools/hia_selfhost_limits.py \
+  tools/hia_selfhost_multi_results.py \
+  tools/hia_selfhost_names.py \
+  tools/hia_selfhost_owned_elf.py \
+  tools/hia_selfhost_returned_loans.py \
+  tools/hia_selfhost_signed.py \
+  tools/hia_selfhost_traps.py)
+ENTROPY_TOOL_INPUTS := tools/current_runtime/entropy_linker/README.md \
+  tools/current_runtime/entropy_linker/source-pins.sha256 \
+  tools/current_runtime/entropy_linker/source/linker.hepta \
+  tools/current_runtime/entropy_linker/source/linker-authoring.txt \
+  tools/current_runtime/entropy_linker/source/startup-authoring.txt \
+  tools/current_runtime/entropy_linker/build_tool.py \
+  tools/current_runtime/entropy_linker/frozen_generator_build.py \
+  $(HEPTA_STACK_BUILD)/native/stack-module-compiler \
+  $(HEPTA_STACK_BUILD)/native/stack-linker-linker \
+  $(HEPTA_STACK_BUILD)/sources/linker-session/authoring.txt \
+  $(HEPTA_STACK_BUILD)/sources/linker-session/startup-authoring.txt \
+  $(ENTROPY_AUTHORING_INPUTS) Makefile
+
+current-entropy-linker: $(HEPTA_ENTROPY_BUILD)/build.json $(HEPTA_ENTROPY_BUILD)/generator-session-linker
+
+# Keep the original successful stage: its receipt binds absolute process stream
+# paths. Publish an exact copy rather than moving those original raw streams.
+$(HEPTA_ENTROPY_BUILD)/build.json $(HEPTA_ENTROPY_BUILD)/generator-session-linker &: $(ENTROPY_TOOL_INPUTS) | build
+	@set -eu; stage=$$(mktemp -d "$(CURDIR)/build/current-runtime-entropy-stage.XXXXXX"); \
+	printf 'Entropy linker build staging: %s\n' "$$stage"; \
+	sha256sum -c tools/current_runtime/entropy_linker/source-pins.sha256; \
+	python3 -I -S -B tools/current_runtime/entropy_linker/build_tool.py \
+	  --upstream "$(abspath $(HEPTA_SOURCE_ROOT))" --stack-build "$(abspath $(HEPTA_STACK_BUILD))" \
+	  --output "$$stage/native"; \
+	for name in linker.hepta linker-authoring.txt startup-authoring.txt; do \
+	  cmp "$(CURDIR)/tools/current_runtime/entropy_linker/source/$$name" "$$stage/native/$$name"; \
+	done; \
+	if [ -e "$(HEPTA_ENTROPY_BUILD)" ] || [ -L "$(HEPTA_ENTROPY_BUILD)" ]; then \
+	  python3 -I -S -B -c 'import json,pathlib,sys; p=pathlib.Path(sys.argv[1]); assert p.is_dir() and not p.is_symlink(), "unrecognized entropy-tool path"; r=p/"build.json"; assert r.is_file() and not r.is_symlink(), "missing original entropy-tool receipt"; b=json.loads(r.read_bytes()); assert b.get("schema")=="heptatorch.generator-entropy-linker.tool-only-build.v1" and b.get("status")=="PASS_NATIVE_ENTROPY_LINKER_BUILD_ONLY", "unrecognized entropy-tool receipt"' "$(abspath $(HEPTA_ENTROPY_BUILD))"; \
+	  mv "$(HEPTA_ENTROPY_BUILD)" "$$stage/previous"; \
+	fi; \
+	mkdir -p "$(dir $(HEPTA_ENTROPY_BUILD))"; \
+	cp -a "$$stage/native" "$(HEPTA_ENTROPY_BUILD)"; \
+	printf 'Entropy linker published; original raw stage retained: %s\n' "$$stage"
 
 # GNU Make 4.3+ grouped targets rebuild both products when either is missing.
 # The cold builder requires a fresh directory. Preserve every staging failure,
 # and move a recognized previous build aside only after the new build succeeds.
-build/current-runtime/build.json build/current-runtime/heptatorch &: $(CURRENT_RUNTIME_INPUTS) $(HEPTA_CURRENT_COMPILER) $(HEPTA_CURRENT_LINKER) | build
+build/current-runtime/build.json build/current-runtime/heptatorch &: $(CURRENT_RUNTIME_INPUTS) $(HEPTA_CURRENT_COMPILER) $(HEPTA_CURRENT_LINKER) $(HEPTA_ENTROPY_BUILD)/build.json | build
 	@set -eu; stage=$$(mktemp -d "$(CURDIR)/build/current-runtime-stage.XXXXXX"); \
 	printf 'Current runtime build staging: %s\n' "$$stage"; \
 	python3 -I -S -B tools/current_runtime/build.py \
@@ -43,6 +116,7 @@ build/current-runtime/build.json build/current-runtime/heptatorch &: $(CURRENT_R
 	  --source-root "$(CURDIR)/tools/current_runtime/source" \
 	  --compiler "$(abspath $(HEPTA_CURRENT_COMPILER))" --linker "$(abspath $(HEPTA_CURRENT_LINKER))" \
 	  --output "$$stage/native"; \
+	cmp "$(abspath $(HEPTA_ENTROPY_BUILD))/generator-session-linker" "$$stage/native/toolchain/stack-linker-session"; \
 	if [ -e build/current-runtime ] || [ -L build/current-runtime ]; then \
 	  python3 -I -S -B -c 'import json,pathlib,sys; p=pathlib.Path(sys.argv[1]); assert p.is_dir() and not p.is_symlink(), "unrecognized current runtime path"; r=p/"build.json"; assert r.is_file() and not r.is_symlink(), "missing original current runtime receipt"; b=json.loads(r.read_bytes()); assert b.get("schema")=="heptatorch.complete-runtime-build.v1" and b.get("status")=="PASS_NATIVE_BUILD_ONLY" and b.get("native_basename")=="heptatorch", "unrecognized current runtime receipt"' "$(CURDIR)/build/current-runtime"; \
 	  mv build/current-runtime "$$stage/previous"; \
@@ -596,11 +670,12 @@ build/unhex: tools/unhex.hepta | build check-compiler
 	@set -eu; tmp=$$(mktemp build/.unhex.XXXXXX); trap 'rm -f "$$tmp"' EXIT HUP INT TERM; \
 	"$(HEPTA_COMPILER)" < "$<" > "$$tmp"; test -s "$$tmp"; chmod 755 "$$tmp"; mv "$$tmp" "$@"
 
-# The common test gate requires all thirteen groups / 697 cases on one cold image.
+# The common gate requires fifteen groups / 1020 cases, main image plus separate Generator probes.
 test: current-runtime
 	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/current-runtime-review.XXXXXX"); \
 	"$(HEPTA_TORCH_PYTHON)" -I -S -B tests/qualify_current_runtime.py \
 	  --build-directory "$(CURDIR)/build/current-runtime" --torch-python "$(HEPTA_TORCH_PYTHON)" \
+	  --tool-build "$(abspath $(HEPTA_ENTROPY_BUILD))" --stack-build "$(abspath $(HEPTA_STACK_BUILD))" \
 	  --output "$$review/results"
 
 test-legacy: legacy
@@ -967,26 +1042,3 @@ test-differentiable-view-r4-input4: differentiable-view-r4-scalar07b $(DIFFERENT
 	  --support-reader "tests/differentiable_view_native_review/replay_direct_view14.py" \
 	  --expected-reference-sha256 "f4abe6a750ecc791b3a7bc7aa507b4c77eb0a2fcccf45b0c6a828db0e01490d3"
 
-# Finite R4 resource3 resource controls on the fresh Scalar07b image.
-.PHONY: test-differentiable-view-r4-resource3
-test-differentiable-view-r4-resource3: differentiable-view-r4-scalar07b $(DIFFERENTIABLE_VIEW_R4_SCALAR32_REFERENCE)/.complete
-	@printf '%s  %s\n' '00becd65f6897286e82723e0e4042eca6c0dbce18e2719855f57af0262aaca53' tests/wrapped_scalar_resource_review/run_resources.py | sha256sum -c -
-	python3 -I -S -B tests/wrapped_scalar_resource_review/run_resources.py \
-	  --repo "$(CURDIR)" \
-	  --builder-output "$(abspath $(DIFFERENTIABLE_VIEW_R4_SCALAR_BUILD))" \
-	  --reference "$(abspath $(DIFFERENTIABLE_VIEW_R4_SCALAR32_REFERENCE))/actual.json" \
-	  --probe "$(abspath $(DIFFERENTIABLE_VIEW_R4_SCALAR32_REFERENCE))/probe.py" \
-	  --expected-build-sha256 "$$(sha256sum '$(abspath $(DIFFERENTIABLE_VIEW_R4_SCALAR_BUILD))/native/build.json' | cut -d ' ' -f 1)" \
-	  --output "$(abspath build/view-reshape-r4-resource3)"
-
-# Finite R4 backward-resource resource controls on the fresh Scalar07b image.
-.PHONY: test-differentiable-view-r4-backward-resource
-test-differentiable-view-r4-backward-resource: differentiable-view-r4-scalar07b $(DIFFERENTIABLE_VIEW_R4_SCALAR32_REFERENCE)/.complete
-	@printf '%s  %s\n' '29e49cc554b5317d610b5b9faf1894e546118d99c961d21301ea53f5336f805a' tests/backward_private_cache_resource_review/run_resource.py | sha256sum -c -
-	python3 -I -S -B tests/backward_private_cache_resource_review/run_resource.py \
-	  --repo "$(CURDIR)" \
-	  --builder-output "$(abspath $(DIFFERENTIABLE_VIEW_R4_SCALAR_BUILD))" \
-	  --reference "$(abspath $(DIFFERENTIABLE_VIEW_R4_SCALAR32_REFERENCE))/actual.json" \
-	  --probe "$(abspath $(DIFFERENTIABLE_VIEW_R4_SCALAR32_REFERENCE))/probe.py" \
-	  --expected-build-sha256 "$$(sha256sum '$(abspath $(DIFFERENTIABLE_VIEW_R4_SCALAR_BUILD))/native/build.json' | cut -d ' ' -f 1)" \
-	  --output "$(abspath build/view-reshape-r4-backward-resource)"

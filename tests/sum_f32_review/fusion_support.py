@@ -57,9 +57,9 @@ def _logical_source_inverse(source, inputs, support):
     profile = current_profile()
     require(sha(source) == '0c1c0dd3acf0285a887a2766c1308dfd992acf3fe51849dcd98749bb64a00f3b', 'current source pin before fusion inverse')
     delta = json.loads(inputs.bind(HERE / 'fusion-source.json', DELTA_SHA))
-    require(delta['parent_source_sha256'] == PR38_SOURCE and delta['current_functions'] == profile.FUNCTIONS == 700,
+    require(delta['parent_source_sha256'] == PR38_SOURCE and delta['current_functions'] == 700,
             'exact logical fusion source scope')
-    actual = support.source_functions(source, profile.FUNCTIONS)
+    actual = support.source_functions(source, 700)
     baseline = inputs.bind(Path(support.__file__).parent / 'baseline/runtime.hepta', support.PARENT_SOURCE)
     old = support.source_functions(baseline, 700)
     old_call = b'  v23:u64 = call(v9,v10,v11,v12,v13,v14,v15) {"function":"sd_sum_tensor"}\n'
@@ -103,23 +103,30 @@ def _logical_source_inverse(source, inputs, support):
 
 
 def source_inverse(source, inputs, support):
-    """Add the exact cat inverse before the complete unchanged old proof chain."""
+    """Add exact729 and cat inverses before the original historical proofs."""
     profile = current_profile()
-    require(sha(source) == profile.SOURCE and profile.FUNCTIONS == 700,
-            'actual complete current cat profile before historical source proofs')
+    require(sha(source) == profile.SOURCE and profile.FUNCTIONS == 729 and profile.UNITS == 14,
+            'actual complete current729 profile before historical source proofs')
+    outer_path = ROOT / 'tools/current_runtime/fusion_source_transition.py'
+    inputs.bind(outer_path, 'ca68c251be10292f0e2e47c4f010a19ec8542cb26b30c92a2d27d37dddba1ae8')
+    outer = load(outer_path, 'fusion_current729_source_transition')
+    historical700, outer_proof = outer.restore_source(source, inputs.bind)
     path = ROOT / 'tools/current_runtime/cat_source_transition.py'
     inputs.bind(path)
     cat = load(path, 'fusion_current_cat_source_transition')
-    restored, proof = cat.restore_source(source, inputs.bind)
+    require(sha(historical700) == cat.SOURCE == outer.PARENT_SOURCE,
+            'exact historical700 subject before the unchanged cat inverse')
+    restored, proof = cat.restore_source(historical700, inputs.bind)
     previous = _logical_source_inverse(restored, inputs, support)
     require(previous['source_sha256'] == cat.PARENT_SOURCE
             and previous['whole_inverse_exact'] is True,
-            'the complete original logical/PR38/AVX2 proof must execute unchanged')
-    return dict(schema='heptatorch.current-cat.source-proof.v1',
+            'the complete original logical/PR38/AVX2 proof must execute')
+    return dict(schema='heptatorch.current729-cat.source-proof.v1',
         source_sha256=sha(source), parent_source_sha256=cat.PARENT_SOURCE,
-        whole_inverse_exact=True, cat_transition=proof, logical_fusion=previous,
+        whole_inverse_exact=True, outer_source_inverse=outer_proof,
+        cat_transition=proof, logical_fusion=previous,
+        actual_functions=729, historical_functions=700, historical_count_binding_separated=True,
         original_source_proofs_modified=False, runtime_qualification_transferred=False)
-
 
 def adapted_parent(repository, filename, inputs, *, owner=False):
     """Use the original full observer with only exact identity substitutions."""

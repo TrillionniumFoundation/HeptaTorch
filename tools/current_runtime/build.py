@@ -17,11 +17,11 @@ import types
 
 ROOT = Path(__file__).resolve().parents[2]
 COMPILER = "b1c851a0896fa6071f800e1146c3c27d0c6cf85059e9a6281b46d42908a3f59f"
-LINKER = "aae650e8822ef0b1e74d15108ad1d0f17ec791205ed5a158ec60b709f48f0e16"
+LINKER = "761a941fd7a2d53eb9b45869fcfc20e970640e9dd11d60f7c61a89812b61d74e"
 INSPECTOR = "71b72260014417db72ffcebd80c86543e257c80d76cdd6c878b41feaa117cf92"
 SUPPORT = {
-    "rng03": "a3fa507339b40435285dc1fa65e3cd519b6a0921a4c93bccf6ea834bb24763a3",
-    "owners": "9c02b75c44eee8459c476049f4d9ebe10935d9d9ed8b27f5842c699f8e6a0884",
+    "rng03": "7c32981c916bc277e16221cce1c3dd2381ce0018642e21b20836d861cf585865",
+    "owners": "867a27b3a86634ea6a873909eb8bc16d5d8027c98c7cb9340376fba51312ec86",
 }
 LIMITS = {"source_bytes": 1048576, "object_bytes": 1048576,
           "functions": 256, "blocks": 2560, "blocks_per_function": 256,
@@ -321,7 +321,7 @@ def main(argv=None):
             budget = inspector.longest(views)
             require(budget["maximum_path_bytes"] <= LIMITS["stack_path_bytes"], "native stack budget exceeded")
             report["stack"] = {k: v for k, v in budget.items() if k != "per_function_path_bytes"}
-            request = b"HIASTKS1" + struct.pack("<3Q", len(objects), 4, 0) + b"step"
+            request = b"HIACGS01" + struct.pack("<3Q", len(objects), 4, 0) + b"step"
             request += b"".join(struct.pack("<Q", len(obj)) + obj for obj in objects)
             require(len(request) <= LIMITS["link_bytes"], "native linker input limit exceeded")
             (out / "link.request.bin").write_bytes(request)

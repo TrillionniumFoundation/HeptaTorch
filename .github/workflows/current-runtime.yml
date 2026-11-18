@@ -291,6 +291,18 @@ jobs:
             --borrowed-tools "$RUNNER_TEMP/hepta-modules-native" \
             --output "$RUNNER_TEMP/hepta-stack-budget"
 
+      - name: Reproduce the native four-argument entropy linker
+        id: entropy_tool
+        run: |
+          sha256sum -c tools/current_runtime/entropy_linker/source-pins.sha256
+          python3 -I -S -B tools/current_runtime/entropy_linker/build_tool.py \
+            --upstream "$GITHUB_WORKSPACE/.toolchain/hepta" \
+            --stack-build "$RUNNER_TEMP/hepta-stack-budget" \
+            --output "$RUNNER_TEMP/hepta-current-entropy"
+          for name in linker.hepta linker-authoring.txt startup-authoring.txt; do
+            cmp "tools/current_runtime/entropy_linker/source/$name" "$RUNNER_TEMP/hepta-current-entropy/$name"
+          done
+
       - name: Cold-build the complete canonical HIA runtime
         id: current_build
         run: |
@@ -298,8 +310,9 @@ jobs:
             --manifest tools/current_runtime/source/manifest.json \
             --source-root tools/current_runtime/source \
             --compiler "$RUNNER_TEMP/hepta-stack-budget/native/stack-module-compiler" \
-            --linker "$RUNNER_TEMP/hepta-stack-budget/native/stack-linker-session" \
+            --linker "$RUNNER_TEMP/hepta-current-entropy/generator-session-linker" \
             --output "$CURRENT_OUTPUT/build"
+          cmp "$RUNNER_TEMP/hepta-current-entropy/generator-session-linker" "$CURRENT_OUTPUT/build/toolchain/stack-linker-session"
 
       - name: Install the independent pinned PyTorch CPU oracle
         id: oracle
@@ -329,18 +342,21 @@ jobs:
           PYTORCH_INSTALL
 
 
-      - name: Qualify all thirteen suites on the same current image
+      - name: Qualify all fifteen suites and the independent Generator probe images
         id: current_qualification
         if: ${{ !cancelled() && steps.current_build.outcome == 'success' }}
         run: |
           python3 -I -S -B tests/qualify_current_runtime.py \
             --build-directory "$CURRENT_OUTPUT/build" \
+            --tool-build "$RUNNER_TEMP/hepta-current-entropy" \
+            --stack-build "$RUNNER_TEMP/hepta-stack-budget" \
             --output "$CURRENT_OUTPUT/review"
 
       - name: Publish the actual current-runtime qualification result
         if: ${{ always() }}
         env:
           TOOLCHAIN_OUTCOME: ${{ steps.toolchain.outcome }}
+          ENTROPY_TOOL_OUTCOME: ${{ steps.entropy_tool.outcome }}
           BUILD_OUTCOME: ${{ steps.current_build.outcome }}
           ORACLE_OUTCOME: ${{ steps.oracle.outcome }}
           QUALIFICATION_OUTCOME: ${{ steps.current_qualification.outcome }}
@@ -356,7 +372,7 @@ jobs:
           output = Path(os.environ['CURRENT_OUTPUT'])
           output.mkdir(parents=True, exist_ok=True)
           failures, qualification, binding = [], None, None
-          for key in ('TOOLCHAIN_OUTCOME', 'BUILD_OUTCOME', 'ORACLE_OUTCOME', 'QUALIFICATION_OUTCOME'):
+          for key in ('TOOLCHAIN_OUTCOME', 'ENTROPY_TOOL_OUTCOME', 'BUILD_OUTCOME', 'ORACLE_OUTCOME', 'QUALIFICATION_OUTCOME'):
               if os.environ.get(key) != 'success':
                   failures.append(key + '=' + os.environ.get(key, 'missing'))
           try:
@@ -365,38 +381,84 @@ jobs:
               binding = {'path': 'review/qualification.json', 'bytes': len(raw),
                          'sha256': hashlib.sha256(raw).hexdigest()}
               if qualification['status'] != 'PASS_CURRENT_RUNTIME_FOCUSED':
-                  failures.append('the mandatory thirteen-suite qualifier did not pass')
-              if (qualification['required_cases_total'] != 697
-                      or qualification['executed_cases_total'] != 697
+                  failures.append('the mandatory fifteen-suite qualifier did not pass')
+              if (qualification['required_cases_total'] != 1020
+                      or qualification['executed_cases_total'] != 1020
                       or qualification['required_suites'] != [
-                      'bool27', 'original76', 'integral24', 'sum_f32_17', 'current35', 'base270', 'sum32', 'live32', 'logical147', 'resource7', 'asstrided16', 'cat4', 'metadata10']):
+                      'bool27', 'original76', 'integral24', 'sum_f32_17', 'current35', 'base270', 'sum32', 'live32', 'logical147', 'resource7', 'asstrided16', 'cat4', 'metadata10', 'generator131', 'public_f64_logical192']):
                   failures.append('the mandatory case denominator or suite order changed')
+              if (qualification['functions'] != 729 or qualification['units'] != 14
+                      or qualification['source_sha256'] != '04ae430e3e851831fcb97a3fab700b16b6318361d52e90fcea90d2183d1d564b'
+                      or qualification['native_sha256'] != '4749413ea952bfd9d1fe41770f94ce1b9b9e3efabb407aa90f725cf33d59c4db'):
+                  failures.append('the same complete current729 source and image were not qualified')
+              public_f64 = [row for row in qualification['suites'] if row['name'] == 'public_f64_logical192']
+              if (len(public_f64) != 1 or public_f64[0]['status'] != 'PASS'
+                      or public_f64[0]['qualified'] is not True or public_f64[0]['cases'] != 192
+                      or public_f64[0]['native_sessions'] != 196
+                      or public_f64[0]['packet_controls'] != 18 or public_f64[0]['allocation_controls'] != 2
+                      or public_f64[0]['native_boundary_controls'] != 2
+                      or public_f64[0]['boundary_controls_counted_as_torch_compatibility'] is not False
+                      or public_f64[0]['outside_native_scope_torch_observations'] != 6
+                      or public_f64[0]['original147_replaced'] is not False
+                      or public_f64[0]['complete_original_reader_reapplied'] is not True
+                      or public_f64[0]['complete_raw_frames_reparsed'] is not True
+                      or public_f64[0]['full_owner_archives_rechecked'] is not True):
+                  failures.append('the complete public F64 comparisons, controls or scope binding differ')
               if qualification['all_suites_executed'] is not True or qualification['all_inputs_unchanged'] is not True:
                   failures.append('actual execution or input custody incomplete')
           except Exception as error:
               failures.append('missing or incomplete qualification evidence: ' + repr(error))
+          entropy_binding = None
+          try:
+              entropy_path = Path(os.environ['RUNNER_TEMP']) / 'hepta-current-entropy/build.json'
+              raw = entropy_path.read_bytes()
+              entropy = json.loads(raw)
+              entropy_binding = {'path': 'toolchain/hepta-current-entropy/build.json',
+                                 'bytes': len(raw), 'sha256': hashlib.sha256(raw).hexdigest()}
+              if (entropy['schema'] != 'heptatorch.generator-entropy-linker.tool-only-build.v1'
+                      or entropy['status'] != 'PASS_NATIVE_ENTROPY_LINKER_BUILD_ONLY'
+                      or len(entropy['inputs']) != 40 or len(entropy['processes']) != 2
+                      or entropy['all_inputs_unchanged'] is not True
+                      or entropy['compiler_executed'] is not True or entropy['tool_linker_executed'] is not True
+                      or entropy['generator_session_linker_executed'] is not False
+                      or entropy['old_generator_application_built'] is not False
+                      or entropy['old_generator_application_executed'] is not False):
+                  failures.append('the complete original two-process entropy-tool receipt did not pass')
+              if any(p['exit_code'] != 0 or not p['stdout_EOF'] or not p['stderr_EOF']
+                     or p['timed_out'] or p['stderr_bytes'] != 0 for p in entropy['processes']):
+                  failures.append('entropy tool compilation/linking streams did not close successfully')
+              if (entropy['compiler_sha256'] != 'b1c851a0896fa6071f800e1146c3c27d0c6cf85059e9a6281b46d42908a3f59f'
+                      or entropy['entropy_linker_sha256'] != '761a941fd7a2d53eb9b45869fcfc20e970640e9dd11d60f7c61a89812b61d74e'
+                      or entropy['entropy_linker_source_sha256'] != '7bba866ece4f33fb6b1973e33475d868376f2b804d5ce81116cf206cfff31c34'):
+                  failures.append('the fixed native entropy tool source/compiler/product identities differ')
+              if (qualification is not None
+                      and qualification['entropy_tool_build']['sha256'] != entropy_binding['sha256']):
+                  failures.append('Generator131 did not bind this actual entropy-tool build receipt')
+          except Exception as error:
+              failures.append('missing or incomplete entropy tool evidence: ' + repr(error))
           summary = {'schema': 'heptatorch.current-runtime.focused-ci.v1',
                      'status': 'PASS_CURRENT_RUNTIME_FOCUSED' if not failures else 'FAIL',
                      'commit': os.environ.get('GITHUB_SHA'),
                      'hepta_commit': 'f33d8da316de8fdf27b504371f1a5310997ff548',
-                     'qualification': binding, 'failures': failures,
+                     'qualification': binding, 'entropy_tool_build': entropy_binding, 'failures': failures,
                      'full_pytorch_rewrite_complete': False, 'full_project_status': 'HOLD'}
           (output / 'qualification.json').write_text(json.dumps(summary, indent=2, sort_keys=True) + '\n')
           print(json.dumps(summary, indent=2, sort_keys=True))
           with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a') as stream:
               stream.write('## Current HIA runtime\n\n' + summary['status'] + '\n\n')
-              stream.write('The common local/CI gate requires one complete cold build and all 697 comparisons: '
+              stream.write('The common local/CI gate requires one complete main cold build and all 1020 comparisons: '
                            'Bool27, view/scalar76, Integral24, explicit-F32 Sum17, lifecycle35, '
-                           'base/NN270, original F32 Sum32, live Tensor/RNG/backward32, logical147, resource7, original AsStrided16, Cat4 and cat metadata10. '
-                           'Every suite must execute and pass.\n\n')
+                           'base/NN270, original F32 Sum32, live Tensor/RNG/backward32, logical147, resource7, original AsStrided16, Cat4, cat metadata10, Generator131 and public F64 logical192. '
+                           'Every suite must execute and pass. Generator131 additionally links and executes separate '
+                           'current-object ABI and reordered probe images; these are not the main executable.\n\n')
               stream.write('Current controls include seven dtype cases, four axis errors, ten entry checks, '
                            'both F32 allocation stages, the original Bool allocation case, '
                            'four positive and eighteen negative owner controls, and fourteen real '
                            'same-process prefix/refusal pairs. Original Bool and Integral reports '
                            'retain their exact expected-refusal FAIL results; their explicit changes '
                            'are admitted separately and the current dtype contract is independently tested.\n\n')
-              stream.write('Lifecycle35, base/NN270 and live32 run the fixed live Torch reference. '
-                           'Nine suites consume fixed observed reference bytes; Cat4 consumes four fixed legacy packet fixtures. '
+              stream.write('Lifecycle35, base/NN270, live32 and the original Generator24 subset run the fixed live Torch reference. '
+                           'Ten suites consume fixed observed reference bytes; Cat4 consumes four fixed legacy packet fixtures. '
                            'Logical147 also requires eighteen packet controls and two actual '
                            'allocation/rollback/retry controls. Resource7 retains all original '
                            'R4 resource3, backward-private-cache1 and R3 preserve3 recipes, '
@@ -407,7 +469,13 @@ jobs:
                            'eight physical owner observations and both EOFs for every process. Its old overflow '
                            'refusal fixture remains an unqualified historical failure reference. Cat metadata10 retains the exact '
                            'fixed Torch recipes and unshifted gradient versions; its passive original-method observations '
-                           'bind full physical owner bytes, all original command frames, ten actual exits and twenty native EOFs.\n\n')
+                           'bind full physical owner bytes, all original command frames, ten actual exits and twenty native EOFs. '
+                           'Generator131 preserves original24, native11, entry59 and dispatch37, complete Tensor/Generator owners, '
+                           'real entropy, current-object ABI and reordered links, exact controls and actual process EOFs.\n\n')
+              stream.write('Public F64 logical192 keeps all original 192 dense no-gradient comparisons, eighteen packet '
+                           'controls, two actual allocation rollback/retry controls and 196 complete native exits. '
+                           'Its two additional native scope controls and six outside-scope Torch observations are '
+                           'retained separately and are not counted as Torch compatibility. Logical147 remains required.\n\n')
               stream.write('Full PyTorch rewrite: HOLD. This finite gate does not assert project closure.\n')
               if qualification:
                   for suite in qualification.get('suites', []):
@@ -421,105 +489,17 @@ jobs:
         if: ${{ always() }}
         run: |
           export CURRENT_OUTPUT="${CURRENT_OUTPUT:-$RUNNER_TEMP/heptatorch-current}"
-          python3 -I -S -B - <<'ARCHIVE'
-          from pathlib import Path
-          import hashlib
-          import json
-          import os
-          import stat
-          import tarfile
-          import sys
-
-          temporary = Path(os.environ['RUNNER_TEMP'])
-          output = Path(os.environ['CURRENT_OUTPUT'])
-          output.mkdir(parents=True, exist_ok=True)
-          # Preserve this CI interpreter separately from the historical Torch
-          # reference package. Original report paths are never rewritten.
-          source = Path(sys.executable).resolve(strict=True)
-          assert source.is_file() and not source.is_symlink(), source
-          before = source.stat()
-          assert stat.S_ISREG(before.st_mode), source
-          raw = source.read_bytes()
-          after = source.stat()
-          identity = lambda row: (row.st_dev, row.st_ino, row.st_mode, row.st_size,
-                                  row.st_mtime_ns, row.st_ctime_ns)
-          assert identity(before) == identity(after), 'CI interpreter changed while copying'
-          digest = hashlib.sha256(raw).hexdigest()
-          mode = stat.S_IMODE(after.st_mode)
-          custody = output / 'execution-interpreter'
-          custody.mkdir(exist_ok=False)
-          copy = custody / 'python'
-          with copy.open('xb') as stream:
-              stream.write(raw)
-          copy.chmod(mode)
-          assert (copy.is_file() and not copy.is_symlink() and copy.stat().st_nlink == 1
-                  and copy.read_bytes() == raw and stat.S_IMODE(copy.stat().st_mode) == mode)
-          assert identity(source.stat()) == identity(after), 'CI interpreter changed during copy'
-          worker_path = output / 'review/metadata10/report.json'
-          worker_bound = False
-          if worker_path.is_file():
-              worker = json.loads(worker_path.read_bytes()).get('worker_interpreter')
-              if worker is not None:
-                  assert (worker['original_path'] == str(source) and worker['sha256'] == digest
-                          and worker['bytes'] == len(raw) and worker['mode'] == mode)
-                  worker_bound = True
-          receipt = {'schema': 'heptatorch.current-runtime.ci-interpreter-custody.v1',
-                     'requested_path': sys.executable, 'original_path': str(source),
-                     'member': 'execution-interpreter/python', 'bytes': len(raw),
-                     'sha256': digest, 'mode': mode, 'python_version': sys.version,
-                     'ordinary_single_link_copy': True, 'source_unchanged_while_copying': True,
-                     'metadata10_worker_identity_checked': worker_bound,
-                     'role': 'THIS_CI_EXECUTION_INTERPRETER_NOT_HISTORICAL_REFERENCE_INTERPRETER',
-                     'original_report_paths_modified': False, 'copied_interpreter_executed': False}
-          (custody / 'receipt.json').write_text(json.dumps(receipt, indent=2, sort_keys=True) + '\n')
-          for required in ('tools/stack_budget/inspect_stack.py',
-                           'validation/view-reshape-r4-native76/archive-location.json',
-                           'validation/cat-metadata10-reference/manifest.json',
-                           'validation/cat-metadata10-reference/complete.tar.xz'):
-              path = Path(required)
-              assert path.is_file() and not path.is_symlink(), path
-          inventory = []
-          for path in sorted(output.rglob('*')):
-              if path.is_file():
-                  assert not path.is_symlink(), path
-                  raw = path.read_bytes()
-                  inventory.append({'path': str(path.relative_to(output)), 'bytes': len(raw),
-                                    'sha256': hashlib.sha256(raw).hexdigest(),
-                                    'mode': stat.S_IMODE(path.stat().st_mode)})
-          (output / 'files.json').write_text(json.dumps(inventory, indent=2) + '\n')
-          archive = temporary / 'heptatorch-current-evidence.tar.xz'
-          with tarfile.open(archive, 'w:xz', preset=3) as bundle:
-              bundle.add(output, arcname='current-runtime')
-              for name in ('hepta-compiler', 'hepta-profile-sources', 'hepta-expanded',
-                           'hepta-capacity-review', 'hepta-modules-sources', 'hepta-modules-native',
-                           'hepta-owned-modules', 'hepta-owned-session-tools', 'hepta-stack-budget'):
-                  path = temporary / name
-                  if path.exists():
-                      bundle.add(path, arcname='toolchain/' + name)
-              for relative in ('.github/workflows/current-runtime.yml', 'Makefile', 'tools/current_runtime',
-                               'tools/differentiable_view_recovered_r3/profile.json',
-                               'tools/stack_budget/inspect_stack.py',
-                               'build/pytorch-install.json',
-                               'tests', 'compatibility', 'continuation/20261117/evidence',
-                               'continuation/20261117/source-packages/sum-bool-source-01/hia',
-                               'validation/sum-bool27-reference', 'validation/current-runtime-references',
-                               'validation/current-runtime76-reference',
-                               'validation/view-reshape-r4-native76/archive-location.json',
-                               'validation/cat-metadata10-reference',
-                               'validation/current-runtime-baseline', 'validation/sum-f32-reference17',
-                               'validation/current-runtime270-source', 'validation/current-runtime32-source',
-                               'validation/tensor-to-original16-recovery',
-                               'validation/logical-reductions-reference',
-                               'validation/bool-dtype-extension-reference'):
-                  path = Path(relative)
-                  if path.exists():
-                      bundle.add(path, arcname='repository/' + relative)
-          digest = hashlib.sha256(archive.read_bytes()).hexdigest()
-          (temporary / 'heptatorch-current-evidence.sha256').write_text(digest + '  ' + archive.name + '\n')
-          print(json.dumps({'archive': archive.name, 'bytes': archive.stat().st_size,
-                            'sha256': digest, 'current_output_files': len(inventory),
-                            'original_file_modes_preserved': True}))
-          ARCHIVE
+          custody_exit_code=0
+          python3 -I -S -B tools/seal_current_ci_evidence.py \
+            --repository "$GITHUB_WORKSPACE" \
+            --current-output "$CURRENT_OUTPUT" \
+            --toolchain-root "$RUNNER_TEMP" \
+            --source-commit "$GITHUB_SHA" \
+            --output-prefix "$RUNNER_TEMP/heptatorch-current-evidence" \
+            > "$RUNNER_TEMP/heptatorch-current-evidence.sealer.stdout" \
+            2> "$RUNNER_TEMP/heptatorch-current-evidence.sealer.stderr" || custody_exit_code=$?
+          printf '%s\n' "$custody_exit_code" > "$RUNNER_TEMP/heptatorch-current-evidence.sealer-exit-code"
+          exit "$custody_exit_code"
 
       - name: Upload complete current runtime native evidence
         if: ${{ always() }}
@@ -528,7 +508,12 @@ jobs:
           name: current-runtime-native-evidence
           path: |
             ${{ runner.temp }}/heptatorch-current-evidence.tar.xz
+            ${{ runner.temp }}/heptatorch-current-evidence.manifest.json
+            ${{ runner.temp }}/heptatorch-current-evidence.custody.json
             ${{ runner.temp }}/heptatorch-current-evidence.sha256
+            ${{ runner.temp }}/heptatorch-current-evidence.sealer.stdout
+            ${{ runner.temp }}/heptatorch-current-evidence.sealer.stderr
+            ${{ runner.temp }}/heptatorch-current-evidence.sealer-exit-code
             ${{ runner.temp }}/heptatorch-current/qualification.json
           if-no-files-found: error
           compression-level: 0
