@@ -16,8 +16,8 @@ import time
 ROOT = Path(__file__).resolve().parents[2]
 INTENT = ROOT / "continuation/20261117/evidence/root-sum-integral-original76-reviewed-intent-v1.json"
 INTENT_SHA = "2fb7e1f6a95e5cd6d0fe80468e414d65731f7b9d87852a33ec3c1812fbff07e8"
-ARCHIVE = ROOT / "validation/view-reshape-r4-native76/complete.tar.xz"
-ARCHIVE_SHA = "511dff328018a0a2d6a56a94fde4d2e0d64ff10ea66bb0cb71f89bb61ab2a3fb"
+ARCHIVE = ROOT / "validation/current-runtime76-reference/complete.tar.xz"
+ARCHIVE_SHA = "ce4aff6daaf5bb727fa6a520cbecf98dd8e09e67ffffa6cb60171a210b82e490"
 SOURCE_SHA = "82360ce87dae6f9a004ef50be4f991b6f83905a83f4b17ca8d6634827b7bd313"
 NATIVE_SHA = "80445a8c433f20314d3bc7b00ebb68f6a70fa200ee2e6aba193cff21aabfbc17"
 COMPILER_SHA = "b1c851a0896fa6071f800e1146c3c27d0c6cf85059e9a6281b46d42908a3f59f"

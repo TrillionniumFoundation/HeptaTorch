@@ -12,11 +12,15 @@ BASELINE_MANIFEST_SHA = 'e4ac41437792606e36524d85e1f2049c106527ffcbf8055cebf068c
 F32_REFERENCE_ARCHIVE_SHA = '1494c31492261a84b3311d568109992c48c5062b52802b2909da5f82f9f5604d'
 F32_REFERENCE_MANIFEST_SHA = '5f08c46df30f4f747968270e332687861add4449d8771cebb3d26018a2b13903'
 F32_READER_MANIFEST_SHA = 'a97c262047f17c50a9ad77815754644e1df19350ec2511f274997b4711dda974'
-LEGACY_PROOF_SHA = '93b3ce1d1fe1620537bde437197797cd585eb5b17282555f965a2d8d77ba61ae'
+LEGACY_PROOF_SHA = '581225ffc3534ba00abf1f962712a3b8758feb774d92a3fa1f462a165c940f7d'
 CURRENT35_ARCHIVE_SHA = '188655c40e46bcdc9ec2f12385c293941f3a7556a8ab30761619e5752e67362f'
 CURRENT35_MANIFEST_SHA = '0241d2f320765f1ad53aa28721a4e30304aedc21d7cca8a44668ee5567510f57'
 CURRENT270_ARCHIVE_SHA = '47afac432997a33aa5b874c2c088fa1b238262903f7d2c230abc2be34a2ad40a'
 CURRENT270_MANIFEST_SHA = '45e251c6cd275797c5bf121a7e190c5e89232e2f6592ae95bed37369a313ecef'
+LIVE32_ARCHIVE_SHA = 'e94e11a2997a24c7629cfbe5afc5aac7503ed039701c956a77dcb09357f6f927'
+LIVE32_MANIFEST_SHA = '8064f242e8a4923fe6c86adce43dc1d6e30668abfc46c28fafe0ec83ee52557b'
+ORIGINAL76_ARCHIVE_SHA = 'ce4aff6daaf5bb727fa6a520cbecf98dd8e09e67ffffa6cb60171a210b82e490'
+ORIGINAL76_MANIFEST_SHA = 'a3d49014e99b68a98a7cc41a787d4fa6102129b63aed720dc857b5d6e862ef4d'
 SOURCE700 = 'b83a8346b162e12c5ed77e0287d626619a18f84bf7a1ab02a2514d30ae4295b4'
 
 
@@ -50,7 +54,8 @@ def safe_name(name):
 
 
 def restore(repository, destination, relative, archive_sha, manifest_sha, schema,
-            inputs=None, embedded_manifest=False, archive_prefix='', directory_modes=None):
+            inputs=None, embedded_manifest=False, archive_prefix='', directory_modes=None,
+            original_inventory=None):
     repository, destination = Path(repository), Path(destination)
     archive_path = repository / relative / 'complete.tar.xz'
     raw = read(archive_path, archive_sha, inputs)
@@ -59,7 +64,11 @@ def restore(repository, destination, relative, archive_sha, manifest_sha, schema
     require(manifest['schema'] == schema, 'exact fixture manifest schema')
     pins = dict(manifest['files'])
     count = manifest.get('file_count', manifest.get('files_count', manifest.get('payload_files')))
-    require(count == len(pins) and sum(p['bytes'] for p in pins.values()) == manifest['payload_bytes'],
+    payload_bytes = manifest.get('payload_bytes')
+    if original_inventory is not None:
+        require(count is None and payload_bytes is None, 'original manifest inventory fields must remain absent')
+        count, payload_bytes = original_inventory
+    require(count == len(pins) and sum(p['bytes'] for p in pins.values()) == payload_bytes,
             'complete fixed fixture denominator')
     if 'archive' in manifest:
         declared = manifest['archive']
@@ -114,6 +123,12 @@ def restore_baseline(repository, destination, inputs=None):
                    'heptatorch.current-runtime.frozen700-sources.v1', inputs)
 
 
+def restore_original76(repository, destination, inputs=None):
+    return restore(repository, destination, 'validation/current-runtime76-reference',
+                   ORIGINAL76_ARCHIVE_SHA, ORIGINAL76_MANIFEST_SHA,
+                   'heptatorch.current-runtime.fixed-original76-references.v1', inputs)
+
+
 def restore_f32_reference(repository, destination, inputs=None):
     return restore(repository, destination, 'validation/sum-f32-reference17',
                    F32_REFERENCE_ARCHIVE_SHA, F32_REFERENCE_MANIFEST_SHA,
@@ -133,6 +148,17 @@ def restore_current270(repository, destination, inputs=None):
                    'heptatorch.current270.source-package.v1', inputs,
                    embedded_manifest=True, archive_prefix='current270',
                    directory_modes={'current270': 0o755, 'current270/frozen': 0o755})
+
+
+def restore_live32(repository, destination, inputs=None):
+    # Preserve the original manifest bytes, including its source-only status;
+    # its six-file inventory has no redundant count/payload fields.
+    return restore(repository, destination, 'validation/current-runtime32-source',
+                   LIVE32_ARCHIVE_SHA, LIVE32_MANIFEST_SHA,
+                   'heptatorch.current701-live32-source.v1', inputs,
+                   embedded_manifest=True, archive_prefix='current32',
+                   directory_modes={'current32': 0o755, 'current32/frozen': 0o755},
+                   original_inventory=(6, 147100))
 
 
 def prepare_f32_reader(repository, destination, baseline, inputs=None):

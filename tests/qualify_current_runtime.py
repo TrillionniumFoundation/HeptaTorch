@@ -2,7 +2,7 @@
 """Execute all focused current-runtime suites and retain their original evidence.
 
 This coordinator transports fixed observations and invokes independent native
-readers and the fixed live Torch reference for original35. It implements no
+readers and the fixed live Torch references for original35, base270 and live32. It implements no
 Tensor arithmetic, edits no old report, and grants no whole-project qualification
 from these finite suites.
 """
@@ -25,21 +25,21 @@ sys.path.insert(0, str(ROOT / "tests"))
 import current_runtime_fixtures as fixed_fixtures
 from current_runtime_process import execute as execute_process
 from current_runtime_admission import qualify_historical, qualify_f32, qualify_current35, qualify_current270
+from current_runtime_live32 import qualify_live32
 SOURCE = "82360ce87dae6f9a004ef50be4f991b6f83905a83f4b17ca8d6634827b7bd313"
 IMAGE = "80445a8c433f20314d3bc7b00ebb68f6a70fa200ee2e6aba193cff21aabfbc17"
 COMPILER = "b1c851a0896fa6071f800e1146c3c27d0c6cf85059e9a6281b46d42908a3f59f"
 LINKER = "aae650e8822ef0b1e74d15108ad1d0f17ec791205ed5a158ec60b709f48f0e16"
 BOOL_REFERENCE = "21dd75aeb86414818f7aa381f8b866d78b16f9bb3f5738e9a60d27ac3d15dd28"
 BOOL_ARCHIVE = "353a8b2853773bc6678bb62fc9559d6f4244c571ba40c6b80f352b2649cd6edd"
-LEGACY_ARCHIVE = "511dff328018a0a2d6a56a94fde4d2e0d64ff10ea66bb0cb71f89bb61ab2a3fb"
 SUM32_REFERENCE = "c14e4b18f657429ad5dac5498c3abcae303b6a7e7550db7d15a3c9179bdcd728"
 INTEGRAL_REFERENCE = "6c9df4b579664c89c200b9d796367dd6d41f93f8260e8ff012f17d5041d2278b"
 SHARED_ARCHIVE = "validation/current-runtime-references/complete.tar.xz"
 SHARED_ARCHIVE_SHA = "3a29420768a1bf7808976f04cb3ce3e6091db55ff6ae7858879f1b7ff70b69ea"
 SHARED_MANIFEST_SHA = "666fa775586679cfd42606c95656ad261c8856332431931ed4b0fcfd8865057e"
-GROUPS = ("bool27", "original76", "integral24", "sum_f32_17", "current35", "base270", "sum32")
+GROUPS = ("bool27", "original76", "integral24", "sum_f32_17", "current35", "base270", "live32", "sum32")
 SUITE_TIMEOUT_SECONDS = {"bool27": 600, "original76": 900, "integral24": 900,
-                         "sum_f32_17": 600, "current35": 900, "base270": 900, "sum32": 3600}
+                         "sum_f32_17": 600, "current35": 900, "base270": 900, "live32": 900, "sum32": 3600}
 
 
 def require(condition, message):
@@ -213,6 +213,12 @@ class Fixtures:
             self.cache["legacy_proof"] = fixed_fixtures.verify_legacy_sources(ROOT, self.baseline(), self.inputs)
         return self.cache["legacy_proof"]
 
+    def reference76(self):
+        if "reference76" not in self.cache:
+            self.cache["reference76"] = fixed_fixtures.restore_original76(
+                ROOT, self.output / "references/original76", self.inputs)
+        return self.cache["reference76"]
+
     def f32_reference(self):
         if "f32_reference" not in self.cache:
             root = fixed_fixtures.restore_f32_reference(ROOT, self.output / "references/f32_17", self.inputs)
@@ -232,6 +238,13 @@ class Fixtures:
         return self.cache["current270"]
 
 
+    def live32(self):
+        if "live32" not in self.cache:
+            self.cache["live32"] = fixed_fixtures.restore_live32(
+                ROOT, self.output / "original-live32-source", self.inputs)
+        return self.cache["live32"]
+
+
 
 def runner_command(name, build, build_sha, output, fixtures, inputs, torch_python):
     common = ["--build-directory", str(build), "--expected-build-sha256", build_sha]
@@ -248,8 +261,7 @@ def runner_command(name, build, build_sha, output, fixtures, inputs, torch_pytho
     elif name == "original76":
         fixtures.legacy()
         script = ROOT / "tests/current_runtime_legacy/run.py"
-        inputs.bind(ROOT / "validation/view-reshape-r4-native76/complete.tar.xz", LEGACY_ARCHIVE)
-        args = common
+        args = common + ["--references", str(fixtures.reference76())]
     elif name == "sum32":
         fixtures.legacy()
         script = ROOT / "tests/current_runtime_legacy/sum32.py"
@@ -269,8 +281,8 @@ def runner_command(name, build, build_sha, output, fixtures, inputs, torch_pytho
     elif name == "current35":
         script = ROOT / "tests/current_runtime35.py"
         args = common + ["--torch-python", str(torch_python)]
-    elif name == "base270":
-        script = fixtures.current270() / "run.py"
+    elif name in ("base270", "live32"):
+        script = (fixtures.current270() if name == "base270" else fixtures.live32()) / "run.py"
         inputs.bind(torch_python.resolve())
         python, flags = str(torch_python), ["-B"]
         args = common + ["--repository", str(ROOT), "--binary", str(build / "heptatorch"),
@@ -351,12 +363,15 @@ def main(argv=None):
     result = {"schema": "heptatorch.current-runtime.qualification.v1", "status": "RUNNING",
               "source_sha256": SOURCE, "native_sha256": IMAGE, "functions": 701, "units": 14,
               "required_suites": list(GROUPS), "required_cases": {"bool27": 27, "original76": 76,
-              "sum32": 32, "integral24": 24, "sum_f32_17": 17, "current35": 35, "base270": 270}, "required_cases_total": 481,
+              "sum32": 32, "integral24": 24, "sum_f32_17": 17, "current35": 35, "base270": 270,
+              "live32": 32}, "required_cases_total": 513,
               "required_controls": {"historical_Bool_dtypes": 7, "historical_Integral_dtypes": 5,
                   "current_dtypes": 7, "F32_axes": 4, "entry_and_capability": 10,
                   "Bool_allocation": 1, "F32_allocation_stages": 2,
                   "original35_copied_positive": 4, "original35_copied_negative": 18,
-                  "original270_actual_prefix_refusal_pairs": 14},
+                  "original270_actual_prefix_refusal_pairs": 14,
+                  "original_live32_partial_backward_prefixes": 4,
+                  "original_live32_uniform_refusal": 1},
               "suite_timeout_seconds": SUITE_TIMEOUT_SECONDS,
               "suites": suites, "failures": failures, "full_pytorch_rewrite_complete": False,
               "schema_closure": False, "full_project_status": "HOLD", "Torch_executed": False}
@@ -367,7 +382,7 @@ def main(argv=None):
     try:
         inputs.bind(Path(__file__).resolve())
         for name in ("current_runtime_fixtures.py", "current_runtime_process.py", "current_runtime_admission.py",
-                     "current_runtime_torch.py"):
+                     "current_runtime_torch.py", "current_runtime_live32.py"):
             inputs.bind(ROOT / "tests" / name)
         build_sha = build_binding(build, inputs)
         result["actual_build_sha256"] = build_sha
@@ -390,7 +405,7 @@ def main(argv=None):
                     row["original_report"] = {"path": str((directory / "report.json").relative_to(output)),
                                               "bytes": len(raw), "sha256": sha(raw)}
                     row["original_report_status"] = report.get("status")
-                    if name in ("current35", "base270") and result["Torch_executed"] is not True:
+                    if name in ("current35", "base270", "live32") and result["Torch_executed"] is not True:
                         result["Torch_executed"] = report.get("Torch_executed")
                 require(receipt["started"] is True and receipt["exit_code"] == 0
                         and receipt["stdout_EOF"] is True and receipt["stderr_EOF"] is True
@@ -411,6 +426,8 @@ def main(argv=None):
                     counts = qualify_f32(report, ROOT, build, build_sha, directory, inputs)
                 elif name == "current35":
                     counts = qualify_current35(report, build_sha, directory, inputs)
+                elif name == "live32":
+                    counts = qualify_live32(report, build, build_sha, directory, fixtures.live32(), inputs)
                 else:
                     counts = qualify_current270(report, build_sha, directory, inputs)
                 row.update(status="PASS", qualified=True, **counts)

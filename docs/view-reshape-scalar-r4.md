@@ -33,7 +33,7 @@
 
 ## 原始证据
 
-以下目录各自保留原始报告和完整归档；其中 FAIL、UNKNOWN、NOT_RUN 及早期版本不会被新的 PASS 覆盖。
+以下目录保留原始报告和归档身份；其中 FAIL、UNKNOWN、NOT_RUN 及早期版本不会被新的 PASS 覆盖。原生 76 用例的完整包已从默认工作树移除，可通过 [恢复索引](../validation/view-reshape-r4-native76/archive-location.json)取得经完整读回核对的原件。当前门禁使用保留全部原字节与成员模式的 [8 份参考文件](../validation/current-runtime76-reference/manifest.json)。
 
 - [原生 76 用例](../validation/view-reshape-r4-native76/)
 - [76 用例的独立字节准入](../validation/view-reshape-r4-raw-admission/)
