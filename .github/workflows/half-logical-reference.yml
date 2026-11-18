@@ -1,0 +1,64 @@
+name: Fixed Torch Half logical reference
+
+on:
+  push:
+    branches: [reference/half-logical264-v2]
+    paths:
+      - .github/workflows/half-logical-reference.yml
+      - tools/half_logical_reference_ci.py
+      - tests/half_logical_reference264/producer/**
+      - tests/current_runtime_process.py
+      - tests/pytorch_oracle.py
+      - compatibility/pytorch-oracle-lock.json
+      - compatibility/upstream-lock.json
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reference:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - name: Check out the exact reference source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Install the fixed CPU wheel and observe all 264 calls
+        shell: bash
+        run: |
+          python3 -I -S -B tools/half_logical_reference_ci.py run \
+            --repository "$GITHUB_WORKSPACE" \
+            --workspace "$RUNNER_TEMP/heptatorch-half-logical264" \
+            --source-commit "$GITHUB_SHA" \
+            > "$RUNNER_TEMP/heptatorch-half-reference.run.stdout" \
+            2> "$RUNNER_TEMP/heptatorch-half-reference.run.stderr"
+      - name: Preserve complete original evidence after success or failure
+        if: always()
+        shell: bash
+        run: |
+          python3 -I -S -B tools/half_logical_reference_ci.py seal \
+            --repository "$GITHUB_WORKSPACE" \
+            --workspace "$RUNNER_TEMP/heptatorch-half-logical264" \
+            --source-commit "$GITHUB_SHA" \
+            --output-prefix "$RUNNER_TEMP/heptatorch-half-reference" \
+            > "$RUNNER_TEMP/heptatorch-half-reference.seal.stdout" \
+            2> "$RUNNER_TEMP/heptatorch-half-reference.seal.stderr"
+      - name: Upload original source observations and physical evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: half-logical264-reference-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/heptatorch-half-reference.tar.xz
+            ${{ runner.temp }}/heptatorch-half-reference.manifest.json
+            ${{ runner.temp }}/heptatorch-half-reference.custody.json
+            ${{ runner.temp }}/heptatorch-half-reference.sha256
+            ${{ runner.temp }}/heptatorch-half-reference.run.stdout
+            ${{ runner.temp }}/heptatorch-half-reference.run.stderr
+            ${{ runner.temp }}/heptatorch-half-reference.seal.stdout
+            ${{ runner.temp }}/heptatorch-half-reference.seal.stderr
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
