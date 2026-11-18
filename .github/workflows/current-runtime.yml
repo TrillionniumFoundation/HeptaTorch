@@ -19,9 +19,10 @@ jobs:
     defaults:
       run:
         shell: bash
-    env:
-      CURRENT_OUTPUT: ${{ runner.temp }}/heptatorch-current
     steps:
+
+      - name: Set the current runtime evidence directory
+        run: printf 'CURRENT_OUTPUT=%s/heptatorch-current\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
 
       - name: Check out HeptaTorch
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -315,6 +316,7 @@ jobs:
           BUILD_OUTCOME: ${{ steps.current_build.outcome }}
           QUALIFICATION_OUTCOME: ${{ steps.current_qualification.outcome }}
         run: |
+          export CURRENT_OUTPUT="${CURRENT_OUTPUT:-$RUNNER_TEMP/heptatorch-current}"
           python3 -I -S -B - <<'SUMMARY'
           from pathlib import Path
           import hashlib
@@ -367,6 +369,7 @@ jobs:
       - name: Preserve complete original evidence and file modes after success or failure
         if: ${{ always() }}
         run: |
+          export CURRENT_OUTPUT="${CURRENT_OUTPUT:-$RUNNER_TEMP/heptatorch-current}"
           python3 -I -S -B - <<'ARCHIVE'
           from pathlib import Path
           import hashlib
