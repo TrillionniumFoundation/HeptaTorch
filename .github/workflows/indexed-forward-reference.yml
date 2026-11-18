@@ -1,0 +1,64 @@
+name: Fixed Torch indexed forward reference
+
+on:
+  push:
+    branches: [reference/legacy-indexed42-v1]
+    paths:
+      - .github/workflows/indexed-forward-reference.yml
+      - tools/indexed_forward_reference_ci.py
+      - tests/indexed_forward_reference42/producer/**
+      - tests/current_runtime_process.py
+      - tests/pytorch_oracle.py
+      - compatibility/pytorch-oracle-lock.json
+      - compatibility/upstream-lock.json
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reference:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - name: Check out the exact reference source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Install the fixed CPU wheel and observe all 42 fixed cases
+        shell: bash
+        run: |
+          python3 -I -S -B tools/indexed_forward_reference_ci.py run \
+            --repository "$GITHUB_WORKSPACE" \
+            --workspace "$RUNNER_TEMP/heptatorch-indexed-forward42" \
+            --source-commit "$GITHUB_SHA" \
+            > "$RUNNER_TEMP/heptatorch-indexed-reference42.run.stdout" \
+            2> "$RUNNER_TEMP/heptatorch-indexed-reference42.run.stderr"
+      - name: Preserve complete original evidence after success or failure
+        if: always()
+        shell: bash
+        run: |
+          python3 -I -S -B tools/indexed_forward_reference_ci.py seal \
+            --repository "$GITHUB_WORKSPACE" \
+            --workspace "$RUNNER_TEMP/heptatorch-indexed-forward42" \
+            --source-commit "$GITHUB_SHA" \
+            --output-prefix "$RUNNER_TEMP/heptatorch-indexed-reference42" \
+            > "$RUNNER_TEMP/heptatorch-indexed-reference42.seal.stdout" \
+            2> "$RUNNER_TEMP/heptatorch-indexed-reference42.seal.stderr"
+      - name: Upload original source observations and physical evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: indexed-forward42-reference-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/heptatorch-indexed-reference42.tar.xz
+            ${{ runner.temp }}/heptatorch-indexed-reference42.manifest.json
+            ${{ runner.temp }}/heptatorch-indexed-reference42.custody.json
+            ${{ runner.temp }}/heptatorch-indexed-reference42.sha256
+            ${{ runner.temp }}/heptatorch-indexed-reference42.run.stdout
+            ${{ runner.temp }}/heptatorch-indexed-reference42.run.stderr
+            ${{ runner.temp }}/heptatorch-indexed-reference42.seal.stdout
+            ${{ runner.temp }}/heptatorch-indexed-reference42.seal.stderr
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
