@@ -15,7 +15,7 @@ permissions:
 jobs:
   current-runtime:
     runs-on: ubuntu-24.04
-    timeout-minutes: 120
+    timeout-minutes: 180
     defaults:
       run:
         shell: bash
@@ -291,7 +291,7 @@ jobs:
             --borrowed-tools "$RUNNER_TEMP/hepta-modules-native" \
             --output "$RUNNER_TEMP/hepta-stack-budget"
 
-      - name: Cold-build the complete current 700-function runtime
+      - name: Cold-build the complete current 701-function runtime
         id: current_build
         run: |
           python3 -I -S -B tools/current_runtime/build.py \
@@ -301,7 +301,35 @@ jobs:
             --linker "$RUNNER_TEMP/hepta-stack-budget/native/stack-linker-session" \
             --output "$CURRENT_OUTPUT/build"
 
-      - name: Qualify all four native suites on the same current image
+      - name: Install the independent pinned PyTorch CPU oracle
+        id: oracle
+        shell: bash
+        run: |
+          python3 - <<'PYTORCH_INSTALL'
+          from pathlib import Path
+          import json
+          import platform
+          import subprocess
+          import sys
+
+          lock = json.loads(Path('compatibility/pytorch-oracle-lock.json').read_text())
+          expected = lock['oracle']
+          if (sys.implementation.name != expected['python']['implementation']
+                  or list(sys.version_info[:2]) != expected['python']['version']
+                  or sys.platform != expected['platform']['sys_platform']
+                  or platform.machine() != expected['platform']['machine']):
+              raise RuntimeError('Pinned PyTorch oracle requires CPython 3.12 on Linux x86_64')
+          report = Path(expected['install_report'])
+          report.parent.mkdir(parents=True, exist_ok=True)
+          wheel = expected['wheel']['url'] + '#sha256=' + expected['wheel']['sha256']
+          subprocess.run([sys.executable, '-m', 'pip', 'install',
+                          '--disable-pip-version-check', '--force-reinstall',
+                          '--index-url', 'https://download.pytorch.org/whl/cpu',
+                          '--report', str(report), wheel], check=True)
+          PYTORCH_INSTALL
+
+
+      - name: Qualify all seven suites on the same current image
         id: current_qualification
         if: ${{ !cancelled() && steps.current_build.outcome == 'success' }}
         run: |
@@ -314,6 +342,7 @@ jobs:
         env:
           TOOLCHAIN_OUTCOME: ${{ steps.toolchain.outcome }}
           BUILD_OUTCOME: ${{ steps.current_build.outcome }}
+          ORACLE_OUTCOME: ${{ steps.oracle.outcome }}
           QUALIFICATION_OUTCOME: ${{ steps.current_qualification.outcome }}
         run: |
           export CURRENT_OUTPUT="${CURRENT_OUTPUT:-$RUNNER_TEMP/heptatorch-current}"
@@ -327,7 +356,7 @@ jobs:
           output = Path(os.environ['CURRENT_OUTPUT'])
           output.mkdir(parents=True, exist_ok=True)
           failures, qualification, binding = [], None, None
-          for key in ('TOOLCHAIN_OUTCOME', 'BUILD_OUTCOME', 'QUALIFICATION_OUTCOME'):
+          for key in ('TOOLCHAIN_OUTCOME', 'BUILD_OUTCOME', 'ORACLE_OUTCOME', 'QUALIFICATION_OUTCOME'):
               if os.environ.get(key) != 'success':
                   failures.append(key + '=' + os.environ.get(key, 'missing'))
           try:
@@ -336,7 +365,10 @@ jobs:
               binding = {'path': 'review/qualification.json', 'bytes': len(raw),
                          'sha256': hashlib.sha256(raw).hexdigest()}
               if qualification['status'] != 'PASS_CURRENT_RUNTIME_FOCUSED':
-                  failures.append('the common four-suite qualifier did not pass')
+                  failures.append('the mandatory seven-suite qualifier did not pass')
+              if qualification['required_cases_total'] != 481 or qualification['required_suites'] != [
+                      'bool27', 'original76', 'integral24', 'sum_f32_17', 'current35', 'base270', 'sum32']:
+                  failures.append('the mandatory case denominator or suite order changed')
               if qualification['all_suites_executed'] is not True or qualification['all_inputs_unchanged'] is not True:
                   failures.append('actual execution or input custody incomplete')
           except Exception as error:
@@ -351,12 +383,17 @@ jobs:
           print(json.dumps(summary, indent=2, sort_keys=True))
           with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a') as stream:
               stream.write('## Current HIA runtime\n\n' + summary['status'] + '\n\n')
-              stream.write('The common local/CI gate requires a complete cold build, all 159 original '
-                           'comparison cases (Bool27, view/scalar76, Sum32 and Integral24), '
-                           '7 current dtype controls, 10 entry controls, and allocation rollback/recovery.\n\n')
-              stream.write('The original five Integral dtype controls remain recorded: '
-                           'three refusals pass and two previous Bool refusals are superseded by '
-                           'the independently required current dtype suite.\n\n')
+              stream.write('The common local/CI gate requires one complete cold build and all 481 comparisons: '
+                           'Bool27, view/scalar76, Integral24, explicit-F32 Sum17, lifecycle35, '
+                           'base/NN270, and original F32 Sum32. Every suite must execute and pass.\n\n')
+              stream.write('Current controls include seven dtype cases, four axis errors, ten entry checks, '
+                           'both F32 allocation stages, the original Bool allocation case, '
+                           'four positive and eighteen negative owner controls, and fourteen real '
+                           'same-process prefix/refusal pairs. Original Bool and Integral reports '
+                           'retain their exact expected-refusal FAIL results; their explicit changes '
+                           'are admitted separately and the current dtype contract is independently tested.\n\n')
+              stream.write('Only lifecycle35 and base/NN270 run the fixed live Torch reference. '
+                           'The other five suites consume fixed observed reference bytes.\n\n')
               stream.write('Full PyTorch rewrite: HOLD. This finite gate does not assert project closure.\n')
               if qualification:
                   for suite in qualification.get('suites', []):
@@ -400,9 +437,13 @@ jobs:
                   if path.exists():
                       bundle.add(path, arcname='toolchain/' + name)
               for relative in ('.github/workflows/current-runtime.yml', 'tools/current_runtime',
-                               'tests/qualify_current_runtime.py', 'tests/sum_bool_review',
-                               'tests/current_runtime_legacy', 'tests/current_runtime_integral24',
-                               'validation/sum-bool27-reference', 'validation/current-runtime-references'):
+                               'build/pytorch-install.json',
+                               'tests', 'compatibility', 'continuation/20261117/evidence',
+                               'continuation/20261117/source-packages/sum-bool-source-01/hia',
+                               'validation/sum-bool27-reference', 'validation/current-runtime-references',
+                               'validation/view-reshape-r4-native76/complete.tar.xz',
+                               'validation/current-runtime-baseline', 'validation/sum-f32-reference17',
+                               'validation/current-runtime35-source', 'validation/current-runtime270-source'):
                   path = Path(relative)
                   if path.exists():
                       bundle.add(path, arcname='repository/' + relative)

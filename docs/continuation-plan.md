@@ -21,45 +21,62 @@ entire subsystem or a complete upstream schema by itself.
 
 ## Current implementation and next work
 
-The complete current application is the **700-function Bool Sum profile**:
-9339 core blocks, 33425 core instructions, fourteen newly compiled HIA units
-and the existing 672-byte Tensor descriptor. The canonical aggregate and unit
-manifest are in `tools/current_runtime/source/`. Source SHA-256:
-`b83a8346b162e12c5ed77e0287d626619a18f84bf7a1ab02a2514d30ae4295b4`;
-native executable SHA-256:
-`c6afeedc14ba8cc408a62d6fbef0abb5b78dff0039b8099f3449d813e290a90e`.
+The canonical application is the701-function `sum-f32-cat-empty-01` profile:
+9,352 core blocks,33,473 instructions,14 newly compiled units and the existing
+672-byte descriptor. Its complete source and manifest are in
+`tools/current_runtime/source/`. Source SHA-256:
+`82360ce87dae6f9a004ef50be4f991b6f83905a83f4b17ca8d6634827b7bd313`; native ELF SHA-256:
+`80445a8c433f20314d3bc7b00ebb68f6a70fa200ee2e6aba193cff21aabfbc17`.
 
-The direct cold builder removes all prior application executables and authoring
-overlays from the current build dependency graph. Every application object is
-freshly produced by the fixed native ABI3 HIA compiler; the native linker and
-independent object/source stack checks retain their original limits. `make`
-selects this profile. `make test` and `current-runtime.yml` use the same four-suite
-coordinator, binding each actual suite to the same source, image and build report.
-Historical fixture and compiler regressions now use `make legacy test-legacy`.
+`make` directly cold-builds this source with the fixed final ABI3 HIA compiler
+and session linker. `make test` and `current-runtime.yml` share seven mandatory
+same-image groups totaling481 cases: Bool27, view/scalar76, Integral24, F32 Sum32,
+Bool/I64-to-F32 Sum17, original live35 and original live270. Select the pinned
+Torch environment with `HEPTA_TORCH_PYTHON`; the two live groups require actual
+independent Torch execution and eleven provenance checks. Other groups retain
+their exact original frozen observations. The focused CI budget is180 minutes.
 
-[Current build and interface](current-runtime.md), [audit and remaining gates](current-audit.md),
-[local source-bound receipts](../validation/current-runtime-local/manifest.json)
-and the current-source Actions run are authoritative for this integration.
-The immutable current reference pack is
-`validation/current-runtime-references/complete.tar.xz`; it retains original
-Sum32/Integral24 reference bytes, source manifests, modes and environment records.
-The original Bool27 reference is separately fixed under
-`validation/sum-bool27-reference/`. No original Torch reference was regenerated
-as part of recovering a missing original path.
+[Current build](current-runtime.md), [current audit](current-audit.md),
+[source-bound executions](../validation/current-runtime701/evidence.json) and
+the exact tested Git head are the current authority. The original current700
+main baseline was merged in PR37 at `b22622b371d79478864cb80154b1782e708a5a81`;
+its ten checks and all five workflows passed. New source hashes require their
+own executions and hosted acceptance.
 
-The four current-image suites are Bool27, original view/scalar76, original F32
-Sum32 and original Integral24. Their case totals, event totals and byte/value
-comparisons remain distinct. The two old dtype controls that rejected explicit
-Bool output record an intentional contract change; current Bool output is
-qualified through the new seven-case dtype suite. Original failure records,
-source-only preparations and unknown writes keep their original status.
+The new F32-sum path is cast-then-reduce with actual private temporary cleanup.
+Its first two numerical failures identified the fixed SumKernel's AVX2
+eight-lane accumulation order. The subsequent old270 run found the duplicate
+skipped-empty cat gradient mode bug; the one-function repair passed a new full
+270/284-frame run. All earlier FAILs and the lost local first701 Sum32 UNKNOWN
+remain original. Third-layer inverse proofs bind final701→r2→first701→700;
+they do not transfer runtime qualification.
 
-Next, complete actual current-source hosted admission, then extend the
-canonical HIA source and independently qualify the missing dtype/promotion,
-operator, differentiation and subsystem contracts against the fixed upstream
-inventory. Do not restart the historical overlay chain to make a current
-application build. Do not count a green finite regression as a complete schema.
-The full ledger remains HOLD with all seventeen complete gates open.
+Continue migrating real remaining historical gates onto the canonical image.
+The unchanged original live32 has now independently passed on this image:
+32 trajectories, 2,132 frames, 17,455 exact binary32 words and 1,137,600
+serialized Generator-state bytes. Integrate that source-bound execution into
+the default gate before retiring its repeated historical CI consumers.
+Generator24 still needs actual native raw-output/epoch/allocation contracts
+and a real entropy entry; it cannot be replaced by synthesized host outputs.
+Its independent native/entry/resource tests and optimizer companions remain.
+The
+old270 adapter covers its full original numeric/exception cases but does not
+replace461 raw legacy-protocol fixtures or full lifetime/resource assertions.
+The F64 oracle still binds the old143 complete source as a numerical-origin
+witness; migrate that exact proof before deleting `src/heptatorch.hepta`.
+Compiler bootstrap packages and their fixed source/test inputs are a separate
+dependency family and remain required by clean CI reconstruction.
+
+The obsolete twelve default Bool partitions are replaced by the twelve current
+cat/F32 partitions. Needed old Bool comparison helpers and the original700
+aggregate are restored from one hash/mode-bound fixture. Do not rebuild the
+old application overlay chain merely to build the current app. Do not delete
+failure evidence, loosen assertions or omit a gate to retire a path.
+
+Then implement and independently qualify the missing dtype/promotion,
+operator, AD, frontend/dispatch, serialization, device, distributed,
+compiler/export, data-pipeline and platform contracts against the fixed full
+inventory. The whole ledger remains HOLD with all seventeen gates unclosed.
 
 ## Dependency order
 
@@ -109,7 +126,9 @@ remain internally consistent. `make full-acceptance` uses the same checks and
 returns status 2 while the whole rewrite remains unqualified. Neither target
 replaces the native regression suite or the full subsystem qualification work.
 
-## Native int64 Tensor successor: bounded progress
+## Historical int64 checkpoint: bounded progress
+
+The following checkpoint describes the older 544-function snapshot. Its next-step wording is historical; the current 701-function scope and work order are defined above.
 
 The separately frozen544-function profile now has real eight-byte int64
 Storage, internal CPU promotion materialization, integer-to-binary32 nearest
@@ -128,7 +147,7 @@ The denominator is unchanged:2,590 schemas,688 derivatives,seventeen gates and
 zero complete-schema parity. Continue source-bound implementation and
 independent qualification without replacing full closure with bounded suites.
 
-## Historical checkpoints before the current 700-function integration
+## Earlier historical checkpoints
 
 The following paragraphs record earlier milestones and their next steps at that
 time. They are retained as historical context; the current source and work order

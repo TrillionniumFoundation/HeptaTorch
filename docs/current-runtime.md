@@ -7,7 +7,7 @@ the sequence of historical authoring overlays, or reuse a compiled application
 object.
 
 The current source package is `tools/current_runtime/source/`. It contains the
-700-function Bool Sum successor, its fourteen compilation units and
+701-function F32-sum and empty-cat-gradient successor, its fourteen compilation units and
 `manifest.json`. Tensor arithmetic, allocation, gradients and session execution
 remain HIA implementations. Python partitions source, invokes native build
 tools and checks their output; it does not execute Tensor operations.
@@ -61,7 +61,7 @@ produced by the native HIA linker using `HIASTKS1`, entry `step`, and zero start
 workspace. The production `step` and `close` ownership contract is unchanged.
 The builder does not run the resulting executable.
 
-The direct builder has cold-compiled three complete profiles. R4 and
+The direct builder first cold-compiled the following three historical profiles. R4 and
 Integral699 reproduced every original object and the original executable SHA;
 Bool700 produced its first native image from the new complete source. All
 compiler/linker processes exited zero with complete stdout/stderr EOF.
@@ -71,8 +71,9 @@ compiler/linker processes exited zero with complete stdout/stderr EOF.
 | R4 Scalar07b | 658 / 13 | `0799496559ffdfb051e34bc7a543db238b81d09c970a5cb4a8235151e0335b74` |
 | Integral699 | 699 / 14 | `fec4f5cd7f80591fee98378cb5a8a85b6e71c5e4a7f0a00a739dad16afc24c28` |
 | Bool700 | 700 / 14 | `c6afeedc14ba8cc408a62d6fbef0abb5b78dff0039b8099f3449d813e290a90e` |
+| Current F32-sum / empty-cat | 701 / 14 | `80445a8c433f20314d3bc7b00ebb68f6a70fa200ee2e6aba193cff21aabfbc17` |
 
-The three builds each measured a 131,824-byte maximum native call path and
+Those three builds each measured a 131,824-byte maximum native call path and
 135,920 bytes including the existing reserve. These are build results; the
 builder did not execute any of the Tensor applications. Eight separate source
 controls also rejected changed core bodies, changed support code, missing
@@ -111,43 +112,70 @@ continues to track the separate whole-PyTorch target.
 
 ```sh
 make test HEPTA_CURRENT_COMPILER=/absolute/path/to/stack-module-compiler \
-          HEPTA_CURRENT_LINKER=/absolute/path/to/stack-linker-session
+          HEPTA_CURRENT_LINKER=/absolute/path/to/stack-linker-session \
+          HEPTA_TORCH_PYTHON=/absolute/path/to/pinned-env/bin/python
 ```
 
-Make chooses a new qualification directory for each invocation. To select it
-explicitly after building, use:
+Make selects a new qualification directory. The equivalent standalone command
+is:
 
 ```sh
 python3 -I -S -B tests/qualify_current_runtime.py \
   --build-directory build/current-runtime \
+  --torch-python /absolute/path/to/pinned-env/bin/python \
   --output build/current-runtime-qualification
 ```
 
-The explicit output directory must not exist. The same coordinator is called
-by `current-runtime.yml`; it starts four independent native suites against the
-same actual source, image and build report: Bool27, original view/scalar76,
-original F32 Sum32 and original Integral24. The case total is 159, with each
-suite's event, frame, identity, lifetime, numeric, RNG and rollback denominators
-preserved. Complete original reference validators and comparison classes are
-used with explicit hash/mode-bound input relocation.
+The output directory must not exist. The explicit Torch interpreter must be the
+fixed CPython 3.12 Linux x86-64 environment described by
+`compatibility/pytorch-oracle-lock.json`. Its original pip installation receipt
+must exist at `build/pytorch-install.json`. The workflow prepares that exact
+environment; the local gate does not install packages or access the network.
+The interpreter's original path is used to preserve virtual-environment
+selection; its resolved executable bytes are also bound as an input.
 
-The coordinator retains each runner's original stdout/stderr and EOF status,
-shows progress as it arrives, checks every required report and continues the
-other groups after an ordinary group failure. A timeout, absent report,
-prepared-only status, failed assertion, incomplete stream or changed input
-prevents the focused PASS. Strict per-frame Sum32 ownership checks can take
-several minutes; the suite is not shortened to make CI appear green.
+The same coordinator runs seven mandatory groups against one complete source,
+image and actual cold-build receipt: Bool27, original view/scalar76, Integral24,
+F32 Sum32, Bool/I64-to-F32 Sum17, original live35, and original live270. Their
+case total is 481. Extra event, frame, numeric, lifetime, RNG and control counts
+retain their own denominators.
 
-The original five dtype-refusal controls are also executed and retained.
-Two now observe successful Bool output and keep their historical FAIL result;
-the new seven-case Bool dtype suite qualifies the explicitly extended contract.
-The current scope is recorded by `PASS_CURRENT_RUNTIME_FOCUSED`, with
-`full_project_status=HOLD` and `full_pytorch_rewrite_complete=false`.
+The five recorded-reference groups (Bool27, original76, Integral24, Sum32 and
+Sum17) use exact frozen independent reference observations.
+The original35 and original270 run the fixed real Torch oracle and all eleven
+provenance checks. All original numerical inputs, expectations, tolerances,
+training loops, exception phases and comparison bodies remain fixed apart from
+the documented complete, reversible transport/identity adaptations.
 
-The workflow archives the actual build, inputs, native frames, owner snapshots,
-reference originals, reports and compiler bootstrap outputs after execution,
-including available evidence on ordinary failure. Historical toolchain and
-143-function packet regressions use the separate `legacy`/`test-legacy` targets.
+The original270 bridge keeps 256 complete successful requests. Its fourteen
+refusals use the same process for the genuine success prefix and one genuine
+terminal refusal frame because the current owner rolls back a failed complete
+frame and returns count0. It retains both actual replies; it does not synthesize
+an old-format error record. Qualification requires 270 new native processes,
+284 frames, the exact actual executable, every exit0, empty native stderr and
+both actual EOFs. The original35 additionally executes its strict report checker
+and the unchanged four positive/eighteen negative copied-observation controls.
+
+The old Bool27 dtype controls still report FAIL at indices2/3 after F32 output
+is implemented. The old Integral24 controls still report FAIL at indices0/1/2/3
+after Bool and F32 output are implemented. Their original reports and nonzero
+reader exits are retained. A strict outer gate requires every original numeric
+case, unchanged refusal, exact expected extension and final native EOF; the new
+Sum17 controls independently qualify the extended contract.
+
+Each runner's complete stdout/stderr, hashes, exit and EOF are retained. The
+supervisor tracks exact process incarnations and sends cleanup signals through
+pidfds; it does not authorize a signal using a recycled PID or session number.
+The original SID-reuse counterexample and corrected pure-Python cleanup checks
+are retained. A timeout, prepared-only/missing report, incomplete stream,
+changed input or ordinary case failure blocks the overall focused PASS, while
+the remaining groups still run.
+
+The focused workflow has a 180-minute job budget, archives complete available
+build/source/reference/native evidence, and reports whole-project HOLD even
+when `PASS_CURRENT_RUNTIME_FOCUSED` is obtained. Actual source-bound results
+are indexed in `validation/current-runtime701/evidence.json`; historical
+qualification is never copied to a changed executable.
 
 ## A single complete source, reproducible units
 
@@ -160,7 +188,7 @@ python3 -I -S -B tools/current_runtime/partition.py \
   --runtime tools/current_runtime/source/runtime.hepta \
   --rng tools/current_runtime/source/units/rng03.hepta \
   --owners tools/current_runtime/source/units/owners.hepta \
-  --name bool700 --prefix sum_bool \
+  --name sum-f32-cat-empty-01 --prefix cat_f32 \
   --output build/current-repartitioned
 ```
 

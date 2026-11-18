@@ -2,130 +2,129 @@
 
 ## Result and scope
 
-The application now has a direct, complete **700-core-function HIA source** and
-a default build for that source. The entire PyTorch replacement remains
-**HOLD**. The fixed target is PyTorch 2.15.0 at
-`31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457`, with 2,590 exact native declarations,
-688 derivative declarations and seventeen whole-system acceptance gates.
-Ten gates are IN_PROGRESS and seven are OPEN; no complete upstream schema or
-whole-system gate is qualified.
+The default application is a complete **701-core-function HIA source** with
+fourteen independent compilation units. Whole-PyTorch acceptance remains
+**HOLD**: the pinned PyTorch2.15.0 target contains2,590 native declarations,
+688 derivative declarations and17 whole-system gates. Ten gates are IN_PROGRESS
+and seven OPEN; no complete upstream schema or whole-system gate is qualified.
 
-This audit covers the repository/branch state, implementation and build paths,
-fixed upstream inventory, acceptance accounting, original execution evidence,
-current-source compilation, actual finite regressions and retirement dependencies.
-It does not equate an inventory entry, source preparation or component PASS with
-implementation of the complete corresponding PyTorch contract.
+PR37 merged the first direct current700 build into main
+`b22622b371d79478864cb80154b1782e708a5a81`. Its tested tree was
+`dbbbc4b0ad0a95fd01b7ae369532bf7a10c3f0f7`; all ten exact-head checks and five
+workflow runs passed. That original current700 qualification remains distinct
+from every new701 execution described here.
 
-The initial main revision was
-[`deaddeebc1cbd0509048f085017b3f63fb8b9fc0`](https://github.com/TrillionniumFoundation/HeptaTorch/commit/deaddeebc1cbd0509048f085017b3f63fb8b9fc0),
-the merged R4 Scalar07b work. Its latest qualified combined runtime had 658
-core functions. The unmerged continuation archive at
-[`8579ae2fe98fa3abcb4ec3439cb21b7192a6351a`](https://github.com/TrillionniumFoundation/HeptaTorch/commit/8579ae2fe98fa3abcb4ec3439cb21b7192a6351a)
-added 108 source/evidence files without modifying production runtime files.
-The 699-function integer-sum successor and 700-function Bool-output successor
-therefore needed actual recovery, compilation and integration, not a change to
-the full-project status flag.
-
-## Build and integration defects addressed
-
-The old default `make all` still selected the 143-function borrowed runtime.
-The README, first build instructions and opening continuation checkpoint also
-described older defaults. A green historical native workflow did not execute
-the pending 699/700-function successor.
-
-The current entry is now `tools/current_runtime/source/runtime.hepta`, with an
-ordered manifest and fourteen complete compilation units. `make` builds it;
-`make test` uses the same four-suite coordinator as the focused current-runtime
-workflow. The older protocol's fixtures and compiler witnesses have explicit
-`legacy` and `test-legacy` targets. Historical source-bound claims retain their
-own identities.
-
-The application builder compiles every unit with the final native HIA ABI3
-compiler and links newly produced objects with the final HIA session linker.
-It does not consume a prior application ELF, historical application objects,
-or a succession of generated overlays. The compiler bootstrap remains a
-separate process; its original Python/GNU-ld bootstrap and historical compiler
-witnesses are not Tensor execution dependencies.
+`make` now selects the complete current source; `make test` and the focused
+workflow share seven mandatory groups. The application builder consumes no
+parent application ELF or historical overlay chain. The final HIA compiler and
+linker are fixed; their original bootstrap and compiler witnesses remain
+separate toolchain dependencies.
 
 | Current build property | Actual value |
 | --- | --- |
-| Core HIA functions / blocks / instructions | 700 / 9,339 / 33,425 |
-| HIA compilation units | 14 |
-| Native compiler/linker processes | 15, each exit 0 with both EOFs |
+| Profile | `sum-f32-cat-empty-01` |
+| Core functions / blocks / instructions | 701 / 9,352 / 33,473 |
+| HIA units / compiler-linker processes | 14 / 15, all newly executed with exit0 and both EOFs |
 | Tensor descriptor | 672 bytes |
-| Native ELF size | 3,620,864 bytes |
-| Maximum native call path | 131,824 bytes |
-| Call path including unchanged reserve | 135,920 bytes |
-| Complete source SHA-256 | `b83a8346b162e12c5ed77e0287d626619a18f84bf7a1ab02a2514d30ae4295b4` |
-| Native ELF SHA-256 | `c6afeedc14ba8cc408a62d6fbef0abb5b78dff0039b8099f3449d813e290a90e` |
+| ELF size | 3,624,960 bytes |
+| Maximum call path / with reserve | 131,824 / 135,920 bytes |
+| Complete source SHA-256 | `82360ce87dae6f9a004ef50be4f991b6f83905a83f4b17ca8d6634827b7bd313` |
+| ELF SHA-256 | `80445a8c433f20314d3bc7b00ebb68f6a70fa200ee2e6aba193cff21aabfbc17` |
+| Original cold-build report SHA-256 | `ff065dcd35698ffbf4b456fed0740049cbd5804fec324c4a305b6ee81810c0d8` |
 
-The same direct builder also reproduced every original object and final ELF
-for the 658- and 699-function profiles. Eight source controls rejected altered
-core bodies/support code, missing units/exports, mismatched imported effects,
-cyclic imports, path traversal and incorrect hashes. Default Make publication
-was exercised with a real cold build, a rejected compiler and a missing output:
-failures preserve their staging evidence and the prior successful build;
-grouped outputs rebuild together.
+The builder and independent stack inspector are unchanged. Source admission
+checks complete function-body partitions, imported signatures/effects,
+dependencies, fixed compiler/linker limits and every actual object. A build
+reports `PASS_NATIVE_BUILD_ONLY`; it cannot grant application qualification.
 
-See [the complete build contract](current-runtime.md),
-[the source manifest](../tools/current_runtime/source/manifest.json) and
-[local execution receipts](../validation/current-runtime-local/manifest.json).
+## Current same-image acceptance
 
-## Evidence recovered and current-image qualification
+The required total is481 cases across seven groups. Their complete original
+reference/comparison contracts and separate control denominators remain intact.
+Actual completion and original report hashes are recorded in
+[the execution index](../validation/current-runtime701/evidence.json); a group
+still in progress is not admitted as PASS.
 
-The original 699-function Native24 process was already complete. It was not
-restarted. Its full 5,722,831-byte original report was recovered with SHA-256
-`5f8f9a7b4dbf6455c628a78b392c79d06ff83beecb9eca0caa940f91b85e700b`.
-Of its 460 original input files, 457 were still present with exact identities.
-Three missing application ELFs were restored with exactly their original
-bytes: two from original link output and R4 from a fresh direct cold build
-that reproduced all thirteen original objects and its original ELF. The first
-incomplete recovery attempt remains a recorded failure.
+| Group | Required cases | Relevant independent checks |
+| --- | ---: | --- |
+| Bool27 | 27 | Complete owner/RNG, seven original dtype observations, ten entry controls and real allocation rollback/recovery |
+| Original view/scalar76 | 76 | Original26+32+14+4,82,503 frames and481,580 assertions |
+| Original F32 Sum32 | 32 | Original626 reference events,64,415 frames,460,075 assertions and full owner state |
+| Original Integral24 | 24 | Original260 events, full-width integer results, overflow, empty/strided inputs and lifetime |
+| Bool/I64-to-F32 Sum17 | 17 | Exact original cast witnesses/results,17 cases, four axis controls, seven dtype controls, ten entry checks and two actual allocation failures |
+| Original live35 | 35 | 6,344 frames,2,590,274 values, eleven provenance checks and independent4/18 copied controls |
+| Original live270 | 270 | All ten original groups,270 actual processes,284 frames,13,076 values and fourteen true refusals |
 
-A new **pure recorded admission** then recomputed all 24 original case records,
-260 reference events and five bounded controls without starting native Tensor,
-Torch or compiler execution. It reconstructed the complete original top report,
-compared all original fields and verified all 460 inputs. Its status is
-`PASS_PURE_RECORDED_ADMISSION`; `full_general_transition_recomputed=false` and
-the whole-project HOLD remain unchanged. This is distinct from the following
-fresh 700-image executions.
+Old current700 controls are not rewritten. Bool27 retains two original FAIL
+results at dtype indices2/3. Integral24 retains four original FAIL results at
+indices0/1/2/3. The strict outer qualification requires these exact, explained
+extension results, all original numeric cases and all remaining refusals. The
+new Sum17 dtype/entry/OOM suite tests the implemented F32 output contract.
 
-| Current-image suite | Actual local execution and comparisons |
-| --- | --- |
-| Bool27 | **27/27 PASS**, 6,123 native frames; fixed actual-Torch cases; seven dtype controls; ten entry refusals; real output-Storage allocation failure, full rollback and successful retry after restoring the resource limit |
-| Original view/scalar76 | **76/76 PASS**, 82,503 frames and 481,580 assertions; all original 26 + 32 + 14 + 4 cases and comparison bodies; actual ownership/weak-lifetime, Version, RNG, numeric and rollback checks |
-| Original F32 Sum32 | **32/32 PASS**, 626/626 events, 64,415 frames and 460,075 assertions; complete original reference admission and comparison class; no case filter or substituted expected arithmetic |
-| Original Integral24 | **24/24 PASS**, 260/260 events and 14,512 native frames; unchanged comparison and reference admission, full-width integer data, overflow, empty/noncontiguous layouts and lifetime checks |
+The live270 numerical oracle was previously exercised only on the old143-function
+application. All143 names exist in the new source, but79 whole function bodies
+had changed; old PASS results could not qualify this image. The current bridge
+uses genuine result references and returned typed Tensor identities. It never
+predicts native slots from the old client's logical handle counter. Four
+transport comparison functions have complete inverse proofs; all other case
+functions, Torch inputs/expectations, tolerances and seeds are unchanged.
 
-The four case counts total 159. Control counts, frames, assertions, exact words,
-RNG bytes and rollback bytes have different denominators and must not be added
-or relabeled as complete schema coverage. The current CI actually starts all
-four suites against one cold-build identity; missing, skipped, prepared-only,
-failed or incomplete reports cannot produce its focused PASS. The local receipt
-manifest and hosted run state specify which executions have actually completed.
+For14 original refusal cases, the current transactional owner emits only a
+32-byte count0 failure. The bridge executes the genuine success prefix and
+terminal refusal in the same process, retains both real frames and requires
+complete owner rollback. No old error record is fabricated. It does not claim
+an independent complete private-allocation transition ledger for each operation
+inside a long successful multi-reset request.
 
-The new Bool reader's first run recorded 12 passing and 15 failing cases. It had
-used old view command 69 instead of current command 111 and mapped IndexError
-to cause 7 instead of cause 2. Only those two new reader choices were corrected;
-the HIA source, ELF, Torch reference and all tensor/owner assertions stayed fixed.
-The original failure, original reader files and correction record are retained.
+## Actual failures found and repaired
 
-Two of the original five integer-sum dtype controls expected explicit Bool
-output to be refused. That expectation is intentionally superseded by this
-native implementation. Their actual original result is still FAIL with
-three unchanged refusals passing and indices 0/2 reporting the new successful
-operation. The current seven-case dtype suite tests the new contract. No report
-claims the original five all passed on the changed contract.
+The first701 source added `sf_sum_f32`: Bool/I64 input is converted element by
+element to F32 with its format preserved, then reduced by the shared F32 kernel.
+The private conversion Tensor/Storage/Version is reclaimed on success and on
+failure. Integer summation followed by a final cast is not an equivalent
+implementation and is not used.
 
-The original 39,045,926-byte F32 reference was missing at its old standalone path.
-It was recovered from the previously sealed archive member
-`inputs/0192-actual.json` and matched SHA-256
-`c14e4b18f657429ad5dac5498c3abcae303b6a7e7550db7d15a3c9179bdcd728`.
-The shared reference pack preserves 113 original files, 47,548,385 payload bytes,
-all original file modes, source manifests and environment records in a 536,900-byte
-archive. It includes no prior application executable. Both original Sum32 and
-Integral24 reference validators still run with explicit, verified path mappings.
-See [the pack manifest](../validation/current-runtime-references/manifest.json).
+The first17 native run passed15 and failed2. A separate real diagnostic confirmed
+that command108 conversion matched the original Torch cast bytes while the
+subsequent F32 sum reproduced the numerical difference. The fixed wheel
+advertises AVX512, but its pinned SumKernel registration supplies no AVX512
+implementation and dispatches to AVX2 with8 F32 lanes. Six constants in
+`sd_vector_inner` and `sd_loop2d` were corrected to that actual accumulation
+order; references and tolerances were unchanged. The corrected r2 image passed
+all211 then-connected cases. Its separate raw17 audit checked31 children,
+8,118 frames,2,598 complete owner blobs and62 EOFs without executing native or
+Torch again. These r2 results retain their own source/image identities.
+
+The first live270 run on r2 passed269 and failed `cat-skipped-only-grad`, with
+a genuine `status=9,count=0` response. The skipped one-dimensional empty cat
+parent incorrectly set incoming mode1. Its second duplicate edge then reached
+the shared-cache protection instead of the ordinary accumulation path. The
+final source changes only this branch to mode2, preserving return1 and every
+guard. The other700 complete r2 function bodies are unchanged. A new actual
+live270 run on the final image passed all270 cases and284 frames.
+
+The complete source proof reverses final701→r2→first701→original700. Relative
+to original700,696 bodies are unchanged, four are modified and one is added.
+The separate reader proof first binds actual new physical source files, then
+executes the original proofs on explicitly verified inverse bytes. It does not
+pretend reconstructed bytes were physical file observations.
+
+Original failed execution reports, the first Integral path-admission failure,
+diagnostics and all available raw evidence remain unchanged. The r2 complete
+seal contains36,712 files /936,547,734 payload bytes; its152,885,096-byte archive
+has SHA-256 `c87dac4b653d41cab69c3517445dce2b3467b75f87ba8c42ad1b5dc4c77f7cdb`.
+Its original270 FAIL is still FAIL. An earlier local first701 Sum32 run lost
+during an environment reset remains `UNKNOWN_AFTER_ENVIRONMENT_RESET`; later
+runs are distinct executions, never recovery of that lost run.
+
+The original699 Native24 report was recovered and admitted from its original
+bytes without rerunning native or Torch. That earlier pure-recorded admission
+and the first current700 local/hosted results remain at
+[`validation/current-runtime-local/`](../validation/current-runtime-local/).
+Shared original Sum32/Integral24 references remain the exact113-file pack
+documented by [its manifest](../validation/current-runtime-references/manifest.json).
+The new17 reference is its original actual Torch production, not regenerated
+from native output.
 
 ## Remaining whole-system gates
 
@@ -207,3 +206,30 @@ production path. Deleting evidence, emptying the schema inventory, changing
 statuses or disabling a gate is not retirement. The request to retain only the
 final native stack remains an open final-integration obligation until the full
 replacement meets those conditions.
+
+### Verified retirement boundary in this integration
+
+The twelve old `sum_bool_00..11.hepta` files contain exactly the700 original
+core bodies, all byte-identical to the preserved original aggregate. They are
+replaced by the current twelve `cat_f32_00..11.hepta` files; fixed `rng03` and
+`owners` remain unchanged. Five old Bool helper files move into the verified
+single baseline fixture alongside the original comparison/aggregate inputs.
+The Bool compatibility entry remains explicit. This removes obsolete default
+derived files while retaining the exact original input identities once.
+
+The original live32 also passed a separate new execution on the same source
+and image: 32 native children, 2,132 frames, 17,455 exact binary32 words,
+1,137,600 serialized Generator-state bytes, 238 absolute-Version and 166
+gradient-presence comparisons. All eleven live-Torch provenance checks,
+original comparisons, full structural owner observations and child EOF checks
+passed. Its complete evidence is recorded separately in the execution index.
+It is not included in the seven-group481 default gate yet, and its repeated
+historical CI consumers still need migration.
+
+Whole historical retirement remains blocked by real consumers: the fixed
+compiler bootstrap packages,461 old protocol fixtures, the live32 CI entries,
+Generator24, source-bound dtype/optimizer/resource suites, and the F64 oracle's
+whole-source proof against `src/heptatorch.hepta`. The original76 reader still
+uses its fixed historical reference archive. These consumers must be migrated
+and executed on the replacement image before their source paths are removed.
+No whole gate was disabled and no schema denominator was reduced.
