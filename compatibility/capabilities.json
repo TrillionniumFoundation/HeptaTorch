@@ -1115,16 +1115,16 @@
   },
   "legacy_top_level_fields_scope": "The original top-level dtype/layout/descriptor/arena limits and capability rows describe the 143-function baseline. Historical named profiles retain their frozen claims. The default runtime is specified by current_runtime_profile; finite qualification never implies complete schema parity.",
   "current_runtime_profile": {
-    "name": "sum-f32-cat-empty-01",
+    "name": "tensor-generator-native01",
     "canonical_source": "tools/current_runtime/source/runtime.hepta",
     "source_manifest": "tools/current_runtime/source/manifest.json",
     "builder": "tools/current_runtime/build.py",
-    "source_sha256": "82360ce87dae6f9a004ef50be4f991b6f83905a83f4b17ca8d6634827b7bd313",
-    "native_sha256": "80445a8c433f20314d3bc7b00ebb68f6a70fa200ee2e6aba193cff21aabfbc17",
-    "core_functions": 701,
-    "core_blocks": 9352,
-    "core_instructions": 33473,
-    "compilation_units": 14,
+    "source_sha256": "fac3d413c6c0f6874d224cbea312108ee2c8baa027102d41890d85094a5faa38",
+    "native_sha256": "5b7aac203d2c913d43781f0da45d40e9bac2037c2bc074ec30f8dd663710a805",
+    "core_functions": 712,
+    "core_blocks": 9536,
+    "core_instructions": 34167,
+    "compilation_units": 15,
     "tensor_descriptor_bytes": 672,
     "default_build": "make",
     "default_qualification": "make test",
@@ -1138,9 +1138,10 @@
       "integral_to_f32_sum_cases": 17,
       "original_live_object_cases": 35,
       "original_numeric_training_cases": 270,
-      "original_rng_backward_cases": 32
+      "original_rng_backward_cases": 32,
+      "original_generator_and_dispatch_cases": 131
     },
-    "local_execution_receipts": "validation/current-runtime701/evidence.json",
+    "local_execution_receipts": "validation/current-runtime712/evidence.json",
     "fixed_reference_manifest": "validation/current-runtime-references/manifest.json",
     "audit": "docs/current-audit.md",
     "historical_application_elf_required_for_current_build": false,
@@ -1150,7 +1151,86 @@
     "host_build_and_test_tools_include_python": true,
     "full_upstream_schema_qualified": false,
     "whole_pytorch_rewrite_complete": false,
-    "required_cases_total": 513,
-    "torch_reference_interpreter_make_variable": "HEPTA_TORCH_PYTHON"
+    "required_cases_total": 644,
+    "torch_reference_interpreter_make_variable": "HEPTA_TORCH_PYTHON",
+    "primary_cold_processes": 16,
+    "source_manifest_sha256": "708e4b642f630604cedb1d2cf566fefcfb3d9afd74a835f5a265d7e51f1ff4e5",
+    "required_groups": [
+      "bool27",
+      "original76",
+      "integral24",
+      "sum_f32_17",
+      "current35",
+      "base270",
+      "live32",
+      "generator131",
+      "sum32"
+    ],
+    "qualification_status": "PASS_CURRENT644_ROG_PENDING_SOURCE_HEAD_HOSTED_ADMISSION",
+    "runtime_qualification_transferred": false,
+    "entry_contract": {
+      "magic": "HIACGS01",
+      "arguments": [
+        "readbuf",
+        "mutbuf",
+        "buffer",
+        "readbuf"
+      ],
+      "returns": [
+        "buffer",
+        "u32"
+      ],
+      "fourth_argument": "trusted startup entropy read buffer",
+      "tensor_generator_handle_interoperability_claimed": false
+    },
+    "entropy_tool": {
+      "builder": "tools/current_runtime/entropy_linker/build_tool.py",
+      "default_output": "build/current-runtime-entropy",
+      "native_sha256": "761a941fd7a2d53eb9b45869fcfc20e970640e9dd11d60f7c61a89812b61d74e",
+      "old_generator_application_build_required": false,
+      "original_absolute_tool_stream_directories_must_remain": true
+    },
+    "qualification_interpreter": {
+      "implementation": "cpython",
+      "version": [
+        3,
+        12
+      ],
+      "cache_tag": "cpython-312",
+      "make_variable": "HEPTA_TORCH_PYTHON",
+      "outer_flags": [
+        "-I",
+        "-S",
+        "-B"
+      ],
+      "same_resolved_executable_for_outer_and_live_readers": true,
+      "mismatch_rejected_before_any_case": true,
+      "exact_normalized_AST_comparison_preserved": true
+    },
+    "generator_scope": {
+      "original_torch_cases": 24,
+      "original_native_cases": 11,
+      "original_entry_cases": 59,
+      "new_dispatch_cases": 37,
+      "independent_source03_actual_status": "PASS_CURRENT712_GENERATOR131",
+      "production_source04_and_current644_status": "PASS_CURRENT644_ROG",
+      "component_PASS_does_not_qualify_current644": true,
+      "original_source_fixture": "validation/current-generator-original26/manifest.json",
+      "portable_qualification_fixture": "validation/current-generator131-source/manifest.json"
+    },
+    "separate_candidate_scope": "Public F64 and later combined candidates are not the default712 runtime and do not change this profile or its required case denominator.",
+    "predecessor_evidence": "validation/current-runtime701/evidence.json",
+    "current_focused_actual": {
+      "status": "PASS_CURRENT_RUNTIME_FOCUSED",
+      "source_tree": "3d177a0806f8e880739a390956f41a104cbcc5b0",
+      "cases": 644,
+      "suites": 9,
+      "qualification_report_sha256": "142b8447717883be540b80073e95a63ef167903404f2ade3c04aa41ecfd8128c",
+      "root_readback_sha256": "70e85a09aa5d3221c494153f4de080878b973dd2dc942a1d36471761e900a21a",
+      "bound_inputs_verified": 65627,
+      "all_nine_runner_exit0_double_EOF_empty_stderr": true,
+      "all_original_control_FAILUREs_retained": true,
+      "hosted_status": "PENDING"
+    }
   }
 }

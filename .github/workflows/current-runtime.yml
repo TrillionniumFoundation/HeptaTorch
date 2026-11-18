@@ -15,14 +15,23 @@ permissions:
 jobs:
   current-runtime:
     runs-on: ubuntu-24.04
-    timeout-minutes: 180
+    timeout-minutes: 210
     defaults:
       run:
         shell: bash
     steps:
 
-      - name: Set the current runtime evidence directory
-        run: printf 'CURRENT_OUTPUT=%s/heptatorch-current\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+      - name: Select the fixed coordinator interpreter and evidence directory
+        run: |
+          python3 -I -S -B - <<'CURRENT_PYTHON'
+          import os
+          import sys
+          if sys.implementation.name != 'cpython' or sys.version_info[:2] != (3, 12):
+              raise RuntimeError('The coordinator and pinned Torch reference require the same CPython 3.12 interpreter')
+          with open(os.environ['GITHUB_ENV'], 'a') as stream:
+              stream.write('CURRENT_OUTPUT=' + os.environ['RUNNER_TEMP'] + '/heptatorch-current\n')
+              stream.write('CURRENT_TORCH_PYTHON=' + sys.executable + '\n')
+          CURRENT_PYTHON
 
       - name: Check out HeptaTorch
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -291,21 +300,29 @@ jobs:
             --borrowed-tools "$RUNNER_TEMP/hepta-modules-native" \
             --output "$RUNNER_TEMP/hepta-stack-budget"
 
-      - name: Cold-build the complete current 701-function runtime
+      - name: Reproduce the native four-argument entropy linker
+        id: entropy_tool
+        run: |
+          python3 -I -S -B tools/current_runtime/entropy_linker/build_tool.py \
+            --upstream "$GITHUB_WORKSPACE/.toolchain/hepta" \
+            --stack-build "$RUNNER_TEMP/hepta-stack-budget" \
+            --output "$RUNNER_TEMP/hepta-current-entropy"
+
+      - name: Cold-build the complete current 712-function runtime
         id: current_build
         run: |
           python3 -I -S -B tools/current_runtime/build.py \
             --manifest tools/current_runtime/source/manifest.json \
             --source-root tools/current_runtime/source \
             --compiler "$RUNNER_TEMP/hepta-stack-budget/native/stack-module-compiler" \
-            --linker "$RUNNER_TEMP/hepta-stack-budget/native/stack-linker-session" \
+            --linker "$RUNNER_TEMP/hepta-current-entropy/generator-session-linker" \
             --output "$CURRENT_OUTPUT/build"
 
       - name: Install the independent pinned PyTorch CPU oracle
         id: oracle
         shell: bash
         run: |
-          python3 - <<'PYTORCH_INSTALL'
+          "$CURRENT_TORCH_PYTHON" - <<'PYTORCH_INSTALL'
           from pathlib import Path
           import json
           import platform
@@ -329,18 +346,21 @@ jobs:
           PYTORCH_INSTALL
 
 
-      - name: Qualify all eight suites on the same current image
+      - name: Qualify all nine suites on the same current image
         id: current_qualification
         if: ${{ !cancelled() && steps.current_build.outcome == 'success' }}
         run: |
-          python3 -I -S -B tests/qualify_current_runtime.py \
-            --build-directory "$CURRENT_OUTPUT/build" \
+          "$CURRENT_TORCH_PYTHON" -I -S -B tests/qualify_current_runtime.py \
+            --build-directory "$CURRENT_OUTPUT/build" --torch-python "$CURRENT_TORCH_PYTHON" \
+            --generator-tool-build "$RUNNER_TEMP/hepta-current-entropy" \
+            --stack-build "$RUNNER_TEMP/hepta-stack-budget" \
             --output "$CURRENT_OUTPUT/review"
 
       - name: Publish the actual current-runtime qualification result
         if: ${{ always() }}
         env:
           TOOLCHAIN_OUTCOME: ${{ steps.toolchain.outcome }}
+          ENTROPY_TOOL_OUTCOME: ${{ steps.entropy_tool.outcome }}
           BUILD_OUTCOME: ${{ steps.current_build.outcome }}
           ORACLE_OUTCOME: ${{ steps.oracle.outcome }}
           QUALIFICATION_OUTCOME: ${{ steps.current_qualification.outcome }}
@@ -356,7 +376,7 @@ jobs:
           output = Path(os.environ['CURRENT_OUTPUT'])
           output.mkdir(parents=True, exist_ok=True)
           failures, qualification, binding = [], None, None
-          for key in ('TOOLCHAIN_OUTCOME', 'BUILD_OUTCOME', 'ORACLE_OUTCOME', 'QUALIFICATION_OUTCOME'):
+          for key in ('TOOLCHAIN_OUTCOME', 'ENTROPY_TOOL_OUTCOME', 'BUILD_OUTCOME', 'ORACLE_OUTCOME', 'QUALIFICATION_OUTCOME'):
               if os.environ.get(key) != 'success':
                   failures.append(key + '=' + os.environ.get(key, 'missing'))
           try:
@@ -365,10 +385,14 @@ jobs:
               binding = {'path': 'review/qualification.json', 'bytes': len(raw),
                          'sha256': hashlib.sha256(raw).hexdigest()}
               if qualification['status'] != 'PASS_CURRENT_RUNTIME_FOCUSED':
-                  failures.append('the mandatory eight-suite qualifier did not pass')
-              if qualification['required_cases_total'] != 513 or qualification['required_suites'] != [
-                      'bool27', 'original76', 'integral24', 'sum_f32_17', 'current35', 'base270', 'live32', 'sum32']:
+                  failures.append('the mandatory nine-suite qualifier did not pass')
+              if qualification['required_cases_total'] != 644 or qualification['required_suites'] != [
+                      'bool27', 'original76', 'integral24', 'sum_f32_17', 'current35', 'base270', 'live32', 'generator131', 'sum32']:
                   failures.append('the mandatory case denominator or suite order changed')
+              if (qualification['functions'] != 712 or qualification['units'] != 15
+                      or qualification['source_sha256'] != 'fac3d413c6c0f6874d224cbea312108ee2c8baa027102d41890d85094a5faa38'
+                      or qualification['native_sha256'] != '5b7aac203d2c913d43781f0da45d40e9bac2037c2bc074ec30f8dd663710a805'):
+                  failures.append('the same complete current source and image were not qualified')
               if qualification['all_suites_executed'] is not True or qualification['all_inputs_unchanged'] is not True:
                   failures.append('actual execution or input custody incomplete')
           except Exception as error:
@@ -383,9 +407,9 @@ jobs:
           print(json.dumps(summary, indent=2, sort_keys=True))
           with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a') as stream:
               stream.write('## Current HIA runtime\n\n' + summary['status'] + '\n\n')
-              stream.write('The common local/CI gate requires one complete cold build and all 513 comparisons: '
+              stream.write('The common local/CI gate requires one complete cold build and all 644 cases: '
                            'Bool27, view/scalar76, Integral24, explicit-F32 Sum17, lifecycle35, '
-                           'base/NN270, original Tensor/RNG/backward32, and original F32 Sum32. '
+                           'base/NN270, original Tensor/RNG/backward32, Generator131, and original F32 Sum32. '
                            'Every suite must execute and pass.\n\n')
               stream.write('Current controls include seven dtype cases, four axis errors, ten entry checks, '
                            'both F32 allocation stages, the original Bool allocation case, '
@@ -393,8 +417,9 @@ jobs:
                            'same-process prefix/refusal pairs. Original Bool and Integral reports '
                            'retain their exact expected-refusal FAIL results; their explicit changes '
                            'are admitted separately and the current dtype contract is independently tested.\n\n')
-              stream.write('Lifecycle35, base/NN270 and original Tensor/RNG/backward32 run the fixed live Torch reference. '
-                           'The other five suites consume fixed observed reference bytes.\n\n')
+              stream.write('Lifecycle35, base/NN270, original Tensor/RNG/backward32 and Generator24 run the fixed live Torch reference. '
+                           'Generator131 preserves the original24/native11/entry59 and adds37 dispatcher controls; '
+                           'the other five Tensor suites consume fixed observed reference bytes.\n\n')
               stream.write('Full PyTorch rewrite: HOLD. This finite gate does not assert project closure.\n')
               if qualification:
                   for suite in qualification.get('suites', []):
@@ -433,7 +458,8 @@ jobs:
               bundle.add(output, arcname='current-runtime')
               for name in ('hepta-compiler', 'hepta-profile-sources', 'hepta-expanded',
                            'hepta-capacity-review', 'hepta-modules-sources', 'hepta-modules-native',
-                           'hepta-owned-modules', 'hepta-owned-session-tools', 'hepta-stack-budget'):
+                           'hepta-owned-modules', 'hepta-owned-session-tools', 'hepta-stack-budget',
+                           'hepta-current-entropy'):
                   path = temporary / name
                   if path.exists():
                       bundle.add(path, arcname='toolchain/' + name)
@@ -445,7 +471,8 @@ jobs:
                                'validation/current-runtime76-reference',
                                'validation/current-runtime-baseline', 'validation/sum-f32-reference17',
                                'validation/current-runtime35-source', 'validation/current-runtime270-source',
-                               'validation/current-runtime32-source'):
+                               'validation/current-runtime32-source', 'validation/current-generator-original26',
+                               'validation/current-generator-candidate', 'validation/current-generator131-source'):
                   path = Path(relative)
                   if path.exists():
                       bundle.add(path, arcname='repository/' + relative)

@@ -571,62 +571,47 @@ not count as native parity.
 
 ## Persistent native CPU Generator service
 
-After reproducing the ABI3 stack tools above, build the separately named four-parameter
-entropy session profile and its three HIA application modules:
+Persistent CPU Generators now execute in the canonical Tensor/Generator image.
+Use the [current runtime build and qualification guide](current-runtime.md):
 
 ```sh
-make cpu-generators test-cpu-generators \
-  HEPTA_SOURCE_ROOT=/absolute/path/to/pinned/Hepta \
-  HEPTA_STACK_BUILD=/absolute/path/to/reproduced/stack-budget-tools
+make HEPTA_SOURCE_ROOT=/absolute/path/to/pinned/Hepta \
+     HEPTA_STACK_BUILD=/absolute/path/to/reproduced/stack-budget-tools
+make test HEPTA_SOURCE_ROOT=/absolute/path/to/pinned/Hepta \
+          HEPTA_STACK_BUILD=/absolute/path/to/reproduced/stack-budget-tools \
+          HEPTA_TORCH_PYTHON=/absolute/path/to/pinned-env/bin/python
 ```
 
-The 26-file package manifest is checked before construction and again by the
-independent report binder after qualification. The build verifies its complete
-pinned upstream authoring closure before and after source generation. All 17
-non-entry RNG bodies retain their frozen identities. The new native linker
-checks the exact `step(readbuf, mutbuf, buffer, readbuf) -> (buffer, u32)`
-contract; the existing three-parameter owned-session linker is not changed.
+The entropy prerequisite reproduces only the four-argument native session
+linker. The current application cold-compiles all fifteen HIA units and executes
+the complete mandatory Generator131 group: original Torch24, native11, entry59
+and37 new dispatch controls. Native step, full state, epoch/allocation, real
+entropy, rollback, original ABI refusal and actual probe/reordered-image checks
+remain required. The original three-argument and runtime linkers still have
+independent qualification consumers and must remain available.
 
-`build/cpu-generators/generator-session` must have SHA256
-`ba344748d42f0def1cd5d88e5e27232a6dfa08e33ef4c42e6f00486f3ca08572`.
-Native numerical and object qualification runs 11 complete groups; the real
-entry harness independently exercises 59 cases. The tests require actual Linux
-`prlimit`, child `/proc` observations and seccomp; these observations are not
-silently skipped when unavailable. `build/hosted-cpu-generator-native.json`
-contains all executed reports and their source custody, but does not stand in
-for an actual PyTorch run.
+The independent source03 Generator131 execution and the subsequent fresh
+portable04/current644 aggregate both passed on the current712 image. Independent
+readback verified all 65,627 bound inputs and nine original runner streams.
+Source-head hosted qualification remains PENDING. Original failure and pure-read
+records remain separate in
+[the execution index](../validation/current-runtime712/evidence.json).
 
-The separate frozen `tests/pytorch_cpu_generator_oracle.py` exercises 24 actual
-PyTorch object trajectories, including 12 seed bit patterns, interleaving,
-cloning across twists, restore, cached normal states, reseeding, live release,
-zero-count operations, entropy round trips and long cloned trajectories. It
-uses the same exact wheel and all 11 existing provenance requirements. CI
-rebuilds the target from source before running the oracle and preserves the
-original oracle exit status alongside its lossless report. The reference
-supplies expected values; every target transition executes in native HIA.
+The old standalone Make targets and two duplicate old CI calls have been
+replaced by this current mandatory group. Their original nineteen source files,
+seven reports and original package manifest are preserved once in the exact
+[original26 fixture](../validation/current-generator-original26/manifest.json).
+The old checker is preserved in the
+[qualification fixture](../validation/current-generator131-source/manifest.json),
+and the [retirement map](../validation/current-generator-original26/retirement.json)
+records all old bytes, modes and recovery locations. The original Torch oracle,
+actual pip installation report, fixed toolchain and unrelated legacy qualifiers
+remain live inputs. Historical hosted results still belong to their original
+source/image and retain their complete raw evidence.
 
-This component does not close the full RNG gate. Its importer accepts the
-frozen canonical state subset, and its owned-state diagnostics are scoped to
-owners produced by this service. Tensor filling, global/default bindings,
-normal generation, all remaining distributions, concurrent shared Generators
-and accelerator generators require additional implementations and tests.
-
-The actual hosted result is retained in
-`validation/hosted-native-cpu-generators.json`: all 24 cases, 2297 live frames,
-26466 exact values, 4181312 compared serialized-state bytes and all 11 provenance
-checks passed. The complete original native and Torch JSON bytes are saved in
-`validation/hosted-cpu-generator-oracles/`; the receipt binds both byte lengths
-and hashes to implementation commit, run, job and all 46 actual CI steps.
-
-The separate lightweight reference workflow also records actual default-release,
-partial-failure, gradient-presence, signed-zero and uniform-traversal behavior.
-`validation/hosted-reference-observations.json` binds the exact frozen probe
-sources and complete original reports under `hosted-reference-observations/`.
-Each `.json.zlib` file is lossless zlib compression of the original JSON bytes;
-decompress it with Python `zlib.decompress` and check its original length and
-SHA256 against the receipt. These files are reference observations for subsequent
-native work and do not claim that the Generator service implements autodiff or
-Tensor filling.
+This integration does not close the full RNG gate. Global/default and concurrent
+bindings, every distribution, all dtype/device variants and Tensor/Generator
+handle interoperability require separate implementation and qualification.
 
 ## Default backward release foundation
 

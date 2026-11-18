@@ -1,5 +1,13 @@
-hia-asm.v1 hepta.hia.program.v8 owned_tensor_objects
+hia-asm.v1 hepta.hia.program.v8 tensor_generator_owners01
 exports(step,close)
+fn cg_apply(p0:readbuf,p1:readbuf,p2:mutbuf,p3:mutbuf,p4:mutbuf,p5:readbuf) -> (u64) effects(read,write,trap) external()
+fn cg_mutates(p0:readbuf) -> (u64) effects(read,write,trap) external()
+fn cg_payload(p0:readbuf) -> (u64) effects(read,write,trap) external()
+fn cg_read(p0:readbuf,p1:readbuf,p2:mutbuf) -> (u64) effects(read,write,trap) external()
+fn cg_reply(p0:mutbuf,p1:readbuf,p2:u64,p3:u64) -> (u64) effects(read,write,trap) external()
+fn cg_size(p0:readbuf,p1:readbuf) -> (u64) effects(read,write,trap) external()
+fn cg_validate(p0:readbuf,p1:readbuf,p2:readbuf,p3:u64) -> (u64) effects(read,write,trap) external()
+fn getr(p0:readbuf,p1:u64) -> (u64) effects(read,write,trap) external()
 fn init_state(w:mutbuf,slots:u64,pool:u64) -> (u64) effects(read,write,trap) external()
 fn clone_state(s:readbuf,w:mutbuf,slots:u64,pool:u64) -> (u64) effects(read,write,trap) external()
 fn object_size(slots:u64,pool:u64) -> (u64) effects(read,write,trap) external()
@@ -126,7 +134,7 @@ block b0(state:buffer)
   _ = owner.drop(state)
   ret()
 end
-fn step(s:readbuf,o:mutbuf,state:buffer) -> (buffer,u32) effects(alloc,read,write,trap) entry(b0)
+fn tensor_step(s:readbuf,o:mutbuf,state:buffer) -> (buffer,u32) effects(alloc,read,write,trap) entry(b0)
 block b0(s:readbuf,o:mutbuf,state:buffer)
   cap:usize = buffer.len(o)
   minimum:usize = const() {"value":32}
@@ -151,4 +159,213 @@ block execute(s3:readbuf,o3:mutbuf,st3:buffer,scratch3:buffer)
   _ = loan.end(work3)
   _ = owner.drop(scratch3)
   ret(returned3,n3)
+end
+fn cg_error(state:buffer,o:mutbuf,status:u64) -> (buffer,u32) effects(alloc,read,write,trap) entry(b0)
+block b0(state:buffer,o:mutbuf,status:u64)
+  r:readbuf = borrow.read(state)
+  zero:u64 = const() {"value":0}
+  n:u64 = call(o,r,status,zero) {"function":"cg_reply"}
+  _ = loan.end(r)
+  count:u32 = int.cast(n) {"mode":"wrap"}
+  ret(state,count)
+end
+fn generator_step(s:readbuf,o:mutbuf,state:buffer,e:readbuf) -> (buffer,u32) effects(alloc,read,write,trap) entry(b0)
+block b0(s:readbuf,o:mutbuf,state:buffer,e:readbuf)
+  cap:usize = buffer.len(o)
+  minimum:usize = const() {"value":64}
+  short:bool = compare.lt(cap,minimum)
+  branch short no_output(state) envelope(s,o,state,e,cap)
+block no_output(state1:buffer)
+  n1:u32 = const() {"value":0}
+  ret(state1,n1)
+block envelope(s2:readbuf,o2:mutbuf,state2:buffer,e2:readbuf,cap2:usize)
+  source2:readbuf = borrow.read(state2)
+  capacity2:u64 = int.cast(cap2) {"mode":"wrap"}
+  status2:u64 = call(s2,source2,e2,capacity2) {"function":"cg_validate"}
+  _ = loan.end(source2)
+  z2:u64 = const() {"value":0}
+  good2:bool = compare.eq(status2,z2)
+  branch good2 select(s2,o2,state2,e2) failure(o2,state2,status2)
+block failure(of:mutbuf,stf:buffer,statusf:u64)
+  retainedf:buffer,countf:u32 = call(stf,of,statusf) {"function":"cg_error"}
+  ret(retainedf,countf)
+block select(s3:readbuf,o3:mutbuf,state3:buffer,e3:readbuf)
+  change3:u64 = call(s3) {"function":"cg_mutates"}
+  z3:u64 = const() {"value":0}
+  mut3:bool = compare.ne(change3,z3)
+  branch mut3 allocate(s3,o3,state3,e3) readonly(s3,o3,state3)
+block readonly(s4:readbuf,o4:mutbuf,state4:buffer)
+  source4:readbuf = borrow.read(state4)
+  n4:u64 = call(s4,source4,o4) {"function":"cg_read"}
+  _ = loan.end(source4)
+  count4:u32 = int.cast(n4) {"mode":"wrap"}
+  ret(state4,count4)
+block allocate(s5:readbuf,o5:mutbuf,state5:buffer,e5:readbuf)
+  source5:readbuf = borrow.read(state5)
+  n5:u64 = call(s5,source5) {"function":"cg_size"}
+  _ = loan.end(source5)
+  amount5:usize = int.cast(n5) {"mode":"wrap"}
+  trial5:buffer,ok5:bool = buffer.try_new(amount5)
+  branch ok5 scratch(s5,o5,state5,e5,trial5) trial_failed(o5,state5,trial5)
+block trial_failed(o6:mutbuf,state6:buffer,trial6:buffer)
+  _ = owner.drop(trial6)
+  status6:u64 = const() {"value":3}
+  jump failure(o6,state6,status6)
+block scratch(s7:readbuf,o7:mutbuf,state7:buffer,e7:readbuf,trial7:buffer)
+  amount7:usize = const() {"value":5056}
+  scratch7:buffer,ok7:bool = buffer.try_new(amount7)
+  branch ok7 execute(s7,o7,state7,e7,trial7,scratch7) scratch_failed(o7,state7,trial7,scratch7)
+block scratch_failed(o8:mutbuf,state8:buffer,trial8:buffer,scratch8:buffer)
+  _ = owner.drop(scratch8)
+  _ = owner.drop(trial8)
+  status8:u64 = const() {"value":3}
+  jump failure(o8,state8,status8)
+block execute(s9:readbuf,o9:mutbuf,state9:buffer,e9:readbuf,trial9:buffer,scratch9:buffer)
+  source9:readbuf = borrow.read(state9)
+  target9:mutbuf = borrow.mut(trial9)
+  work9:mutbuf = borrow.mut(scratch9)
+  status9:u64 = call(s9,source9,target9,work9,o9,e9) {"function":"cg_apply"}
+  _ = loan.end(work9)
+  _ = loan.end(target9)
+  _ = loan.end(source9)
+  _ = owner.drop(scratch9)
+  zero9:u64 = const() {"value":0}
+  good9:bool = compare.eq(status9,zero9)
+  branch good9 commit(s9,o9,state9,trial9) abort(o9,state9,trial9,status9)
+block abort(o10:mutbuf,state10:buffer,trial10:buffer,status10:u64)
+  _ = owner.drop(trial10)
+  jump failure(o10,state10,status10)
+block commit(s11:readbuf,o11:mutbuf,state11:buffer,trial11:buffer)
+  _ = owner.drop(state11)
+  r11:readbuf = borrow.read(trial11)
+  p11:u64 = call(s11) {"function":"cg_payload"}
+  zero11:u64 = const() {"value":0}
+  n11:u64 = call(o11,r11,zero11,p11) {"function":"cg_reply"}
+  _ = loan.end(r11)
+  count11:u32 = int.cast(n11) {"mode":"wrap"}
+  ret(trial11,count11)
+end
+fn mux_request_kind(s0:readbuf) -> (u64) effects(read,write,trap) entry(b0)
+block b0(s0:readbuf)
+  size0:usize = buffer.len(s0)
+  word0:usize = const() {"value":8}
+  readable0:bool = compare.ge(size0,word0)
+  branch readable0 inspect(s0) tensor()
+block inspect(s1:readbuf)
+  zero1:u64 = const() {"value":0}
+  magic1:u64 = call(s1,zero1) {"function":"getr"}
+  expected1:u64 = const() {"value":3544418966195885128}
+  generator1:bool = compare.eq(magic1,expected1)
+  branch generator1 generator() tensor()
+block generator()
+  one2:u64 = const() {"value":1}
+  ret(one2)
+block tensor()
+  zero3:u64 = const() {"value":0}
+  ret(zero3)
+end
+fn mux_refuse_generator(s0:readbuf,o0:mutbuf,st0:buffer,e0:readbuf) -> (buffer,u32) effects(alloc,read,write,trap) entry(b0)
+block b0(s0:readbuf,o0:mutbuf,st0:buffer,e0:readbuf)
+  capacity0:usize = buffer.len(o0)
+  minimum0:usize = const() {"value":64}
+  short0:bool = compare.lt(capacity0,minimum0)
+  branch short0 no_output(st0) validate(s0,o0,st0,e0,capacity0)
+block no_output(st1:buffer)
+  zero1:u32 = const() {"value":0}
+  ret(st1,zero1)
+block validate(s2:readbuf,o2:mutbuf,st2:buffer,e2:readbuf,capacity2:usize)
+  source2:readbuf = borrow.read(st2)
+  cap2:u64 = int.cast(capacity2) {"mode":"wrap"}
+  status2:u64 = call(s2,source2,e2,cap2) {"function":"cg_validate"}
+  _ = loan.end(source2)
+  zero2:u64 = const() {"value":0}
+  unexpected2:bool = compare.eq(status2,zero2)
+  branch unexpected2 refuse_default(o2,st2) refuse(o2,st2,status2)
+block refuse_default(o3:mutbuf,st3:buffer)
+  invalid3:u64 = const() {"value":10}
+  jump refuse(o3,st3,invalid3)
+block refuse(o4:mutbuf,st4:buffer,status4:u64)
+  retained4:buffer,size4:u32 = call(st4,o4,status4) {"function":"cg_error"}
+  ret(retained4,size4)
+end
+fn mux_refuse_tensor(s0:readbuf,o0:mutbuf,st0:buffer) -> (buffer,u32) effects(alloc,read,write,trap) entry(b0)
+block b0(s0:readbuf,o0:mutbuf,st0:buffer)
+  capacity0:usize = buffer.len(o0)
+  minimum0:usize = const() {"value":32}
+  short0:bool = compare.lt(capacity0,minimum0)
+  branch short0 no_output(st0) validate(s0,o0,st0)
+block no_output(st1:buffer)
+  zero1:u32 = const() {"value":0}
+  ret(st1,zero1)
+block validate(s2:readbuf,o2:mutbuf,st2:buffer)
+  status2:u64 = call(s2) {"function":"frame_valid"}
+  zero2:u64 = const() {"value":0}
+  valid_frame2:bool = compare.eq(status2,zero2)
+  branch valid_frame2 invalid_owner(o2,st2) refuse(o2,st2,status2)
+block invalid_owner(o3:mutbuf,st3:buffer)
+  invalid3:u64 = const() {"value":7}
+  jump refuse(o3,st3,invalid3)
+block refuse(o4:mutbuf,st4:buffer,status4:u64)
+  length4:u64 = call(o4,status4) {"function":"reply_error"}
+  size4:u32 = int.cast(length4) {"mode":"wrap"}
+  ret(st4,size4)
+end
+fn step(s0:readbuf,o0:mutbuf,st0:buffer,e0:readbuf) -> (buffer,u32) effects(alloc,read,write,trap) entry(b0)
+block b0(s0:readbuf,o0:mutbuf,st0:buffer,e0:readbuf)
+  size0:usize = buffer.len(st0)
+  zero0:usize = const() {"value":0}
+  empty0:bool = compare.eq(size0,zero0)
+  branch empty0 empty_owner(s0,o0,st0,e0) nonempty_owner(s0,o0,st0,e0,size0)
+block empty_owner(s1:readbuf,o1:mutbuf,st1:buffer,e1:readbuf)
+  kind1:u64 = call(s1) {"function":"mux_request_kind"}
+  one1:u64 = const() {"value":1}
+  generator1:bool = compare.eq(kind1,one1)
+  branch generator1 generator(s1,o1,st1,e1) tensor(s1,o1,st1,e1)
+block nonempty_owner(s2:readbuf,o2:mutbuf,st2:buffer,e2:readbuf,size2:usize)
+  word2:usize = const() {"value":8}
+  readable2:bool = compare.ge(size2,word2)
+  branch readable2 state_magic(s2,o2,st2,e2) invalid_owner(s2,o2,st2,e2)
+block state_magic(s3:readbuf,o3:mutbuf,st3:buffer,e3:readbuf)
+  state_read3:readbuf = borrow.read(st3)
+  zero3:u64 = const() {"value":0}
+  magic3:u64 = call(state_read3,zero3) {"function":"getr"}
+  _ = loan.end(state_read3)
+  expected3:u64 = const() {"value":3544425623395193928}
+  generator3:bool = compare.eq(magic3,expected3)
+  branch generator3 generator(s3,o3,st3,e3) tensor_capacity(s3,o3,st3,e3)
+block tensor_capacity(s4:readbuf,o4:mutbuf,st4:buffer,e4:readbuf)
+  size4:usize = buffer.len(st4)
+  minimum4:usize = const() {"value":139272}
+  readable4:bool = compare.ge(size4,minimum4)
+  branch readable4 tensor_magic(s4,o4,st4,e4) invalid_owner(s4,o4,st4,e4)
+block tensor_magic(s5:readbuf,o5:mutbuf,st5:buffer,e5:readbuf)
+  state_read5:readbuf = borrow.read(st5)
+  core_offset5:u64 = const() {"value":64}
+  backing_offset5:u64 = const() {"value":139264}
+  core_magic5:u64 = call(state_read5,core_offset5) {"function":"getr"}
+  backing_magic5:u64 = call(state_read5,backing_offset5) {"function":"getr"}
+  _ = loan.end(state_read5)
+  expected_core5:u64 = const() {"value":3616483195992888392}
+  expected_backing5:u64 = const() {"value":3616476577615795272}
+  core_matches5:bool = compare.eq(core_magic5,expected_core5)
+  backing_matches5:bool = compare.eq(backing_magic5,expected_backing5)
+  tensor5:bool = bool.and(core_matches5,backing_matches5)
+  branch tensor5 tensor(s5,o5,st5,e5) invalid_owner(s5,o5,st5,e5)
+block invalid_owner(s6:readbuf,o6:mutbuf,st6:buffer,e6:readbuf)
+  kind6:u64 = call(s6) {"function":"mux_request_kind"}
+  one6:u64 = const() {"value":1}
+  generator6:bool = compare.eq(kind6,one6)
+  branch generator6 refuse_generator(s6,o6,st6,e6) refuse_tensor(s6,o6,st6,e6)
+block refuse_generator(s7:readbuf,o7:mutbuf,st7:buffer,e7:readbuf)
+  retained7:buffer,size7:u32 = call(s7,o7,st7,e7) {"function":"mux_refuse_generator"}
+  ret(retained7,size7)
+block refuse_tensor(s8:readbuf,o8:mutbuf,st8:buffer,e8:readbuf)
+  retained8:buffer,size8:u32 = call(s8,o8,st8) {"function":"mux_refuse_tensor"}
+  ret(retained8,size8)
+block generator(s9:readbuf,o9:mutbuf,st9:buffer,e9:readbuf)
+  result9:buffer,size9:u32 = call(s9,o9,st9,e9) {"function":"generator_step"}
+  ret(result9,size9)
+block tensor(s10:readbuf,o10:mutbuf,st10:buffer,e10:readbuf)
+  result10:buffer,size10:u32 = call(s10,o10,st10) {"function":"tensor_step"}
+  ret(result10,size10)
 end

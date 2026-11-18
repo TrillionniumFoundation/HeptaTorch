@@ -5,18 +5,20 @@ from pathlib import Path
 import stat
 import struct
 import types
+import sys
+import current_runtime_cold as generator_cold
 
 from current_runtime_admission import SOURCE, IMAGE, require, sha
 
-RUNNER_SHA = 'd736aa026f10ca5db6cbb887eab328412b1befb3c5788fce5269b128b3dae7f0'
+RUNNER_SHA = 'a3038375f2558bb5f2571d3d7ea0b2f294b315d9c1f6939ff677f98f8236dfe2'
 ORACLE_SHA = '554671168c7a4a408dc1e1df89a19db15c3efcefcf4ae1a300af1b6dcae40160'
 ADMISSION_SHA = '5b7b9a538877c06bce9daff0631657ae3b9ce79bcd7336d42839a01ef9cbcfde'
 OWNER_SHA = 'c39600e7c37dea390f88cf9e74d86dfa924301456e0f32e127d82c98ad6778b0'
 OWNER_EDITS = [['HTSINT01', 'HTSINT02', 2], ['HTOSIN01', 'HTOSIN02', 2],
-    ['functions == 699', 'functions == 701', 1],
-    ['sum-integral-source01-UNBOUND-699', 'live32-current701-UNBOUND', 1],
+    ['functions == 699', 'functions == 712', 1],
+    ['sum-integral-source01-UNBOUND-699', 'live32-current712-UNBOUND', 1],
     ['sum-integral-source01-%d-preserved47-48', 'live32-current%d-full-owner', 1],
-    ['heptatorch.sum-integral-owner-source01.v1', 'heptatorch.live32-current701-owner.v1', 1]]
+    ['heptatorch.sum-integral-owner-source01.v1', 'heptatorch.live32-current712-owner.v1', 1]]
 
 
 def load_source(path, raw, name):
@@ -92,8 +94,8 @@ def owner_observation(directory, frame_directory, label, observation, owner, inp
 
 
 def qualify_live32(report, build, build_sha, directory, package, inputs):
-    require(report['schema'] == 'heptatorch.current701-original-live32.v1'
-            and report['status'] == 'PASS_CURRENT701_ORIGINAL_LIVE32' and report['error'] is None,
+    require(report['schema'] == 'heptatorch.current712-original-live32.v1'
+            and report['status'] == 'PASS_CURRENT712_ORIGINAL_LIVE32' and report['error'] is None,
             'the complete original live32 execution must actually pass')
     require(report['source_sha256'] == SOURCE and report['native_sha256'] == IMAGE
             and report['build_sha256'] == build_sha and report['expected_cases'] == report['cases'] == 32
@@ -113,7 +115,18 @@ def qualify_live32(report, build, build_sha, directory, package, inputs):
     require(report['frames'] == 2132 and report['exact_binary32_words'] == 17455
             and report['serialized_state_bytes'] == 1137600, 'all original live32 frame/numeric/state denominators')
     runner_raw = inputs.bind(package / 'run.py', RUNNER_SHA)
-    reader = load_source(package / 'run.py', runner_raw, 'current_runtime_original_live32_reader')
+    generator_raw = inputs.bind(package / 'generator_admission.py',
+        '26ff5b4ac13da51ef18912f120094a4545d21907d1f7cd3b7010b1dac74242b4')
+    inputs.bind(Path(__file__).with_name('current_runtime_cold.py'), sha(generator_raw))
+    original_generator_module = sys.modules.get('generator_admission')
+    sys.modules['generator_admission'] = generator_cold
+    try:
+        reader = load_source(package / 'run.py', runner_raw, 'current_runtime_original_live32_reader')
+    finally:
+        if original_generator_module is None:
+            del sys.modules['generator_admission']
+        else:
+            sys.modules['generator_admission'] = original_generator_module
     require(report['case_plan'] == reader.PLAN, 'original32 ordered plan is unchanged')
     pin = report['original_report']
     raw = inputs.bind(directory / 'original-report.json', pin['sha256'])
@@ -127,23 +140,26 @@ def qualify_live32(report, build, build_sha, directory, package, inputs):
                 'absolute_version_comparisons', 'gradient_presence_comparisons', 'oracle_provenance'):
         require(report[key] == original[key], 'original live32 aggregate binding: ' + key)
     admission_proof = report['admission_source_inverse']
-    require(admission_proof['identity_assignments_changed'] == 2
-            and admission_proof['build_predicates_changed'] is False, 'only the exact cold-build identities changed')
+    frozen = inputs.bind(package / 'frozen/admission701.py', ADMISSION_SHA)
+    expected_source, expected_proof = generator_cold.derive(frozen, SOURCE, IMAGE)
+    expected_proof = json.loads(json.dumps(expected_proof))
+    require(admission_proof == expected_proof,
+            'only the exact explicit 712 source/tool/support/count/four-argument contract changed')
     admission = inverse_source(directory, package, inputs, 'executed-admission.py', 'frozen/admission701.py',
-        ADMISSION_SHA, admission_proof, [
-            ['de4fdf964a74be11acfeddcf5fe16656c6cfa671fc7917585a72364918387a92', SOURCE, 1],
-            ['75e29e13c0a7f14395fd21acb82686279dc962615ae6bcde3176b72083cac971', IMAGE, 1]])
+        ADMISSION_SHA, admission_proof, expected_proof['edits'])
+    require(inputs.bind(directory / 'executed-admission.py') == expected_source,
+            'exact fully inverse-proved new cold-admission source was actually used')
     cold = admission.admit_build(build, build_sha, build / 'heptatorch', build / 'runtime.hepta')
     require(cold == report['cold_build_admission']
             == json.loads(inputs.bind(directory / 'cold-build-admission.json')),
-            'repeat the original complete fourteen-unit/fifteen-process cold-build admission')
+            'repeat the entire new fifteen-unit/sixteen-process cold-build admission')
     owner_proof = report['owner_source_inverse']
     require(owner_proof['edits'] == OWNER_EDITS and owner_proof['all_original_84Q_predicates_retained'] is True
             and owner_proof['full_private_allocation_transition_ledger_claimed'] is False,
             'complete original owner with only fixed identity/profile changes')
     owner = inverse_source(directory, package, inputs, 'executed-owner.py', 'frozen/owner_integral.py',
                            OWNER_SHA, owner_proof, OWNER_EDITS)
-    owner.bind_profile(SOURCE, IMAGE, 701)
+    owner.bind_profile(SOURCE, IMAGE, 712)
     require(report['owner_profile'] == owner.pin_profile(build / 'heptatorch', build / 'runtime.hepta'),
             'original owner profile is pinned to the same actual source and executable')
     import hashlib

@@ -33,7 +33,8 @@ def main(argv=None):
     try:
         inputs.bind(Path(__file__))
         for name in ('current_runtime_fixtures.py', 'current_runtime_process.py', 'current_runtime_admission.py',
-                     'current_runtime_torch.py', 'qualify_current_runtime.py'):
+                     'current_runtime_torch.py', 'qualify_current_runtime.py',
+                     'current_runtime_generator.py', 'current_runtime_cold.py'):
             inputs.bind(ROOT / 'tests' / name)
         require(build_binding(build, inputs) == args.expected_build_sha256, 'same complete actual build')
         inputs.bind(torch_python.resolve())
@@ -59,8 +60,8 @@ def main(argv=None):
                 '--observer-report', str(output / 'observer-report.json'),
                 '--original-report', str(output / 'original-report.json')]),
             ('copied_controls', 90, [sys.executable, '-I', '-S', '-B', str(package / 'controls.py'),
-                '--observer', str(package / 'observer701.py'),
-                '--expected-profile', 'current701-cat-empty-original35-F32-ViewInfo-Saved',
+                '--observer', str(package / 'observer712.py'),
+                '--expected-profile', 'current712-generator-original35-F32-ViewInfo-Saved',
                 '--journals', str(output / 'observer/owners'), '--output', str(output / 'copied-controls')]),
         ]
         for name, budget, command in commands:

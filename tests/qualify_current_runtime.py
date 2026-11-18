@@ -2,7 +2,7 @@
 """Execute all focused current-runtime suites and retain their original evidence.
 
 This coordinator transports fixed observations and invokes independent native
-readers and the fixed live Torch references for original35, base270 and live32. It implements no
+readers and the fixed live Torch references for original35, base270, live32 and Generator24. It implements no
 Tensor arithmetic, edits no old report, and grants no whole-project qualification
 from these finite suites.
 """
@@ -23,13 +23,16 @@ import traceback
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tests"))
 import current_runtime_fixtures as fixed_fixtures
+import current_runtime_generator_fixtures as generator_fixtures
+from current_runtime_generator import prove as prove_generator
 from current_runtime_process import execute as execute_process
 from current_runtime_admission import qualify_historical, qualify_f32, qualify_current35, qualify_current270
 from current_runtime_live32 import qualify_live32
-SOURCE = "82360ce87dae6f9a004ef50be4f991b6f83905a83f4b17ca8d6634827b7bd313"
-IMAGE = "80445a8c433f20314d3bc7b00ebb68f6a70fa200ee2e6aba193cff21aabfbc17"
+from current_runtime_generator131 import qualify_generator131
+SOURCE = "fac3d413c6c0f6874d224cbea312108ee2c8baa027102d41890d85094a5faa38"
+IMAGE = "5b7aac203d2c913d43781f0da45d40e9bac2037c2bc074ec30f8dd663710a805"
 COMPILER = "b1c851a0896fa6071f800e1146c3c27d0c6cf85059e9a6281b46d42908a3f59f"
-LINKER = "aae650e8822ef0b1e74d15108ad1d0f17ec791205ed5a158ec60b709f48f0e16"
+LINKER = "761a941fd7a2d53eb9b45869fcfc20e970640e9dd11d60f7c61a89812b61d74e"
 BOOL_REFERENCE = "21dd75aeb86414818f7aa381f8b866d78b16f9bb3f5738e9a60d27ac3d15dd28"
 BOOL_ARCHIVE = "353a8b2853773bc6678bb62fc9559d6f4244c571ba40c6b80f352b2649cd6edd"
 SUM32_REFERENCE = "c14e4b18f657429ad5dac5498c3abcae303b6a7e7550db7d15a3c9179bdcd728"
@@ -37,9 +40,10 @@ INTEGRAL_REFERENCE = "6c9df4b579664c89c200b9d796367dd6d41f93f8260e8ff012f17d5041
 SHARED_ARCHIVE = "validation/current-runtime-references/complete.tar.xz"
 SHARED_ARCHIVE_SHA = "3a29420768a1bf7808976f04cb3ce3e6091db55ff6ae7858879f1b7ff70b69ea"
 SHARED_MANIFEST_SHA = "666fa775586679cfd42606c95656ad261c8856332431931ed4b0fcfd8865057e"
-GROUPS = ("bool27", "original76", "integral24", "sum_f32_17", "current35", "base270", "live32", "sum32")
+GROUPS = ("bool27", "original76", "integral24", "sum_f32_17", "current35", "base270", "live32", "generator131", "sum32")
 SUITE_TIMEOUT_SECONDS = {"bool27": 600, "original76": 900, "integral24": 900,
-                         "sum_f32_17": 600, "current35": 900, "base270": 900, "live32": 900, "sum32": 3600}
+                         "sum_f32_17": 600, "current35": 900, "base270": 900, "live32": 900,
+                         "generator131": 600, "sum32": 3600}
 
 
 def require(condition, message):
@@ -56,6 +60,23 @@ def dump(path, value):
     temporary = path.with_suffix(path.suffix + ".tmp")
     temporary.write_bytes(raw)
     temporary.replace(path)
+
+
+def interpreter_preflight(torch_python):
+    """Use one fixed AST serializer for outer admission and live-reference readers."""
+    observed = {"executable": sys.executable, "resolved": str(Path(sys.executable).resolve()),
+                "version": list(sys.version_info[:3]), "implementation": sys.implementation.name,
+                "cache_tag": sys.implementation.cache_tag,
+                "torch_python": str(torch_python), "torch_python_resolved": str(torch_python.resolve())}
+    require(sys.implementation.name == "cpython" and sys.version_info[:2] == (3, 12)
+            and sys.implementation.cache_tag == "cpython-312",
+            "Run this coordinator with the fixed CPython 3.12 Torch interpreter and -I -S -B; "
+            "cross-version AST serialization is not admissible: " + repr(observed))
+    require(Path(sys.executable).resolve() == torch_python.resolve(),
+            "The outer coordinator and all live-reference readers must use the same selected interpreter")
+    require(sys.flags.isolated == 1 and sys.flags.no_site == 1 and sys.dont_write_bytecode,
+            "The outer coordinator requires -I -S -B; Torch is imported only by the live readers")
+    return observed
 
 
 class Inputs:
@@ -93,9 +114,9 @@ def build_binding(directory, inputs):
     built = json.loads(raw)
     require(built["schema"] == "heptatorch.complete-runtime-build.v1"
             and built["status"] == "PASS_NATIVE_BUILD_ONLY", "an actual cold build is required")
-    require(built["functions"] == built["complete_core_bodies_matched"] == 701
-            and built["units_planned"] == len(built["units"]) == 14
-            and len(built["processes"]) == 15, "the entire current runtime must be built")
+    require(built["functions"] == built["complete_core_bodies_matched"] == 712
+            and built["units_planned"] == len(built["units"]) == 15
+            and len(built["processes"]) == 16, "the entire current runtime must be built")
     require(built["objects_reused"] is False and built["all_inputs_unchanged"] is True,
             "cold-build input custody failed")
     require(built["source_sha256"] == SOURCE and built["native_sha256"] == IMAGE
@@ -103,7 +124,9 @@ def build_binding(directory, inputs):
             and built["link_exit"] == 0, "current source, image or tool identity changed")
     require(built["runtime_qualified"] is False and built["full_pytorch_rewrite_complete"] is False,
             "build receipt must not claim runtime or project qualification")
-    inputs.bind(directory / "runtime.hepta", SOURCE)
+    source = inputs.bind(directory / "runtime.hepta", SOURCE)
+    _, inverse = prove_generator(source, directory, ROOT / "tests/sum_f32_review", inputs)
+    inputs.generator_source_proof = inverse
     image = inputs.bind(directory / "heptatorch", IMAGE)
     require(len(image) == built["native_bytes"] and image.startswith(b"\x7fELF"),
             "current ELF byte count or header changed")
@@ -244,9 +267,22 @@ class Fixtures:
                 ROOT, self.output / "original-live32-source", self.inputs)
         return self.cache["live32"]
 
+    def generator(self):
+        if "generator" not in self.cache:
+            self.cache["generator"] = {
+                "original26": generator_fixtures.restore_original26(
+                    ROOT, self.output / "references/generator-original26", self.inputs),
+                "candidate": generator_fixtures.restore_candidate(
+                    ROOT, self.output / "references/generator-candidate", self.inputs),
+                "package": generator_fixtures.restore_qualifier(
+                    ROOT, self.output / "generator131-source", self.inputs),
+            }
+        return self.cache["generator"]
 
 
-def runner_command(name, build, build_sha, output, fixtures, inputs, torch_python):
+
+def runner_command(name, build, build_sha, output, fixtures, inputs, torch_python,
+                   generator_tool_build, stack_build):
     common = ["--build-directory", str(build), "--expected-build-sha256", build_sha]
     python = sys.executable
     flags = ["-I", "-S", "-B"]
@@ -288,6 +324,17 @@ def runner_command(name, build, build_sha, output, fixtures, inputs, torch_pytho
         args = common + ["--repository", str(ROOT), "--binary", str(build / "heptatorch"),
             "--source", str(build / "runtime.hepta"), "--expected-source-sha256", SOURCE,
             "--expected-native-sha256", IMAGE]
+    elif name == "generator131":
+        sources = fixtures.generator()
+        script = sources["package"] / "run.py"
+        inputs.bind(torch_python.resolve())
+        python, flags = str(torch_python), ["-B"]
+        tool_sha = sha(inputs.bind(generator_tool_build / "build.json"))
+        args = common + ["--repository", str(ROOT), "--candidate", str(sources["candidate"]),
+            "--original-package-root", str(sources["original26"]),
+            "--tool-build", str(generator_tool_build), "--stack-build", str(stack_build),
+            "--expected-native-sha256", IMAGE, "--expected-tool-build-sha256", tool_sha,
+            "--group", "all"]
     else:
         raise ValueError("unknown mandatory suite")
     inputs.bind(script)
@@ -353,25 +400,31 @@ def main(argv=None):
     parser.add_argument("--build-directory", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--torch-python", type=Path, default=Path(sys.executable))
+    parser.add_argument("--generator-tool-build", type=Path, default=ROOT / "build/current-runtime-entropy")
+    parser.add_argument("--stack-build", type=Path, default=ROOT / "build/stack-budget-tools")
     args = parser.parse_args(argv)
     require(not sys.flags.optimize, "all original assertions must remain enabled")
     build, output = args.build_directory.resolve(), args.output.resolve()
     require(output != build and not output.is_relative_to(build), "qualification output must be separate from its build")
+    require(not output.is_relative_to(ROOT) and not ROOT.is_relative_to(output),
+            "Use a fresh evidence directory outside the repository; the original Generator gate isolates its input tree")
     output.mkdir(parents=True, exist_ok=False)
     inputs, suites, failures = Inputs(), [], []
     started = time.monotonic()
     result = {"schema": "heptatorch.current-runtime.qualification.v1", "status": "RUNNING",
-              "source_sha256": SOURCE, "native_sha256": IMAGE, "functions": 701, "units": 14,
+              "source_sha256": SOURCE, "native_sha256": IMAGE, "functions": 712, "units": 15,
               "required_suites": list(GROUPS), "required_cases": {"bool27": 27, "original76": 76,
               "sum32": 32, "integral24": 24, "sum_f32_17": 17, "current35": 35, "base270": 270,
-              "live32": 32}, "required_cases_total": 513,
+              "live32": 32, "generator131": 131}, "required_cases_total": 644,
               "required_controls": {"historical_Bool_dtypes": 7, "historical_Integral_dtypes": 5,
                   "current_dtypes": 7, "F32_axes": 4, "entry_and_capability": 10,
                   "Bool_allocation": 1, "F32_allocation_stages": 2,
                   "original35_copied_positive": 4, "original35_copied_negative": 18,
                   "original270_actual_prefix_refusal_pairs": 14,
                   "original_live32_partial_backward_prefixes": 4,
-                  "original_live32_uniform_refusal": 1},
+                  "original_live32_uniform_refusal": 1,
+                  "Generator_original24": 24, "Generator_original_native11": 11,
+                  "Generator_original_entry59": 59, "Generator_new_dispatch": 37},
               "suite_timeout_seconds": SUITE_TIMEOUT_SECONDS,
               "suites": suites, "failures": failures, "full_pytorch_rewrite_complete": False,
               "schema_closure": False, "full_project_status": "HOLD", "Torch_executed": False}
@@ -380,12 +433,16 @@ def main(argv=None):
         dump(output / "qualification.json", result)
 
     try:
+        result["interpreter_preflight"] = interpreter_preflight(args.torch_python.absolute())
         inputs.bind(Path(__file__).resolve())
         for name in ("current_runtime_fixtures.py", "current_runtime_process.py", "current_runtime_admission.py",
-                     "current_runtime_torch.py", "current_runtime_live32.py"):
+                     "current_runtime_torch.py", "current_runtime_live32.py",
+                     "current_runtime_generator.py", "current_runtime_cold.py",
+                     "current_runtime_generator_fixtures.py", "current_runtime_generator131.py"):
             inputs.bind(ROOT / "tests" / name)
         build_sha = build_binding(build, inputs)
         result["actual_build_sha256"] = build_sha
+        result["generator_source_proof"] = inputs.generator_source_proof
         fixtures = Fixtures(output, inputs)
         for name in GROUPS:
             execution = output / (name + "-execution")
@@ -395,7 +452,8 @@ def main(argv=None):
             print(json.dumps({"suite": name, "status": row["status"]}), flush=True)
             try:
                 directory = output / name
-                command = runner_command(name, build, build_sha, directory, fixtures, inputs, args.torch_python.absolute())
+                command = runner_command(name, build, build_sha, directory, fixtures, inputs, args.torch_python.absolute(),
+                                         args.generator_tool_build.resolve(), args.stack_build.resolve())
                 receipt = execute(command, execution, SUITE_TIMEOUT_SECONDS[name])
                 row["runner"] = receipt
                 report = None
@@ -405,7 +463,7 @@ def main(argv=None):
                     row["original_report"] = {"path": str((directory / "report.json").relative_to(output)),
                                               "bytes": len(raw), "sha256": sha(raw)}
                     row["original_report_status"] = report.get("status")
-                    if name in ("current35", "base270", "live32") and result["Torch_executed"] is not True:
+                    if name in ("current35", "base270", "live32", "generator131") and result["Torch_executed"] is not True:
                         result["Torch_executed"] = report.get("Torch_executed")
                 require(receipt["started"] is True and receipt["exit_code"] == 0
                         and receipt["stdout_EOF"] is True and receipt["stderr_EOF"] is True
@@ -428,8 +486,13 @@ def main(argv=None):
                     counts = qualify_current35(report, build_sha, directory, inputs)
                 elif name == "live32":
                     counts = qualify_live32(report, build, build_sha, directory, fixtures.live32(), inputs)
+                elif name == "generator131":
+                    sources = fixtures.generator()
+                    counts = qualify_generator131(report, ROOT, build, build_sha, directory, sources["package"],
+                        sources["candidate"], sources["original26"], args.generator_tool_build.resolve(),
+                        args.stack_build.resolve(), inputs)
                 else:
-                    counts = qualify_current270(report, build_sha, directory, inputs)
+                    counts = qualify_current270(report, build, build_sha, directory, fixtures.current270(), inputs)
                 row.update(status="PASS", qualified=True, **counts)
             except Exception as error:
                 row.update(status="FAIL", error={"type": type(error).__name__, "message": str(error),

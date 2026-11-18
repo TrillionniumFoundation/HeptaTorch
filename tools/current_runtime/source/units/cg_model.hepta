@@ -1,7 +1,7 @@
 hia-asm.v1 hepta.hia.program.v8 cpu_generator_model
 exports(cg_state_valid,cg_stat,cg_find,cg_mutates,cg_payload,cg_validate,cg_size,cg_reply,cg_read,cg_initialize,cg_apply)
 fn getr(p0:readbuf,p1:u64) -> (u64) effects(read,write,trap) external()
-fn putw(p0:mutbuf,p1:u64,p2:u64) -> (u64) effects(read,write,trap) external()
+fn cg_putw(p0:mutbuf,p1:u64,p2:u64) -> (u64) effects(read,write,trap) external()
 fn rng_next(p0:mutbuf) -> (u64) effects(read,write,trap) external()
 fn rng_next64(p0:mutbuf) -> (u64) effects(read,write,trap) external()
 fn rng_restore(p0:readbuf,p1:mutbuf,p2:u64) -> (u64) effects(read,write,trap) external()
@@ -670,26 +670,26 @@ fn cg_reply(v0:mutbuf,v1:readbuf,v2:u64,v3:u64) -> (u64) effects(read,write,trap
 block b0(v0:mutbuf,v1:readbuf,v2:u64,v3:u64)
   v4:u64 = const() {"value":0}
   v5:u64 = const() {"value":3544424519588598856}
-  v6:u64 = call(v0,v4,v5) {"function":"putw"}
+  v6:u64 = call(v0,v4,v5) {"function":"cg_putw"}
   v7:u64 = const() {"value":8}
-  v8:u64 = call(v0,v7,v2) {"function":"putw"}
+  v8:u64 = call(v0,v7,v2) {"function":"cg_putw"}
   v9:u64 = const() {"value":16}
-  v10:u64 = call(v0,v9,v3) {"function":"putw"}
+  v10:u64 = call(v0,v9,v3) {"function":"cg_putw"}
   v11:u64 = const() {"value":24}
   v12:u64 = call(v1,v9) {"function":"cg_stat"}
-  v13:u64 = call(v0,v11,v12) {"function":"putw"}
+  v13:u64 = call(v0,v11,v12) {"function":"cg_putw"}
   v14:u64 = const() {"value":32}
   v15:usize = buffer.len(v1)
   v16:u64 = int.cast(v15) {"mode":"wrap"}
-  v17:u64 = call(v0,v14,v16) {"function":"putw"}
+  v17:u64 = call(v0,v14,v16) {"function":"cg_putw"}
   v18:u64 = const() {"value":40}
   v19:u64 = call(v1,v7) {"function":"cg_stat"}
-  v20:u64 = call(v0,v18,v19) {"function":"putw"}
+  v20:u64 = call(v0,v18,v19) {"function":"cg_putw"}
   v21:u64 = const() {"value":48}
   v22:u64 = call(v1,v11) {"function":"cg_stat"}
-  v23:u64 = call(v0,v21,v22) {"function":"putw"}
+  v23:u64 = call(v0,v21,v22) {"function":"cg_putw"}
   v24:u64 = const() {"value":56}
-  v25:u64 = call(v0,v24,v4) {"function":"putw"}
+  v25:u64 = call(v0,v24,v4) {"function":"cg_putw"}
   v26:u64 = const() {"value":64}
   v27:u64 = int.add.wrap(v26,v3)
   ret(v27)
@@ -709,7 +709,7 @@ block b1(v10:readbuf,v11:readbuf,v12:mutbuf,v13:u64,v14:u64)
   v21:u64 = const() {"value":32}
   v22:u64 = int.add.wrap(v14,v21)
   v23:u64 = call(v11,v22) {"function":"getr"}
-  v24:u64 = call(v12,v20,v23) {"function":"putw"}
+  v24:u64 = call(v12,v20,v23) {"function":"cg_putw"}
   jump b3(v10,v11,v12,v13,v14)
 block b3(v25:readbuf,v26:readbuf,v27:mutbuf,v28:u64,v29:u64)
   v30:u64 = const() {"value":5}
@@ -760,23 +760,23 @@ block b0(v0:readbuf,v1:mutbuf,v2:readbuf)
 block b1(v9:readbuf,v10:mutbuf,v11:readbuf)
   v19:u64 = const() {"value":0}
   v20:u64 = const() {"value":3544425623395193928}
-  v21:u64 = call(v10,v19,v20) {"function":"putw"}
+  v21:u64 = call(v10,v19,v20) {"function":"cg_putw"}
   v22:u64 = const() {"value":8}
-  v23:u64 = call(v10,v22,v19) {"function":"putw"}
+  v23:u64 = call(v10,v22,v19) {"function":"cg_putw"}
   v24:u64 = const() {"value":16}
-  v25:u64 = call(v10,v24,v19) {"function":"putw"}
+  v25:u64 = call(v10,v24,v19) {"function":"cg_putw"}
   v26:u64 = const() {"value":24}
-  v27:u64 = call(v10,v26,v19) {"function":"putw"}
+  v27:u64 = call(v10,v26,v19) {"function":"cg_putw"}
   v28:u64 = const() {"value":32}
   v29:u64 = const() {"value":1}
-  v30:u64 = call(v10,v28,v29) {"function":"putw"}
+  v30:u64 = call(v10,v28,v29) {"function":"cg_putw"}
   v31:u64 = const() {"value":40}
   v32:u64 = const() {"value":5088}
-  v33:u64 = call(v10,v31,v32) {"function":"putw"}
+  v33:u64 = call(v10,v31,v32) {"function":"cg_putw"}
   v34:u64 = const() {"value":48}
-  v35:u64 = call(v10,v34,v19) {"function":"putw"}
+  v35:u64 = call(v10,v34,v19) {"function":"cg_putw"}
   v36:u64 = const() {"value":56}
-  v37:u64 = call(v10,v36,v19) {"function":"putw"}
+  v37:u64 = call(v10,v36,v19) {"function":"cg_putw"}
   jump b9(v9,v10,v11)
 block b2(v14:readbuf,v15:mutbuf,v16:readbuf,v17:u64,v18:u64)
   v38:u64 = const() {"value":16}
@@ -815,14 +815,14 @@ block b7(v83:readbuf,v84:mutbuf,v85:readbuf)
   v91:u64 = call(v83,v90) {"function":"cg_stat"}
   v92:u64 = const() {"value":1}
   v93:u64 = int.sub.wrap(v91,v92)
-  v94:u64 = call(v84,v90,v93) {"function":"putw"}
+  v94:u64 = call(v84,v90,v93) {"function":"cg_putw"}
   jump b9(v83,v84,v85)
 block b9(v100:readbuf,v101:mutbuf,v102:readbuf)
   v105:u64 = const() {"value":24}
   v106:u64 = call(v100,v105) {"function":"cg_stat"}
   v107:u64 = const() {"value":1}
   v108:u64 = int.add.wrap(v106,v107)
-  v109:u64 = call(v101,v105,v108) {"function":"putw"}
+  v109:u64 = call(v101,v105,v108) {"function":"cg_putw"}
   v110:u64 = const() {"value":0}
   ret(v110)
 end
@@ -885,7 +885,7 @@ block b10(v142:readbuf,v143:readbuf,v144:mutbuf,v145:mutbuf,v146:mutbuf,v147:rea
   v165:u64 = call(v147,v164) {"function":"getr"}
   v166:u64 = call(v145,v165) {"function":"rng_seed"}
   v167:u64 = const() {"value":64}
-  v168:u64 = call(v146,v167,v165) {"function":"putw"}
+  v168:u64 = call(v146,v167,v165) {"function":"cg_putw"}
   jump b16(v142,v143,v144,v145,v146,v147,v148,v149,v150,v151,v152)
 block b11(v153:readbuf,v154:readbuf,v155:mutbuf,v156:mutbuf,v157:mutbuf,v158:readbuf,v159:u64,v160:u64,v161:u64,v162:u64,v163:u64)
   v169:u64 = const() {"value":6}
@@ -937,17 +937,17 @@ block b20(v283:readbuf,v284:readbuf,v285:mutbuf,v286:mutbuf,v287:mutbuf,v288:rea
   v316:u64 = int.add.wrap(v295,v296)
   v317:u64 = const() {"value":1}
   v318:u64 = int.add.wrap(v316,v317)
-  v319:u64 = call(v285,v315,v318) {"function":"putw"}
+  v319:u64 = call(v285,v315,v318) {"function":"cg_putw"}
   v320:u64 = const() {"value":8}
   v321:u64 = int.add.wrap(v315,v320)
   v322:u64 = const() {"value":0}
-  v323:u64 = call(v285,v321,v322) {"function":"putw"}
+  v323:u64 = call(v285,v321,v322) {"function":"cg_putw"}
   v324:u64 = const() {"value":16}
   v325:u64 = int.add.wrap(v315,v324)
-  v326:u64 = call(v285,v325,v322) {"function":"putw"}
+  v326:u64 = call(v285,v325,v322) {"function":"cg_putw"}
   v327:u64 = const() {"value":24}
   v328:u64 = int.add.wrap(v315,v327)
-  v329:u64 = call(v285,v328,v322) {"function":"putw"}
+  v329:u64 = call(v285,v328,v322) {"function":"cg_putw"}
   v330:u64 = const() {"value":32}
   v331:u64 = int.add.wrap(v315,v330)
   v332:u64 = const() {"value":5056}
@@ -959,16 +959,16 @@ block b20(v283:readbuf,v284:readbuf,v285:mutbuf,v286:mutbuf,v287:mutbuf,v288:rea
   _ = loan.end(v333)
   v337:u64 = int.mul.wrap(v296,v320)
   v338:u64 = int.add.wrap(v311,v337)
-  v339:u64 = call(v287,v338,v318) {"function":"putw"}
+  v339:u64 = call(v287,v338,v318) {"function":"cg_putw"}
   v340:u64 = int.add.wrap(v296,v317)
   jump b19(v283,v284,v285,v286,v287,v288,v290,v294,v295,v340)
 block b21(v297:readbuf,v298:readbuf,v299:mutbuf,v300:mutbuf,v301:mutbuf,v302:readbuf,v304:u64,v308:u64,v309:u64)
   v341:u64 = const() {"value":8}
   v342:u64 = int.add.wrap(v309,v304)
-  v343:u64 = call(v299,v341,v342) {"function":"putw"}
+  v343:u64 = call(v299,v341,v342) {"function":"cg_putw"}
   v344:u64 = const() {"value":16}
   v345:u64 = int.add.wrap(v308,v304)
-  v346:u64 = call(v299,v344,v345) {"function":"putw"}
+  v346:u64 = call(v299,v344,v345) {"function":"cg_putw"}
   v347:u64 = const() {"value":0}
   ret(v347)
 block b22(v353:readbuf,v354:readbuf,v355:mutbuf,v356:mutbuf,v357:mutbuf,v358:readbuf,v359:u64,v360:u64,v361:u64,v362:u64,v363:u64)
@@ -1075,7 +1075,7 @@ block b51(v787:readbuf,v788:readbuf,v789:mutbuf,v790:mutbuf,v791:mutbuf,v792:rea
   v814:u64 = const() {"value":8}
   v815:u64 = int.mul.wrap(v798,v814)
   v816:u64 = int.add.wrap(v813,v815)
-  v817:u64 = call(v791,v816,v799) {"function":"putw"}
+  v817:u64 = call(v791,v816,v799) {"function":"cg_putw"}
   jump b53(v787,v788,v789,v790,v791,v792,v793,v794,v795,v796,v797,v798)
 block b53(v818:readbuf,v819:readbuf,v820:mutbuf,v821:mutbuf,v822:mutbuf,v823:readbuf,v824:u64,v825:u64,v826:u64,v827:u64,v828:u64,v829:u64)
   v831:u64 = const() {"value":1}

@@ -1,5 +1,5 @@
 hia-asm.v1 hepta.hia.program.v8 tensor_rng_frozen03
-exports(rng_seed,rng_restore,rng_next,rng_next64,rng_unit32,rng_unit64)
+exports(rng_seed,rng_restore,rng_next,rng_next64,rng_unit32,rng_unit64,round_f16,round_bf16,cg_putw)
 fn rng_error(v0:mutbuf,v1:u64) -> (u32) effects(read,write,trap) entry(b0)
 block b0(v0:mutbuf,v1:u64)
   v2:u64 = const() {"value":0}
@@ -658,4 +658,9 @@ block b0(v0:u64)
   v20:u64 = bit.or(v11,v19)
   v21:u64 = select(v9,v20,v18)
   ret(v21)
+end
+fn cg_putw(raw0:mutbuf,at0:u64,value0:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(raw0:mutbuf,at0:u64,value0:u64)
+  result0:u64 = call(raw0,at0,value0) {"function":"putw"}
+  ret(result0)
 end

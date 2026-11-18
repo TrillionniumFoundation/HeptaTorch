@@ -9,10 +9,10 @@ import types
 
 SOURCE_700 = 'b83a8346b162e12c5ed77e0287d626619a18f84bf7a1ab02a2514d30ae4295b4'
 IMAGE_700 = 'c6afeedc14ba8cc408a62d6fbef0abb5b78dff0039b8099f3449d813e290a90e'
-SOURCE = '82360ce87dae6f9a004ef50be4f991b6f83905a83f4b17ca8d6634827b7bd313'
-IMAGE = '80445a8c433f20314d3bc7b00ebb68f6a70fa200ee2e6aba193cff21aabfbc17'
-SUPPORT_SHA = '5e0a66b1a45c469f6c80ec611ff49d26288230b736b6939f957cba8a7ad21ec1'
-OWNER_SHA = '4ef9545bb42dbc1ef5da603814a157163bed18418992d9b2489fd39378c3a4aa'
+SOURCE = 'fac3d413c6c0f6874d224cbea312108ee2c8baa027102d41890d85094a5faa38'
+IMAGE = '5b7aac203d2c913d43781f0da45d40e9bac2037c2bc074ec30f8dd663710a805'
+SUPPORT_SHA = '3a6d61b759f45dc62f3d7b8320ce9379904430e76e8e279924d5d0803b73d359'
+OWNER_SHA = 'd72283cc8c351607ca3930affe8526a64936ec476436c27d089818cc5aade55d'
 INTEGRAL_SHA = '845f38cbe7588bc181009bd40637c2597a84fea5fb036ee52fb0af60af90cd4c'
 BOOL_PINS = {
     'cases.py': 'cb489ce173d6cf3984d86c796b516c490b07c2a5d48639a3cdded5cc58187508',
@@ -51,15 +51,19 @@ def read_pin(path, pin):
 def identity_edits(name):
     if name == 'native.py':
         return [(SOURCE_700,SOURCE,1),(IMAGE_700,IMAGE,1),
-            ('build["complete_core_bodies_matched"] == 700','build["complete_core_bodies_matched"] == 701',1),
-            ('build["functions"] == 700','build["functions"] == 701',1)]
+            ('build["complete_core_bodies_matched"] == 700','build["complete_core_bodies_matched"] == 712',1),
+            ('build["functions"] == 700','build["functions"] == 712',1),
+            ('aae650e8822ef0b1e74d15108ad1d0f17ec791205ed5a158ec60b709f48f0e16',
+             '761a941fd7a2d53eb9b45869fcfc20e970640e9dd11d60f7c61a89812b61d74e',1),
+            ('len(build["units"]) == build["units_planned"] == 14 and len(build["processes"]) == 15',
+             'len(build["units"]) == build["units_planned"] == 15 and len(build["processes"]) == 16',1)]
     if name == 'common.py':
-        return [('b"functions == 700"','b"functions == 701"',1),
-            ('b"sum-bool-source01-UNBOUND-700"','b"sum-bool-source01-UNBOUND-701"',1),
-            ('len(functions) == len(matches) == 700','len(functions) == len(matches) == 701',1)]
+        return [('b"functions == 700"','b"functions == 712"',1),
+            ('b"sum-bool-source01-UNBOUND-700"','b"sum-bool-source01-UNBOUND-712"',1),
+            ('len(functions) == len(matches) == 700','len(functions) == len(matches) == 712',1)]
     if name == 'owner_adapter.py':
         return [('observer.configure(owner, source_sha, image_sha, 700)',
-                 'observer.configure(owner, source_sha, image_sha, 701)',1)]
+                 'observer.configure(owner, source_sha, image_sha, 712)',1)]
     if name == 'integral24.py':
         return [(SOURCE_700,SOURCE,1),(IMAGE_700,IMAGE,1)]
     return []
@@ -108,7 +112,7 @@ def make_profile(repository, destination):
     target=destination/'integral24.py'
     with target.open('xb') as stream:stream.write(derived)
     files['integral24.py']={**proof,'original_path':str(source),'derived_path':str(target)}
-    result=dict(schema='heptatorch.701.historical-reader-identity-proof.v1',files=files,
+    result=dict(schema='heptatorch.712.historical-reader-identity-proof.v1',files=files,
         source_sha256=SOURCE,native_sha256=IMAGE,original_reference_and_case_sources_unchanged=True,
         frozen_source_fixture=dict(archive_sha256=fixture_module.BASELINE_ARCHIVE_SHA,
             manifest_sha256=fixture_module.BASELINE_MANIFEST_SHA,original_modes_restored=True),
@@ -208,7 +212,7 @@ def execute_worker(config):
         for relative,row in proof['files'].items():inputs.bind(folder/relative,row['derived_sha256'])
         inputs.bind(sfroot/'native_support.py',SUPPORT_SHA)
         inputs.bind(sfroot/'owner_adapter.py',OWNER_SHA)
-        source_inverse=sf_support.source_inverse(inputs.bind(Path(config['build_directory'])/'runtime.hepta',SOURCE),inputs)
+        source_inverse=sf_support.source_inverse(inputs.bind(Path(config['build_directory'])/'runtime.hepta',SOURCE),inputs,Path(config['build_directory']))
         observer,owner,old_proof=original_make(repository,inputs,source_sha,image_sha)
         unused_observer,new_owner,new_proof=sf_adapter.make_observer(repository,inputs,source_sha,image_sha)
         previous_metadata=owner._command_metadata

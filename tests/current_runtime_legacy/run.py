@@ -18,11 +18,11 @@ INTENT = ROOT / "continuation/20261117/evidence/root-sum-integral-original76-rev
 INTENT_SHA = "2fb7e1f6a95e5cd6d0fe80468e414d65731f7b9d87852a33ec3c1812fbff07e8"
 ARCHIVE = ROOT / "validation/current-runtime76-reference/complete.tar.xz"
 ARCHIVE_SHA = "ce4aff6daaf5bb727fa6a520cbecf98dd8e09e67ffffa6cb60171a210b82e490"
-SOURCE_SHA = "82360ce87dae6f9a004ef50be4f991b6f83905a83f4b17ca8d6634827b7bd313"
-NATIVE_SHA = "80445a8c433f20314d3bc7b00ebb68f6a70fa200ee2e6aba193cff21aabfbc17"
+SOURCE_SHA = "fac3d413c6c0f6874d224cbea312108ee2c8baa027102d41890d85094a5faa38"
+NATIVE_SHA = "5b7aac203d2c913d43781f0da45d40e9bac2037c2bc074ec30f8dd663710a805"
 COMPILER_SHA = "b1c851a0896fa6071f800e1146c3c27d0c6cf85059e9a6281b46d42908a3f59f"
-LINKER_SHA = "aae650e8822ef0b1e74d15108ad1d0f17ec791205ed5a158ec60b709f48f0e16"
-BUILDER_SHA = "b9d039c365a8a3988e3add120e8cffa46a4e1297878f4cced30103953b030bfb"
+LINKER_SHA = "761a941fd7a2d53eb9b45869fcfc20e970640e9dd11d60f7c61a89812b61d74e"
+BUILDER_SHA = "9c93f8ff3fcfda8358e51a4c12efb3b0e0962abed9b5a750ca32d5a5568ac14d"
 DEPENDENCIES = {
     "protocol.py": "tests/differentiable_view_native_review/protocol.py",
     "owner_client.py": "tests/differentiable_view_native_review/owner_client.py",
@@ -136,7 +136,7 @@ def build_binding(directory, expected, out, bind):
     require(built["schema"] == "heptatorch.complete-runtime-build.v1"
             and built["status"] == "PASS_NATIVE_BUILD_ONLY", "expected an actual complete-runtime cold build")
     require(built["source_sha256"] == SOURCE_SHA and built["native_sha256"] == NATIVE_SHA
-            and built["functions"] == 701 and built["units_planned"] == 14, "unexpected current runtime profile")
+            and built["functions"] == 712 and built["units_planned"] == 15, "unexpected current runtime profile")
     require(built["compiler_sha256"] == COMPILER_SHA and built["linker_sha256"] == LINKER_SHA
             and built["link_exit"] == 0 and built["all_inputs_unchanged"] is True,
             "native tool or successful build binding mismatch")
@@ -146,7 +146,7 @@ def build_binding(directory, expected, out, bind):
     bind(builder, BUILDER_SHA)
     require(any(Path(path).name == "build.py" and row["sha256"] == BUILDER_SHA for path, row in built["inputs"].items()),
             "actual build does not bind the fixed current builder")
-    require(len(built["units"]) == 14 and len(built["processes"]) == 15, "incomplete cold build")
+    require(len(built["units"]) == 15 and len(built["processes"]) == 16, "incomplete cold build")
     require([p["name"] for p in built["processes"]] == [u["name"] for u in built["units"]] + ["link"],
             "cold build process order mismatch")
     require(all(p["started"] is True and p["exit_code"] == 0 and p["stdout_EOF"] is True
@@ -172,7 +172,7 @@ def build_binding(directory, expected, out, bind):
             if suffix == ".o":
                 objects.append(raw)
         require(not bind(directory / (name + ".stderr")), "compiler stderr is not empty")
-    request = b"HIASTKS1" + struct.pack("<3Q", 14, 4, 0) + b"step"
+    request = b"HIACGS01" + struct.pack("<3Q", 15, 4, 0) + b"step"
     request += b"".join(struct.pack("<Q", len(obj)) + obj for obj in objects)
     actual_request = bind(directory / "link.request.bin", built["processes"][-1]["input_sha256"])
     require(actual_request == request and not bind(directory / "link.stderr"), "native link request/stderr mismatch")
@@ -201,7 +201,7 @@ def main():
     inputs, rows = {}, []
     report = {"schema": "heptatorch.current-runtime.original76.v1", "status": "PREPARING",
               "source_sha256": SOURCE_SHA, "native_sha256": NATIVE_SHA,
-              "expected_cases": 76, "functions": 701, "native_units": 14,
+              "expected_cases": 76, "functions": 712, "native_units": 15,
               "state_format": "HTSINT02", "backing_format": "HTOSIN02", "descriptor_bytes": 672,
               "actual_build_sha256": args.expected_build_sha256,
               "old_pass_transferred": False, "torch_executed": False, "native_suites": rows,
@@ -236,7 +236,7 @@ def main():
                 "--observer", str(observer), "--reference", str(references[name, "reference"]),
                 "--probe", str(references[name, "probe"]), "--expected-source-sha256", SOURCE_SHA,
                 "--expected-native-sha256", NATIVE_SHA, "--expected-observer-sha256", sha(observer.read_bytes()),
-                "--expected-functions", "701", "--expected-native-units", "14", "--output", str(out / name)]
+                "--expected-functions", "712", "--expected-native-units", "15", "--output", str(out / name)]
             if name != "view14":
                 command += ["--support-reader", str(dependencies["replay_direct_view14.py"])]
             if name in {"view26", "input4"}:

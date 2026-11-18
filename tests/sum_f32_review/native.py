@@ -18,10 +18,10 @@ from native_support import (Inputs, PROTOCOL_SHA, CLIENT_SHA, bind_sources, dump
                             sha, source_functions, source_inverse)
 from owner_adapter import make_observer
 
-SOURCE = "82360ce87dae6f9a004ef50be4f991b6f83905a83f4b17ca8d6634827b7bd313"
-IMAGE = "80445a8c433f20314d3bc7b00ebb68f6a70fa200ee2e6aba193cff21aabfbc17"
+SOURCE = "fac3d413c6c0f6874d224cbea312108ee2c8baa027102d41890d85094a5faa38"
+IMAGE = "5b7aac203d2c913d43781f0da45d40e9bac2037c2bc074ec30f8dd663710a805"
 COMPILER = "b1c851a0896fa6071f800e1146c3c27d0c6cf85059e9a6281b46d42908a3f59f"
-LINKER = "aae650e8822ef0b1e74d15108ad1d0f17ec791205ed5a158ec60b709f48f0e16"
+LINKER = "761a941fd7a2d53eb9b45869fcfc20e970640e9dd11d60f7c61a89812b61d74e"
 TENSOR_FIELDS = ("dtype", "device", "element_size", "shape", "strides", "numel",
                  "storage_bytes", "storage_offset_elements", "storage_offset_bytes", "version",
                  "requires_grad", "is_leaf", "is_view", "grad_fn", "grad_is_none", "retains_grad",
@@ -54,8 +54,8 @@ def normalized(event):
 def admit_build(args, inputs):
     source = inputs.bind(args.source, args.expected_source_sha256)
     require(sha(source) == SOURCE, "exact-integral-F32-701-source")
-    functions = source_functions(source)
-    inverse = source_inverse(source, inputs)
+    functions = source_functions(source, 712)
+    inverse = source_inverse(source, inputs, args.build_report.parent)
     kernel = args.repository / "continuation/20261117/source-packages/sum-bool-source-01/hia/sb_sum_bool.hepta"
     require(functions["sb_sum_bool"] == inputs.bind(kernel), "original-Bool-kernel-complete-bytes")
     executable = inputs.bind(args.binary, args.expected_native_sha256)
@@ -64,13 +64,13 @@ def admit_build(args, inputs):
     require(build["schema"] == "heptatorch.complete-runtime-build.v1" and
             build["status"] == "PASS_NATIVE_BUILD_ONLY" and build["all_inputs_unchanged"] is True,
             "actual-complete-cold-build")
-    require(build["objects_reused"] is False and build["complete_core_bodies_matched"] == 701,
+    require(build["objects_reused"] is False and build["complete_core_bodies_matched"] == 712,
             "all-seven-hundred-one-bodies-cold-compiled")
     require(build["source_sha256"] == SOURCE and build["native_sha256"] == sha(executable)
-            and build["native_bytes"] == len(executable) and build["functions"] == 701
+            and build["native_bytes"] == len(executable) and build["functions"] == 712
             and build["compiler_sha256"] == COMPILER and build["linker_sha256"] == LINKER
             and build["link_exit"] == 0, "actual-build-image-source-pins")
-    require(len(build["units"]) == build["units_planned"] == 14 and len(build["processes"]) == 15,
+    require(len(build["units"]) == build["units_planned"] == 15 and len(build["processes"]) == 16,
             "cold-fourteen-units-fifteen-processes")
     root = args.build_report.parent
     require(args.source.parent == root and args.binary.parent == root and args.binary.name == build["native_basename"],

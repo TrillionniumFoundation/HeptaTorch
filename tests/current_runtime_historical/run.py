@@ -129,7 +129,7 @@ def common_report(report,config):
 def qualify_bool(report,config):
     common_report(report,config)
     require(report['schema']=='heptatorch.sum-bool.native27.v1' and report['error'] is None
-            and report['inputs_unchanged'] is True and report['build_functions']==701 and report['cold_units']==14,
+            and report['inputs_unchanged'] is True and report['build_functions']==712 and report['cold_units']==15,
             'complete original Bool execution and inputs')
     require(report['reference_sha256']==BOOL_REFERENCE and report['passed']==report['expected_cases']==len(report['cases'])==27
             and report['failed']==0,'all27 original Bool cases')
@@ -172,8 +172,8 @@ def qualify_bool(report,config):
 
 def qualify_integral(report,config):
     common_report(report,config)
-    require(report['schema']=='heptatorch.current-runtime.integral24.v1' and report['functions']==701
-            and report['native_units']==14 and report['actual_build_sha256']==config['expected_build_sha256']
+    require(report['schema']=='heptatorch.current-runtime.integral24.v1' and report['functions']==712
+            and report['native_units']==15 and report['actual_build_sha256']==config['expected_build_sha256']
             and report['all_inputs_unchanged'] is True and report['original_input_recheck_errors']==[],
             'complete Integral original execution/custody')
     require(report['reference_sha256']==INTEGRAL_REFERENCE and report['passed']==report['expected_cases']==len(report['cases'])==24
@@ -264,7 +264,7 @@ def main():
     for key,value in vars(args).items():
         if isinstance(value,Path):setattr(args,key,value.resolve())
     args.output.mkdir(parents=True,exist_ok=False)
-    report=dict(schema='heptatorch.701.original-readers-and-contract-delta.v1',status='PREPARING',
+    report=dict(schema='heptatorch.712.original-readers-and-contract-delta.v1',status='PREPARING',
         suite=args.suite,source_sha256=SOURCE,native_sha256=IMAGE,actual_build_sha256=args.expected_build_sha256,
         native_executed=False,native_execution_requested=not args.prepare_only,Torch_executed=False,compiler_executed=False,
         original_reports_modified=False,original_comparisons_modified=False,original_expected_refusals_modified=False,
@@ -300,7 +300,7 @@ def main():
             report.update(facts)
             report['transport']=native_transports(args.output/'original',36 if args.suite=='bool27' else 29)
             require(path.read_bytes()==raw,'original report remains byte-exact after outer admission')
-            report['status']='PASS_701_COMPARISONS_WITH_ORIGINAL_FAILURES_RETAINED';code=0
+            report['status']='PASS_712_COMPARISONS_WITH_ORIGINAL_FAILURES_RETAINED';code=0
     except BaseException as error:
         report.update(status='FAIL',error=dict(type=type(error).__name__,message=str(error),traceback=traceback.format_exc()))
     dump(args.output/'report.json',report)

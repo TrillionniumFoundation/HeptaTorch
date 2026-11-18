@@ -11,14 +11,14 @@ BASELINE_ARCHIVE_SHA = '7656fa9e918ed4ef73d29009da3cf6fb0840fe0b4d0775f3a37b7871
 BASELINE_MANIFEST_SHA = 'e4ac41437792606e36524d85e1f2049c106527ffcbf8055cebf068c4f83547ca'
 F32_REFERENCE_ARCHIVE_SHA = '1494c31492261a84b3311d568109992c48c5062b52802b2909da5f82f9f5604d'
 F32_REFERENCE_MANIFEST_SHA = '5f08c46df30f4f747968270e332687861add4449d8771cebb3d26018a2b13903'
-F32_READER_MANIFEST_SHA = 'a97c262047f17c50a9ad77815754644e1df19350ec2511f274997b4711dda974'
-LEGACY_PROOF_SHA = '581225ffc3534ba00abf1f962712a3b8758feb774d92a3fa1f462a165c940f7d'
-CURRENT35_ARCHIVE_SHA = '188655c40e46bcdc9ec2f12385c293941f3a7556a8ab30761619e5752e67362f'
-CURRENT35_MANIFEST_SHA = '0241d2f320765f1ad53aa28721a4e30304aedc21d7cca8a44668ee5567510f57'
-CURRENT270_ARCHIVE_SHA = '47afac432997a33aa5b874c2c088fa1b238262903f7d2c230abc2be34a2ad40a'
-CURRENT270_MANIFEST_SHA = '45e251c6cd275797c5bf121a7e190c5e89232e2f6592ae95bed37369a313ecef'
-LIVE32_ARCHIVE_SHA = 'e94e11a2997a24c7629cfbe5afc5aac7503ed039701c956a77dcb09357f6f927'
-LIVE32_MANIFEST_SHA = '8064f242e8a4923fe6c86adce43dc1d6e30668abfc46c28fafe0ec83ee52557b'
+F32_READER_MANIFEST_SHA = 'eb1ccd4ce7bfe13f64a84eb46674b2bd83a481a3f8d1d19ed6d3f068329a23ec'
+LEGACY_PROOF_SHA = '564bb09f9f7941ea62bb253b6927b01aac308c441addec742e82e323b20e8ac5'
+CURRENT35_ARCHIVE_SHA = '36fbe7b3facd54808f8ccfa35a39098e8039f73662d190b9105fe5e681023da8'
+CURRENT35_MANIFEST_SHA = 'edc0dc0e033b3c20dbedad895f072176da4cd0a333a76ddff0bdce3b0325ec95'
+CURRENT270_ARCHIVE_SHA = 'b3b8d192efdaf132ac1a94cbfc1147a519b85d504a3be774722c43fd7ce4a5df'
+CURRENT270_MANIFEST_SHA = '80f0bd894a51d79963918627d86e9296111798c441d6ae09978bfe8e63fabb6f'
+LIVE32_ARCHIVE_SHA = '9d2ea749f3b675900ff550cc38f728000479dbab1045ccdcf965ce5f921a1f49'
+LIVE32_MANIFEST_SHA = 'f49f8c78fb16024c27e0ffde798ca4e5686361685923f6ce89dd07ca2aedbec7'
 ORIGINAL76_ARCHIVE_SHA = 'ce4aff6daaf5bb727fa6a520cbecf98dd8e09e67ffffa6cb60171a210b82e490'
 ORIGINAL76_MANIFEST_SHA = 'a3d49014e99b68a98a7cc41a787d4fa6102129b63aed720dc857b5d6e862ef4d'
 SOURCE700 = 'b83a8346b162e12c5ed77e0287d626619a18f84bf7a1ab02a2514d30ae4295b4'
@@ -138,27 +138,24 @@ def restore_f32_reference(repository, destination, inputs=None):
 def restore_current35(repository, destination, inputs=None):
     return restore(repository, destination, 'validation/current-runtime35-source',
                    CURRENT35_ARCHIVE_SHA, CURRENT35_MANIFEST_SHA,
-                   'heptatorch.current701-cat-empty-original35.prepared-package.v1',
-                   inputs, embedded_manifest=True)
+                   'heptatorch.current712-generator-original35.prepared-package.v1',
+                   inputs, embedded_manifest=True, original_inventory=(67, 1485570))
 
 
 def restore_current270(repository, destination, inputs=None):
     return restore(repository, destination, 'validation/current-runtime270-source',
                    CURRENT270_ARCHIVE_SHA, CURRENT270_MANIFEST_SHA,
-                   'heptatorch.current270.source-package.v1', inputs,
-                   embedded_manifest=True, archive_prefix='current270',
-                   directory_modes={'current270': 0o755, 'current270/frozen': 0o755})
+                   'heptatorch.current712-original270-source.v1', inputs,
+                   embedded_manifest=True, archive_prefix='current270')
 
 
 def restore_live32(repository, destination, inputs=None):
-    # Preserve the original manifest bytes, including its source-only status;
-    # its six-file inventory has no redundant count/payload fields.
+    # Restore the complete fixed Generator712 source layer, including the
+    # original701 manifest and unchanged oracle/owner/cold-admission sources.
     return restore(repository, destination, 'validation/current-runtime32-source',
                    LIVE32_ARCHIVE_SHA, LIVE32_MANIFEST_SHA,
-                   'heptatorch.current701-live32-source.v1', inputs,
-                   embedded_manifest=True, archive_prefix='current32',
-                   directory_modes={'current32': 0o755, 'current32/frozen': 0o755},
-                   original_inventory=(6, 147100))
+                   'heptatorch.current712-live32-source.v1', inputs,
+                   embedded_manifest=True, archive_prefix='current32')
 
 
 def prepare_f32_reader(repository, destination, baseline, inputs=None):
@@ -167,7 +164,7 @@ def prepare_f32_reader(repository, destination, baseline, inputs=None):
     manifest_raw = read(folder / 'source-manifest.json', F32_READER_MANIFEST_SHA, inputs)
     manifest = json.loads(manifest_raw)
     require(manifest['schema'] == 'heptatorch.current-runtime.fixed-f32-reader17.v1'
-            and manifest['file_count'] == len(manifest['files']) == 12,
+            and manifest['file_count'] == len(manifest['files']) == 20,
             'complete fixed F32 source package')
     destination.mkdir(parents=True, exist_ok=False)
     total = 0
@@ -178,6 +175,7 @@ def prepare_f32_reader(repository, destination, baseline, inputs=None):
         require(len(raw) == pin['bytes'] and stat.S_IMODE(path.stat().st_mode) == pin['mode'],
                 'fixed reader source size/mode')
         target = destination / name
+        target.parent.mkdir(parents=True, exist_ok=True)
         with target.open('xb') as stream:
             stream.write(raw)
         target.chmod(pin['mode'])

@@ -107,7 +107,7 @@ def make_observer(repository, inputs, source_sha, image_sha):
 
     owner._command_metadata = metadata
     owner.verify_frame_boundary = frame
-    observer.configure(owner, source_sha, image_sha, 701)
+    observer.configure(owner, source_sha, image_sha, 712)
     require(owner.SOURCE == source_sha and owner.IMAGE == image_sha, "new-integral-F32-profile-bound")
     return observer, owner, dict(owner=owner_proof, observer=observer_proof,
                                 old_integral_width8_contract_preserved=True,

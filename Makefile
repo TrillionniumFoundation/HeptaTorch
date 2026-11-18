@@ -11,7 +11,8 @@ HEPTA_OWNED_SESSION_BUILD ?= build/owned-session-tools
 HEPTA_OWNED_SESSION_LINKER ?= $(HEPTA_OWNED_SESSION_BUILD)/production-native/owned-session-linker
 HEPTA_STACK_BUILD ?= build/stack-budget-tools
 HEPTA_CURRENT_COMPILER ?= $(HEPTA_STACK_BUILD)/native/stack-module-compiler
-HEPTA_CURRENT_LINKER ?= $(HEPTA_STACK_BUILD)/native/stack-linker-session
+HEPTA_ENTROPY_BUILD ?= build/current-runtime-entropy
+HEPTA_CURRENT_LINKER ?= $(HEPTA_ENTROPY_BUILD)/generator-session-linker
 HEPTA_TORCH_PYTHON ?= $(shell python3 -c 'import sys; print(sys.executable)')
 COMPILER_SHA256 := c5a9c2b95a3061e080a21298f5b26000936ed9dac519690d845b0699a15744c6
 MODULE_COMPILER_SHA256 := e250d93bc0b2a5ff878d2188c95780abf7e7ebaf186e4531b136fa2735b2af59
@@ -21,22 +22,85 @@ SESSION_PACKER_SHA256 := 22600cee8853b6a49dfbf66154ddcdc99bdbbc6fcfb2face2605ad7
 SESSION_INPUTS := src/heptatorch.hepta tools/session/build_runtime.py tools/session/entry.hepta tools/session/profile.json tools/modules/split_runtime.py Makefile
 STORAGE_INPUTS := $(wildcard tools/storage_objects/*.py tools/storage_objects/*.authoring tools/storage_objects/*.hia.in) tools/storage_objects/source-lock.json Makefile
 OWNED_TENSOR_INPUTS := src/heptatorch.hepta docs/functions.json tools/modules/split_runtime.py $(wildcard tools/owned_tensors/*.py tools/owned_tensors/*.hepta tools/owned_tensors/*.json) Makefile
-CURRENT_RUNTIME_UNITS := rng03 owners $(addprefix cat_f32_,00 01 02 03 04 05 06 07 08 09 10 11)
+CURRENT_RUNTIME_UNITS := rng03 $(addprefix cat_f32_,00 01 02 03 04 05 06 07 08 09 10 11) cg_model owners
 CURRENT_RUNTIME_INPUTS := tools/current_runtime/build.py tools/stack_budget/inspect_stack.py \
   tools/current_runtime/source/manifest.json tools/current_runtime/source/partition.json \
   tools/current_runtime/source/runtime.hepta \
   $(addprefix tools/current_runtime/source/units/,$(addsuffix .hepta,$(CURRENT_RUNTIME_UNITS))) Makefile
 
-.PHONY: all current-runtime legacy monolithic session session-monolithic storage-objects owned-tensors test test-legacy test-monolithic test-session test-session-monolithic test-storage-objects test-owned-tensors check-compiler check-module-tools check-session-tools check-session-packer check-storage-tools acceptance-status full-acceptance clean
+.PHONY: all current-runtime current-entropy-linker legacy monolithic session session-monolithic storage-objects owned-tensors test test-legacy test-monolithic test-session test-session-monolithic test-storage-objects test-owned-tensors check-compiler check-module-tools check-session-tools check-session-packer check-storage-tools acceptance-status full-acceptance clean
 
 all: current-runtime
 
-current-runtime: build/current-runtime/build.json build/current-runtime/heptatorch
+current-runtime: current-entropy-linker build/current-runtime/build.json build/current-runtime/heptatorch
+
+# The complete fixed upstream authoring closure is required by the tool-only
+# entropy linker build. The original application builder main is never called.
+ENTROPY_AUTHORING_INPUTS := $(addprefix $(HEPTA_SOURCE_ROOT)/,\
+  docs/HIA_SELFHOST_CORE_SUPPORT.json \
+  hepta/__init__.py \
+  hepta/artifact_publication.py \
+  hepta/hia_agent_assembly.py \
+  hepta/hia_capability_flow.py \
+  hepta/hia_core_admission_native.py \
+  hepta/hia_function_shape_native.py \
+  hepta/hia_instruction_policy_native.py \
+  hepta/hia_json_canonical_native.py \
+  hepta/hia_json_decode.py \
+  hepta/hia_json_decode_native.py \
+  hepta/hia_json_preflight.py \
+  hepta/hia_json_preflight_native.py \
+  hepta/hia_machine_x64.py \
+  hepta/hia_opcodes.py \
+  hepta/hia_program.py \
+  hepta/hia_program_shape_native.py \
+  hepta/hia_program_tools.py \
+  hepta/hia_schema.py \
+  hepta/hia_sha256_native.py \
+  tools/generate_hia_selfhost.py \
+  tools/generate_hia_elf_linker.py \
+  tools/hia_selfhost_chain_elf.py \
+  tools/hia_selfhost_cli.py \
+  tools/hia_selfhost_effects.py \
+  tools/hia_selfhost_exports.py \
+  tools/hia_selfhost_keywords.py \
+  tools/hia_selfhost_limits.py \
+  tools/hia_selfhost_multi_results.py \
+  tools/hia_selfhost_names.py \
+  tools/hia_selfhost_owned_elf.py \
+  tools/hia_selfhost_returned_loans.py \
+  tools/hia_selfhost_signed.py \
+  tools/hia_selfhost_traps.py)
+ENTROPY_TOOL_INPUTS := tools/current_runtime/entropy_linker/build_tool.py \
+  tools/current_runtime/entropy_linker/frozen_generator_build.py \
+  $(HEPTA_STACK_BUILD)/native/stack-module-compiler \
+  $(HEPTA_STACK_BUILD)/native/stack-linker-linker \
+  $(HEPTA_STACK_BUILD)/sources/linker-session/authoring.txt \
+  $(HEPTA_STACK_BUILD)/sources/linker-session/startup-authoring.txt \
+  $(ENTROPY_AUTHORING_INPUTS) Makefile
+
+current-entropy-linker: $(HEPTA_ENTROPY_BUILD)/build.json $(HEPTA_ENTROPY_BUILD)/generator-session-linker
+
+# Keep the original successful stage: its receipt binds absolute process stream
+# paths. Publish an exact copy rather than moving those original raw streams.
+$(HEPTA_ENTROPY_BUILD)/build.json $(HEPTA_ENTROPY_BUILD)/generator-session-linker &: $(ENTROPY_TOOL_INPUTS) | build
+	@set -eu; stage=$$(mktemp -d "$(CURDIR)/build/current-runtime-entropy-stage.XXXXXX"); \
+	printf 'Entropy linker build staging: %s\n' "$$stage"; \
+	python3 -I -S -B tools/current_runtime/entropy_linker/build_tool.py \
+	  --upstream "$(abspath $(HEPTA_SOURCE_ROOT))" --stack-build "$(abspath $(HEPTA_STACK_BUILD))" \
+	  --output "$$stage/native"; \
+	if [ -e "$(HEPTA_ENTROPY_BUILD)" ] || [ -L "$(HEPTA_ENTROPY_BUILD)" ]; then \
+	  python3 -I -S -B -c 'import json,pathlib,sys; p=pathlib.Path(sys.argv[1]); assert p.is_dir() and not p.is_symlink(), "unrecognized entropy-tool path"; r=p/"build.json"; assert r.is_file() and not r.is_symlink(), "missing original entropy-tool receipt"; b=json.loads(r.read_bytes()); assert b.get("schema")=="heptatorch.generator-entropy-linker.tool-only-build.v1" and b.get("status")=="PASS_NATIVE_ENTROPY_LINKER_BUILD_ONLY", "unrecognized entropy-tool receipt"' "$(abspath $(HEPTA_ENTROPY_BUILD))"; \
+	  mv "$(HEPTA_ENTROPY_BUILD)" "$$stage/previous"; \
+	fi; \
+	mkdir -p "$(dir $(HEPTA_ENTROPY_BUILD))"; \
+	cp -a "$$stage/native" "$(HEPTA_ENTROPY_BUILD)"; \
+	printf 'Entropy linker published; original raw stage retained: %s\n' "$$stage"
 
 # GNU Make 4.3+ grouped targets rebuild both products when either is missing.
 # The cold builder requires a fresh directory. Preserve every staging failure,
 # and move a recognized previous build aside only after the new build succeeds.
-build/current-runtime/build.json build/current-runtime/heptatorch &: $(CURRENT_RUNTIME_INPUTS) $(HEPTA_CURRENT_COMPILER) $(HEPTA_CURRENT_LINKER) | build
+build/current-runtime/build.json build/current-runtime/heptatorch &: $(CURRENT_RUNTIME_INPUTS) $(HEPTA_CURRENT_COMPILER) $(HEPTA_CURRENT_LINKER) $(HEPTA_ENTROPY_BUILD)/build.json | build
 	@set -eu; stage=$$(mktemp -d "$(CURDIR)/build/current-runtime-stage.XXXXXX"); \
 	printf 'Current runtime build staging: %s\n' "$$stage"; \
 	python3 -I -S -B tools/current_runtime/build.py \
@@ -185,28 +249,6 @@ test-tensor-objects: tensor-objects
 	python3 -I -S -B tests/qualify_tensor_objects.py --abi2 "$(CURDIR)/build/tensor-objects/abi2" \
 	  --abi3 "$(CURDIR)/build/tensor-objects/abi3" --output "$$review/observed"; \
 	cp "$$review/observed/report.json" build/hosted-tensor-object-native.json
-
-CPU_GENERATOR_INPUTS := $(wildcard tools/cpu_generators/* tools/cpu_generators/sources/*) validation/cpu-generator-package.sha256 Makefile
-
-.PHONY: cpu-generators test-cpu-generators
-cpu-generators: build/cpu-generators/rebuild.json
-
-build/cpu-generators/rebuild.json: $(CPU_GENERATOR_INPUTS) | build
-	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.cpu-generators.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
-	sha256sum -c validation/cpu-generator-package.sha256; \
-	python3 -I -S -B tools/cpu_generators/rebuild.py --upstream "$(HEPTA_SOURCE_ROOT)" \
-	  --stack-build "$(HEPTA_STACK_BUILD)" --rng-source tools/rng-cpu/rng.hepta \
-	  --output "$$tmp/native"; \
-	mkdir -p build/cpu-generators; cp -a --remove-destination "$$tmp/native/." build/cpu-generators/
-
-test-cpu-generators: cpu-generators
-	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/.cpu-generator-review.XXXXXX"); \
-	sha256sum -c validation/cpu-generator-package.sha256; \
-	python3 -B tools/cpu_generators/qualify.py --build "$(CURDIR)/build/cpu-generators" --output "$$review/native"; \
-	python3 -B tools/cpu_generators/test_entry.py --build "$(CURDIR)/build/cpu-generators" \
-	  --stack-build "$(HEPTA_STACK_BUILD)" --output "$$review/entry"; \
-	python3 -I -S -B tests/check_cpu_generator_reports.py --build "$(CURDIR)/build/cpu-generators" \
-	  --review "$$review" --output build/hosted-cpu-generator-native.json
 
 HEPTA_TENSOR_OBJECT_BASELINE ?= build/tensor-objects/abi3
 BACKWARD_RELEASE_INPUTS := $(wildcard tools/backward_release/* tools/backward_release/evidence/*) validation/backward-release-package.json tests/qualify_backward_release.py Makefile
@@ -598,9 +640,10 @@ build/unhex: tools/unhex.hepta | build check-compiler
 	"$(HEPTA_COMPILER)" < "$<" > "$$tmp"; test -s "$$tmp"; chmod 755 "$$tmp"; mv "$$tmp" "$@"
 
 test: current-runtime
-	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/current-runtime-review.XXXXXX"); \
-	python3 -I -S -B tests/qualify_current_runtime.py \
+	@set -eu; review=$$(mktemp -d "$${TMPDIR:-/tmp}/heptatorch-current-review.XXXXXX"); \
+	"$(HEPTA_TORCH_PYTHON)" -I -S -B tests/qualify_current_runtime.py \
 	  --build-directory "$(CURDIR)/build/current-runtime" --torch-python "$(HEPTA_TORCH_PYTHON)" \
+	  --generator-tool-build "$(abspath $(HEPTA_ENTROPY_BUILD))" --stack-build "$(abspath $(HEPTA_STACK_BUILD))" \
 	  --output "$$review/results"
 
 test-legacy: legacy

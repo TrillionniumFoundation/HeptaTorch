@@ -6,10 +6,14 @@ import json
 from pathlib import Path
 import sys
 import struct
+import types
+from current_runtime_generator import prove as prove_generator
+from current_runtime_cold import derive as derive_generator_cold
+from current_runtime_fixtures import F32_READER_MANIFEST_SHA
 from current_runtime_torch import FUNCTIONAL_SOURCE_SHA, FUNCTIONAL_SOURCE_BYTES, NUMPY_WARNING_SUFFIX
 
-SOURCE = '82360ce87dae6f9a004ef50be4f991b6f83905a83f4b17ca8d6634827b7bd313'
-IMAGE = '80445a8c433f20314d3bc7b00ebb68f6a70fa200ee2e6aba193cff21aabfbc17'
+SOURCE = 'fac3d413c6c0f6874d224cbea312108ee2c8baa027102d41890d85094a5faa38'
+IMAGE = '5b7aac203d2c913d43781f0da45d40e9bac2037c2bc074ec30f8dd663710a805'
 F32_REFERENCE = 'c86b0a9384c788eaf7765480b022416075a0e3aa38455f48dcbd7f40476cecb0'
 
 
@@ -106,8 +110,8 @@ def current35_live_runner(receipt, directory, inputs):
 
 def qualify_historical(report, suite, repository, build, build_sha, directory, inputs):
     require(suite in ('bool27', 'integral24'), 'exact historical suite name')
-    require(report['schema'] == 'heptatorch.701.original-readers-and-contract-delta.v1'
-            and report['status'] == 'PASS_701_COMPARISONS_WITH_ORIGINAL_FAILURES_RETAINED'
+    require(report['schema'] == 'heptatorch.712.original-readers-and-contract-delta.v1'
+            and report['status'] == 'PASS_712_COMPARISONS_WITH_ORIGINAL_FAILURES_RETAINED'
             and report['suite'] == suite and report['error'] is None,
             'complete historical comparison and explicit contract-delta admission')
     require(report['source_sha256'] == SOURCE and report['native_sha256'] == IMAGE
@@ -156,8 +160,8 @@ def qualify_f32(report, repository, build, build_sha, directory, inputs):
             and report['inputs'][str(build / 'build.json')]['sha256'] == build_sha,
             'new F32 source, image, actual build and frozen reference bindings')
     require(report['native_executed'] is True and report['Torch_executed'] is False
-            and report['inputs_unchanged'] is True and report['build_functions'] == 701
-            and report['cold_units'] == 14, 'new F32 actual execution and input custody')
+            and report['inputs_unchanged'] is True and report['build_functions'] == 712
+            and report['cold_units'] == 15, 'new F32 actual execution and input custody')
     require(report['expected_cases'] == report['passed'] == 17 and report['failed'] == 0
             and [len(report[key]) for key in ('cases', 'axis_controls', 'dtype_controls',
                                             'entry_controls', 'allocation_controls')] == [17, 4, 7, 1, 2],
@@ -198,7 +202,43 @@ def qualify_f32(report, repository, build, build_sha, directory, inputs):
                 and [op['normalized_status'] for op in operations]
                 == ([3, 3, 0] if stage == 'cast-storage' else [0, 3, 0]),
                 'actual cast witness, exact sum failure, and same-command recovery')
-    transition = report['source_transition']
+    generation = report['source_transition']
+    require(generation['schema'] == 'heptatorch.generator712.complete-source-and-reader-proof.v1'
+            and generation['source_sha256'] == SOURCE and generation['native_sha256'] == IMAGE
+            and generation['current_functions'] == 712 and generation['whole_inverse_exact'] is True
+            and generation['parent_source_sha256'] == '82360ce87dae6f9a004ef50be4f991b6f83905a83f4b17ca8d6634827b7bd313'
+            and generation['observer_admission_whole_function_inverse_exact'] is True
+            and generation['original_physical_files_bound_before_inverse'] is True
+            and generation['physical_input_records_modified'] is False
+            and generation['all_original_numerical_comparisons_and_controls_unchanged'] is True
+            and generation['original_failure_reports_modified'] is False
+            and generation['runtime_qualification_transferred'] is False,
+            'new Generator identity must retain every original source, reader and failure')
+    _, actual_generation = prove_generator(inputs.bind(build / 'runtime.hepta', SOURCE),
+        build, Path(repository) / 'tests/sum_f32_review', inputs)
+    require(generation['generator_to_701'] == actual_generation,
+            'repeat complete new source/support/four-argument ABI inverse from physical bytes')
+    require(set(generation['actual_reader_identity']) == {'native.py', 'owner_adapter.py'},
+            'both original reader identity inverses must be present')
+    fixed_reader = json.loads(inputs.bind(Path(repository) / 'tests/sum_f32_review/source-manifest.json',
+        F32_READER_MANIFEST_SHA))
+    require(generation['original_support_sha256'] == fixed_reader['files']['frozen701/native_support.py']['sha256'],
+            'the exact original complete support proof remains physically bound')
+    for name, row in generation['actual_reader_identity'].items():
+        require(row['actual_sha256'] == fixed_reader['files'][name]['sha256']
+                and row['original_sha256'] == fixed_reader['files']['frozen701/' + name]['sha256'],
+                'reader inverse claims match the independently fixed complete source manifest')
+        actual = inputs.bind(Path(repository) / 'tests/sum_f32_review' / name, row['actual_sha256'])
+        original = inputs.bind(Path(repository) / 'tests/sum_f32_review/frozen701' / name, row['original_sha256'])
+        restored = actual.decode()
+        for edit in reversed(row['edits']):
+            require(edit['count'] == 1 and restored.count(edit['after']) == 1,
+                    'repeat exact reader profile edit count')
+            restored = restored.replace(edit['after'], edit['before'], 1)
+        require(restored.encode() == original and row['whole_inverse_exact'] is True
+                and row['comparison_predicate_or_expected_value_edits'] == [],
+                'entire original numerical reader and owner preserved')
+    transition = generation['original701_source_proof']
     require(transition['whole_inverse_exact'] is True and transition['unchanged_functions'] == 696
             and transition['modified_functions'] == ['incoming_describe_cat', 'sd_loop2d', 'sd_vector_inner', 'si_dispatch_sum']
             and transition['added_functions'] == ['sf_sum_f32']
@@ -299,14 +339,40 @@ def qualify_current35(report, build_sha, directory, inputs):
                 preserved_explicit_state_version_differences=283)
 
 
-def qualify_current270(report, build_sha, directory, inputs):
-    require(report['schema'] == 'heptatorch.current701-original270.v1'
-            and report['status'] == 'PASS_CURRENT701_ORIGINAL270' and report['error'] is None,
+def qualify_current270(report, build, build_sha, directory, package, inputs):
+    require(report['schema'] == 'heptatorch.current712-original270.v1'
+            and report['status'] == 'PASS_CURRENT712_ORIGINAL270' and report['error'] is None,
             'all original270 comparisons must actually pass')
     require(report['source_sha256'] == SOURCE and report['native_sha256'] == IMAGE
             and report['build_sha256'] == build_sha
             and report['cold_build_admission']['build_sha256'] == build_sha,
             'same selected source, image and complete actual cold build')
+    binding = report['cold_admission_identity_binding']
+    generator_raw = inputs.bind(package / 'generator_admission.py',
+        '26ff5b4ac13da51ef18912f120094a4545d21907d1f7cd3b7010b1dac74242b4')
+    inputs.bind(Path(__file__).with_name('current_runtime_cold.py'), sha(generator_raw))
+    frozen = inputs.bind(package / 'frozen/admission701.py',
+        '5b7b9a538877c06bce9daff0631657ae3b9ce79bcd7336d42839a01ef9cbcfde')
+    expected_source, expected_inverse = derive_generator_cold(frozen, SOURCE, IMAGE)
+    expected_inverse = json.loads(json.dumps(expected_inverse))
+    require(binding['generator_generation_inverse'] == expected_inverse
+            and binding['source_sha256'] == sha(frozen)
+            and binding['executed_source_sha256'] == sha(expected_source)
+            and binding['functions'] == 712 and binding['units'] == 15
+            and binding['all_admission_function_bodies_unchanged'] is False
+            and binding['builder_toolchain_and_stack_checks_unchanged'] is False
+            and binding['original_check_shape_preserved'] is True
+            and binding['explicit_module_bindings_after'] == {'SOURCE': SOURCE, 'IMAGE': IMAGE},
+            'cold-build contract changes are explicit and limited to the fixed complete inverse')
+    actual_source = inputs.bind(directory / 'executed-admission.py', sha(expected_source))
+    require(actual_source == expected_source, 'actual current270 cold reader bytes equal the complete inverse')
+    module = types.ModuleType('current_runtime_270_generator_cold')
+    module.__file__ = str(directory / 'executed-admission.py')
+    exec(compile(actual_source, module.__file__, 'exec'), module.__dict__)
+    actual_cold = module.admit_build(build, build_sha, build / 'heptatorch', build / 'runtime.hepta')
+    require(actual_cold == report['cold_build_admission']
+            == json.loads(inputs.bind(directory / 'cold-build-admission.json')),
+            'repeat the entire actual fifteen-unit/sixteen-process cold admission')
     require(report['native_executed'] is True and report['Torch_executed'] is True
             and report['all_inputs_unchanged'] is True and report['inputs_unchanged']
             and all(ok is True for ok in report['inputs_unchanged'].values()),
