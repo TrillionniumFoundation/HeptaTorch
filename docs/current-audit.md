@@ -15,7 +15,7 @@ workflow runs passed. That original current700 qualification remains distinct
 from every new701 execution described here.
 
 `make` now selects the complete current source; `make test` and the focused
-workflow share seven mandatory groups. The application builder consumes no
+workflow share eight mandatory groups. The application builder consumes no
 parent application ELF or historical overlay chain. The final HIA compiler and
 linker are fixed; their original bootstrap and compiler witnesses remain
 separate toolchain dependencies.
@@ -39,7 +39,7 @@ reports `PASS_NATIVE_BUILD_ONLY`; it cannot grant application qualification.
 
 ## Current same-image acceptance
 
-The required total is481 cases across seven groups. Their complete original
+The required total is513 cases across eight groups. Their complete original
 reference/comparison contracts and separate control denominators remain intact.
 Actual completion and original report hashes are recorded in
 [the execution index](../validation/current-runtime701/evidence.json); a group
@@ -54,6 +54,7 @@ still in progress is not admitted as PASS.
 | Bool/I64-to-F32 Sum17 | 17 | Exact original cast witnesses/results,17 cases, four axis controls, seven dtype controls, ten entry checks and two actual allocation failures |
 | Original live35 | 35 | 6,344 frames,2,590,274 values, eleven provenance checks and independent4/18 copied controls |
 | Original live270 | 270 | All ten original groups,270 actual processes,284 frames,13,076 values and fourteen true refusals |
+| Original live32 | 32 | 2,132 frames,17,455 exact binary32 words,1,137,600 Generator-state bytes,32 native children and all original structural/partial-error/EOF checks |
 
 Old current700 controls are not rewritten. Bool27 retains two original FAIL
 results at dtype indices2/3. Integral24 retains four original FAIL results at
@@ -223,13 +224,19 @@ and image: 32 native children, 2,132 frames, 17,455 exact binary32 words,
 gradient-presence comparisons. All eleven live-Torch provenance checks,
 original comparisons, full structural owner observations and child EOF checks
 passed. Its complete evidence is recorded separately in the execution index.
-It is not included in the seven-group481 default gate yet, and its repeated
-historical CI consumers still need migration.
+It is now the eighth mandatory group. Thirteen old Native steps and the
+corresponding step in three observer profiles are retired. The other steps,
+independent qualifiers and required build dependencies remain byte-identical.
 
 Whole historical retirement remains blocked by real consumers: the fixed
-compiler bootstrap packages,461 old protocol fixtures, the live32 CI entries,
+compiler bootstrap packages,461 old protocol fixtures,
 Generator24, source-bound dtype/optimizer/resource suites, and the F64 oracle's
-whole-source proof against `src/heptatorch.hepta`. The original76 reader still
-uses its fixed historical reference archive. These consumers must be migrated
+whole-source proof against `src/heptatorch.hepta`. The original76 gate now uses
+the eight original reference members in the 131,848-byte compact fixture
+([manifest](../validation/current-runtime76-reference/manifest.json)). Its
+12,561,956-byte complete historical packet remains recoverable through the
+[archive index](../validation/view-reshape-r4-native76/archive-location.json);
+the sealed member was read in full and matched the original bytes before
+removing the Git working-tree copy. Other remaining consumers must be migrated
 and executed on the replacement image before their source paths are removed.
 No whole gate was disabled and no schema denominator was reduced.

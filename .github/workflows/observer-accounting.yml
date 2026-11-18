@@ -87,19 +87,6 @@ jobs:
           PYTORCH_INSTALL
 
 
-      - name: Execute the unchanged live joint oracle with 32 cases
-        run: |
-          echo '554671168c7a4a408dc1e1df89a19db15c3efcefcf4ae1a300af1b6dcae40160  tests/pytorch_tensor_rng_backward_oracle.py' | sha256sum -c -
-          status=0
-          python3 tests/pytorch_tensor_rng_backward_oracle.py \
-            --native 'build/observer-native/${{ matrix.image }}' \
-            --source build/observer-native/runtime.hepta \
-            --expected-native-sha256 '${{ matrix.native_sha }}' \
-            --expected-source-sha256 '${{ matrix.source_sha }}' \
-            --repo . --output build/observer-live32.json > build/observer-proof/live32.stdout || status=$?
-          python3 -I -S -B tools/emit_ci_report.py build/observer-live32.json
-          exit "$status"
-
       - name: Execute all 35 unchanged cases with exact private-node accounting
         run: |
           status=0
@@ -128,7 +115,7 @@ jobs:
         run: |
           python3 -I -S -B tests/private_node_accounting/collect_private_node_journals.py \
             --build build --journal-root build/observer-proof --wire-root build/observer-wire \
-            --reports build/observer-restored.json build/observer-live32.json \
+            --reports build/observer-restored.json \
               build/observer-frozen35.json build/observer-frozen35-original.json build/pytorch-install.json \
             --job-status '${{ job.status }}'
 

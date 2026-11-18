@@ -329,7 +329,7 @@ jobs:
           PYTORCH_INSTALL
 
 
-      - name: Qualify all seven suites on the same current image
+      - name: Qualify all eight suites on the same current image
         id: current_qualification
         if: ${{ !cancelled() && steps.current_build.outcome == 'success' }}
         run: |
@@ -365,9 +365,9 @@ jobs:
               binding = {'path': 'review/qualification.json', 'bytes': len(raw),
                          'sha256': hashlib.sha256(raw).hexdigest()}
               if qualification['status'] != 'PASS_CURRENT_RUNTIME_FOCUSED':
-                  failures.append('the mandatory seven-suite qualifier did not pass')
-              if qualification['required_cases_total'] != 481 or qualification['required_suites'] != [
-                      'bool27', 'original76', 'integral24', 'sum_f32_17', 'current35', 'base270', 'sum32']:
+                  failures.append('the mandatory eight-suite qualifier did not pass')
+              if qualification['required_cases_total'] != 513 or qualification['required_suites'] != [
+                      'bool27', 'original76', 'integral24', 'sum_f32_17', 'current35', 'base270', 'live32', 'sum32']:
                   failures.append('the mandatory case denominator or suite order changed')
               if qualification['all_suites_executed'] is not True or qualification['all_inputs_unchanged'] is not True:
                   failures.append('actual execution or input custody incomplete')
@@ -383,16 +383,17 @@ jobs:
           print(json.dumps(summary, indent=2, sort_keys=True))
           with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a') as stream:
               stream.write('## Current HIA runtime\n\n' + summary['status'] + '\n\n')
-              stream.write('The common local/CI gate requires one complete cold build and all 481 comparisons: '
+              stream.write('The common local/CI gate requires one complete cold build and all 513 comparisons: '
                            'Bool27, view/scalar76, Integral24, explicit-F32 Sum17, lifecycle35, '
-                           'base/NN270, and original F32 Sum32. Every suite must execute and pass.\n\n')
+                           'base/NN270, original Tensor/RNG/backward32, and original F32 Sum32. '
+                           'Every suite must execute and pass.\n\n')
               stream.write('Current controls include seven dtype cases, four axis errors, ten entry checks, '
                            'both F32 allocation stages, the original Bool allocation case, '
                            'four positive and eighteen negative owner controls, and fourteen real '
                            'same-process prefix/refusal pairs. Original Bool and Integral reports '
                            'retain their exact expected-refusal FAIL results; their explicit changes '
                            'are admitted separately and the current dtype contract is independently tested.\n\n')
-              stream.write('Only lifecycle35 and base/NN270 run the fixed live Torch reference. '
+              stream.write('Lifecycle35, base/NN270 and original Tensor/RNG/backward32 run the fixed live Torch reference. '
                            'The other five suites consume fixed observed reference bytes.\n\n')
               stream.write('Full PyTorch rewrite: HOLD. This finite gate does not assert project closure.\n')
               if qualification:
@@ -441,9 +442,10 @@ jobs:
                                'tests', 'compatibility', 'continuation/20261117/evidence',
                                'continuation/20261117/source-packages/sum-bool-source-01/hia',
                                'validation/sum-bool27-reference', 'validation/current-runtime-references',
-                               'validation/view-reshape-r4-native76/complete.tar.xz',
+                               'validation/current-runtime76-reference',
                                'validation/current-runtime-baseline', 'validation/sum-f32-reference17',
-                               'validation/current-runtime35-source', 'validation/current-runtime270-source'):
+                               'validation/current-runtime35-source', 'validation/current-runtime270-source',
+                               'validation/current-runtime32-source'):
                   path = Path(relative)
                   if path.exists():
                       bundle.add(path, arcname='repository/' + relative)

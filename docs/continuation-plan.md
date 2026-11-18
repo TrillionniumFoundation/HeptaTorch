@@ -29,10 +29,11 @@ The canonical application is the701-function `sum-f32-cat-empty-01` profile:
 `80445a8c433f20314d3bc7b00ebb68f6a70fa200ee2e6aba193cff21aabfbc17`.
 
 `make` directly cold-builds this source with the fixed final ABI3 HIA compiler
-and session linker. `make test` and `current-runtime.yml` share seven mandatory
-same-image groups totaling481 cases: Bool27, view/scalar76, Integral24, F32 Sum32,
-Bool/I64-to-F32 Sum17, original live35 and original live270. Select the pinned
-Torch environment with `HEPTA_TORCH_PYTHON`; the two live groups require actual
+and session linker. `make test` and `current-runtime.yml` share eight mandatory
+same-image groups totaling513 cases: Bool27, view/scalar76, Integral24,
+Bool/I64-to-F32 Sum17, original live35, original live270, original live32 and
+F32 Sum32. Select the pinned
+Torch environment with `HEPTA_TORCH_PYTHON`; the three live groups require actual
 independent Torch execution and eleven provenance checks. Other groups retain
 their exact original frozen observations. The focused CI budget is180 minutes.
 
@@ -54,13 +55,13 @@ they do not transfer runtime qualification.
 Continue migrating real remaining historical gates onto the canonical image.
 The unchanged original live32 has now independently passed on this image:
 32 trajectories, 2,132 frames, 17,455 exact binary32 words and 1,137,600
-serialized Generator-state bytes. Integrate that source-bound execution into
-the default gate before retiring its repeated historical CI consumers.
+serialized Generator-state bytes. Its default mandatory gate replaces the
+thirteen old Native steps and three old observer-profile executions. Other
+independent gates and their build prerequisites remain required.
 Generator24 still needs actual native raw-output/epoch/allocation contracts
 and a real entropy entry; it cannot be replaced by synthesized host outputs.
 Its independent native/entry/resource tests and optimizer companions remain.
-The
-old270 adapter covers its full original numeric/exception cases but does not
+The old270 adapter covers its full original numeric/exception cases but does not
 replace461 raw legacy-protocol fixtures or full lifetime/resource assertions.
 The F64 oracle still binds the old143 complete source as a numerical-origin
 witness; migrate that exact proof before deleting `src/heptatorch.hepta`.

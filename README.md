@@ -21,11 +21,11 @@ make test HEPTA_CURRENT_COMPILER=/absolute/path/to/stack-module-compiler \
 
 验收使用固定 CPython 3.12、Linux x86-64 和官方 CPU PyTorch 2.15.0 wheel，核对 11 项来源条件及真实安装回执 `build/pytorch-install.json`。使用 [锁文件](compatibility/pytorch-oracle-lock.json)和 [CI 安装步骤](.github/workflows/current-runtime.yml)准备参考环境，再通过 `HEPTA_TORCH_PYTHON` 明确选择它；`make test` 不会隐式联网安装依赖。
 
-HIA 应用运行时不依赖 Python、PyTorch、NumPy、libm 或 libc。Python 用于构建组织、独立观察与验收；两组完整 live-reference 测试使用固定 PyTorch 计算独立期望。编译器的初始 bootstrap 另有明确的宿主依赖，见 [工具链构建](docs/build.md)。
+HIA 应用运行时不依赖 Python、PyTorch、NumPy、libm 或 libc。Python 用于构建组织、独立观察与验收；三组完整 live-reference 测试使用固定 PyTorch 计算独立期望。编译器的初始 bootstrap 另有明确的宿主依赖，见 [工具链构建](docs/build.md)。
 
-## 同一映像上的七组必需检查
+## 同一映像上的八组必需检查
 
-`make test` 与 [Current runtime CI](.github/workflows/current-runtime.yml)调用同一个 coordinator。每组均绑定当前源码、实际 ELF 和本次冷构建报告。总门禁必须执行以下 **481 个案例**，并完成各自额外的错误、生命周期和资源控制；它们不是 481 个完整上游 schema。
+`make test` 与 [Current runtime CI](.github/workflows/current-runtime.yml)调用同一个 coordinator。每组均绑定当前源码、实际 ELF 和本次冷构建报告。总门禁必须执行以下 **513 个案例**，并完成各自额外的错误、生命周期和资源控制；它们不是 513 个完整上游 schema。
 
 | 组 | 案例数 | 保留的主要检查 |
 | --- | ---: | --- |
@@ -36,6 +36,7 @@ HIA 应用运行时不依赖 Python、PyTorch、NumPy、libm 或 libc。Python �
 | Bool/I64 `sum(dtype=float32)` | 17 | 先逐元素转 F32 再求和，精确参考字节、私有转换对象回收、两阶段 OOM |
 | 原跨帧与对象生命周期 | 35 | 6,344 帧、2,590,274 个数值；11 项 provenance 与原独立正／负控制 |
 | 原基础算子与训练 | 270 | 广播、NN、优化器、长训练、拼接、索引及 14 个原拒绝案例；270 个原生进程、284 帧 |
+| 原 Tensor／RNG／反向传播 | 32 | 2,132 帧、17,455 个精确 binary32 字、1,137,600 个状态字节；完整 owner、4 个真实部分失败和 1 个拒绝 |
 
 缺失、跳过、仅准备、失败、超时、不完整 EOF 或输入变化都不能生成总 PASS。旧控制中已经被明确扩展功能取代的“应拒绝”期望仍保留原 FAIL，由当前独立控制验证新增契约。实际运行状态与完整报告身份见 [执行清单](validation/current-runtime701/evidence.json)。
 
@@ -56,13 +57,13 @@ HIA 应用运行时不依赖 Python、PyTorch、NumPy、libm 或 libc。Python �
 
 ## 仓库整理与继续工作
 
-默认目录保留当前完整源码及其当前分区。旧的 12 个 `sum_bool_*` 分区由新的 `cat_f32_*` 分区替代；仍需作为独立参考的旧比较器与原聚合源码集中为一次 hash／mode 绑定的 fixture。README 不再逐批重复旧默认实现和过程记录。
+默认目录保留当前完整源码及其当前分区。旧的 12 个 `sum_bool_*` 分区由新的 `cat_f32_*` 分区替代；仍需作为独立参考的旧比较器与原聚合源码集中为一次 hash／mode 绑定的 fixture。README 不再逐批重复旧默认实现和过程记录。原 76 案例只保留运行所需的 8 份固定参考文件，压缩包从 12,561,956 字节减为 131,848 字节；完整历史归档的原字节已核对并保留恢复索引。
 
-尚有实际依赖的旧文件必须先迁移：编译器 bootstrap 与固定来源证明、旧协议的 461 对夹具、原 live32／Generator24 的仓库入口、独立 dtype／优化器／资源门禁，以及 F64 验证器对旧 143 函数源的绑定。原 live32 已在同一新映像上独立通过 32 条轨迹、2,132 帧和 17,455 个精确 binary32 字比较；这批新增执行尚未加入上述七组默认门禁，其旧 CI 调用仍待迁移。不能通过删掉测试或改写失败记录完成退役。[继续执行计划](docs/continuation-plan.md)与 [当前审计](docs/current-audit.md)记录这些依赖。
+尚有实际依赖的旧文件必须先迁移：编译器 bootstrap 与固定来源证明、旧协议的 461 对夹具、Generator24 的仓库入口、独立 dtype／优化器／资源门禁，以及 F64 验证器对旧 143 函数源的绑定。原 live32 已纳入八组默认门禁，旧 Native 工作流的 13 次和观察器矩阵的 3 次重复调用已退役；它们各自其他独立检查与构建依赖保留。不能通过删掉测试或改写失败记录完成退役。[继续执行计划](docs/continuation-plan.md)与 [当前审计](docs/current-audit.md)记录这些依赖。
 
 | 文档 | 内容 |
 | --- | --- |
-| [当前构建](docs/current-runtime.md) | 唯一默认源码、工具身份、冷编译与七组验收 |
+| [当前构建](docs/current-runtime.md) | 唯一默认源码、工具身份、冷编译与八组验收 |
 | [当前审计](docs/current-audit.md) | 实际证据、17 项未闭合门禁、清理边界 |
 | [继续执行](docs/continuation-plan.md) | 当前身份、工作顺序与原始证据规则 |
 | [上游审计](docs/upstream-audit.md) | 固定目标、schema 分母与覆盖约束 |

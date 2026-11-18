@@ -134,15 +134,18 @@ environment; the local gate does not install packages or access the network.
 The interpreter's original path is used to preserve virtual-environment
 selection; its resolved executable bytes are also bound as an input.
 
-The same coordinator runs seven mandatory groups against one complete source,
+The same coordinator runs eight mandatory groups against one complete source,
 image and actual cold-build receipt: Bool27, original view/scalar76, Integral24,
-F32 Sum32, Bool/I64-to-F32 Sum17, original live35, and original live270. Their
-case total is 481. Extra event, frame, numeric, lifetime, RNG and control counts
+Bool/I64-to-F32 Sum17, original live35, original live270, original live32, and
+F32 Sum32. Their case total is 513. Extra event, frame, numeric, lifetime, RNG and control counts
 retain their own denominators.
 
 The five recorded-reference groups (Bool27, original76, Integral24, Sum32 and
-Sum17) use exact frozen independent reference observations.
-The original35 and original270 run the fixed real Torch oracle and all eleven
+Sum17) use exact frozen independent reference observations. The original76
+fixture contains only its eight original reference/probe files, with every
+byte and original member mode retained. Its compact archive is 131,848 bytes;
+the separate historical complete packet has a verified recovery index.
+The original35, original270 and original32 run the fixed real Torch oracle and all eleven
 provenance checks. All original numerical inputs, expectations, tolerances,
 training loops, exception phases and comparison bodies remain fixed apart from
 the documented complete, reversible transport/identity adaptations.
@@ -155,6 +158,20 @@ an old-format error record. Qualification requires 270 new native processes,
 284 frames, the exact actual executable, every exit0, empty native stderr and
 both actual EOFs. The original35 additionally executes its strict report checker
 and the unchanged four positive/eighteen negative copied-observation controls.
+
+The original live32 keeps its whole original main, serializer, comparison and
+close logic. It requires 32 real native children, 2,132 frames, 17,455 exact
+binary32 words, 1,137,600 serialized Generator-state bytes, 238 absolute-Version
+comparisons and 166 gradient-presence comparisons. The final admission rereads
+every request/response and all 4,264 complete owner snapshots, runs the unchanged
+84-word structural checker, and requires every original stream digest and
+normal exit with both EOFs. All four original partial-backward prefixes and
+the original uniform-interval refusal remain real native responses.
+
+This current-image gate replaces thirteen duplicate old live32 steps in the
+Native workflow and the corresponding step in three old observer profiles.
+Their other build, lifecycle, numerical and resource gates remain. The slow
+Sum32 group runs last; all eight per-group budgets total 155 minutes.
 
 The old Bool27 dtype controls still report FAIL at indices2/3 after F32 output
 is implemented. The old Integral24 controls still report FAIL at indices0/1/2/3

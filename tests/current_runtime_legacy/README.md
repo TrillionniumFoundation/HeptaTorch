@@ -8,8 +8,11 @@ owner checks, and EOF assertions remain unchanged.
 
 `identity-proof.json` records every identity-only edit. The coordinator checks
 its complete inverse against the original reader files preserved with SHA256,
-size, and mode in `validation/current-runtime-baseline`. The original view76
-reference archive and shared Sum32 reference package remain byte-pinned.
+size, and mode in `validation/current-runtime-baseline`. The compact original view76
+eight-reference fixture and shared Sum32 reference package remain byte-pinned.
+The view76 fixture retains the exact original member bytes and archived
+modes; its full historical packet can be restored using
+`validation/view-reshape-r4-native76/archive-location.json`.
 
 Use `make test` or `tests/qualify_current_runtime.py` for the complete current
 gate. The low-level scripts accept `--build-directory`, the actual
