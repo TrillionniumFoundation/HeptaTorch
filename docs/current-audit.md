@@ -6,9 +6,15 @@
 
 **全量 PyTorch 重写仍为 HOLD。** 固定目标及分母来自[上游锁文件](../compatibility/upstream-lock.json)：PyTorch 2.15.0、2,590 条原生声明、688 条导数声明。完整 schema 资格为 0；[17 项系统门禁](../compatibility/full-acceptance.json)保持 10 项 IN_PROGRESS、7 项 OPEN、0 项 CLOSED。受限算子、案例或函数数量均不能换算为全量完成率。
 
-本轮融合源码的冷构建已实际通过，共享 admission 已检查原始输入、完整分区、所有新对象、link request、ELF、栈预算及编译／链接进程的退出和双流 EOF。首轮 9 组、660 个案例的执行实际返回 FAIL：8 组通过，`current35` 的后续检查因跨 Python 版本的 AST 身份差异被拒绝。原失败与只读诊断保留，未被重新标成成功。
+当前 cat 修复源码的完整冷构建已实际通过，共享 admission 检查原始输入、完整分区、全部新对象、link request、ELF、栈预算及编译／链接进程的退出和双流 EOF。原始四项 cat/stack 回归与十项独立 Torch 元数据对照均已在此新映像实际通过。新十三组、697 例的完整统一运行仍待完成；前一映像的成功不转移到这里。
 
-**第二次完整执行已通过全部 10 组、667 个案例和附加控制。** 所有组均在固定 CPython 3.12 下重新执行，使用相同 HIA 源、ELF 和实际冷构建回执；全部 1,699 个仓库输入在运行前后逐字节、逐模式复核不变。外层实际 exit 0、stdout 6,464 字节、stderr 0 字节，双流 EOF 完整，无超时或强制清理。完整资格报告 SHA 为 `aa168047fc9a0392707f3c1c08b8ab4cb88c2bc16e1732c4c37c2a3994cc14c0`，证据索引见[当前验证包](../validation/current-runtime-20261118/manifest.json)。
+已发布前版的 [Current runtime CI 44294832902](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/44294832902) 已实际通过全部十一组、683 例；[Native HIA CI 44294832918](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/44294832918) 的 116 个步骤成功完成。PR40 原头 `82ac3b65f5d91fcc28122cf1760c3995bec77c44` 的十项适用检查全部成功，2026-11-18 12:41:37 UTC 已合并为 main `584b95d7f6615f27e95618bc61215df5633c4ca4`。实际 CI checkout `dda27a2ee4554085a326a90dae3248e8fff700e2` 与合并提交的 tree 同为 `cdb4879b58e1d88456ef0ad173ac628f8124b6c9`。原 683 资格报告 SHA 为 `343dce42de965d04c61af6429ec7d7844da4a449aae59666403071635f4bc7ab`；其原始构建与测试均绑定前版源码 `0c1c0dd3acf0285a887a2766c1308dfd992acf3fe51849dcd98749bb64a00f3b`。
+
+该原始 CI archive 已逐字检查 60,077 项文件清单，再分别重放 600 项原纯读回 API 和 83 项明确路径映射后的 API。原绝对 CI 路径未完整重建；补充的 Python 实体与两个 Git 文件单列，未冒充原 archive 成员。这个证据边界不改变原 CI 的实际结果，也不授予新 cat 映像资格。
+
+更早的首轮 9 组、660 例实际返回 FAIL：8 组通过，`current35` 的后续检查因跨 Python 版本的 AST 身份差异被拒绝。原失败与只读诊断保留，未被重新标成成功。
+
+更早的第二次完整执行通过全部 10 组、667 个案例和附加控制。所有组均在固定 CPython 3.12 下重新执行，使用相同 HIA 源、ELF 和实际冷构建回执；全部 1,699 个仓库输入在运行前后逐字节、逐模式复核不变。外层实际 exit 0、stdout 6,464 字节、stderr 0 字节，双流 EOF 完整，无超时或强制清理。完整资格报告 SHA 为 `aa168047fc9a0392707f3c1c08b8ab4cb88c2bc16e1732c4c37c2a3994cc14c0`，其[原验证包](../validation/current-runtime-20261118/manifest.json)保持原字节与范围。
 
 ## GitHub 起点与并行变更
 
@@ -44,13 +50,17 @@ PR38 的 `sf_sum_f32` 逐元素把 Bool/I64 转为 F32，再执行 F32 归约；
 
 共享求和内核的修正来自固定参考 wheel 的 SumKernel 注册／累加次序证据；按该路径使用 8 个 F32 lane。仓库说明中的 AVX512 硬件能力与 AVX2 内核次序是不同事实，不能把来源说明当作本次硬件观测。最终数值资格仍取决于当前映像的独立实际比较。
 
-空 `cat` 修正只改变被跳过、rank 与输出不一致的一维空父输入的 incoming mode：从 1 改为 2，成功返回值仍为 1。它允许自有空梯度缓存的正确采用和后续重复边累加，修复 Storage/Version 与所有权路径。原 `cat-skipped-only-grad` 的失败报告仍保留；不会靠修改空张量数值期待来消除该失败。
+PR38 的空 `cat` 修改把 rank 与输出不一致的空父输入改为 owned incoming mode，保留成功返回值 1。本次继续审计发现，这还没有完整执行固定 Torch 对 rank-one 空输入使用的 zeros 构造语义：实际十项对照中，七项出现梯度 Version 差异，其余数值、形状、步长、offset 与梯度存在性相同。原版本差异报告 SHA `44ece48a56f75ea99f353594ef684bede750d2cb5c835fbd68a002040fb86e68` 保持 FAIL。
 
-## 当前十一组 683 个案例的必需门禁
+当前修复在 `incoming_describe_cat` 的 cat 分支内，针对 rank 1 且 numel 0 的输入选择已有零工厂，执行其原有两次 checked Version increment；没有直接补写版本计数。其它 rank 保留原 narrow/alias 路径，stack 分支保持原字节。实际 62,207 次重复输入的梯度 Version 为 62,208；独立的 rank-two 空布局继续保留第二个梯度的非零 storage offset。新十项报告 `025237173c936d4ed13c76cd27a7c4752b701d7fb9fb936aecf4157d807e5bab` 全部匹配、差异为零。
 
-[`tests/qualify_current_runtime.py`](../tests/qualify_current_runtime.py)是本地和 [CI](../.github/workflows/current-runtime.yml)共用的当前入口。现要求全部十一组、683 例在同一源、ELF 和 build receipt 上实际执行。原十组统一 667 已实际通过，迁移后的 140／7 和新增 16 也分别通过；完整 683 尚待本次发布后的 CI 重新执行。组名和原始分母如下，额外控制不合并为新的 schema 数量。
+另两项运行时修正补上 `tensor_join` 的分配失败检查，并移除空输出轴的无效前缀扫描与 `concat_copy` 普通元数据读取中的 parent-mask 查找。源证明限定三个完整函数变更，其余 697 个核心函数完整不变；先精确逆回前版 700 源，再执行原逻辑归约、PR38、AVX2 和基线的全部来源证明。旧崩溃、两次超时、旧 overflow 拒绝与原比较期望均保留；扩大本实现 arena 的成功控制不冒充 PyTorch 的容量契约。
 
-| 组 | 案例 | 额外分母或关键约束 | 已有实际记录 |
+## 当前十三组 697 个案例的必需门禁
+
+[`tests/qualify_current_runtime.py`](../tests/qualify_current_runtime.py)是本地和 [CI](../.github/workflows/current-runtime.yml)共用的当前入口。现要求全部十三组、697 例在同一源、ELF 和 build receipt 上实际执行。旧十一组 683 已在前版 CI 统一通过，本次另增加 cat4 与 metadata10。下面保留各自实际执行的归属；新映像的完整 697 尚待运行，额外控制不合并为新的 schema 数量。
+
+| 组 | 案例 | 额外分母或关键约束 | 已有实际记录归属 |
 | --- | ---: | --- | --- |
 | `bool27` | 27 | 原 owner/RNG、dtype／入口观察、真实分配失败与恢复 | PASS |
 | `original76` | 76 | 原 26 + 32 + 14 + 4；82,503 帧、481,580 断言 | PASS |
@@ -62,9 +72,11 @@ PR38 的 `sf_sum_f32` 逐元素把 Bool/I64 转为 F32，再执行 F32 归约；
 | `live32` | 32 | 2,132 帧、17,455 精确 F32 字、1,137,600 RNG 状态字节 | PASS |
 | `logical147` | 147 | 49 配方 × 3 操作；18 包／回滚控制和 2 分配／恢复控制 | PASS |
 | `resource7` | 7 | 原 R4 3 + backward 1 + R3 3；378 帧、1,060 检查、3 次实际限额恢复 | PASS |
-| `asstrided16` | 16 | 原 copy4／reduction4／lanes2／branches6；1,920 帧、10,272 检查、完整 owner／RNG、16 个退出／32 次 EOF | 独立 source02 运行 PASS |
+| `asstrided16` | 16 | 原 copy4／reduction4／lanes2／branches6；1,920 帧、10,272 检查、完整 owner／RNG、16 个退出／32 次 EOF | 前版统一 683 PASS |
+| `cat4` | 4 | 三份原始成功字节与一份扩容控制；原始夹具、完整 owner、真实退出和双 EOF | 新映像独立 PASS |
+| `metadata10` | 10 | 固定 Torch 形状、stride、offset、Version、dtype、原始数据和 grad presence；逐帧及完整 owner | 新映像独立 PASS |
 
-表中前十组的 PASS 来自同一次原始 667 运行；最后一组来自独立的 16 例运行。`current35`、`base270`、`live32` 使用固定 live Torch；其余八组消费独立产生的固定参考字节。固定环境必须满足 11 项来源条件；原源码、输入、实际回执和全部进程 EOF 都要重新绑定。仅准备、跳过、超时、输入变化或任何未经解释的失败均不能得到总 PASS。
+表中前十一组的 PASS 均已有前版同一次完整 683 CI 记录；后两组来自本次新映像的独立执行，不能拼接成完整 697 PASS。`current35`、`base270`、`live32` 使用固定 live Torch；八个原参考组、cat4 与 metadata10 分别消费各自固定观察或原协议夹具。固定环境必须满足 11 项来源条件；原源码、输入、实际回执和全部进程 EOF 都要重新绑定。仅准备、跳过、超时、输入变化或任何未经解释的失败均不能得到总 PASS。
 
 旧拒绝控制的合法契约扩展采用双层记录：原比较器继续产生原 FAIL，当前资格器只允许明确列出的扩展差异，并由独立新控制验证真实结果。不会修改原始期望、改写原报告或把历史失败直接重分类。
 
@@ -126,9 +138,9 @@ R4 的旧 dispatcher 完整保留于命名后的函数，新前导分支对原�
 | `to_as_strided_direct_copy` | 3,133 |
 | `to_view_root_valid` | 3,870 |
 
-相对 PR38，当前源包含 689 个原样保留的完整函数体、5 个修改函数、6 个新增共享／逻辑归约函数和上述 7 个删除函数。PR38 的 `incoming_describe_cat`、`sd_loop2d`、`sd_vector_inner`、`sf_sum_f32` 四个修正函数体完整保留。最终 700 个核心函数全部在实际入口调用闭包内。该静态证明界定删除范围，不代替运行回归。
+PR40 阶段相对 PR38 保留 689 个完整函数体、修改 5 个、新增 6 个共享／逻辑归约函数并删除上述 7 个。那一阶段完整保留的 `incoming_describe_cat` 在本次继续修正；其余 SumKernel 与 F32 cast 修正保持。当前 cat 变更通过三个完整函数的逆转换精确重建 PR40 源，保留原删除证明与真实入口调用闭包。静态来源证明不代替新映像的运行回归。
 
-README 和能力清单已移除旧 143 函数默认配置及多代 profile 的冗长过程元数据，只描述当前源、边界与十一组要求。旧元数据可从 Git 历史追溯，删除清单和字节差异单独记录。已移除未使用的旧 current35 源包、冗余 profile／fixture-relocation 元数据和未使用恢复入口。
+README 和能力清单已移除旧 143 函数默认配置及多代 profile 的冗长过程元数据，只描述当前源、边界与十三组要求。旧元数据可从 Git 历史追溯，删除清单和字节差异单独记录。已移除未使用的旧 current35 源包、冗余 profile／fixture-relocation 元数据和未使用恢复入口。
 
 原 76 参考 archive 从 12,561,956 字节压缩为 131,848 字节，恰好保留 8 个实际必需文件、33,559,322 字节原内容及原 0600 模式。删除当前树中的旧完整 archive 前，逐成员与旧包直接比较，并保留[完整旧证据的固定 Git／封存恢复索引](../validation/view-reshape-r4-native76/archive-location.json)。PR39 的 16 次重复 CI 调用、本轮 R3 重复调用及原 AsStrided16 调用合计 18 次已退休。R4 的另外两次资源调用仍由 `tools/seal_r4_ci_evidence.py` 消费；其封包依赖迁移前保留，不能只删调用导致原证据链缺项。
 
@@ -160,4 +172,4 @@ README 和能力清单已移除旧 143 函数默认配置及多代 profile 的�
 | `platform-packaging` | IN_PROGRESS | 其余平台／架构、安装、扩展、profiling 接口和可复现工具链 |
 | `final-integration` | OPEN | 全应用／上游验收、资源／性能／错误审查和旧路径最终退役 |
 
-`make acceptance-status` 只验证账本一致性。`make full-acceptance` 在上述目标未闭合时保持失败。十一组 683 即使全部通过，也只能授予当前受限配置的统一运行资格；全量完成标志仍保持 false。
+`make acceptance-status` 只验证账本一致性。`make full-acceptance` 在上述目标未闭合时保持失败。十三组 697 即使全部通过，也只能授予当前受限配置的统一运行资格；全量完成标志仍保持 false。

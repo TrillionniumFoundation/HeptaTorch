@@ -329,7 +329,7 @@ jobs:
           PYTORCH_INSTALL
 
 
-      - name: Qualify all eleven suites on the same current image
+      - name: Qualify all thirteen suites on the same current image
         id: current_qualification
         if: ${{ !cancelled() && steps.current_build.outcome == 'success' }}
         run: |
@@ -365,11 +365,11 @@ jobs:
               binding = {'path': 'review/qualification.json', 'bytes': len(raw),
                          'sha256': hashlib.sha256(raw).hexdigest()}
               if qualification['status'] != 'PASS_CURRENT_RUNTIME_FOCUSED':
-                  failures.append('the mandatory eleven-suite qualifier did not pass')
-              if (qualification['required_cases_total'] != 683
-                      or qualification['executed_cases_total'] != 683
+                  failures.append('the mandatory thirteen-suite qualifier did not pass')
+              if (qualification['required_cases_total'] != 697
+                      or qualification['executed_cases_total'] != 697
                       or qualification['required_suites'] != [
-                      'bool27', 'original76', 'integral24', 'sum_f32_17', 'current35', 'base270', 'sum32', 'live32', 'logical147', 'resource7', 'asstrided16']):
+                      'bool27', 'original76', 'integral24', 'sum_f32_17', 'current35', 'base270', 'sum32', 'live32', 'logical147', 'resource7', 'asstrided16', 'cat4', 'metadata10']):
                   failures.append('the mandatory case denominator or suite order changed')
               if qualification['all_suites_executed'] is not True or qualification['all_inputs_unchanged'] is not True:
                   failures.append('actual execution or input custody incomplete')
@@ -385,9 +385,9 @@ jobs:
           print(json.dumps(summary, indent=2, sort_keys=True))
           with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a') as stream:
               stream.write('## Current HIA runtime\n\n' + summary['status'] + '\n\n')
-              stream.write('The common local/CI gate requires one complete cold build and all 683 comparisons: '
+              stream.write('The common local/CI gate requires one complete cold build and all 697 comparisons: '
                            'Bool27, view/scalar76, Integral24, explicit-F32 Sum17, lifecycle35, '
-                           'base/NN270, original F32 Sum32, live Tensor/RNG/backward32, logical147, resource7 and original AsStrided16. '
+                           'base/NN270, original F32 Sum32, live Tensor/RNG/backward32, logical147, resource7, original AsStrided16, Cat4 and cat metadata10. '
                            'Every suite must execute and pass.\n\n')
               stream.write('Current controls include seven dtype cases, four axis errors, ten entry checks, '
                            'both F32 allocation stages, the original Bool allocation case, '
@@ -396,13 +396,18 @@ jobs:
                            'retain their exact expected-refusal FAIL results; their explicit changes '
                            'are admitted separately and the current dtype contract is independently tested.\n\n')
               stream.write('Lifecycle35, base/NN270 and live32 run the fixed live Torch reference. '
-                           'The other eight suites consume fixed observed reference bytes. '
+                           'Nine suites consume fixed observed reference bytes; Cat4 consumes four fixed legacy packet fixtures. '
                            'Logical147 also requires eighteen packet controls and two actual '
                            'allocation/rollback/retry controls. Resource7 retains all original '
                            'R4 resource3, backward-private-cache1 and R3 preserve3 recipes, '
                            'including three actual allocation-limit restorations. AsStrided16 preserves all four original '
                            'suites and checks 1,920 observed frames, sixteen native process exits '
-                           'and both output EOFs for every process.\n\n')
+                           'and both output EOFs for every process. Cat4 independently rereads three complete original '
+                           'successful response byte streams and one expanded-capacity control, with four native exits, '
+                           'eight physical owner observations and both EOFs for every process. Its old overflow '
+                           'refusal fixture remains an unqualified historical failure reference. Cat metadata10 retains the exact '
+                           'fixed Torch recipes and unshifted gradient versions; its passive original-method observations '
+                           'bind full physical owner bytes, all original command frames, ten actual exits and twenty native EOFs.\n\n')
               stream.write('Full PyTorch rewrite: HOLD. This finite gate does not assert project closure.\n')
               if qualification:
                   for suite in qualification.get('suites', []):
@@ -423,10 +428,56 @@ jobs:
           import os
           import stat
           import tarfile
+          import sys
 
           temporary = Path(os.environ['RUNNER_TEMP'])
           output = Path(os.environ['CURRENT_OUTPUT'])
           output.mkdir(parents=True, exist_ok=True)
+          # Preserve this CI interpreter separately from the historical Torch
+          # reference package. Original report paths are never rewritten.
+          source = Path(sys.executable).resolve(strict=True)
+          assert source.is_file() and not source.is_symlink(), source
+          before = source.stat()
+          assert stat.S_ISREG(before.st_mode), source
+          raw = source.read_bytes()
+          after = source.stat()
+          identity = lambda row: (row.st_dev, row.st_ino, row.st_mode, row.st_size,
+                                  row.st_mtime_ns, row.st_ctime_ns)
+          assert identity(before) == identity(after), 'CI interpreter changed while copying'
+          digest = hashlib.sha256(raw).hexdigest()
+          mode = stat.S_IMODE(after.st_mode)
+          custody = output / 'execution-interpreter'
+          custody.mkdir(exist_ok=False)
+          copy = custody / 'python'
+          with copy.open('xb') as stream:
+              stream.write(raw)
+          copy.chmod(mode)
+          assert (copy.is_file() and not copy.is_symlink() and copy.stat().st_nlink == 1
+                  and copy.read_bytes() == raw and stat.S_IMODE(copy.stat().st_mode) == mode)
+          assert identity(source.stat()) == identity(after), 'CI interpreter changed during copy'
+          worker_path = output / 'review/metadata10/report.json'
+          worker_bound = False
+          if worker_path.is_file():
+              worker = json.loads(worker_path.read_bytes()).get('worker_interpreter')
+              if worker is not None:
+                  assert (worker['original_path'] == str(source) and worker['sha256'] == digest
+                          and worker['bytes'] == len(raw) and worker['mode'] == mode)
+                  worker_bound = True
+          receipt = {'schema': 'heptatorch.current-runtime.ci-interpreter-custody.v1',
+                     'requested_path': sys.executable, 'original_path': str(source),
+                     'member': 'execution-interpreter/python', 'bytes': len(raw),
+                     'sha256': digest, 'mode': mode, 'python_version': sys.version,
+                     'ordinary_single_link_copy': True, 'source_unchanged_while_copying': True,
+                     'metadata10_worker_identity_checked': worker_bound,
+                     'role': 'THIS_CI_EXECUTION_INTERPRETER_NOT_HISTORICAL_REFERENCE_INTERPRETER',
+                     'original_report_paths_modified': False, 'copied_interpreter_executed': False}
+          (custody / 'receipt.json').write_text(json.dumps(receipt, indent=2, sort_keys=True) + '\n')
+          for required in ('tools/stack_budget/inspect_stack.py',
+                           'validation/view-reshape-r4-native76/archive-location.json',
+                           'validation/cat-metadata10-reference/manifest.json',
+                           'validation/cat-metadata10-reference/complete.tar.xz'):
+              path = Path(required)
+              assert path.is_file() and not path.is_symlink(), path
           inventory = []
           for path in sorted(output.rglob('*')):
               if path.is_file():
@@ -445,13 +496,16 @@ jobs:
                   path = temporary / name
                   if path.exists():
                       bundle.add(path, arcname='toolchain/' + name)
-              for relative in ('.github/workflows/current-runtime.yml', 'tools/current_runtime',
+              for relative in ('.github/workflows/current-runtime.yml', 'Makefile', 'tools/current_runtime',
                                'tools/differentiable_view_recovered_r3/profile.json',
+                               'tools/stack_budget/inspect_stack.py',
                                'build/pytorch-install.json',
                                'tests', 'compatibility', 'continuation/20261117/evidence',
                                'continuation/20261117/source-packages/sum-bool-source-01/hia',
                                'validation/sum-bool27-reference', 'validation/current-runtime-references',
                                'validation/current-runtime76-reference',
+                               'validation/view-reshape-r4-native76/archive-location.json',
+                               'validation/cat-metadata10-reference',
                                'validation/current-runtime-baseline', 'validation/sum-f32-reference17',
                                'validation/current-runtime270-source', 'validation/current-runtime32-source',
                                'validation/tensor-to-original16-recovery',

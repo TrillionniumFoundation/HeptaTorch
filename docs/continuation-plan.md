@@ -26,10 +26,11 @@ Its manifest is authoritative for complete source, functions, ordered units
 and native object/image identities. `make` cold-builds every application object
 from this source with the fixed ABI3 HIA compiler and session linker.
 
-`make test` and current-runtime CI share eleven mandatory groups totaling 683
+`make test` and current-runtime CI share thirteen mandatory groups totaling 697
 finite cases: original Bool27, view/scalar76, Integral24, integral-to-F32 Sum17,
 original lifecycle35, original operator/training270, F32 Sum32, live
-Tensor/RNG/backward32, logical147, inherited resource7 and original AsStrided16.
+Tensor/RNG/backward32, logical147, inherited resource7, original AsStrided16,
+Cat4 and independently referenced cat Metadata10.
 The three live groups use the fixed actual
 Torch oracle; all frozen groups preserve original observations. New source
 identities require new execution of every affected group.
@@ -56,17 +57,24 @@ strengthened live32 also passed all 140 cases in a separate post-migration
 run, with every original assertion and all 32 live native exits/64 EOFs checked.
 Final AsStrided16 separately passed all four original suites, 1,920 frames,
 10,272 checks, complete owner archives and actual native exits/EOFs. These
-executions have distinct source and result receipts. The new common 683 gate
-requires its own complete published-head CI execution; do not attribute later
-source changes or added cases to the earlier immutable 667 run.
+executions have distinct source and result receipts. The complete 683 gate later
+passed on PR40's exact published tree, and PR40 was merged as
+`584b95d7f6615f27e95618bc61215df5633c4ca4`. The current cat correction changes
+the image again, so the new common 697 gate requires its own complete execution.
+Do not attribute new source or added cases to an earlier immutable run.
 
 The implementation combines the prior integral-to-F32 and empty-cat fixes with
 native any/all and extended Bool sum. It retains the source-proved eight-lane
 sum accumulation order, converts each integral element before F32 reduction,
 reclaims private temporaries, and preserves the empty-cat gradient cache's
-success and ownership guards. Logical reductions share native planning and
-truth conversion. Independent error-priority probes also require axis errors
-to precede the Bool-sum autograd refusal.
+success and ownership guards. Continued actual metadata comparison found a
+remaining empty-cat Version mismatch. The current correction routes rank-one
+empty cat inputs through the existing zero factory, guards saved-list allocation
+failure, and removes the unnecessary empty-axis prefix scan and ordinary
+metadata parent-mask lookups. The original four packets and ten independent
+Torch metadata recipes pass on the new cold-built image. Logical reductions
+share native planning and truth conversion. Independent error-priority probes
+also require axis errors to precede the Bool-sum autograd refusal.
 
 The latest actual results, failures and source identities belong in the
 [current audit](current-audit.md) and its bound execution manifest. Source

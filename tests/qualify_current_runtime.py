@@ -32,6 +32,16 @@ _asstrided_spec = importlib.util.spec_from_file_location("current_runtime_asstri
 current_asstrided = importlib.util.module_from_spec(_asstrided_spec)
 _asstrided_spec.loader.exec_module(current_asstrided)
 qualify_asstrided16 = current_asstrided.qualify_asstrided16
+_cat4_path = ROOT / "tests/current_runtime_cat4/qualify.py"
+_cat4_spec = importlib.util.spec_from_file_location("current_runtime_cat4_admission", _cat4_path)
+current_cat4 = importlib.util.module_from_spec(_cat4_spec)
+_cat4_spec.loader.exec_module(current_cat4)
+qualify_cat4 = current_cat4.qualify_cat4
+_metadata10_path = ROOT / "tests/current_runtime_metadata10/qualify.py"
+_metadata10_spec = importlib.util.spec_from_file_location("current_runtime_metadata10_admission", _metadata10_path)
+current_metadata10 = importlib.util.module_from_spec(_metadata10_spec)
+_metadata10_spec.loader.exec_module(current_metadata10)
+qualify_metadata10 = current_metadata10.qualify_metadata10
 _profile_path = ROOT / "tools/current_runtime/qualification.py"
 _profile_spec = importlib.util.spec_from_file_location("current_runtime_build_admission", _profile_path)
 current_profile = importlib.util.module_from_spec(_profile_spec)
@@ -47,10 +57,10 @@ INTEGRAL_REFERENCE = "6c9df4b579664c89c200b9d796367dd6d41f93f8260e8ff012f17d5041
 SHARED_ARCHIVE = "validation/current-runtime-references/complete.tar.xz"
 SHARED_ARCHIVE_SHA = "3a29420768a1bf7808976f04cb3ce3e6091db55ff6ae7858879f1b7ff70b69ea"
 SHARED_MANIFEST_SHA = "666fa775586679cfd42606c95656ad261c8856332431931ed4b0fcfd8865057e"
-GROUPS = ("bool27", "original76", "integral24", "sum_f32_17", "current35", "base270", "sum32", "live32", "logical147", "resource7", "asstrided16")
+GROUPS = ("bool27", "original76", "integral24", "sum_f32_17", "current35", "base270", "sum32", "live32", "logical147", "resource7", "asstrided16", "cat4", "metadata10")
 SUITE_TIMEOUT_SECONDS = {"bool27": 600, "original76": 900, "integral24": 900,
                          "sum_f32_17": 900, "current35": 1800, "base270": 1800, "sum32": 3600,
-                         "live32": 1800, "logical147": 1200, "resource7": 1200, "asstrided16": 1200}
+                         "live32": 1800, "logical147": 1200, "resource7": 1200, "asstrided16": 1200, "cat4": 600, "metadata10": 1200}
 
 
 def require(condition, message):
@@ -102,6 +112,20 @@ class Inputs:
 def build_binding(directory, inputs):
     current_profile.admit_build(directory, inputs.bind)
     return sha(inputs.bind(directory / "build.json"))
+
+
+def cat_source_binding(directory, inputs):
+    """Admit only the exact three reviewed cat bodies; transfer no old result."""
+    path = ROOT / 'tools/current_runtime/cat_source_transition.py'
+    inputs.bind(path)
+    spec = importlib.util.spec_from_file_location('current_runtime_cat_source_transition', path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    restored, proof = module.restore_source(inputs.bind(directory / 'runtime.hepta', SOURCE), inputs.bind)
+    require(module.SOURCE == SOURCE and FUNCTIONS == 700 and UNITS == 14
+            and sha(restored) == module.PARENT_SOURCE,
+            'current complete profile and exact pre-cat source')
+    return proof
 
 
 class Fixtures:
@@ -287,6 +311,18 @@ def runner_command(name, build, build_sha, output, fixtures, inputs, torch_pytho
     elif name == "asstrided16":
         script = ROOT / "tests/current_runtime_asstrided/qualify.py"
         for path in sorted(script.parent.iterdir()):
+            if path.is_file():
+                inputs.bind(path)
+        args = common + ["--repository", str(ROOT)]
+    elif name == "cat4":
+        script = ROOT / "tests/current_runtime_cat4/run.py"
+        for path in sorted(script.parent.iterdir()):
+            if path.is_file():
+                inputs.bind(path)
+        args = common + ["--repository", str(ROOT)]
+    elif name == "metadata10":
+        script = ROOT / "tests/current_runtime_metadata10/worker.py"
+        for path in sorted(script.parent.rglob("*")):
             if path.is_file():
                 inputs.bind(path)
         args = common + ["--repository", str(ROOT)]
@@ -476,14 +512,14 @@ def main(argv=None):
               "source_sha256": SOURCE, "native_sha256": IMAGE, "functions": FUNCTIONS, "units": UNITS,
               "required_suites": list(GROUPS), "required_cases": {"bool27": 27, "original76": 76,
               "sum32": 32, "integral24": 24, "sum_f32_17": 17, "current35": 35, "base270": 270,
-              "live32": 32, "logical147": 147, "resource7": 7, "asstrided16": 16}, "required_cases_total": 683,
+              "live32": 32, "logical147": 147, "resource7": 7, "asstrided16": 16, "cat4": 4, "metadata10": 10}, "required_cases_total": 697,
               "required_controls": {"historical_Bool_dtypes": 7, "historical_Integral_dtypes": 5,
                   "current_dtypes": 7, "F32_axes": 4, "entry_and_capability": 10,
                   "Bool_allocation": 1, "F32_allocation_stages": 2,
                   "original35_copied_positive": 4, "original35_copied_negative": 18,
                   "original270_actual_prefix_refusal_pairs": 14,
                   "logical_packet_controls": 18, "logical_allocation_stages": 2,
-                  "inherited_resource_allocation_recoveries": 3},
+                  "inherited_resource_allocation_recoveries": 3, "cat_expanded_capacity": 1},
               "suite_timeout_seconds": SUITE_TIMEOUT_SECONDS,
               "suites": suites, "failures": failures, "full_pytorch_rewrite_complete": False,
               "schema_closure": False, "full_project_status": "HOLD", "Torch_executed": False}
@@ -494,10 +530,15 @@ def main(argv=None):
     try:
         inputs.bind(Path(__file__).resolve())
         for name in ("current_runtime_fixtures.py", "current_runtime_process.py", "current_runtime_admission.py",
-                     "current_runtime_torch.py", "current_runtime_live32.py", "current_runtime_live32_readback.py"):
+                     "current_runtime_torch.py", "current_runtime_live32.py", "current_runtime_live32_readback.py",
+                     "current_runtime_cat4/qualify.py", "current_runtime_metadata10/qualify.py",
+                     "current_runtime_metadata10/common.py", "current_runtime_metadata10/worker.py",
+                     "current_runtime_metadata10/readback.py", "current_runtime_metadata10/source.json",
+                     "current_runtime_metadata10/frozen/native_v2.py"):
             inputs.bind(ROOT / "tests" / name)
         build_sha = build_binding(build, inputs)
         result["actual_build_sha256"] = build_sha
+        result["cat_source_transition"] = cat_source_binding(build, inputs)
         fixtures = Fixtures(output, inputs)
         for name in GROUPS:
             execution = output / (name + "-execution")
@@ -546,8 +587,12 @@ def main(argv=None):
                     counts = qualify_logical(report, build_sha, directory, inputs)
                 elif name == "resource7":
                     counts = qualify_resource7(report, build_sha, directory, inputs)
-                else:
+                elif name == "asstrided16":
                     counts = qualify_asstrided16(report, build_sha, directory, inputs)
+                elif name == "cat4":
+                    counts = qualify_cat4(report, ROOT, build, build_sha, directory, inputs)
+                else:
+                    counts = qualify_metadata10(report, ROOT, build, build_sha, directory, inputs, execution)
                 row.update(status="PASS", qualified=True, **counts)
             except Exception as error:
                 row.update(status="FAIL", error={"type": type(error).__name__, "message": str(error),
