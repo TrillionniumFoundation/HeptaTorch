@@ -331,12 +331,12 @@ jobs:
       - name: Build and test native-linked and monolithic HIA runtimes
         shell: bash
         run: |
-          make all monolithic \
+          make legacy monolithic \
             HEPTA_COMPILER="$RUNNER_TEMP/hepta-expanded/hia-native-compiler" \
             HEPTA_MODULE_COMPILER="$RUNNER_TEMP/hepta-modules-native/module-compiler" \
             HEPTA_MODULE_LINKER="$RUNNER_TEMP/hepta-modules-native/module-linker"
           cmp build/heptatorch "$RUNNER_TEMP/hepta-runtime-native/application"
-          make test \
+          make test-legacy \
             HEPTA_COMPILER="$RUNNER_TEMP/hepta-expanded/hia-native-compiler" \
             HEPTA_MODULE_COMPILER="$RUNNER_TEMP/hepta-modules-native/module-compiler" \
             HEPTA_MODULE_LINKER="$RUNNER_TEMP/hepta-modules-native/module-linker" | tee build/native-linked-fixtures.log

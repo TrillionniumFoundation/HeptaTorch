@@ -2,7 +2,24 @@
 
 HIA 原生张量、自动微分和神经网络训练运行时。核心实现由 HIA 汇编器直接生成 Linux x86-64 静态可执行文件；数值运算、梯度传播和参数更新均在该程序内执行。
 
-**当前状态：CPU binary32 训练内核、拼接与索引累加已经原生运行并验证；整个 PyTorch 的全量重写尚未完成。** 完整目标固定为 PyTorch **v2.15.0**。仓库保留全部 **2,590 条原生算子声明**和 [17 项完整验收门禁](compatibility/full-acceptance.json)，目前没有完整上游 schema 或整项门禁被标为已闭合。
+**当前默认实现为 700 个 HIA 核心函数、14 个独立编译单元的原生运行时。** 当前完整源码位于 [`tools/current_runtime/source/`](tools/current_runtime/source/)，直接由最终 ABI3 HIA 编译器和链接器冷构建。它包含持续演进的 Tensor／Storage／Version、自动微分、RNG、视图及求和实现；应用构建已不再依赖历次运行时的可执行文件或补丁生成链。
+
+**整个 PyTorch 的全量重写尚未完成。** 完整目标固定为 PyTorch **v2.15.0**。仓库保留全部 **2,590 条原生算子声明**、**688 条导数声明**和 [17 项完整验收门禁](compatibility/full-acceptance.json)：10 项进行中、7 项开放，目前没有完整上游 schema 或整项门禁被标为已闭合。[当前审计](docs/current-audit.md)区分已执行的有限资格、尚未实现的系统功能和旧实现退出条件。
+
+## 当前构建与测试
+
+```sh
+make HEPTA_CURRENT_COMPILER=/absolute/path/to/stack-module-compiler \
+     HEPTA_CURRENT_LINKER=/absolute/path/to/stack-linker-session
+make test HEPTA_CURRENT_COMPILER=/absolute/path/to/stack-module-compiler \
+          HEPTA_CURRENT_LINKER=/absolute/path/to/stack-linker-session
+```
+
+默认产物为 `build/current-runtime/heptatorch`；`build.json` 绑定完整 HIA 源码、每个新对象、最终 ELF、实际栈预算及全部编译／链接进程的退出和 EOF。两个工具默认也可从 `HEPTA_STACK_BUILD/native/` 读取，其固定校验和与复现方式见 [当前构建说明](docs/current-runtime.md)。
+
+`make test` 与 [Current runtime CI](.github/workflows/current-runtime.yml) 使用同一个执行入口，在同一冷构建镜像上实际运行 Bool27、原视图／reshape／标量76、原浮点 Sum32 和原整数 Sum24 四组回归。它们分别保留各自的用例、事件、数值、身份、生命周期、错误、完整 owner 和 RNG 分母；四组用例合计 159，不代表 159 个完整上游 schema。缺少任何必需报告、实际执行或完整 EOF 都不能通过总门禁。原先要求 Bool 目标 dtype 失败的两条历史控制保留原文，当前明确支持该路径并由新的七项 dtype 控制验收。
+
+700 函数源码 SHA-256 为 `b83a8346b162e12c5ed77e0287d626619a18f84bf7a1ab02a2514d30ae4295b4`，冷构建 ELF 为 `c6afeedc14ba8cc408a62d6fbef0abb5b78dff0039b8099f3449d813e290a90e`。运行时不依赖 Python、PyTorch、NumPy、libm 或 libc；构建组织、独立观察器和验收工具仍使用 Python。它们不替代 HIA 执行张量计算。
 
 ## 已实现
 
@@ -23,16 +40,18 @@ HIA 原生张量、自动微分和神经网络训练运行时。核心实现由 
 
 本次实现使用软件浮点算术。运行时无 Python、PyTorch、NumPy、libm 或 libc 依赖。HIA 编译器的初始 bootstrap 使用其上游 Python 实现和 GNU ld，随后由 HIA 编译器自行重建；构建与运行依赖见 [构建说明](docs/build.md)。
 
-## 构建与验收
+## 历史 143 函数基线与工具链回归
+
+以下构建保留早期协议和固定夹具，用于历史工具链及行为回归。它们通过显式 `legacy`／`test-legacy` 入口调用；当前默认构建和测试见上一节。
 
 ```sh
 make HEPTA_COMPILER=/absolute/path/to/hia-native-compiler \
      HEPTA_MODULE_COMPILER=/absolute/path/to/hia-module-compiler \
      HEPTA_MODULE_LINKER=/absolute/path/to/hia-module-linker \
-     build/heptatorch test
+     legacy test-legacy
 ```
 
-三个路径分别指向普通编译器、模块编译器和原生模块链接器，均有固定版本与校验和。默认 `build/heptatorch` 经独立模块编译和 HIA 静态链接生成。模块构建使用 Python 组织源码和传递封包；源程序检查、机器码生成、模块接纳、链接和数值执行均由 HIA 原生程序完成。`make test` 的回归循环使用本仓库的 HIA 解码器和原生程序，不需要 Python 或 `xxd` 处理测试数据。
+三个路径分别指向普通编译器、模块编译器和原生模块链接器，均有固定版本与校验和。历史 `build/heptatorch` 经独立模块编译和 HIA 静态链接生成。模块构建使用 Python 组织源码和传递封包；源程序检查、机器码生成、模块接纳、链接和数值执行均由 HIA 原生程序完成。`make test-legacy` 的回归循环使用本仓库的 HIA 解码器和原生程序，不需要 Python 或 `xxd` 处理测试数据。
 
 保留单编译单元参考构建与同一套 461 对夹具：
 
@@ -45,7 +64,7 @@ make HEPTA_COMPILER=/absolute/path/to/hia-native-compiler \
 
 当前采用单独命名的扩容编译器配置，允许 256 个函数和 2,560 个总基本块。构建会从原始固定编译器出发，通过 HIA 编译与 HIA ELF 打包完成四代重建。生成配置及原生重建配方见 [构建说明](docs/build.md#reproducing-the-capacity-profile-from-the-original-compiler)。
 
-默认模块路径将完整的 143 个函数分为 63 个内核函数和 80 个运行时函数，实际执行带 52 个外部依赖的原生模块编译、接口接纳与静态链接。函数体仍来自唯一的 `src/heptatorch.hepta`，生成的模块不是第二份手工维护实现。模块运行与边界证据单独记录在 [原生模块验证](validation/native-modules.json)，不据此宣称通用所有权、任意外部指针或所有平台 ABI 已完成。
+历史模块路径将该基线的 143 个函数分为 63 个内核函数和 80 个运行时函数，实际执行带 52 个外部依赖的原生模块编译、接口接纳与静态链接。其函数体来自 `src/heptatorch.hepta`，生成的模块不是第二份手工维护实现。模块运行与边界证据单独记录在 [原生模块验证](validation/native-modules.json)，不据此宣称通用所有权、任意外部指针或所有平台 ABI 已完成。
 
 运行已经验证的 1,000 步 SGD 训练命令流：
 

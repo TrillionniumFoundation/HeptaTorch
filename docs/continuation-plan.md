@@ -21,90 +21,45 @@ entire subsystem or a complete upstream schema by itself.
 
 ## Current implementation and next work
 
-The latest merged combined owner is the 446-core-function retained-gradient
-profile, source
-`666230f05cc6942470006d1f184135321d8cbc26a6c6ba0bf7e3cf9857fe515b` and ELF
-`7568c0a4ec40d82d3a0b46d1e8a27499dd96e8fe3fd15433523131a196da89b5`.
-PR #31 is merged at `e0ea769c979236b0542af4b258890726cd01a99a`. Its exact
-source tree passed both 80-step native jobs, all three 13-step observer jobs,
-its own unchanged live32/frozen35 tests and 106,570 independent offline checks.
-[Complete admission and original failure history](../validation/hosted-retained-gradients-cef47/)
-binds the source, actual jobs, original reports and six original artifact ZIPs.
+The complete current application is the **700-function Bool Sum profile**:
+9339 core blocks, 33425 core instructions, fourteen newly compiled HIA units
+and the existing 672-byte Tensor descriptor. The canonical aggregate and unit
+manifest are in `tools/current_runtime/source/`. Source SHA-256:
+`b83a8346b162e12c5ed77e0287d626619a18f84bf7a1ab02a2514d30ae4295b4`;
+native executable SHA-256:
+`c6afeedc14ba8cc408a62d6fbef0abb5b78dff0039b8099f3449d813e290a90e`.
 
-The standalone int64 lane foundation is now merged through PR #29 at
-`7e157f7b1cfa4f77e004fa118a06892f255116b0`, with the tested tree
-`51b2bf3b1d15e8662253668c0f6ee458885dd3de`. Its 33-case, 351,174-value
-dedicated gates passed actual CPython and fixed PyTorch execution, both full
-Native jobs passed eighty steps, and all eleven GitHub checks succeeded.
-Independent original-artifact reads passed 106,633 checks for each Native run;
-the PR report was separately reproduced with identical bytes. The
-[complete checkpoint and merge receipt](../validation/hosted-native-int64-2e66/)
-retain the original failures and source identities. The int8 branch
-is being integrated with this admitted main and requires its own new CI.
+The direct cold builder removes all prior application executables and authoring
+overlays from the current build dependency graph. Every application object is
+freshly produced by the fixed native ABI3 HIA compiler; the native linker and
+independent object/source stack checks retain their original limits. `make`
+selects this profile. `make test` and `current-runtime.yml` use the same four-suite
+coordinator, binding each actual suite to the same source, image and build report.
+Historical fixture and compiler regressions now use `make legacy test-legacy`.
 
-The current separately qualified successor has 523 core functions, 11 native
-units and a 640-byte descriptor. Source
-`6ffe509afce28ff15705b4c7b269eaef8f8f89f9d8b2486d4d9fa45b6be66ef3` and ELF
-`830f0b4ef8d6ad8c6a105be56d383628b45c84e3e43905fee6812c7c52d35a51` implement
-actual one-byte bool Storage, native_dropout mask Tensor identity, immutable
-captured AD history, actual detach_ and bool logical_not_. Its cold producer
-qualifies thirteen named steps. Independent actual9, actual26, typed-owner,
-short-output and finite640 accounting checks remain distinct.
-[Successor scope and evidence](native-dropout-history.md) describes the exact
-claims and preserved failures. The integrated cold coordinator passes all six
-independent gates. Actual locked ROG execution passes its own unchanged
-live32 and complete frozen35 with exact 640-byte accounting, all eleven
-provenance checks and the original EOF/post-close Version gates. Full original
-bytes and both earlier observer failures are preserved under
-`validation/dtype-frozen35-accounting/evidence/`. The new GitHub source
-combination still requires its own actual CI and artifact admission.
+[Current build and interface](current-runtime.md), [audit and remaining gates](current-audit.md),
+[local source-bound receipts](../validation/current-runtime-local/manifest.json)
+and the current-source Actions run are authoritative for this integration.
+The immutable current reference pack is
+`validation/current-runtime-references/complete.tar.xz`; it retains original
+Sum32/Integral24 reference bytes, source manifests, modes and environment records.
+The original Bool27 reference is separately fixed under
+`validation/sum-bool27-reference/`. No original Torch reference was regenerated
+as part of recovering a missing original path.
 
-Complete this successor's current-tree GitHub integration before treating
-that CI gate as qualified. Finish the int8 packet kernel's new combined-tree
-byte-preserving differential CI and serial main integration. The merged int64
-lane kernel and pending int8 kernel do not implement general Tensor dispatch.
-Then extend actual Tensor dtype/promotion, layouts, operator families and
-frontends against the fixed upstream inventory. Preserve the original183
-distribution report, including its18OPEN classifications; additive replays are
-recorded separately. Full-system gates remain open until their complete native
-behavior and executable acceptance contracts are qualified. Historical baseline
-entries below identify earlier build paths; source-bound successor receipts
-take precedence for current work.
+The four current-image suites are Bool27, original view/scalar76, original F32
+Sum32 and original Integral24. Their case totals, event totals and byte/value
+comparisons remain distinct. The two old dtype controls that rejected explicit
+Bool output record an intentional contract change; current Bool output is
+qualified through the new seven-case dtype suite. Original failure records,
+source-only preparations and unknown writes keep their original status.
 
-The tensor-composition source is `264e9c5c4e8ea1834724cc0d8d859952016daffe4af330a8daa7745e7a5e5233`.
-It contains 143 HIA functions, 1,783 blocks and 7,064 instructions. The default
-native build compiles two complete source units independently and resolves 1,108
-symbolic call relocations with the HIA linker. The monolithic build remains an
-independently compiled comparison. Both actual build paths pass all 461 native
-packet pairs, including 186 new pairs. Their source, compiler and executable
-identities are recorded in `validation/`.
-
-| Workstream | Implemented and locally qualified | Remaining next work |
-| --- | --- | --- |
-| Native module compilation | True external declarations, borrowed buffer signatures, effects and lifetime checks, symbolic ELF relocations, two-unit execution and 69/204/19/18 boundary suites | General public tensor ABI, foreign-resource provenance, recursive graphs and whole-program resource bounds |
-| Owned module resources | Separate ABI2 compiler and native mmap/munmap allocator; up to three scalar/owner results, linear buffer/chain calls, three reproduced compiler generations and 385 native qualification cases | General tensor ABI, foreign resources and whole-program bounds |
-| Native stack admission | Separate ABI3 verifies real call sites and prologues, resolves the maximum call path and uses an 8 MiB guarded stack; 86 native cases plus 9 independent metadata witnesses; the unchanged 151-function Tensor program requires 61,488 path bytes plus reserve | Preserve source/object custody; qualify each new program and producer; arbitrary foreign machine effects, asynchronous recovery and other platform backends remain outside this profile |
-| Owned interactive storage | Independent Storage/Version identities, strong/weak/saved lifetime, reusable/growing owned pool, full-frame transactions and actual allocation-failure recovery; 131 owner-entry/transport cases, 12 groups / 63 frames on each entry path, 5 current guards and a 2,952-frame independent model | Connect numerical Tensor kernels, shape/stride/dtype and AD/optimizer state; concurrent/device/external allocation and restart persistence remain open |
-| Independent numerical objects | Candidate09 connects binary32 kernels to independent Tensor/Storage/Version/Saved/Weak/Hold records; both native ABI images reproduce and execute 731 suite frames plus 19 bridge frames each | Run the frozen 35-case actual PyTorch comparison on both images; implement default backward Saved release and retain_graph; preserve all earlier strict gates |
-| Tensor composition | Native `cat` and `stack`, variable-parent reverse AD, empty shapes, layout selection, version checks and graph reset | Complete dtype/device/layout variants, mutation/out forms and full upstream schema qualification |
-| Indexed accumulation | Native `scatter_add` and `index_add`, exact integer index payloads, duplicate accumulation, alpha rounding and reverse AD preflight | Complete dtype/device/layout variants, mutation/out forms and full upstream schema qualification |
-| Persistent execution | Two native interactive builds, complete-frame arena transactions, 477 independent live-session cases each, 22 packer / 18 flat-linker / 3 actual growth checks | Both hosted session images now pass 21 cases / 4,681 frames / 491,847 values each; general owned/resizable storage, absolute torch._version parity and cross-process durability remain open |
-| Qualification | Both ordinary builds pass 461 packet pairs and 270 pinned PyTorch cases each, with 13,076 compared values and 11 provenance checks per build; all 159 prior case functions remain unchanged | Extend source-bound qualification with every new implementation; component success does not close the whole-project gates |
-
-`validation/hosted-boundary-observations.json` contains actual pinned PyTorch
-observations used to establish empty, index, alpha and layout behavior. Those
-observations alone do not qualify the changed native runtime.
-`validation/hosted-tensor-composition.json` records the successful actual
-dual-build run 43788929713 at commit
-`724cbf2eb19d2ef8d400615d7196f5397cb402f6`, binding the new source, both executables,
-oracle and fixture inventory. Historical 159-case receipts keep their identities.
-
-Borrowed modules and a separate checked owned-resource ABI2 are implemented.
-The latter adds native buffer/chain allocation, transfer, returns and release;
-it does not establish a general public tensor object ABI.
-The byte-storage foundation now has independent Tensor/Storage/Version records, reference lifetimes, genuinely growing native owned pools and an owned interactive entry. The next implementation work connects the existing numerical Tensor/AD/optimizer path to scalable storage and then completes typed object and dtype/layout services. Bounded borrowed-arena persistence is implemented separately in `tools/session`; it does not establish external heap-owner transactions. Independent
-operator and AD work may continue without treating restricted packet features
-as complete upstream schema coverage.
+Next, complete actual current-source hosted admission, then extend the
+canonical HIA source and independently qualify the missing dtype/promotion,
+operator, differentiation and subsystem contracts against the fixed upstream
+inventory. Do not restart the historical overlay chain to make a current
+application build. Do not count a green finite regression as a complete schema.
+The full ledger remains HOLD with all seventeen complete gates open.
 
 ## Dependency order
 
@@ -172,3 +127,95 @@ serialization, devices and every remaining full-system obligation remain open.
 The denominator is unchanged:2,590 schemas,688 derivatives,seventeen gates and
 zero complete-schema parity. Continue source-bound implementation and
 independent qualification without replacing full closure with bounded suites.
+
+## Historical checkpoints before the current 700-function integration
+
+The following paragraphs record earlier milestones and their next steps at that
+time. They are retained as historical context; the current source and work order
+above supersede their “current”, “pending” and default-build wording.
+
+
+The latest merged combined owner is the 446-core-function retained-gradient
+profile, source
+`666230f05cc6942470006d1f184135321d8cbc26a6c6ba0bf7e3cf9857fe515b` and ELF
+`7568c0a4ec40d82d3a0b46d1e8a27499dd96e8fe3fd15433523131a196da89b5`.
+PR #31 is merged at `e0ea769c979236b0542af4b258890726cd01a99a`. Its exact
+source tree passed both 80-step native jobs, all three 13-step observer jobs,
+its own unchanged live32/frozen35 tests and 106,570 independent offline checks.
+[Complete admission and original failure history](../validation/hosted-retained-gradients-cef47/)
+binds the source, actual jobs, original reports and six original artifact ZIPs.
+
+The standalone int64 lane foundation is now merged through PR #29 at
+`7e157f7b1cfa4f77e004fa118a06892f255116b0`, with the tested tree
+`51b2bf3b1d15e8662253668c0f6ee458885dd3de`. Its 33-case, 351,174-value
+dedicated gates passed actual CPython and fixed PyTorch execution, both full
+Native jobs passed eighty steps, and all eleven GitHub checks succeeded.
+Independent original-artifact reads passed 106,633 checks for each Native run;
+the PR report was separately reproduced with identical bytes. The
+[complete checkpoint and merge receipt](../validation/hosted-native-int64-2e66/)
+retain the original failures and source identities. The int8 branch
+is being integrated with this admitted main and requires its own new CI.
+
+The current separately qualified successor has 523 core functions, 11 native
+units and a 640-byte descriptor. Source
+`6ffe509afce28ff15705b4c7b269eaef8f8f89f9d8b2486d4d9fa45b6be66ef3` and ELF
+`830f0b4ef8d6ad8c6a105be56d383628b45c84e3e43905fee6812c7c52d35a51` implement
+actual one-byte bool Storage, native_dropout mask Tensor identity, immutable
+captured AD history, actual detach_ and bool logical_not_. Its cold producer
+qualifies thirteen named steps. Independent actual9, actual26, typed-owner,
+short-output and finite640 accounting checks remain distinct.
+[Successor scope and evidence](native-dropout-history.md) describes the exact
+claims and preserved failures. The integrated cold coordinator passes all six
+independent gates. Actual locked ROG execution passes its own unchanged
+live32 and complete frozen35 with exact 640-byte accounting, all eleven
+provenance checks and the original EOF/post-close Version gates. Full original
+bytes and both earlier observer failures are preserved under
+`validation/dtype-frozen35-accounting/evidence/`. The new GitHub source
+combination still requires its own actual CI and artifact admission.
+
+Complete this successor's current-tree GitHub integration before treating
+that CI gate as qualified. Finish the int8 packet kernel's new combined-tree
+byte-preserving differential CI and serial main integration. The merged int64
+lane kernel and pending int8 kernel do not implement general Tensor dispatch.
+Then extend actual Tensor dtype/promotion, layouts, operator families and
+frontends against the fixed upstream inventory. Preserve the original183
+distribution report, including its18OPEN classifications; additive replays are
+recorded separately. Full-system gates remain open until their complete native
+behavior and executable acceptance contracts are qualified. Historical baseline
+entries below identify earlier build paths; source-bound successor receipts
+take precedence for current work.
+
+The tensor-composition source is `264e9c5c4e8ea1834724cc0d8d859952016daffe4af330a8daa7745e7a5e5233`.
+It contains 143 HIA functions, 1,783 blocks and 7,064 instructions. That historical
+native build compiles two complete source units independently and resolves 1,108
+symbolic call relocations with the HIA linker. The monolithic build remains an
+independently compiled comparison. Both actual build paths pass all 461 native
+packet pairs, including 186 new pairs. Their source, compiler and executable
+identities are recorded in `validation/`.
+
+| Workstream | Implemented and locally qualified | Remaining next work |
+| --- | --- | --- |
+| Native module compilation | True external declarations, borrowed buffer signatures, effects and lifetime checks, symbolic ELF relocations, two-unit execution and 69/204/19/18 boundary suites | General public tensor ABI, foreign-resource provenance, recursive graphs and whole-program resource bounds |
+| Owned module resources | Separate ABI2 compiler and native mmap/munmap allocator; up to three scalar/owner results, linear buffer/chain calls, three reproduced compiler generations and 385 native qualification cases | General tensor ABI, foreign resources and whole-program bounds |
+| Native stack admission | Separate ABI3 verifies real call sites and prologues, resolves the maximum call path and uses an 8 MiB guarded stack; 86 native cases plus 9 independent metadata witnesses; the unchanged 151-function Tensor program requires 61,488 path bytes plus reserve | Preserve source/object custody; qualify each new program and producer; arbitrary foreign machine effects, asynchronous recovery and other platform backends remain outside this profile |
+| Owned interactive storage | Independent Storage/Version identities, strong/weak/saved lifetime, reusable/growing owned pool, full-frame transactions and actual allocation-failure recovery; 131 owner-entry/transport cases, 12 groups / 63 frames on each entry path, 5 current guards and a 2,952-frame independent model | Connect numerical Tensor kernels, shape/stride/dtype and AD/optimizer state; concurrent/device/external allocation and restart persistence remain open |
+| Independent numerical objects | Candidate09 connects binary32 kernels to independent Tensor/Storage/Version/Saved/Weak/Hold records; both native ABI images reproduce and execute 731 suite frames plus 19 bridge frames each | Run the frozen 35-case actual PyTorch comparison on both images; implement default backward Saved release and retain_graph; preserve all earlier strict gates |
+| Tensor composition | Native `cat` and `stack`, variable-parent reverse AD, empty shapes, layout selection, version checks and graph reset | Complete dtype/device/layout variants, mutation/out forms and full upstream schema qualification |
+| Indexed accumulation | Native `scatter_add` and `index_add`, exact integer index payloads, duplicate accumulation, alpha rounding and reverse AD preflight | Complete dtype/device/layout variants, mutation/out forms and full upstream schema qualification |
+| Persistent execution | Two native interactive builds, complete-frame arena transactions, 477 independent live-session cases each, 22 packer / 18 flat-linker / 3 actual growth checks | Both hosted session images now pass 21 cases / 4,681 frames / 491,847 values each; general owned/resizable storage, absolute torch._version parity and cross-process durability remain open |
+| Qualification | Both ordinary builds pass 461 packet pairs and 270 pinned PyTorch cases each, with 13,076 compared values and 11 provenance checks per build; all 159 prior case functions remain unchanged | Extend source-bound qualification with every new implementation; component success does not close the whole-project gates |
+
+`validation/hosted-boundary-observations.json` contains actual pinned PyTorch
+observations used to establish empty, index, alpha and layout behavior. Those
+observations alone do not qualify the changed native runtime.
+`validation/hosted-tensor-composition.json` records the successful actual
+dual-build run 43788929713 at commit
+`724cbf2eb19d2ef8d400615d7196f5397cb402f6`, binding the new source, both executables,
+oracle and fixture inventory. Historical 159-case receipts keep their identities.
+
+Borrowed modules and a separate checked owned-resource ABI2 are implemented.
+The latter adds native buffer/chain allocation, transfer, returns and release;
+it does not establish a general public tensor object ABI.
+The byte-storage foundation now has independent Tensor/Storage/Version records, reference lifetimes, genuinely growing native owned pools and an owned interactive entry. The next implementation work connects the existing numerical Tensor/AD/optimizer path to scalable storage and then completes typed object and dtype/layout services. Bounded borrowed-arena persistence is implemented separately in `tools/session`; it does not establish external heap-owner transactions. Independent
+operator and AD work may continue without treating restricted packet features
+as complete upstream schema coverage.

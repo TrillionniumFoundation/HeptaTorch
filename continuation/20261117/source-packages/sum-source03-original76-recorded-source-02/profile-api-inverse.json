@@ -1,0 +1,23 @@
+{
+  "schema": "heptatorch.sum03.original76.owner-binding-api-correction.v1",
+  "before_path": "provenance/recorded_admission_source01.py",
+  "after_path": "recorded_admission.py",
+  "before_sha256": "fe15863cb1d55fecd1e252e20087dbb455fe0369ab656e86b341a2790ade7b38",
+  "after_sha256": "cbab250d3a0882555ca1d45295130f24fa5c0064fb2016855967288fa7dcc16a",
+  "edits": [
+    {
+      "before": "    # These are the public profile binding parameters of the unchanged native32\n    # owner. No owner predicates or role equations are rewritten.\n    owner.SOURCE = config[\"profile\"][\"source_sha256\"]\n    owner.IMAGE = config[\"profile\"][\"native_sha256\"]\n    owner.PROFILE = \"sum03-original696-recorded76\"\n",
+      "after": "    # Call the unchanged owner's real binding API so its count, pin-format and\n    # rebinding guards execute, and its original PROFILE label stays exact.\n    owner.bind_profile(config[\"profile\"][\"source_sha256\"],\n                       config[\"profile\"][\"native_sha256\"], config[\"profile\"][\"functions\"])\n    need(owner.PROFILE == \"sum-dims-source03-696-op47-op48\",\n         \"original-owner-profile-label\")\n",
+      "count": 1
+    }
+  ],
+  "basis": {
+    "owner_sha256": "0eadfed89c33fb8d8615dd2f976b08b66ef6bc309ddbeca3685f25517634449d",
+    "owner_function": "bind_profile",
+    "actual_original_api_retained": true,
+    "profile": "sum-dims-source03-696-op47-op48"
+  },
+  "source01_state": "NO_EXECUTION_AND_UNKNOWN_REMOTE_CREATE",
+  "reference_or_comparator_changes": false,
+  "process_executions": 0
+}

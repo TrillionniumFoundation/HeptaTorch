@@ -1,0 +1,104 @@
+{
+  "schema": "heptatorch.sum-bool.cached-text-derivation.v1",
+  "status": "SOURCE_ONLY_TEXT_COMPARISONS",
+  "addition": {
+    "name": "si_sum_integral",
+    "sha256": "ec443e13fdf31483fc28402626a38d38d39de2ff2079de1b543facf9999aa4fb",
+    "edits": [
+      {
+        "label": "new-function-name",
+        "offset": 0,
+        "before": "fn si_sum_integral(",
+        "after": "fn sb_sum_bool("
+      },
+      {
+        "label": "only-explicit-Bool",
+        "offset": 174,
+        "before": "  v7:u64 = const() {\"value\":2}\n  v8:bool = compare.ne(v5,v7)\n  v9:u64 = const() {\"value\":18446744073709551615}\n  v10:bool = compare.ne(v5,v9)\n  v11:bool = bool.and(v8,v10)\n  branch v11 b1(v0) b2(v0,v1,v2,v3,v4,v6)\n",
+        "after": "  v7:u64 = const() {\"value\":1}\n  v8:bool = compare.ne(v5,v7)\n  branch v8 b1(v0) b2(v0,v1,v2,v3,v4,v6)\n"
+      },
+      {
+        "label": "fresh-Bool-descriptor",
+        "offset": 1706,
+        "before": "  v100:u64 = const() {\"value\":2}\n",
+        "after": "  v100:u64 = const() {\"value\":1}\n"
+      },
+      {
+        "label": "confirm-Bool-descriptor",
+        "offset": 2207,
+        "before": "  v128:u64 = const() {\"value\":2}\n",
+        "after": "  v128:u64 = const() {\"value\":1}\n"
+      },
+      {
+        "label": "initialize-one-byte-output",
+        "offset": 3627,
+        "before": "  v227:u64 = const() {\"value\":8}\n",
+        "after": "  v227:u64 = const() {\"value\":1}\n"
+      },
+      {
+        "label": "canonicalize-Bool-and-I64-before-reduction",
+        "offset": 7645,
+        "before": "  v531:u64 = const() {\"value\":1}\n  v532:bool = compare.eq(v524,v531)\n  branch v532 b33(v511,v512,v517,v519,v520,v522,v523,v524,v526,v529) b35(v511,v512,v517,v519,v520,v522,v523,v524,v526,v529)\n",
+        "after": "  jump b33(v511,v512,v517,v519,v520,v522,v523,v524,v526,v529)\n"
+      },
+      {
+        "label": "canonical-Bool-addition-one-byte-store",
+        "offset": 8607,
+        "before": "  v640:u64 = const() {\"value\":8}\n  v641:u64 = int.add.wrap(v637,v636)\n",
+        "after": "  v640:u64 = const() {\"value\":1}\n  v641:u64 = bit.or(v637,v636)\n"
+      }
+    ],
+    "forward_and_inverse_exact": true
+  },
+  "modified_body_edits": {
+    "si_dispatch_sum": [
+      {
+        "label": "typed-integral-source-Bool-branch-only",
+        "offset": 1236,
+        "before": "block b5(v53:mutbuf,v55:u64,v56:u64,v57:u64,v58:u64,v59:u64,v60:u64)\n  v71:u64 = call(v53,v60,v55,v56,v57,v58,v59) {\"function\":\"si_sum_integral\"}\n  ret(v71)\n",
+        "after": "block b5(v53:mutbuf,v55:u64,v56:u64,v57:u64,v58:u64,v59:u64,v60:u64)\n  v95:u64 = const() {\"value\":1}\n  v96:bool = compare.eq(v58,v95)\n  branch v96 b9(v53,v55,v56,v57,v58,v59,v60) b10(v53,v55,v56,v57,v58,v59,v60)\nblock b9(v97:mutbuf,v98:u64,v99:u64,v100:u64,v101:u64,v102:u64,v103:u64)\n  v104:u64 = call(v97,v103,v98,v99,v100,v101,v102) {\"function\":\"sb_sum_bool\"}\n  ret(v104)\nblock b10(v105:mutbuf,v106:u64,v107:u64,v108:u64,v109:u64,v110:u64,v111:u64)\n  v112:u64 = call(v105,v111,v106,v107,v108,v109,v110) {\"function\":\"si_sum_integral\"}\n  ret(v112)\n"
+      }
+    ],
+    "to_command": [
+      {
+        "label": "permit-dtype1-otherwise-identical-guard-order",
+        "offset": 4082,
+        "before": "  v188:bool = bool.and(v185,v187)\n  branch v188 b14",
+        "after": "  v188:bool = bool.and(v185,v187)\n  v652:u64 = const() {\"value\":1}\n  v653:bool = compare.ne(v180,v652)\n  v654:bool = bool.and(v188,v653)\n  branch v654 b14"
+      }
+    ]
+  },
+  "tag_edits": [
+    {
+      "name": "state_header",
+      "offset": 987,
+      "before": "{\"value\":3544425601954960456}",
+      "after": "{\"value\":3616483195992888392}"
+    },
+    {
+      "name": "init_state",
+      "offset": 966,
+      "before": "{\"value\":3544425601954960456}",
+      "after": "{\"value\":3616483195992888392}"
+    },
+    {
+      "name": "so_state_init",
+      "offset": 170,
+      "before": "{\"value\":3544418983577867336}",
+      "after": "{\"value\":3616476577615795272}"
+    },
+    {
+      "name": "so_state_header",
+      "offset": 429,
+      "before": "{\"value\":3544418983577867336}",
+      "after": "{\"value\":3616476577615795272}"
+    }
+  ],
+  "unchanged_integer_sum": {
+    "name": "si_sum_integral",
+    "bytes": 9408,
+    "sha256": "ec443e13fdf31483fc28402626a38d38d39de2ff2079de1b543facf9999aa4fb"
+  },
+  "exact_old_guard_preserved_except_new_explicit_dtype1": true,
+  "numeric_expected_values_computed": false
+}

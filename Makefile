@@ -10,6 +10,8 @@ HEPTA_OWNED_LINKER ?= linker-abi2-w1m
 HEPTA_OWNED_SESSION_BUILD ?= build/owned-session-tools
 HEPTA_OWNED_SESSION_LINKER ?= $(HEPTA_OWNED_SESSION_BUILD)/production-native/owned-session-linker
 HEPTA_STACK_BUILD ?= build/stack-budget-tools
+HEPTA_CURRENT_COMPILER ?= $(HEPTA_STACK_BUILD)/native/stack-module-compiler
+HEPTA_CURRENT_LINKER ?= $(HEPTA_STACK_BUILD)/native/stack-linker-session
 COMPILER_SHA256 := c5a9c2b95a3061e080a21298f5b26000936ed9dac519690d845b0699a15744c6
 MODULE_COMPILER_SHA256 := e250d93bc0b2a5ff878d2188c95780abf7e7ebaf186e4531b136fa2735b2af59
 MODULE_LINKER_SHA256 := 1ba40ffe025abfcc2edd8d69f1ad689817598571138c11806af7aa60047fc7b8
@@ -18,10 +20,37 @@ SESSION_PACKER_SHA256 := 22600cee8853b6a49dfbf66154ddcdc99bdbbc6fcfb2face2605ad7
 SESSION_INPUTS := src/heptatorch.hepta tools/session/build_runtime.py tools/session/entry.hepta tools/session/profile.json tools/modules/split_runtime.py Makefile
 STORAGE_INPUTS := $(wildcard tools/storage_objects/*.py tools/storage_objects/*.authoring tools/storage_objects/*.hia.in) tools/storage_objects/source-lock.json Makefile
 OWNED_TENSOR_INPUTS := src/heptatorch.hepta docs/functions.json tools/modules/split_runtime.py $(wildcard tools/owned_tensors/*.py tools/owned_tensors/*.hepta tools/owned_tensors/*.json) Makefile
+CURRENT_RUNTIME_UNITS := rng03 owners $(addprefix sum_bool_,00 01 02 03 04 05 06 07 08 09 10 11)
+CURRENT_RUNTIME_INPUTS := tools/current_runtime/build.py tools/stack_budget/inspect_stack.py \
+  tools/current_runtime/source/manifest.json tools/current_runtime/source/partition.json \
+  tools/current_runtime/source/runtime.hepta \
+  $(addprefix tools/current_runtime/source/units/,$(addsuffix .hepta,$(CURRENT_RUNTIME_UNITS))) Makefile
 
-.PHONY: all monolithic session session-monolithic storage-objects owned-tensors test test-monolithic test-session test-session-monolithic test-storage-objects test-owned-tensors check-compiler check-module-tools check-session-tools check-session-packer check-storage-tools acceptance-status full-acceptance clean
+.PHONY: all current-runtime legacy monolithic session session-monolithic storage-objects owned-tensors test test-legacy test-monolithic test-session test-session-monolithic test-storage-objects test-owned-tensors check-compiler check-module-tools check-session-tools check-session-packer check-storage-tools acceptance-status full-acceptance clean
 
-all: build/heptatorch build/unhex
+all: current-runtime
+
+current-runtime: build/current-runtime/build.json build/current-runtime/heptatorch
+
+# GNU Make 4.3+ grouped targets rebuild both products when either is missing.
+# The cold builder requires a fresh directory. Preserve every staging failure,
+# and move a recognized previous build aside only after the new build succeeds.
+build/current-runtime/build.json build/current-runtime/heptatorch &: $(CURRENT_RUNTIME_INPUTS) $(HEPTA_CURRENT_COMPILER) $(HEPTA_CURRENT_LINKER) | build
+	@set -eu; stage=$$(mktemp -d "$(CURDIR)/build/current-runtime-stage.XXXXXX"); \
+	printf 'Current runtime build staging: %s\n' "$$stage"; \
+	python3 -I -S -B tools/current_runtime/build.py \
+	  --manifest "$(CURDIR)/tools/current_runtime/source/manifest.json" \
+	  --source-root "$(CURDIR)/tools/current_runtime/source" \
+	  --compiler "$(abspath $(HEPTA_CURRENT_COMPILER))" --linker "$(abspath $(HEPTA_CURRENT_LINKER))" \
+	  --output "$$stage/native"; \
+	if [ -e build/current-runtime ] || [ -L build/current-runtime ]; then \
+	  python3 -I -S -B -c 'import json,pathlib,sys; p=pathlib.Path(sys.argv[1]); assert p.is_dir() and not p.is_symlink(), "unrecognized current runtime path"; r=p/"build.json"; assert r.is_file() and not r.is_symlink(), "missing original current runtime receipt"; b=json.loads(r.read_bytes()); assert b.get("schema")=="heptatorch.complete-runtime-build.v1" and b.get("status")=="PASS_NATIVE_BUILD_ONLY" and b.get("native_basename")=="heptatorch", "unrecognized current runtime receipt"' "$(CURDIR)/build/current-runtime"; \
+	  mv build/current-runtime "$$stage/previous"; \
+	fi; \
+	mv "$$stage/native" build/current-runtime; \
+	printf 'Current runtime published: %s\n' "$(CURDIR)/build/current-runtime"
+
+legacy: build/heptatorch build/unhex
 
 monolithic: build/heptatorch-monolithic build/unhex
 
@@ -119,7 +148,7 @@ build/stack-tensors/build.json: build/owned-tensor-versions/build.json $(STACK_T
 	  build/owned-tensor-versions/units/owned_tensor_session.hepta; \
 	mkdir -p build/stack-tensors; cp -a --remove-destination "$$tmp/native/." build/stack-tensors/
 
-test-stack-tensors: stack-tensors all
+test-stack-tensors: stack-tensors legacy
 	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/.stack-review.XXXXXX"); \
 	python3 -I -S -B tools/stack_budget/qualify.py --build "$(HEPTA_STACK_BUILD)" --repo "$(CURDIR)" \
 	  --tensor-baseline "$(CURDIR)/build/owned-tensor-versions" --canonical-binary "$(CURDIR)/build/heptatorch" \
@@ -567,7 +596,12 @@ build/unhex: tools/unhex.hepta | build check-compiler
 	@set -eu; tmp=$$(mktemp build/.unhex.XXXXXX); trap 'rm -f "$$tmp"' EXIT HUP INT TERM; \
 	"$(HEPTA_COMPILER)" < "$<" > "$$tmp"; test -s "$$tmp"; chmod 755 "$$tmp"; mv "$$tmp" "$@"
 
-test: all
+test: current-runtime
+	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/current-runtime-review.XXXXXX"); \
+	python3 -I -S -B tests/qualify_current_runtime.py \
+	  --build-directory "$(CURDIR)/build/current-runtime" --output "$$review/results"
+
+test-legacy: legacy
 	sh tests/run.sh
 
 test-monolithic: monolithic
