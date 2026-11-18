@@ -1,4 +1,11 @@
-# Reproducible native build
+# Reproducible native build and historical toolchain profiles
+
+The default `make` and `make test` now build and qualify the complete current
+700-function, fourteen-unit HIA runtime. Start with [current-runtime.md](current-runtime.md)
+for that path. This page preserves the original compiler bootstrap and historical
+application recipes used by the separate legacy regression workflow.
+The 143-function source and limits in the first sections describe that historical
+baseline, not the current default runtime.
 
 The large frozen Adam/distribution observation archive is stored as two
 byte-exact parts so each connector write fits its request-size limit.
@@ -27,12 +34,13 @@ Artifact transport does not qualify a report or change any numerical gate.
 
 ## Target and toolchain
 
-The executable target is Linux x86-64. The canonical implementation is
+The executable target is Linux x86-64. The historical 143-function implementation is
 `src/heptatorch.hepta`, using HIA primitive Core v8 with semantic function names
 and explicit typed SSA instructions. `docs/functions.json` indexes the native
-functions. This remains the only hand-maintained runtime implementation.
+functions. The complete current source is instead published under
+`tools/current_runtime/source/`.
 
-The default build partitions those function bodies into two independent HIA
+The `legacy` build partitions those function bodies into two independent HIA
 modules, compiles each with the native module compiler, and admits and links
 their objects with the native HIA linker. The partitioner preserves every body
 byte; it does not generate numerical implementations. A separate monolithic
@@ -65,15 +73,15 @@ The original compiler accepts 128 functions and 1,536 basic blocks. The
 expanded ordinary and borrowed-module profiles admit 256 functions and 2,560
 total blocks per compilation unit, with unchanged 8,192-instruction, 1 MiB
 source and 1 MiB generated-image limits. External declarations also count
-toward a module's function limit. The current authoritative runtime has 143
+toward a module's function limit. This historical baseline has 143
 functions, 1,783 blocks and 7,064 instructions in 481,516 source bytes.
 Its partition has 63 kernel functions and 80 runtime functions, with 52
 declared imports from runtime to kernel.
 
-| Current artifact | SHA-256 | Bytes |
+| Historical baseline artifact | SHA-256 | Bytes |
 | --- | --- | ---: |
 | Authoritative HIA source | `264e9c5c4e8ea1834724cc0d8d859952016daffe4af330a8daa7745e7a5e5233` | 481,516 |
-| Default linked runtime | `cf78556c3c512227ffe123635b76e5a6af97697606e8ba3535c56f5101f4f80d` | 733,184 |
+| Legacy linked runtime | `cf78556c3c512227ffe123635b76e5a6af97697606e8ba3535c56f5101f4f80d` | 733,184 |
 | Monolithic reference runtime | `5b992e5f07fe1167aacf31d9fd07a053b3b02fc1bd1149c06f8ccd164ef96bb0` | 729,233 |
 
 The two runtime files have different ELF organization and hashes. Their packet
@@ -90,12 +98,12 @@ is defined below. These local profiles remain distinct from the unchanged
 make HEPTA_COMPILER=/absolute/path/to/hia-native-compiler \
      HEPTA_MODULE_COMPILER=/absolute/path/to/hia-module-compiler \
      HEPTA_MODULE_LINKER=/absolute/path/to/hia-module-linker \
-     all test
+     legacy test-legacy
 ```
 
 `HEPTA_COMPILER` names the expanded ordinary compiler; it builds unhex and the
 monolithic reference. `HEPTA_MODULE_COMPILER` and `HEPTA_MODULE_LINKER` name the
-two module tools. `all` produces the default linked `build/heptatorch` and
+two module tools. `legacy` produces the historical linked `build/heptatorch` and
 `build/unhex`. Each variable can be an absolute path or a command resolved by
 the build environment; the selected bytes must match the corresponding pin.
 
@@ -254,7 +262,7 @@ The original compiler hash beginning `87c247e4` is compared with the expanded
 | HIA source | `4c1d17240dd8616798e238cdd54641ee6f2e42c02635c82b3bdeea0a530b5ca5` |
 | Executable | `ecca265b088e0688df8ad963613f6bdf460efd324d0c480e6395e4ef67372779` |
 
-Those 121 functions fit the original profile. The current 143-function source
+Those 121 functions fit the original profile. The historical 143-function source
 does not; its expected old-compiler refusal is not a code-generation regression.
 The current ordinary-mode comparison instead uses expanded `c5a9c2b9` and
 module `e250d93b` compilers on the full current source and unhex. Historical
@@ -263,12 +271,12 @@ rather than being overwritten with current hashes.
 
 ## Test execution
 
-`make test` decodes each of the 461 `tests/fixtures/*.input.hex` requests and its
+`make test-legacy` decodes each of the 461 `tests/fixtures/*.input.hex` requests and its
 expected response using `tools/unhex.hepta`, runs the native tensor executable
 with an empty environment and PATH, and compares response bytes. The shell only
 orchestrates processes, byte transport and file comparison. The hexadecimal
 decoder itself is HIA. `make test-monolithic` runs this same collection through
-`build/heptatorch-monolithic`. The default linked image has passed all 461 pairs;
+`build/heptatorch-monolithic`. The legacy linked image has passed all 461 pairs;
 source-bound validation records separately state each runtime's final replay.
 
 Golden responses were captured only after independent numerical, analytical,
@@ -332,7 +340,7 @@ each build; no Python or upstream tensor runtime executes production requests.
 
 ## Reproducing the owned-resource ABI2 profile
 
-Run the ordinary `make all monolithic` build first. The owned qualification
+Run the ordinary `make legacy monolithic` build first. The owned qualification
 compares its actual linked output against `build/heptatorch` and its ordinary
 output against the corresponding pinned binaries; a fresh checkout without
 those artifacts cannot perform that comparison.

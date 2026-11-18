@@ -1,0 +1,425 @@
+name: Current HIA Runtime
+
+on:
+  push:
+    branches:
+      - main
+  # Each PR runs the full current-runtime gate; merged main gets its own run.
+  # Limit push to main so a feature push and its PR do not duplicate this gate.
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  current-runtime:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: bash
+    env:
+      CURRENT_OUTPUT: ${{ runner.temp }}/heptatorch-current
+    steps:
+
+      - name: Check out HeptaTorch
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Check that the complete upstream target remains recorded
+        run: python3 -I -S -B tools/check_acceptance.py
+
+      - name: Check out the pinned HIA toolchain sources
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: TrillionniumFoundation/Hepta
+          ref: f33d8da316de8fdf27b504371f1a5310997ff548
+          path: .toolchain/hepta
+          persist-credentials: false
+          fetch-depth: 1
+          sparse-checkout-cone-mode: true
+          sparse-checkout: |
+            hepta
+            tools
+            examples/hia_bootstrap
+            docs
+
+      - name: Check out the fixed historical legacy-compiler witness
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: TrillionniumFoundation/HeptaTorch
+          ref: 31d5b1483714b32254730ba56787884c5c76e2fb
+          path: .toolchain/heptatorch-legacy
+          persist-credentials: false
+          fetch-depth: 1
+          sparse-checkout-cone-mode: true
+          sparse-checkout: |
+            src
+
+      - name: Bootstrap and reproduce the native HIA compiler
+        shell: bash
+        run: |
+          python3 -I -S -B - <<'PY'
+          from pathlib import Path
+          import hashlib
+          import json
+          import os
+          import subprocess
+          import sys
+
+          root = Path('.toolchain/hepta').resolve()
+          output = Path(os.environ['RUNNER_TEMP']) / 'hepta-compiler'
+          output.mkdir(parents=True, exist_ok=True)
+          sys.path.insert(0, str(root))
+          from tools.qualify_hia_selfhost import build_seed, compile_stage
+
+          expected_commit = 'f33d8da316de8fdf27b504371f1a5310997ff548'
+          expected_source = '388b182e42675f11435867dd99520e9452a4ff48e23c0766a3952b662acc7627'
+          expected_compiler = '87c247e4d1c3c9a449d2947fd4227fdc186d519bffd203a04cafce7861a4ed54'
+          head = subprocess.check_output(['git', '-C', str(root), 'rev-parse', 'HEAD'], text=True).strip()
+          if head != expected_commit:
+              raise RuntimeError('unexpected HIA source commit')
+          source = (root / 'examples/hia_bootstrap/selfhost.hepta').read_bytes()
+          if hashlib.sha256(source).hexdigest() != expected_source:
+              raise RuntimeError('unexpected HIA compiler source digest')
+
+          # B0 is the external bootstrap boundary: Python assembler and GNU ld.
+          # B1 onward are compiled by preceding HIA machine code. The upstream
+          # stdlib child transports fixed ABI buffers; it does not compile them.
+          image, seed = build_seed(output, source)
+          generations = []
+          for label in ('B1', 'B2', 'B3'):
+              image, receipt = compile_stage(
+                  output, label, image, source,
+                  image_format='seed-shared' if label == 'B1' else 'flat-x86-64')
+              generations.append(receipt['produced_sha256'])
+          if len(set(generations)) != 1:
+              raise RuntimeError('B1/B2/B3 compiler images differ')
+
+          old = b'hia-asm.v1 hepta.hia.program.v8 selfhost\n'
+          new = b'hia-asm.v1 hepta.hia.program.v8 selfhost_exec\n'
+          if not source.startswith(old):
+              raise RuntimeError('unexpected compiler module header')
+          executable_source = new + source[len(old):]
+          compiler, receipt = compile_stage(
+              output, 'native-compiler', image, executable_source,
+              output_extension='')
+          compiler.chmod(0o755)
+          compiler_bytes = compiler.read_bytes()
+          if hashlib.sha256(compiler_bytes).hexdigest() != expected_compiler:
+              raise RuntimeError('unexpected native compiler digest')
+
+          # The standalone compiler performs two further rebuilds with no PATH.
+          previous = compiler
+          for generation in (1, 2):
+              result = subprocess.run(
+                  [str(previous)], input=executable_source, capture_output=True,
+                  timeout=20, env={'PATH': ''})
+              if result.returncode or result.stderr or result.stdout != compiler_bytes:
+                  raise RuntimeError('standalone native compiler did not reproduce itself')
+              previous = output / ('native-compiler-rebuilt-' + str(generation))
+              previous.write_bytes(result.stdout)
+              previous.chmod(0o755)
+
+          print(json.dumps({
+              'status': 'PASS', 'hepta_commit': head,
+              'compiler_source_sha256': expected_source,
+              'B1_B2_B3_sha256': generations[0],
+              'standalone_compiler_sha256': expected_compiler,
+              'standalone_fixed_point_generations': 2,
+              'B0_requires_Python_and_GNU_ld': True,
+              'full_upstream_cold_qualification': False
+          }, indent=2))
+          PY
+
+      - name: Expand and reproduce the HIA compiler capacity profile
+        shell: bash
+        run: |
+          python3 -I -S -B tools/compiler-profile/adapt.py \
+            --source-root "$GITHUB_WORKSPACE/.toolchain/hepta" \
+            --output "$RUNNER_TEMP/hepta-profile-sources"
+          python3 -I -S -B tools/compiler-profile/generate_packer.py \
+            --source-root "$GITHUB_WORKSPACE/.toolchain/hepta" \
+            --output "$RUNNER_TEMP/hepta-profile-sources"
+          bash tools/compiler-profile/rebuild.sh \
+            "$RUNNER_TEMP/hepta-compiler/native-compiler" \
+            "$RUNNER_TEMP/hepta-profile-sources" \
+            "$RUNNER_TEMP/hepta-expanded"
+          python3 -I -S -B tools/compiler-profile/check_capacity.py \
+            --compiler "$RUNNER_TEMP/hepta-expanded/hia-native-compiler" \
+            --output "$RUNNER_TEMP/hepta-capacity-review"
+          python3 -I -S -B - <<'PROFILE'
+          from pathlib import Path
+          import hashlib
+          import json
+          import os
+          import subprocess
+          temporary = Path(os.environ['RUNNER_TEMP'])
+          profile = json.loads(Path('compatibility/hia-expanded-profile.json').read_text())
+          recorded = json.loads(Path('validation/compiler-profile.json').read_text())
+          digest = lambda p: hashlib.sha256(Path(p).read_bytes()).hexdigest()
+          legacy = temporary / 'hepta-compiler/native-compiler'
+          expanded = temporary / 'hepta-expanded/hia-native-compiler'
+          generated = temporary / 'hepta-profile-sources'
+          assert digest(expanded) == profile['generated']['native_compiler']['sha256']
+          assert json.loads((generated / 'adaptation.json').read_text()) == recorded['source_adaptation']
+          assert json.loads((generated / 'packer-authoring.json').read_text()) == recorded['packer_authoring']
+          # The original 128-function compiler cannot compile the current
+          # runtime. Keep its byte witness at the exact previously qualified main.
+          historical = Path('.toolchain/heptatorch-legacy').resolve()
+          historical_commit = '31d5b1483714b32254730ba56787884c5c76e2fb'
+          assert subprocess.check_output(['git', '-C', str(historical), 'rev-parse', 'HEAD'], text=True).strip() == historical_commit
+          historical_source = historical / 'src/heptatorch.hepta'
+          historical_source_sha = '4c1d17240dd8616798e238cdd54641ee6f2e42c02635c82b3bdeea0a530b5ca5'
+          historical_image_sha = 'ecca265b088e0688df8ad963613f6bdf460efd324d0c480e6395e4ef67372779'
+          assert digest(historical_source) == historical_source_sha
+          comparisons = []
+          for name, source_path in [('historical-runtime', historical_source), ('current-unhex', Path('tools/unhex.hepta'))]:
+              source = source_path.read_bytes()
+              outputs = [subprocess.run([str(compiler)], input=source, capture_output=True,
+                                        timeout=30, env={'PATH': ''}) for compiler in (legacy, expanded)]
+              assert all(p.returncode == 0 and not p.stderr for p in outputs)
+              assert outputs[0].stdout == outputs[1].stdout
+              image_sha = hashlib.sha256(outputs[0].stdout).hexdigest()
+              if name == 'historical-runtime':
+                  assert image_sha == historical_image_sha
+              comparisons.append({'witness': name, 'source_sha256': digest(source_path),
+                                  'image_sha256': image_sha, 'byte_identical': True})
+          capacity = json.loads((temporary / 'hepta-capacity-review/summary.json').read_text())
+          assert capacity['pass'] and capacity['passed'] == capacity['total'] == 16
+          print(json.dumps({'schema': 'heptatorch.hosted-compiler-profile.v2', 'status': 'PASS',
+                            'profile': profile['profile'], 'native_compiler_sha256': digest(expanded),
+                            'native_fixed_point_generations': 4,
+                            'adaptation_receipts_match': True,
+                            'legacy_runtime_witness_commit': historical_commit,
+                            'legacy_comparisons': comparisons, 'capacity_review': capacity}))
+          PROFILE
+
+      - name: Verify the pinned module adaptation inputs
+        shell: bash
+        run: |
+          python3 -I -S -B - <<'MODULE_INPUTS'
+          from pathlib import Path
+          import hashlib
+          import json
+          recorded = json.loads(Path('validation/native-modules.json').read_text())
+          assert recorded['status'] == 'PASS'
+          for path, expected in recorded['packaged_tools_sha256'].items():
+              assert hashlib.sha256(Path(path).read_bytes()).hexdigest() == expected, path
+          profile = json.loads(Path('tools/modules/profile.json').read_text())
+          assert profile['profile'] == recorded['profile'] == 'heptatorch.hia.borrowed-modules.v1'
+          assert profile['upstream_commit'] == recorded['upstream_commit'] == 'f33d8da316de8fdf27b504371f1a5310997ff548'
+          print('PASS: exact module adaptation, native authoring additions and test-source pins')
+          MODULE_INPUTS
+
+      - name: Author and reproduce three native module-compiler generations
+        shell: bash
+        run: |
+          python3 -I -S -B tools/modules/build_module_compiler.py \
+            --source-root "$GITHUB_WORKSPACE/.toolchain/hepta" \
+            --capacity-adaptation "$RUNNER_TEMP/hepta-profile-sources/adaptation.json" \
+            --output "$RUNNER_TEMP/hepta-modules-sources"
+          python3 -I -S -B tools/modules/build_module_linker.py \
+            --source-root "$GITHUB_WORKSPACE/.toolchain/hepta" \
+            --capacity-adaptation "$RUNNER_TEMP/hepta-profile-sources/adaptation.json" \
+            --output "$RUNNER_TEMP/hepta-modules-sources"
+          cp "$RUNNER_TEMP/hepta-profile-sources/compiler-packer.hepta" \
+            "$RUNNER_TEMP/hepta-modules-sources/compiler-packer.hepta"
+          bash tools/modules/rebuild.sh \
+            "$RUNNER_TEMP/hepta-expanded/hia-native-compiler" \
+            "$RUNNER_TEMP/hepta-modules-sources" \
+            "$RUNNER_TEMP/hepta-modules-native"
+          python3 -I -S -B - <<'MODULE_REPRODUCTION'
+          from pathlib import Path
+          import hashlib
+          import json
+          import os
+          temporary = Path(os.environ['RUNNER_TEMP'])
+          sources = temporary / 'hepta-modules-sources'
+          native = temporary / 'hepta-modules-native'
+          recorded = json.loads(Path('validation/native-modules.json').read_text())
+          digest = lambda p: hashlib.sha256(Path(p).read_bytes()).hexdigest()
+          assert json.loads((sources / 'compiler-adaptation.json').read_text()) == recorded['compiler_authoring']
+          assert json.loads((sources / 'linker-authoring.json').read_text()) == recorded['linker_authoring']
+          assert digest(native / 'module-compiler') == recorded['compiler_executable_sha256']
+          assert digest(native / 'module-linker') == recorded['linker_executable_sha256']
+          generations = []
+          for generation in range(3):
+              generations.append({'generation': generation,
+                                  'flat_sha256': digest(native / ('M' + str(generation) + '.image')),
+                                  'executable_sha256': digest(native / ('compiler-' + str(generation)))})
+          assert generations == recorded['native_reproduction']['generations']
+          print(json.dumps({'schema': 'heptatorch.hosted-module-reproduction.v1', 'status': 'PASS',
+                            'profile': recorded['profile'], 'native_generations': generations,
+                            'compiler_authoring_closure_files': len(recorded['compiler_authoring']['upstream_source_files_verified_before_and_after']),
+                            'linker_authoring_closure_files': len(recorded['linker_authoring']['upstream_source_files_verified_before_and_after'])}))
+          MODULE_REPRODUCTION
+
+      - name: Reproduce the owned-resource ABI2 compiler and native syscall allocator
+        shell: bash
+        run: |
+          sha256sum -c validation/owned-module-package.sha256
+          python3 -I -S -B tools/owned_modules/rebuild.py \
+            --source-root "$GITHUB_WORKSPACE/.toolchain/hepta" \
+            --capacity-adaptation "$RUNNER_TEMP/hepta-profile-sources/adaptation.json" \
+            --borrowed-tools "$RUNNER_TEMP/hepta-modules-native" \
+            --output "$RUNNER_TEMP/hepta-owned-modules"
+
+      - name: Reproduce checked owned-state interactive entry and cleanup tools
+        shell: bash
+        run: |
+          sha256sum -c validation/owned-session-package.sha256
+          python3 -I -S -B tools/owned_sessions/rebuild.py \
+            --source-root "$GITHUB_WORKSPACE/.toolchain/hepta" \
+            --owned-build "$RUNNER_TEMP/hepta-owned-modules" \
+            --owned-profile tools/owned_modules/profile.json \
+            --borrowed-tools "$RUNNER_TEMP/hepta-modules-native" \
+            --output "$RUNNER_TEMP/hepta-owned-session-tools"
+
+      - name: Reproduce ABI3 native stack admission and guarded startup
+        id: toolchain
+        run: |
+          sha256sum -c validation/stack-budget-package.sha256
+          python3 -I -S -B tools/stack_budget/rebuild.py \
+            --source-root "$GITHUB_WORKSPACE/.toolchain/hepta" \
+            --owned-build "$RUNNER_TEMP/hepta-owned-modules" \
+            --session-build "$RUNNER_TEMP/hepta-owned-session-tools" \
+            --borrowed-tools "$RUNNER_TEMP/hepta-modules-native" \
+            --output "$RUNNER_TEMP/hepta-stack-budget"
+
+      - name: Cold-build the complete current 700-function runtime
+        id: current_build
+        run: |
+          python3 -I -S -B tools/current_runtime/build.py \
+            --manifest tools/current_runtime/source/manifest.json \
+            --source-root tools/current_runtime/source \
+            --compiler "$RUNNER_TEMP/hepta-stack-budget/native/stack-module-compiler" \
+            --linker "$RUNNER_TEMP/hepta-stack-budget/native/stack-linker-session" \
+            --output "$CURRENT_OUTPUT/build"
+
+      - name: Qualify all four native suites on the same current image
+        id: current_qualification
+        if: ${{ !cancelled() && steps.current_build.outcome == 'success' }}
+        run: |
+          python3 -I -S -B tests/qualify_current_runtime.py \
+            --build-directory "$CURRENT_OUTPUT/build" \
+            --output "$CURRENT_OUTPUT/review"
+
+      - name: Publish the actual current-runtime qualification result
+        if: ${{ always() }}
+        env:
+          TOOLCHAIN_OUTCOME: ${{ steps.toolchain.outcome }}
+          BUILD_OUTCOME: ${{ steps.current_build.outcome }}
+          QUALIFICATION_OUTCOME: ${{ steps.current_qualification.outcome }}
+        run: |
+          python3 -I -S -B - <<'SUMMARY'
+          from pathlib import Path
+          import hashlib
+          import json
+          import os
+          import sys
+
+          output = Path(os.environ['CURRENT_OUTPUT'])
+          output.mkdir(parents=True, exist_ok=True)
+          failures, qualification, binding = [], None, None
+          for key in ('TOOLCHAIN_OUTCOME', 'BUILD_OUTCOME', 'QUALIFICATION_OUTCOME'):
+              if os.environ.get(key) != 'success':
+                  failures.append(key + '=' + os.environ.get(key, 'missing'))
+          try:
+              raw = (output / 'review/qualification.json').read_bytes()
+              qualification = json.loads(raw)
+              binding = {'path': 'review/qualification.json', 'bytes': len(raw),
+                         'sha256': hashlib.sha256(raw).hexdigest()}
+              if qualification['status'] != 'PASS_CURRENT_RUNTIME_FOCUSED':
+                  failures.append('the common four-suite qualifier did not pass')
+              if qualification['all_suites_executed'] is not True or qualification['all_inputs_unchanged'] is not True:
+                  failures.append('actual execution or input custody incomplete')
+          except Exception as error:
+              failures.append('missing or incomplete qualification evidence: ' + repr(error))
+          summary = {'schema': 'heptatorch.current-runtime.focused-ci.v1',
+                     'status': 'PASS_CURRENT_RUNTIME_FOCUSED' if not failures else 'FAIL',
+                     'commit': os.environ.get('GITHUB_SHA'),
+                     'hepta_commit': 'f33d8da316de8fdf27b504371f1a5310997ff548',
+                     'qualification': binding, 'failures': failures,
+                     'full_pytorch_rewrite_complete': False, 'full_project_status': 'HOLD'}
+          (output / 'qualification.json').write_text(json.dumps(summary, indent=2, sort_keys=True) + '\n')
+          print(json.dumps(summary, indent=2, sort_keys=True))
+          with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a') as stream:
+              stream.write('## Current HIA runtime\n\n' + summary['status'] + '\n\n')
+              stream.write('The common local/CI gate requires a complete cold build, all 159 original '
+                           'comparison cases (Bool27, view/scalar76, Sum32 and Integral24), '
+                           '7 current dtype controls, 10 entry controls, and allocation rollback/recovery.\n\n')
+              stream.write('The original five Integral dtype controls remain recorded: '
+                           'three refusals pass and two previous Bool refusals are superseded by '
+                           'the independently required current dtype suite.\n\n')
+              stream.write('Full PyTorch rewrite: HOLD. This finite gate does not assert project closure.\n')
+              if qualification:
+                  for suite in qualification.get('suites', []):
+                      stream.write('\n- ' + suite['name'] + ': ' + suite['status'] + '\n')
+              for failure in failures:
+                  stream.write('\n- ' + failure + '\n')
+          sys.exit(1 if failures else 0)
+          SUMMARY
+
+      - name: Preserve complete original evidence and file modes after success or failure
+        if: ${{ always() }}
+        run: |
+          python3 -I -S -B - <<'ARCHIVE'
+          from pathlib import Path
+          import hashlib
+          import json
+          import os
+          import stat
+          import tarfile
+
+          temporary = Path(os.environ['RUNNER_TEMP'])
+          output = Path(os.environ['CURRENT_OUTPUT'])
+          output.mkdir(parents=True, exist_ok=True)
+          inventory = []
+          for path in sorted(output.rglob('*')):
+              if path.is_file():
+                  assert not path.is_symlink(), path
+                  raw = path.read_bytes()
+                  inventory.append({'path': str(path.relative_to(output)), 'bytes': len(raw),
+                                    'sha256': hashlib.sha256(raw).hexdigest(),
+                                    'mode': stat.S_IMODE(path.stat().st_mode)})
+          (output / 'files.json').write_text(json.dumps(inventory, indent=2) + '\n')
+          archive = temporary / 'heptatorch-current-evidence.tar.xz'
+          with tarfile.open(archive, 'w:xz', preset=3) as bundle:
+              bundle.add(output, arcname='current-runtime')
+              for name in ('hepta-compiler', 'hepta-profile-sources', 'hepta-expanded',
+                           'hepta-capacity-review', 'hepta-modules-sources', 'hepta-modules-native',
+                           'hepta-owned-modules', 'hepta-owned-session-tools', 'hepta-stack-budget'):
+                  path = temporary / name
+                  if path.exists():
+                      bundle.add(path, arcname='toolchain/' + name)
+              for relative in ('.github/workflows/current-runtime.yml', 'tools/current_runtime',
+                               'tests/qualify_current_runtime.py', 'tests/sum_bool_review',
+                               'tests/current_runtime_legacy', 'tests/current_runtime_integral24',
+                               'validation/sum-bool27-reference', 'validation/current-runtime-references'):
+                  path = Path(relative)
+                  if path.exists():
+                      bundle.add(path, arcname='repository/' + relative)
+          digest = hashlib.sha256(archive.read_bytes()).hexdigest()
+          (temporary / 'heptatorch-current-evidence.sha256').write_text(digest + '  ' + archive.name + '\n')
+          print(json.dumps({'archive': archive.name, 'bytes': archive.stat().st_size,
+                            'sha256': digest, 'current_output_files': len(inventory),
+                            'original_file_modes_preserved': True}))
+          ARCHIVE
+
+      - name: Upload complete current runtime native evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: current-runtime-native-evidence
+          path: |
+            ${{ runner.temp }}/heptatorch-current-evidence.tar.xz
+            ${{ runner.temp }}/heptatorch-current-evidence.sha256
+            ${{ runner.temp }}/heptatorch-current/qualification.json
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
+
