@@ -246,9 +246,24 @@ def qualify_f32(report, repository, build, build_sha, directory, inputs):
                 and [op['normalized_status'] for op in operations]
                 == ([3, 3, 0] if stage == 'cast-storage' else [0, 3, 0]),
                 'actual cast witness, exact sum failure, and same-command recovery')
-    fusion = report['source_transition']
+    cat_transition = report['source_transition']
+    cat_path = Path(repository) / 'tools/current_runtime/cat_source_transition.py'
+    cat_raw = inputs.bind(cat_path)
+    cat_spec = importlib.util.spec_from_file_location('qualified_current_cat_source_transition', cat_path)
+    cat = importlib.util.module_from_spec(cat_spec)
+    cat_spec.loader.exec_module(cat)
+    restored, cat_proof = cat.restore_source(inputs.bind(Path(build) / 'runtime.hepta', SOURCE), inputs.bind)
+    require(cat_transition['schema'] == 'heptatorch.current-cat.source-proof.v1'
+            and cat_transition['source_sha256'] == SOURCE
+            and cat_transition['parent_source_sha256'] == cat.PARENT_SOURCE == sha(restored)
+            and cat_transition['whole_inverse_exact'] is True
+            and cat_transition['cat_transition'] == cat_proof
+            and cat_transition['original_source_proofs_modified'] is False
+            and cat_transition['runtime_qualification_transferred'] is False,
+            'exact complete three-function cat inverse before all original source proofs')
+    fusion = cat_transition['logical_fusion']
     require(fusion['schema'] == 'heptatorch.current-logical-fusion.source-proof.v1'
-            and fusion['whole_inverse_exact'] is True and fusion['source_sha256'] == SOURCE
+            and fusion['whole_inverse_exact'] is True and fusion['source_sha256'] == cat.PARENT_SOURCE
             and fusion['current_functions'] == FUNCTIONS and fusion['original_functions'] == 701
             and fusion['unchanged_functions'] == 689
             and fusion['modified_functions'] == ['entry', 'sb_sum_bool', 'si_dispatch_sum', 'si_plan', 'to_command']

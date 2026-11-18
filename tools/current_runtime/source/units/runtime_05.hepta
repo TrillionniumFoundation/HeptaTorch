@@ -3836,11 +3836,18 @@ block b20(v202:readbuf,v203:mutbuf,v204:u64,v206:u64,v209:u64)
   v214:u64 = int.mul.wrap(v209,v213)
   v215:u64 = int.add.wrap(v212,v214)
   v216:u64 = call(v203,v215) {"function":"alloc"}
+  v319:u64 = const() {"value":0}
+  v320:bool = compare.eq(v216,v319)
+  branch v320 alloc_failed(v203) alloc_ready(v202,v203,v204,v206,v209,v216)
+block alloc_failed(v321:mutbuf)
+  v322:u64 = const() {"value":0}
+  ret(v322)
+block alloc_ready(v323:readbuf,v324:mutbuf,v325:u64,v326:u64,v327:u64,v328:u64)
   v217:u64 = const() {"value":80}
-  v218:u64 = call(v203,v217) {"function":"getw"}
-  v219:u64 = call(v203,v216,v209) {"function":"putw"}
+  v218:u64 = call(v324,v217) {"function":"getw"}
+  v219:u64 = call(v324,v328,v327) {"function":"putw"}
   v220:u64 = const() {"value":0}
-  jump b21(v202,v203,v204,v206,v218,v209,v216,v220)
+  jump b21(v323,v324,v325,v326,v218,v327,v328,v220)
 block b21(v221:readbuf,v222:mutbuf,v223:u64,v225:u64,v227:u64,v228:u64,v229:u64,v230:u64)
   v231:bool = compare.lt(v230,v228)
   branch v231 b22(v221,v222,v223,v225,v227,v228,v229,v230) b23(v221,v222,v223,v225,v227,v229)

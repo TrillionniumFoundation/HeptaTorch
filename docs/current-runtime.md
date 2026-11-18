@@ -88,7 +88,7 @@ it does not grant runtime or whole-PyTorch qualification.
 ## Current-image tests
 
 The default test command requires the fixed native tools and a pinned live
-PyTorch reference interpreter. All eleven groups are mandatory:
+PyTorch reference interpreter. All thirteen groups are mandatory:
 
 ```sh
 make test HEPTA_CURRENT_COMPILER=/absolute/path/to/stack-module-compiler \
@@ -119,11 +119,17 @@ versions.
 | Logical reductions | 147 | Any/all/Bool sum, invalid-axis gradient precedence, eighteen packet controls and two real allocation/rollback/retry controls |
 | Original resource controls | 7 | Original R4 resource3, backward private-cache1 and R3 preserve3, full 84-word owner/RNG rollback and three actual allocation-limit recoveries |
 | Original AsStrided | 16 | Original copy4/reduction4/lanes2/branches6, 1,920 frames, 10,272 checks, 176 complete owner archives, sixteen actual native exits and 32 EOF observations |
+| Original cat/stack packets | 4 | Three complete original successful byte streams and one explicit expanded-capacity control, full owner snapshots and actual exit/EOF |
+| Cat metadata | 10 | Independently observed Torch metadata and raw data, complete native frame/owner reconstruction, 62,207 repeated empty gradients and 62,208-input forward control |
 
-These total **683 finite comparison cases**. They are not 683 complete upstream
+These total **697 finite comparison cases**. They are not 697 complete upstream
 schemas. Original lifecycle35, operator/training270 and live32 execute the
 actual pinned Torch oracle. The other eight groups consume exact frozen actual
 reference results, including all provenance checks applicable to each package.
+Cat4 consumes four complete legacy protocol fixtures. Metadata10 consumes a
+separate immutable actual Torch reference with all eleven provenance checks;
+its fifteen-member custody package retains original bytes and records explicit
+original-path mappings without rewriting the original report.
 
 To choose a new output directory explicitly:
 
@@ -186,11 +192,24 @@ function and records actual exit/EOF; its claim is limited to the reviewed
 original call graph, which has no early output-close path. No expected values,
 reader assertions or process finish implementation are replaced.
 
-Execution records remain distinct: the original complete 667 run passed;
-post-migration original76/Sum32/live32 passed 140 cases, resource7 passed seven,
-and final AsStrided16 passed sixteen. The new complete eleven-group 683 gate
-still requires its own actual CI run. The earlier reports retain their original
+The previous published image passed the complete eleven-group 683 gate in
+[actual CI](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/44294832902).
+PR40 was merged with the same executed file tree. The current cat fixes change
+three complete HIA function bodies; the other 697 bodies are constrained by a
+whole-source inverse to that exact previous image's source, followed by every
+original logical/PR38/AVX2/baseline proof. The current image has separately passed
+Cat4 and the ten fixed metadata comparisons. The new complete thirteen-group
+697 gate requires fresh execution; all earlier runs retain their original
 denominators and source snapshots.
+
+Metadata10 preserves the full original driver with only its two source/image
+identity literals changed. A passive normal-return observer records the exact
+original Tensor reader's complete owner bytes and native finish observations.
+The separate admission reconstructs every literal command, 13/96/98 metadata
+frame, logical Storage byte and Tensor/Storage/Version relation before applying
+the unchanged comparator. Original comparisons, cleanup code and native commands
+remain intact. The historical seven-case Version mismatch remains a failure
+record for its original image.
 
 The compact view/scalar reference archive contains exactly the eight original
 reference/probe files and retains their original bytes and archived modes.

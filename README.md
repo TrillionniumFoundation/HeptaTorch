@@ -4,7 +4,7 @@ HeptaTorch 的当前应用运行时由 **HIA 原生源码**实现，直接生成
 
 **整个 PyTorch 的全量重写尚未完成，项目状态为 HOLD。** 固定目标是 PyTorch **2.15.0**，分母保留 **2,590 条原生算子声明、688 条导数声明、17 项系统验收门禁**。目前 10 项进行中、7 项开放，完整上游 schema 和整项门禁的闭合数均为 0。[当前审计](docs/current-audit.md)说明已有实现、实际证据和剩余范围。
 
-**当前 HIA 映像已实际通过原统一 10 组、667 个案例及全部附加控制。** 参考包迁移与 live32 读回强化后，原 76、Sum32、live32 合计 140 例，以及资源 7 例分别重跑通过；新增的原 AsStrided 16 例也已独立通过。默认入口现要求 **11 组、683 例**，这一完整组合尚待发布后 CI 实跑，以上独立结果不合并冒充一次 683 运行。首轮 660 的跨 Python AST 身份拒绝仍保留原 FAIL。精确记录见[当前执行证据](validation/current-runtime-20261118/manifest.json)和[实际执行状态](docs/current-audit.md)。
+**已发布前版已在 GitHub 实际通过统一 11 组、683 个案例及全部附加控制。** [PR40](https://github.com/TrillionniumFoundation/HeptaTorch/pull/40) 已合并，实际 CI 文件树与合并树一致。继续审计又发现大列表 cat 的分配失败处理、空轴反向性能和空梯度 Version 差异；本次新映像已通过 4 项原始 cat/stack 回归及 10 项独立 Torch 元数据对照。默认门禁扩为 **13 组、697 例**，其在新映像上的完整组合仍待执行，旧 683 的成功不转移给新源码。原 660、旧 cat 崩溃／超时与版本差异报告保留原结果。见[当前审计](docs/current-audit.md)。
 
 ## 当前实现
 
@@ -15,7 +15,8 @@ HeptaTorch 的当前应用运行时由 **HIA 原生源码**实现，直接生成
 - **`any` / `all`**：命令 118 / 119 接受 Bool、I64、F32 和已有的 rank-zero wrapped F64 Scalar，输出拥有独立 Storage/Version 的 Bool 张量。实际真值转换、归约和分配均由 HIA 执行。
 - **`sum(dtype=bool)`**：命令 115 扩展到上述源类型，保留它与 `any` / `all` 不同的空轴语义。浮点输入需要梯度时，先检查重复／越界轴，再按契约拒绝 Bool 求和。
 - **`sum(dtype=float32)`**：Bool/I64 逐元素转成 F32 后进入 F32 求和内核，保留舍入次序；私有转换对象在成功和失败路径都回收。
-- **F32 累加次序与空 `cat` 梯度**：保留 PR38 对固定参考 SumKernel 的 8-lane 累加次序修正，以及重复、被跳过的一维空 `cat` 输入的梯度缓存／Version 修正。
+- **F32 累加次序**：保留固定参考 SumKernel 的 8-lane 累加次序修正。
+- **`cat` 分配与空梯度**：检查 saved-list 分配失败后再写入；零输出轴跳过无效前缀扫描；普通拼接元数据直接读取。rank-one 空输入的反向使用已有零值构造流程，保持真实 Storage/Version 语义。实际 62,207 次重复输入的空梯度 Version 与固定 Torch 同为 62,208。
 - **统一原始回归**：当前映像接入完整原 35 生命周期案例、原 270 基础／NN／训练案例、原 32 Tensor/RNG/backward 轨迹、原 7 个资源配方和原 16 个 AsStrided 案例。原数值比较、分配预算、来源条件和失败记录保留。
 
 ### 明确的边界
@@ -50,9 +51,9 @@ HIA 应用运行时依赖 Linux 内核与 x86-64 硬件。Python 用于构建组
 
 参考环境固定为 CPython 3.12、Linux x86-64 和官方 CPU PyTorch 2.15.0 wheel，必须通过 11 项来源检查及真实安装回执。按[锁文件](compatibility/pytorch-oracle-lock.json)和 [CI 安装步骤](.github/workflows/current-runtime.yml)准备环境，再使用 `HEPTA_TORCH_PYTHON` 选择它。`make test` 使用这一解释器运行协调器及各检查阶段，避免不同 Python 版本的 AST 结构摘要差异；它不会隐式联网安装。
 
-## 同一映像上的十一组必需门禁
+## 同一映像上的十三组必需门禁
 
-`make test` 与 [Current runtime CI](.github/workflows/current-runtime.yml)共用 [`tests/qualify_current_runtime.py`](tests/qualify_current_runtime.py)。每组必须绑定同一份当前源码、实际 ELF 和本次冷构建报告。固定分母为 **683 个案例**，各组额外控制另行保留；案例数不等于完整上游 schema 数。
+`make test` 与 [Current runtime CI](.github/workflows/current-runtime.yml)共用 [`tests/qualify_current_runtime.py`](tests/qualify_current_runtime.py)。每组必须绑定同一份当前源码、实际 ELF 和本次冷构建报告。固定分母为 **697 个案例**，各组额外控制另行保留；案例数不等于完整上游 schema 数。
 
 | 组名 | 案例数 | 保留的主要检查 |
 | --- | ---: | --- |
@@ -67,8 +68,10 @@ HIA 应用运行时依赖 Linux 内核与 x86-64 硬件。Python 用于构建组
 | `logical147` | 147 | 49 份固定输入分别比较 any、all、Bool sum；另有 18 个包／回滚控制和 2 个真实分配失败／恢复控制 |
 | `resource7` | 7 | 原 R4 resource3、backward private cache1、R3 preserve3；378 帧、1,060 项检查，包含完整 owner/RNG 和 3 个真实 RLIMIT 分配失败／恢复控制 |
 | `asstrided16` | 16 | 原 copy4、reduction4、lanes2、branches6；1,920 帧、10,272 项检查、176 份完整 owner 归档，以及 16 个原生退出／32 次 EOF |
+| `cat4` | 4 | 三份完整原始成功响应与一份明确的扩容控制；完整请求逆转换、四个实际退出、双 EOF 和完整 owner |
+| `metadata10` | 10 | 固定实际 Torch 对照：空／非空拼接、62,207 次重复梯度、62,208 次前向、形状／步长／offset／Version／grad presence；逐帧与完整 owner 读回 |
 
-`current35`、`base270`、`live32` 运行固定 live Torch 参考；其余八组使用独立产生并固定字节的参考。缺失、跳过、仅准备、失败、超时、不完整 EOF 或输入变化都不能得到统一 PASS。
+`current35`、`base270`、`live32` 运行固定 live Torch 参考；八个原参考组继续使用固定实际观察，`cat4` 使用四份原始协议夹具，`metadata10` 使用独立产生并封存的十项实际 Torch 观察。缺失、跳过、仅准备、失败、超时、不完整 EOF 或输入变化都不能得到统一 PASS。
 
 功能扩展已取代的旧“应拒绝”控制仍保留原 FAIL。当前独立测试单独验证新增契约，不能改写旧期望或把旧失败重分类。原 35 中的 283 项显式 optimizer-state 绝对 Version 差异继续单独记录；参数 Version 比较仍要求原断言通过。
 
