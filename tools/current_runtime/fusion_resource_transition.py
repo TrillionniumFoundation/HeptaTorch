@@ -1,4 +1,4 @@
-"""Exact source736 path obligations for the unchanged seven resource recipes.
+"""Exact source740 path obligations for the unchanged seven resource recipes.
 
 This proves a conditional source relation on the original public0/1/2/private3
 domain. The unchanged complete owner and resource recipes must still execute.
@@ -13,9 +13,9 @@ import re
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
-SOURCE = '51820849f7becec549be15babace00f00687601ae7f53bcee0e636ca02f721f9'
-IMAGE = 'aa3cc8f0c8738a9505d31c9e8ba5a523b7e08b591b61fc7bfb8592295491618b'
-OUTER = '68bee6229293c90537fd974ea07ae0a4fb25d35f5a7d52e1efcaa4967720f1c3'
+SOURCE = '24011e3c861e3b0e77c6a25c07116375cded2225c1f05f42cd84aa1e4a139215'
+IMAGE = '52e89b1cb6f4b859d3c9c2f5b528c8c22ddd983e21990a4a4dd5357625c3aba2'
+OUTER = '0495301801bec96191c6cba57a4e0d3878b2cd362158916e487bf5ae07802b59'
 OBLIGATIONS = '4fa8028bec733a72ac2857dce326e25d6d378aafd1045c2504bb5828553cf2bb'
 OWNER = 'e54509ceba0ef3bf171f5fc1018665dc97e56eeccec0cba1e8c14f9a7ed81501'
 CHANGED = ('command_argument', 'dtype_audit', 'to_command', 'typed_command', 'typed_fill')
@@ -48,14 +48,42 @@ def calls(body):
 def prove(source, bind):
     """Purely inspect complete actual source; return no runtime PASS."""
     bind(Path(__file__).resolve())
-    require(sha(source) == SOURCE, 'exact source736 actual resource subject')
+    require(sha(source) == SOURCE, 'exact source740 actual resource subject')
     path = HERE / 'fusion_source_transition.py'
     bind(path, OUTER)
-    spec = importlib.util.spec_from_file_location('resource736_complete_outer_inverse', path)
+    spec = importlib.util.spec_from_file_location('resource740_complete_outer_inverse', path)
     outer = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(outer)
     historical, complete = outer.restore_source(source, bind)
-    actual, parent = outer.functions(source, 736), outer.functions(historical, 700)
+    actual, parent = outer.functions(source, 740), outer.functions(historical, 700)
+    predicate_inverse = complete['predicate_source_inverse']
+    guard = predicate_inverse['dispatcher_guard']
+    delegation = predicate_inverse['old_path_delegation']
+    require(predicate_inverse['source_sha256'] == SOURCE
+        and predicate_inverse['functions'] == 740
+        and predicate_inverse['parent_functions'] == 736
+        and predicate_inverse['unchanged_parent_functions'] == 735
+        and predicate_inverse['changed_functions'] == ['entry']
+        and predicate_inverse['entry_only_upper_bound_and_dispatch_target_changed'] is True
+        and guard['opcode_min'] == 120 and guard['opcode_max'] == 124
+        and guard['reads_before_guard'] == ['getr(request,at)']
+        and guard['exact_closed_range_verified'] is True
+        and delegation['target'] == 'to_command'
+        and delegation['parameter_count'] == 6
+        and delegation['argument_order_preserved'] is True
+        and delegation['complete_parent_body_unchanged'] is True
+        and delegation['parent_body_sha256'] == delegation['actual_body_sha256']
+            == sha(actual['to_command']),
+        'physical740 entry delegates every original108..119 opcode through the exact six-argument original to_command body')
+    predicate_route = dict(
+        actual_entry_sha256=sha(actual['entry']),
+        actual_predicate_command_sha256=sha(actual['predicate_command']),
+        actual_to_command_sha256=sha(actual['to_command']),
+        entry_only_upper_bound_and_dispatch_target_changed=True,
+        entry_original_delegation_opcodes=list(range(108, 120)),
+        dispatcher_guard=guard, old_path_delegation=delegation,
+        new_predicate_branch_reachable_for_original_opcodes=False,
+        historical_body_substituted_for_actual_body=False)
     original = json.loads(bind(ROOT / 'tests/wrapped_scalar_resource_review/portable07b/source-obligations.json', OBLIGATIONS))
     pins = original['functions']
     require([n for n in pins if actual[n] != parent[n]] == list(CHANGED),
@@ -201,6 +229,7 @@ def prove(source, bind):
         and calls(front) == [b'getr',b'sd_permute_command',b'sd_accumulator_command',b'sd_previous_to_command'],
         'all original R4 opcode routes retain the existing700 dispatcher proof')
     rows['to_command'] = dict(relation='new dtype4/5/6 guard is false on original dtype0/1/2/3, exact renamed700 delegation, then exact original R4 delegation',
+        predicate_entry_route=predicate_route,
         additional_wrapper_sha256=sha(wrapper), retained700_dispatcher_sha256=sha(delegated),
         declaration_name_inverse_exact=True, retained_R4_dispatcher_inverse=dispatch_inverse,
         reconstructed_original_R4_dispatcher_sha256=sha(normalized), original700_prefix_sha256=sha(front),
@@ -223,8 +252,8 @@ def prove(source, bind):
     body = ast.get_source_segment(owner.decode(), fn).encode()
     require(body.count(b'need(dtype in (0, 1, 2, 3), "dtype-code", node=i)') == 1,
             'unchanged full owner still rejects public4/5/6 in the original resource recipe domain')
-    return dict(schema='heptatorch.fusion736.resource7-source-paths.v1', source_sha256=SOURCE,
-        native_sha256=IMAGE, functions=736, units=14, outer_source_inverse=complete,
+    return dict(schema='heptatorch.fusion740.resource7-source-paths.v1', source_sha256=SOURCE,
+        native_sha256=IMAGE, functions=740, units=14, outer_source_inverse=complete,
         changed_R4_obligations=list(CHANGED), obligations={n:rows[n] for n in CHANGED},
         original_owner_sha256=OWNER, original_verify_snapshot_sha256=sha(body),
         domain_must_still_be_checked_by_original_runtime_owner=True,

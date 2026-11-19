@@ -5,9 +5,11 @@ The authoritative application source is
 Its [manifest](../tools/current_runtime/source/manifest.json) identifies every
 ordered compilation unit, complete core function body and expected native
 object/executable. There is one default application profile, named `current`.
-The present candidate has 736 core functions and 14 units. Its combined
-eighteen-group / 1127-case qualification is pending actual CI; no earlier runtime PASS
-is transferred to this candidate.
+The published 736-function baseline has 14 units. Its complete eighteen-group /
+1127-case qualification passed in [main CI 44363462524](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/44363462524)
+on commit `07eb8fd19539add61458d70b1f0076c9660c8ad3`. The [observed CI record](../validation/current-runtime736/main-ci-44363462524.json)
+binds the source, main image, separate Generator probes, original published
+summary and artifact metadata. Any subsequent source or image needs its own run.
 
 Tensor arithmetic, shape planning, allocation, reference lifetime, gradients,
 RNG and command execution run in HIA machine code. Standard Python organizes
@@ -228,8 +230,9 @@ whole-source inverse to that exact previous image's source, followed by every
 original logical/PR38/AVX2/baseline proof. That 700-function cat image
 separately passed Cat4 and the ten fixed metadata comparisons. The 736
 candidate retains its exact full-source inverse to that predecessor.
-The new complete eighteen-group 1127 gate requires fresh execution; all earlier runs retain their original
-denominators and source snapshots.
+The complete eighteen-group 1127 gate was freshly executed on that 736-function
+baseline in main CI 44363462524. All earlier runs retain their original
+denominators and source snapshots; a later image needs fresh qualification.
 
 Metadata10 preserves the full original driver with only its two source/image
 identity literals changed. A passive normal-return observer records the exact
@@ -262,7 +265,8 @@ is not executed by fixture restoration. Two native scope controls require the
 current requires-grad and as_strided refusals; neither is counted as Torch
 compatibility. Original logical147 remains mandatory because its Bool/I64/F32,
 private dtype3, view and gradient constructions differ from direct public F64.
-All 1127 cases still require a new combined execution on the admitted build.
+All 1127 cases executed in the recorded main CI; every new admitted build must
+satisfy the same complete gate again.
 
 Original F64 48 and Half47 are separate mandatory groups. Their immutable source
 and reference packages retain the original numerical loops, boundary recipes,
@@ -291,7 +295,9 @@ reference-executable role functions. It requires all eighteen original group
 reports, the three new physical-qualification reports and all four added source/
 reference packages. Missing active inputs remain errors and still trigger
 best-effort archival. The [qualification plan](../validation/current-runtime736/qualification-plan.json)
-records the exact group order and the pending combined-run boundary.
+retains the original source-only group order and requirements. The separate
+[CI observation](../validation/current-runtime736/main-ci-44363462524.json) records the subsequent actual run
+without rewriting that historical plan.
 
 The compact view/scalar reference archive contains exactly the eight original
 reference/probe files and retains their original bytes and archived modes.

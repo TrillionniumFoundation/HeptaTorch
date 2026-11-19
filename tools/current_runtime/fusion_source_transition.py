@@ -1,15 +1,19 @@
-"""Reverse the complete fixed736 source to exact cat700 source04.
+"""Reverse the complete current source through the Half and storage parents.
 
-Only source bytes are transformed. The actual executable/profile remains736.
+Only source bytes are transformed. Tests execute the actual current image.
 This invokes no native tool or runtime and transfers no historical PASS.
 """
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
 import re
 
 HERE = Path(__file__).resolve().parent
 SOURCE = '51820849f7becec549be15babace00f00687601ae7f53bcee0e636ca02f721f9'
+HALF_SOURCE = 'bf3641b1a9061c6f92b8cbeef75adfac89e82ee16d32a9f650cb938d9e918386'
+CURRENT_SOURCE = '24011e3c861e3b0e77c6a25c07116375cded2225c1f05f42cd84aa1e4a139215'
+PREDICATE_INVERSE = '71244cd75fb41ce07876d7f5699b66ae43c73adc5dd5d09fb2da0dec9c8c7439'
 PARENT_SOURCE = 'ba96abc05717643eaf4f2056325089d9a51f5a2e9838f89473e9a4e76e46fd99'
 DELTA_SHA = '1d47ee1f02e33cc29b4277afa0019dc55c7519a39b23022b0e5e97217bc9de53'
 
@@ -32,7 +36,7 @@ def functions(raw, expected):
     return bodies
 
 
-def restore_source(source, bind):
+def restore_storage_source(source, bind):
     """Return the exact700 parent for old source proofs, plus the outer proof."""
     bind(Path(__file__).resolve())
     require(sha(source) == SOURCE, 'only the exact admitted736 source')
@@ -93,3 +97,64 @@ def restore_source(source, bind):
         actual_executable_replaced=False,source_equivalence_only=True,
         original_cases_or_expected_values_modified=False,runtime_qualification_transferred=False)
     return restored,proof
+
+
+def restore_half_source(source, bind):
+    """Compose exact Half-logical and original736 inverses, without execution."""
+    bind(Path(__file__).resolve())
+    require(sha(source) == HALF_SOURCE, 'only the exact admitted Half-logical source')
+    path = HERE / 'half_logical_source_transition.py'
+    bind(path, 'e0a2eac589ddfe8b09794fb55c569a73d7d7802888130646f59d33adca266f66')
+    spec = importlib.util.spec_from_file_location('half_logical_complete_outer_inverse', path)
+    extension = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(extension)
+    storage_source, half_inverse = extension.restore_source(source, bind)
+    require(extension.SOURCE == HALF_SOURCE and extension.PARENT_SOURCE == SOURCE
+            and sha(storage_source) == SOURCE, 'exact Half-logical to storage736 link')
+    restored, storage_inverse = restore_storage_source(storage_source, bind)
+    proof = dict(
+        schema='heptatorch.half-logical736-to-cat700.complete-source-inverse.v1',
+        source_sha256=HALF_SOURCE, intermediate_source_sha256=SOURCE,
+        parent_source_sha256=PARENT_SOURCE, functions=736, parent_functions=700,
+        half_logical_inverse=half_inverse, storage_fusion_inverse=storage_inverse,
+        whole_source_inverse_exact=True, whole_round_trip_exact=True,
+        every_other_byte_constrained_by_complete_parent_sha256=True,
+        actual_executable_replaced=False, source_equivalence_only=True,
+        original_cases_or_expected_values_modified=False,
+        runtime_qualification_transferred=False,
+    )
+    return restored, proof
+
+
+def predicate_parent(source, bind):
+    """Check the new opcode routing and recover the exact Half parent bytes."""
+    bind(Path(__file__).resolve())
+    require(sha(source) == CURRENT_SOURCE, 'only the exact admitted predicate source')
+    path = HERE / 'predicate_source_transition.py'
+    bind(path, PREDICATE_INVERSE)
+    spec = importlib.util.spec_from_file_location('current_predicate_source_inverse', path)
+    extension = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(extension)
+    previous, proof = extension.restore_source(source, bind)
+    require(extension.SOURCE == CURRENT_SOURCE and extension.PARENT_SOURCE == HALF_SOURCE
+            and sha(previous) == HALF_SOURCE,
+            'complete predicate-to-Half source relation')
+    return previous, proof
+
+
+def restore_source(source, bind):
+    """Compose all exact source inverses; preserve the actual current runtime."""
+    previous, predicate_inverse = predicate_parent(source, bind)
+    restored, half_inverse = restore_half_source(previous, bind)
+    return restored, dict(
+        schema='heptatorch.current740-to-cat700.complete-source-inverse.v1',
+        source_sha256=CURRENT_SOURCE, intermediate_source_sha256=HALF_SOURCE,
+        parent_source_sha256=PARENT_SOURCE, functions=740, parent_functions=700,
+        predicate_source_inverse=predicate_inverse,
+        half_and_storage_source_inverse=half_inverse,
+        whole_source_inverse_exact=True, whole_round_trip_exact=True,
+        every_other_byte_constrained_by_complete_parent_sha256=True,
+        actual_executable_replaced=False, source_equivalence_only=True,
+        original_cases_or_expected_values_modified=False,
+        runtime_qualification_transferred=False,
+    )

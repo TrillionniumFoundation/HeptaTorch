@@ -11,7 +11,9 @@ import json
 import lzma
 from pathlib import Path, PurePosixPath
 import stat
+import sys
 import tarfile
+import types
 
 
 SOURCE_PACKAGE = 'validation/current-half47-source'
@@ -24,6 +26,8 @@ REFERENCE = 'ae6079c8f0960db53d26e056cc67fbe0a8eee7de04aa0644f4475afc368a75fe'
 READER = '1f67d27b8a5af133955d8a8cdfdb3094415efe31d1d9ee7ab09437f683ecef06'
 SOURCE = '51820849f7becec549be15babace00f00687601ae7f53bcee0e636ca02f721f9'
 IMAGE = 'aa3cc8f0c8738a9505d31c9e8ba5a523b7e08b591b61fc7bfb8592295491618b'
+CURRENT_SOURCE = '24011e3c861e3b0e77c6a25c07116375cded2225c1f05f42cd84aa1e4a139215'
+CURRENT_IMAGE = '52e89b1cb6f4b859d3c9c2f5b528c8c22ddd983e21990a4a4dd5357625c3aba2'
 PACKAGES = {
     'source': (SOURCE_PACKAGE, SOURCE_MANIFEST, SOURCE_ARCHIVE, 471936, 146, 11400278,
                'heptatorch.current736-half47.source-package.v1'),
@@ -154,12 +158,61 @@ def restore_reference(repository, directory, source_directory, inputs):
 
 
 def reader_cli(repository, build, build_sha, reference):
-    return ['--candidate',str(repository),'--build-directory',str(build),
-            '--reference',str(reference['report']),'--expected-source-sha256',SOURCE,
-            '--expected-native-sha256',IMAGE,'--expected-build-sha256',build_sha,
+    return ['--reader-directory',str(reference['source']),
+            '--candidate',str(repository),'--build-directory',str(build),
+            '--reference',str(reference['report']),'--expected-source-sha256',CURRENT_SOURCE,
+            '--expected-native-sha256',CURRENT_IMAGE,'--expected-build-sha256',build_sha,
             '--expected-reference-sha256',REFERENCE]
 
 
 def refusal_cli(repository, build, build_sha, source):
     return ['--bridge-directory',str(source),'--repository',str(repository),
             '--build-directory',str(build),'--expected-build-sha256',build_sha]
+
+
+def current_bridge(repository, reader_directory):
+    """Wrap the frozen bridge with the exact three-function source inverse."""
+    repository = Path(repository).resolve(strict=True)
+    helper_path = repository / 'tests/current_runtime_f64_fixtures.py'
+    helper = types.ModuleType('half_current_source_adapter')
+    helper.__file__ = str(helper_path)
+    exec(compile(helper_path.read_bytes(), str(helper_path), 'exec'), helper.__dict__)
+    require(helper.CURRENT_SOURCE == CURRENT_SOURCE and helper.CURRENT_IMAGE == CURRENT_IMAGE,
+            'same exact current image in both original dtype readers')
+    directory = Path(reader_directory).resolve(strict=True)
+    bridge_path = directory / 'bridge.py'
+    raw = bridge_path.read_bytes()
+    require(sha(raw) == 'f3b19a8dcc1a004323e033f414e801a52f12b0f0d556e6cbc005169d26fdef9e',
+            'entire unchanged original Half47 bridge')
+    original = helper.load_module(raw, bridge_path, 'half_current_original47_bridge')
+    require(original.SOURCE == SOURCE and original.IMAGE == IMAGE and original.REFERENCE == REFERENCE,
+            'the immutable original bridge keeps its historical identities')
+    adapted = types.ModuleType('half_current47_bridge')
+    adapted.__dict__.update(original.__dict__)
+    adapted.SOURCE, adapted.IMAGE = CURRENT_SOURCE, CURRENT_IMAGE
+    adapted.Adapter = helper.current_adapter_type(original.Adapter, original, repository,
+                                                   (helper_path, Path(__file__)), 'half')
+    return adapted
+
+
+def main():
+    import argparse
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument('--candidate', type=Path, required=True)
+    parser.add_argument('--reader-directory', type=Path, required=True)
+    parser.add_argument('--expected-reference-sha256', required=True)
+    args, _ = parser.parse_known_args()
+    require(args.expected_reference_sha256 == REFERENCE, 'exact original actual Half reference')
+    bridge = current_bridge(args.candidate, args.reader_directory)
+    original_argv = list(sys.argv)
+    at = sys.argv.index('--reader-directory')
+    sys.argv = sys.argv[:at] + sys.argv[at + 2:]
+    try:
+        with bridge.original_modules() as (originals, old_run, startup):
+            return bridge.Adapter(originals, old_run, startup).current_main()()
+    finally:
+        sys.argv = original_argv
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

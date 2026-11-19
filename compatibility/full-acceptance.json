@@ -7,7 +7,7 @@
   "whole_pytorch_rewrite_complete": false,
   "status": "HOLD",
   "plan": "docs/continuation-plan.md",
-  "closure_rule": "All frozen native declarations and every subsystem below need full source-bound native qualification; scoped implementation and component CI success do not close a full gate.",
+  "closure_rule": "Every frozen native and derivative declaration, and all17 complete subsystem contracts, require independent source-bound native qualification. Scoped implementations, finite case counts and component CI cannot close a full gate.",
   "gates": [
     {
       "id": "module-abi",
@@ -25,19 +25,19 @@
       "id": "dtype-layout",
       "status": "IN_PROGRESS",
       "required": "All upstream dtypes, conversion, promotion, numerical modes, dense/sparse/compressed/nested/quantized/complex layouts and invariants",
-      "remaining": "Integrate complete Tensor dtype promotion/conversion, binary64 and other scalar foundations, complex/quantized/sparse/compressed/nested layouts, all ranks and device variants. Current binary32/int64/Bool tensors and wrapped binary64 scalars do not cover this full contract."
+      "remaining": "Complete dtype promotion, conversions including independently verified NaN payload behavior, all ranks, layouts and devices. Current selected Bool/I64/F32/F64/F16/BF16 and numeric-predicate paths are bounded implementations; the20-group1876-case current run is pending and cannot establish full dtype parity."
     },
     {
       "id": "native-schemas",
       "status": "IN_PROGRESS",
       "required": "All 2590 frozen native declarations plus generated variants and required backend/dtype/layout/shape combinations",
-      "remaining": "Implement and independently qualify the full contract of every one of the 2590 fixed declarations, including overloads, dtype/layout/backend combinations, generated variants and error behavior. No complete upstream declaration is currently qualified."
+      "remaining": "Implement and independently qualify every complete contract in the2590 frozen native declarations, all required overloads and generated/backend/dtype/layout variants, and applicable688 derivative declarations. No complete declaration is currently qualified."
     },
     {
       "id": "views-mutation",
       "status": "IN_PROGRESS",
       "required": "All view/stride/offset/overlap/indexing semantics, out and inplace variants, alias/version behavior and mutation errors",
-      "remaining": "Complete all ranks, strides, offsets, overlap and mutation/out variants across dtypes, layouts and devices, with exact alias/version/history and resource behavior. The current finite view/reshape/as_strided and scalar paths are covered by current-image regressions."
+      "remaining": "Complete all ranks, strides, offsets, overlap, mutation/out variants, dtypes and devices with exact alias/version/history/resource behavior. Current limited view/reshape/as_strided paths retain their original regressions and await the current combined run."
     },
     {
       "id": "autodiff-transforms",
@@ -67,7 +67,7 @@
       "id": "rng-determinism",
       "status": "IN_PROGRESS",
       "required": "Generators, all distributions, seed/state/device behavior, dropout and deterministic execution controls",
-      "remaining": "Complete every distribution and device Generator, shared/concurrent state, deterministic execution controls and all dropout/backend modes. Preserve current CPU MT19937 and finite distribution/state qualification."
+      "remaining": "Complete all distributions and device Generators, shared/concurrent state, dropout/backend modes and deterministic execution controls. Current CPU MT19937 code and its131-case current-object/probe qualification remain a finite required subset."
     },
     {
       "id": "serialization",
@@ -109,44 +109,89 @@
       "id": "final-integration",
       "status": "OPEN",
       "required": "Full original test and application acceptance, independent final review, performance/resource/error qualifications and retirement of replaced implementation paths",
-      "remaining": "Run complete original upstream/application acceptance with performance/resource/error qualification, independently review every full gate, then retire replaced production paths and any test fixture dependencies that have verified current replacements."
+      "remaining": "Run full original upstream and application acceptance, performance/resource/error qualifications and independent review of every gate. First complete the current20-group1876-case focused run; then migrate remaining active consumers before further retirement. Preserved fixture archives are not duplicate production implementations."
     }
   ],
   "current_runtime_integration": {
     "profile": "current",
     "source_manifest": "tools/current_runtime/source/manifest.json",
+    "candidate_identity": {
+      "source_sha256": "24011e3c861e3b0e77c6a25c07116375cded2225c1f05f42cd84aa1e4a139215",
+      "native_sha256": "52e89b1cb6f4b859d3c9c2f5b528c8c22ddd983e21990a4a4dd5357625c3aba2",
+      "manifest_sha256": "e6eca58702d42be6dedae69a402d829c60444f2f4d4283b33cf4fc0ccfe34961",
+      "functions": 740,
+      "units": 14
+    },
     "audit": "docs/current-audit.md",
-    "local_execution_receipts": "validation/current-runtime-20261118/manifest.json",
     "qualification_coordinator": "tests/qualify_current_runtime.py",
-    "scope": "One canonical complete 736-function HIA candidate, eighteen mandatory groups/1127 finite cases pending actual combined execution. Production cases share its main image; Generator131 additionally requires separately linked current-object ABI and reordered probe images. All original fifteen groups and all seventeen full gates retain their complete requirements and original OPEN/IN_PROGRESS status. Half refusal12 is an explicit unsupported-protocol group, not Torch compatibility.",
+    "current_candidate_status": "PENDING_ACTUAL_20_GROUP_1876_RUN",
+    "required_current_image_cases": 1876,
+    "required_current_image_groups": 20,
+    "required_suites": [
+      "bool27",
+      "original76",
+      "integral24",
+      "sum_f32_17",
+      "current35",
+      "base270",
+      "sum32",
+      "live32",
+      "logical147",
+      "resource7",
+      "asstrided16",
+      "cat4",
+      "metadata10",
+      "generator131",
+      "public_f64_logical192",
+      "f64_48",
+      "half47",
+      "half_logical264",
+      "half_transactions12",
+      "numeric_predicates"
+    ],
+    "required_cases": {
+      "bool27": 27,
+      "original76": 76,
+      "integral24": 24,
+      "sum_f32_17": 17,
+      "current35": 35,
+      "base270": 270,
+      "sum32": 32,
+      "live32": 32,
+      "logical147": 147,
+      "resource7": 7,
+      "asstrided16": 16,
+      "cat4": 4,
+      "metadata10": 10,
+      "generator131": 131,
+      "public_f64_logical192": 192,
+      "f64_48": 48,
+      "half47": 47,
+      "half_logical264": 264,
+      "half_transactions12": 12,
+      "numeric_predicates": 485
+    },
+    "qualification_plan": "validation/current-runtime740/qualification-plan.json",
+    "current_execution_evidence": null,
+    "full_1876_executed": false,
+    "scope": "One740-function/14-unit HIA candidate. All19 Half-integrated groups/1391 cases remain required; numeric_predicates adds485 independent comparisons. Production cases bind the same main image and actual cold build; Generator131 additionally links and executes separate current-object ABI/reordered probes. Complete original controls and all17 full gates retain their requirements.",
+    "main_plus_independent_generator_probe_images": true,
+    "historical_qualification_transferred": false,
     "closes_any_full_gate": false,
-    "inherited_qualification_coordinator": "tests/current_runtime35.py",
-    "logical_qualification_coordinator": "tests/logical_reductions/qualify.py",
-    "original270_coordinator": "tests/current_runtime270.py",
-    "live32_coordinator": "tests/current_runtime_live32.py",
-    "required_current_image_cases": 1127,
-    "required_current_image_groups": 18,
+    "historical_baseline_record": "validation/current-runtime736/main-ci-44363462524.json",
     "resource_qualification_coordinator": "tests/current_runtime_resources/qualify.py",
     "asstrided_qualification_coordinator": "tests/current_runtime_asstrided/qualify.py",
-    "cat_qualification_coordinator": "tests/current_runtime_cat4/run.py",
-    "metadata_qualification_coordinator": "tests/current_runtime_metadata10/worker.py",
-    "metadata_pure_admission": "tests/current_runtime_metadata10/qualify.py",
     "generator_pure_admission": "tests/current_runtime_generator131.py",
-    "current_candidate_status": "PENDING_ACTUAL_18_GROUP_1127_RUN",
-    "full_828_executed": false,
-    "full_1020_executed": false,
-    "public_f64_192_reader": "tests/public_f64_logical/qualify.py",
     "public_f64_192_pure_admission": "tests/current_runtime_public_f64_logical192.py",
-    "public_f64_native_scope_controls_counted_as_compatibility": false,
-    "logical147_replaced": false,
-    "main_plus_independent_generator_probe_images": true,
-    "full_1127_executed": false,
     "f64_48_pure_admission": "tests/current_runtime_f64_readback.py",
-    "f64_48_fixture_restorer": "tests/current_runtime_f64_fixtures.py",
     "half47_pure_admission": "tests/current_runtime_half_readback.py",
-    "half_refusals12_reader": "tests/current_runtime_half_refusals12.py",
-    "half_fixture_restorer": "tests/current_runtime_half_fixtures.py",
-    "half_refusals_counted_as_torch_compatibility": false,
-    "qualification_plan": "validation/current-runtime736/qualification-plan.json"
-  }
+    "half_logical_and_transaction_coordinator": "tests/half_logical/run.py",
+    "numeric_predicate_coordinator": "tests/numeric_predicates/run.py",
+    "protocol_controls_counted_as_successful_torch_compatibility": false,
+    "original_logical147_and_Half47_retained": true,
+    "pending_dtype_audit": "BF16 to() special-NaN payload behavior requires independent verification; no full dtype closure."
+  },
+  "derivative_declaration_count": 688,
+  "derivative_declaration_lines_sha256": "5e32bf19142454911112779474e2c52eab08a6789229b46b96a92246c578bac8",
+  "derivative_inventory": "compatibility/upstream-derivatives.json"
 }

@@ -27,7 +27,7 @@ and native object/image identities. `make` cold-builds every application object
 from this source with the fixed ABI3 HIA compiler and session linker.
 
 `make test` and current-runtime CI share eighteen mandatory groups totaling 1127
-finite cases in the 736-function candidate: original Bool27, view/scalar76, Integral24, integral-to-F32 Sum17,
+finite cases in the published 736-function baseline: original Bool27, view/scalar76, Integral24, integral-to-F32 Sum17,
 original lifecycle35, original operator/training270, F32 Sum32, live
 Tensor/RNG/backward32, logical147, inherited resource7, original AsStrided16,
 Cat4, independently referenced cat Metadata10, Generator131, public F64 logical192,
@@ -36,8 +36,12 @@ The original fifteen groups retain all parameters, cases and controls.
 Generator131 preserves original24 + native11 + entry59 + dispatch37,
 including separately linked/executed current-object ABI and reordered
 probe images. Production cases share the main image; the entire 1127
-must not be described as one executable. Its full combined run remains
-pending. The original three live groups and Generator24 use the fixed actual
+must not be described as one executable. Its full combined run passed in
+[main CI 44363462524](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/44363462524)
+on commit `07eb8fd19539add61458d70b1f0076c9660c8ad3`; the exact
+[CI observation](../validation/current-runtime736/main-ci-44363462524.json) records all eighteen
+success lines and the original published summary. A later candidate needs
+its own complete qualification. The original three live groups and Generator24 use the fixed actual
 Torch oracle; all frozen groups preserve original observations. New source
 identities require new execution of every affected group.
 
@@ -67,8 +71,8 @@ executions have distinct source and result receipts. The complete 683 gate later
 passed on PR40's exact published tree, and PR40 was merged as
 `584b95d7f6615f27e95618bc61215df5633c4ca4`. The later 700-function cat
 correction, the 729-function fusion and the current 736-function Half integration
-each change the image. The new common 1127 gate therefore requires its own
-complete execution on the exact admitted source and image.
+each change the image. The common 1127 gate has now been completely executed on the exact admitted
+736 source and image. Subsequent changes still require their own full run.
 Do not attribute new source or added cases to an earlier immutable run.
 
 The implementation combines the prior integral-to-F32 and empty-cat fixes with
@@ -93,7 +97,7 @@ The additional Half refusal12 group checks six direct unsupported operations
 and six separately scoped failed-frame transactions. These controls preserve
 complete owner and RNG rollback; they do not implement Half any/all or Bool sum.
 Independent current-image successes are retained with their own inputs and
-denominators. They cannot be combined into an unexecuted eighteen-group PASS.
+denominators. They remain separate from the later complete eighteen-group main CI execution.
 Historical reference argv and interpreter-entity gaps remain explicit, and the
 actual current CI interpreter has a separate evidence role.
 
@@ -103,9 +107,9 @@ preparation, source inverses and cold compilation are recorded separately from
 runtime PASS. Earlier failures remain tied to their original inputs and image.
 
 Continue migrating remaining historical gates onto the canonical image before
-removing their live dependencies. Generator131 now has a source-only
-current-profile adapter and mandatory gate, but actual full qualification
-is still required before retiring any historical consumer. Its original24
+removing their live dependencies. Generator131 now has an actually executed current-profile adapter and mandatory
+gate within the complete 1127 main CI run. Retirement must still preserve every
+consumer dependency, original input, tool receipt and probe contract. Its original24
 requires native raw-output, epoch/allocation contracts and real entropy;
 a synthesized host output is not an equivalent implementation. The
 coordinator requires explicit physical `--tool-build` and `--stack-build`

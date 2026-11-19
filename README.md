@@ -1,16 +1,16 @@
 # HeptaTorch
 
-HeptaTorch 的当前应用运行时由 **HIA 原生源码**实现，直接生成 Linux x86-64 静态可执行文件。张量数值、对象分配、梯度传播、随机数和参数更新均在该 HIA 程序中执行。当前 736 函数候选包含 14 个独立编译单元；精确源码、ELF 身份及分区以[当前 manifest](tools/current_runtime/source/manifest.json)为准。
+HeptaTorch 的当前应用运行时由 **HIA 原生源码**实现，直接生成 Linux x86-64 静态可执行文件。张量数值、对象分配、梯度传播、随机数和参数更新均在该 HIA 程序中执行。已发布的 736 函数基线包含 14 个独立编译单元；精确源码、ELF 身份及分区以[当前 manifest](tools/current_runtime/source/manifest.json)为准。
 
 **整个 PyTorch 的全量重写尚未完成，项目状态为 HOLD。** 固定目标是 PyTorch **2.15.0**，分母保留 **2,590 条原生算子声明、688 条导数声明、17 项系统验收门禁**。目前 10 项进行中、7 项开放，完整上游 schema 和整项门禁的闭合数均为 0。[当前审计](docs/current-audit.md)说明已有实现、实际证据和剩余范围。
 
-**历史 PR42 已在 GitHub 实际通过统一 13 组、697 个案例及全部附加控制。** [PR42](https://github.com/TrillionniumFoundation/HeptaTorch/pull/42) 的合并提交为 `d1f455aa5def8e2fb2a3fe7979efa82e68bb3433`；该次实际 CI 检出树与合并树一致，十项适用检查全部成功。当前 736 函数候选在原生 CPU Generator、公开 F64 与既有逻辑归约之上接入 F16／BF16 的受限存储和转换路径，默认门禁扩为 **18 组、1127 例**。完整组合仍待真实 CI；Generator 的 ABI／重排探针另行链接和执行，其余生产案例绑定同一主映像。前版成功不转移到当前候选；原失败及修复证据保留在[当前审计](docs/current-audit.md)，新组合的待运行要求列于[资格计划](validation/current-runtime736/qualification-plan.json)。
+**已发布的 736 函数基线已在 GitHub 实际通过统一 18 组、1127 个案例及必需附加控制。** [main CI 44363462524](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/44363462524) 在提交 `07eb8fd19539add61458d70b1f0076c9660c8ad3` 上重新冷构建，并于 2026-11-18 18:31 UTC 完成全部十八组；逐组日志、原报告摘要和完整证据包位置见[实际 CI 记录](validation/current-runtime736/main-ci-44363462524.json)。该基线包含原生 CPU Generator、公开 F64 和 F16／BF16 的受限存储与转换路径。Generator 的 ABI／重排探针另行链接和执行，其余生产案例绑定同一主映像。任何后续源码或映像变更都需要重新验收；原失败、历史结果和未改写的[原资格计划](validation/current-runtime736/qualification-plan.json)保留各自身份。
 
 ## 当前实现
 
 当前接口是受限的原生二进制命令协议，包含 CPU F32 算术和一阶反向 AD、Bool/I64 的选定张量路径、Tensor/Storage/Version 所有权、Saved 和可微视图、原生 CPU Generator、选定 NN 算子以及 SGD/Adam/AdamW。完整 Python 前端、dispatcher 和所有上游重载仍需实现。
 
-当前候选保留以下功能与修正；它们的历史结果不代替本次 1127 例完整执行：
+已发布基线包含以下功能与修正；这些路径已纳入上述同一次 1127 例完整执行：
 
 - **`any` / `all`**：命令 118 / 119 接受 Bool、I64、F32 和已有的 rank-zero wrapped F64 Scalar，输出拥有独立 Storage/Version 的 Bool 张量。实际真值转换、归约和分配均由 HIA 执行。
 - **`sum(dtype=bool)`**：命令 115 扩展到上述源类型，保留它与 `any` / `all` 不同的空轴语义。浮点输入需要梯度时，先检查重复／越界轴，再按契约拒绝 Bool 求和。
@@ -59,7 +59,7 @@ HIA 应用运行时依赖 Linux 内核与 x86-64 硬件。Python 用于构建组
 
 ## 十八组必需门禁：主映像与独立 Generator 探针
 
-`make test` 与 [Current runtime CI](.github/workflows/current-runtime.yml)共用 [`tests/qualify_current_runtime.py`](tests/qualify_current_runtime.py)。原十五组以及新增 F64 原 48 项、Half 原 47 项和独立拒绝 12 项必须绑定同一份当前源码、主 ELF 和本次冷构建报告；Generator 还必须从当前全部 14 个对象链接并执行独立探针，分别校验其映像身份。固定分母为 **1127 个案例**，各组额外控制另行保留；案例数不等于完整上游 schema 数。当前 736 候选的全 18 组状态为待真实 CI；不把此前的部分运行拼成统一成功。公开 F64 的两项 native 范围控制及六项超出当前 native 范围的 Torch 观察单独保留，不计入 192 项兼容比较。
+`make test` 与 [Current runtime CI](.github/workflows/current-runtime.yml)共用 [`tests/qualify_current_runtime.py`](tests/qualify_current_runtime.py)。原十五组以及新增 F64 原 48 项、Half 原 47 项和独立拒绝 12 项必须绑定同一份当前源码、主 ELF 和本次冷构建报告；Generator 还必须从当前全部 14 个对象链接并执行独立探针，分别校验其映像身份。固定分母为 **1127 个案例**，各组额外控制另行保留；案例数不等于完整上游 schema 数。上述 main CI 已实际完成全 18 组，逐组均为 `qualified=true`；资格仅属于其精确源码和映像。公开 F64 的两项 native 范围控制及六项超出当前 native 范围的 Torch 观察单独保留，不计入 192 项兼容比较。
 
 | 组名 | 案例数 | 保留的主要检查 |
 | --- | ---: | --- |

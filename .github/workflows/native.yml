@@ -882,13 +882,6 @@ jobs:
           fi
           exit "$status"
 
-      - name: Reproduce and qualify persistent native CPU Generator objects
-        run: |
-          make cpu-generators test-cpu-generators \
-            HEPTA_SOURCE_ROOT="$GITHUB_WORKSPACE/.toolchain/hepta" \
-            HEPTA_STACK_BUILD="$RUNNER_TEMP/hepta-stack-budget"
-          python3 -I -S -B tools/emit_ci_report.py build/hosted-cpu-generator-native.json
-
       - name: Install the independent pinned PyTorch CPU oracle
         shell: bash
         run: |
@@ -914,17 +907,6 @@ jobs:
                           '--index-url', 'https://download.pytorch.org/whl/cpu',
                           '--report', str(report), wheel], check=True)
           PYTORCH_INSTALL
-
-      - name: Compare persistent CPU Generators with fixed real PyTorch (24 cases)
-        run: |
-          echo '3b9e1c9058776c67c00c4b07610a2a0d377dda16ca4a956d7e66c442bdfd4157  tests/pytorch_cpu_generator_oracle.py' | sha256sum -c -
-          status=0
-          python3 tests/pytorch_cpu_generator_oracle.py \
-            --native build/cpu-generators/generator-session \
-            --expected-native-sha256 ba344748d42f0def1cd5d88e5e27232a6dfa08e33ef4c42e6f00486f3ca08572 \
-            --repo . --output build/pytorch-cpu-generators.json > build/pytorch-cpu-generators.stdout || status=$?
-          python3 -I -S -B tools/emit_ci_report.py build/pytorch-cpu-generators.json
-          exit "$status"
 
       - name: Observe pinned PyTorch alpha rounding semantics
         run: python3 tests/pytorch_alpha_semantics.py build/alpha-semantics.json

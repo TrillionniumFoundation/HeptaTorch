@@ -42,9 +42,9 @@
       "1": "Bool Tensor with one-byte elements: documented typed/logical/reduction paths",
       "2": "signed int64 Tensor with eight-byte elements: documented typed/integer/mixed/reduction paths",
       "3": "internal rank-zero wrapped IEEE binary64 Scalar only; no general F64 Tensor service",
-      "4": "public dense no-grad binary64 candidate paths; original F64 48 and 192 logical comparisons are mandatory in the pending 1127 gate; requires_grad creation and as_strided remain separately recorded native refusal boundaries",
-      "5": "public F16 storage/copy/fill and F32 conversion candidate paths; original Half47 and independent refusal12 are mandatory; no general Half arithmetic, AD, any/all or explicit Bool sum is inferred",
-      "6": "public BF16 storage/copy/fill and F32 conversion candidate paths; original Half47 and independent refusal12 are mandatory; no general Half arithmetic, AD, any/all or explicit Bool sum is inferred"
+      "4": "Public binary64 selected storage, conversion and dense no-grad logical paths, plus numeric predicates. Direct requires_grad construction and direct as_strided remain explicit boundaries; this is not general F64 Tensor parity.",
+      "5": "Public F16 storage/copy/fill, selected F32 conversion, dense no-grad any/all/Bool sum and numeric predicates. Ordinary Half arithmetic and AD remain outside the current contract.",
+      "6": "Public BF16 storage/copy/fill, selected F32 conversion, dense no-grad any/all/Bool sum and numeric predicates. Conversion NaN payload behavior is under independent audit; no full Half arithmetic, AD or dtype parity is claimed."
     },
     "resource_bounds": {
       "rank_range": [
@@ -57,7 +57,8 @@
       "request_body_bytes": 1048576,
       "response_body_bytes": 1048576,
       "storage": "Documented nonnegative strides, offsets and empty layouts; distinct allocation, work and pool limits still apply.",
-      "scope": "These finite implementation caps are not PyTorch limits and are not all simultaneously attainable."
+      "scope": "These finite implementation caps are not PyTorch limits and are not all simultaneously attainable.",
+      "command120_121_122_123_124_numel_limit": 262144
     },
     "new_command_contracts": {
       "115": {
@@ -68,31 +69,130 @@
           "2": "I64",
           "UINT64_MAX": "inferred"
         },
-        "scope": "Only admitted source/result combinations; Bool/I64-to-F32 converts each element before F32 reduction. Empty axis tuple reduces all dimensions. Floating requires_grad plus Bool output is refused after axis validation."
+        "scope": "Admitted source/result combinations only. Bool/I64-to-F32 converts each element before F32 reduction. Explicit Bool sum includes public dense no-grad F64/F16/BF16. Empty axis tuple reduces all dimensions. Floating requires_grad plus Bool output is refused after axis validation."
       },
       "118": {
         "operation": "any",
         "result_dtype_code": 1,
         "empty_axis_tuple": "no reduction",
-        "empty_reduction_identity": false
+        "empty_reduction_identity": false,
+        "source_dtype_codes": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
       },
       "119": {
         "operation": "all",
         "result_dtype_code": 1,
         "empty_axis_tuple": "no reduction",
-        "empty_reduction_identity": true
+        "empty_reduction_identity": true,
+        "source_dtype_codes": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
       },
-      "common": "Rank0..4 and <=262144 logical elements; signed axes, keepdim0/1, zero reserved words, complete bounded axis payload. Scalar axis0/-1 is accepted. No out= or unimplemented dtype/backend contract is inferred."
+      "reduction_common": "Rank0..4 and <=262144 logical elements; signed axes, keepdim0/1, zero reserved words, complete bounded axis payload. Scalar axis0/-1 is accepted. No out= or unimplemented dtype/backend contract is inferred.",
+      "120": {
+        "operation": "isnan",
+        "source_dtype_codes": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "result_dtype_code": 1,
+        "arguments": "word1 is the public Tensor capability; words2..7 must be zero",
+        "result": "Input shape; independent owned Bool Tensor/Storage/Version; detached, with no AD, Saved, view or source-retaining edges.",
+        "scope": "Rank0..4, at most262144 logical elements, and admitted source construction/layout contracts. Direct public F64/Half as_strided and Half AD are not added by this command."
+      },
+      "121": {
+        "operation": "isinf",
+        "source_dtype_codes": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "result_dtype_code": 1,
+        "arguments": "word1 is the public Tensor capability; words2..7 must be zero",
+        "result": "Input shape; independent owned Bool Tensor/Storage/Version; detached, with no AD, Saved, view or source-retaining edges.",
+        "scope": "Rank0..4, at most262144 logical elements, and admitted source construction/layout contracts. Direct public F64/Half as_strided and Half AD are not added by this command."
+      },
+      "122": {
+        "operation": "isfinite",
+        "source_dtype_codes": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "result_dtype_code": 1,
+        "arguments": "word1 is the public Tensor capability; words2..7 must be zero",
+        "result": "Input shape; independent owned Bool Tensor/Storage/Version; detached, with no AD, Saved, view or source-retaining edges.",
+        "scope": "Rank0..4, at most262144 logical elements, and admitted source construction/layout contracts. Direct public F64/Half as_strided and Half AD are not added by this command."
+      },
+      "123": {
+        "operation": "isposinf",
+        "source_dtype_codes": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "result_dtype_code": 1,
+        "arguments": "word1 is the public Tensor capability; words2..7 must be zero",
+        "result": "Input shape; independent owned Bool Tensor/Storage/Version; detached, with no AD, Saved, view or source-retaining edges.",
+        "scope": "Rank0..4, at most262144 logical elements, and admitted source construction/layout contracts. Direct public F64/Half as_strided and Half AD are not added by this command."
+      },
+      "124": {
+        "operation": "isneginf",
+        "source_dtype_codes": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "result_dtype_code": 1,
+        "arguments": "word1 is the public Tensor capability; words2..7 must be zero",
+        "result": "Input shape; independent owned Bool Tensor/Storage/Version; detached, with no AD, Saved, view or source-retaining edges.",
+        "scope": "Rank0..4, at most262144 logical elements, and admitted source construction/layout contracts. Direct public F64/Half as_strided and Half AD are not added by this command."
+      }
     },
     "current_image_qualification": {
-      "status": "CURRENT736_UNIFIED_1127_PENDING",
-      "cold_build": "MATCHING_CURRENT736_RECEIPT_REQUIRED",
+      "status": "PENDING_ACTUAL_20_GROUP_1876_RUN",
       "candidate_identity": {
-        "source_sha256": "51820849f7becec549be15babace00f00687601ae7f53bcee0e636ca02f721f9",
-        "native_sha256": "aa3cc8f0c8738a9505d31c9e8ba5a523b7e08b591b61fc7bfb8592295491618b",
-        "functions": 736,
+        "source_sha256": "24011e3c861e3b0e77c6a25c07116375cded2225c1f05f42cd84aa1e4a139215",
+        "native_sha256": "52e89b1cb6f4b859d3c9c2f5b528c8c22ddd983e21990a4a4dd5357625c3aba2",
+        "manifest_sha256": "e6eca58702d42be6dedae69a402d829c60444f2f4d4283b33cf4fc0ccfe34961",
+        "functions": 740,
         "units": 14
       },
+      "source_manifest": "tools/current_runtime/source/manifest.json",
       "required_groups": {
         "bool27": 27,
         "original76": 76,
@@ -111,161 +211,163 @@
         "public_f64_logical192": 192,
         "f64_48": 48,
         "half47": 47,
-        "half_refusals12": 12
+        "half_logical264": 264,
+        "half_transactions12": 12,
+        "numeric_predicates": 485
       },
-      "required_group_count": 18,
-      "required_cases_total": 1127,
-      "success_rule": "All eighteen groups must actually run and pass. Production cases bind the same current main source, ELF and cold-build receipt; Generator131 additionally links and executes separately identified current-object ABI and reordered probe images. Every original control, denominator, process exit/EOF and unchanged input binding remains mandatory. The twelve independent Half unsupported-protocol controls are not Torch compatibility comparisons.",
+      "required_group_count": 20,
+      "required_cases_total": 1876,
+      "success_rule": "All20 groups must execute anew and pass with the exact current source, main ELF and actual cold-build receipt. Generator131 separately links and executes current-object ABI and reordered probe images. Every original numerical comparison, control, denominator, source inverse, owner/transport readback, actual resource recovery, process exit, both EOFs and unchanged-input binding remains mandatory. Protocol/error controls are not successful Torch compatibility cases.",
+      "full_1876_executed": false,
+      "current_execution_evidence": null,
+      "observed_executions": [],
       "historical_qualification_transferred": false,
-      "observed_executions": [
-        {
-          "scope": "previous published image, actual complete eleven-group GitHub CI",
-          "cases": 683,
-          "status": "PASS_CURRENT_RUNTIME_FOCUSED",
-          "source_sha256": "0c1c0dd3acf0285a887a2766c1308dfd992acf3fe51849dcd98749bb64a00f3b",
-          "native_sha256": "6ff13ccab1b30db389307900958937496905e0ed842893081d878788aa7c754c",
-          "qualification_sha256": "343dce42de965d04c61af6429ec7d7844da4a449aae59666403071635f4bc7ab",
-          "workflow_run": "https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/44294832902",
-          "executed_tree": "cdb4879b58e1d88456ef0ad173ac628f8124b6c9",
-          "qualification_transferred": false
+      "qualification_plan": "validation/current-runtime740/qualification-plan.json",
+      "group_contracts": {
+        "generator131": {
+          "status": "PENDING_ACTUAL_20_GROUP_1876_RUN",
+          "subgroups": {
+            "original24": 24,
+            "native11": 11,
+            "entry59": 59,
+            "dispatch37": 37
+          },
+          "pure_admission": "tests/current_runtime_generator131.py",
+          "fixture_restorer": "tests/current_runtime_generator_fixtures.py",
+          "tool_build_cli": "--tool-build",
+          "stack_build_cli": "--stack-build",
+          "tool_receipt_sha256": "DYNAMIC_ACTUAL_FILE",
+          "main_plus_independent_probe_images": true,
+          "historical_probe_pass_transferred": false
         },
-        {
-          "scope": "previous 700-function cat image, four original cat/stack packets including one explicit expanded-capacity control",
-          "cases": 4,
-          "status": "PASS_CAT4_ONLY",
-          "source_sha256": "ba96abc05717643eaf4f2056325089d9a51f5a2e9838f89473e9a4e76e46fd99",
-          "native_sha256": "d179d2f8b818e6a1b69d6b81e5cc0233c0148f3afac86f16f7cb6fd2db57dca4",
-          "qualification_sha256": "ed717989be2299e3ce75dcacddd05cbe0b587444374446ff0b103ad2a411fee3",
-          "original_failure_reference_reclassified": false
+        "public_f64_logical192": {
+          "status": "PENDING_ACTUAL_20_GROUP_1876_RUN",
+          "cases": 192,
+          "reader": "tests/public_f64_logical/qualify.py",
+          "pure_admission": "tests/current_runtime_public_f64_logical192.py",
+          "reference_package": "validation/public-f64-logical192-reference",
+          "original_six_modules_unchanged": true,
+          "construction": "direct97_public_dtype4_dense_no_grad",
+          "packet_controls": 18,
+          "actual_allocation_controls": 2,
+          "native_sessions": 196,
+          "native_boundary_controls": 2,
+          "outside_native_scope_torch_observations": 6,
+          "boundary_controls_counted_as_torch_compatibility": false,
+          "original147_replaced": false
         },
-        {
-          "scope": "previous 700-function cat image, ten independent fixed Torch cat metadata recipes",
-          "cases": 10,
-          "status": "MATCH_ALL_TEN_FIXED_REFERENCE_FIELDS",
-          "source_sha256": "ba96abc05717643eaf4f2056325089d9a51f5a2e9838f89473e9a4e76e46fd99",
-          "native_sha256": "d179d2f8b818e6a1b69d6b81e5cc0233c0148f3afac86f16f7cb6fd2db57dca4",
-          "qualification_sha256": "025237173c936d4ed13c76cd27a7c4752b701d7fb9fb936aecf4157d807e5bab",
-          "reference_sha256": "2b80fe6a5a9c83d305b73a6eb86e3d788196eb9e11297402e7ba4e8a33ca6243",
-          "different_fields": 0
+        "f64_48": {
+          "status": "PENDING_ACTUAL_20_GROUP_1876_RUN",
+          "cases": 48,
+          "original_subgroups": {
+            "numeric": 33,
+            "boundary": 12,
+            "entry": 1,
+            "allocation": 2
+          },
+          "original_refusal_controls": 87,
+          "pure_admission": "tests/current_runtime_f64_readback.py",
+          "original_unmodified_refusal_expectations": 85,
+          "explicit_malformed_half_status_adaptations": 2,
+          "historical_refusal_failures_preserved": true,
+          "required_frames": 2856,
+          "required_assertions": 15355,
+          "fixture_restorer": "tests/current_runtime_f64_fixtures.py",
+          "source_package": "validation/current-f64-48-source",
+          "reference_package": "validation/current-f64-48-reference",
+          "historical_reference_actual_argv_available": false,
+          "historical_reference_interpreter_entity_available": false,
+          "original_reference_provenance_checks": 11,
+          "historical_pass_transferred": false
         },
-        {
-          "scope": "previous merged 700-function cat image, actual complete thirteen-group GitHub CI",
-          "cases": 697,
-          "groups": 13,
-          "status": "PASS_CURRENT_RUNTIME_FOCUSED",
-          "source_sha256": "ba96abc05717643eaf4f2056325089d9a51f5a2e9838f89473e9a4e76e46fd99",
-          "native_sha256": "d179d2f8b818e6a1b69d6b81e5cc0233c0148f3afac86f16f7cb6fd2db57dca4",
-          "qualification_sha256": "387d5f03fd521320f8b69cfc571f217be1f4b197543102f64e8a8a8072a7f920",
-          "actual_build_sha256": "bedcafb22dd9b0942345265cffbaf771dd2decf4df6d07340241ac1ef84d5df4",
-          "workflow_run": "https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/44315544747",
-          "actual_checkout": "60b20b74a0d88849dbc5d46e48388612240c20f5",
-          "executed_tree": "79a3f8f522b955670c6e5970ac94b15560651686",
-          "merged_main": "d1f455aa5def8e2fb2a3fe7979efa82e68bb3433",
-          "physical_input_count": 24950,
-          "qualification_transferred": false
+        "half47": {
+          "status": "PENDING_ACTUAL_20_GROUP_1876_RUN",
+          "cases": 47,
+          "original_subgroups": {
+            "numeric": 26,
+            "boundary": 16,
+            "entry": 1,
+            "allocation": 4
+          },
+          "original_refusal_controls": 239,
+          "numeric_values": 908216,
+          "original_frames": 2401,
+          "original_assertions": 10575,
+          "pure_admission": "tests/current_runtime_half_readback.py",
+          "fixture_restorer": "tests/current_runtime_half_fixtures.py",
+          "source_package": "validation/current-half47-source",
+          "reference_package": "validation/current-half47-reference",
+          "historical_reference_actual_argv_available": false,
+          "historical_reference_interpreter_entity_available": false,
+          "historical_reference_terminal_streams_available": false,
+          "original_reference_provenance_checks": 11,
+          "original_standalone_worker_interpreter_prebound": false,
+          "historical_pass_transferred": false,
+          "conversion_NaN_comparison": "NaN classification; non-NaN conversion values and same-dtype clone/set/fill retain their original bitwise checks. This does not establish all NaN payload conversions."
+        },
+        "half_logical264": {
+          "status": "PENDING_ACTUAL_20_GROUP_1876_RUN",
+          "cases": 264,
+          "accepted_reference_cases": 222,
+          "observed_reference_errors": 42,
+          "bit_patterns_per_Half_dtype": 65536,
+          "source": "tests/half_logical/",
+          "reference_package": "validation/half-logical264-reference",
+          "additional_packet_controls": 52,
+          "additional_allocation_recoveries": 6,
+          "ordinary_dense_no_grad_only": true,
+          "full_reference_owner_frames_and_EOF_required": true,
+          "historical_pass_transferred": false
+        },
+        "half_transactions12": {
+          "status": "PENDING_ACTUAL_20_GROUP_1876_RUN",
+          "cases": 12,
+          "direct_successes": 6,
+          "failed_transactions_with_invalid_suffix": 6,
+          "source": "tests/half_logical/run.py",
+          "successful_prefix_checked_before_invalid_suffix": true,
+          "complete_owner_RNG_and_mapping_checks_required": true,
+          "counted_as_torch_compatibility": false,
+          "historical_refusal12_reports_rewritten": false,
+          "original_Half47_and239_refusals_replaced": false
+        },
+        "numeric_predicates": {
+          "status": "PENDING_ACTUAL_20_GROUP_1876_RUN",
+          "cases": 485,
+          "input_recipes": 97,
+          "operations": [
+            "isnan",
+            "isinf",
+            "isfinite",
+            "isposinf",
+            "isneginf"
+          ],
+          "cases_by_source_dtype": {
+            "float32": 115,
+            "bool": 95,
+            "int64": 95,
+            "wrapped_float64": 90,
+            "float64": 30,
+            "float16": 30,
+            "bfloat16": 30
+          },
+          "source": "tests/numeric_predicates/",
+          "case_definition": "tests/numeric_predicates/cases.py",
+          "reference_producer": "tests/numeric_predicates/reference.py",
+          "pure_admission": "tests/numeric_predicates/run.py",
+          "fresh_pinned_Torch_reference_required": true,
+          "bit_patterns_per_Half_dtype": 65536,
+          "additional_packet_controls": 56,
+          "additional_successful_FE_transactions": 5,
+          "additional_failed_FE_transactions": 5,
+          "additional_allocation_recoveries": 5,
+          "full_owner_wire_mapping_exit_EOF_readback_required": true,
+          "old_dispatcher_body_unchanged": true,
+          "historical_pass_transferred": false
         }
-      ],
-      "full_697_executed": false,
-      "full_828_executed": false,
-      "full_1020_executed": false,
-      "generator131": {
-        "status": "PENDING_ACTUAL_CURRENT736_COMBINED_RUN",
-        "subgroups": {
-          "original24": 24,
-          "native11": 11,
-          "entry59": 59,
-          "dispatch37": 37
-        },
-        "pure_admission": "tests/current_runtime_generator131.py",
-        "fixture_restorer": "tests/current_runtime_generator_fixtures.py",
-        "tool_build_cli": "--tool-build",
-        "stack_build_cli": "--stack-build",
-        "tool_receipt_sha256": "DYNAMIC_ACTUAL_FILE",
-        "main_plus_independent_probe_images": true,
-        "historical_probe_pass_transferred": false
       },
-      "public_f64_logical192": {
-        "status": "PENDING_ACTUAL_COMBINED_CURRENT736_RUN",
-        "cases": 192,
-        "reader": "tests/public_f64_logical/qualify.py",
-        "pure_admission": "tests/current_runtime_public_f64_logical192.py",
-        "reference_package": "validation/public-f64-logical192-reference",
-        "original_six_modules_unchanged": true,
-        "construction": "direct97_public_dtype4_dense_no_grad",
-        "packet_controls": 18,
-        "actual_allocation_controls": 2,
-        "native_sessions": 196,
-        "native_boundary_controls": 2,
-        "outside_native_scope_torch_observations": 6,
-        "boundary_controls_counted_as_torch_compatibility": false,
-        "original147_replaced": false
-      },
-      "historical_execution_evidence": "validation/current-runtime-20261118/manifest.json",
-      "full_1127_executed": false,
-      "f64_48": {
-        "status": "PENDING_ACTUAL_COMBINED_CURRENT736_RUN",
-        "cases": 48,
-        "original_subgroups": {
-          "numeric": 33,
-          "boundary": 12,
-          "entry": 1,
-          "allocation": 2
-        },
-        "original_refusal_controls": 87,
-        "pure_admission": "tests/current_runtime_f64_readback.py",
-        "original_unmodified_refusal_expectations": 85,
-        "explicit_malformed_half_status_adaptations": 2,
-        "historical_refusal_failures_preserved": true,
-        "required_frames": 2856,
-        "required_assertions": 15355,
-        "fixture_restorer": "tests/current_runtime_f64_fixtures.py",
-        "source_package": "validation/current-f64-48-source",
-        "reference_package": "validation/current-f64-48-reference",
-        "historical_reference_actual_argv_available": false,
-        "historical_reference_interpreter_entity_available": false,
-        "original_reference_provenance_checks": 11,
-        "historical_pass_transferred": false
-      },
-      "half47": {
-        "status": "PENDING_ACTUAL_COMBINED_CURRENT736_RUN",
-        "cases": 47,
-        "original_subgroups": {
-          "numeric": 26,
-          "boundary": 16,
-          "entry": 1,
-          "allocation": 4
-        },
-        "original_refusal_controls": 239,
-        "numeric_values": 908216,
-        "original_frames": 2401,
-        "original_assertions": 10575,
-        "pure_admission": "tests/current_runtime_half_readback.py",
-        "fixture_restorer": "tests/current_runtime_half_fixtures.py",
-        "source_package": "validation/current-half47-source",
-        "reference_package": "validation/current-half47-reference",
-        "historical_reference_actual_argv_available": false,
-        "historical_reference_interpreter_entity_available": false,
-        "historical_reference_terminal_streams_available": false,
-        "original_reference_provenance_checks": 11,
-        "original_standalone_worker_interpreter_prebound": false,
-        "historical_pass_transferred": false
-      },
-      "half_refusals12": {
-        "status": "PENDING_ACTUAL_COMBINED_CURRENT736_RUN",
-        "cases": 12,
-        "direct_controls": 6,
-        "failed_frame_controls": 6,
-        "original_frames": 180,
-        "original_assertions": 222,
-        "reader": "tests/current_runtime_half_refusals12.py",
-        "pure_admission": "tests/current_runtime_half_readback.py",
-        "expected_status": 7,
-        "empty_response_records": true,
-        "complete_owner_and_rng_rollback_required": true,
-        "failed_frame_scope_separate_from_original_single_command_owner_rule": true,
-        "counted_as_torch_compatibility": false
-      },
-      "qualification_plan": "validation/current-runtime736/qualification-plan.json"
+      "image_scope": "One main production image plus separately identified Generator ABI/reordered probe images.",
+      "cold_build_scope": "PASS_NATIVE_BUILD_ONLY and source preparation do not establish runtime qualification."
     },
     "controls_required": {
       "original35_positive": 4,
@@ -284,14 +386,28 @@
       "f64_original_allocation_recoveries": 2,
       "half_original_refusals": 239,
       "half_original_allocation_recoveries": 4,
-      "half_independent_direct_refusals": 6,
-      "half_independent_failed_frame_refusals": 6
+      "half_logical_packet_controls": 52,
+      "half_logical_allocation_recoveries": 6,
+      "half_direct_success_transactions": 6,
+      "half_invalid_suffix_failed_transactions": 6,
+      "predicate_packet_controls": 56,
+      "predicate_successful_FE_transactions": 5,
+      "predicate_failed_FE_transactions": 5,
+      "predicate_allocation_recoveries": 5
     },
     "reference_policy": "Fixed independently produced reference bytes or the exact pinned live Torch CPU interpreter; no native-result-derived expected values.",
     "torch_reference_lock": "compatibility/pytorch-oracle-lock.json",
     "torch_reference_interpreter_make_variable": "HEPTA_TORCH_PYTHON",
     "full_upstream_schema_qualified": false,
-    "whole_pytorch_rewrite_complete": false
+    "whole_pytorch_rewrite_complete": false,
+    "pending_audit_findings": [
+      {
+        "id": "bf16-to-nan-payload",
+        "status": "PENDING_INDEPENDENT_VERIFICATION",
+        "scope": "Potential special-NaN payload differences in the existing F32-to-BF16 to() conversion require isolated native/reference reproduction. Existing Half47 conversion comparisons classify NaNs; predicates classify directly supplied raw bits and do not use this conversion.",
+        "full_dtype_closure_claimed": false
+      }
+    ]
   },
   "capabilities": [
     {
@@ -302,7 +418,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
+      "current_image_qualification": "PENDING_ACTUAL_20_GROUP_1876_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -313,7 +429,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
+      "current_image_qualification": "PENDING_ACTUAL_20_GROUP_1876_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -327,32 +443,34 @@
         "sum_f32_17",
         "asstrided16"
       ],
-      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
+      "current_image_qualification": "PENDING_ACTUAL_20_GROUP_1876_RUN",
       "full_upstream_schema_qualified": false
     },
     {
       "name": "logical-reductions",
       "implementation": "PRESENT_IN_CURRENT_HIA_SOURCE",
-      "scope": "Commands118 any and119 all accept Bool, I64, F32, existing rank-zero wrapped F64 Scalars and public dense no-grad F64, and return independent detached Bool Tensor/Storage/Version objects. Empty axis tuples mean no reduction; empty reductions use the appropriate logical identity. Public F16/BF16 input remains explicitly refused with complete rollback.",
+      "scope": "Commands118 any and119 all admit Bool, I64, F32, rank-zero wrapped F64 and public dense no-grad F64/F16/BF16. HIA truth conversion, reduction and independent detached Bool allocation are implemented. Empty axis tuples mean no reduction; empty reductions retain their operation identity.",
       "required_current_image_suites": [
         "logical147",
         "public_f64_logical192",
-        "half_refusals12"
+        "half_logical264",
+        "half_transactions12"
       ],
-      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
+      "current_image_qualification": "PENDING_ACTUAL_20_GROUP_1876_RUN",
       "full_upstream_schema_qualified": false
     },
     {
       "name": "bool-sum",
       "implementation": "PRESENT_IN_CURRENT_HIA_SOURCE",
-      "scope": "Command115 explicit Bool result accepts the same source types. Its empty axis tuple means all dimensions. Invalid axes are checked before the requires_grad refusal; floating inputs requiring gradients remain refused. Public F16/BF16 input remains explicitly refused with complete rollback.",
+      "scope": "Command115 explicit Bool sum includes public dense no-grad F64/F16/BF16 with the other admitted source types. Empty axis tuples mean all dimensions. Axis errors precede the floating requires_grad refusal; Half AD is not implemented.",
       "required_current_image_suites": [
         "logical147",
         "bool27",
         "public_f64_logical192",
-        "half_refusals12"
+        "half_logical264",
+        "half_transactions12"
       ],
-      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
+      "current_image_qualification": "PENDING_ACTUAL_20_GROUP_1876_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -363,7 +481,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
+      "current_image_qualification": "PENDING_ACTUAL_20_GROUP_1876_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -376,7 +494,7 @@
         "current35",
         "asstrided16"
       ],
-      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
+      "current_image_qualification": "PENDING_ACTUAL_20_GROUP_1876_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -388,7 +506,7 @@
         "current35",
         "live32"
       ],
-      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
+      "current_image_qualification": "PENDING_ACTUAL_20_GROUP_1876_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -399,7 +517,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
+      "current_image_qualification": "PENDING_ACTUAL_20_GROUP_1876_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -410,7 +528,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
+      "current_image_qualification": "PENDING_ACTUAL_20_GROUP_1876_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -421,7 +539,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
+      "current_image_qualification": "PENDING_ACTUAL_20_GROUP_1876_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -432,7 +550,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
+      "current_image_qualification": "PENDING_ACTUAL_20_GROUP_1876_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -441,9 +559,11 @@
       "scope": "Documented rank1..4 F32 cat and rank0..3-to-rank1..4 stack, repeated-parent VJP, qualified layout selection and skipped rank-one empty cat gradient accumulation.",
       "required_current_image_suites": [
         "base270",
-        "current35"
+        "current35",
+        "cat4",
+        "metadata10"
       ],
-      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
+      "current_image_qualification": "PENDING_ACTUAL_20_GROUP_1876_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -456,7 +576,7 @@
         "logical147",
         "resource7"
       ],
-      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
+      "current_image_qualification": "PENDING_ACTUAL_20_GROUP_1876_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -468,20 +588,20 @@
         "current35",
         "live32"
       ],
-      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
+      "current_image_qualification": "PENDING_ACTUAL_20_GROUP_1876_RUN",
       "full_upstream_schema_qualified": false
     },
     {
       "name": "rng-and-distributions",
       "implementation": "PRESENT_IN_CURRENT_HIA_SOURCE",
-      "scope": "Native CPU MT19937 Generators with complete 5056-byte state, selected distributions and documented partial errors. Mandatory Generator131 preserves original24/native11/entry59/dispatch37, real entropy and separate current-object probes; current736 full execution is pending and this does not qualify every distribution or device.",
+      "scope": "Native CPU MT19937 Generators with complete5056-byte state, selected distributions and explicit partial errors. Generator131 retains original24/native11/entry59/dispatch37, real entropy and separately executed current-object ABI/reordered probes. All-distribution and all-device parity remain open.",
       "required_current_image_suites": [
         "live32",
         "current35",
         "logical147",
         "generator131"
       ],
-      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
+      "current_image_qualification": "PENDING_ACTUAL_20_GROUP_1876_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -492,18 +612,29 @@
         "f64_48",
         "public_f64_logical192"
       ],
-      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
+      "current_image_qualification": "PENDING_ACTUAL_20_GROUP_1876_RUN",
       "full_upstream_schema_qualified": false
     },
     {
       "name": "half-storage-and-conversion",
       "implementation": "PRESENT_IN_CURRENT_HIA_SOURCE",
-      "scope": "Public F16/BF16 storage, selected same-dtype alias/copy/fill and F32 narrow/widen conversion paths. Complete original Half47 and independent refusal12 are mandatory. Half arithmetic, AD, any/all and explicit Bool sum are not qualified.",
+      "scope": "Public F16/BF16 storage, selected same-dtype alias/copy/fill and F32 narrow/widen conversion paths. Original Half47 and its239 refusal controls remain required. Separate logical264 and transaction12 cover the new dense no-grad logical extension. Conversion NaN classification does not establish full payload equivalence; ordinary Half arithmetic and AD remain open.",
       "required_current_image_suites": [
         "half47",
-        "half_refusals12"
+        "half_logical264",
+        "half_transactions12"
       ],
-      "current_image_qualification": "CURRENT736_UNIFIED_1127_PENDING",
+      "current_image_qualification": "PENDING_ACTUAL_20_GROUP_1876_RUN",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "numeric-predicates",
+      "implementation": "PRESENT_IN_CURRENT_HIA_SOURCE",
+      "scope": "Commands120..124 implement isnan/isinf/isfinite/isposinf/isneginf for admitted dtype0..6 and rank0..4 inputs by native bit classification. Each result is an independent detached Bool tensor with the same shape. Existing source construction, layout, resource and gradient boundaries remain in force.",
+      "required_current_image_suites": [
+        "numeric_predicates"
+      ],
+      "current_image_qualification": "PENDING_ACTUAL_20_GROUP_1876_RUN",
       "full_upstream_schema_qualified": false
     }
   ],
@@ -520,5 +651,31 @@
     "Dataset/dataloader, workers, multiprocessing, sampling and cancellation",
     "All required platforms, packaging, extension/profiling interfaces and final whole-project acceptance"
   ],
-  "historical_metadata_policy": "Superseded profile descriptions and old execution identities are available through Git history and their original immutable evidence. They are not current-image qualification."
+  "historical_metadata_policy": "Current capability descriptions refer to the one canonical source. The single published baseline record and immutable original evidence retain earlier identities; no historical PASS qualifies this candidate. Process-version narratives are retained in Git history.",
+  "published_historical_baseline": {
+    "source_sha256": "51820849f7becec549be15babace00f00687601ae7f53bcee0e636ca02f721f9",
+    "native_sha256": "aa3cc8f0c8738a9505d31c9e8ba5a523b7e08b591b61fc7bfb8592295491618b",
+    "cases": 1127,
+    "groups": 18,
+    "workflow_run": "https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/44363462524",
+    "actual_checkout": "07eb8fd19539add61458d70b1f0076c9660c8ad3",
+    "executed_tree": "4c2705c02f741ae1f063ebdefc453e3355a8d8c0",
+    "evidence_record": "validation/current-runtime736/main-ci-44363462524.json",
+    "functions": 736,
+    "units": 14,
+    "status": "OBSERVED_PASS_CURRENT_RUNTIME_FOCUSED",
+    "qualifies_current_candidate": false
+  },
+  "full_derivative_declaration_parity_count": 0,
+  "derivative_inventory": "compatibility/upstream-derivatives.json",
+  "repository_retirement": {
+    "removed_live_files": 53,
+    "removed_live_bytes": 4676695,
+    "indices": [
+      "validation/current-generator-original26/retirement.json",
+      "validation/differentiable-view-r1-build-history/live-source-retirement.json"
+    ],
+    "original_archives_licenses_and_custody_preserved": true,
+    "remaining_original_fixtures_require_verified_consumer_migration": true
+  }
 }

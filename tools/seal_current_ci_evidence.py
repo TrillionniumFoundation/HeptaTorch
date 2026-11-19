@@ -16,7 +16,17 @@ from pathlib import Path, PurePosixPath
 GROUPS = ('bool27', 'original76', 'integral24', 'sum_f32_17', 'current35',
           'base270', 'sum32', 'live32', 'logical147', 'resource7', 'asstrided16',
           'cat4', 'metadata10', 'generator131', 'public_f64_logical192',
-          'f64_48', 'half47', 'half_refusals12')
+          'f64_48', 'half47', 'half_logical264', 'half_transactions12', 'numeric_predicates')
+SOURCE = '24011e3c861e3b0e77c6a25c07116375cded2225c1f05f42cd84aa1e4a139215'
+IMAGE = '52e89b1cb6f4b859d3c9c2f5b528c8c22ddd983e21990a4a4dd5357625c3aba2'
+SOURCE_MANIFEST = 'e6eca58702d42be6dedae69a402d829c60444f2f4d4283b33cf4fc0ccfe34961'
+NUMERIC_CASES = '272c9b4fbde339481c32f2ed071dd8c60c9c3b17732e71e2178d973914c79609'
+NUMERIC_PROOF = dict(cases=485, native_sessions=496, frames=11244, assertions=42645,
+    owner_snapshots=3615, mapping_snapshots=10, additional_packet_controls=56,
+    additional_successful_FE_transactions=5, additional_failed_FE_transactions=5,
+    additional_allocation_recoveries=5, physical_replay=True,
+    native_executed_by_qualifier=False, Torch_executed_by_qualifier=False,
+    host_expected_values_computed=False, old_dispatcher_preserved=True)
 TOOLCHAINS = ('hepta-compiler', 'hepta-profile-sources', 'hepta-expanded',
               'hepta-capacity-review', 'hepta-modules-sources', 'hepta-modules-native',
               'hepta-owned-modules', 'hepta-owned-session-tools', 'hepta-stack-budget',
@@ -26,7 +36,7 @@ REPOSITORY_PATHS = (
     'tools/current_runtime', 'tools/differentiable_view_recovered_r3/profile.json',
     'tools/stack_budget/inspect_stack.py',
     'validation/view-reshape-r4-native76/archive-location.json',
-    'build/pytorch-install.json', 'tests', 'compatibility',
+    'build/pytorch-install.json', 'tests', 'tests/numeric_predicates', 'compatibility',
     'continuation/20261117/evidence',
     'continuation/20261117/source-packages/sum-bool-source-01/hia',
     'validation/sum-bool27-reference', 'validation/current-runtime-references',
@@ -39,24 +49,45 @@ REPOSITORY_PATHS = (
     'validation/public-f64-logical192-reference',
     'validation/current-f64-48-source', 'validation/current-f64-48-reference',
     'validation/current-half47-source', 'validation/current-half47-reference',
-    'validation/current-runtime736/qualification-plan.json',
+    'validation/current-runtime740/qualification-plan.json',
+    'validation/half-logical264-reference',
 )
 REFERENCE_INTERPRETER_PACKAGES = (
     'validation/cat-metadata10-reference', 'validation/public-f64-logical192-reference',
 )
-REQUIRED_OUTPUTS = ('build/build.json', 'build/heptatorch', 'build/runtime.hepta',
+NUMERIC_REFERENCE_OUTPUTS = (
+    'review/numeric_predicates/reference/report.json',
+    'review/numeric_predicates/reference-execution/process.json',
+    'review/numeric_predicates/reference-execution/runner.json',
+    'review/numeric_predicates/reference-execution/runner.stdout',
+    'review/numeric_predicates/reference-execution/runner.stderr',
+    'review/numeric_predicates-execution/intent.json',
+    'review/numeric_predicates-execution/runner.json',
+    'review/numeric_predicates-execution/runner.stdout',
+    'review/numeric_predicates-execution/runner.stderr',
+)
+REQUIRED_OUTPUTS = ('build/build.json', 'build/heptatorch', 'build/runtime.hepta', 'build/manifest.json',
                     'qualification.json', 'review/qualification.json') + tuple(
                         'review/' + name + '/report.json' for name in GROUPS) + (
                         'review/f64_48/physical-qualification.json',
                         'review/half47/physical-qualification.json',
-                        'review/half_refusals12/physical-qualification.json')
+                        'review/half_logical264/physical-qualification.json',
+        'review/half_transactions12/physical-qualification.json',
+        'review/numeric_predicates/physical-qualification.json') + NUMERIC_REFERENCE_OUTPUTS
 INPUT_REPORTS = ('build/build.json', 'review/qualification.json',) + tuple(
     'review/' + name + '/report.json' for name in GROUPS) + (
         'review/base270/current-adapter.json', 'review/base270/cold-build-admission.json',
         'review/public_f64_logical192/native/report.json',
         'review/f64_48/physical-qualification.json',
         'review/half47/physical-qualification.json',
-        'review/half_refusals12/physical-qualification.json')
+        'review/half_logical264/physical-qualification.json',
+        'review/half_transactions12/physical-qualification.json',
+        'review/numeric_predicates/physical-qualification.json',
+        'review/numeric_predicates/reference/report.json',
+        'review/numeric_predicates/reference-execution/process.json',
+        'review/numeric_predicates/reference-execution/runner.json',
+        'review/numeric_predicates-execution/intent.json',
+        'review/numeric_predicates-execution/runner.json')
 INPUT_TABLES = ('checked_inputs', 'inputs', 'files', 'source_custody')
 
 
@@ -319,6 +350,199 @@ def generator_reference_compilers(current):
     return roles, bindings
 
 
+def numeric_predicate_custody(repo, current):
+    """Bind the recorded 485-case proof and its actual reference bytes.
+
+    This reads the original reports, argv, process streams and declared inputs.
+    It performs no Tensor calculation, native execution or case admission.
+    The reference digest comes from this run's physical report, never a prior run.
+    """
+    bindings = {}
+
+    def need(condition, message):
+        if not condition:
+            raise ValueError(message)
+
+    def bind(path, expected=None):
+        path = Path(path)
+        need(path.is_absolute() and str(path.resolve()) == str(path), 'canonical predicate custody path')
+        raw, metadata = info(path)
+        need(expected is None or metadata['sha256'] == expected, 'predicate custody SHA: ' + str(path))
+        need(str(path) not in bindings or bindings[str(path)] == metadata, 'predicate custody input changed')
+        bindings[str(path)] = metadata
+        return raw
+
+    def document(path):
+        result = json.loads(bind(path))
+        need(isinstance(result, dict), 'predicate custody JSON object required')
+        return result
+
+    def check_fields(actual, expected, label):
+        need(all(type(actual.get(key)) is type(value) and actual[key] == value
+                 for key, value in expected.items()), label)
+
+    qualification_path = current / 'review/qualification.json'
+    qualification = document(qualification_path)
+    check_fields(qualification, dict(schema='heptatorch.current-runtime.qualification.v1',
+        required_suites=list(GROUPS), required_cases_total=1876, functions=740, units=14,
+        source_sha256=SOURCE, native_sha256=IMAGE), 'exact current740 twenty-suite inventory and image')
+    manifest_raw = bind(repo / 'tools/current_runtime/source/manifest.json', SOURCE_MANIFEST)
+    need(bind(current / 'build/manifest.json', SOURCE_MANIFEST) == manifest_raw,
+         'the actual cold build used the final complete source manifest')
+    manifest = json.loads(manifest_raw)
+    need(manifest['runtime']['sha256'] == SOURCE and manifest['runtime']['functions'] == 740
+         and manifest['expected_native_sha256'] == IMAGE and len(manifest['units']) == 14,
+         'final complete source and image pins')
+    bind(current / 'build/runtime.hepta', SOURCE)
+    bind(current / 'build/heptatorch', IMAGE)
+    build_raw = bind(current / 'build/build.json')
+    build_sha = digest(build_raw)
+    check_fields(json.loads(build_raw), dict(status='PASS_NATIVE_BUILD_ONLY', source_sha256=SOURCE,
+        native_sha256=IMAGE, manifest_sha256=SOURCE_MANIFEST, functions=740, units_planned=14),
+        'actual final cold build identity')
+    need(qualification['actual_build_sha256'] == build_sha, 'qualifier binds this actual cold build')
+    rows = [row for row in qualification['suites'] if row['name'] == 'numeric_predicates']
+    need(len(rows) == 1, 'one mandatory numeric predicate suite')
+    suite = rows[0]
+    check_fields(suite, dict(status='PASS', qualified=True, **NUMERIC_PROOF),
+                 'complete original predicate comparison, process and control census')
+    directory = current / 'review/numeric_predicates'
+    native_path = directory / 'report.json'
+    native_raw = bind(native_path)
+    native = json.loads(native_raw)
+    need(suite['original_report'] == dict(path='numeric_predicates/report.json',
+         bytes=len(native_raw), sha256=digest(native_raw)), 'unchanged original native report binding')
+    check_fields(native, dict(schema='heptatorch.numeric-predicates.native-observation.v1', status='PASS',
+        group='numeric_predicates', cases=485, expected_cases=485, case_sha256=NUMERIC_CASES,
+        source_sha256=SOURCE, native_sha256=IMAGE, actual_build_sha256=build_sha,
+        native_executed=True, Torch_executed=True, compiler_executed=False,
+        host_expected_values_computed=False, original_reference_modified=False,
+        all_inputs_unchanged=True, frames=11244, checks=42645, owner_reads=3615,
+        mapping_reads=10, failures=[]), 'original complete native predicate report')
+    names = ['case-%03d' % index for index in range(485)] + ['packet-controls']
+    names += ['transaction-%d' % opcode for opcode in range(120, 125)]
+    names += ['allocation-%d' % opcode for opcode in range(120, 125)]
+    need([row['name'] for row in native['results']] == names
+         and all(row['status'] == 'PASS' for row in native['results']),
+         'all 496 original native observation records')
+    for row in native['results']:
+        need(document(directory / row['name'] / 'observation.json') == row,
+             'each original per-session observer report is retained')
+    reference = directory / 'reference'
+    execution = directory / 'reference-execution'
+    need(native['reference_directory'] == str(reference)
+         and native['reference_process_directory'] == str(execution),
+         'exact this-run independent reference locations')
+    reference_raw = bind(reference / 'report.json')
+    reference_sha = digest(reference_raw)
+    observed = json.loads(reference_raw)
+    check_fields(observed, dict(schema='heptatorch.numeric-predicates.reference.v1',
+        status='OBSERVED_NUMERIC_PREDICATES', cases=485, expected_cases=485, case_sha256=NUMERIC_CASES,
+        Torch_executed=True, native_executed=False, compiler_executed=False,
+        host_expected_values_computed=False, inputs_unchanged=True, rng_unchanged=True,
+        all_observed_blobs_unchanged=True, failures=[]), 'complete actual independent Torch observation')
+    need(native['reference_sha256'] == suite['reference_sha256'] == reference_sha,
+         'this-run actual reference report digest')
+    proof_raw = bind(directory / 'physical-qualification.json')
+    proof = json.loads(proof_raw)
+    expected_proof = dict(NUMERIC_PROOF, reference_sha256=reference_sha)
+    need(set(proof) == set(expected_proof), 'complete fixed predicate physical-proof fields')
+    check_fields(proof, expected_proof, 'exact original physical predicate proof and current reference')
+    need(suite['physical_qualification'] == dict(path='numeric_predicates/physical-qualification.json',
+         bytes=len(proof_raw), sha256=digest(proof_raw), status='PASS_PHYSICAL_NUMERIC_PREDICATES'),
+         'exact physical-proof byte binding')
+    process = document(execution / 'process.json')
+    need(document(execution / 'runner.json') == process, 'unchanged actual reference supervisor receipt')
+    check_fields(process, dict(started=True, exit_code=0, stdout_EOF=True, stderr_EOF=True,
+        forced_cleanup=False, stderr_bytes=0, cleanup_errors=[], running_descendants_after_cleanup=[],
+        terminated_process_groups=[]), 'actual reference normal exit and both physical EOFs')
+    need(not process.get('timed_out') and not process.get('error') and not process.get('execution_error'),
+         'reference did not time out or fail execution')
+    argv = process['argv']
+    need(isinstance(argv, list) and len(argv) == 7 and Path(argv[0]).is_absolute()
+         and argv[1:] == ['-B', str(repo / 'tests/numeric_predicates/reference.py'),
+                          '--repository', str(repo), '--output', str(reference)]
+         and observed['actual_process']['argv'] == argv
+         and observed['actual_process']['pid'] == process['pid'], 'original actual Torch argv and PID')
+    for channel in ('stdout', 'stderr'):
+        raw = bind(execution / ('runner.' + channel), process[channel + '_sha256'])
+        need(len(raw) == process[channel + '_bytes'], 'complete actual reference ' + channel)
+    need(bind(execution / 'runner.stderr') == b''
+         and json.loads(bind(execution / 'runner.stdout')) == dict(status='OBSERVED_NUMERIC_PREDICATES',
+             cases=485, expected_cases=485, error=None), 'original reference stdout and stderr')
+    python = Path(argv[0]).resolve(strict=True)
+    bind(python)
+    need(observed['actual_process']['python'] == dict(path=str(python), **bindings[str(python)]),
+         'actual reference interpreter original bytes and POSIX mode')
+    provenance = observed['oracle_provenance']
+    lock_path = repo / 'compatibility/pytorch-oracle-lock.json'
+    lock_raw = bind(lock_path, 'ca2e54ce65083bbe0ab3d47b6878971271765ab35a9dd70725fa345fceed3944')
+    bind(repo / 'tests/pytorch_oracle.py', 'ef8fe89aa7dbff4ee03f9d5762d2736a3648d9e48e97ad5df7bec615676f04ae')
+    need(provenance['status'] == 'PASS' and len(provenance['checks']) == 11
+         and all(value is True for value in provenance['checks'].values())
+         and provenance['expected'] == json.loads(lock_raw)['oracle']
+         and provenance['lock_sha256'] == digest(lock_raw), 'all original fixed-wheel provenance checks')
+    reference_inputs = {str(path) for path in (repo / 'tests/numeric_predicates/reference.py',
+        repo / 'tests/numeric_predicates/cases.py', repo / 'tests/numeric_predicates/__init__.py',
+        repo / 'tests/pytorch_oracle.py', lock_path, repo / 'compatibility/upstream-lock.json',
+        repo / 'build/pytorch-install.json', python)}
+    need(set(observed['inputs']) == reference_inputs, 'all original independent reference input entities')
+    for spelling, metadata in observed['inputs'].items():
+        bind(Path(spelling), metadata['sha256'])
+        need(metadata == dict(path=spelling, **bindings[spelling]), 'reference input bytes and mode unchanged')
+    need(len(observed['rows']) == 485, 'all original independent reference rows')
+    for index, row in enumerate(observed['rows']):
+        need(row['index'] == index and row['accepted'] is True
+             and document(reference / ('case-%03d.json' % index)) == row,
+             'complete unchanged independent reference row')
+        for value in (row['input'], row['result']):
+            for field in ('logical', 'storage'):
+                blob = value[field]
+                need(set(blob) == {'path', 'bytes', 'sha256'}
+                     and re.fullmatch('[0-9a-f]{64}', blob['sha256']) is not None
+                     and blob['path'] == 'blobs/' + blob['sha256'] + '.bin', 'safe original reference blob')
+                need(len(bind(reference / blob['path'], blob['sha256'])) == blob['bytes'],
+                     'complete original reference blob bytes')
+    outer = current / 'review/numeric_predicates-execution'
+    need(document(outer / 'runner.json') == suite['runner'], 'original predicate runner receipt retained')
+    check_fields(suite['runner'], dict(started=True, exit_code=0, stdout_EOF=True, stderr_EOF=True,
+        forced_cleanup=False, stderr_bytes=0, cleanup_errors=[], running_descendants_after_cleanup=[]),
+        'original native observer runner normal exit and complete EOFs')
+    for channel in ('stdout', 'stderr'):
+        raw = bind(outer / ('runner.' + channel), suite['runner'][channel + '_sha256'])
+        need(len(raw) == suite['runner'][channel + '_bytes'], 'original observer runner stream extent')
+    intent_raw = bind(outer / 'intent.json')
+    need(suite['execution_intent'] == dict(path='numeric_predicates-execution/intent.json',
+         bytes=len(intent_raw), sha256=digest(intent_raw))
+         and json.loads(intent_raw)['argv'] == suite['runner']['argv'], 'original observer intent binding')
+    # The coordinator's own output cannot be its own checked input. The
+    # supervisor writes runner.json separately; the reference reader consumes
+    # its byte-identical process.json. These original supervisor outputs are
+    # bound here to the already recorded receipts and stream digests above.
+    custody_outputs = {str(qualification_path), str(execution / 'runner.json'),
+                       str(outer / 'runner.json'), str(outer / 'runner.stdout'),
+                       str(outer / 'runner.stderr')}
+    for spelling, metadata in bindings.items():
+        if spelling in custody_outputs:
+            continue
+        need(qualification['checked_inputs'].get(spelling) == metadata,
+             'current qualifier checked every declared predicate custody input: ' + spelling)
+    role = dict(role='THIS_CI_NUMERIC_PREDICATES_TORCH_REFERENCE_INTERPRETER',
+        requested_path=argv[0], original_path=str(python), **bindings[str(python)],
+        report_member='current-runtime/review/numeric_predicates/reference/report.json',
+        process_member='current-runtime/review/numeric_predicates/reference-execution/process.json',
+        original_process={key: process[key] for key in ('argv', 'pid', 'exit_code', 'stdout_EOF', 'stderr_EOF')},
+        entity_executed_by_custody=False, runtime_qualification_granted=False)
+    result = dict(schema='heptatorch.numeric-predicates.original-evidence-custody.v1',
+        original_proof=proof, reference_sha256=reference_sha,
+        native_report_sha256=digest(native_raw), physical_proof_sha256=digest(proof_raw),
+        source_manifest_sha256=SOURCE_MANIFEST, reference_interpreter=role,
+        complete_reference_process_streams_and_inputs_bound=True,
+        additional_original_supervisor_outputs_bound_by_custody=sorted(custody_outputs),
+        numerical_cases_readmitted=False, native_executed=False, Torch_executed=False)
+    return result, bindings
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--repository', type=Path, required=True)
@@ -348,9 +572,9 @@ def main(argv=None):
         scope='File-byte and original POSIX-mode custody only; original numerical reports retain their statuses.',
         required_output_paths=list(REQUIRED_OUTPUTS), required_repository_paths=list(REPOSITORY_PATHS),
         required_toolchain_directories=list(TOOLCHAINS),
-        required_suites=list(GROUPS), required_cases_total=1127,
+        required_suites=list(GROUPS), required_cases_total=1876,
         reference_interpreters=[], execution_interpreter=None,
-        reference_process_executables=[], missing=[], errors=[])
+        reference_process_executables=[], numeric_predicates_evidence=None, missing=[], errors=[])
     selected, declared, parsed_lists, input_declarations = {}, {}, {}, []
     report_declared_paths = set()
     roots = [(current, 'current-runtime'), (repo, 'repository')] + [
@@ -433,6 +657,23 @@ def main(argv=None):
                     table='reference_executable_custody', source_path=spelling, expected=metadata))
         except BaseException as error:
             problem('generator-reference-executable', current / 'review/generator131/report.json', error)
+        try:
+            predicate_evidence, predicate_bindings = numeric_predicate_custody(repo, current)
+            role = predicate_evidence['reference_interpreter']
+            reference_python = Path(role['original_path'])
+            if reference_python not in external_executables:
+                external_executables[reference_python] = (
+                    'external/numeric-predicates-reference-python/' + reference_python.name)
+            role['member'] = external_executables[reference_python]
+            report['reference_process_executables'].append(role)
+            report['numeric_predicates_evidence'] = predicate_evidence
+            for spelling, metadata in predicate_bindings.items():
+                declared.setdefault(spelling, []).append(metadata)
+                input_declarations.append(dict(input_report='numeric-predicates-original-evidence-custody',
+                    table='original_report_and_reference_byte_bindings', source_path=spelling, expected=metadata))
+                add(Path(spelling))
+        except BaseException as error:
+            problem('numeric-predicates-original-evidence', current / 'review/numeric_predicates/report.json', error)
         select(current, 'current-runtime/')
         for relative in REPOSITORY_PATHS:
             select(repo / relative, 'repository/' + relative)
@@ -473,9 +714,9 @@ def main(argv=None):
                 report['original_required_cases'] = document.get('required_cases_total')
                 if (document.get('schema') != 'heptatorch.current-runtime.qualification.v1'
                         or document.get('required_suites') != list(GROUPS)
-                        or document.get('required_cases_total') != 1127):
+                        or document.get('required_cases_total') != 1876):
                     problem('qualification-inventory', path,
-                            ValueError('current eighteen-group qualification input inventory differs'))
+                            ValueError('current twenty-group qualification input inventory differs'))
             if relative == 'review/metadata10/report.json':
                 worker = document.get('worker_interpreter')
                 if worker is not None:
@@ -532,6 +773,7 @@ def main(argv=None):
             execution_interpreter=report['execution_interpreter'],
             reference_interpreters=report['reference_interpreters'],
             reference_process_executables=report['reference_process_executables'],
+            numeric_predicates_evidence=report['numeric_predicates_evidence'],
             external_path_mapping=[dict(original_root=str(root), prefix=alias) for root, alias in roots]
                 + [dict(original_file=str(path), member=name)
                    for path, name in sorted(external_executables.items(), key=lambda row: str(row[0]))])
