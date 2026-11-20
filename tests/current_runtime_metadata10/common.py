@@ -13,7 +13,7 @@ import textwrap
 import types
 
 HERE=Path(__file__).resolve().parent
-SOURCE_MANIFEST = '882b8afe39d3f4538fba52644183b8db50db5829a63423ac2e5febde4f731392'
+SOURCE_MANIFEST = '8001182ce17f40a0228b6f9eb9e36be64ddddecaf0ba3a72f58bfa060891888d'
 CAT4_QUALIFIER='2d72ca5c8b8e92684e27b30505f32c9e8294ae27554311a68ae1eee6a31f4576'
 
 

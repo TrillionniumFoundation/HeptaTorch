@@ -6,8 +6,8 @@ compiler, linker, or Torch producer, and supplies no runtime qualification.
 import ast
 import hashlib
 
-SOURCE = '24011e3c861e3b0e77c6a25c07116375cded2225c1f05f42cd84aa1e4a139215'
-IMAGE = '52e89b1cb6f4b859d3c9c2f5b528c8c22ddd983e21990a4a4dd5357625c3aba2'
+SOURCE = 'abbc84b8eca16670e72b8872d1d7ab479f8a1d44f7b2b65deea1649f7682b2c7'
+IMAGE = '606f69aaecedbedc7ed6ad8f033275e0b64697f70632036d180106d315243c32'
 ORIGINAL_FILES = {
     'cases.py': 'e689699b519e57eec44edac5d4c319d3ea718a3777056d1514d1f0e43a08bef3',
     'common.py': '29d25567c08e309c25d96d56f4476e3842ceda164c9647eb5c9397a04fad181a',
@@ -69,8 +69,8 @@ def derive(original, author_raw):
     outputs['run736.py'], proof['run'] = change(original['run.py'], [
         ('04ae430e3e851831fcb97a3fab700b16b6318361d52e90fcea90d2183d1d564b', SOURCE),
         ('4749413ea952bfd9d1fe41770f94ce1b9b9e3efabb407aa90f725cf33d59c4db', IMAGE),
-        ("built['functions'] == len(bodies) == 729", "built['functions'] == len(bodies) == 740"),
-        ('exact integrated 729-function source and image', 'exact integrated 740-function source and image'),
+        ("built['functions'] == len(bodies) == 729", "built['functions'] == len(bodies) == 742"),
+        ('exact integrated 729-function source and image', 'exact integrated 742-function source and image'),
         (anchor, anchor + extra),
     ])
     preserved = {}
@@ -98,7 +98,7 @@ def derive(original, author_raw):
         require(definition(original['qualify.py'], name) == definition(outputs['qualify736.py'], name),
                 'complete original process/readback implementation: ' + name)
     proof.update(schema='heptatorch.public-f64-logical192.current736.source-derivation.v1',
-        source_sha256=SOURCE, native_sha256=IMAGE, functions=740, units=14,
+        source_sha256=SOURCE, native_sha256=IMAGE, functions=742, units=14,
         original_files=ORIGINAL_FILES, derivation_source_sha256=sha(author_raw),
         original_complete_definitions=preserved, original_six_files_modified=False,
         original_reference_Python_and_producer_identities_changed=False,

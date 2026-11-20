@@ -1,7 +1,7 @@
 # 原 AsStrided16 在当前 HIA 运行时上的验收
 
 本入口保留四套原始 reader、完整 owner 观察和全部 16 个配方，绑定当前
-**740 函数、14 编译单元**的 HIA 主映像。统一执行状态见[当前审计](../../docs/current-audit.md)。
+**742 函数、14 编译单元**的 HIA 主映像。统一执行状态见[当前审计](../../docs/current-audit.md)。
 源码准备、历史结果和其他映像的 PASS 均不授予当前运行资格。
 
 ## 固定配方与分母
@@ -38,7 +38,10 @@
 `build.json` 必须匹配。共享 admission 核对全部源码/对象/工具、精确链接
 输入、栈预算及编译/链接进程的退出和双 EOF；不会制造旧 profile 的回执。
 
-新增 [predicate source inverse](../../tools/current_runtime/predicate_source_transition.py)
+当前 [BF16 source inverse](../../tools/current_runtime/bf16_source_transition.py)
+将完整 742 源码逐字还原为 740：两个原函数变化、两个新增 helper 与其余
+738 个未改原函数体均分别检查，完整正向回建必须一致。随后接续原
+[predicate source inverse](../../tools/current_runtime/predicate_source_transition.py)
 把完整 740 函数源码精确逆回 Half736：除 `entry` 两条指令外，原 735 个
 函数体全部不变。原 `to_command` 仍是实际执行体；完整 120–124 guard
 和六参数原序 delegate block 单独验证，原命令不会进入新增谓词分支。
@@ -76,7 +79,7 @@ python3 -I -S -B tests/current_runtime_asstrided/qualify.py \
 只运行入场、固定输入和源码逆证明，返回 `PREPARED_NOT_RUN`，不启动
 native/Torch。
 
-完整执行的 schema 是 `heptatorch.current740.asstrided16.v1`，成功状态
+完整执行的 schema 是 `heptatorch.current742.asstrided16.v1`，成功状态
 为 `PASS_CURRENT_ASSTRIDED16`。协调器通过
 `qualify_asstrided16(report, build_sha, directory, inputs)` 独立重复完整
 物理读回；该函数不创建进程、不改结果、不继承旧 PASS。实际执行与安装

@@ -11,8 +11,8 @@ import types
 from current_runtime_fixtures import require, safe_name, sha
 from current_runtime_generator_fixtures import verify_qualifier, QUALIFIER_MANIFEST
 
-SOURCE = '24011e3c861e3b0e77c6a25c07116375cded2225c1f05f42cd84aa1e4a139215'
-IMAGE = '52e89b1cb6f4b859d3c9c2f5b528c8c22ddd983e21990a4a4dd5357625c3aba2'
+SOURCE = 'abbc84b8eca16670e72b8872d1d7ab479f8a1d44f7b2b65deea1649f7682b2c7'
+IMAGE = '606f69aaecedbedc7ed6ad8f033275e0b64697f70632036d180106d315243c32'
 OWNER = 'c39600e7c37dea390f88cf9e74d86dfa924301456e0f32e127d82c98ad6778b0'
 GROUPS = ('oracle24', 'native11', 'entry59', 'dispatch')
 
@@ -66,10 +66,10 @@ def tensor_owner(package, directory, proof, inputs):
     original = inputs.bind(package / 'frozen/owner_integral.py', OWNER)
     raw = original
     changes = [('HTSINT01', 'HTSINT02', 2), ('HTOSIN01', 'HTOSIN02', 2),
-               ('functions == 699', 'functions == 740', 1),
-               ('sum-integral-source01-UNBOUND-699', 'generator740-dispatch-UNBOUND', 1),
+               ('functions == 699', 'functions == 742', 1),
+               ('sum-integral-source01-UNBOUND-699', 'generator742-dispatch-UNBOUND', 1),
                ('sum-integral-source01-%d-preserved47-48', 'generator%d-dispatch-full-tensor-owner', 1),
-               ('heptatorch.sum-integral-owner-source01.v1', 'heptatorch.generator740-dispatch-tensor-owner.v1', 1)]
+               ('heptatorch.sum-integral-owner-source01.v1', 'heptatorch.generator742-dispatch-tensor-owner.v1', 1)]
     for before, after, count in changes:
         require(raw.count(before.encode()) == count and after.encode() not in raw, 'exact owner identity edits')
         raw = raw.replace(before.encode(), after.encode())
@@ -81,7 +81,7 @@ def tensor_owner(package, directory, proof, inputs):
     path = directory / 'executed-tensor-owner.py'
     require(inputs.bind(path, sha(raw)) == raw, 'actual executed owner source')
     module = loaded(path, 'current_generator131_actual_tensor_owner', inputs)
-    module.bind_profile(SOURCE, IMAGE, 740)
+    module.bind_profile(SOURCE, IMAGE, 742)
     return module
 
 
@@ -212,8 +212,8 @@ def audit_generator_reports(report, directory, package, inputs):
     complete actual cold/tool and source-custody admission.
     """
     directory, package = Path(directory), Path(package)
-    require(report['schema'] == 'heptatorch.generator740-current-native-qualification.v1'
-            and report['status'] == 'PASS_CURRENT740_GENERATOR131' and report['selected_group'] == 'all'
+    require(report['schema'] == 'heptatorch.generator742-current-native-qualification.v1'
+            and report['status'] == 'PASS_CURRENT742_GENERATOR131' and report['selected_group'] == 'all'
             and report['cases'] == 131 and report['original_cases'] == 94 and report['new_dispatch_cases'] == 37,
             'all original94 and new37 actually qualified together')
     require(report['source_sha256'] == SOURCE and report['native_sha256'] == IMAGE
@@ -411,7 +411,7 @@ def verify_current_object_links(report, build, stack_build, directory, package, 
 def qualify_generator131(report, repository, build, build_sha, directory, package,
                          candidate, original26, tool_build, stack_build, inputs):
     package, directory, build = Path(package), Path(directory), Path(build)
-    verify_qualifier(package, inputs)
+    qualifier_proof = verify_qualifier(package, inputs)
     require(report['build_sha256'] == build_sha, 'same actual current cold build')
     tool_raw = inputs.bind(Path(tool_build) / 'build.json')
     require(report['tool_build_sha256'] == sha(tool_raw), 'same actual reproduced entropy linker build')
@@ -423,7 +423,7 @@ def qualify_generator131(report, repository, build, build_sha, directory, packag
         bound = report['inputs'].get(str(path.absolute()))
         require(bound is not None and bound['bytes'] == len(actual) and bound['sha256'] == sha(actual)
                 and bound['mode'] == (path.stat().st_mode & 0o7777), 'actual current portable reader source')
-    require(sha(inputs.bind(package / 'package-manifest.json')) == QUALIFIER_MANIFEST,
+    require(sha(inputs.bind(package / 'package-manifest.json')) == qualifier_proof['manifest_sha256'],
             'exact current portable qualification package')
     with readers(package, inputs) as modules:
         args = types.SimpleNamespace(repository=Path(repository), candidate=Path(candidate),

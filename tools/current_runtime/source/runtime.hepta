@@ -55993,20 +55993,20 @@ block b4(v13:mutbuf)
   v48:u64 = call(v13,v47) {"function":"terror"}
   ret(v48)
 end
-fn half_convert_value(v0:u64,v1:u64,v2:u64) -> (u64) effects(read,write,trap) entry(b0)
-block b0(v0:u64,v1:u64,v2:u64)
+fn half_convert_value(v0:u64,v1:u64,v2:u64,n0:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(v0:u64,v1:u64,v2:u64,n0:u64)
   v15:bool = compare.eq(v1,v2)
-  branch v15 b1(v0) b2(v0,v1,v2)
+  branch v15 b1(v0) b2(v0,v1,v2,n0)
 block b1(v3:u64)
   ret(v3)
-block b2(v4:u64,v5:u64,v6:u64)
+block b2(v4:u64,v5:u64,v6:u64,n2:u64)
   v16:u64 = const() {"value":0}
   v17:bool = compare.eq(v5,v16)
-  branch v17 b3(v4,v6) b4(v4,v5)
-block b3(v7:u64,v8:u64)
+  branch v17 b3(v4,v6,n2) b4(v4,v5)
+block b3(v7:u64,v8:u64,n3:u64)
   v18:u64 = const() {"value":5}
   v19:bool = compare.eq(v8,v18)
-  branch v19 b5(v7) b6(v7)
+  branch v19 b5(v7) b6(v7,n3)
 block b4(v9:u64,v10:u64)
   v20:u64 = const() {"value":5}
   v21:bool = compare.eq(v10,v20)
@@ -56014,8 +56014,8 @@ block b4(v9:u64,v10:u64)
 block b5(v11:u64)
   v22:u64 = call(v11) {"function":"round_f16"}
   ret(v22)
-block b6(v12:u64)
-  v23:u64 = call(v12) {"function":"round_bf16"}
+block b6(v12:u64,n6:u64)
+  v23:u64 = call(v12,n6) {"function":"half_narrow_bf16"}
   ret(v23)
 block b7(v13:u64)
   v24:u64 = call(v13) {"function":"widen_f16"}
@@ -56089,30 +56089,32 @@ block b16(v122:mutbuf,v123:u64,v124:u64,v126:u64,v128:u64)
   v131:u64 = call(v122,v130) {"function":"getw"}
   v132:u64 = call(v124) {"function":"dtype_width"}
   v133:u64 = const() {"value":0}
-  jump b17(v122,v123,v124,v126,v128,v131,v132,v133)
-block b17(v134:mutbuf,v135:u64,v136:u64,v138:u64,v140:u64,v141:u64,v142:u64,v143:u64)
+  bf_result:u64 = call(v122,v128) {"function":"dptr"}
+  bf_nan:u64 = call(v122,v126,bf_result) {"function":"half_bf16_nan_word"}
+  jump b17(v122,v123,v124,v126,v128,v131,v132,v133,bf_nan)
+block b17(v134:mutbuf,v135:u64,v136:u64,v138:u64,v140:u64,v141:u64,v142:u64,v143:u64,n17:u64)
   v144:u64 = const() {"value":8}
   v145:u64 = int.add.wrap(v138,v144)
   v146:u64 = call(v134,v145) {"function":"getw"}
   v147:bool = compare.lt(v143,v146)
-  branch v147 b18(v134,v135,v136,v138,v140,v141,v142,v143) b19(v134,v135,v140)
-block b18(v148:mutbuf,v149:u64,v150:u64,v152:u64,v154:u64,v155:u64,v156:u64,v157:u64)
+  branch v147 b18(v134,v135,v136,v138,v140,v141,v142,v143,n17) b19(v134,v135,v140)
+block b18(v148:mutbuf,v149:u64,v150:u64,v152:u64,v154:u64,v155:u64,v156:u64,v157:u64,n18:u64)
   v168:u64 = call(v148,v149,v157) {"function":"tget"}
-  v169:u64 = call(v168,v155,v150) {"function":"half_convert_value"}
+  v169:u64 = call(v168,v155,v150,n18) {"function":"half_convert_value"}
   v170:u64 = call(v148,v154,v157) {"function":"taddr"}
   v171:u64 = call(v148,v170,v156,v169) {"function":"typed_store"}
   v172:u64 = const() {"value":0}
   v173:bool = compare.eq(v171,v172)
-  branch v173 b20(v148) b21(v148,v149,v150,v152,v154,v155,v156,v157)
+  branch v173 b20(v148) b21(v148,v149,v150,v152,v154,v155,v156,v157,n18)
 block b19(v158:mutbuf,v159:u64,v164:u64)
   ret(v164)
 block b20(v174:mutbuf)
   v196:u64 = const() {"value":0}
   ret(v196)
-block b21(v185:mutbuf,v186:u64,v187:u64,v189:u64,v191:u64,v192:u64,v193:u64,v194:u64)
+block b21(v185:mutbuf,v186:u64,v187:u64,v189:u64,v191:u64,v192:u64,v193:u64,v194:u64,n21:u64)
   v197:u64 = const() {"value":1}
   v198:u64 = int.add.wrap(v194,v197)
-  jump b17(v185,v186,v187,v189,v191,v192,v193,v198)
+  jump b17(v185,v186,v187,v189,v191,v192,v193,v198,n21)
 end
 fn predicate_bits(v0:u64,v1:u64,v2:u64) -> (u64) effects(read,write,trap) entry(b0)
 block b0(v0:u64,v1:u64,v2:u64)
@@ -56377,4 +56379,74 @@ block b5(v76:mutbuf,v77:mutbuf,v78:u64,v79:u64,v80:u64,v81:u64)
 block b6(v83:mutbuf,v84:mutbuf,v85:u64,v86:u64,v87:u64,v88:u64)
   v89:u64 = call(v83,v84,v85,v86,v87,v88) {"function":"shape_command_finish"}
   ret(v89)
+end
+fn half_bf16_nan_word(s0:mutbuf,source0:u64,result0:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(s0:mutbuf,source0:u64,result0:u64)
+  rank0:u64 = call(s0,source0) {"function":"getw"}
+  zero0:u64 = const() {"value":0}
+  scalar0:bool = compare.eq(rank0,zero0)
+  branch scalar0 scalar_result() count_start(s0,source0,result0)
+block count_start(s_count:mutbuf,source_count:u64,result_count:u64)
+  eight0:u64 = const() {"value":8}
+  count_at0:u64 = int.add.wrap(source_count,eight0)
+  count0:u64 = call(s_count,count_at0) {"function":"getw"}
+  one0:u64 = const() {"value":1}
+  singleton0:bool = compare.le(count0,one0)
+  branch singleton0 vector_result() axes_start(s_count,source_count,result_count)
+block axes_start(s1:mutbuf,source1:u64,result1:u64)
+  rank1:u64 = call(s1,source1) {"function":"getw"}
+  zero1:u64 = const() {"value":0}
+  jump axes(s1,source1,result1,rank1,zero1)
+block axes(s2:mutbuf,source2:u64,result2:u64,rank2:u64,axis2:u64)
+  more2:bool = compare.lt(axis2,rank2)
+  branch more2 inspect(s2,source2,result2,rank2,axis2) scalar_result()
+block inspect(s3:mutbuf,source3:u64,result3:u64,rank3:u64,axis3:u64)
+  width3:u64 = const() {"value":8}
+  offset3:u64 = int.mul.wrap(axis3,width3)
+  shape_base3:u64 = const() {"value":96}
+  shape_offset3:u64 = int.add.wrap(shape_base3,offset3)
+  shape_at3:u64 = int.add.wrap(source3,shape_offset3)
+  dimension3:u64 = call(s3,shape_at3) {"function":"getw"}
+  stride_base3:u64 = const() {"value":128}
+  stride_offset3:u64 = int.add.wrap(stride_base3,offset3)
+  result_stride_at3:u64 = int.add.wrap(result3,stride_offset3)
+  result_stride3:u64 = call(s3,result_stride_at3) {"function":"getw"}
+  one3:u64 = const() {"value":1}
+  varies3:bool = compare.gt(dimension3,one3)
+  contiguous3:bool = compare.eq(result_stride3,one3)
+  innermost3:bool = bool.and(varies3,contiguous3)
+  branch innermost3 input_stride(s3,source3,stride_offset3) next(s3,source3,result3,rank3,axis3)
+block input_stride(s4:mutbuf,source4:u64,stride_offset4:u64)
+  source_stride_at4:u64 = int.add.wrap(source4,stride_offset4)
+  source_stride4:u64 = call(s4,source_stride_at4) {"function":"getw"}
+  one4:u64 = const() {"value":1}
+  contiguous4:bool = compare.eq(source_stride4,one4)
+  branch contiguous4 vector_result() scalar_result()
+block next(s5:mutbuf,source5:u64,result5:u64,rank5:u64,axis5:u64)
+  one5:u64 = const() {"value":1}
+  next5:u64 = int.add.wrap(axis5,one5)
+  jump axes(s5,source5,result5,rank5,next5)
+block vector_result()
+  vector_nan:u64 = const() {"value":65535}
+  ret(vector_nan)
+block scalar_result()
+  scalar_nan:u64 = const() {"value":32704}
+  ret(scalar_nan)
+end
+fn half_narrow_bf16(value0:u64,nan_word0:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(value0:u64,nan_word0:u64)
+  exponent_mask0:u64 = const() {"value":2139095040}
+  exponent0:u64 = bit.and(value0,exponent_mask0)
+  special0:bool = compare.eq(exponent0,exponent_mask0)
+  fraction_mask0:u64 = const() {"value":8388607}
+  fraction0:u64 = bit.and(value0,fraction_mask0)
+  zero0:u64 = const() {"value":0}
+  payload0:bool = compare.ne(fraction0,zero0)
+  nan0:bool = bool.and(special0,payload0)
+  branch nan0 nan_result(nan_word0) finite_result(value0)
+block nan_result(nan_word1:u64)
+  ret(nan_word1)
+block finite_result(value2:u64)
+  result2:u64 = call(value2) {"function":"round_bf16"}
+  ret(result2)
 end

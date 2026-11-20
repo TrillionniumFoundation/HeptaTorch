@@ -23,9 +23,9 @@ REFERENCE = 'b1dafeed270b4dd226c349dece9d7f6213c2dabd34681685d97ec13c068e9b11'
 READER = '1deb2fa84d9ea9653ca56769a5527f0102571ba2a4690f8deb85f5d4bdc038b3'
 SOURCE = '51820849f7becec549be15babace00f00687601ae7f53bcee0e636ca02f721f9'
 IMAGE = 'aa3cc8f0c8738a9505d31c9e8ba5a523b7e08b591b61fc7bfb8592295491618b'
-CURRENT_SOURCE = '24011e3c861e3b0e77c6a25c07116375cded2225c1f05f42cd84aa1e4a139215'
-CURRENT_IMAGE = '52e89b1cb6f4b859d3c9c2f5b528c8c22ddd983e21990a4a4dd5357625c3aba2'
-CURRENT_PARTITION = 'e6eca58702d42be6dedae69a402d829c60444f2f4d4283b33cf4fc0ccfe34961'
+CURRENT_SOURCE = 'abbc84b8eca16670e72b8872d1d7ab479f8a1d44f7b2b65deea1649f7682b2c7'
+CURRENT_IMAGE = '606f69aaecedbedc7ed6ad8f033275e0b64697f70632036d180106d315243c32'
+CURRENT_PARTITION = 'a750f6e388c4339c29ff299aca0dabda9fa8b0ff7cc69d5bfa45f69cdd86e009'
 HALF_SOURCE = 'bf3641b1a9061c6f92b8cbeef75adfac89e82ee16d32a9f650cb938d9e918386'
 PREDICATE_INVERSE = '71244cd75fb41ce07876d7f5699b66ae43c73adc5dd5d09fb2da0dec9c8c7439'
 HALF_LOGICAL_INVERSE = 'e0a2eac589ddfe8b09794fb55c569a73d7d7802888130646f59d33adca266f66'
@@ -272,15 +272,20 @@ def current_adapter_type(original_type, bridge, repository, extension_files, kin
             manifest_raw = inputs.bind(repository / 'tools/current_runtime/source/manifest.json', CURRENT_PARTITION)
             planned = bridge.parse(manifest_raw)
             require(planned['runtime']['sha256'] == CURRENT_SOURCE
-                    and planned['runtime']['functions'] == 740
+                    and planned['runtime']['functions'] == 742
                     and planned['expected_native_sha256'] == CURRENT_IMAGE
                     and len(planned['units']) == 14, 'exact current Half-logical source and image')
             source = inputs.bind(repository / 'tools/current_runtime/source/runtime.hepta', CURRENT_SOURCE)
+            bf16_path = repository / 'tools/current_runtime/bf16_source_transition.py'
+            bf16 = load_module(inputs.bind(bf16_path), bf16_path, kind + '_bf16_source_inverse')
+            source, bf16_proof = bf16.restore_source(source, inputs.bind)
+            require(bf16.SOURCE == CURRENT_SOURCE and sha(source) == bf16.PARENT_SOURCE,
+                    'exact BF16 copy correction inverted before the original740 source witness')
             predicate_path = repository / 'tools/current_runtime/predicate_source_transition.py'
             predicate = load_module(inputs.bind(predicate_path, PREDICATE_INVERSE), predicate_path,
                                     kind + '_current_predicate_inverse')
             source, predicate_proof = predicate.restore_source(source, inputs.bind)
-            require(predicate.SOURCE == CURRENT_SOURCE and predicate.PARENT_SOURCE == HALF_SOURCE
+            require(predicate.SOURCE == bf16.PARENT_SOURCE and predicate.PARENT_SOURCE == HALF_SOURCE
                     and sha(source) == HALF_SOURCE,
                     'new predicates retain the exact Half parent and its original opcode routing')
             inverse_path = repository / 'tools/current_runtime/half_logical_source_transition.py'
@@ -305,13 +310,14 @@ def current_adapter_type(original_type, bridge, repository, extension_files, kin
                                   kind + '_current_unchanged_shared_admission')
             require(profile.ROOT == repository and profile.PROFILE_BYTES == manifest_raw
                     and profile.SOURCE == CURRENT_SOURCE and profile.IMAGE == CURRENT_IMAGE
-                    and profile.FUNCTIONS == 740 and profile.UNITS == 14,
+                    and profile.FUNCTIONS == 742 and profile.UNITS == 14,
                     'unchanged strict shared source/build admission for the actual current profile')
             inputs.bind(repository / 'tools/current_runtime/build.py', bridge.BUILDER)
             self.repository, self.profile = repository, profile
             result = dict(schema='heptatorch.half-logical.' + kind + '.source-admission.v1',
-                source_sha256=CURRENT_SOURCE, native_sha256=CURRENT_IMAGE, functions=740, units=14,
+                source_sha256=CURRENT_SOURCE, native_sha256=CURRENT_IMAGE, functions=742, units=14,
                 predicate_source_inverse=predicate_proof,
+                bf16_source_inverse=bf16_proof,
                 half_logical_to_original736_inverse=extension_proof,
                 original736_source_sha256=frozen_source,
                 current_source_manifest_sha256=CURRENT_PARTITION,
@@ -320,7 +326,7 @@ def current_adapter_type(original_type, bridge, repository, extension_files, kin
                     current=CURRENT_SOURCE, original_owner_source_sha256=bridge.OWNER,
                     original_function_bodies_changed=['bind_profile'],
                     original_owner_predicates_changed=False,
-                    original_function_count=736, current_function_count=740,
+                    original_function_count=736, current_function_count=742,
                     only_exact_profile_count_guard_changed=True,
                     exact_profile_count_guards_changed=2),
                 original_reference_producer_source_sha256=bridge.PRODUCER_SOURCE,
@@ -336,7 +342,7 @@ def current_adapter_type(original_type, bridge, repository, extension_files, kin
                     original_sum_refusal_is_default_dtype_U64MAX=True,
                     current_explicit_Bool_sum_and_any_all_outside_this48_suite=True)
                 return dict(schema='heptatorch.half-logical.f64-48.explicit-controls-source-admission.v1',
-                    source_sha256=CURRENT_SOURCE, native_sha256=CURRENT_IMAGE, functions=740, units=14,
+                    source_sha256=CURRENT_SOURCE, native_sha256=CURRENT_IMAGE, functions=742, units=14,
                     original_identity_source_admission=result,
                     original87_source_bytes_unchanged=True,
                     current87_expected_status_changes=self.control_proof,
@@ -369,7 +375,7 @@ def current_adapter_type(original_type, bridge, repository, extension_files, kin
                 physical[key] = inputs.rows[key]
                 return raw
             built = self.profile.admit_build(directory, bound, report_sha)
-            require(len(physical) == 69 and built['functions'] == 740
+            require(len(physical) == 69 and built['functions'] == 742
                     and len(built['units']) == 14 and len(built['processes']) == 15,
                     'all69 current physical inputs,14 fresh compilers and1 linker')
             require(inputs.bind(directory / 'manifest.json', CURRENT_PARTITION) == self.profile.PROFILE_BYTES,
@@ -379,7 +385,7 @@ def current_adapter_type(original_type, bridge, repository, extension_files, kin
                     inputs.bind(path, row['sha256'], row['bytes'])
             return dict(schema='heptatorch.half-logical.' + kind + '.cold-admission.v1',
                 status='PASS_BUILD_ADMISSION_ONLY', source_sha256=CURRENT_SOURCE, native_sha256=CURRENT_IMAGE,
-                build_sha256=report_sha, functions=740, units=14, physical_inputs=69, files=physical,
+                build_sha256=report_sha, functions=742, units=14, physical_inputs=69, files=physical,
                 compiler_processes=14, linker_processes=1,
                 shared_admission_sha256=bridge.QUALIFICATION, builder_sha256=bridge.BUILDER,
                 manifest_sha256=CURRENT_PARTITION, original_shared_predicates_unchanged=True,
@@ -402,12 +408,12 @@ def current_adapter_type(original_type, bridge, repository, extension_files, kin
                 b'         "f64-source-candidate-profile-required")\n',
             )
             require(original_owner.count(b'functions == 736') == len(guards)
-                    and b'functions == 740' not in original_owner,
+                    and b'functions == 742' not in original_owner,
                     'exactly the two original owner profile-count guards')
             current_owner = original_owner
             replacements = []
             for before_guard in guards:
-                after_guard = before_guard.replace(b'functions == 736', b'functions == 740')
+                after_guard = before_guard.replace(b'functions == 736', b'functions == 742')
                 require(current_owner.count(before_guard) == 1 and after_guard not in current_owner,
                         'one complete original owner profile-count guard at each layer')
                 current_owner = current_owner.replace(before_guard, after_guard, 1)
@@ -426,7 +432,7 @@ def current_adapter_type(original_type, bridge, repository, extension_files, kin
             # identity and the exact function-count guard describe the new image;
             # every structural/numerical owner predicate remains original.
             owner.F64_SOURCE_SHA256 = CURRENT_SOURCE
-            owner.bind_profile(CURRENT_SOURCE, CURRENT_IMAGE, 740)
+            owner.bind_profile(CURRENT_SOURCE, CURRENT_IMAGE, 742)
             return owner
 
         def current_main(self):

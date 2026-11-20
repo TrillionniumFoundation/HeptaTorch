@@ -25,7 +25,7 @@
       "id": "dtype-layout",
       "status": "IN_PROGRESS",
       "required": "All upstream dtypes, conversion, promotion, numerical modes, dense/sparse/compressed/nested/quantized/complex layouts and invariants",
-      "remaining": "Complete dtype promotion, conversions including independently verified NaN payload behavior, all ranks, layouts and devices. Current selected Bool/I64/F32/F64/F16/BF16 and numeric-predicate paths are bounded implementations; the20-group1876-case current run is pending and cannot establish full dtype parity."
+      "remaining": "Complete dtype promotion, all conversion/rounding modes, ranks, layouts and devices. The scoped BF16 AVX2/AVX512 NaN copy repair is implemented; DEFAULT dispatch and other architectures remain. The new 21-group/2156-case combined candidate requires its own actual run."
     },
     {
       "id": "native-schemas",
@@ -109,24 +109,24 @@
       "id": "final-integration",
       "status": "OPEN",
       "required": "Full original test and application acceptance, independent final review, performance/resource/error qualifications and retirement of replaced implementation paths",
-      "remaining": "Run full original upstream and application acceptance, performance/resource/error qualifications and independent review of every gate. First complete the current20-group1876-case focused run; then migrate remaining active consumers before further retirement. Preserved fixture archives are not duplicate production implementations."
+      "remaining": "Run full original upstream/application/performance/resource/error acceptance and independent review of every gate. Complete the current 21-group/2156-case focused run and migrate all remaining active predecessor consumers before final retirement."
     }
   ],
   "current_runtime_integration": {
     "profile": "current",
     "source_manifest": "tools/current_runtime/source/manifest.json",
     "candidate_identity": {
-      "source_sha256": "24011e3c861e3b0e77c6a25c07116375cded2225c1f05f42cd84aa1e4a139215",
-      "native_sha256": "52e89b1cb6f4b859d3c9c2f5b528c8c22ddd983e21990a4a4dd5357625c3aba2",
-      "manifest_sha256": "e6eca58702d42be6dedae69a402d829c60444f2f4d4283b33cf4fc0ccfe34961",
-      "functions": 740,
+      "source_sha256": "abbc84b8eca16670e72b8872d1d7ab479f8a1d44f7b2b65deea1649f7682b2c7",
+      "native_sha256": "606f69aaecedbedc7ed6ad8f033275e0b64697f70632036d180106d315243c32",
+      "manifest_sha256": "a750f6e388c4339c29ff299aca0dabda9fa8b0ff7cc69d5bfa45f69cdd86e009",
+      "functions": 742,
       "units": 14
     },
     "audit": "docs/current-audit.md",
     "qualification_coordinator": "tests/qualify_current_runtime.py",
-    "current_candidate_status": "PENDING_ACTUAL_20_GROUP_1876_RUN",
-    "required_current_image_cases": 1876,
-    "required_current_image_groups": 20,
+    "current_candidate_status": "PENDING_ACTUAL_21_GROUP_2156_RUN",
+    "required_current_image_cases": 2156,
+    "required_current_image_groups": 21,
     "required_suites": [
       "bool27",
       "original76",
@@ -147,7 +147,8 @@
       "half47",
       "half_logical264",
       "half_transactions12",
-      "numeric_predicates"
+      "numeric_predicates",
+      "bf16_copy"
     ],
     "required_cases": {
       "bool27": 27,
@@ -169,12 +170,13 @@
       "half47": 47,
       "half_logical264": 264,
       "half_transactions12": 12,
-      "numeric_predicates": 485
+      "numeric_predicates": 485,
+      "bf16_copy": 280
     },
-    "qualification_plan": "validation/current-runtime740/qualification-plan.json",
+    "qualification_plan": "validation/current-runtime742/qualification-plan.json",
     "current_execution_evidence": null,
     "full_1876_executed": false,
-    "scope": "One740-function/14-unit HIA candidate. All19 Half-integrated groups/1391 cases remain required; numeric_predicates adds485 independent comparisons. Production cases bind the same main image and actual cold build; Generator131 additionally links and executes separate current-object ABI/reordered probes. Complete original controls and all17 full gates retain their requirements.",
+    "scope": "One 742-function/14-unit HIA candidate. All original 20 groups/1876 cases and controls remain mandatory. BF16 copy adds 280 exact-bit comparisons. Production cases bind one current main image and cold build; Generator131 also executes separately linked current-object probes.",
     "main_plus_independent_generator_probe_images": true,
     "historical_qualification_transferred": false,
     "closes_any_full_gate": false,
@@ -189,7 +191,9 @@
     "numeric_predicate_coordinator": "tests/numeric_predicates/run.py",
     "protocol_controls_counted_as_successful_torch_compatibility": false,
     "original_logical147_and_Half47_retained": true,
-    "pending_dtype_audit": "BF16 to() special-NaN payload behavior requires independent verification; no full dtype closure."
+    "pending_dtype_audit": "The scoped BF16 AVX2/AVX512 NaN path repair has independent exact-bit tests; DEFAULT, other architectures, complete dtype/promotion/layout/device semantics remain open.",
+    "full_2156_executed": false,
+    "bf16_copy_coordinator": "tests/bf16_copy/run.py"
   },
   "derivative_declaration_count": 688,
   "derivative_declaration_lines_sha256": "5e32bf19142454911112779474e2c52eab08a6789229b46b96a92246c578bac8",

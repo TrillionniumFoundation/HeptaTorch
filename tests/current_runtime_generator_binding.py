@@ -9,9 +9,9 @@ from pathlib import Path
 import re
 import types
 
-SOURCE = '24011e3c861e3b0e77c6a25c07116375cded2225c1f05f42cd84aa1e4a139215'
-IMAGE = '52e89b1cb6f4b859d3c9c2f5b528c8c22ddd983e21990a4a4dd5357625c3aba2'
-MANIFEST = 'e6eca58702d42be6dedae69a402d829c60444f2f4d4283b33cf4fc0ccfe34961'
+SOURCE = 'abbc84b8eca16670e72b8872d1d7ab479f8a1d44f7b2b65deea1649f7682b2c7'
+IMAGE = '606f69aaecedbedc7ed6ad8f033275e0b64697f70632036d180106d315243c32'
+MANIFEST = 'a750f6e388c4339c29ff299aca0dabda9fa8b0ff7cc69d5bfa45f69cdd86e009'
 HALF_SOURCE = 'bf3641b1a9061c6f92b8cbeef75adfac89e82ee16d32a9f650cb938d9e918386'
 PREDICATE_INVERSE = '71244cd75fb41ce07876d7f5699b66ae43c73adc5dd5d09fb2da0dec9c8c7439'
 STORAGE_SOURCE = '51820849f7becec549be15babace00f00687601ae7f53bcee0e636ca02f721f9'
@@ -65,17 +65,17 @@ def current_source(repository, inputs):
     source = repository / 'tools/current_runtime/source'
     manifest_raw = read(source / 'manifest.json', inputs, MANIFEST)
     manifest = json.loads(manifest_raw)
-    need(manifest['runtime']['sha256'] == SOURCE and manifest['runtime']['functions'] == 740
+    need(manifest['runtime']['sha256'] == SOURCE and manifest['runtime']['functions'] == 742
          and manifest['expected_native_sha256'] == IMAGE
          and [row['name'] for row in manifest['units']] == NAMES,
-         'exact physical740/14 source and executable profile')
+         'exact physical742/14 source and executable profile')
     path = repository / 'tools/current_runtime/build.py'
     builder = loaded(path, read(path, inputs, BUILDER), 'generator131_actual736_builder')
     bind = (lambda path, expected=None: read(path, inputs, expected))
     runtime, units, summary = builder.check_sources(manifest, source, bind)
-    need(summary['source_sha256'] == SOURCE and summary['functions'] == 740
-         and summary['complete_core_bodies_matched'] == 740 and summary['units_planned'] == 14,
-         'every physical740 body and all fourteen source partitions')
+    need(summary['source_sha256'] == SOURCE and summary['functions'] == 742
+         and summary['complete_core_bodies_matched'] == 742 and summary['units_planned'] == 14,
+         'every physical742 body and all fourteen source partitions')
     return runtime, units, summary, manifest_raw
 
 
@@ -90,12 +90,18 @@ def parent_source_files(repository, inputs=None):
          and witness['unchanged_functions'] == 683,
          'exact independently bound source-only predecessor witness')
     runtime, units, summary, manifest_raw = current_source(repository, inputs)
+    bf16_path = Path(repository) / 'tools/current_runtime/bf16_source_transition.py'
+    bf16 = loaded(bf16_path, read(bf16_path, inputs), 'generator131_bf16_source_inverse')
+    runtime, bf16_inverse = bf16.restore_source(
+        runtime, lambda path, expected=None: read(path, inputs, expected))
+    need(bf16.SOURCE == SOURCE and sha(runtime) == bf16.PARENT_SOURCE,
+         'exact BF16 copy correction inverted before the original740 source witness')
     predicate_path = Path(repository) / 'tools/current_runtime/predicate_source_transition.py'
     predicate = loaded(predicate_path, read(predicate_path, inputs, PREDICATE_INVERSE),
                        'generator131_predicate_source_inverse')
     runtime, predicate_inverse = predicate.restore_source(
         runtime, lambda path, expected=None: read(path, inputs, expected))
-    need(predicate.SOURCE == SOURCE and predicate.PARENT_SOURCE == HALF_SOURCE
+    need(predicate.SOURCE == bf16.PARENT_SOURCE and predicate.PARENT_SOURCE == HALF_SOURCE
          and sha(runtime) == HALF_SOURCE,
          'the exact predicate routing and four helpers precede the unchanged Half witness')
     extension_path = Path(repository) / 'tools/current_runtime/half_logical_source_transition.py'
@@ -170,11 +176,12 @@ def parent_source_files(repository, inputs=None):
     need(len(originals) == 17 and set(originals) == set(witness['source_members']),
          'only the original aggregate/manifest/fifteen source units reconstructed')
     return originals, dict(
-        schema='heptatorch.generator131.physical740-parent712-inverse.v1',
+        schema='heptatorch.generator131.physical742-parent712-inverse.v1',
         physical_source_sha256=SOURCE, physical_native_sha256=IMAGE,
         half_logical_source_inverse=half_inverse,
         predicate_source_inverse=predicate_inverse,
-        physical_functions=740, physical_units=14, parent_source_sha256=PARENT_SOURCE,
+        bf16_source_inverse=bf16_inverse,
+        physical_functions=742, physical_units=14, parent_source_sha256=PARENT_SOURCE,
         parent_functions=712, parent_units=15, unchanged_parent_bodies=683,
         changed_parent_bodies=changed, removed_parent_bodies=removed, added_physical_bodies=added,
         all11_generator_bodies_byte_exact=True, owners_and_rng_support_byte_exact=True,
@@ -194,7 +201,7 @@ def bind_current(repository, candidate, build, build_sha, inputs):
     path = repository / 'tools/current_runtime/qualification.py'
     qualification = loaded(path, read(path, inputs, QUALIFICATION), 'generator131_current736_qualification')
     need((qualification.SOURCE, qualification.IMAGE, qualification.FUNCTIONS, qualification.UNITS)
-         == (SOURCE, IMAGE, 740, 14), 'shared admission has the exact physical740 profile')
+         == (SOURCE, IMAGE, 742, 14), 'shared admission has the exact physical742 profile')
     built = qualification.admit_build(build, inputs.bind, expected=build_sha)
     runtime, units, summary, manifest_raw = current_source(repository, inputs)
     return runtime, units, summary, manifest_raw, built, proof
