@@ -1,0 +1,195 @@
+name: Repack original 742 evidence bytes
+
+on:
+  push:
+    branches:
+      - codex/repack742-evidence-20261120
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  repack-original:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Verify and retain the complete original artifact ZIP
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          import re
+          import sys
+          import urllib.error
+          import urllib.parse
+          import urllib.request
+
+          REPOSITORY = 'TrillionniumFoundation/HeptaTorch'
+          BRANCH = 'codex/repack742-evidence-20261120'
+          WORKFLOW = '.github/workflows/repack742-evidence.yml'
+          BASE = '89800d0ae94b673ad084b7a3548ac32a3ae3ae9f'
+          BASE_TREE = 'e883b7190530a4c8844ca09018bfda8f262211ee'
+          RUN = 44723515662
+          ARTIFACT = 14625976268
+          SIZE = 549050337
+          DIGEST = 'ef3e391ff1a64696f039cfc2340fb36028764cb55a56d2b8b9944b4b2606681c'
+          API = 'https://api.github.com/repos/' + REPOSITORY
+
+          class VerificationError(Exception):
+              pass
+
+          def require(condition, label):
+              if not condition:
+                  raise VerificationError(label)
+
+          class NoRedirect(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self, request, response, code, message, headers, new_url):
+                  return None
+
+          def api_open(path, token):
+              require(path.startswith('/') and not path.startswith('//'), 'fixed API path')
+              request = urllib.request.Request(API + path, headers={
+                  'Authorization': 'Bearer ' + token,
+                  'Accept': 'application/vnd.github+json',
+                  'X-GitHub-Api-Version': '2022-11-28',
+                  'User-Agent': 'HeptaTorch-original742-evidence-repack',
+              })
+              return urllib.request.build_opener(NoRedirect()).open(request, timeout=90)
+
+          def api_json(path, token):
+              with api_open(path, token) as response:
+                  require(response.status == 200, 'successful metadata response')
+                  raw = response.read(2 * 1024 * 1024 + 1)
+                  require(len(raw) <= 2 * 1024 * 1024, 'bounded complete metadata')
+                  result = json.loads(raw)
+                  require(isinstance(result, dict), 'metadata object')
+                  return result
+
+          def checked_artifact(token):
+              item = api_json('/actions/artifacts/' + str(ARTIFACT), token)
+              require(item['id'] == ARTIFACT and item['name'] == 'current-runtime-native-evidence'
+                      and item['size_in_bytes'] == SIZE and item['digest'] == 'sha256:' + DIGEST
+                      and item['expired'] is False, 'exact original artifact metadata')
+              run = item['workflow_run']
+              require(run['id'] == RUN and run['head_sha'] == BASE
+                      and run['repository_id'] == run['head_repository_id'] == 1458991568,
+                      'original artifact run and source head')
+              return {key: item[key] for key in (
+                  'id', 'name', 'size_in_bytes', 'digest', 'expired',
+                  'created_at', 'expires_at', 'workflow_run')}
+
+          def archive_location(token):
+              try:
+                  response = api_open('/actions/artifacts/' + str(ARTIFACT) + '/zip', token)
+              except urllib.error.HTTPError as error:
+                  try:
+                      require(error.code == 302, 'official archive endpoint redirect')
+                      location = error.headers.get('Location')
+                      require(isinstance(location, str) and location, 'archive redirect location exists')
+                  finally:
+                      error.close()
+              else:
+                  response.close()
+                  raise VerificationError('archive endpoint must return the expected redirect')
+              parsed = urllib.parse.urlsplit(location)
+              require(parsed.scheme == 'https' and parsed.hostname and parsed.port in (None, 443)
+                      and parsed.username is None and parsed.password is None and not parsed.fragment,
+                      'HTTPS archive location without embedded credentials')
+              return location
+
+          def retain_archive(location, destination):
+              # This is a new request with no Authorization header and no
+              # automatic redirects. The GitHub token is never sent to storage.
+              request = urllib.request.Request(location, headers={
+                  'Accept-Encoding': 'identity',
+                  'User-Agent': 'HeptaTorch-original742-evidence-repack',
+              })
+              require(not any(key.lower() == 'authorization' for key, _ in request.header_items()),
+                      'storage request has no GitHub authorization')
+              digest, count = hashlib.sha256(), 0
+              partial = destination.with_suffix('.zip.part')
+              with urllib.request.build_opener(NoRedirect()).open(request, timeout=180) as response:
+                  require(response.status == 200, 'complete archive storage response')
+                  length = response.headers.get('Content-Length')
+                  require(length is None or int(length) == SIZE, 'declared original archive length')
+                  with partial.open('xb') as output:
+                      while True:
+                          chunk = response.read(1024 * 1024)
+                          if not chunk:
+                              break
+                          count += len(chunk)
+                          require(count <= SIZE, 'bounded original archive stream')
+                          output.write(chunk)
+                          digest.update(chunk)
+              require(count == SIZE and digest.hexdigest() == DIGEST,
+                      'complete original ZIP byte length and SHA256')
+              partial.rename(destination)
+              return dict(path=destination.name, bytes=count, sha256=digest.hexdigest())
+
+          def main():
+              require(os.environ['GITHUB_REPOSITORY'] == REPOSITORY
+                      and os.environ['GITHUB_REF'] == 'refs/heads/' + BRANCH
+                      and os.environ['GITHUB_EVENT_NAME'] == 'push'
+                      and os.environ['GITHUB_API_URL'] == 'https://api.github.com',
+                      'isolated intended repository and push branch')
+              head = os.environ['GITHUB_SHA']
+              require(re.fullmatch('[0-9a-f]{40}', head) is not None, 'actual workflow commit')
+              token = os.environ.pop('GITHUB_TOKEN')
+              require(bool(token), 'Actions read token exists')
+              commit = api_json('/commits/' + head, token)
+              require([item['sha'] for item in commit['parents']] == [BASE]
+                      and [(item['filename'], item['status']) for item in commit['files']] == [(WORKFLOW, 'added')],
+                      'one-purpose workflow commit directly on the exact source head')
+              base = api_json('/git/commits/' + BASE, token)
+              require(base['sha'] == BASE and base['tree']['sha'] == BASE_TREE, 'exact original source tree')
+              run = api_json('/actions/runs/' + str(RUN), token)
+              require(run['id'] == RUN and run['head_sha'] == BASE and run['run_attempt'] == 1
+                      and run['status'] == 'completed' and run['conclusion'] == 'success',
+                      'exact completed original evidence run')
+              before = checked_artifact(token)
+              directory = Path(os.environ['RUNNER_TEMP']) / 'repack742-evidence'
+              directory.mkdir(exist_ok=False)
+              archive = retain_archive(archive_location(token), directory / 'original-artifact.zip')
+              require(checked_artifact(token) == before, 'original artifact metadata unchanged after download')
+              receipt = dict(
+                  schema='heptatorch.original742-artifact-wrapper.v1', status='VERIFIED_ORIGINAL_ZIP',
+                  repository=REPOSITORY, original_run_id=RUN, original_run_attempt=1,
+                  original_head_sha=BASE, original_source_tree_sha=BASE_TREE,
+                  original_artifact=before, original_archive=archive,
+                  wrapper_run_id=int(os.environ['GITHUB_RUN_ID']),
+                  wrapper_run_attempt=int(os.environ['GITHUB_RUN_ATTEMPT']), wrapper_commit=head,
+                  original_zip_bytes_preserved=True, original_zip_opened_or_extracted=False,
+                  GitHub_authorization_forwarded_to_storage=False,
+                  native_executed=False, Torch_executed=False, compiler_executed=False,
+                  runtime_qualification_transferred=False)
+              (directory / 'verification.json').write_text(json.dumps(receipt, sort_keys=True, indent=2) + '\n')
+              print(json.dumps(dict(status=receipt['status'], original_artifact_id=ARTIFACT,
+                  bytes=archive['bytes'], sha256=archive['sha256']), sort_keys=True), flush=True)
+
+          if __name__ == '__main__':
+              try:
+                  main()
+              except BaseException as error:
+                  # Never print an exception URL, redirect location, headers,
+                  # token, or traceback. Validation labels are authored here.
+                  safe = str(error) if isinstance(error, VerificationError) else type(error).__name__
+                  print(json.dumps(dict(status='FAIL', error=safe)), file=sys.stderr, flush=True)
+                  sys.exit(1)
+          PY
+
+      - name: Upload the unchanged original ZIP in a compressed outer wrapper
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: original742-evidence-wrapper-14625976268
+          path: |
+            ${{ runner.temp }}/repack742-evidence/original-artifact.zip
+            ${{ runner.temp }}/repack742-evidence/verification.json
+          if-no-files-found: error
+          compression-level: 6
+          retention-days: 30
