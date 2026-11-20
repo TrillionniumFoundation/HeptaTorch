@@ -16,8 +16,8 @@ import sys
 import types
 import zlib
 
-SOURCE = '51820849f7becec549be15babace00f00687601ae7f53bcee0e636ca02f721f9'
-IMAGE = 'aa3cc8f0c8738a9505d31c9e8ba5a523b7e08b591b61fc7bfb8592295491618b'
+SOURCE = '24011e3c861e3b0e77c6a25c07116375cded2225c1f05f42cd84aa1e4a139215'
+IMAGE = '52e89b1cb6f4b859d3c9c2f5b528c8c22ddd983e21990a4a4dd5357625c3aba2'
 READER = '1deb2fa84d9ea9653ca56769a5527f0102571ba2a4690f8deb85f5d4bdc038b3'
 ENTRY = '32196771085c4dbf24751ce9fa3b052a35655bd9c7cddb392d019174ffa50a44'
 REFERENCE = 'b1dafeed270b4dd226c349dece9d7f6213c2dabd34681685d97ec13c068e9b11'
@@ -144,7 +144,10 @@ def outer_execution(report, repository, build, build_sha, directory,
     argv = receipt['argv']
     require(isinstance(argv, list) and argv[:4] == [argv[0], '-I', '-S', '-B'],
             'actual isolated current48 worker flags')
-    expected = [argv[0], '-I', '-S', '-B', str(reader_directory / 'current48.py'),
+    wrapper = repository / 'tests/current_runtime_f64_fixtures.py'
+    bound.read(wrapper)
+    expected = [argv[0], '-I', '-S', '-B', str(wrapper),
+        '--reader-directory', str(reader_directory),
         '--candidate', str(repository), '--build-directory', str(build),
         '--reference', str(reference_directory / 'report.json'), '--expected-source-sha256', SOURCE,
         '--expected-native-sha256', IMAGE, '--expected-build-sha256', build_sha,
@@ -453,8 +456,11 @@ def admission(report, repository, build, build_sha, reader_directory, bound):
             'actual current F6448 report identity and limited qualification scope')
     recorded_inputs(report, bound)
     bound.read(reader_directory / 'source-manifest.json', READER)
-    reader = module(bound.read(reader_directory / 'current48.py', ENTRY),
-                    'fixed_current_f64_48_reader', reader_directory / 'current48.py')
+    bound.read(reader_directory / 'current48.py', ENTRY)
+    wrapper = repository / 'tests/current_runtime_f64_fixtures.py'
+    reader = module(bound.read(wrapper), 'current_f64_48_identity_adapter', wrapper)
+    require(reader.CURRENT_SOURCE == SOURCE and reader.CURRENT_IMAGE == IMAGE,
+            'the same current-image adapter for execution and independent readback')
     return reader
 
 
@@ -531,7 +537,7 @@ def qualify_f64_48(report, repository, build, build_sha, directory, reader_direc
     execution = outer_execution(report, repository, build, build_sha, directory,
                                 reader_directory, reference_directory, execution_directory, bound)
     results = []
-    with reader.current_reader() as adapter:
+    with reader.current_reader(repository, reader_directory) as adapter:
         originals, old_run = adapter.old, adapter.run
         original, owner, bindings, cold = prepare_originals(adapter, report, repository, build, build_sha, bound)
         mapping = parse(original.bind(reader_directory / 'frozen-candidate719/original55-mapping.json', old_run.MAPPING))

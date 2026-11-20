@@ -1,11 +1,26 @@
-# Native execution protocol
+# Historical core execution protocol (HTORCH01)
 
-The HIA executable consumes one request from stdin, executes its commands in
+This page records the original F32 `HTORCH01` core and its optional interactive
+framing, implemented by the [retained core source](../src/heptatorch.hepta).
+Its command definitions are also referenced by later profiles, which specify
+their own handles, metadata, transaction and dtype rules.
+
+The default application is the
+[current HIA runtime](../tools/current_runtime/source/runtime.hepta). Its
+persistent owner/session interface, Generator service and dtype extensions are
+qualified through the [current runtime entry](current-runtime.md) and described
+by the [capability inventory](../compatibility/capabilities.json). The retained
+[Tensor object protocol](../tools/tensor_objects/PROTOCOL.md) documents the owned
+Tensor layer; [logical reductions](../tests/logical_reductions/README.md) records
+the later reduction commands. The core wire fields and limits below retain
+their historical scope.
+
+The original HTORCH01 executable consumes one request from stdin, executes its commands in
 order, and writes one response to stdout. Every integer field is an unsigned
 64-bit little-endian word. A floating-point field carries the binary32 bits in
 its low 32 bits. Tensor payload elements are four-byte little-endian binary32.
 
-This protocol is the native execution and qualification interface. It is not a
+This is the original core execution and qualification interface. It is not a
 Python `torch` import boundary or the PyTorch serialization format.
 
 ## Envelope

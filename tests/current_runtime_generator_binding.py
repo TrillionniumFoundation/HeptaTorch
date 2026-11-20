@@ -1,4 +1,4 @@
-"""Bind Generator131 to the physical736 profile and reconstruct source-only712.
+"""Bind Generator131 to the current profile and reconstruct source-only712.
 
 Reconstructed predecessor files are qualification source fixtures. No historical
 application executable, object, build receipt, or runtime PASS is substituted.
@@ -9,9 +9,13 @@ from pathlib import Path
 import re
 import types
 
-SOURCE = '51820849f7becec549be15babace00f00687601ae7f53bcee0e636ca02f721f9'
-IMAGE = 'aa3cc8f0c8738a9505d31c9e8ba5a523b7e08b591b61fc7bfb8592295491618b'
-MANIFEST = '28865982694c45b8b022ad9ee63255e31b6001f2b0004652e099d2de39ae5885'
+SOURCE = '24011e3c861e3b0e77c6a25c07116375cded2225c1f05f42cd84aa1e4a139215'
+IMAGE = '52e89b1cb6f4b859d3c9c2f5b528c8c22ddd983e21990a4a4dd5357625c3aba2'
+MANIFEST = 'e6eca58702d42be6dedae69a402d829c60444f2f4d4283b33cf4fc0ccfe34961'
+HALF_SOURCE = 'bf3641b1a9061c6f92b8cbeef75adfac89e82ee16d32a9f650cb938d9e918386'
+PREDICATE_INVERSE = '71244cd75fb41ce07876d7f5699b66ae43c73adc5dd5d09fb2da0dec9c8c7439'
+STORAGE_SOURCE = '51820849f7becec549be15babace00f00687601ae7f53bcee0e636ca02f721f9'
+HALF_EXTENSION = 'e0a2eac589ddfe8b09794fb55c569a73d7d7802888130646f59d33adca266f66'
 PARENT_SOURCE = 'fac3d413c6c0f6874d224cbea312108ee2c8baa027102d41890d85094a5faa38'
 PARENT_MANIFEST = '708e4b642f630604cedb1d2cf566fefcfb3d9afd74a835f5a265d7e51f1ff4e5'
 BUILDER = '9c93f8ff3fcfda8358e51a4c12efb3b0e0962abed9b5a750ca32d5a5568ac14d'
@@ -61,17 +65,17 @@ def current_source(repository, inputs):
     source = repository / 'tools/current_runtime/source'
     manifest_raw = read(source / 'manifest.json', inputs, MANIFEST)
     manifest = json.loads(manifest_raw)
-    need(manifest['runtime']['sha256'] == SOURCE and manifest['runtime']['functions'] == 736
+    need(manifest['runtime']['sha256'] == SOURCE and manifest['runtime']['functions'] == 740
          and manifest['expected_native_sha256'] == IMAGE
          and [row['name'] for row in manifest['units']] == NAMES,
-         'exact physical736/14 source and executable profile')
+         'exact physical740/14 source and executable profile')
     path = repository / 'tools/current_runtime/build.py'
     builder = loaded(path, read(path, inputs, BUILDER), 'generator131_actual736_builder')
     bind = (lambda path, expected=None: read(path, inputs, expected))
     runtime, units, summary = builder.check_sources(manifest, source, bind)
-    need(summary['source_sha256'] == SOURCE and summary['functions'] == 736
-         and summary['complete_core_bodies_matched'] == 736 and summary['units_planned'] == 14,
-         'every physical736 body and all fourteen source partitions')
+    need(summary['source_sha256'] == SOURCE and summary['functions'] == 740
+         and summary['complete_core_bodies_matched'] == 740 and summary['units_planned'] == 14,
+         'every physical740 body and all fourteen source partitions')
     return runtime, units, summary, manifest_raw
 
 
@@ -81,11 +85,27 @@ def parent_source_files(repository, inputs=None):
     witness_raw = read(Path(__file__).with_suffix('.json'), inputs, WITNESS)
     witness = json.loads(witness_raw)
     need(witness['schema'] == 'heptatorch.generator131.physical736-parent712-source.v1'
-         and witness['source_sha256'] == SOURCE and witness['parent_source_sha256'] == PARENT_SOURCE
+         and witness['source_sha256'] == STORAGE_SOURCE and witness['parent_source_sha256'] == PARENT_SOURCE
          and witness['current_functions'] == 736 and witness['parent_functions'] == 712
          and witness['unchanged_functions'] == 683,
          'exact independently bound source-only predecessor witness')
     runtime, units, summary, manifest_raw = current_source(repository, inputs)
+    predicate_path = Path(repository) / 'tools/current_runtime/predicate_source_transition.py'
+    predicate = loaded(predicate_path, read(predicate_path, inputs, PREDICATE_INVERSE),
+                       'generator131_predicate_source_inverse')
+    runtime, predicate_inverse = predicate.restore_source(
+        runtime, lambda path, expected=None: read(path, inputs, expected))
+    need(predicate.SOURCE == SOURCE and predicate.PARENT_SOURCE == HALF_SOURCE
+         and sha(runtime) == HALF_SOURCE,
+         'the exact predicate routing and four helpers precede the unchanged Half witness')
+    extension_path = Path(repository) / 'tools/current_runtime/half_logical_source_transition.py'
+    extension = loaded(extension_path, read(extension_path, inputs, HALF_EXTENSION),
+                       'generator131_half_logical_source_inverse')
+    runtime, half_inverse = extension.restore_source(
+        runtime, lambda path, expected=None: read(path, inputs, expected))
+    need(extension.SOURCE == HALF_SOURCE and extension.PARENT_SOURCE == STORAGE_SOURCE
+         and sha(runtime) == STORAGE_SOURCE,
+         'the exact three Half edits are inverted before the unchanged storage736 witness')
     header, current = definitions(runtime, 736, complete=True)
     need(header.decode() == witness['current_header'] and list(current) == witness['current_order'],
          'exact physical declaration order and aggregate header')
@@ -150,9 +170,11 @@ def parent_source_files(repository, inputs=None):
     need(len(originals) == 17 and set(originals) == set(witness['source_members']),
          'only the original aggregate/manifest/fifteen source units reconstructed')
     return originals, dict(
-        schema='heptatorch.generator131.physical736-parent712-inverse.v1',
+        schema='heptatorch.generator131.physical740-parent712-inverse.v1',
         physical_source_sha256=SOURCE, physical_native_sha256=IMAGE,
-        physical_functions=736, physical_units=14, parent_source_sha256=PARENT_SOURCE,
+        half_logical_source_inverse=half_inverse,
+        predicate_source_inverse=predicate_inverse,
+        physical_functions=740, physical_units=14, parent_source_sha256=PARENT_SOURCE,
         parent_functions=712, parent_units=15, unchanged_parent_bodies=683,
         changed_parent_bodies=changed, removed_parent_bodies=removed, added_physical_bodies=added,
         all11_generator_bodies_byte_exact=True, owners_and_rng_support_byte_exact=True,
@@ -172,7 +194,7 @@ def bind_current(repository, candidate, build, build_sha, inputs):
     path = repository / 'tools/current_runtime/qualification.py'
     qualification = loaded(path, read(path, inputs, QUALIFICATION), 'generator131_current736_qualification')
     need((qualification.SOURCE, qualification.IMAGE, qualification.FUNCTIONS, qualification.UNITS)
-         == (SOURCE, IMAGE, 736, 14), 'shared admission has the exact physical736 profile')
+         == (SOURCE, IMAGE, 740, 14), 'shared admission has the exact physical740 profile')
     built = qualification.admit_build(build, inputs.bind, expected=build_sha)
     runtime, units, summary, manifest_raw = current_source(repository, inputs)
     return runtime, units, summary, manifest_raw, built, proof

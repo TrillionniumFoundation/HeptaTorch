@@ -20,10 +20,10 @@ import types
 
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
-SOURCE = '51820849f7becec549be15babace00f00687601ae7f53bcee0e636ca02f721f9'
-IMAGE = 'aa3cc8f0c8738a9505d31c9e8ba5a523b7e08b591b61fc7bfb8592295491618b'
-SOURCES = 'cd3c0d216f49df5079c367559c1e1e6a863edbb634414913dae3a48431b09d6a'
-FUSION_RESOURCE_SHA = '36d73aa16d96cb8fb7c66e770a79f3b4cb53b61a4367b5bff5915078196b19c0'
+SOURCE = '24011e3c861e3b0e77c6a25c07116375cded2225c1f05f42cd84aa1e4a139215'
+IMAGE = '52e89b1cb6f4b859d3c9c2f5b528c8c22ddd983e21990a4a4dd5357625c3aba2'
+SOURCES = '0cc4429fb953e1e430db63465e16b62ed5baa43f6659d706331a54667058a86d'
+FUSION_RESOURCE_SHA = '5c127c42cc8a5d27107715d4d47c1a445c6b6c055dfc2fba9367cd078560df15'
 R4_SOURCE = 'c436e21c45355891f8423f174a47e7c40fc8e1d6aef9a112043fac8787255d7a'
 R4_IMAGE = '0799496559ffdfb051e34bc7a543db238b81d09c970a5cb4a8235151e0335b74'
 R3_SOURCE = '3c2c0a125bcac6d47075bf58fc3f78c0e7b9a0b1370757981b99dcd3793b21c6'
@@ -71,7 +71,7 @@ class Adapter:
         self.current = None
         self.pins = json.loads(self.bind(HERE / 'sources.json', SOURCES))
         require(self.pins['target'] == dict(source_sha256=SOURCE, native_sha256=IMAGE,
-                functions=736, units=14), 'target identity changed')
+                functions=740, units=14), 'target identity changed')
         self.bind(Path(__file__).resolve())
         for relative, row in self.pins['files'].items():
             path = self.repo / relative
@@ -81,13 +81,13 @@ class Adapter:
         self.current = self.plain(self.repo / 'tools/current_runtime/qualification.py',
                                   'resource7_current_qualification')
         require((self.current.SOURCE, self.current.IMAGE, self.current.FUNCTIONS, self.current.UNITS)
-                == (SOURCE, IMAGE, 736, 14), 'current qualification profile changed')
+                == (SOURCE, IMAGE, 740, 14), 'current qualification profile changed')
         self.actual = self.current.admit_build(self.build, self.bind, self.expected_build_sha)
         self.hia = functions(self.bind(self.build / 'runtime.hepta', SOURCE))
-        require(len(self.hia) == 736, 'actual HIA function denominator changed')
+        require(len(self.hia) == 740, 'actual HIA function denominator changed')
         helper_path = self.repo / 'tools/current_runtime/fusion_resource_transition.py'
         self.bind(helper_path, FUSION_RESOURCE_SHA)
-        source_helper = self.plain(helper_path, 'resource736_actual_source_paths')
+        source_helper = self.plain(helper_path, 'resource740_actual_source_paths')
         self.fusion_source_path_proof = source_helper.prove(
             self.bind(self.build / 'runtime.hepta', SOURCE), self.bind)
 
@@ -187,7 +187,7 @@ class Adapter:
         raw = self.bind(root / 'owner_view05.py')
         edits = [(label, old, new, raw.count(old.encode())) for label, old, new in (
             ('source identity', old_source, SOURCE), ('native identity', old_image, IMAGE),
-            ('profile name', old_profile, 'current736-resource7-' + group),
+            ('profile name', old_profile, 'current740-resource7-' + group),
             ('state tag', state_tag, 'HTSINT02'), ('backing tag', backing_tag, 'HTOSIN02'))]
         self.derive(root / 'owner_view05.py', 'owner_view05', edits,
                     ('pin_profile', 'decode_owner'))
@@ -206,7 +206,7 @@ class Adapter:
             custody.bind(Path(path), row['sha256'])
         raw = custody.bind(self.build / 'runtime.hepta', SOURCE)
         parsed = functions(raw)
-        require(len(parsed) == 736, 'current function count')
+        require(len(parsed) == 740, 'current function count')
         binary = self.build / 'heptatorch'
         custody.bind(binary, IMAGE)
         return parsed, build, binary
@@ -218,7 +218,22 @@ class Adapter:
             require(row['original_sha256'] == old_pin
                     and row['actual_sha256'] == sha(parsed[name])
                     and row['conditional_dtype_domain'] == [0,1,2,3],
-                    'exact actual736 body and unchanged original owner domain: ' + name)
+                    'exact actual740 body and unchanged original owner domain: ' + name)
+            if name == 'to_command':
+                route = row['predicate_entry_route']
+                delegation = route['old_path_delegation']
+                require(route['actual_entry_sha256'] == sha(parsed['entry'])
+                    and route['actual_predicate_command_sha256'] == sha(parsed['predicate_command'])
+                    and route['actual_to_command_sha256'] == row['actual_sha256']
+                    and delegation['actual_body_sha256'] == row['actual_sha256']
+                    and delegation['target'] == 'to_command'
+                    and delegation['parameter_count'] == 6
+                    and delegation['argument_order_preserved'] is True
+                    and delegation['complete_parent_body_unchanged'] is True
+                    and route['entry_original_delegation_opcodes'] == list(range(108, 120))
+                    and route['new_predicate_branch_reachable_for_original_opcodes'] is False
+                    and route['historical_body_substituted_for_actual_body'] is False,
+                    'actual740 entry and predicate dispatcher preserve the physical original R4 route')
             self.obligations.append(row)
             return
         if name != 'to_command':
@@ -369,9 +384,9 @@ class Adapter:
         for path, row in list(self.inputs.items()):
             self.bind(Path(path), row['sha256'])
         dump(self.out / 'source-bindings.json', dict(
-            schema='heptatorch.resource7.current-736-adaptation.v1',
+            schema='heptatorch.resource7.current-740-adaptation.v1',
             source_sha256=SOURCE, native_sha256=IMAGE, actual_build_sha256=self.expected_build_sha,
-            state_format='HTSINT02', backing_format='HTOSIN02', functions=736, units=14,
+            state_format='HTSINT02', backing_format='HTOSIN02', functions=740, units=14,
             edits=self.edits, hia_obligations=self.obligations, inputs=self.inputs,
             fusion_source_path_proof=self.fusion_source_path_proof,
             all_original_inputs_unchanged=True, whole_file_inverse_exact=True,

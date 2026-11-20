@@ -259,27 +259,9 @@ test-tensor-objects: tensor-objects
 	  --abi3 "$(CURDIR)/build/tensor-objects/abi3" --output "$$review/observed"; \
 	cp "$$review/observed/report.json" build/hosted-tensor-object-native.json
 
-CPU_GENERATOR_INPUTS := $(wildcard tools/cpu_generators/* tools/cpu_generators/sources/*) validation/cpu-generator-package.sha256 Makefile
-
-.PHONY: cpu-generators test-cpu-generators
-cpu-generators: build/cpu-generators/rebuild.json
-
-build/cpu-generators/rebuild.json: $(CPU_GENERATOR_INPUTS) | build
-	@set -eu; tmp=$$(mktemp -d "$(CURDIR)/build/.cpu-generators.XXXXXX"); trap 'rm -rf "$$tmp"' EXIT HUP INT TERM; \
-	sha256sum -c validation/cpu-generator-package.sha256; \
-	python3 -I -S -B tools/cpu_generators/rebuild.py --upstream "$(HEPTA_SOURCE_ROOT)" \
-	  --stack-build "$(HEPTA_STACK_BUILD)" --rng-source tools/rng-cpu/rng.hepta \
-	  --output "$$tmp/native"; \
-	mkdir -p build/cpu-generators; cp -a --remove-destination "$$tmp/native/." build/cpu-generators/
-
-test-cpu-generators: cpu-generators
-	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/.cpu-generator-review.XXXXXX"); \
-	sha256sum -c validation/cpu-generator-package.sha256; \
-	python3 -B tools/cpu_generators/qualify.py --build "$(CURDIR)/build/cpu-generators" --output "$$review/native"; \
-	python3 -B tools/cpu_generators/test_entry.py --build "$(CURDIR)/build/cpu-generators" \
-	  --stack-build "$(HEPTA_STACK_BUILD)" --output "$$review/entry"; \
-	python3 -I -S -B tests/check_cpu_generator_reports.py --build "$(CURDIR)/build/cpu-generators" \
-	  --review "$$review" --output build/hosted-cpu-generator-native.json
+# Generator application and original 24/11/59 checks run in the required
+# current-runtime Generator131 group. Exact retired sources remain in its fixed
+# original26/qualifier packages; see their retirement.json location index.
 
 HEPTA_TENSOR_OBJECT_BASELINE ?= build/tensor-objects/abi3
 BACKWARD_RELEASE_INPUTS := $(wildcard tools/backward_release/* tools/backward_release/evidence/*) validation/backward-release-package.json tests/qualify_backward_release.py Makefile

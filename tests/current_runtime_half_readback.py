@@ -16,8 +16,8 @@ import textwrap
 import types
 import zlib
 
-SOURCE = '51820849f7becec549be15babace00f00687601ae7f53bcee0e636ca02f721f9'
-IMAGE = 'aa3cc8f0c8738a9505d31c9e8ba5a523b7e08b591b61fc7bfb8592295491618b'
+SOURCE = '24011e3c861e3b0e77c6a25c07116375cded2225c1f05f42cd84aa1e4a139215'
+IMAGE = '52e89b1cb6f4b859d3c9c2f5b528c8c22ddd983e21990a4a4dd5357625c3aba2'
 BRIDGE = 'f3b19a8dcc1a004323e033f414e801a52f12b0f0d556e6cbc005169d26fdef9e'
 READER = '1f67d27b8a5af133955d8a8cdfdb3094415efe31d1d9ee7ab09437f683ecef06'
 REFERENCE = 'ae6079c8f0960db53d26e056cc67fbe0a8eee7de04aa0644f4475afc368a75fe'
@@ -137,7 +137,10 @@ def outer_execution(kind, report, repository, build, build_sha, directory,
     bound.read(python)
     expected = [argv[0],'-I','-S','-B']
     if kind=='half47':
-        expected += [str(reader_directory/'run.py'),'--candidate',str(repository),'--build-directory',str(build),
+        wrapper=repository/'tests/current_runtime_half_fixtures.py'
+        bound.read(wrapper)
+        expected += [str(wrapper),'--reader-directory',str(reader_directory),
+            '--candidate',str(repository),'--build-directory',str(build),
             '--reference',str(reference_directory/'report.json'),'--expected-source-sha256',SOURCE,
             '--expected-native-sha256',IMAGE,'--expected-build-sha256',build_sha,
             '--expected-reference-sha256',REFERENCE,'--output',str(directory)]
@@ -415,8 +418,12 @@ def admission(report, repository, build, build_sha, reader_directory, bound):
         and report['full_project_status']=='HOLD', 'actual current Half report identity and bounded status')
     recorded_inputs(report,bound)
     bound.read(reader_directory/'source-manifest.json',READER)
-    bridge=module(bound.read(reader_directory/'bridge.py',BRIDGE),'half_physical_fixed_bridge',reader_directory/'bridge.py')
-    require(bridge.SOURCE==SOURCE and bridge.IMAGE==IMAGE and bridge.REFERENCE==REFERENCE, 'fixed current736 bridge')
+    bound.read(reader_directory/'bridge.py',BRIDGE)
+    wrapper=repository/'tests/current_runtime_half_fixtures.py'
+    current=module(bound.read(wrapper),'half_current_identity_adapter',wrapper)
+    bridge=current.current_bridge(repository,reader_directory)
+    require(bridge.SOURCE==SOURCE and bridge.IMAGE==IMAGE and bridge.REFERENCE==REFERENCE,
+            'current-image wrapper around the complete unchanged original bridge')
     return bridge
 
 

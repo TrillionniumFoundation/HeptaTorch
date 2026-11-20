@@ -79,7 +79,7 @@ Tensor flags or claim to observe arbitrary retained-graph workloads.
 
 At creation of this package the 446 live32/frozen35 jobs have not yet run. The
 successful 355/428 hosted record is separately frozen under
-`validation/hosted-gradient-adam-distributions-af33/` and cannot qualify this image.
+[validation/hosted-gradient-adam-distributions-af33/](https://github.com/TrillionniumFoundation/HeptaTorch/tree/9ea2ec5522685a8b1a0080edda88b89dec094474/validation/hosted-gradient-adam-distributions-af33/) and cannot qualify this image.
 All full upstream schema and subsystem gates remain open, including hooks,
 higher-order/forward AD, the eighteen distribution dtype/mask observations,
 complete optimizer modes, broader devices and full frontend compatibility.

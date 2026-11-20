@@ -1,9 +1,13 @@
-# 当前 HIA 映像的原始 AsStrided16 资格检查
+# 原 AsStrided16 在当前 HIA 运行时上的验收
 
-本入口在一个完整当前原生构建上执行原来的 `copy4`、`reduction4`、
-`lanes2`、`branches6` 四组测试。固定 Torch 参考值、原数值比较器、
-Tensor/Storage 身份、`_base`、Version、getter 顺序、梯度边、保留梯度、
-所有 RNG 字节、owner 审计与原异常条件均保持不变。
+本入口保留四套原始 reader、完整 owner 观察和全部 16 个配方，绑定当前
+**740 函数、14 编译单元**的 HIA 主映像。统一执行状态见[当前审计](../../docs/current-audit.md)。
+源码准备、历史结果和其他映像的 PASS 均不授予当前运行资格。
+
+## 固定配方与分母
+
+原数值、shape、stride、offset、Version、getter 顺序、梯度边、保留梯度、
+所有 RNG 字节、owner 审计和原异常条件均保持不变。
 
 | 原组 | 配方 | 帧 | 比较 | 精确浮点字 | RNG 字节 |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -13,57 +17,52 @@ Tensor/Storage 身份、`_base`、Version、getter 顺序、梯度边、保留�
 | branches6 | 6 | 720 | 3,852 | 20,572 | 697,728 |
 | 合计 | 16 | 1,920 | 10,272 | 21,892 | 1,860,608 |
 
-这些是固定的有限配方，不是 16 个上游 schema 已完整闭合。
+这些是有限配方，不能计作 16 条完整上游 schema。
 `full_pytorch_rewrite_complete=false`、`schema_closure=false` 与全项目
-`HOLD` 均保持。原测试不作弱引用回收保证；这里也不增加这项保证。
+`HOLD` 保持。原测试没有弱引用回收保证，本入口也不增加该保证。
 
-## 原始输入与允许变化
+## 原始输入与当前源码入场
 
-原始比较器继续来自 `tests/tensor_to_original16_review/`，协议和进程
-transport 来自 `tests/retained_nonleaf_review/`。参考包复用仓库已有的
-`validation/tensor-to-original16-recovery/`：四个 `reference/` JSON、
-四个 `original-probes/` 源文件及 `README.md`、`package-manifest.json`、
-`installation-custody.json`，共 11 个固定文件。
-`sources.json` 保留它们的 SHA256、字节数、原模式与四组全部分母。
-每组仍须满足原来的全部 11 项 Torch 来源检查。
+原比较器来自 `tests/tensor_to_original16_review/`，协议和 transport 来自
+`tests/retained_nonleaf_review/`。固定参考仍为
+`validation/tensor-to-original16-recovery/` 中四个 reference、四个 probe
+及三个原始说明/manifest/custody 文件，共 11 项；原字节、权限和所有
+11 项 Torch 来源检查保留。`sources.json` 同时绑定 11 项当前所需仓库文件。
 
-运行时只生成两种派生源：每个 reader 原来的 528 字节构建入场段改为
-调用共享 `tools/current_runtime/qualification.py`；observer 只把旧
-state/backing tag 改为当前格式。每份完整派生文件都有精确逆变换，
-任何额外源码差异都会被拒绝。四个 owner 布局函数与原 614 函数映像
-中的定义逐字相同；实际运行仍须绑定当前 700 函数、14 单元的完整构建。
-该入口不执行旧应用 ELF，也不读取完整旧业务 HIA 源码作为运行依赖。
+每个 reader 只把原 528 字节构建入场段替换为共享 admission；observer
+只更新 state/backing tag。每份完整派生文件都有精确逆变换。四个 owner
+布局函数继续与原 614 函数映像中的定义逐字相同，当前 owner tag 函数
+也单独核验。原数值断言、清理流程、owner 方程和 finish 实现均不替换。
 
-当前 source/ELF 必须满足固定审阅 profile；具体 `build.json` 的 SHA
-由实际路径中的新构建决定，可以显式传入，不写死某次机器上的收据。
-编译对象、链接输入、工具、栈检查、真实进程退出及 EOF 均通过共享
-完整构建入场重新验证。
+当前 [manifest](../../tools/current_runtime/source/manifest.json) 与实际
+`build.json` 必须匹配。共享 admission 核对全部源码/对象/工具、精确链接
+输入、栈预算及编译/链接进程的退出和双 EOF；不会制造旧 profile 的回执。
 
-## 真实执行与读回
+新增 [predicate source inverse](../../tools/current_runtime/predicate_source_transition.py)
+把完整 740 函数源码精确逆回 Half736：除 `entry` 两条指令外，原 735 个
+函数体全部不变。原 `to_command` 仍是实际执行体；完整 120–124 guard
+和六参数原序 delegate block 单独验证，原命令不会进入新增谓词分支。
+该源码关系不取代实际 AsStrided 运行，也不把旧源码当成当前物理源码。
 
-每组使用独立受监督 Python worker；每个原始配方创建自己的原生子进程。
-原 `OwnerSession.finish` 和所有 syscall 均不替换。worker 只用
-`sys.setprofile` 观察原方法返回帧，并绑定真正的 `.__code__` 对象。
-只有 `RETURN_VALUE` / `RETURN_CONST` 正常返回、回调完整执行、原报告
-PASS、真实 ledger 退出 0、实际 `error` 与 `extra` 都是空 bytes、文件
-描述符与归档流均关闭时，才承认该子进程的双 EOF。
+## 实际执行与独立读回
 
-该 EOF 证明仅用于这里固定的四个 reader 和 observer 闭包：这些路径
-不会提前调用 `close_output`。它不能直接推广为任意 reader 的 EOF 证明。
-回调异常不会覆盖原异常；它会使独立外层资格检查失败。
+每组由独立受监督 Python worker 执行，每个配方创建真实原生子进程。
+原 `OwnerSession.finish` 和 syscall 不替换；worker 仅用
+`sys.setprofile` 观察原方法正常返回，并绑定实际 `.__code__` 对象。
+必须同时观察正常返回、完整回调、原报告 PASS、native exit0、空的
+`error`/`extra`、描述符和归档流关闭，才能承认双 EOF。
 
-外层完整读回全部 1,920 个请求/响应帧、record 顺序和边界，以及每个
-原报告引用的压缩 owner 档案，逐个验证解压后的完整字节、SHA256 和大小。
-它同时重新检查源码逆变换、所有原分母、四个 worker 的退出与双 EOF、
-十六个原生子进程的真实关闭观察及运行前后输入不变性。
+该证明限定于这四个原 reader/observer 的完整调用图，其中不存在提前
+`close_output` 路径；不能推广为任意 reader 的 EOF 保证。回调错误使
+外层资格失败，不覆盖原异常。
 
-执行事实与资格结果分开记录：已观察到原生响应仍记为执行过，即使
-之后失败；未启动为 `false`；中断而没有充分证据时为 `null`。
-固定参考重放不会被记为重新执行了 Torch。历史 native PASS 不转授。
+纯读回重新检查全部 1,920 个请求/响应帧、record 边界和顺序、原报告引用
+的完整压缩 owner 档案、解压字节/SHA/大小、所有原分母、四个 worker
+和 16 个 native 子进程的退出/EOF，以及运行前后全部输入不变性。
+已观察到执行仍记为 true，即使之后失败；未启动为 false；证据不足为 null。
+固定参考重放不记作新执行 Torch。
 
-## 入口
-
-在仓库根目录执行：
+## 入口与结果 schema
 
 ```sh
 python3 -I -S -B tests/current_runtime_asstrided/qualify.py \
@@ -72,11 +71,14 @@ python3 -I -S -B tests/current_runtime_asstrided/qualify.py \
   --output build/current-asstrided16
 ```
 
-可加 `--expected-build-sha256` 指定本次实际收据 SHA。
-`--prepare-only` 只检查入场、源码逆变换和固定输入，不启动 native/Torch。
-所有输出目录必须为新目录，失败结果不覆盖。
+使用与总协调器相同的固定 Python。可用 `--expected-build-sha256` 指定
+实际 cold-build receipt SHA。输出目录必须为新目录；`--prepare-only`
+只运行入场、固定输入和源码逆证明，返回 `PREPARED_NOT_RUN`，不启动
+native/Torch。
 
-`qualify_asstrided16(report, build_sha, directory, inputs)` 是协调器的只读
-入口。它独立重复完整物理读回，不创建进程、不改结果、不沿用旧 PASS。
-实际执行目录和当前安装目录可以不同，但四个执行源文件必须逐字相同，
-实际 repository/build/reference 路径及 worker 参数必须与原收据一致。
+完整执行的 schema 是 `heptatorch.current740.asstrided16.v1`，成功状态
+为 `PASS_CURRENT_ASSTRIDED16`。协调器通过
+`qualify_asstrided16(report, build_sha, directory, inputs)` 独立重复完整
+物理读回；该函数不创建进程、不改结果、不继承旧 PASS。实际执行与安装
+目录可以不同，但四个执行源文件、repository/build/reference 路径和
+worker 参数必须与原收据逐字匹配。

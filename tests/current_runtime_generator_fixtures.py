@@ -12,8 +12,8 @@ ORIGINAL26_PIN = 'd5d529a697056625a19c06abf4ddc25326dad8854ae87b0406ec86f5a66fd0
 CANDIDATE_ARCHIVE = '9fcbeccffeaa4aad12e5662cb35739baf94f880ba54944ceea62b052e1ba47c2'
 CANDIDATE_MANIFEST = 'b1b1c5d41d7cda5976fdeb0d534de738b1177de522f76f7751bffc8b6598cf1e'
 CANDIDATE_PACKAGE = '8ac67a00bddbd3d709b4191e154a671aa302ddc4ae1a7347e4aa39443a571f82'
-QUALIFIER_ARCHIVE = 'cfad49685cb03b1ed4b29fee6f14b2fbfa9624da2c2bf8c41cfb6a84ef46a240'
-QUALIFIER_MANIFEST = 'f55915162cf210c75ab6644bb266052d968e365e40d9b99884b325dd578a7c2d'
+QUALIFIER_ARCHIVE = '08a61e25450142adcdcd9741ea298d2bcbfd9063fa195c2d824574217e394e88'
+QUALIFIER_MANIFEST = 'e0a9f338adfafe2aac4e0fafa9786616640d5a5d24f3c187eba333af3c7ed70f'
 SOURCE04_MANIFEST = '8b0a5189f9146af5d9280266e71b76cfd75b5d7a584b6063e3d615fbf8acd484'
 SOURCE03_MANIFEST = '7131330d802ffc8fa7cae681bbc656ae06eff8b8845723b933b4544013b5b91e'
 CONTROLS03 = 'b6d306bcaf2d59ab93ef547d90066a6dbcbdf7019ddfa6c100771278292fed8c'
@@ -131,18 +131,18 @@ def verify_qualifier(package, inputs=None):
     manifest = json.loads(read(package / 'package-manifest.json', QUALIFIER_MANIFEST, inputs))
     actual = {str(p.relative_to(package)) for p in package.rglob('*') if p.is_file()}
     require(actual == set(manifest['files']) | {'package-manifest.json'},
-            'complete physical736 portable qualifier inventory')
+            'complete physical740 portable qualifier inventory')
     for name, pin in manifest['files'].items():
         safe_name(name)
         matches(package / name, pin, inputs)
     previous = verify_source04_qualifier(package / 'parent-source04', inputs)
     parent = json.loads(read(package / 'parent-source04/package-manifest.json', SOURCE04_MANIFEST, inputs))
     proof = json.loads(read(package / 'profile-adaptation.json', manifest['profile_adaptation_sha256'], inputs))
-    require(proof['schema'] == 'heptatorch.generator131.physical736-source-profile-inverse.v1'
+    require(proof['schema'] == 'heptatorch.generator131.physical740-source-profile-inverse.v1'
             and proof['parent_source04_manifest_sha256'] == SOURCE04_MANIFEST
-            and proof['source_sha256'] == '51820849f7becec549be15babace00f00687601ae7f53bcee0e636ca02f721f9'
-            and proof['native_sha256'] == 'aa3cc8f0c8738a9505d31c9e8ba5a523b7e08b591b61fc7bfb8592295491618b'
-            and proof['current_functions'] == 736 and proof['current_units'] == 14
+            and proof['source_sha256'] == '24011e3c861e3b0e77c6a25c07116375cded2225c1f05f42cd84aa1e4a139215'
+            and proof['native_sha256'] == '52e89b1cb6f4b859d3c9c2f5b528c8c22ddd983e21990a4a4dd5357625c3aba2'
+            and proof['current_functions'] == 740 and proof['current_units'] == 14
             and set(proof['changes']) == {'run.py', 'admission.py', 'processes.py'},
             'exact736 source/profile adaptation inventory')
     for name, original_pin in parent['files'].items():
@@ -159,7 +159,7 @@ def verify_qualifier(package, inputs=None):
                 'explicit whole original/derived file identities')
         reverse = current.decode()
         for edit in reversed(change['edits']):
-            require(reverse.count(edit['after']) == edit['count'], 'exact736 identity inverse count')
+            require(reverse.count(edit['after']) == edit['count'], 'exact740 identity inverse count')
             reverse = reverse.replace(edit['after'], edit['before'])
         require(reverse.encode() == original, 'complete original source04 inverse: ' + name)
     require(all(proof[k] is True for k in ('original24_11_59_case_sources_byte_identical',
@@ -168,13 +168,13 @@ def verify_qualifier(package, inputs=None):
             and proof['native_Torch_compiler_executed'] is False
             and proof['old_runtime_PASS_transferred'] is False,
             'original cases and separate actual probe execution remain mandatory')
-    return {'source04_to03': previous, 'physical736_to_source04': proof}
+    return {'source04_to03': previous, 'physical740_to_source04': proof}
 
 
 def restore_qualifier(repository, destination, inputs=None):
     destination = restore(repository, destination, 'validation/current-generator131-source',
                           QUALIFIER_ARCHIVE, QUALIFIER_MANIFEST,
-                          'heptatorch.generator736-original-qualification-source.v1', inputs,
+                          'heptatorch.generator740-original-qualification-source.v1', inputs,
                           embedded_manifest=True)
     verify_qualifier(destination, inputs)
     return destination

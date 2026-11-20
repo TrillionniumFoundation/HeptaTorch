@@ -6,12 +6,16 @@ entity were not retained. Current native observer identities do not fill that ga
 This module performs byte transport and source/provenance reading only.
 """
 import hashlib
+import ast
+import contextlib
 import io
 import json
 import lzma
 from pathlib import Path, PurePosixPath
 import stat
+import sys
 import tarfile
+import types
 
 SOURCE_PACKAGE = 'validation/current-f64-48-source'
 REFERENCE_PACKAGE = 'validation/current-f64-48-reference'
@@ -19,6 +23,12 @@ REFERENCE = 'b1dafeed270b4dd226c349dece9d7f6213c2dabd34681685d97ec13c068e9b11'
 READER = '1deb2fa84d9ea9653ca56769a5527f0102571ba2a4690f8deb85f5d4bdc038b3'
 SOURCE = '51820849f7becec549be15babace00f00687601ae7f53bcee0e636ca02f721f9'
 IMAGE = 'aa3cc8f0c8738a9505d31c9e8ba5a523b7e08b591b61fc7bfb8592295491618b'
+CURRENT_SOURCE = '24011e3c861e3b0e77c6a25c07116375cded2225c1f05f42cd84aa1e4a139215'
+CURRENT_IMAGE = '52e89b1cb6f4b859d3c9c2f5b528c8c22ddd983e21990a4a4dd5357625c3aba2'
+CURRENT_PARTITION = 'e6eca58702d42be6dedae69a402d829c60444f2f4d4283b33cf4fc0ccfe34961'
+HALF_SOURCE = 'bf3641b1a9061c6f92b8cbeef75adfac89e82ee16d32a9f650cb938d9e918386'
+PREDICATE_INVERSE = '71244cd75fb41ce07876d7f5699b66ae43c73adc5dd5d09fb2da0dec9c8c7439'
+HALF_LOGICAL_INVERSE = 'e0a2eac589ddfe8b09794fb55c569a73d7d7802888130646f59d33adca266f66'
 TERMINAL = 'f3ed8ff73e2ac433494fcfe57bf7db27c0c1748e1634689a777a6ae7b31fc02f'
 SOURCE_MANIFEST = '29c36cfe0b0b2861419457e69918d7e1382ecce96a7d46a1a7ac1c841fbc2edc'
 REFERENCE_MANIFEST = 'e220f593f80844b6ec5959e302561fbf0fb8e6be5826deb5211910351682bf60'
@@ -219,10 +229,271 @@ def restore_reference(repository, directory, source_directory, inputs):
 
 
 def reader_cli(repository, build, build_sha, reference):
-    return ['--candidate',str(repository),'--build-directory',str(build),
-            '--reference',str(reference['report']),'--expected-source-sha256',SOURCE,
-            '--expected-native-sha256',IMAGE,'--expected-build-sha256',build_sha,
+    return ['--reader-directory',str(reference['source']),
+            '--candidate',str(repository),'--build-directory',str(build),
+            '--reference',str(reference['report']),'--expected-source-sha256',CURRENT_SOURCE,
+            '--expected-native-sha256',CURRENT_IMAGE,'--expected-build-sha256',build_sha,
             '--expected-reference-sha256',REFERENCE]
+
+
+def load_module(raw, path, name):
+    result = types.ModuleType(name)
+    result.__file__ = str(path)
+    exec(compile(raw, str(path), 'exec'), result.__dict__)
+    return result
+
+
+def current_adapter_type(original_type, bridge, repository, extension_files, kind):
+    """Add a current-image source proof around the complete frozen reader.
+
+    Frozen packages, reference namespaces, comparison functions and error and
+    resource recipes are unchanged. Only source/build/owner admission and the
+    identity namespace of the already derived main are extended. The complete
+    new source must invert to the exact736 predecessor before its original
+    source inverse is allowed to run.
+    """
+    repository = Path(repository).resolve(strict=True)
+    frozen_source = bridge.SOURCE
+    require(frozen_source == SOURCE and bridge.IMAGE == IMAGE,
+            'the frozen bridge retains its original736 source and image')
+    producer = bridge.PRODUCER if kind == 'f64' else bridge.PRODUCER_MANIFEST
+    candidate = bridge.FROZEN_CANDIDATE if kind == 'f64' else bridge.PRODUCER_CANDIDATE
+
+    class CurrentAdapter(original_type):
+        def bind_package(self, inputs):
+            digest = super().bind_package(inputs)
+            for path in extension_files:
+                inputs.bind(Path(path).resolve(strict=True))
+            return digest
+
+        def candidate_admission(self, directory, inputs):
+            actual = Path(directory).resolve(strict=True)
+            require(actual == repository, 'explicit actual repository for current reader')
+            manifest_raw = inputs.bind(repository / 'tools/current_runtime/source/manifest.json', CURRENT_PARTITION)
+            planned = bridge.parse(manifest_raw)
+            require(planned['runtime']['sha256'] == CURRENT_SOURCE
+                    and planned['runtime']['functions'] == 740
+                    and planned['expected_native_sha256'] == CURRENT_IMAGE
+                    and len(planned['units']) == 14, 'exact current Half-logical source and image')
+            source = inputs.bind(repository / 'tools/current_runtime/source/runtime.hepta', CURRENT_SOURCE)
+            predicate_path = repository / 'tools/current_runtime/predicate_source_transition.py'
+            predicate = load_module(inputs.bind(predicate_path, PREDICATE_INVERSE), predicate_path,
+                                    kind + '_current_predicate_inverse')
+            source, predicate_proof = predicate.restore_source(source, inputs.bind)
+            require(predicate.SOURCE == CURRENT_SOURCE and predicate.PARENT_SOURCE == HALF_SOURCE
+                    and sha(source) == HALF_SOURCE,
+                    'new predicates retain the exact Half parent and its original opcode routing')
+            inverse_path = repository / 'tools/current_runtime/half_logical_source_transition.py'
+            inverse = load_module(inputs.bind(inverse_path, HALF_LOGICAL_INVERSE), inverse_path,
+                                  kind + '_current_half_logical_inverse')
+            previous, extension_proof = inverse.restore_source(source, inputs.bind)
+            require(inverse.SOURCE == HALF_SOURCE and inverse.PARENT_SOURCE == frozen_source
+                    and sha(previous) == frozen_source
+                    and extension_proof['changed_functions'] == ['si_dispatch_sum', 'logical_plan', 'logical_truth']
+                    and extension_proof['unchanged_parent_functions'] == 733
+                    and extension_proof['whole_source_inverse_exact'] is True,
+                    'the exact three-function extension reconstructs every original736 byte')
+            helper_path = bridge.HERE / 'source_transition.py'
+            helper = load_module(inputs.bind(helper_path, bridge.SOURCE_HELPER), helper_path,
+                                 kind + '_unchanged_frozen_source_inverse')
+            restored, original_proof = helper.restore_source(previous, inputs.bind)
+            require(restored == inputs.bind(candidate / 'candidate/runtime.hepta', bridge.PRODUCER_SOURCE),
+                    'complete original producer source reconstructed through both inverses')
+            original_admission = self.old['common'].candidate_admission(candidate, inputs)
+            qpath = repository / 'tools/current_runtime/qualification.py'
+            profile = load_module(inputs.bind(qpath, bridge.QUALIFICATION), qpath,
+                                  kind + '_current_unchanged_shared_admission')
+            require(profile.ROOT == repository and profile.PROFILE_BYTES == manifest_raw
+                    and profile.SOURCE == CURRENT_SOURCE and profile.IMAGE == CURRENT_IMAGE
+                    and profile.FUNCTIONS == 740 and profile.UNITS == 14,
+                    'unchanged strict shared source/build admission for the actual current profile')
+            inputs.bind(repository / 'tools/current_runtime/build.py', bridge.BUILDER)
+            self.repository, self.profile = repository, profile
+            result = dict(schema='heptatorch.half-logical.' + kind + '.source-admission.v1',
+                source_sha256=CURRENT_SOURCE, native_sha256=CURRENT_IMAGE, functions=740, units=14,
+                predicate_source_inverse=predicate_proof,
+                half_logical_to_original736_inverse=extension_proof,
+                original736_source_sha256=frozen_source,
+                current_source_manifest_sha256=CURRENT_PARTITION,
+                strict_shared_admission_sha256=bridge.QUALIFICATION,
+                owner_identity_binding=dict(name='F64_SOURCE_SHA256', original=frozen_source,
+                    current=CURRENT_SOURCE, original_owner_source_sha256=bridge.OWNER,
+                    original_function_bodies_changed=['bind_profile'],
+                    original_owner_predicates_changed=False,
+                    original_function_count=736, current_function_count=740,
+                    only_exact_profile_count_guard_changed=True,
+                    exact_profile_count_guards_changed=2),
+                original_reference_producer_source_sha256=bridge.PRODUCER_SOURCE,
+                original_reference_producer_manifest_sha256=producer,
+                reader_identity_inverse=self.identity, frozen_reader_package_unchanged=True,
+                numerical_expected_values_changed=False, prior_runtime_PASS_transferred=False,
+                native_executed=False, Torch_executed=False, compiler_executed=False)
+            if kind == 'f64':
+                result.update(complete736_to719_inverse=original_proof,
+                    original719_source_admission=original_admission,
+                    original87_expectations_changed=False, original_strict55_failures_preserved=True,
+                    original_boundary_contract_is_original719_scope=True,
+                    original_sum_refusal_is_default_dtype_U64MAX=True,
+                    current_explicit_Bool_sum_and_any_all_outside_this48_suite=True)
+                return dict(schema='heptatorch.half-logical.f64-48.explicit-controls-source-admission.v1',
+                    source_sha256=CURRENT_SOURCE, native_sha256=CURRENT_IMAGE, functions=740, units=14,
+                    original_identity_source_admission=result,
+                    original87_source_bytes_unchanged=True,
+                    current87_expected_status_changes=self.control_proof,
+                    two_factory_status_expectations_changed=True,
+                    other85_expected_statuses_unchanged=True,
+                    numerical_cases_comparison_and_allocation_loops_unchanged=True,
+                    original_reference_namespace_preserved=True, original_strict55_FAIL_preserved=True,
+                    historical_or_unmodified_original48_PASS_transferred=False,
+                    native_executed=False, Torch_executed=False, compiler_executed=False)
+            result.update(complete736_to737_inverse=original_proof,
+                original737_source_admission=original_admission,
+                original_numerical_and_boundary_predicates_changed=False,
+                original239_refusal_expectations_changed=False,
+                old12_standalone_refusals_transferred=False)
+            return result
+
+        def cold_admission(self, directory, image_sha, report_sha, *args):
+            require(len(args) == (1 if kind == 'f64' else 2), 'original cold-admission argument shape')
+            inputs = args[-1]
+            require(self.repository == repository and self.profile is not None,
+                    'current source admission precedes current build admission')
+            if kind == 'half':
+                require(Path(args[0]).resolve(strict=True) == repository, 'same actual Half candidate')
+            require(image_sha == CURRENT_IMAGE, 'actual new image for strict cold admission')
+            directory = Path(directory).resolve(strict=True)
+            physical = {}
+            def bound(path, expected=None):
+                raw = inputs.bind(path, expected)
+                key = str(Path(path).resolve(strict=True))
+                physical[key] = inputs.rows[key]
+                return raw
+            built = self.profile.admit_build(directory, bound, report_sha)
+            require(len(physical) == 69 and built['functions'] == 740
+                    and len(built['units']) == 14 and len(built['processes']) == 15,
+                    'all69 current physical inputs,14 fresh compilers and1 linker')
+            require(inputs.bind(directory / 'manifest.json', CURRENT_PARTITION) == self.profile.PROFILE_BYTES,
+                    'current source and actual cold-build manifests are identical')
+            if kind == 'half':
+                for path, row in built['inputs'].items():
+                    inputs.bind(path, row['sha256'], row['bytes'])
+            return dict(schema='heptatorch.half-logical.' + kind + '.cold-admission.v1',
+                status='PASS_BUILD_ADMISSION_ONLY', source_sha256=CURRENT_SOURCE, native_sha256=CURRENT_IMAGE,
+                build_sha256=report_sha, functions=740, units=14, physical_inputs=69, files=physical,
+                compiler_processes=14, linker_processes=1,
+                shared_admission_sha256=bridge.QUALIFICATION, builder_sha256=bridge.BUILDER,
+                manifest_sha256=CURRENT_PARTITION, original_shared_predicates_unchanged=True,
+                actual_original_build_inputs_rechecked=kind == 'half', link_request_magic='HIACGS01',
+                four_argument_linker=True, historical_fixed_build_receipt_used=False,
+                native_executed_by_admission=False, Torch_executed_by_admission=False,
+                runtime_qualification_inferred=False)
+
+        def make_owner(self, candidate_directory, image_sha, inputs):
+            require(Path(candidate_directory).resolve(strict=True) == repository
+                    and self.repository == repository and image_sha == CURRENT_IMAGE,
+                    'full owner bound to actual new image and admitted repository')
+            path = bridge.HERE / 'owner736.py'
+            original_owner = inputs.bind(path, bridge.OWNER)
+            # The frozen observer binds both its original owner and the additive
+            # F64 wrapper. Each has its own exact function-count guard.
+            guards = (
+                b'    need(type(functions) is int and functions == 736, "sum02-actual-function-count-required")\n',
+                b'    need(source_sha256 == F64_SOURCE_SHA256 and functions == 736,\n'
+                b'         "f64-source-candidate-profile-required")\n',
+            )
+            require(original_owner.count(b'functions == 736') == len(guards)
+                    and b'functions == 740' not in original_owner,
+                    'exactly the two original owner profile-count guards')
+            current_owner = original_owner
+            replacements = []
+            for before_guard in guards:
+                after_guard = before_guard.replace(b'functions == 736', b'functions == 740')
+                require(current_owner.count(before_guard) == 1 and after_guard not in current_owner,
+                        'one complete original owner profile-count guard at each layer')
+                current_owner = current_owner.replace(before_guard, after_guard, 1)
+                replacements.append((before_guard, after_guard))
+            restored_owner = current_owner
+            for before_guard, after_guard in reversed(replacements):
+                require(restored_owner.count(after_guard) == 1,
+                        'one exact current owner profile-count guard at each layer')
+                restored_owner = restored_owner.replace(after_guard, before_guard, 1)
+            require(restored_owner == original_owner,
+                    'complete original owner source inverse; all owner predicates stay unchanged')
+            owner = load_module(current_owner, path, kind + '_complete_owner_current_profile')
+            require(owner.F64_SOURCE_SHA256 == frozen_source and owner.SOURCE is None and owner.IMAGE is None,
+                    'the complete original observer starts with its frozen identity and unbound image')
+            # Source admission proves the original opcode paths. Only the source
+            # identity and the exact function-count guard describe the new image;
+            # every structural/numerical owner predicate remains original.
+            owner.F64_SOURCE_SHA256 = CURRENT_SOURCE
+            owner.bind_profile(CURRENT_SOURCE, CURRENT_IMAGE, 740)
+            return owner
+
+        def current_main(self):
+            filename = 'derived719_run.py' if kind == 'f64' else 'derived737_run.py'
+            path = bridge.HERE / filename
+            raw = bridge.regular(path, bridge.DERIVED_RUN)
+            namespace = dict(self.run.__dict__)
+            namespace.update(HERE=bridge.HERE, SOURCE=CURRENT_SOURCE, IMAGE=CURRENT_IMAGE,
+                bind_package=self.bind_package, candidate_admission=self.candidate_admission,
+                cold_admission=self.cold_admission, make_owner=self.make_owner)
+            if kind == 'f64':
+                namespace.update(FROZEN_CANDIDATE=candidate, FROZEN_PRODUCER_MANIFEST=producer,
+                                 Reference=self.reference)
+                code = bridge.definition(raw, 'main')
+            else:
+                namespace.update(PRODUCER_SOURCE=bridge.PRODUCER_SOURCE, PRODUCER_MANIFEST=producer,
+                                 groups=self.groups, comparison_functions=self.comparisons)
+                tree = ast.parse(raw)
+                functions = [n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'main']
+                require(len(functions) == 1, 'the exact original derived main')
+                code = ast.Module(body=functions, type_ignores=[])
+            exec(compile(code, str(path) + '::current-identity-main', 'exec'), namespace)
+            require(self.run.Reference.__init__.__globals__['SOURCE'] == bridge.PRODUCER_SOURCE,
+                    'the original reference namespace is never rebound')
+            require(namespace['Driver'] is self.run.Driver and namespace['run_child'] is self.run.run_child,
+                    'all original driver and child recipes are unchanged')
+            return namespace['main']
+
+    return CurrentAdapter
+
+
+@contextlib.contextmanager
+def current_reader(repository, reader_directory):
+    directory = Path(reader_directory).resolve(strict=True)
+    entry_path = directory / 'current48.py'
+    entry_raw = entry_path.read_bytes()
+    require(sha(entry_raw) == '32196771085c4dbf24751ce9fa3b052a35655bd9c7cddb392d019174ffa50a44',
+            'complete immutable original F64 entry')
+    entry = load_module(entry_raw, entry_path, 'f64_current_original48_entry')
+    bridge_path = directory / 'bridge.py'
+    bridge_raw = bridge_path.read_bytes()
+    require(sha(bridge_raw) == entry.BRIDGE, 'complete immutable original F64 bridge')
+    bridge = load_module(bridge_raw, bridge_path, 'f64_current_original48_bridge')
+    adapter = current_adapter_type(entry.adapter_type(bridge), bridge, repository,
+                                   (Path(__file__),), 'f64')
+    with bridge.original_modules() as (originals, old_run, startup):
+        yield adapter(originals, old_run, startup)
+
+
+def main():
+    import argparse
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument('--candidate', type=Path, required=True)
+    parser.add_argument('--reader-directory', type=Path, required=True)
+    args, _ = parser.parse_known_args()
+    original_argv = list(sys.argv)
+    at = sys.argv.index('--reader-directory')
+    sys.argv = sys.argv[:at] + sys.argv[at + 2:]
+    try:
+        with current_reader(args.candidate, args.reader_directory) as adapter:
+            return adapter.current_main()()
+    finally:
+        sys.argv = original_argv
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())
 
 
 
