@@ -2,187 +2,42 @@
 
 ## Objective and source of truth
 
-Audit HeptaTorch and replace the entire pinned PyTorch project with native HIA
-implementations, preserving the upstream behavior and closing every acceptance
-blocker. The target remains PyTorch **v2.15.0**, commit
-`31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457`. The 2,590 exact native declarations
-in `compatibility/upstream-schemas.json` are one part of this target; they do not
-replace frontend, runtime, backend, distributed, compiler or ecosystem work.
+Complete the entire pinned PyTorch v2.15.0 project in native HIA, preserve upstream behavior, then retire replaced implementations and redundant process versions. The upstream commit is `31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457`. Keep **2,590 native declarations, 688 derivative declarations and 17 full subsystem contracts** in the target.
 
-This is the single continuation plan. Read current Git commits, open pull
-requests, `compatibility/full-acceptance.json`, the capability inventory and
-source-bound validation receipts before resuming. A newer checked-in result
-takes precedence over a previous chat or automation snapshot. Preserve active
-work and use expected-head leases when publishing a concurrent branch.
+Resume from current Git heads/open PRs, [`full-acceptance.json`](../compatibility/full-acceptance.json), the capability inventory, [current audit](current-audit.md) and actual source-bound reports. Newer checked-in results take precedence over chat snapshots. Preserve concurrent work and publish with expected-head leases.
 
-**Whole-project acceptance is currently HOLD.** A green component CI run is
-evidence only for the exact cases and source it executed. It cannot close an
-entire subsystem or a complete upstream schema by itself.
+The canonical application is `tools/current_runtime/source/`; its manifest is authoritative. The current candidate has 742 core functions / 14 units and requires **21 groups / 2,156 finite cases**, including separately executed Generator probes. Record the actual complete result, never the sum of unrelated partial successes.
 
-## Current implementation and next work
+## Complete active integration
 
-The single canonical HIA application is `tools/current_runtime/source/`.
-Its manifest is authoritative for complete source, functions, ordered units
-and native object/image identities. `make` cold-builds every application object
-from this source with the fixed ABI3 HIA compiler and session linker.
+1. Cold-build and run every current group. Preserve original 20 groups / 1,876 cases and all additional controls. The new 280-case BF16 group requires independently observed fixed-Torch bits/metadata and complete raw replay.
+2. Preserve the original failed 740 CI: 19 groups completed, while missing NumPy prevented numeric-predicate admission before native execution. The repair installs a SHA-pinned wheel, retains the actual pip report and keeps strict stderr checks. Use CPython 3.12 throughout.
+3. Keep BF16 semantics explicit: scalar/vector NaN conversion depends on paired input/output layout in the fixed AVX2/AVX512 kernel. DEFAULT and other architectures remain full-dtype/platform work. Original finite rounding and RNG support stay intact.
+4. Admit each final head only after required real checks and original evidence pass; read back its remote tree. Close superseded PRs as superseded, preserving their original identities.
 
-`make test` and current-runtime CI share eighteen mandatory groups totaling 1127
-finite cases in the published 736-function baseline: original Bool27, view/scalar76, Integral24, integral-to-F32 Sum17,
-original lifecycle35, original operator/training270, F32 Sum32, live
-Tensor/RNG/backward32, logical147, inherited resource7, original AsStrided16,
-Cat4, independently referenced cat Metadata10, Generator131, public F64 logical192,
-original F64 48, original Half47 and independent Half refusal12.
-The original fifteen groups retain all parameters, cases and controls.
-Generator131 preserves original24 + native11 + entry59 + dispatch37,
-including separately linked/executed current-object ABI and reordered
-probe images. Production cases share the main image; the entire 1127
-must not be described as one executable. Its full combined run passed in
-[main CI 44363462524](https://github.com/TrillionniumFoundation/HeptaTorch/actions/runs/44363462524)
-on commit `07eb8fd19539add61458d70b1f0076c9660c8ad3`; the exact
-[CI observation](../validation/current-runtime736/main-ci-44363462524.json) records all eighteen
-success lines and the original published summary. A later candidate needs
-its own complete qualification. The original three live groups and Generator24 use the fixed actual
-Torch oracle; all frozen groups preserve original observations. New source
-identities require new execution of every affected group.
+## Native implementation order
 
-The first nine-group 660 run remains FAIL: eight groups passed, while the
-current35 strict/control stages rejected cross-version AST identities after
-the original 35 native/live cases passed. Read-only diagnosis confirmed seven
-AST digest differences between CPython 3.12 and 3.14. Run the coordinator and
-all stages under the same pinned CPython 3.12; keep every original identity and
-numerical assertion. The second ten-group 667 execution actually passed all
-groups, with every suite executed anew, all inputs unchanged, and complete
-outer exit/EOF. Its original qualification SHA is
-`aa168047fc9a0392707f3c1c08b8ab4cb88c2bc16e1732c4c37c2a3994cc14c0`.
+Independent work may proceed in parallel when it does not assume unfinished dependencies.
 
-The inherited resource7 group preserves R4 resource3, backward private cache1
-and R3 preserve3. An independently cold-built current image has passed all
-seven original recipes, 378 frames and 1,060 checks, including three real
-RLIMIT allocation refusals and successful recovery after restoring the limits.
-Whole-file source inverses preserve the original recipes and budgets. This
-separate result was also rerun successfully inside the final common 667
-qualification. After compact reference migration, the same seven recipes
-were independently executed again and passed. Original76, Sum32 and the
-strengthened live32 also passed all 140 cases in a separate post-migration
-run, with every original assertion and all 32 live native exits/64 EOFs checked.
-Final AsStrided16 separately passed all four original suites, 1,920 frames,
-10,272 checks, complete owner archives and actual native exits/EOFs. These
-executions have distinct source and result receipts. The complete 683 gate later
-passed on PR40's exact published tree, and PR40 was merged as
-`584b95d7f6615f27e95618bc61215df5633c4ca4`. The later 700-function cat
-correction, the 729-function fusion and the current 736-function Half integration
-each change the image. The common 1127 gate has now been completely executed on the exact admitted
-736 source and image. Subsequent changes still require their own full run.
-Do not attribute new source or added cases to an earlier immutable run.
+| Priority | Implementation | Required evidence |
+| --- | --- | --- |
+| 1 | General Tensor ABI, allocator/Storage lifetime, schema/dispatch/meta and dtype/layout iteration | Full-contract shape/dtype/aliasing/mutation/error/resource tests and declaration-level qualification |
+| 2 | Remaining operators, promotion, indexing, views, out/inplace | Independent complete overload/backend/layout comparisons |
+| 3 | Public frontend, Module/Parameter/buffer trees and full AD | Real application behavior; forward/higher-order AD, hooks, custom functions and transforms |
+| 4 | Optimizer/RNG services and durable serialization | Training, checkpoint/restore, aliases, state_dict, failures, interruptions and retention |
+| 5 | Device allocation/transfers/streams/events and native kernels | Actual required hardware or identified emulator, synchronization and errors |
+| 6 | Distributed, compiler/export, data pipelines and platforms | Multi-process/device behavior, graph/export, worker lifecycle and installation |
+| 7 | Final upstream/application/performance/resource acceptance and retirement | Independent full review of all 17 contracts, then migration/deletion of replaced active paths |
 
-The implementation combines the prior integral-to-F32 and empty-cat fixes with
-native any/all and extended Bool sum. It retains the source-proved eight-lane
-sum accumulation order, converts each integral element before F32 reduction,
-reclaims private temporaries, and preserves the empty-cat gradient cache's
-success and ownership guards. Continued actual metadata comparison found a
-remaining empty-cat Version mismatch. The current correction routes rank-one
-empty cat inputs through the existing zero factory, guards saved-list allocation
-failure, and removes the unnecessary empty-axis prefix scan and ordinary
-metadata parent-mask lookups. The original four packets and ten independent
-Torch metadata recipes passed on their explicitly recorded 700-function
-cat image; those successes do not transfer to the current 736 candidate. Logical reductions
-share native planning and truth conversion. Independent error-priority probes
-also require axis errors to precede the Bool-sum autograd refusal.
+The current acceptance checker validates accounting consistency. Implement full-contract runners alongside the missing native functionality before closing complete gates; editing status metadata is insufficient.
 
-Original F64 48 and Half47 retain their complete source/reference inputs and
-all case counts, including 87 F64 and 239 Half refusal controls. The two
-malformed Half factory status adaptations in the F64 entry group are explicit;
-the other 85 expectations and historical failure records remain unchanged.
-The additional Half refusal12 group checks six direct unsupported operations
-and six separately scoped failed-frame transactions. These controls preserve
-complete owner and RNG rollback; they do not implement Half any/all or Bool sum.
-Independent current-image successes are retained with their own inputs and
-denominators. They remain separate from the later complete eighteen-group main CI execution.
-Historical reference argv and interpreter-entity gaps remain explicit, and the
-actual current CI interpreter has a separate evidence role.
+## Evidence and cleanup
 
-The latest actual results, failures and source identities belong in the
-[current audit](current-audit.md) and its bound execution manifest. Source
-preparation, source inverses and cold compilation are recorded separately from
-runtime PASS. Earlier failures remain tied to their original inputs and image.
+- HIA executes numerical kernels, gradients, state changes and runtime services. Python/Torch references and bootstrap hosts retain their explicit roles.
+- Bind results to exact source, toolchain, image, inputs and oracle. Keep original failures/stopped runs unchanged and rerun affected gates on new images.
+- Derive expectations independently and fix tolerances before measurement. Exact source inverses complement actual execution.
+- Retain complete declarations and all required platforms/layouts/backends. Finite CPU success does not close an entire subsystem.
+- Delete a source/archive only after migrating and verifying its live consumers. Retain licenses and required reference/bootstrap inputs; keep completed process narratives in fixed Git history.
+- Continue substantive implementation while full requirements remain open. Status polling, repeated audits, stubs or reduced targets do not complete this work.
 
-Continue migrating remaining historical gates onto the canonical image before
-removing their live dependencies. Generator131 now has an actually executed current-profile adapter and mandatory
-gate within the complete 1127 main CI run. Retirement must still preserve every
-consumer dependency, original input, tool receipt and probe contract. Its original24
-requires native raw-output, epoch/allocation contracts and real entropy;
-a synthesized host output is not an equivalent implementation. The
-coordinator requires explicit physical `--tool-build` and `--stack-build`
-paths, the dynamic actual entropy receipt SHA, full original inputs and
-fresh current-object probe/reordered execution. Preserve the original
-tool streams even when Make publishes an exact copy of the build.
-Public F64 logical192 now contributes 192 mandatory dense no-gradient comparisons.
-Its eighteen packet controls, two actual allocation recovery controls, complete
-196-child raw evidence and unchanged six-module reader remain required. Two
-native requires-grad/as_strided boundary controls and six outside-scope Torch
-observations are preserved separately and do not count as compatibility. The
-original logical147 remains required for other dtypes, private3, views and gradients. The original270 numeric suite does not replace
-461 legacy raw-protocol fixture pairs or the separate full resource gates.
-The F64 oracle still uses the old complete143 source as a numerical-origin
-witness; migrate that proof before deleting `src/heptatorch.hepta`. Native
-compiler bootstrap packages and their fixed inputs are a separate dependency
-family required by clean toolchain reconstruction.
-
-Remove unreachable application functions and duplicate current partitions once
-source reachability and actual regressions justify their retirement. Keep one
-current full35 entry and one canonical application implementation. Necessary
-original reference fixtures and licenses are part of the final test contract;
-repeated process narratives and obsolete default profiles are not.
-
-Then complete the missing dtype/promotion, operator, AD, frontend/dispatch,
-serialization, device, distributed, compiler/export, data-pipeline and platform
-contracts against the unchanged complete inventory. All seventeen whole-system
-gates remain open or in progress until their actual full requirements pass.
-
-## Dependency order
-
-1. Establish independent compilation with checked tensor/resource interfaces.
-   Keep one authoritative implementation of each numerical and tensor behavior.
-2. Replace fixed descriptor/arena/request lifetimes with a general storage and
-   allocator model, persistent execution state and an explicit device boundary.
-3. Complete dtype/layout/promotion and views/mutation foundations. Expand the
-   operator and AD implementation against the frozen schema inventory.
-4. Complete frontend/dispatcher/module/optimizer/RNG/serialization services.
-   Qualify actual application training and restoration, including negative and
-   interrupted execution cases.
-5. Implement and qualify every targeted device and platform, distributed
-   execution, transforms/compiler/export, data pipelines and extension APIs.
-6. Run the original full acceptance matrix with independently reproducible
-   evidence, retire replaced implementation paths and finish packaging.
-
-Independent work may proceed in parallel when it does not assume an unfinished
-dependency. Hardware-specific claims require execution on the corresponding
-hardware or an explicitly identified emulator; CPU results do not establish GPU
-or distributed correctness.
-
-## Evidence and closure rules
-
-- Keep every upstream schema and subsystem in the denominator. Restricted CPU
-  binary32 support stays in `capabilities.json`, independently of full-schema
-  qualification.
-- Native HIA must execute numerical kernels, gradients, state updates and
-  runtime services. Test-only Python/PyTorch references and compiler bootstrap
-  hosts must remain explicit. Forwarding work to an upstream numerical runtime,
-  an interpreter, a constant success result or an unexecuted stub is not a rewrite.
-- Bind every result to the exact source, compiler profile, executable, input
-  corpus and oracle revision. Rerun affected gates after changes; retain earlier
-  FAIL, HOLD and NOT_RUN records with their original identities.
-- Derive expected values independently. Freeze tolerances before measuring a
-  candidate. Do not turn observed native output into its own reference.
-- A subsystem may close only when its complete contract, supported platforms,
-  upstream tests, adversarial failures and integration behavior have executable
-  qualification. Metadata consistency is necessary but is not semantic proof.
-- Publish verified increments through reviewable Git changes and read back the
-  exact remote tree. Do not overwrite concurrent changes or force-push history.
-- Continue implementation while any item is open. Stop only after independent
-  final acceptance confirms the complete target, or the user cancels the work.
-
-`make acceptance-status` validates that the recorded scope and blocker ledger
-remain internally consistent. `make full-acceptance` uses the same checks and
-returns status 2 while the whole rewrite remains unqualified. Neither target
-replaces the native regression suite or the full subsystem qualification work.
+`make acceptance-status` checks target accounting. `make full-acceptance` remains unsuccessful until full native contracts and independent verifiers are complete.

@@ -12,7 +12,7 @@ import re
 HERE = Path(__file__).resolve().parent
 SOURCE = '51820849f7becec549be15babace00f00687601ae7f53bcee0e636ca02f721f9'
 HALF_SOURCE = 'bf3641b1a9061c6f92b8cbeef75adfac89e82ee16d32a9f650cb938d9e918386'
-CURRENT_SOURCE = '24011e3c861e3b0e77c6a25c07116375cded2225c1f05f42cd84aa1e4a139215'
+CURRENT_SOURCE = 'abbc84b8eca16670e72b8872d1d7ab479f8a1d44f7b2b65deea1649f7682b2c7'
 PREDICATE_INVERSE = '71244cd75fb41ce07876d7f5699b66ae43c73adc5dd5d09fb2da0dec9c8c7439'
 PARENT_SOURCE = 'ba96abc05717643eaf4f2056325089d9a51f5a2e9838f89473e9a4e76e46fd99'
 DELTA_SHA = '1d47ee1f02e33cc29b4277afa0019dc55c7519a39b23022b0e5e97217bc9de53'
@@ -130,27 +130,36 @@ def predicate_parent(source, bind):
     """Check the new opcode routing and recover the exact Half parent bytes."""
     bind(Path(__file__).resolve())
     require(sha(source) == CURRENT_SOURCE, 'only the exact admitted predicate source')
+    bf16_path = HERE / 'bf16_source_transition.py'
+    bind(bf16_path)
+    bf16_spec = importlib.util.spec_from_file_location('bf16_copy_complete_outer_inverse', bf16_path)
+    bf16 = importlib.util.module_from_spec(bf16_spec)
+    bf16_spec.loader.exec_module(bf16)
+    source, bf16_inverse = bf16.restore_source(source, bind)
+    require(bf16.SOURCE == CURRENT_SOURCE and sha(source) == bf16.PARENT_SOURCE,
+            'exact BF16742 to predicate740 source relation')
     path = HERE / 'predicate_source_transition.py'
     bind(path, PREDICATE_INVERSE)
     spec = importlib.util.spec_from_file_location('current_predicate_source_inverse', path)
     extension = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(extension)
     previous, proof = extension.restore_source(source, bind)
-    require(extension.SOURCE == CURRENT_SOURCE and extension.PARENT_SOURCE == HALF_SOURCE
+    require(extension.SOURCE == bf16.PARENT_SOURCE and extension.PARENT_SOURCE == HALF_SOURCE
             and sha(previous) == HALF_SOURCE,
             'complete predicate-to-Half source relation')
-    return previous, proof
+    return previous, proof, bf16_inverse
 
 
 def restore_source(source, bind):
     """Compose all exact source inverses; preserve the actual current runtime."""
-    previous, predicate_inverse = predicate_parent(source, bind)
+    previous, predicate_inverse, bf16_inverse = predicate_parent(source, bind)
     restored, half_inverse = restore_half_source(previous, bind)
     return restored, dict(
-        schema='heptatorch.current740-to-cat700.complete-source-inverse.v1',
+        schema='heptatorch.current742-to-cat700.complete-source-inverse.v1',
         source_sha256=CURRENT_SOURCE, intermediate_source_sha256=HALF_SOURCE,
-        parent_source_sha256=PARENT_SOURCE, functions=740, parent_functions=700,
+        parent_source_sha256=PARENT_SOURCE, functions=742, parent_functions=700,
         predicate_source_inverse=predicate_inverse,
+        bf16_source_inverse=bf16_inverse,
         half_and_storage_source_inverse=half_inverse,
         whole_source_inverse_exact=True, whole_round_trip_exact=True,
         every_other_byte_constrained_by_complete_parent_sha256=True,

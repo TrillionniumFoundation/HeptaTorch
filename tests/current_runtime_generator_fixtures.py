@@ -2,6 +2,7 @@
 import ast
 import json
 from pathlib import Path
+import re
 import stat
 
 from current_runtime_fixtures import read, require, restore, safe_name, sha
@@ -125,7 +126,7 @@ def verify_source04_qualifier(package, inputs=None):
     return proof
 
 
-def verify_qualifier(package, inputs=None):
+def verify_qualifier740(package, inputs=None):
     """Read every derived file and reverse only the explicit736 profile edits."""
     package = Path(package)
     manifest = json.loads(read(package / 'package-manifest.json', QUALIFIER_MANIFEST, inputs))
@@ -171,10 +172,115 @@ def verify_qualifier(package, inputs=None):
     return {'source04_to03': previous, 'physical740_to_source04': proof}
 
 
-def restore_qualifier(repository, destination, inputs=None):
+def restore_qualifier740(repository, destination, inputs=None):
     destination = restore(repository, destination, 'validation/current-generator131-source',
                           QUALIFIER_ARCHIVE, QUALIFIER_MANIFEST,
                           'heptatorch.generator740-original-qualification-source.v1', inputs,
                           embedded_manifest=True)
+    verify_qualifier740(destination, inputs)
+    return destination
+
+
+CURRENT_SOURCE = 'abbc84b8eca16670e72b8872d1d7ab479f8a1d44f7b2b65deea1649f7682b2c7'
+CURRENT_IMAGE = '606f69aaecedbedc7ed6ad8f033275e0b64697f70632036d180106d315243c32'
+CURRENT_MANIFEST = 'a750f6e388c4339c29ff299aca0dabda9fa8b0ff7cc69d5bfa45f69cdd86e009'
+CURRENT_BINDING = '52461453bcf2ba2f51ad0d709eb97eb05c33cd9da989eee7d097c4da465a84b2'
+
+
+def successor_qualifier(parent, inputs=None):
+    """Derive only the current profile in a copy of the complete frozen reader."""
+    parent = Path(parent)
+    original_proof = verify_qualifier740(parent, inputs)
+    original_manifest = json.loads(read(parent / 'package-manifest.json', QUALIFIER_MANIFEST, inputs))
+    members = {name: matches(parent / name, pin, inputs)
+               for name, pin in original_manifest['files'].items()}
+    members['package-manifest.json'] = read(parent / 'package-manifest.json', QUALIFIER_MANIFEST, inputs)
+    output = {'parent740/' + name: raw for name, raw in members.items()}
+    output.update({name: raw for name, raw in members.items() if name != 'package-manifest.json'})
+    changes = {}
+    identities = (
+        ('24011e3c861e3b0e77c6a25c07116375cded2225c1f05f42cd84aa1e4a139215', CURRENT_SOURCE),
+        ('52e89b1cb6f4b859d3c9c2f5b528c8c22ddd983e21990a4a4dd5357625c3aba2', CURRENT_IMAGE),
+        ('e6eca58702d42be6dedae69a402d829c60444f2f4d4283b33cf4fc0ccfe34961', CURRENT_MANIFEST),
+        ('ecaf51bfb23dcd69ae03b62a2f3976fe9f5ac8b526a42ced14b566e46b2b021f', CURRENT_BINDING),
+    )
+    for name in ('run.py', 'admission.py'):
+        original = members[name]
+        current = original.decode()
+        edits = []
+        # No hash is changed by the function-count substitution.
+        require(not any('740' in value for value in re.findall(r'\b[0-9a-f]{64}\b', current)),
+                'profile-count replacement cannot alter a frozen source pin')
+        count = 7 if name == 'run.py' else 8
+        require(current.count('740') == count and '742' not in current,
+                'exact original current-profile labels and count guards')
+        current = current.replace('740', '742')
+        edits.append(dict(before='740', after='742', count=count))
+        if name == 'admission.py':
+            for before, after in identities:
+                require(current.count(before) == 1 and after not in current,
+                        'one exact source, image, manifest or live binding identity')
+                current = current.replace(before, after, 1)
+                edits.append(dict(before=before, after=after, count=1))
+        restored = current
+        for edit in reversed(edits):
+            require(restored.count(edit['after']) == edit['count'], 'complete successor inverse edit count')
+            restored = restored.replace(edit['after'], edit['before'])
+        require(restored.encode() == original, 'complete frozen740 qualifier source inverse: ' + name)
+        def bodies(raw):
+            return {node.name: ast.dump(node, include_attributes=False) for node in ast.parse(raw).body
+                    if isinstance(node, (ast.FunctionDef, ast.ClassDef))}
+        old_bodies, new_bodies = bodies(original), bodies(current)
+        expected = {'package', 'tensor_owner', 'main'} if name == 'run.py' else {'admit'}
+        require(old_bodies.keys() == new_bodies.keys()
+                and {key for key in old_bodies if old_bodies[key] != new_bodies[key]} == expected,
+                'only package/profile admission, owner binding and result identity change')
+        output[name] = current.encode()
+        changes[name] = dict(original_sha256=sha(original), derived_sha256=sha(output[name]),
+                            whole_file_inverse_exact=True, edits=edits)
+    modes = {name: original_manifest['files'][name]['mode'] for name in original_manifest['files']}
+    modes['package-manifest.json'] = stat.S_IMODE((parent / 'package-manifest.json').stat().st_mode)
+    file_modes = {'parent740/' + name: mode for name, mode in modes.items()}
+    file_modes.update({name: mode for name, mode in modes.items() if name != 'package-manifest.json'})
+    manifest = dict(schema='heptatorch.generator742-original-qualification-source.v1',
+        parent740_manifest_sha256=QUALIFIER_MANIFEST,
+        source_sha256=CURRENT_SOURCE, native_sha256=CURRENT_IMAGE,
+        current_source_manifest_sha256=CURRENT_MANIFEST, current_binding_sha256=CURRENT_BINDING,
+        files={name: dict(bytes=len(raw), sha256=sha(raw), mode=file_modes[name])
+               for name, raw in sorted(output.items())},
+        source_profile_inverse=changes, original_cases_and_controls_unchanged=True)
+    return output, file_modes, manifest, original_proof
+
+
+def verify_qualifier(package, inputs=None):
+    package = Path(package)
+    files, modes, manifest, original_proof = successor_qualifier(package / 'parent740', inputs)
+    raw = read(package / 'package-manifest.json', inputs=inputs)
+    require(json.loads(raw) == manifest, 'exact derived742 manifest and full frozen740 inverse')
+    actual = {str(path.relative_to(package)) for path in package.rglob('*') if path.is_file()}
+    require(actual == set(files) | {'package-manifest.json'}, 'complete current742 qualifier inventory')
+    for name, expected in files.items():
+        require(matches(package / name, manifest['files'][name], inputs) == expected,
+                'every generated qualifier file equals its exact profile-only derivation')
+    return dict(parent740=original_proof, successor_profile_inverse=manifest['source_profile_inverse'],
+                manifest_sha256=sha(raw), original_cases_and_controls_unchanged=True)
+
+
+def restore_qualifier(repository, destination, inputs=None):
+    destination = Path(destination)
+    require(not destination.exists(), 'fresh successor Generator qualifier directory')
+    destination.mkdir(parents=True)
+    parent = restore_qualifier740(repository, destination / 'parent740', inputs)
+    files, modes, manifest, _ = successor_qualifier(parent, inputs)
+    for name, raw in files.items():
+        if name.startswith('parent740/'):
+            continue
+        path = destination / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open('xb') as stream:
+            stream.write(raw)
+        path.chmod(modes[name])
+    with (destination / 'package-manifest.json').open('x') as stream:
+        stream.write(json.dumps(manifest, sort_keys=True, indent=2) + '\n')
     verify_qualifier(destination, inputs)
     return destination

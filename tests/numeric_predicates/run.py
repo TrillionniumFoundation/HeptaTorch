@@ -51,7 +51,11 @@ def profile(repository,build,build_sha,inputs):
     for name in ('__init__.py','native.py','reference.py'):
         inputs.bind(repository/'tests/half_logical'/name)
     transition=module(repository/'tools/current_runtime/predicate_source_transition.py','predicate_source_proof',inputs.bind)
-    proof=transition.proof(inputs.bind(repository/'tools/current_runtime/source/runtime.hepta'))
+    bf16=module(repository/'tools/current_runtime/bf16_source_transition.py','predicate_bf16_source_proof',inputs.bind)
+    parent,extension=bf16.restore_source(inputs.bind(repository/'tools/current_runtime/source/runtime.hepta'),inputs.bind)
+    require(extension['source_sha256']==built['source_sha256'] and extension['functions']==742
+        and extension['whole_source_inverse_exact'] is True,'exact BF16 copy source extension')
+    proof=transition.proof(parent)
     require(proof['functions']==740 and proof['whole_source_inverse_exact'] is True
         and proof['dispatcher_guard']['exact_closed_range_verified'] is True
         and proof['old_path_delegation']['argument_order_preserved'] is True

@@ -1,7 +1,7 @@
 # Original resource7 on the current HIA runtime
 
 This entry preserves seven original allocation and ownership recipes on the
-canonical **740-function, 14-unit** HIA runtime. The complete qualification
+canonical **742-function, 14-unit** HIA runtime. The complete qualification
 requires an actual matching cold build and new native execution. Current combined
 execution status is recorded in the [current audit](../../docs/current-audit.md);
 historical passes and source preparation do not qualify a later image.
@@ -28,16 +28,16 @@ receipt SHA, and the original R4/backward driver receives the same identity.
 `--suite r4`, `--suite backward`, and `--suite r3` are diagnostic subsets with
 status `PASS_SELECTED_RESOURCES`. Only all seven recipes can report
 `PASS_CURRENT_RESOURCE7`; the report schema is
-`heptatorch.current740.resource7.v1`. A group PASS does not close an upstream
+`heptatorch.current742.resource7.v1`. A group PASS does not close an upstream
 schema or the whole project.
 
 ## Fixed current identity
 
 | Product | Identity |
 | --- | --- |
-| HIA aggregate | `24011e3c861e3b0e77c6a25c07116375cded2225c1f05f42cd84aa1e4a139215` |
-| Main ELF | `52e89b1cb6f4b859d3c9c2f5b528c8c22ddd983e21990a4a4dd5357625c3aba2` |
-| Products | 740 HIA functions, 14 units, 672-byte descriptors |
+| HIA aggregate | `abbc84b8eca16670e72b8872d1d7ab479f8a1d44f7b2b65deea1649f7682b2c7` |
+| Main ELF | `606f69aaecedbedc7ed6ad8f033275e0b64697f70632036d180106d315243c32` |
+| Products | 742 HIA functions, 14 units, 672-byte descriptors |
 | Owner formats | `HTSINT02` / `HTOSIN02` |
 | Authoritative source | [Current manifest](../../tools/current_runtime/source/manifest.json) |
 
@@ -47,7 +47,7 @@ manifest, complete partitions, every object and tool identity, exact link
 request, stack budget, compiler/linker exits and both EOFs. Independent cold
 builds have different paths and timings, so their receipt SHA is an explicit
 input rather than a copied developer-local constant. Source, image and the
-740/14 denominator remain fixed throughout one qualification.
+742/14 denominator remain fixed throughout one qualification.
 
 ## Original seven recipes
 
@@ -75,11 +75,13 @@ Reversing that substitution restores the complete original recipe.
 ## Actual source and allocation proofs
 
 [`fusion_resource_transition.py`](../../tools/current_runtime/fusion_resource_transition.py)
-composes the complete 740 → Half736 → storage736 → cat700 source inverse.
+composes the complete 742 → 740 → Half736 → storage736 → cat700 source inverse.
 Every original byte remains constrained by the corresponding full-source hash.
-These source relations do not execute a historical application or transfer its PASS.
+The 742 BF16 layer checks both modified bodies, both new helpers, all 738
+unchanged original bodies and the complete round trip to 740. These source
+relations do not execute a historical application or transfer its PASS.
 
-The current numeric-predicate extension adds four functions and changes only
+The preserved 740 numeric-predicate extension adds four functions and changes only
 two `entry` instructions. Its exact guard admits only opcodes 120–124; all
 original 108–119 routes delegate to the unchanged physical `to_command` with
 all six arguments in their original order. The R4 obligation binds actual

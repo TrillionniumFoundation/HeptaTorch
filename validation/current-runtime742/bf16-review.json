@@ -1,0 +1,98 @@
+{
+  "schema": "heptatorch.current-runtime742.independent-bf16-review.v1",
+  "record_kind": "SCOPED_EXECUTION_AND_REVIEW_SUMMARY",
+  "source_sha256": "abbc84b8eca16670e72b8872d1d7ab479f8a1d44f7b2b65deea1649f7682b2c7",
+  "native_sha256": "606f69aaecedbedc7ed6ad8f033275e0b64697f70632036d180106d315243c32",
+  "manifest_sha256": "a750f6e388c4339c29ff299aca0dabda9fa8b0ff7cc69d5bfa45f69cdd86e009",
+  "native_report_sha256": "7090bb94b3eb552f956fc3dbc97f80e00e42fdd314847df27d93a2e5e124dce0",
+  "physical_proof_sha256": "87078a57858103c5bff61c84d06a70597704e75b55c820a8085579b0f1533566",
+  "physical_qualification": {
+    "Torch_executed_by_qualifier": false,
+    "assertions": 23096,
+    "bitwise_elements": 1312796,
+    "cases": 280,
+    "frames": 6088,
+    "full_project_status": "HOLD",
+    "host_expected_values_computed": false,
+    "native_executed_by_qualifier": false,
+    "native_sessions": 280,
+    "owner_snapshots": 1960,
+    "physical_replay": true,
+    "reference_sha256": "ecb97f339991425543baa7324c33778d2f04c1757de7014ca5cfe62c0229997e"
+  },
+  "independent_review_sha256": "eaa5fda6eeb38c2468ff3a06927877f855b52881f6096a3dc1dccf4d2a62975b",
+  "independent_review": {
+    "status": "NO_BLOCKING_FINDING_IN_SCOPED_REVIEW",
+    "canonical_source_sha256": "abbc84b8eca16670e72b8872d1d7ab479f8a1d44f7b2b65deea1649f7682b2c7",
+    "native_sha256": "606f69aaecedbedc7ed6ad8f033275e0b64697f70632036d180106d315243c32",
+    "native_function_count": 742,
+    "prior_functions_byte_identical": 738,
+    "changed_functions": [
+      "half_convert_value",
+      "half_copy_tensor"
+    ],
+    "new_functions": [
+      "half_bf16_nan_word",
+      "half_narrow_bf16"
+    ],
+    "native_avx512_conversions": 4800,
+    "native_forced_avx2_conversions": 2048,
+    "torch_only_decision_checks_per_dispatch": 56372,
+    "host_cpu_capability": "AVX512",
+    "forced_reference_capability": "AVX2",
+    "full_project_status": "HOLD",
+    "limitation": "Scratch independent differential review, not a replacement for original1876 or full17subsystem acceptance. AVX2 dispatch forced on this AVX512 host; no default/nonx86/device proof.",
+    "evidence": [
+      {
+        "path": "/workspace/scratch/1b9d971abe07/remote-bf16-review/probe.py",
+        "bytes": 9627,
+        "sha256": "e6d578b355725dae1620d3c4e4aa12ae7174155fda4db749088d8f79c344243c"
+      },
+      {
+        "path": "/workspace/scratch/1b9d971abe07/remote-bf16-review/scan-v2/decision-scan.json",
+        "bytes": 1181,
+        "sha256": "9f61401771827b99616347d8de9ff962131754132026d1eb66e5178a134d7f5a"
+      },
+      {
+        "path": "/workspace/scratch/1b9d971abe07/remote-bf16-review/scan-avx2/decision-scan.json",
+        "bytes": 1179,
+        "sha256": "18864bcd58a8e83701b6ce53a60daac7fb1704450d1e611d50baa3acff4bceab"
+      },
+      {
+        "path": "/workspace/scratch/1b9d971abe07/remote-bf16-review/native-v2/native-report.json",
+        "bytes": 6423364,
+        "sha256": "9c4e3f34b1590fa0d6912f496bf6da1d0d3713063cce070c4b076644f3e3ebb8"
+      },
+      {
+        "path": "/workspace/scratch/1b9d971abe07/remote-bf16-review/native-avx2/native-report.json",
+        "bytes": 2545202,
+        "sha256": "37b6afa6c27dde3c66b8e35ed490b8107285c683c882470dfecd7cf5ed42c3bb"
+      },
+      {
+        "path": "/workspace/scratch/1b9d971abe07/remote-bf16-review/native-v2/native-transport/requests.frames.bin",
+        "bytes": 3224640,
+        "sha256": "4c1af45be2a0e461fba7639ac86669eda6618b4a891888e5f69369822f9534dd"
+      },
+      {
+        "path": "/workspace/scratch/1b9d971abe07/remote-bf16-review/native-v2/native-transport/responses.frames.bin",
+        "bytes": 2923504,
+        "sha256": "a74a2ae2d539f6f9c79e76402fd466a98b435a0a50709d1fe12a3e8cb14092d9"
+      },
+      {
+        "path": "/workspace/scratch/1b9d971abe07/remote-bf16-review/native-avx2/native-transport/requests.frames.bin",
+        "bytes": 1349120,
+        "sha256": "e90a84145ccc387797c1a711ef18a87d3ccc9c017235d464669658bd59ef08c6"
+      },
+      {
+        "path": "/workspace/scratch/1b9d971abe07/remote-bf16-review/native-avx2/native-transport/responses.frames.bin",
+        "bytes": 1205296,
+        "sha256": "048a8bfc7d72b2663a0114a4e460b1370b90cf1fabccc04948c261a32b75c247"
+      }
+    ]
+  },
+  "original1876_pass_transferred": false,
+  "combined21_group2156_status": "PENDING_ACTUAL_21_GROUP_2156_RUN",
+  "complete_contract_qualification": false,
+  "whole_pytorch_rewrite_complete": false,
+  "scope": "Actual pinned Torch AVX512 and forced AVX2 on the same AVX512 host. DEFAULT, non-x86 and devices remain unqualified. This compact summary does not replace the original raw reports or the required fresh full coordinator run."
+}

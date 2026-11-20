@@ -1,4 +1,4 @@
-"""Exact source740 path obligations for the unchanged seven resource recipes.
+"""Exact source742 path obligations for the unchanged seven resource recipes.
 
 This proves a conditional source relation on the original public0/1/2/private3
 domain. The unchanged complete owner and resource recipes must still execute.
@@ -13,9 +13,9 @@ import re
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
-SOURCE = '24011e3c861e3b0e77c6a25c07116375cded2225c1f05f42cd84aa1e4a139215'
-IMAGE = '52e89b1cb6f4b859d3c9c2f5b528c8c22ddd983e21990a4a4dd5357625c3aba2'
-OUTER = '0495301801bec96191c6cba57a4e0d3878b2cd362158916e487bf5ae07802b59'
+SOURCE = 'abbc84b8eca16670e72b8872d1d7ab479f8a1d44f7b2b65deea1649f7682b2c7'
+IMAGE = '606f69aaecedbedc7ed6ad8f033275e0b64697f70632036d180106d315243c32'
+OUTER = '347f9afc36db3de87f2ddf29ac5f05b4494bed0d95b8808343315e63a9ea4ba8'
 OBLIGATIONS = '4fa8028bec733a72ac2857dce326e25d6d378aafd1045c2504bb5828553cf2bb'
 OWNER = 'e54509ceba0ef3bf171f5fc1018665dc97e56eeccec0cba1e8c14f9a7ed81501'
 CHANGED = ('command_argument', 'dtype_audit', 'to_command', 'typed_command', 'typed_fill')
@@ -48,18 +48,19 @@ def calls(body):
 def prove(source, bind):
     """Purely inspect complete actual source; return no runtime PASS."""
     bind(Path(__file__).resolve())
-    require(sha(source) == SOURCE, 'exact source740 actual resource subject')
+    require(sha(source) == SOURCE, 'exact source742 actual resource subject')
     path = HERE / 'fusion_source_transition.py'
     bind(path, OUTER)
-    spec = importlib.util.spec_from_file_location('resource740_complete_outer_inverse', path)
+    spec = importlib.util.spec_from_file_location('resource742_complete_outer_inverse', path)
     outer = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(outer)
     historical, complete = outer.restore_source(source, bind)
-    actual, parent = outer.functions(source, 740), outer.functions(historical, 700)
+    actual, parent = outer.functions(source, 742), outer.functions(historical, 700)
     predicate_inverse = complete['predicate_source_inverse']
     guard = predicate_inverse['dispatcher_guard']
     delegation = predicate_inverse['old_path_delegation']
-    require(predicate_inverse['source_sha256'] == SOURCE
+    require(complete['bf16_source_inverse']['source_sha256'] == SOURCE
+        and predicate_inverse['source_sha256'] == complete['bf16_source_inverse']['parent_source_sha256']
         and predicate_inverse['functions'] == 740
         and predicate_inverse['parent_functions'] == 736
         and predicate_inverse['unchanged_parent_functions'] == 735
@@ -74,7 +75,7 @@ def prove(source, bind):
         and delegation['complete_parent_body_unchanged'] is True
         and delegation['parent_body_sha256'] == delegation['actual_body_sha256']
             == sha(actual['to_command']),
-        'physical740 entry delegates every original108..119 opcode through the exact six-argument original to_command body')
+        'physical742 entry delegates every original108..119 opcode through the exact six-argument original to_command body')
     predicate_route = dict(
         actual_entry_sha256=sha(actual['entry']),
         actual_predicate_command_sha256=sha(actual['predicate_command']),
@@ -252,8 +253,8 @@ def prove(source, bind):
     body = ast.get_source_segment(owner.decode(), fn).encode()
     require(body.count(b'need(dtype in (0, 1, 2, 3), "dtype-code", node=i)') == 1,
             'unchanged full owner still rejects public4/5/6 in the original resource recipe domain')
-    return dict(schema='heptatorch.fusion740.resource7-source-paths.v1', source_sha256=SOURCE,
-        native_sha256=IMAGE, functions=740, units=14, outer_source_inverse=complete,
+    return dict(schema='heptatorch.fusion742.resource7-source-paths.v1', source_sha256=SOURCE,
+        native_sha256=IMAGE, functions=742, units=14, outer_source_inverse=complete,
         changed_R4_obligations=list(CHANGED), obligations={n:rows[n] for n in CHANGED},
         original_owner_sha256=OWNER, original_verify_snapshot_sha256=sha(body),
         domain_must_still_be_checked_by_original_runtime_owner=True,
