@@ -11,8 +11,8 @@ import types
 from current_runtime_fixtures import require, safe_name, sha
 from current_runtime_generator_fixtures import verify_qualifier, QUALIFIER_MANIFEST
 
-SOURCE = 'abbc84b8eca16670e72b8872d1d7ab479f8a1d44f7b2b65deea1649f7682b2c7'
-IMAGE = '606f69aaecedbedc7ed6ad8f033275e0b64697f70632036d180106d315243c32'
+SOURCE = 'ab3ed0e0898d2006fbdf145357c79cafd599c2be344fcb3cb65fd6ad55efb231'
+IMAGE = '756de9418c05f4ecfc12319c7262cf1ff22e335e4ec32b140721b6c77ee226d7'
 OWNER = 'c39600e7c37dea390f88cf9e74d86dfa924301456e0f32e127d82c98ad6778b0'
 GROUPS = ('oracle24', 'native11', 'entry59', 'dispatch')
 
@@ -66,10 +66,10 @@ def tensor_owner(package, directory, proof, inputs):
     original = inputs.bind(package / 'frozen/owner_integral.py', OWNER)
     raw = original
     changes = [('HTSINT01', 'HTSINT02', 2), ('HTOSIN01', 'HTOSIN02', 2),
-               ('functions == 699', 'functions == 742', 1),
-               ('sum-integral-source01-UNBOUND-699', 'generator742-dispatch-UNBOUND', 1),
+               ('functions == 699', 'functions == 761', 1),
+               ('sum-integral-source01-UNBOUND-699', 'generator761-dispatch-UNBOUND', 1),
                ('sum-integral-source01-%d-preserved47-48', 'generator%d-dispatch-full-tensor-owner', 1),
-               ('heptatorch.sum-integral-owner-source01.v1', 'heptatorch.generator742-dispatch-tensor-owner.v1', 1)]
+               ('heptatorch.sum-integral-owner-source01.v1', 'heptatorch.generator761-dispatch-tensor-owner.v1', 1)]
     for before, after, count in changes:
         require(raw.count(before.encode()) == count and after.encode() not in raw, 'exact owner identity edits')
         raw = raw.replace(before.encode(), after.encode())
@@ -81,7 +81,7 @@ def tensor_owner(package, directory, proof, inputs):
     path = directory / 'executed-tensor-owner.py'
     require(inputs.bind(path, sha(raw)) == raw, 'actual executed owner source')
     module = loaded(path, 'current_generator131_actual_tensor_owner', inputs)
-    module.bind_profile(SOURCE, IMAGE, 742)
+    module.bind_profile(SOURCE, IMAGE, 761)
     return module
 
 
@@ -212,8 +212,8 @@ def audit_generator_reports(report, directory, package, inputs):
     complete actual cold/tool and source-custody admission.
     """
     directory, package = Path(directory), Path(package)
-    require(report['schema'] == 'heptatorch.generator742-current-native-qualification.v1'
-            and report['status'] == 'PASS_CURRENT742_GENERATOR131' and report['selected_group'] == 'all'
+    require(report['schema'] == 'heptatorch.generator761-current-native-qualification.v1'
+            and report['status'] == 'PASS_CURRENT761_GENERATOR131' and report['selected_group'] == 'all'
             and report['cases'] == 131 and report['original_cases'] == 94 and report['new_dispatch_cases'] == 37,
             'all original94 and new37 actually qualified together')
     require(report['source_sha256'] == SOURCE and report['native_sha256'] == IMAGE
@@ -296,12 +296,12 @@ def audit_generator_reports(report, directory, package, inputs):
                 and len({row['case'] for row in old59['cases']}) == 59
                 and all(row['status'] == 'PASS' for row in old59['cases'])
                 and old59['production_image_sha256'] == IMAGE
-                and old59['probe_image_sha256'] == entry['actual_current14_probe_sha256']
+                and old59['probe_image_sha256'] == entry['actual_current15_probe_sha256']
                 and old59['caller_created_owners_in_qualification_only'] is True
                 and old59['production_accepts_native_pointers_from_packets'] is False,
                 'all59 original ABI assertions retained')
         eframes = children(directory / 'entry59/native', entry['native_children'], observe, owner,
-                           [IMAGE, entry['actual_current14_reordered_image_sha256']], inputs)
+                           [IMAGE, entry['actual_current15_reordered_image_sha256']], inputs)
         require(eframes == 5, 'original current and reordered image actual frames')
         frame_count += eframes
         tool_rows = entry['tool_and_probe_processes']
@@ -316,7 +316,7 @@ def audit_generator_reports(report, directory, package, inputs):
                 and [r['case'] for r in dispatch['cases'][:6]] == modules['controls'].PRODUCTION_PLAN
                 and [r['case'] for r in dispatch['native_children']] == modules['controls'].PRODUCTION_PLAN
                 and dispatch['actual_image_sha256'] == IMAGE
-                and dispatch['actual_probe_sha256'] == entry['actual_current14_probe_sha256']
+                and dispatch['actual_probe_sha256'] == entry['actual_current15_probe_sha256']
                 and dispatch['production_accepts_foreign_owners_or_entropy_pointers'] is False
                 and dispatch['os_entropy_consumption_before_application_validation_prohibited'] is False
                 and dispatch['raw_entropy_cleared_between_every_observed_frame'] is True,
@@ -369,7 +369,7 @@ def verify_current_object_links(report, build, stack_build, directory, package, 
         admission, process = modules['admission'], modules['processes']
         manifest = json.loads(inputs.bind(build / 'manifest.json', admission.MANIFEST))
         objects = [inputs.bind(build / (row['name'] + '.o')) for row in manifest['units']]
-        require(len(objects) == 14, 'all fourteen actual cold objects')
+        require(len(objects) == 15, 'all fifteen actual cold objects')
         entry = report['groups']['entry59']
         rows = entry['tool_and_probe_processes']
         probe_source = inputs.bind(package / 'probe.hia')
@@ -384,8 +384,8 @@ def verify_current_object_links(report, build, stack_build, directory, package, 
         reordered_links = [row for row in rows if row['binary_sha256'] == admission.LINKER
                            and row['input_sha256'] == sha(expected_reordered)]
         require(len(probe_links) == len(reordered_links) == 1, 'one actual complete probe and reordered link')
-        for row, request, pin in ((probe_links[0], expected_probe, entry['actual_current14_probe_sha256']),
-                                  (reordered_links[0], expected_reordered, entry['actual_current14_reordered_image_sha256'])):
+        for row, request, pin in ((probe_links[0], expected_probe, entry['actual_current15_probe_sha256']),
+                                  (reordered_links[0], expected_reordered, entry['actual_current15_reordered_image_sha256'])):
             require(row['exit_code'] == 0
                     and inputs.bind(Path(row['directory']) / 'input.bin') == request
                     and row['stdout_sha256'] == pin, 'actual link request and resulting image identity')
@@ -396,15 +396,15 @@ def verify_current_object_links(report, build, stack_build, directory, package, 
         tools[str((build / 'toolchain/stack-linker-session').resolve())] = admission.LINKER
         probe = directory / 'entry59/original/step-probe'
         reordered = directory / 'entry59/original/reordered-service'
-        inputs.bind(probe, entry['actual_current14_probe_sha256'])
-        inputs.bind(reordered, entry['actual_current14_reordered_image_sha256'])
-        tools[str(probe.resolve())] = entry['actual_current14_probe_sha256']
+        inputs.bind(probe, entry['actual_current15_probe_sha256'])
+        inputs.bind(reordered, entry['actual_current15_reordered_image_sha256'])
+        tools[str(probe.resolve())] = entry['actual_current15_probe_sha256']
         for row in rows + report['groups']['dispatch']['probe_processes']:
             require(type(row['argv']) is list and len(row['argv']) == 1
                     and tools.get(str(Path(row['argv'][0]).resolve())) == row['binary_sha256'],
                     'only fixed tools or actual current-object probe executed')
-            require(row['current14_object_probe_link'] is (row is probe_links[0])
-                    and row['current14_object_reordered_link'] is (row is reordered_links[0]),
+            require(row['current15_object_probe_link'] is (row is probe_links[0])
+                    and row['current15_object_reordered_link'] is (row is reordered_links[0]),
                     'exact actual current-object link classification')
 
 

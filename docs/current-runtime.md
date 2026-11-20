@@ -2,7 +2,7 @@
 
 ## Source and tools
 
-The canonical application is [`tools/current_runtime/source/runtime.hepta`](../tools/current_runtime/source/runtime.hepta). Its [manifest](../tools/current_runtime/source/manifest.json) fixes complete functions, ordered units and native object/image identities. The current candidate has **742 core functions in 14 units**. HIA machine code performs all tensor numerical work, allocation, ownership, AD, RNG and command execution in a static Linux x86-64 ELF.
+The canonical application is [`tools/current_runtime/source/runtime.hepta`](../tools/current_runtime/source/runtime.hepta). Its [manifest](../tools/current_runtime/source/manifest.json) fixes complete functions, ordered units and native object/image identities. The current candidate has **761 core functions in 15 units (13 core, RNG and owner support)**. HIA machine code performs all tensor numerical work, allocation, ownership, AD, RNG and command execution in a static Linux x86-64 ELF.
 
 Use Hepta source commit `f33d8da316de8fdf27b504371f1a5310997ff548`. The exact bootstrap sequence in [Current HIA Runtime CI](../.github/workflows/current-runtime.yml) reproduces the initial compiler, expanded profile, borrowed modules, owned ABI2, interactive sessions, ABI3 stack tools and entropy linker. Its initial bootstrap uses Python and GNU ld.
 
@@ -50,7 +50,7 @@ PY
 
 Retain the real pip report at `build/pytorch-install.json`. All eleven original provenance checks remain required. The SHA-pinned NumPy wheel resolves the missing-dependency warning while preserving strict reference-stderr admission. Both libraries are test dependencies.
 
-Use the **same CPython 3.12 interpreter** for the coordinator and live readers; original source inverses contain Python-version-sensitive AST identities. The BF16 exact-bit reference records and requires the actual AVX2/AVX512 path. DEFAULT dispatch and other architectures remain separate full dtype/platform requirements.
+Use the **same CPython 3.12 interpreter** for the coordinator and live readers; original source inverses contain Python-version-sensitive AST identities. The BF16 exact-bit reference records and requires the actual AVX2/AVX512 path. The Half multiplication and negation references explicitly select AVX2 in their own processes and retain the original single-thread setting. Their scalar and vector NaN results are compared bit for bit. DEFAULT dispatch and other architectures remain separate full dtype/platform requirements.
 
 ## Validate and cold-build
 
@@ -86,7 +86,7 @@ The compiler retains its original limits: 1 MiB source/object, 256 functions inc
 
 The build receipt binds all source/tool/object/image bytes, modes, real exits and both stream EOFs. `PASS_NATIVE_BUILD_ONLY` describes compilation and linking. Runtime qualification is separate.
 
-## Twenty-one mandatory groups
+## Twenty-three mandatory groups
 
 ```sh
 make test HEPTA_SOURCE_ROOT=/absolute/path/to/fixed-hepta-source \
@@ -124,18 +124,20 @@ Or consume an explicit new build:
 | `generator131` | 131 | Original24/native11/entry59/dispatch37 plus separate current-object probes |
 | `public_f64_logical192` | 192 | Original dense F64 logical results and separate scope controls |
 | `f64_48` | 48 | Original numeric/boundary/entry/OOM cases and 87 refusals |
-| `half47` | 47 | Original Half cases and 239 refusals |
+| `half47` | 47 | All original cases; 239 entry requests now comprise 215 unchanged refusals, 22 exact multiplication successors and two exact negation successors; four original allocation recoveries |
 | `half_logical264` | 264 | Actual Half results/errors, exhaustive encodings and allocation recovery |
 | `half_transactions12` | 12 | Direct successes and invalid-suffix rollbacks |
 | `numeric_predicates` | 485 | Five classification operations and fresh actual Torch reference |
 | `bf16_copy` | 280 | Exact BF16 words and metadata across scalar, strided, NaN and finite inputs |
-| **Total** | **2,156** | Every group and its original extra controls are mandatory |
+| `half_mul` | 312 | Fresh actual Torch multiplication bits, metadata, promotion, errors, owner/input/RNG/lifetime, and all 22 former refusal recipes |
+| `half_neg` | 371 | Exact negation bits and layouts, every Half word, scalar NaN payloads, all 24 rank-four dense permutations and two real OOM/recovery controls |
+| **Total** | **2,839** | Every group and its original or explicitly mapped successor controls are mandatory |
 
-Production cases use the same main image. Generator ABI/reordered probes are separate current-object images, each bound to its own actual execution. New source identities require a complete new run. The 742→740 whole-source inverse composes with unchanged predecessor proofs; source identity never substitutes for execution.
+Production cases use the same main image. Generator ABI/reordered probes are separate current-object images, each bound to its own actual execution. New source identities require a complete new run. The 761→758→742→740 whole-source inverse composes with unchanged predecessor proofs; source identity never substitutes for execution.
 
-Original numerical assertions, tolerances, resource budgets and failure records remain. The new BF16 group adds exact-bit checks. Missing inputs, skips, timeout, incomplete EOF, altered inputs or failed physical readback prevent combined PASS. The CI archive preserves raw frames, full owner/storage snapshots, reference inputs, actual interpreters/process streams and native tool receipts.
+Original numerical assertions, tolerances, resource budgets and failure records remain. The 22 supported Half multiplication requests and two negation requests have explicit label/body mappings and actual Torch results; all 215 other Half entry refusals retain the original rejection checks. The unchanged 239-request recipe executes in full, with a scoped owner extension for the promoted results. Each new reference (312 multiplication cases and 371 negation cases) is generated once and shared by Half47 and its corresponding group, with the same complete process/input/blob binding. The original BF16 group retains its exact-bit checks. Missing inputs, skips, timeout, incomplete EOF, altered inputs or failed physical readback prevent combined PASS. The CI archive preserves raw frames, full owner/storage snapshots, reference inputs, actual interpreters/process streams and native tool receipts.
 
-Current results are in [the audit](current-audit.md). The 2,156 finite cases remain distinct from the complete 2,590 native declarations, 688 derivative declarations and 17 system contracts.
+Current results are in [the audit](current-audit.md). The 2,839 finite cases remain distinct from the complete 2,590 native declarations, 688 derivative declarations and 17 system contracts.
 
 ## Changes and retirement
 

@@ -16,8 +16,8 @@ import textwrap
 import types
 import zlib
 
-SOURCE = 'abbc84b8eca16670e72b8872d1d7ab479f8a1d44f7b2b65deea1649f7682b2c7'
-IMAGE = '606f69aaecedbedc7ed6ad8f033275e0b64697f70632036d180106d315243c32'
+SOURCE = 'ab3ed0e0898d2006fbdf145357c79cafd599c2be344fcb3cb65fd6ad55efb231'
+IMAGE = '756de9418c05f4ecfc12319c7262cf1ff22e335e4ec32b140721b6c77ee226d7'
 BRIDGE = 'f3b19a8dcc1a004323e033f414e801a52f12b0f0d556e6cbc005169d26fdef9e'
 READER = '1f67d27b8a5af133955d8a8cdfdb3094415efe31d1d9ee7ab09437f683ecef06'
 REFERENCE = 'ae6079c8f0960db53d26e056cc67fbe0a8eee7de04aa0644f4475afc368a75fe'
@@ -139,11 +139,18 @@ def outer_execution(kind, report, repository, build, build_sha, directory,
     if kind=='half47':
         wrapper=repository/'tests/current_runtime_half_fixtures.py'
         bound.read(wrapper)
+        successor=report['entry_groups'][0]['details']['multiplication_successor']
+        negation=report['entry_groups'][0]['details']['negation_successor']
         expected += [str(wrapper),'--reader-directory',str(reader_directory),
             '--candidate',str(repository),'--build-directory',str(build),
             '--reference',str(reference_directory/'report.json'),'--expected-source-sha256',SOURCE,
             '--expected-native-sha256',IMAGE,'--expected-build-sha256',build_sha,
-            '--expected-reference-sha256',REFERENCE,'--output',str(directory)]
+            '--expected-reference-sha256',REFERENCE,
+            '--half-mul-reference-directory',successor['reference_directory'],
+            '--half-mul-reference-execution',successor['reference_execution'],
+            '--half-neg-reference-directory',negation['reference_directory'],
+            '--half-neg-reference-execution',negation['reference_execution'],
+            '--output',str(directory)]
         bound.read(reader_directory/'run.py')
     else:
         require(len(argv)>4, 'actual control entry script')
@@ -421,7 +428,15 @@ def admission(report, repository, build, build_sha, reader_directory, bound):
     bound.read(reader_directory/'bridge.py',BRIDGE)
     wrapper=repository/'tests/current_runtime_half_fixtures.py'
     current=module(bound.read(wrapper),'half_current_identity_adapter',wrapper)
-    bridge=current.current_bridge(repository,reader_directory)
+    half_mul=half_neg=None
+    if report['status']=='PASS':
+        successor=report['entry_groups'][0]['details']['multiplication_successor']
+        half_mul=dict(root=Path(successor['reference_directory']),
+                      execution=Path(successor['reference_execution']))
+        negation=report['entry_groups'][0]['details']['negation_successor']
+        half_neg=dict(root=Path(negation['reference_directory']),
+                      execution=Path(negation['reference_execution']))
+    bridge=current.current_bridge(repository,reader_directory,half_mul,half_neg)
     require(bridge.SOURCE==SOURCE and bridge.IMAGE==IMAGE and bridge.REFERENCE==REFERENCE,
             'current-image wrapper around the complete unchanged original bridge')
     return bridge
@@ -434,7 +449,7 @@ def prepare_originals(bridge, originals, old_run, startup, report, repository, b
     source=adapter.candidate_admission(repository,inputs)
     cold=adapter.cold_admission(build,IMAGE,build_sha,repository,inputs)
     require(ordinary(source)==report['source_admission'] and ordinary(cold)==report['cold_admission'],
-            'complete original source and actual69 cold admission readback')
+            'complete original source and actual73 cold admission readback')
     owner=adapter.make_owner(repository,IMAGE,inputs)
     methods={
         'Native.capture':originals['native'].Native.capture,
@@ -529,8 +544,11 @@ def qualify_half47(report, repository, build, build_sha, directory, reader_direc
             elif category=='boundary_cases':
                 details=old_run.boundary_case(driver,spec,wanted)
             elif category=='entry_groups':
-                details=controls['entry_controls'](driver)
-                require(details['actual_refusals']==len(driver.operations)==239, 'all original239 refusal controls')
+                details=adapter.half_neg_successor.wrap_entry(controls['entry_controls'])(driver)
+                require(details['actual_refusals']==215 and details['actual_successful_multiplications']==22
+                    and details['actual_successful_negations']==2
+                    and details['original_entry_requests']==len(driver.operations)==239,
+                    'all original239 requests:215 refusals,22 exact multiplication and2 exact negation successors')
             else:
                 details=controls['allocation_control'](driver,spec,wanted)
                 require(saved.limit_at==4 and details['actual_status_sequence']==[3,0], 'original resource failure and actual recovery sequence')
@@ -552,7 +570,9 @@ def qualify_half47(report, repository, build, build_sha, directory, reader_direc
         actual_report_sha256=bound.rows[str(directory/'report.json')]['sha256'],source_sha256=SOURCE,native_sha256=IMAGE,
         actual_build_sha256=build_sha,cases=47,original_counts=report['expected_counts'],
         frames=sum(x['frames'] for x in results),checks=sum(x['checks'] for x in results),
-        original_input_values=908216,original_refusals=239,original_OOM_controls=4,
+        original_input_values=908216,original_entry_requests=239,original_refusals=239,
+        retained_refusals=215,accepted_multiplication_successors=22,
+        accepted_negation_successors=2,original_OOM_controls=4,
         complete_snapshot_predicate_calls=sum(x['complete_snapshot_predicate_calls'] for x in results),
         tensor_public_storage_reconstructions=sum(x['tensor_public_storage_reconstructions'] for x in results),
         owner_blobs=sum(x['owner_blobs'] for x in results),native_child_EOFs=94,

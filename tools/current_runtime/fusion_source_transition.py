@@ -12,7 +12,7 @@ import re
 HERE = Path(__file__).resolve().parent
 SOURCE = '51820849f7becec549be15babace00f00687601ae7f53bcee0e636ca02f721f9'
 HALF_SOURCE = 'bf3641b1a9061c6f92b8cbeef75adfac89e82ee16d32a9f650cb938d9e918386'
-CURRENT_SOURCE = 'abbc84b8eca16670e72b8872d1d7ab479f8a1d44f7b2b65deea1649f7682b2c7'
+CURRENT_SOURCE = 'ab3ed0e0898d2006fbdf145357c79cafd599c2be344fcb3cb65fd6ad55efb231'
 PREDICATE_INVERSE = '71244cd75fb41ce07876d7f5699b66ae43c73adc5dd5d09fb2da0dec9c8c7439'
 PARENT_SOURCE = 'ba96abc05717643eaf4f2056325089d9a51f5a2e9838f89473e9a4e76e46fd99'
 DELTA_SHA = '1d47ee1f02e33cc29b4277afa0019dc55c7519a39b23022b0e5e97217bc9de53'
@@ -130,13 +130,29 @@ def predicate_parent(source, bind):
     """Check the new opcode routing and recover the exact Half parent bytes."""
     bind(Path(__file__).resolve())
     require(sha(source) == CURRENT_SOURCE, 'only the exact admitted predicate source')
+    neg_path = HERE / 'half_neg_source_transition.py'
+    bind(neg_path)
+    neg_spec = importlib.util.spec_from_file_location('half_neg_complete_outer_inverse', neg_path)
+    neg = importlib.util.module_from_spec(neg_spec)
+    neg_spec.loader.exec_module(neg)
+    source, neg_inverse = neg.restore_source(source, bind)
+    require(neg.SOURCE == CURRENT_SOURCE and sha(source) == neg.PARENT_SOURCE,
+            'exact Half761 negation to Half758 complete source relation')
+    mul_path = HERE / 'half_mul_source_transition.py'
+    bind(mul_path)
+    mul_spec = importlib.util.spec_from_file_location('half_mul_complete_outer_inverse', mul_path)
+    mul = importlib.util.module_from_spec(mul_spec)
+    mul_spec.loader.exec_module(mul)
+    source, mul_inverse = mul.restore_source(source, bind)
+    require(mul.SOURCE == neg.PARENT_SOURCE and sha(source) == mul.PARENT_SOURCE,
+            'exact Half758 to BF16742 complete source relation')
     bf16_path = HERE / 'bf16_source_transition.py'
     bind(bf16_path)
     bf16_spec = importlib.util.spec_from_file_location('bf16_copy_complete_outer_inverse', bf16_path)
     bf16 = importlib.util.module_from_spec(bf16_spec)
     bf16_spec.loader.exec_module(bf16)
     source, bf16_inverse = bf16.restore_source(source, bind)
-    require(bf16.SOURCE == CURRENT_SOURCE and sha(source) == bf16.PARENT_SOURCE,
+    require(bf16.SOURCE == mul.PARENT_SOURCE and sha(source) == bf16.PARENT_SOURCE,
             'exact BF16742 to predicate740 source relation')
     path = HERE / 'predicate_source_transition.py'
     bind(path, PREDICATE_INVERSE)
@@ -147,19 +163,21 @@ def predicate_parent(source, bind):
     require(extension.SOURCE == bf16.PARENT_SOURCE and extension.PARENT_SOURCE == HALF_SOURCE
             and sha(previous) == HALF_SOURCE,
             'complete predicate-to-Half source relation')
-    return previous, proof, bf16_inverse
+    return previous, proof, bf16_inverse, mul_inverse, neg_inverse
 
 
 def restore_source(source, bind):
     """Compose all exact source inverses; preserve the actual current runtime."""
-    previous, predicate_inverse, bf16_inverse = predicate_parent(source, bind)
+    previous, predicate_inverse, bf16_inverse, mul_inverse, neg_inverse = predicate_parent(source, bind)
     restored, half_inverse = restore_half_source(previous, bind)
     return restored, dict(
-        schema='heptatorch.current742-to-cat700.complete-source-inverse.v1',
+        schema='heptatorch.current761-to-cat700.complete-source-inverse.v1',
         source_sha256=CURRENT_SOURCE, intermediate_source_sha256=HALF_SOURCE,
-        parent_source_sha256=PARENT_SOURCE, functions=742, parent_functions=700,
+        parent_source_sha256=PARENT_SOURCE, functions=761, parent_functions=700,
         predicate_source_inverse=predicate_inverse,
         bf16_source_inverse=bf16_inverse,
+        half_mul_source_inverse=mul_inverse,
+        half_neg_source_inverse=neg_inverse,
         half_and_storage_source_inverse=half_inverse,
         whole_source_inverse_exact=True, whole_round_trip_exact=True,
         every_other_byte_constrained_by_complete_parent_sha256=True,

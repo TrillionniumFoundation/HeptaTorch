@@ -129,7 +129,7 @@ def common_report(report,config):
 def qualify_bool(report,config):
     common_report(report,config)
     require(report['schema']=='heptatorch.sum-bool.native27.v1' and report['error'] is None
-            and report['inputs_unchanged'] is True and report['build_functions']==FUNCTIONS and report['cold_units']==14,
+            and report['inputs_unchanged'] is True and report['build_functions']==FUNCTIONS and report['cold_units']==15,
             'complete original Bool execution and inputs')
     require(report['reference_sha256']==BOOL_REFERENCE and report['passed']==report['expected_cases']==len(report['cases'])==27
             and report['failed']==0,'all27 original Bool cases')
@@ -174,7 +174,7 @@ def qualify_bool(report,config):
 def qualify_integral(report,config):
     common_report(report,config)
     require(report['schema']=='heptatorch.current-runtime.integral24.v1' and report['functions']==FUNCTIONS
-            and report['native_units']==14 and report['actual_build_sha256']==config['expected_build_sha256']
+            and report['native_units']==15 and report['actual_build_sha256']==config['expected_build_sha256']
             and report['all_inputs_unchanged'] is True and report['original_input_recheck_errors']==[],
             'complete Integral original execution/custody')
     require(report['reference_sha256']==INTEGRAL_REFERENCE and report['passed']==report['expected_cases']==len(report['cases'])==24

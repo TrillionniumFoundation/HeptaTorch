@@ -6,8 +6,8 @@ compiler, linker, or Torch producer, and supplies no runtime qualification.
 import ast
 import hashlib
 
-SOURCE = 'abbc84b8eca16670e72b8872d1d7ab479f8a1d44f7b2b65deea1649f7682b2c7'
-IMAGE = '606f69aaecedbedc7ed6ad8f033275e0b64697f70632036d180106d315243c32'
+SOURCE = 'ab3ed0e0898d2006fbdf145357c79cafd599c2be344fcb3cb65fd6ad55efb231'
+IMAGE = '756de9418c05f4ecfc12319c7262cf1ff22e335e4ec32b140721b6c77ee226d7'
 ORIGINAL_FILES = {
     'cases.py': 'e689699b519e57eec44edac5d4c319d3ea718a3777056d1514d1f0e43a08bef3',
     'common.py': '29d25567c08e309c25d96d56f4476e3842ceda164c9647eb5c9397a04fad181a',
@@ -61,6 +61,9 @@ def derive(original, author_raw):
     outputs['qualify736.py'], proof['qualify'] = change(original['qualify.py'], [
         ('import run\n', 'import run736 as run\n'),
         ("str(HERE / 'run.py')", "str(HERE / 'run736.py')"),
+        ("len(result['cold_admission_inputs']) == 69", "len(result['cold_admission_inputs']) == 73"),
+        ('native observer omitted one of the 69 physical cold-admission inputs',
+         'native observer omitted one of the 73 physical cold-admission inputs'),
     ])
     anchor = "    'native.py': 'cc48760e9dad13dfdd834dca5086bc5fb96803dc29914d43b20f29cfb239320e',\n"
     extra = ''.join('    ' + repr(name) + ': ' + repr(pin) + ',\n' for name, pin in (
@@ -69,18 +72,21 @@ def derive(original, author_raw):
     outputs['run736.py'], proof['run'] = change(original['run.py'], [
         ('04ae430e3e851831fcb97a3fab700b16b6318361d52e90fcea90d2183d1d564b', SOURCE),
         ('4749413ea952bfd9d1fe41770f94ce1b9b9e3efabb407aa90f725cf33d59c4db', IMAGE),
-        ("built['functions'] == len(bodies) == 729", "built['functions'] == len(bodies) == 742"),
-        ('exact integrated 729-function source and image', 'exact integrated 742-function source and image'),
+        ("built['functions'] == len(bodies) == 729", "built['functions'] == len(bodies) == 761"),
+        ("built['units_planned'] == 14", "built['units_planned'] == 15"),
+        ("len(cold_inputs.records) == 69", "len(cold_inputs.records) == 73"),
+        ('all 69 physical cold-build inputs are required', 'all 73 physical cold-build inputs are required'),
+        ('exact integrated 729-function source and image', 'exact integrated 761-function source and image'),
         (anchor, anchor + extra),
     ])
     preserved = {}
-    for original_name, derived_name, changed_body in (
-            ('run.py', 'run736.py', 'admit'), ('qualify.py', 'qualify736.py', 'main')):
+    for original_name, derived_name, changed_bodies in (
+            ('run.py', 'run736.py', {'admit'}), ('qualify.py', 'qualify736.py', {'main', 'read_back'})):
         nodes = [node for node in ast.parse(original[original_name]).body
                  if isinstance(node, (ast.FunctionDef, ast.ClassDef))]
         rows = {}
         for node in nodes:
-            if node.name == changed_body:
+            if node.name in changed_bodies:
                 continue
             before = definition(original[original_name], node.name)
             require(before == definition(outputs[derived_name], node.name),
@@ -94,17 +100,29 @@ def derive(original, author_raw):
     for name in ('admit_reference', 'scope_controls', 'arguments'):
         require(definition(original['run.py'], name) == definition(outputs['run736.py'], name),
                 'complete original reference/scope/CLI implementation: ' + name)
-    for name in ('run_native', 'split_frames', 'request_commands', 'read_child', 'read_back'):
+    for name in ('run_native', 'split_frames', 'request_commands', 'read_child'):
         require(definition(original['qualify.py'], name) == definition(outputs['qualify736.py'], name),
                 'complete original process/readback implementation: ' + name)
+    original_readback = definition(original['qualify.py'], 'read_back')
+    current_readback = definition(outputs['qualify736.py'], 'read_back')
+    expected_readback, readback_proof = change(original_readback, [
+        ("len(result['cold_admission_inputs']) == 69", "len(result['cold_admission_inputs']) == 73"),
+        ('native observer omitted one of the 69 physical cold-admission inputs',
+         'native observer omitted one of the 73 physical cold-admission inputs'),
+    ])
+    require(current_readback == expected_readback,
+            'complete original readback retains every comparison; only cold input count changes')
     proof.update(schema='heptatorch.public-f64-logical192.current736.source-derivation.v1',
-        source_sha256=SOURCE, native_sha256=IMAGE, functions=742, units=14,
+        source_sha256=SOURCE, native_sha256=IMAGE, functions=761, units=15,
         original_files=ORIGINAL_FILES, derivation_source_sha256=sha(author_raw),
         original_complete_definitions=preserved, original_six_files_modified=False,
         original_reference_Python_and_producer_identities_changed=False,
         added_worker_source_bindings=['run.py', 'qualify.py', 'qualify736.py', 'derive736.py'],
         run_wrapper_also_bound_by_original_self_input=True,
-        cold69_input_predicates_changed=False, numeric_or_case_or_control_predicates_changed=False,
+        original_cold_input_count=69, current_cold_input_count=73,
+        cold_input_count_only_readback_inverse=readback_proof,
+        cold_input_identity_and_extent_predicates_changed=False,
+        numeric_or_case_or_control_predicates_changed=False,
         native_boundary_controls_counted_as_Torch_compatibility=False,
         runtime_PASS_transferred=False, native_executed=False, Torch_executed=False, compiler_executed=False)
     return outputs, proof

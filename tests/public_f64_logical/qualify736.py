@@ -159,9 +159,9 @@ def read_back(args, inputs, built, reference, cold_inputs, directory):
         bound = inputs.bind(Path(path), identity['sha256'])
         require(len(bound) == identity['bytes'] and inputs.records[str(Path(path).absolute())] == identity,
                 'native bound physical input changed: ' + path)
-    require(result['cold_admission_inputs'] == cold_inputs and len(result['cold_admission_inputs']) == 69
+    require(result['cold_admission_inputs'] == cold_inputs and len(result['cold_admission_inputs']) == 73
             and all(result['inputs'][path] == identity for path, identity in result['cold_admission_inputs'].items()),
-            'native observer omitted one of the 69 physical cold-admission inputs')
+            'native observer omitted one of the 73 physical cold-admission inputs')
     for path, expected in [(args.build_directory / 'build.json', args.expected_build_sha256),
                            (args.reference, args.expected_reference_sha256),
                            (args.reference_execution, args.expected_execution_sha256),

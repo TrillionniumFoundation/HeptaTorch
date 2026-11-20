@@ -22,8 +22,8 @@ import cases
 import common
 import native
 
-SOURCE_SHA = 'abbc84b8eca16670e72b8872d1d7ab479f8a1d44f7b2b65deea1649f7682b2c7'
-IMAGE_SHA = '606f69aaecedbedc7ed6ad8f033275e0b64697f70632036d180106d315243c32'
+SOURCE_SHA = 'ab3ed0e0898d2006fbdf145357c79cafd599c2be344fcb3cb65fd6ad55efb231'
+IMAGE_SHA = '756de9418c05f4ecfc12319c7262cf1ff22e335e4ec32b140721b6c77ee226d7'
 PYTHON_SHA = 'e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f'
 BUILDER_SHA = '9c93f8ff3fcfda8358e51a4c12efb3b0e0962abed9b5a750ca32d5a5568ac14d'
 ADMISSION_SHA = '9a45cee45a289dae0a35b0a256f66f6a1ea2d3c8becd30bb2174da1ffb51e9bb'
@@ -34,8 +34,8 @@ SOURCE_FILES = {
     'native.py': 'cc48760e9dad13dfdd834dca5086bc5fb96803dc29914d43b20f29cfb239320e',
     'run.py': 'a155cea27556e7c8647835f11641b4732557dd882d3ec024820a06cd96aeab5f',
     'qualify.py': '98b150d9295451c3be9ff4209d9f42350430e46ec0c3cd42ab3e84eab91b84f2',
-    'qualify736.py': '1756617c260cdc77a97c99cb640c7c3ec9bbe7f249c8e4aeb9f9fc0d043ac7b0',
-    'derive736.py': '6de3741a6229ce3e4139cdced4652329a78f04cd5dca9c6a8241ae5ae61f5979',
+    'qualify736.py': '5b89e78607e070cc8475d468078fe00a3cbb1643fc756d70c8d97689cbccb7ee',
+    'derive736.py': '66639c2752595452fe11b3aed13ba0c754fb87b5686b80dc65f3b1d7ebe1c5d5',
 }
 SUPPORT_FILES = {
     'tests/pytorch_oracle.py': 'ef8fe89aa7dbff4ee03f9d5762d2736a3648d9e48e97ad5df7bec615676f04ae',
@@ -195,13 +195,13 @@ def admit(args, inputs):
                 'dee3e4cb25ee1e5e06513e2f33478fbe274d9510ce2aaab9525815c72312946b')
     cold_inputs = common.Inputs()
     built, bodies = common.bind_build(args.build_directory, pin(args.expected_build_sha256), cold_inputs)
-    require(len(cold_inputs.records) == 69, 'all 69 physical cold-build inputs are required')
+    require(len(cold_inputs.records) == 73, 'all 73 physical cold-build inputs are required')
     for path, identity in cold_inputs.records.items():
         inputs.bind(Path(path), identity['sha256'])
         require(inputs.records[path] == identity, 'cold-build physical input identity changed')
     require(built['source_sha256'] == SOURCE_SHA and built['native_sha256'] == IMAGE_SHA
-            and built['functions'] == len(bodies) == 742 and built['units_planned'] == 14,
-            'this reader requires the exact integrated 742-function source and image')
+            and built['functions'] == len(bodies) == 761 and built['units_planned'] == 15,
+            'this reader requires the exact integrated 761-function source and image')
     reference, execution = admit_reference(args, inputs)
     return built, reference, execution, cold_inputs.records
 

@@ -33,9 +33,9 @@ READER_FILES = {
 }
 
 WRAPPER_FILES = {
-    'derive736.py': '6de3741a6229ce3e4139cdced4652329a78f04cd5dca9c6a8241ae5ae61f5979',
-    'run736.py': '201a7b4370e47b24f657e57bf62a90d50dd165cf104b4ce1829de08628f80b05',
-    'qualify736.py': '1756617c260cdc77a97c99cb640c7c3ec9bbe7f249c8e4aeb9f9fc0d043ac7b0',
+    'derive736.py': '66639c2752595452fe11b3aed13ba0c754fb87b5686b80dc65f3b1d7ebe1c5d5',
+    'run736.py': '8c7bd8b1a3823d72100bfc249819213400826ab817dd459a511e520964bd0c87',
+    'qualify736.py': '5b89e78607e070cc8475d468078fe00a3cbb1643fc756d70c8d97689cbccb7ee',
 }
 
 
@@ -274,7 +274,7 @@ def qualify_public192(report, repository, build, build_sha, directory, reference
                 and report['actual_build_sha256'] == build_sha
                 and report['reference_sha256'] == REFERENCE_SHA
                 and report['reference_execution_sha256'] == EXECUTION_SHA
-                and report['cold_admission_inputs'] == cold_inputs and len(cold_inputs) == 69,
+                and report['cold_admission_inputs'] == cold_inputs and len(cold_inputs) == 73,
                 'public F64 requires the same complete actual cold build and independent reference')
         checked = original.read_back(args, inputs, built, actual_reference, cold_inputs, directory / 'native')
         require(all(report[key] == value for key, value in checked.items()),
