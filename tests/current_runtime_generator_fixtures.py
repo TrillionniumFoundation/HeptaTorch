@@ -181,10 +181,10 @@ def restore_qualifier740(repository, destination, inputs=None):
     return destination
 
 
-CURRENT_SOURCE = 'ab3ed0e0898d2006fbdf145357c79cafd599c2be344fcb3cb65fd6ad55efb231'
-CURRENT_IMAGE = '756de9418c05f4ecfc12319c7262cf1ff22e335e4ec32b140721b6c77ee226d7'
-CURRENT_MANIFEST = 'ef76a93ddee90e2fc546b2a6f95a5133b7663bd535e1f7693bae3b519345060c'
-CURRENT_BINDING = '8f7ceb36aebd4be89976c4fbd80dbfad7033533f0e32b7b9d4f88d4023d867ef'
+CURRENT_SOURCE = 'b4b2996978dce56c9375ce97b2d2638472cbb154a4c0a7c5de822234e31a9c68'
+CURRENT_IMAGE = '62f74e9232ae30027a64ca61881bb581320b1787529c6ee9e96818a0f8447afe'
+CURRENT_MANIFEST = '100f60ce946ac809949d79faf4eca8e8e16d5f4aeacfd907d228edc1ea0c1fd2'
+CURRENT_BINDING = '06a0f09c50a39ef0a59a7a6bd67af736bf9d6818133fefee4764de815c9d538e'
 
 
 def successor_qualifier(parent, inputs=None):
@@ -214,11 +214,11 @@ def successor_qualifier(parent, inputs=None):
         count = {'run.py': 7, 'admission.py': 8, 'processes.py': 0}[name]
         profile_chunks = re.split(r'([0-9a-f]{64})', current)
         require(current.count('740') == count
-                and sum(chunk.count('761') for chunk in profile_chunks[::2]) == 0,
+                and sum(chunk.count('765') for chunk in profile_chunks[::2]) == 0,
                 'exact original current-profile labels and count guards')
         if count:
-            current = current.replace('740', '761')
-            edits.append(dict(before='740', after='761', count=count))
+            current = current.replace('740', '765')
+            edits.append(dict(before='740', after='765', count=count))
         if name in ('run.py', 'processes.py'):
             require(current.count('current14') == 2 and 'current15' not in current,
                     'exact current object-custody field labels')
@@ -245,8 +245,8 @@ def successor_qualifier(parent, inputs=None):
                 ("receipt['units_planned']==14", "receipt['units_planned']==15"),
                 ("len(receipt['units'])==14", "len(receipt['units'])==15"),
                 ("struct.pack('<3Q',14,4,0)", "struct.pack('<3Q',15,4,0)"),
-                ("'core_functions':761,'units':14,'actual_cold_processes':15",
-                 "'core_functions':761,'units':15,'actual_cold_processes':16"),
+                ("'core_functions':765,'units':14,'actual_cold_processes':15",
+                 "'core_functions':765,'units':15,'actual_cold_processes':16"),
             ):
                 require(current.count(before) == 1 and after not in current,
                         'one exact current cold-build inventory guard: ' + before)
@@ -283,7 +283,7 @@ def successor_qualifier(parent, inputs=None):
     modes['package-manifest.json'] = stat.S_IMODE((parent / 'package-manifest.json').stat().st_mode)
     file_modes = {'parent740/' + name: mode for name, mode in modes.items()}
     file_modes.update({name: mode for name, mode in modes.items() if name != 'package-manifest.json'})
-    manifest = dict(schema='heptatorch.generator761-original-qualification-source.v1',
+    manifest = dict(schema='heptatorch.generator765-original-qualification-source.v1',
         parent740_manifest_sha256=QUALIFIER_MANIFEST,
         source_sha256=CURRENT_SOURCE, native_sha256=CURRENT_IMAGE,
         current_source_manifest_sha256=CURRENT_MANIFEST, current_binding_sha256=CURRENT_BINDING,
@@ -297,9 +297,9 @@ def verify_qualifier(package, inputs=None):
     package = Path(package)
     files, modes, manifest, original_proof = successor_qualifier(package / 'parent740', inputs)
     raw = read(package / 'package-manifest.json', inputs=inputs)
-    require(json.loads(raw) == manifest, 'exact derived761 manifest and full frozen740 inverse')
+    require(json.loads(raw) == manifest, 'exact derived765 manifest and full frozen740 inverse')
     actual = {str(path.relative_to(package)) for path in package.rglob('*') if path.is_file()}
-    require(actual == set(files) | {'package-manifest.json'}, 'complete current761 qualifier inventory')
+    require(actual == set(files) | {'package-manifest.json'}, 'complete current765 qualifier inventory')
     for name, expected in files.items():
         require(matches(package / name, manifest['files'][name], inputs) == expected,
                 'every generated qualifier file equals its exact profile-only derivation')

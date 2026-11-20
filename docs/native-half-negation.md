@@ -12,7 +12,12 @@ in-place/out variants and other devices remain open. The scalar numerical
 command's `abs` operation is a separate protocol; no Tensor `abs` route is
 introduced here.
 
-## Source and executable
+The identities below record the original761 negation increment. Current765
+preserves these three native helper bodies and the complete371-case corpus,
+and adds [Half addition/subtraction](native-half-addsub.md). Its current24-group
+requirements and distinct execution identities are in [the audit](current-audit.md).
+
+## Original761 source and executable
 
 | Item | SHA256 / count |
 | --- | --- |
@@ -136,8 +141,10 @@ Exactly two original Half47 control outcomes change:
 | `unsupported-half5-neg` | Command 3 / operation 6 / F16 input | Accepted, exact actual-Torch result |
 | `unsupported-half6-neg` | Command 3 / operation 6 / BF16 input | Accepted, exact actual-Torch result |
 
-Together with the prior 22 multiplication successors, these leave **215** of
-the original **239** refusal controls as refusals. Original frozen packages,
+Together with the prior22 multiplication successors, the original761 partition
+left **215** of the original **239** controls as refusals. Current765 adds42
+explicit add/sub successors, including two original FE requests, and retains173
+refusals. The two negation mappings themselves remain unchanged. Original frozen packages,
 input recipes and evidence are not rewritten. The two new accepted results
 require their own current-image evidence; they cannot be omitted or reported
 as continuing refusals.

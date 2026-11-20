@@ -1,0 +1,138 @@
+{
+  "files": {
+    "tests/half_addsub/cases.py": {
+      "edits": [
+        {
+          "after": "ORIGINAL_CASE_SHA256='553e1a15e63bc66a60faf1276e827410165c9ed8ff0b05d6fb013421930cc6d8'\nLEGACY_FE_SUCCESSORS=tuple((f'same-frame-half-FE-binary-{half}',half) for half in (5,6))\n",
+          "before": "",
+          "parent_end": 8550,
+          "parent_start": 8550
+        },
+        {
+          "after": "assert len(CASES)==1004 and hashlib.sha256((json.dumps(CASES,sort_keys=True,separators=(',',':'))+'\\n').encode()).hexdigest()==ORIGINAL_CASE_SHA256\nCASES.extend(case('historical-'+label,1,input_spec(half,[2],words=[1,2]),\n    input_spec(0,[2],words=LEGACY_WORDS[0]),same_handle=False,legacy_fe_successor_label=label)\n    for label,half in LEGACY_FE_SUCCESSORS)\nassert len(CASES)==1006\n",
+          "before": "",
+          "parent_end": 8572,
+          "parent_start": 8572
+        }
+      ],
+      "parent_bytes": 8682,
+      "parent_sha256": "63d4b0636e418bd3daaf39bf337f1cafa6f3315fe47629cfd1d3342effc76139",
+      "source_bytes": 9244,
+      "source_sha256": "81baae1aba19585dadded41f4724ad22ff26bf776bce436ebc74a7c285b1742b"
+    },
+    "tests/half_addsub/reference.py": {
+      "edits": [
+        {
+          "after": "    report=dict(schema='heptatorch.half-addsub.reference.v2',status='RUNNING',case_sha256=CASE_SHA256,expected_cases=len(CASES),\n",
+          "before": "    report=dict(schema='heptatorch.half-addsub.reference.v1',status='RUNNING',case_sha256=CASE_SHA256,expected_cases=len(CASES),\n",
+          "parent_end": 2876,
+          "parent_start": 2747
+        },
+        {
+          "after": "            if 'legacy_fe_successor_label' in spec:\n                right=setup(torch,spec['right']);left=setup(torch,spec['left'])\n            else:\n                left=setup(torch,spec['left']);right=left if spec.get('same_handle') else setup(torch,spec['right'])\n",
+          "before": "            left=setup(torch,spec['left']);right=left if spec.get('same_handle') else setup(torch,spec['right'])\n",
+          "parent_end": 4272,
+          "parent_start": 4159
+        }
+      ],
+      "parent_bytes": 6522,
+      "parent_sha256": "2fce0f2c0ea348a3d34c3565fc44440a20f327871308059ed09322440d54fb5b",
+      "source_bytes": 6676,
+      "source_sha256": "32e026c2447610afd1f5128d827c02f8f47ae85c3bad596c9f8969224bddfdf9"
+    },
+    "tests/half_addsub/run.py": {
+      "edits": [
+        {
+          "after": "from half_addsub.cases import CASES,CASE_SHA256,raw_input,overwrite_words,SUCCESSORS,BOOL_REFUSALS,MUL_CONTROL_SUCCESSORS,LEGACY_FE_SUCCESSORS,ORIGINAL_CASE_SHA256\n",
+          "before": "from half_addsub.cases import CASES,CASE_SHA256,raw_input,overwrite_words,SUCCESSORS,BOOL_REFUSALS,MUL_CONTROL_SUCCESSORS\n",
+          "parent_end": 483,
+          "parent_start": 361
+        },
+        {
+          "after": "    require(report['schema']=='heptatorch.half-addsub.reference.v2' and report['status']=='OBSERVED_HALF_ADDSUB'\n        and report['cases']==report['expected_cases']==len(report['rows'])==len(CASES)==1006\n",
+          "before": "    require(report['schema']=='heptatorch.half-addsub.reference.v1' and report['status']=='OBSERVED_HALF_ADDSUB'\n        and report['cases']==report['expected_cases']==len(report['rows'])==len(CASES)==1004\n",
+          "parent_end": 2247,
+          "parent_start": 2041
+        },
+        {
+          "after": "        cases=1006,expected_cases=1006,error=None),'complete actual reference stdout')\n",
+          "before": "        cases=1004,expected_cases=1004,error=None),'complete actual reference stdout')\n",
+          "parent_end": 4328,
+          "parent_start": 4241
+        },
+        {
+          "after": "def legacy_fe_packet(n,spec,right,invalid_suffix=False):\n    \"\"\"The original228-byte factory97/FE-add request, plus a rollback control.\"\"\"\n    label=spec['legacy_fe_successor_label'];dtype=dict(LEGACY_FE_SUCCESSORS)[label]\n    require(spec['operation']==1 and spec['left']['dtype']==dtype\n        and spec['left']['shape']==[2] and spec['left']['strides'] is None\n        and raw_input(spec['left'])==struct.pack('<2H',1,2)\n        and spec['right']['dtype']==0 and spec['right']['shape']==[2]\n        and raw_input(spec['right'])==struct.pack('<2I',0x3f800000,0x80000000)\n        and spec['same_handle'] is False,'the complete original FE request recipe')\n    count=2+int(invalid_suffix);end=32+64*count;raw=raw_input(spec['left'])\n    body=b'HTORCH03'+struct.pack('<3Q',count,end+64+len(raw),0)\n    body+=struct.pack('<8Q',97,dtype,end,0,0,0,0,0)\n    body+=struct.pack('<8Q',2,1,n.wire.reference(1),right,0,0,0,0)\n    if invalid_suffix:body+=struct.pack('<8Q',125,n.wire.reference(1),0,0,0,0,0,0)\n    body+=struct.pack('<8Q',1,0,2,0,0,0,end+64,len(raw))+raw\n    require(len(body)==(292 if invalid_suffix else 228),'exact complete FE packet length')\n    return body\n\n\ndef live_owner_rows(memory):\n    rows={}\n    for kind in range(1,9):\n        for slot in range(1,memory.slots+1):\n            offset=139264+128+((kind-1)*memory.slots+slot-1)*64\n            row=struct.unpack_from('<8Q',memory.raw,offset)\n            if row[1]==1:\n                token=(row[0]<<32)|(kind<<24)|slot\n                rows[(kind,token)]=memory.row(kind,token)\n    return rows\n\n\ndef compare_legacy_fe(n,row):\n    spec=row['spec'];label=spec['legacy_fe_successor_label'];generator,rng=n.begin()\n    right,handles=n.setup(spec['right']);original,right_node=n.tensor(right)\n    n.check('original FE pre-existing F32 operand equals actual Torch',original,n.expected(row['inputs'][1]))\n    request=legacy_fe_packet(n,spec,right)\n    status,records,before,after=n.issue(request)\n    n.check('original FE factory and addition both succeed',status,0)\n    n.check('original FE complete response sequence',[record['opcode'] for record in records],[97,2])\n    bm,am=Memory(before['bytes']),Memory(after['bytes'])\n    old_rows,new_rows=live_owner_rows(bm),live_owner_rows(am)\n    tensor_storages={bm.node(token)[27] for kind,token in old_rows if kind==1}\n    for (kind,token),old_row in old_rows.items():\n        n.check('FE preserves every pre-existing live owner table row',new_rows.get((kind,token)),old_row)\n        if kind==1:n.check('FE preserves every84-word pre-existing Tensor descriptor',am.node(token),bm.node(token))\n        # Descriptor pages are internal Storage objects whose free descriptor\n        # slots legitimately change on allocation. Preserve all their live\n        # table rows and all existing Tensor descriptors, and compare complete\n        # payloads for the Storages actually exposed by pre-existing Tensors.\n        if kind==2 and token in tensor_storages:\n            old_storage=bm.raw[bm.start+old_row[2]:bm.start+old_row[2]+old_row[3]]\n            new_row=new_rows[(kind,token)]\n            new_storage=am.raw[am.start+new_row[2]:am.start+new_row[2]+new_row[3]]\n            n.check('FE preserves all existing complete Storage bytes',new_storage,old_storage)\n    added=set(new_rows)-set(old_rows)\n    n.check('exactly two new Tensor Storage and Version objects, no other live edges',\n        [sum(kind==category for kind,_ in added) for category in range(1,9)],[2,2,2,0,0,0,0,0])\n    left,result=[record['value'] for record in records]\n    actual_left,left_node=n.tensor(left);actual,result_node=n.tensor(result)\n    n.check('same-frame raw Half factory equals independently observed literal subnormals',actual_left,n.expected(row['inputs'][0]))\n    n.check('same-frame F32 addition result bytes and full geometry equal actual Torch',actual,n.expected(row['result']))\n    n.check('pre-existing F32 operand unchanged after the complete FE transaction',n.tensor(right)[0],original)\n    n.check('both FE outputs have fresh independent Tensor Storage Version and incarnation',\n        [len({left,result,right})==3,len({left_node[27],result_node[27],right_node[27]})==3,\n         len({left_node[28],result_node[28],right_node[28]})==3,\n         len({left_node[40],result_node[40],right_node[40]})==3],[True]*4)\n    n.check('reported outputs bind the complete new Tensor/Storage/Version sets',added,\n        {(kind,handle) for node,token in ((left_node,left),(result_node,result))\n            for kind,handle in ((1,token),(2,node[27]),(3,node[28]))})\n    no_edges=(32,40,48,56,72,80,88,176,184,248,280,288,296,312,360,384,392,400,408,584,592,600,608,616,624,640,648,656,664)\n    for node in (left_node,result_node):\n        n.check('both published FE tensors have no AD Saved input or view retention edges',\n            [node[offset//8] for offset in no_edges],[0]*len(no_edges))\n    n.check('complete RNG survives the original successful FE transaction',n.one(63,generator)['payload'],rng)\n    maps=n.s.maps();refused,_,_,_=n.issue(legacy_fe_packet(n,spec,right,True))\n    n.check('full successful FE factory/add prefix rolls back on invalid suffix',refused,4)\n    n.check('all mappings unchanged after FE prefix rollback',n.s.maps(),maps)\n    n.check('published FE outputs survive the later rollback',\n        [n.tensor(left)[0],n.tensor(result)[0],n.tensor(right)[0]],[actual_left,actual,original])\n    n.one(41,left)\n    for token in handles:n.one(41,token)\n    n.check('FE result survives releasing both factory input and pre-existing input',n.tensor(result)[0],actual)\n    n.one(41,result);n.end(generator,rng)\n    return dict(index=row['index'],name=spec['name'],operation=1,accepted=True,expected_error=None,\n        elements=actual['numel'],bitwise=True,controls=1,allocation_control=None,\n        legacy_fe_successor_label=label,same_frame_request_sha256=sha(request),\n        complete_existing_owner_rows_preserved=len(old_rows),new_Tensor_Storage_Version_counts=[2,2,2])\n\n\n",
+          "before": "",
+          "parent_end": 9435,
+          "parent_start": 9435
+        },
+        {
+          "after": "    if 'legacy_fe_successor_label' in row['spec']:return compare_legacy_fe(n,row)\n",
+          "before": "",
+          "parent_end": 9455,
+          "parent_start": 9455
+        },
+        {
+          "after": "        and report['schema']=='heptatorch.half-addsub.native-observation.v2'\n",
+          "before": "        and report['schema']=='heptatorch.half-addsub.native-observation.v1'\n",
+          "parent_end": 14940,
+          "parent_start": 14863
+        },
+        {
+          "after": "        and report['cases']==report['expected_cases']==len(CASES)==1006\n",
+          "before": "        and report['cases']==report['expected_cases']==len(CASES)==1004\n",
+          "parent_end": 15084,
+          "parent_start": 15012
+        },
+        {
+          "after": "    fe_successors=[]\n",
+          "before": "",
+          "parent_end": 16251,
+          "parent_start": 16251
+        },
+        {
+          "after": "        if 'legacy_fe_successor_label' in observed:fe_successors.append(observed['legacy_fe_successor_label'])\n",
+          "before": "",
+          "parent_end": 17197,
+          "parent_start": 17197
+        },
+        {
+          "after": "    require(allocation_refusals==4 and protocol_controls==70,'four real OOM recoveries and all70 protocol controls')\n    require(fe_successors==[label for label,_ in LEGACY_FE_SUCCESSORS],\n        'both original FE requests physically replayed exactly once')\n",
+          "before": "    require(allocation_refusals==4 and protocol_controls==68,'four real OOM recoveries and all68 protocol controls')\n",
+          "parent_end": 17605,
+          "parent_start": 17488
+        },
+        {
+          "after": "    return dict(cases=1006,frames=frames,assertions=checks,owner_snapshots=owners,native_sessions=1006,\n",
+          "before": "    return dict(cases=1004,frames=frames,assertions=checks,owner_snapshots=owners,native_sessions=1004,\n",
+          "parent_end": 17730,
+          "parent_start": 17626
+        },
+        {
+          "after": "        original_fe_successors=fe_successors,original1004_case_sha256=ORIGINAL_CASE_SHA256,\n        original1004_cases_unchanged=True,\n",
+          "before": "",
+          "parent_end": 18756,
+          "parent_start": 18756
+        },
+        {
+          "after": "    report=dict(schema='heptatorch.half-addsub.native-observation.v2',status='FAIL',group='half_addsub',\n",
+          "before": "    report=dict(schema='heptatorch.half-addsub.native-observation.v1',status='FAIL',group='half_addsub',\n",
+          "parent_end": 19563,
+          "parent_start": 19458
+        },
+        {
+          "after": "        if len(report['results'])==1006 and not report['failures']:report['status']='PASS'\n",
+          "before": "        if len(report['results'])==1004 and not report['failures']:report['status']='PASS'\n",
+          "parent_end": 23643,
+          "parent_start": 23552
+        }
+      ],
+      "parent_bytes": 24620,
+      "parent_sha256": "a1989dcf5ca82894ef54867eedefb1a36ed2157d9ca79ac8b43ffa95546e9c15",
+      "source_bytes": 31136,
+      "source_sha256": "cac61c1022008be413d626d0a7456a35ce47ea2ecd390c2ea0a6c82c19e5777a"
+    }
+  },
+  "parent_commit": "3fe56570dca9b755f0cceeb6fa5df78ffa531581",
+  "schema": "heptatorch.half-addsub-fe1006.observer-delta.v1"
+}

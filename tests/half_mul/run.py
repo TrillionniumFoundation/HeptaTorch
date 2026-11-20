@@ -112,7 +112,45 @@ def read_reference(directory,execution,inputs):
     return dict(report=report,blob=blob,report_sha256=sha(inputs.bind(directory/'report.json')))
 
 
-def compare(n,row):
+def read_addsub_reference(directory,execution,inputs):
+    reader=module(ROOT/'tests/half_addsub/run.py','half_mul_addsub_reference',inputs.bind)
+    reference=reader.read_reference(directory,execution,inputs)
+    rows=[row for row in reference['report']['rows'] if 'multiplication_refusal_label' in row['spec']]
+    expected={f'promotion-{dtype}-{dtype}-3:operation-{operation}' for dtype in (5,6) for operation in (1,2)}
+    require({row['spec']['multiplication_refusal_label'] for row in rows}==expected and len(rows)==4
+        and all(row['accepted'] is True for row in rows),'all four original multiplication-suite add/sub successors')
+    return reference
+
+
+def addsub_control(n,row,operation,left,right,reference):
+    label=row['spec']['name']+':operation-'+str(operation)
+    candidates=[item for item in reference['report']['rows'] if item['spec'].get('multiplication_refusal_label')==label]
+    require(len(candidates)==1 and candidates[0]['accepted'] is True
+        and candidates[0]['spec']['operation']==operation,'one exact original refusal successor request')
+    successor=candidates[0]
+    def expected(value):
+        return {key:reference['blob'](item) if key in ('logical','storage') else item for key,item in value.items()}
+    original=[n.tensor(left)[0],n.tensor(right)[0]]
+    n.check('old multiplication control operands equal independently observed add/sub operands',original,
+        [expected(value) for value in successor['inputs']])
+    status,records,before,after=n.issue(n.wire.packet([(2,operation,left,right)]))
+    n.check('formerly refused Half add/sub now matches actual Torch success',status,0)
+    n.check('exact successor response',[item['opcode'] for item in records],[2])
+    left_node,right_node=Memory(before['bytes']).node(left),Memory(before['bytes']).node(right)
+    n.check('all84 left descriptor words preserved by successor',Memory(after['bytes']).node(left),left_node)
+    n.check('all84 right descriptor words preserved by successor',Memory(after['bytes']).node(right),right_node)
+    result=records[0]['value'];actual,node=n.tensor(result)
+    n.check('all successor result bytes and public metadata equal actual Torch',actual,expected(successor['result']))
+    n.check('successor owns fresh Tensor Storage Version identities',
+        [result not in (left,right),node[27] not in (left_node[27],right_node[27]),node[28] not in (left_node[28],right_node[28])],[True]*3)
+    no_edges=(32,40,48,56,72,80,88,176,184,248,280,288,296,312,360,384,392,400,408,584,592,600,608,616,624,640,648,656,664)
+    n.check('successor retains no AD Saved input or view edges',[node[offset//8] for offset in no_edges],[0]*len(no_edges))
+    n.one(41,result)
+    n.check('complete original operands survive successor release',[n.tensor(left)[0],n.tensor(right)[0]],original)
+    return actual['numel']
+
+
+def compare(n,row,addsub_reference):
     spec=row['spec'];generator,rng=n.begin()
     left,left_handles=n.setup(spec['left']);right,right_handles=n.setup(spec['right'])
     left_before,left_node=n.tensor(left);right_before,right_node=n.tensor(right)
@@ -125,7 +163,7 @@ def compare(n,row):
     n.check('right descriptor remains byte identical',Memory(owner_before['bytes']).node(right),Memory(owner_after['bytes']).node(right))
     n.check('complete left unchanged',n.tensor(left)[0],left_before)
     n.check('complete right unchanged',n.tensor(right)[0],right_before)
-    elements=0;controls=0
+    elements=0;controls=0;addsub_successors=[]
     if row['accepted']:
         n.check('exact multiplication response',[r['opcode'] for r in records],[2])
         result=records[0]['value'];actual,result_node=n.tensor(result)
@@ -141,8 +179,13 @@ def compare(n,row):
                     bad=list(command);bad[side]=invalid
                     refused,_,_,_=n.issue(n.wire.packet([bad]));n.check('invalid operand handle rollback',refused,1);controls+=1
             for operation in (0,1,2,4,5):
-                refused,_,_,_=n.issue(n.wire.packet([(2,operation,left,right)]))
-                n.check('unimplemented Half arithmetic remains an explicit refusal',refused,7);controls+=1
+                if operation in (1,2):
+                    elements+=addsub_control(n,row,operation,left,right,addsub_reference)
+                    addsub_successors.append(spec['name']+':operation-'+str(operation))
+                else:
+                    refused,_,_,_=n.issue(n.wire.packet([(2,operation,left,right)]))
+                    n.check('unimplemented Half arithmetic remains an explicit refusal',refused,7)
+                controls+=1
             refused,_,_,_=n.issue(n.wire.packet([command,(125,left)]))
             n.check('successful multiplication then invalid suffix rolls back allocation',refused,4);controls+=1
             grad=n.create(0,[1],struct.pack('<I',0x3f800000),True)
@@ -156,7 +199,8 @@ def compare(n,row):
     else:
         for token in left_handles+right_handles:n.one(41,token)
     n.end(generator,rng)
-    return dict(index=row['index'],name=spec['name'],accepted=row['accepted'],elements=elements,bitwise=True,controls=controls)
+    return dict(index=row['index'],name=spec['name'],accepted=row['accepted'],elements=elements,bitwise=True,controls=controls,
+        addsub_successors=addsub_successors)
 
 
 def qualify(report,repository,build,build_sha,output,inputs):
@@ -165,7 +209,7 @@ def qualify(report,repository,build,build_sha,output,inputs):
     qualification=module(ROOT/'tools/current_runtime/qualification.py','half_mul_readback_build',inputs.bind)
     built=qualification.admit_build(build,inputs.bind,build_sha)
     require(report==json.loads(inputs.bind(output/'report.json'))
-        and report['schema']=='heptatorch.half-mul.native-observation.v1'
+        and report['schema']=='heptatorch.half-mul.native-observation.v2'
         and report['status']=='PASS' and report['group']=='half_mul'
         and report['cases']==report['expected_cases']==len(CASES)==312
         and report['case_sha256']==CASE_SHA256 and not report['failures']
@@ -180,17 +224,24 @@ def qualify(report,repository,build,build_sha,output,inputs):
     reference=read_reference(Path(report['reference_directory']).resolve(strict=True),
         Path(report['reference_process_directory']).resolve(strict=True),inputs)
     require(reference['report_sha256']==report['reference_sha256'],'exact independent original reference')
-    wire=load_wire(ROOT,inputs.bind);frames=checks=owners=elements=0
+    addsub_reference=read_addsub_reference(Path(report['addsub_reference_directory']).resolve(strict=True),
+        Path(report['addsub_reference_process_directory']).resolve(strict=True),inputs)
+    require(addsub_reference['report_sha256']==report['addsub_reference_sha256'],
+        'exact original actual-Torch add/sub successor reference')
+    wire=load_wire(ROOT,inputs.bind);frames=checks=owners=elements=0;addsub_successors=[]
     require(len(report['results'])==len(CASES),'all Half multiplication native child cases')
     for row,saved in zip(reference['report']['rows'],report['results']):
         require(saved==json.loads(inputs.bind(output/saved['name']/'observation.json'))
             and saved['status']=='PASS' and saved['name']=='case-%03d'%row['index'],'complete native per-case record')
         session=Replay(build/'heptatorch',wire,output/saved['name'],inputs.bind)
-        n=Observer(session,wire,reference);observed=compare(n,row);finish=session.finish()
+        n=Observer(session,wire,reference);observed=compare(n,row,addsub_reference);finish=session.finish()
         require(observed==saved['result'] and n.checks==saved['checks'] and finish==saved['finish'],
             'every original bitwise geometry lifetime predicate reapplied to raw physical evidence')
         frames+=finish['frames'];owners+=finish['owner_reads'];checks+=n.checks;elements+=observed['elements']
+        addsub_successors.extend(observed['addsub_successors'])
     require((frames,owners,checks)==(report['frames'],report['owner_reads'],report['checks']),'complete physical replay census')
+    require(addsub_successors==[f'promotion-{dtype}-{dtype}-3:operation-{operation}'
+        for dtype in (5,6) for operation in (1,2)],'all four physically replayed arithmetic successors')
     inputs.recheck()
     return dict(cases=312,frames=frames,assertions=checks,owner_snapshots=owners,native_sessions=312,
         bitwise_elements=elements,physical_replay=True,native_executed_by_qualifier=False,
@@ -198,6 +249,8 @@ def qualify(report,repository,build,build_sha,output,inputs):
         cpu_capability=reference['report']['cpu_capability'],requested_cpu_capability='avx2',torch_threads=1,
         original_refusal_successors=[row['spec']['legacy_refusal_label'] for row in reference['report']['rows']
             if 'legacy_refusal_label' in row['spec']],
+        addsub_reference_sha256=addsub_reference['report_sha256'],
+        replaced_arithmetic_refusals=addsub_successors,
         full_project_status='HOLD',host_expected_values_computed=False)
 
 
@@ -209,16 +262,18 @@ def main():
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--reference-directory',type=Path)
     parser.add_argument('--reference-execution',type=Path)
+    parser.add_argument('--addsub-reference-directory',type=Path)
+    parser.add_argument('--addsub-reference-execution',type=Path)
     args=parser.parse_args();build=args.build_directory.resolve();output=args.output.resolve()
     output.mkdir(parents=True,exist_ok=False);inputs=Inputs();started=time.monotonic()
-    report=dict(schema='heptatorch.half-mul.native-observation.v1',status='FAIL',group='half_mul',
+    report=dict(schema='heptatorch.half-mul.native-observation.v2',status='FAIL',group='half_mul',
         cases=len(CASES),expected_cases=len(CASES),case_sha256=CASE_SHA256,results=[],failures=[],
         native_executed=False,Torch_executed=False,host_expected_values_computed=False,frames=0,checks=0,owner_reads=0,
         actual_build_sha256=args.expected_build_sha256,full_project_status='HOLD')
     try:
         require(not sys.flags.optimize,'all independent predicates enabled')
         inputs.bind(Path(sys.executable).resolve())
-        for directory in ('half_mul','numeric_predicates','half_logical'):
+        for directory in ('half_mul','half_addsub','numeric_predicates','half_logical'):
             for file in sorted((ROOT/'tests'/directory).glob('*.py')):inputs.bind(file)
         qualification=module(ROOT/'tools/current_runtime/qualification.py','half_mul_build',inputs.bind)
         built=qualification.admit_build(build,inputs.bind,args.expected_build_sha256)
@@ -240,12 +295,28 @@ def main():
             'configured Torch interpreter equals the actual retained reference process')
         report.update(Torch_executed=True,reference_sha256=reference['report_sha256'],cpu_capability=reference['report']['cpu_capability'],
             requested_cpu_capability=reference['report']['requested_cpu_capability'],torch_threads=reference['report']['torch_threads'])
+        require((args.addsub_reference_directory is None)==(args.addsub_reference_execution is None),
+            'paired actual add/sub reference and process paths')
+        if args.addsub_reference_directory is None:
+            supervisor=module(ROOT/'tests/current_runtime_process.py','half_mul_addsub_process',inputs.bind)
+            addsub_directory=output/'addsub-reference';addsub_execution=output/'addsub-reference-execution';addsub_execution.mkdir()
+            process=supervisor.execute([str(args.torch_python.absolute()),'-B',str(ROOT/'tests/half_addsub/reference.py'),
+                '--output',str(addsub_directory)],addsub_execution,300,cwd=ROOT)
+            dump(addsub_execution/'process.json',process)
+        else:
+            addsub_directory=args.addsub_reference_directory.resolve(strict=True)
+            addsub_execution=args.addsub_reference_execution.resolve(strict=True)
+        addsub_reference=read_addsub_reference(addsub_directory,addsub_execution,inputs)
+        require(Path(args.torch_python).resolve(strict=True)==Path(addsub_reference['report']['actual_process']['python']['path']),
+            'same pinned actual interpreter for old multiplication and new arithmetic controls')
+        report.update(addsub_reference_directory=str(addsub_directory),addsub_reference_process_directory=str(addsub_execution),
+            addsub_reference_sha256=addsub_reference['report_sha256'])
         wire=load_wire(ROOT,inputs.bind)
         for row in reference['report']['rows']:
             name='case-%03d'%row['index'];saved=dict(name=name,status='FAIL');session=None;n=None
             try:
                 session=Live(build/'heptatorch',wire,output/name,inputs.bind);report['native_executed']=True
-                n=Observer(session,wire,reference);saved['result']=compare(n,row);saved['status']='PASS'
+                n=Observer(session,wire,reference);saved['result']=compare(n,row,addsub_reference);saved['status']='PASS'
             except BaseException as error:
                 saved['error']=dict(type=type(error).__name__,message=str(error),traceback=traceback.format_exc())
             finally:

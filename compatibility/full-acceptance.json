@@ -116,17 +116,17 @@
     "profile": "current",
     "source_manifest": "tools/current_runtime/source/manifest.json",
     "candidate_identity": {
-      "source_sha256": "ab3ed0e0898d2006fbdf145357c79cafd599c2be344fcb3cb65fd6ad55efb231",
-      "native_sha256": "756de9418c05f4ecfc12319c7262cf1ff22e335e4ec32b140721b6c77ee226d7",
-      "manifest_sha256": "ef76a93ddee90e2fc546b2a6f95a5133b7663bd535e1f7693bae3b519345060c",
-      "functions": 761,
+      "source_sha256": "b4b2996978dce56c9375ce97b2d2638472cbb154a4c0a7c5de822234e31a9c68",
+      "native_sha256": "62f74e9232ae30027a64ca61881bb581320b1787529c6ee9e96818a0f8447afe",
+      "manifest_sha256": "100f60ce946ac809949d79faf4eca8e8e16d5f4aeacfd907d228edc1ea0c1fd2",
+      "functions": 765,
       "units": 15
     },
     "audit": "docs/current-audit.md",
     "qualification_coordinator": "tests/qualify_current_runtime.py",
-    "current_candidate_status": "PENDING_ACTUAL_23_GROUP_2839_RUN",
-    "required_current_image_cases": 2839,
-    "required_current_image_groups": 23,
+    "current_candidate_status": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+    "required_current_image_cases": 3845,
+    "required_current_image_groups": 24,
     "required_suites": [
       "bool27",
       "original76",
@@ -150,7 +150,8 @@
       "numeric_predicates",
       "bf16_copy",
       "half_mul",
-      "half_neg"
+      "half_neg",
+      "half_addsub"
     ],
     "required_cases": {
       "bool27": 27,
@@ -175,11 +176,12 @@
       "numeric_predicates": 485,
       "bf16_copy": 280,
       "half_mul": 312,
-      "half_neg": 371
+      "half_neg": 371,
+      "half_addsub": 1006
     },
-    "qualification_plan": "validation/current-runtime761/qualification-plan.json",
+    "qualification_plan": "validation/current-runtime765/qualification-plan.json",
     "current_execution_evidence": null,
-    "scope": "One761-function/15-unit HIA candidate. All22 predecessor groups/2468 cases remain mandatory; Half47 retains every original request and requires explicit actual-Torch outcomes for22 supported multiplications and2 negations while215 remain refused. Half negation adds371 exact-bit cases. Production cases bind one current main image and cold build; Generator131 also executes separately linked current-object probes.",
+    "scope": "One765-function/15-unit HIA candidate. All23 predecessor groups/2839 cases remain mandatory; Half47 retains every original request with173 refusals,22 multiplication,2 negation and42 addition/subtraction results (40 single commands and2 same-frame FE transactions). Half addition/subtraction adds1006 exact-bit cases; the old312 observer preserves its complete source through an exact inverse and replaces only four arithmetic refusals with explicit actual-Torch results. Production cases bind one current main image and cold build; Generator131 also executes separately linked current-object probes.",
     "main_plus_independent_generator_probe_images": true,
     "historical_qualification_transferred": false,
     "closes_any_full_gate": false,
@@ -194,13 +196,17 @@
     "numeric_predicate_coordinator": "tests/numeric_predicates/run.py",
     "protocol_controls_counted_as_successful_torch_compatibility": false,
     "original_logical147_and_Half47_retained": true,
-    "pending_dtype_audit": "Scoped BF16 AVX2/AVX512 copy and AVX2 Half multiplication/negation implementations require current761 combined requalification. DEFAULT, other architectures, complete arithmetic/promotion/layout/device semantics and Half AD remain open.",
+    "pending_dtype_audit": "Scoped BF16 AVX2/AVX512 copy and AVX2 Half multiplication, negation and fixed-alpha-one addition/subtraction require current765 combined requalification. DEFAULT, other architectures, complete arithmetic/promotion/layout/device semantics and Half AD remain open.",
     "bf16_copy_coordinator": "tests/bf16_copy/run.py",
     "half_mul_coordinator": "tests/half_mul/run.py",
     "half47_mul_successor": "tests/current_runtime_half_mul_successor.py",
-    "full_2839_executed": false,
     "half_neg_coordinator": "tests/half_neg/run.py",
-    "half47_neg_successor": "tests/current_runtime_half_neg_successor.py"
+    "half47_neg_successor": "tests/current_runtime_half_neg_successor.py",
+    "half_addsub_coordinator": "tests/half_addsub/run.py",
+    "half47_addsub_successor": "tests/current_runtime_half_addsub_successor.py",
+    "half_mul_observer_inverse": "tools/current_runtime/half_addsub_observer_transition.py",
+    "half_addsub_FE_observer_inverse": "tools/current_runtime/half_addsub_fe_observer_transition.py",
+    "full_3845_executed": false
   },
   "derivative_declaration_count": 688,
   "derivative_declaration_lines_sha256": "5e32bf19142454911112779474e2c52eab08a6789229b46b96a92246c578bac8",

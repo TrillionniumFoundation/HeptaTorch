@@ -1,0 +1,21 @@
+{
+  "appended_functions": [
+    "half_addsub_f32",
+    "half_addsub_f64",
+    "half_addsub_element",
+    "half_addsub_tensor"
+  ],
+  "changed_functions": {
+    "binary": {
+      "after_sha256": "f947e91c7b68efeef08d87e691cbbf6d12416a50d69b01c6e1565c0432ef0392",
+      "before": "fn binary(s:mutbuf,operation:u64,left:u64,right:u64) -> (u64) effects(read,write,trap) entry(start)\nblock start(s:mutbuf,operation:u64,left:u64,right:u64)\n  valid_left:u64 = call(s,left) {\"function\":\"valid\"}\n  zero:u64 = const() {\"value\":0}\n  failed:bool = compare.eq(valid_left,zero)\n  branch failed failure() validate_right(s,operation,left,right)\nblock failure()\n  zero1:u64 = const() {\"value\":0}\n  ret(zero1)\nblock validate_right(s2:mutbuf,o2:u64,l2:u64,r2:u64)\n  valid_right2:u64 = call(s2,r2) {\"function\":\"valid\"}\n  zero2:u64 = const() {\"value\":0}\n  failed2:bool = compare.eq(valid_right2,zero2)\n  branch failed2 failure() route(s2,o2,l2,r2)\nblock route(s3:mutbuf,o3:u64,l3:u64,r3:u64)\n  ld3:u64 = call(s3,l3) {\"function\":\"tensor_dtype\"}\n  rd3:u64 = call(s3,r3) {\"function\":\"tensor_dtype\"}\n  five3:u64 = const() {\"value\":5}\n  six3:u64 = const() {\"value\":6}\n  lh3:bool = compare.eq(ld3,five3)\n  lb3:bool = compare.eq(ld3,six3)\n  rh3:bool = compare.eq(rd3,five3)\n  rb3:bool = compare.eq(rd3,six3)\n  left_half3:bool = bool.or(lh3,lb3)\n  right_half3:bool = bool.or(rh3,rb3)\n  half3:bool = bool.or(left_half3,right_half3)\n  branch half3 multiply(s3,o3,l3,r3) previous(s3,o3,l3,r3)\nblock multiply(s4:mutbuf,o4:u64,l4:u64,r4:u64)\n  result4:u64 = call(s4,o4,l4,r4) {\"function\":\"half_mul_tensor\"}\n  ret(result4)\nblock previous(s5:mutbuf,o5:u64,l5:u64,r5:u64)\n  result5:u64 = call(s5,o5,l5,r5) {\"function\":\"half_mul_previous_binary\"}\n  ret(result5)\nend\n",
+      "before_sha256": "0ec5abbc6417b26167ccac850ba83c01ef282f4254c43c87037a92d854ff9f45"
+    }
+  },
+  "functions": 765,
+  "helper_sha256": "afba6447a9c65c553c76db4cf98701828a2e32c86aca4e14e6999537b9091068",
+  "parent_functions": 761,
+  "parent_source_sha256": "ab3ed0e0898d2006fbdf145357c79cafd599c2be344fcb3cb65fd6ad55efb231",
+  "schema": "heptatorch.half-addsub-source-delta.v1",
+  "source_sha256": "b4b2996978dce56c9375ce97b2d2638472cbb154a4c0a7c5de822234e31a9c68"
+}

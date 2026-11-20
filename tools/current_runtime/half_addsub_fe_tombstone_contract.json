@@ -1,0 +1,847 @@
+{
+  "allocation_derivation": [
+    "The callback is limited to the two exact original228-byte factory97/FE-add requests with Half[2] raw words1,2 and the original dense F32[2] right operand.",
+    "Require equal actual before/after slots and pool capacity. A capacity-growing owner is explicitly outside this finite predicate and cannot pass.",
+    "For each of the three source-proved descriptor indices, allocate an internal page only when its page index is absent, then allocate data Storage of4,8,8 bytes respectively.",
+    "Select T/S/V slots by so_slot_new: first nonlive slot with generation below0xffffffff, then generation+1. No hardcoded capability, slot, generation or owner address is used.",
+    "Select Storage offsets by so_extent_allocate: first sufficient actual before free extent, align requested size to16, remove an exact extent or advance its start.",
+    "The sole temporary promotion frees exactly its16-byte aligned allocation. so_extent_release restores sorted, adjacent-coalesced free extents; compare the complete observed final free list.",
+    "Construct all three84-word descriptors from source constants and the derived handles/offsets/index/incarnation. All other words are required zero. Compare every T/S/V row, including unchanged old rows and generation-preserving retired rows.",
+    "alloc creates Storage then Hold. Derive each Hold slot from the evolving expected Hold table by first nonlive, non-exhausted generation; increment generation and write [generation,1,Storage,1,0,0,0,0]. A page retains its Hold, while typed_descriptor immediately drops each data Hold to [generation,0,0,0,0,0,0,0]. A reused Hold slot therefore advances once per allocation.",
+    "Compare every word of all eight complete owner tables. Weak, Saved, Generator, and Optimizer kinds4,5,7,8 are exactly unchanged including dead rows; kind6 includes exact retained page Holds and exact generation-preserving data-Hold retirement."
+  ],
+  "cleanup_derivation": [
+    "finish_command changes temporary node200=2 to0. Published factory and result are1 and survive. graph_collect_since enqueues the sole unreachable node whose node304=1,node200=0,node208=0.",
+    "retained_gc_enqueue_original changes node432 to1 and node424 to0 (queue linkage). graph_collect_since clears both node424 and432 before graph_node_release, so words53 and54 are zero after cleanup.",
+    "graph_node_release sees node600=0. dtype_mask_release/mixed_original_mask_release return without writes because node584=592=0. history_accumulator_target returns0 while node240=1, and history_accumulator_release returns because node624=0. graph_node_release explicitly zeroes node608/624/632.",
+    "dtype_original_graph_node_release checks node312/88/400 all0. node40=0 skips parent-edge release. saved_release(0) at node280/288/296 and hold_release(0) at node248/256/264/272 are immediate no-ops.",
+    "tensor_row_release -> view_previous_tensor_row_release -> mixed_original_tensor_row_release -> dtype_original_tensor_row_release -> retained_row_release_original. node600=0 and retained_temporary_root sees Trow flags.word7&2==0, so release is not deferred.",
+    "gradient_binding sees node384/392/360 all0 and returns0, so gradient_unbind writes nothing. retained_row_release_original releases V, then S, then T, and writes exactly node240=0.",
+    "V has sole ref1: so_version_release calls so_slot_drop(kind3). S has refs1 and weak_refs1: so_storage_release frees the original16-byte extent and drops kind2. T drops kind1. so_slot_drop zeros row bytes8..63 and preserves row generation; it does not clear descriptor identity fields.",
+    "to_view_base_release sees node664=640=648=656=0 and writes nothing. Any repeated mask check returns without writes. dtype_original_graph_node_release finally writes node304=0.",
+    "No cleanup path writes the retained data pointer, base index, rank/count/shape/stride, T/S/V handles, or incarnation. Therefore all84 words are determined by the constructor and the enumerated zeroing; not just dead flags."
+  ],
+  "constructor_derivation": [
+    "scalar_previous_typed_descriptor b37 zeros the entire 672-byte descriptor before assigning rank, dtype, numel, requires_grad, owned-storage base index, root state2, live state1, and incremented incarnation.",
+    "For dtype0, rank1, shape[2], requires_grad0 and allocate_storage1: words0=1,1=2,4=0,8=index,25=2,38=1,40=new incarnation,72=0. b39 writes only shape word12=2 and stride word16=1.",
+    "b40 creates T; words24=T,30=1. b41 allocates exactly8 logical data bytes; alloc aligns capacity to16, creates S and Hold, and stores S refs1/weak_refs1. b44 creates V with refs1, stores data in word2 and S/V in words27/28, then drops Hold. b45 skips all gradient allocation because requires_grad0.",
+    "alloc stores extent_return-1 in Storage row.word2 and returns (1<<63)+extent_return-1; this is descriptor.word2. No cleanup path clears the descriptor data pointer.",
+    "Dense shape[2] dist_dense_layout leaves stride1. Copy arithmetic writes data bytes only; no history, views, saved tensors, graph edges or retained references are created. right F32 promotion returns the old operand unchanged."
+  ],
+  "constructor_sequence": [
+    "Half factory node at before_next_descriptor; incarnation before_incarnation+1",
+    "left promotion to F32 node at before_next_descriptor+1; incarnation before_incarnation+2",
+    "F32 result node at before_next_descriptor+2; incarnation before_incarnation+3"
+  ],
+  "exact_scope": {
+    "left": {
+      "dtype": [
+        5,
+        6
+      ],
+      "raw_words": [
+        1,
+        2
+      ],
+      "shape": [
+        2
+      ]
+    },
+    "operation": 1,
+    "packet_bytes": 228,
+    "requests": [
+      "same-frame-half-FE-binary-5",
+      "same-frame-half-FE-binary-6"
+    ],
+    "requires_grad": false,
+    "right": {
+      "dtype": 0,
+      "raw_words": [
+        1065353216,
+        2147483648
+      ],
+      "shape": [
+        2
+      ]
+    }
+  },
+  "expected_descriptor_words": [
+    1,
+    2,
+    "(1 << 63) | promotion_extent_offset",
+    0,
+    0,
+    0,
+    0,
+    0,
+    "before_next_descriptor + 1",
+    0,
+    0,
+    0,
+    2,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    "promotion_tensor_handle",
+    0,
+    0,
+    "promotion_storage_handle",
+    "promotion_version_handle",
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    "before_incarnation + 2",
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "functions": {
+    "alloc": {
+      "bytes": 2848,
+      "calls": [
+        "memory_fill",
+        "putw",
+        "so_align16",
+        "so_extent_allocate",
+        "so_slot_lookup",
+        "so_slot_new",
+        "so_uput",
+        "storage_capacity",
+        "terror"
+      ],
+      "first_line": 2516,
+      "last_line": 2593,
+      "sha256": "5faf663af54408412185027cb6ef47814a0fdd526acb28cedc52e72afdf21621"
+    },
+    "bshape": {
+      "bytes": 3209,
+      "calls": [
+        "dptr",
+        "getw",
+        "putw",
+        "terror"
+      ],
+      "first_line": 2924,
+      "last_line": 2992,
+      "sha256": "26b1946122c7abc6e05e0af1916d0f0116e9e0f2eede6d1707ef22cc488bcebc"
+    },
+    "descriptor_page": {
+      "bytes": 1221,
+      "calls": [
+        "alloc",
+        "getw",
+        "putw"
+      ],
+      "first_line": 10628,
+      "last_line": 10663,
+      "sha256": "4a99931d1f1f09330ddfee7763602ee9dc6cd817ef452a2949930cee22f89eb3"
+    },
+    "dist_dense_layout": {
+      "bytes": 2658,
+      "calls": [
+        "dptr",
+        "getw",
+        "is_dense",
+        "putw",
+        "rng_axis_order"
+      ],
+      "first_line": 28257,
+      "last_line": 28323,
+      "sha256": "bf36212cc0d7bdc8537e9fe53d34c1279cc169308ac1304ce9c35c7474c461e8"
+    },
+    "dtype_mask_release": {
+      "bytes": 569,
+      "calls": [
+        "binary_saved_release",
+        "dptr",
+        "getw",
+        "mixed_original_mask_release"
+      ],
+      "first_line": 35247,
+      "last_line": 35262,
+      "sha256": "af2eec93ff20cd184e022c62c706a91362c146c0512bdcb4acec5659a36589e7"
+    },
+    "dtype_original_gradient_gc_enqueue": {
+      "bytes": 450,
+      "calls": [
+        "retained_gc_enqueue_original",
+        "retained_temporary_root"
+      ],
+      "first_line": 32586,
+      "last_line": 32598,
+      "sha256": "1bb0335edaf2e517e3e0a9d06e5d4cfb27723bf4da812191dc268898e74679d0"
+    },
+    "dtype_original_graph_node_release": {
+      "bytes": 3875,
+      "calls": [
+        "dptr",
+        "getw",
+        "gradient_parent_count",
+        "graph_edge_enabled",
+        "graph_parent_at",
+        "graph_release_edge",
+        "hold_release",
+        "putw",
+        "saved_release",
+        "tensor_row_release",
+        "terror"
+      ],
+      "first_line": 32612,
+      "last_line": 32710,
+      "sha256": "27e38365f1384ebb3bbcddf337bf6d654644c8cccff0b6eb10561ca5f3641612"
+    },
+    "dtype_original_tensor_row_release": {
+      "bytes": 450,
+      "calls": [
+        "retained_row_release_original",
+        "retained_temporary_root"
+      ],
+      "first_line": 32599,
+      "last_line": 32611,
+      "sha256": "e754c3b558133fb1b501f88fdd494a6f54af87168ff0e8abb47f19032441b734"
+    },
+    "finish_command": {
+      "bytes": 1052,
+      "calls": [
+        "dptr",
+        "getw",
+        "graph_collect_since",
+        "putw"
+      ],
+      "first_line": 11904,
+      "last_line": 11933,
+      "sha256": "dcd20e76ed0473860d8e5c13b89ed071fc788666c29637fa0b9212a3e5d5ebe7"
+    },
+    "gradient_binding": {
+      "bytes": 1847,
+      "calls": [
+        "dptr",
+        "getw",
+        "private_tensor",
+        "terror"
+      ],
+      "first_line": 21698,
+      "last_line": 21753,
+      "sha256": "e4d6385dc7e140f5a7564a3b7e5f87578cfcdfc427923a3384deceb893b634ae"
+    },
+    "gradient_gc_enqueue": {
+      "bytes": 726,
+      "calls": [
+        "dptr",
+        "dtype_original_gradient_gc_enqueue",
+        "getw"
+      ],
+      "first_line": 22675,
+      "last_line": 22696,
+      "sha256": "935ed570a6ca9757d1b0812fc9a78b5f46181c46a4e823b1828892efd302e028"
+    },
+    "gradient_unbind": {
+      "bytes": 1279,
+      "calls": [
+        "dptr",
+        "getw",
+        "gradient_binding",
+        "gradient_reference_release",
+        "putw"
+      ],
+      "first_line": 21821,
+      "last_line": 21857,
+      "sha256": "dc65b4ee1e8f2ab588a522444c47e536ba263b47eb9421a06f7a684679c611fd"
+    },
+    "graph_collect_since": {
+      "bytes": 8152,
+      "calls": [
+        "dptr",
+        "getw",
+        "gradient_gc_enqueue",
+        "graph_node_release",
+        "putw",
+        "tensor_row_release",
+        "terror"
+      ],
+      "first_line": 11643,
+      "last_line": 11845,
+      "sha256": "0ce7ac90003ece9dc86a1c3ac92fa14be860c3760740618281952fa66367acde"
+    },
+    "graph_node_release": {
+      "bytes": 1523,
+      "calls": [
+        "dptr",
+        "dtype_mask_release",
+        "dtype_original_graph_node_release",
+        "getw",
+        "history_accumulator_release",
+        "putw",
+        "terror"
+      ],
+      "first_line": 11599,
+      "last_line": 11642,
+      "sha256": "59e9487845836bc1d1e7fafa6e7a1cd673953bc324380c47a9b476509e618bb3"
+    },
+    "half_addsub_tensor": {
+      "bytes": 4138,
+      "calls": [
+        "bshape",
+        "dptr",
+        "getw",
+        "half_addsub_element",
+        "half_mul_inner_extent",
+        "half_mul_promote",
+        "half_mul_result_dtype",
+        "integer_pointwise_layout",
+        "tensor_dtype",
+        "terror",
+        "typed_descriptor"
+      ],
+      "first_line": 57387,
+      "last_line": 57475,
+      "sha256": "0ef75e11b3372a3720b37f8ae378249032c2e29d0297a984c409b0deabeedfbb"
+    },
+    "half_mul_copy_value": {
+      "bytes": 1962,
+      "calls": [
+        "dptr",
+        "getw",
+        "half_mul_cast",
+        "is_dense",
+        "taddr",
+        "tget"
+      ],
+      "first_line": 56910,
+      "last_line": 56950,
+      "sha256": "af044ec1df3dba2aeba3800bb5adaeaf2e88942cf69c3ed21757ba4b1d0e1062"
+    },
+    "half_mul_promote": {
+      "bytes": 2244,
+      "calls": [
+        "dist_dense_layout",
+        "dptr",
+        "dtype_width",
+        "getw",
+        "half_bf16_nan_word",
+        "half_mul_copy_value",
+        "taddr",
+        "tensor_dtype",
+        "typed_descriptor",
+        "typed_store"
+      ],
+      "first_line": 56622,
+      "last_line": 56667,
+      "sha256": "f0087b0bc17836842f08226fcb5888814c8d5c761c12c1dd67be301e53a97793"
+    },
+    "half_mul_result_dtype": {
+      "bytes": 1949,
+      "calls": [
+        "dptr",
+        "getw",
+        "tensor_dtype"
+      ],
+      "first_line": 56570,
+      "last_line": 56621,
+      "sha256": "66ca3108af14546d52e2f74593aa4f7b8d868107e08ad3579648f9bdb63312d0"
+    },
+    "history_accumulator_release": {
+      "bytes": 3193,
+      "calls": [
+        "dptr",
+        "getw",
+        "history_accumulator_target",
+        "node_release",
+        "putw",
+        "terror"
+      ],
+      "first_line": 36278,
+      "last_line": 36364,
+      "sha256": "d293564f81d0a554f3758b40e01a576877d0f2c098b58b03e668de5bdf5fe76a"
+    },
+    "history_accumulator_target": {
+      "bytes": 2081,
+      "calls": [
+        "dptr",
+        "getw",
+        "private_tensor",
+        "terror"
+      ],
+      "first_line": 36156,
+      "last_line": 36217,
+      "sha256": "f286ce6bd198f95c46b62cf35fc82ee2f829f9d35982a1aec4697c00a7811e12"
+    },
+    "hold_release": {
+      "bytes": 1398,
+      "calls": [
+        "so_slot_drop",
+        "so_slot_lookup",
+        "so_storage_release",
+        "so_uget",
+        "terror"
+      ],
+      "first_line": 10912,
+      "last_line": 10955,
+      "sha256": "8ae4ae84a2c3fa360cc680a90ff028564c2ddb104f834baef7c961ee54a9816f"
+    },
+    "integer_pointwise_layout": {
+      "bytes": 6147,
+      "calls": [
+        "dptr",
+        "getw",
+        "incoming_same_shape",
+        "integer_pointwise_axis_order",
+        "is_contiguous",
+        "is_dense",
+        "pointwise_channels_last",
+        "pointwise_write_order",
+        "putw"
+      ],
+      "first_line": 38084,
+      "last_line": 38220,
+      "sha256": "7d8411fd418682f35baf5206380c51b83ed3cc0eacd5c1d4d40aa8fe36285229"
+    },
+    "mixed_original_mask_release": {
+      "bytes": 2182,
+      "calls": [
+        "dptr",
+        "getw",
+        "node_release",
+        "private_tensor",
+        "putw",
+        "terror"
+      ],
+      "first_line": 39699,
+      "last_line": 39759,
+      "sha256": "08086cad4813ff3570503715854c0f3f47a30fa5f643cd263045d202cb5c35ac"
+    },
+    "mixed_original_tensor_row_release": {
+      "bytes": 548,
+      "calls": [
+        "dptr",
+        "dtype_original_tensor_row_release",
+        "getw"
+      ],
+      "first_line": 39760,
+      "last_line": 39775,
+      "sha256": "e45e0846b12d7fcc3076ff71a7f2f7ca266bd87edd1d3feaa35d6ca7aa1515ca"
+    },
+    "retained_gc_enqueue_original": {
+      "bytes": 3991,
+      "calls": [
+        "dptr",
+        "getw",
+        "putw"
+      ],
+      "first_line": 30999,
+      "last_line": 31108,
+      "sha256": "500cde29912ea5e0301d7cd955793f94f421a9e7bc0b8959cbbdaf81c7a15411"
+    },
+    "retained_row": {
+      "bytes": 1727,
+      "calls": [
+        "dptr",
+        "getw",
+        "so_slot_lookup",
+        "so_uget",
+        "terror"
+      ],
+      "first_line": 31324,
+      "last_line": 31375,
+      "sha256": "1af1f5faa8355d6cf85360bd9bc41bad8c34b61ca6317e67cb725ef6051f01c1"
+    },
+    "retained_row_release_original": {
+      "bytes": 3661,
+      "calls": [
+        "dptr",
+        "getw",
+        "gradient_unbind",
+        "putw",
+        "so_slot_drop",
+        "so_slot_lookup",
+        "so_storage_release",
+        "so_uget",
+        "so_version_release",
+        "terror"
+      ],
+      "first_line": 31109,
+      "last_line": 31210,
+      "sha256": "0bdd876dd2415f91f288664bdf0176cb455bd06f4e5acb0d627e6eb1c5e5658c"
+    },
+    "retained_temporary_root": {
+      "bytes": 539,
+      "calls": [
+        "retained_row",
+        "so_uget"
+      ],
+      "first_line": 31421,
+      "last_line": 31437,
+      "sha256": "5bacf325f94a830c93ea3fb0bc8a9792d48513590caa906bc3258fe0a15d0a89"
+    },
+    "saved_release": {
+      "bytes": 1937,
+      "calls": [
+        "hold_release",
+        "so_saved_live",
+        "so_slot_drop",
+        "so_storage_release",
+        "so_uget",
+        "so_version_release",
+        "terror"
+      ],
+      "first_line": 11434,
+      "last_line": 11489,
+      "sha256": "e2be363cfe70e44786855b9cc17d5b79c72a3e626f482490920b51e2f22194df"
+    },
+    "scalar_previous_typed_descriptor": {
+      "bytes": 14438,
+      "calls": [
+        "alloc",
+        "descriptor_page",
+        "dptr",
+        "dtype_width",
+        "getw",
+        "memory_fill",
+        "object_address",
+        "putw",
+        "so_slot_drop",
+        "so_slot_lookup",
+        "so_slot_new",
+        "so_uget",
+        "so_uput",
+        "storage_capacity",
+        "terror"
+      ],
+      "first_line": 46730,
+      "last_line": 47045,
+      "sha256": "41358513e833d2299683cdfe003221a15671f3562c65989a88059f74151710e8"
+    },
+    "so_align16": {
+      "bytes": 236,
+      "calls": [],
+      "first_line": 13239,
+      "last_line": 13246,
+      "sha256": "16a4888d892051855f36f77e97c27207daba76a817f76366f840f72f3dd48fd3"
+    },
+    "so_extent_allocate": {
+      "bytes": 2090,
+      "calls": [
+        "so_align16",
+        "so_extent_remove",
+        "so_uget",
+        "so_uput"
+      ],
+      "first_line": 13674,
+      "last_line": 13732,
+      "sha256": "7fe1791fc24ca6ca716832ee03a052ceabb55244710887dde72353dbd53c1fc2"
+    },
+    "so_extent_release": {
+      "bytes": 9986,
+      "calls": [
+        "so_extent_remove",
+        "so_uget",
+        "so_uput"
+      ],
+      "first_line": 13733,
+      "last_line": 13977,
+      "sha256": "613cdb472be97b32c56080117fbf7c1bff244e966919795a4ed281d66ffffd3b"
+    },
+    "so_extent_remove": {
+      "bytes": 1620,
+      "calls": [
+        "so_fill_range",
+        "so_uget",
+        "so_uput"
+      ],
+      "first_line": 13630,
+      "last_line": 13673,
+      "sha256": "1cd1a6b27a626edfaf39b15d25bc78a6d605a2e06f9ac032e642729a9a52a965"
+    },
+    "so_handle": {
+      "bytes": 306,
+      "calls": [],
+      "first_line": 13401,
+      "last_line": 13410,
+      "sha256": "2da289d5a57c5ac4ac5fafecada16dd1ea22757711255a0dcdcd608c0b2e4afa"
+    },
+    "so_slot_drop": {
+      "bytes": 566,
+      "calls": [
+        "so_fill_range",
+        "so_slot_lookup"
+      ],
+      "first_line": 13570,
+      "last_line": 13586,
+      "sha256": "4a10301b3ee28bdb0e9d4e79c6d0ec510fed653e025ce081e3eab21dec8711ec"
+    },
+    "so_slot_new": {
+      "bytes": 1676,
+      "calls": [
+        "so_fill_range",
+        "so_handle",
+        "so_slot_at",
+        "so_uget",
+        "so_uput"
+      ],
+      "first_line": 13525,
+      "last_line": 13569,
+      "sha256": "56c6f2eec10f12c6cde54569e436621d4778311b712f768c21917a157710cb7d"
+    },
+    "so_storage_release": {
+      "bytes": 2461,
+      "calls": [
+        "so_extent_release",
+        "so_slot_drop",
+        "so_storage_live",
+        "so_uget",
+        "so_uput"
+      ],
+      "first_line": 14362,
+      "last_line": 14430,
+      "sha256": "bc12724cb0fa1844d04d57b7b7aab1de91a7f1209322e8dedbac39f9e947a33e"
+    },
+    "so_version_release": {
+      "bytes": 974,
+      "calls": [
+        "so_slot_drop",
+        "so_uget",
+        "so_uput",
+        "so_version_live"
+      ],
+      "first_line": 14333,
+      "last_line": 14361,
+      "sha256": "a30683203146f14de2127897f27adbcea0cda69d60a541af655a0530d7ce7ac3"
+    },
+    "storage_capacity": {
+      "bytes": 3906,
+      "calls": [
+        "getw",
+        "putw",
+        "so_align16",
+        "so_extent_room",
+        "so_slot_available",
+        "so_uget",
+        "terror"
+      ],
+      "first_line": 10814,
+      "last_line": 10911,
+      "sha256": "78cc8cc6b058ab735e518883dfdd51638966c849e9cb5fa4b171567bac494ac9"
+    },
+    "tensor_row_release": {
+      "bytes": 775,
+      "calls": [
+        "dptr",
+        "getw",
+        "to_view_base_release",
+        "view_previous_tensor_row_release"
+      ],
+      "first_line": 11576,
+      "last_line": 11598,
+      "sha256": "fd1aa276d8a64c3e1f5fb7cd3ac0b393f23f9b64e86b72b73a16e33d81c8544d"
+    },
+    "to_view_base_release": {
+      "bytes": 3534,
+      "calls": [
+        "dptr",
+        "getw",
+        "node_release",
+        "private_tensor",
+        "putw",
+        "terror"
+      ],
+      "first_line": 42632,
+      "last_line": 42730,
+      "sha256": "fbd23140651a83926d70872b57a6da558f94d7e79698fd7a4306679441e3f205"
+    },
+    "typed_descriptor": {
+      "bytes": 697,
+      "calls": [
+        "scalar_previous_typed_descriptor",
+        "terror"
+      ],
+      "first_line": 34244,
+      "last_line": 34261,
+      "sha256": "04cfe7f40cf76c7370c5cbab816341b354bf955195affcd56bbebd517c1a25c5"
+    },
+    "view_previous_tensor_row_release": {
+      "bytes": 1874,
+      "calls": [
+        "dptr",
+        "dtype_mask_release",
+        "getw",
+        "mixed_original_tensor_row_release"
+      ],
+      "first_line": 41740,
+      "last_line": 41789,
+      "sha256": "8538dcca22b4807c2bd70fb4e05081b1546c8611428df00c5ed84f32a53507d6"
+    }
+  },
+  "functions_verified": 44,
+  "kind": "static-source-derivation; independent live snapshots are corroboration, not expected-value input",
+  "must_be_zero_word_indices": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    9,
+    10,
+    11,
+    13,
+    14,
+    15,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    25,
+    26,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64,
+    65,
+    66,
+    67,
+    68,
+    69,
+    70,
+    71,
+    72,
+    73,
+    74,
+    75,
+    76,
+    77,
+    78,
+    79,
+    80,
+    81,
+    82,
+    83
+  ],
+  "native_sha256": "62f74e9232ae30027a64ca61881bb581320b1787529c6ee9e96818a0f8447afe",
+  "not_claimed": [
+    "whole-runtime semantic closure",
+    "new numerical evidence",
+    "passing modified owner predicate",
+    "arbitrary FE packets or unrelated descriptor types"
+  ],
+  "predicate": {
+    "bytes": 10158,
+    "function": "verify_fe_promotion_tombstone",
+    "path": "tests/current_runtime_half_fe_owner.py",
+    "sha256": "faa12cc924c64e939221bb51799024dbf780b5bb7f8a492c7a114e0008db3b3e"
+  },
+  "retired_rows": {
+    "expected": [
+      "allocation_generation",
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "generation_rule": "so_slot_new picks first vacant non-exhausted slot, increments its prior generation; so_slot_drop leaves word0 untouched and zeroes exactly bytes8..63",
+    "kinds": [
+      1,
+      2,
+      3,
+      6
+    ],
+    "no_identity_from_native_output": "dynamic handles/extent must be derived from pre-frame allocator/table state plus the constructor sequence, then compared with the residual descriptor; do not accept arbitrary internally-consistent observed handles"
+  },
+  "schema": "heptatorch.current765-half-FE-owner-source-contract.v1",
+  "source": {
+    "functions": 765,
+    "path": "tools/current_runtime/source/runtime.hepta",
+    "sha256": "b4b2996978dce56c9375ce97b2d2638472cbb154a4c0a7c5de822234e31a9c68"
+  }
+}
