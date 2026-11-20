@@ -338,7 +338,18 @@ jobs:
           subprocess.run([sys.executable, '-m', 'pip', 'install',
                           '--disable-pip-version-check', '--force-reinstall',
                           '--index-url', 'https://download.pytorch.org/whl/cpu',
-                          '--report', str(report), wheel], check=True)
+                          '--report', str(report),
+                          '-r', 'compatibility/pytorch-reference-requirements.txt',
+                          wheel], check=True)
+          # Missing NumPy makes this exact Torch build warn during import.
+          # Verify the actual reference environment before any suite starts;
+          # the original strict reference-stderr checks remain unchanged.
+          preflight = subprocess.run(
+              [sys.executable, '-B', '-W', 'error', '-c', 'import numpy; import torch'],
+              capture_output=True, timeout=60)
+          if preflight.returncode or preflight.stdout or preflight.stderr:
+              raise RuntimeError('Pinned Torch reference import failed: ' +
+                                 repr((preflight.returncode, preflight.stdout, preflight.stderr)))
           PYTORCH_INSTALL
 
 
