@@ -353,7 +353,7 @@ jobs:
           PYTORCH_INSTALL
 
 
-      - name: Qualify all twenty-one suites and the independent Generator probe images
+      - name: Qualify all twenty-three suites and the independent Generator probe images
         id: current_qualification
         if: ${{ !cancelled() && steps.current_build.outcome == 'success' }}
         run: |
@@ -383,7 +383,7 @@ jobs:
           output = Path(os.environ['CURRENT_OUTPUT'])
           output.mkdir(parents=True, exist_ok=True)
           failures, qualification, binding = [], None, None
-          predicate_evidence = bf16_evidence = None
+          predicate_evidence = bf16_evidence = half_mul_evidence = half_neg_evidence = None
           for key in ('TOOLCHAIN_OUTCOME', 'ENTROPY_TOOL_OUTCOME', 'BUILD_OUTCOME', 'ORACLE_OUTCOME', 'QUALIFICATION_OUTCOME'):
               if os.environ.get(key) != 'success':
                   failures.append(key + '=' + os.environ.get(key, 'missing'))
@@ -393,16 +393,16 @@ jobs:
               binding = {'path': 'review/qualification.json', 'bytes': len(raw),
                          'sha256': hashlib.sha256(raw).hexdigest()}
               if qualification['status'] != 'PASS_CURRENT_RUNTIME_FOCUSED':
-                  failures.append('the mandatory twenty-one-suite qualifier did not pass')
-              if (qualification['required_cases_total'] != 2156
-                      or qualification['executed_cases_total'] != 2156
+                  failures.append('the mandatory twenty-three-suite qualifier did not pass')
+              if (qualification['required_cases_total'] != 2839
+                      or qualification['executed_cases_total'] != 2839
                       or qualification['required_suites'] != [
-                      'bool27', 'original76', 'integral24', 'sum_f32_17', 'current35', 'base270', 'sum32', 'live32', 'logical147', 'resource7', 'asstrided16', 'cat4', 'metadata10', 'generator131', 'public_f64_logical192', 'f64_48', 'half47', 'half_logical264', 'half_transactions12', 'numeric_predicates', 'bf16_copy']):
+                      'bool27', 'original76', 'integral24', 'sum_f32_17', 'current35', 'base270', 'sum32', 'live32', 'logical147', 'resource7', 'asstrided16', 'cat4', 'metadata10', 'generator131', 'public_f64_logical192', 'f64_48', 'half47', 'half_logical264', 'half_transactions12', 'numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg']):
                   failures.append('the mandatory case denominator or suite order changed')
-              if (qualification['functions'] != 742 or qualification['units'] != 14
-                      or qualification['source_sha256'] != 'abbc84b8eca16670e72b8872d1d7ab479f8a1d44f7b2b65deea1649f7682b2c7'
-                      or qualification['native_sha256'] != '606f69aaecedbedc7ed6ad8f033275e0b64697f70632036d180106d315243c32'):
-                  failures.append('the same complete current742 source and image were not qualified')
+              if (qualification['functions'] != 761 or qualification['units'] != 15
+                      or qualification['source_sha256'] != 'ab3ed0e0898d2006fbdf145357c79cafd599c2be344fcb3cb65fd6ad55efb231'
+                      or qualification['native_sha256'] != '756de9418c05f4ecfc12319c7262cf1ff22e335e4ec32b140721b6c77ee226d7'):
+                  failures.append('the same complete current761 source and image were not qualified')
               public_f64 = [row for row in qualification['suites'] if row['name'] == 'public_f64_logical192']
               if (len(public_f64) != 1 or public_f64[0]['status'] != 'PASS'
                       or public_f64[0]['qualified'] is not True or public_f64[0]['cases'] != 192
@@ -433,8 +433,17 @@ jobs:
                       failures.append(name + ': complete physical qualification binding differs')
                   if name == 'f64_48' and (rows[0]['frames'] != 2856 or rows[0]['assertions'] != 15355):
                       failures.append('f64_48: original complete frame/check census differs')
-                  if name == 'half47' and (rows[0]['frames'] != 2401 or rows[0]['assertions'] != 10575):
-                      failures.append('half47: original complete frame/check census differs')
+                  if name == 'half47':
+                      expected_entry = dict(original_entry_requests=239, original_refusals=239,
+                                            retained_refusals=215, accepted_multiplication_successors=22,
+                                            accepted_negation_successors=2)
+                      physical_proof = json.loads(proof_raw)
+                      if (rows[0]['frames'] != 2797 or rows[0]['assertions'] != 13105
+                              or rows[0]['frames'] != physical_proof['frames']
+                              or rows[0]['assertions'] != physical_proof['checks']
+                              or any(rows[0].get(key) != value or physical_proof.get(key) != value
+                                     for key, value in expected_entry.items())):
+                          failures.append('half47: complete47 census or exact239-request successor partition differs')
               for name, cases, sessions, frames, checks, owners, packets, recoveries in (
                       ('half_logical264', 264, 272, 5484, 23260, 1964, 52, 6),
                       ('half_transactions12', 12, 12, 180, 666, 72, 0, 0)):
@@ -471,6 +480,10 @@ jobs:
               predicate_evidence, predicate_inputs = custody_module.numeric_predicate_custody(
                   Path.cwd().resolve(), output.resolve())
               bf16_evidence, bf16_inputs = custody_module.bf16_copy_custody(
+                  Path.cwd().resolve(), output.resolve())
+              half_mul_evidence, half_mul_inputs = custody_module.half_mul_custody(
+                  Path.cwd().resolve(), output.resolve())
+              half_neg_evidence, half_neg_inputs = custody_module.half_neg_custody(
                   Path.cwd().resolve(), output.resolve())
               if (qualification['full_pytorch_rewrite_complete'] is not False
                       or qualification['schema_closure'] is not False
@@ -514,15 +527,16 @@ jobs:
                      'hepta_commit': 'f33d8da316de8fdf27b504371f1a5310997ff548',
                      'qualification': binding, 'entropy_tool_build': entropy_binding,
                      'numeric_predicates_evidence': predicate_evidence,
-                     'bf16_copy_evidence': bf16_evidence, 'failures': failures,
+                     'bf16_copy_evidence': bf16_evidence, 'half_mul_evidence': half_mul_evidence,
+                     'half_neg_evidence': half_neg_evidence, 'failures': failures,
                      'full_pytorch_rewrite_complete': False, 'full_project_status': 'HOLD'}
           (output / 'qualification.json').write_text(json.dumps(summary, indent=2, sort_keys=True) + '\n')
           print(json.dumps(summary, indent=2, sort_keys=True))
           with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a') as stream:
               stream.write('## Current HIA runtime\n\n' + summary['status'] + '\n\n')
-              stream.write('The common local/CI gate requires one complete main cold build and all 2156 finite cases: '
+              stream.write('The common local/CI gate requires one complete main cold build and all 2839 finite cases: '
                            'Bool27, view/scalar76, Integral24, explicit-F32 Sum17, lifecycle35, '
-                           'base/NN270, original F32 Sum32, live Tensor/RNG/backward32, logical147, resource7, original AsStrided16, Cat4, cat metadata10, Generator131, public F64 logical192, original F64 48, Half47, Half logical264, Half transactions12, numeric predicates485 and BF16 copy280. '
+                           'base/NN270, original F32 Sum32, live Tensor/RNG/backward32, logical147, resource7, original AsStrided16, Cat4, cat metadata10, Generator131, public F64 logical192, original F64 48, Half47, Half logical264, Half transactions12, numeric predicates485, BF16 copy280, Half multiplication312 and Half negation371. '
                            'Every suite must execute and pass. Generator131 additionally links and executes separate '
                            'current-object ABI and reordered probe images; these are not the main executable.\n\n')
               stream.write('Current controls include seven dtype cases, four axis errors, ten entry checks, '
@@ -552,7 +566,9 @@ jobs:
                            'retained separately and are not counted as Torch compatibility. Logical147 remains required.\n\n')
               stream.write('Original F64 48 preserves 33 numeric, twelve boundary, one entry and two allocation '
                            'recipes, including all 87 original refusal controls. Half47 preserves 26 numeric recipes, '
-                           'sixteen boundaries, all 239 entry refusals and four allocation rollback/retry recipes. '
+                           'sixteen boundaries, all 239 original entry requests and four allocation rollback/retry recipes. '
+                           'Exactly22 original multiplication refusals and two original negations now require fresh actual Torch result bytes; '
+                           'the other215 remain refusals and historical239 evidence remains unchanged. '
                            'Half logical264 retains 222 actual successes and 42 actual errors, all 65,536 encodings per dtype, '
                            '52 packet controls and six real allocation recoveries. Half transactions12 checks six direct '
                            'successes and six invalid-suffix rollback cases with full owner, RNG and mapping equality. '
@@ -560,6 +576,10 @@ jobs:
                            'reopen every raw frame, complete owner archive, source input and actual exit/EOF. '
                            'BF16 copy280 compares 1,312,796 result elements bit for bit against a fresh fixed-wheel Torch process, '
                            'then replays 6,088 physical frames, 23,096 assertions and 1,960 complete owner snapshots. '
+                           'Half multiplication312 requires an explicit AVX2 single-thread pinned Torch reference, '
+                           '1,313,602 bitwise elements, 9,600 physical frames, 36,876 assertions and 2,848 full owners. '
+                           'Half negation371 requires272,444 bitwise elements,11,377 physical frames,37,744 assertions,2,717 full owners, '
+                           '46 packet controls and two real allocation failures with identical-request recovery. '
                            'Historical reference argv/interpreter gaps remain explicit; the current CI interpreter '
                            'does not replace a historical reference producer.\n\n')
               stream.write('Numeric predicates485 observes isnan/isinf/isfinite/isposinf/isneginf with a newly '
@@ -610,6 +630,7 @@ jobs:
             ${{ runner.temp }}/heptatorch-current-evidence.sealer-exit-code
             ${{ runner.temp }}/heptatorch-current/qualification.json
           if-no-files-found: error
-          compression-level: 0
+          # Compress JSON manifests and reports while retaining all archive bytes.
+          compression-level: 6
           retention-days: 30
 

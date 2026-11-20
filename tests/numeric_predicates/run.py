@@ -52,8 +52,16 @@ def profile(repository,build,build_sha,inputs):
         inputs.bind(repository/'tests/half_logical'/name)
     transition=module(repository/'tools/current_runtime/predicate_source_transition.py','predicate_source_proof',inputs.bind)
     bf16=module(repository/'tools/current_runtime/bf16_source_transition.py','predicate_bf16_source_proof',inputs.bind)
-    parent,extension=bf16.restore_source(inputs.bind(repository/'tools/current_runtime/source/runtime.hepta'),inputs.bind)
-    require(extension['source_sha256']==built['source_sha256'] and extension['functions']==742
+    mul=module(repository/'tools/current_runtime/half_mul_source_transition.py','predicate_half_mul_source_proof',inputs.bind)
+    neg=module(repository/'tools/current_runtime/half_neg_source_transition.py','predicate_half_neg_source_proof',inputs.bind)
+    previous,neg_extension=neg.restore_source(inputs.bind(repository/'tools/current_runtime/source/runtime.hepta'),inputs.bind)
+    require(neg_extension['source_sha256']==built['source_sha256'] and neg_extension['functions']==761
+        and neg_extension['whole_source_inverse_exact'] is True,'exact Half negation source extension')
+    previous,mul_extension=mul.restore_source(previous,inputs.bind)
+    require(mul_extension['source_sha256']==neg_extension['parent_source_sha256'] and mul_extension['functions']==758
+        and mul_extension['whole_source_inverse_exact'] is True,'exact Half multiplication source extension')
+    parent,extension=bf16.restore_source(previous,inputs.bind)
+    require(extension['source_sha256']==mul_extension['parent_source_sha256'] and extension['functions']==742
         and extension['whole_source_inverse_exact'] is True,'exact BF16 copy source extension')
     proof=transition.proof(parent)
     require(proof['functions']==740 and proof['whole_source_inverse_exact'] is True

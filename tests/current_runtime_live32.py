@@ -57,12 +57,19 @@ def transform(raw, edits, allowed):
 
 
 def inventory_edits():
-    require(FUNCTIONS==742 and UNITS==14,'this reviewed owner requires canonical current742/14')
+    require(FUNCTIONS==761 and UNITS==15,'this reviewed owner requires canonical current761/15')
     return [("built['complete_core_bodies_matched'] == 701",
              "built['complete_core_bodies_matched'] == "+str(FUNCTIONS)),
             ('len(functions) == len(bodies) == 701',
              'len(functions) == len(bodies) == '+str(FUNCTIONS)),
             ("'functions': 701,", "'functions': "+str(FUNCTIONS)+','),
+            ("built['units_planned'] == 14", "built['units_planned'] == 15"),
+            ("len(units) == len(manifest['units']) == 14", "len(units) == len(manifest['units']) == 15"),
+            ('len(processes) == 15', 'len(processes) == 16'),
+            ("len({u['name'] for u in units}) == 14", "len({u['name'] for u in units}) == 15"),
+            ("struct.pack('<3Q', 14, 4, 0)", "struct.pack('<3Q', 15, 4, 0)"),
+            ("'units': 14,", "'units': 15,"),
+            ("'compiler_processes': 14", "'compiler_processes': 15"),
             ('aae650e8822ef0b1e74d15108ad1d0f17ec791205ed5a158ec60b709f48f0e16',
              '761a941fd7a2d53eb9b45869fcfc20e970640e9dd11d60f7c61a89812b61d74e'),
             ('b9d039c365a8a3988e3add120e8cffa46a4e1297878f4cced30103953b030bfb',
@@ -86,8 +93,9 @@ def runner_source(package, inputs):
         ('complete function inventory identities',old,new),
         ('explicit inventory admission change disclosure',"'build_predicates_changed': False}",
             "'build_predicates_changed': True, 'function_inventory_literals_changed': 3,\n"
+            "                    'cold_unit_process_inventory_literals_changed': 7,\n"
             "                    'tool_support_and_ABI_literals_changed': 5,\n"
-            "                    'total_identity_and_inventory_edits': 10,\n"
+            "                    'total_identity_and_inventory_edits': 17,\n"
             "                    'predicate_operators_and_checks_retained': True}"),
         ('current owner function inventory',"('functions == 699', 'functions == 701', 1)",
             "('functions == 699', 'functions == "+str(FUNCTIONS)+"', 1)"),
@@ -113,11 +121,15 @@ def readback_source(inputs):
             "and admission_proof['build_predicates_changed'] is False, 'only the exact cold-build identities changed')",
             "and admission_proof['build_predicates_changed'] is True\n"
             "            and admission_proof['function_inventory_literals_changed'] == 3\n"
+            "            and admission_proof['cold_unit_process_inventory_literals_changed'] == 7\n"
             "            and admission_proof['tool_support_and_ABI_literals_changed'] == 5\n"
-            "            and admission_proof['total_identity_and_inventory_edits'] == 10\n"
+            "            and admission_proof['total_identity_and_inventory_edits'] == 17\n"
             "            and admission_proof['predicate_operators_and_checks_retained'] is True,\n"
-            "            'only source/image, function inventory and the five exact tool/support/ABI identities changed')"),
+            "            'only source/image, function/unit/process inventories and five exact tool/support/ABI identities changed')"),
         ('complete admission inventory inverse',old,new),
+        ('actual cold-build coverage disclosure',
+            'repeat the original complete fourteen-unit/fifteen-process cold-build admission',
+            'repeat complete fifteen-unit/sixteen-process admission with every original byte and process predicate'),
         ('read back the current complete owner','owner.bind_profile(SOURCE, IMAGE, 701)',
             'owner.bind_profile(SOURCE, IMAGE, '+str(FUNCTIONS)+')')]
     return transform(raw,edits,('qualify_live32',))

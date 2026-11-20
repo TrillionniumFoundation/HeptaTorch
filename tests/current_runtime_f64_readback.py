@@ -16,8 +16,8 @@ import sys
 import types
 import zlib
 
-SOURCE = 'abbc84b8eca16670e72b8872d1d7ab479f8a1d44f7b2b65deea1649f7682b2c7'
-IMAGE = '606f69aaecedbedc7ed6ad8f033275e0b64697f70632036d180106d315243c32'
+SOURCE = 'ab3ed0e0898d2006fbdf145357c79cafd599c2be344fcb3cb65fd6ad55efb231'
+IMAGE = '756de9418c05f4ecfc12319c7262cf1ff22e335e4ec32b140721b6c77ee226d7'
 READER = '1deb2fa84d9ea9653ca56769a5527f0102571ba2a4690f8deb85f5d4bdc038b3'
 ENTRY = '32196771085c4dbf24751ce9fa3b052a35655bd9c7cddb392d019174ffa50a44'
 REFERENCE = 'b1dafeed270b4dd226c349dece9d7f6213c2dabd34681685d97ec13c068e9b11'
@@ -472,7 +472,7 @@ def prepare_originals(adapter, report, repository, build, build_sha, bound):
     source = adapter.candidate_admission(repository, inputs)
     cold = adapter.cold_admission(build, IMAGE, build_sha, inputs)
     require(ordinary(source) == report['source_admission'] and ordinary(cold) == report['cold_admission'],
-            'complete original source inverse, two-status derivation and actual69 cold admission')
+            'complete original source inverse, two-status derivation and actual73 cold admission')
     owner = adapter.make_owner(repository, IMAGE, inputs)
     methods = {
         'Native.capture': originals['native'].Native.capture,

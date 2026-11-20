@@ -181,10 +181,10 @@ def restore_qualifier740(repository, destination, inputs=None):
     return destination
 
 
-CURRENT_SOURCE = 'abbc84b8eca16670e72b8872d1d7ab479f8a1d44f7b2b65deea1649f7682b2c7'
-CURRENT_IMAGE = '606f69aaecedbedc7ed6ad8f033275e0b64697f70632036d180106d315243c32'
-CURRENT_MANIFEST = 'a750f6e388c4339c29ff299aca0dabda9fa8b0ff7cc69d5bfa45f69cdd86e009'
-CURRENT_BINDING = '52461453bcf2ba2f51ad0d709eb97eb05c33cd9da989eee7d097c4da465a84b2'
+CURRENT_SOURCE = 'ab3ed0e0898d2006fbdf145357c79cafd599c2be344fcb3cb65fd6ad55efb231'
+CURRENT_IMAGE = '756de9418c05f4ecfc12319c7262cf1ff22e335e4ec32b140721b6c77ee226d7'
+CURRENT_MANIFEST = 'ef76a93ddee90e2fc546b2a6f95a5133b7663bd535e1f7693bae3b519345060c'
+CURRENT_BINDING = '8f7ceb36aebd4be89976c4fbd80dbfad7033533f0e32b7b9d4f88d4023d867ef'
 
 
 def successor_qualifier(parent, inputs=None):
@@ -204,34 +204,75 @@ def successor_qualifier(parent, inputs=None):
         ('e6eca58702d42be6dedae69a402d829c60444f2f4d4283b33cf4fc0ccfe34961', CURRENT_MANIFEST),
         ('ecaf51bfb23dcd69ae03b62a2f3976fe9f5ac8b526a42ced14b566e46b2b021f', CURRENT_BINDING),
     )
-    for name in ('run.py', 'admission.py'):
+    for name in ('run.py', 'admission.py', 'processes.py'):
         original = members[name]
         current = original.decode()
         edits = []
         # No hash is changed by the function-count substitution.
         require(not any('740' in value for value in re.findall(r'\b[0-9a-f]{64}\b', current)),
                 'profile-count replacement cannot alter a frozen source pin')
-        count = 7 if name == 'run.py' else 8
-        require(current.count('740') == count and '742' not in current,
+        count = {'run.py': 7, 'admission.py': 8, 'processes.py': 0}[name]
+        profile_chunks = re.split(r'([0-9a-f]{64})', current)
+        require(current.count('740') == count
+                and sum(chunk.count('761') for chunk in profile_chunks[::2]) == 0,
                 'exact original current-profile labels and count guards')
-        current = current.replace('740', '742')
-        edits.append(dict(before='740', after='742', count=count))
+        if count:
+            current = current.replace('740', '761')
+            edits.append(dict(before='740', after='761', count=count))
+        if name in ('run.py', 'processes.py'):
+            require(current.count('current14') == 2 and 'current15' not in current,
+                    'exact current object-custody field labels')
+            current = current.replace('current14', 'current15')
+            edits.append(dict(before='current14', after='current15', count=2))
+        if name == 'processes.py':
+            before = "need(len(self.objects)==14,'full14 actual objects required by original entry qualification')"
+            after = "need(len(self.objects)==15,'full15 actual objects required by original entry qualification')"
+            require(current.count(before) == 1 and after not in current,
+                    'one exact complete current object inventory guard')
+            current = current.replace(before, after, 1)
+            edits.append(dict(before=before, after=after, count=1))
         if name == 'admission.py':
             for before, after in identities:
                 require(current.count(before) == 1 and after not in current,
                         'one exact source, image, manifest or live binding identity')
                 current = current.replace(before, after, 1)
                 edits.append(dict(before=before, after=after, count=1))
+            # Only the actual current object inventory increases. The frozen
+            # 712 source reconstruction retains its own fifteen-unit layout.
+            for before, after in (
+                ("NAMES = ['rng03'] + [f'logical_half_{i:02d}' for i in range(12)] + ['owners']",
+                 "NAMES = ['rng03'] + [f'logical_half_{i:02d}' for i in range(13)] + ['owners']"),
+                ("receipt['units_planned']==14", "receipt['units_planned']==15"),
+                ("len(receipt['units'])==14", "len(receipt['units'])==15"),
+                ("struct.pack('<3Q',14,4,0)", "struct.pack('<3Q',15,4,0)"),
+                ("'core_functions':761,'units':14,'actual_cold_processes':15",
+                 "'core_functions':761,'units':15,'actual_cold_processes':16"),
+            ):
+                require(current.count(before) == 1 and after not in current,
+                        'one exact current cold-build inventory guard: ' + before)
+                current = current.replace(before, after, 1)
+                edits.append(dict(before=before, after=after, count=1))
         restored = current
         for edit in reversed(edits):
-            require(restored.count(edit['after']) == edit['count'], 'complete successor inverse edit count')
-            restored = restored.replace(edit['after'], edit['before'])
+            if edit['before'] == '740':
+                # The immutable linker hash begins761a. Count labels may not
+                # modify any complete source/tool digest during the inverse.
+                pieces = re.split(r'([0-9a-f]{64})', restored)
+                require(sum(piece.count(edit['after']) for piece in pieces[::2]) == edit['count'],
+                        'complete successor profile-label inverse edit count')
+                for index in range(0, len(pieces), 2):
+                    pieces[index] = pieces[index].replace(edit['after'], edit['before'])
+                restored = ''.join(pieces)
+            else:
+                require(restored.count(edit['after']) == edit['count'], 'complete successor inverse edit count')
+                restored = restored.replace(edit['after'], edit['before'])
         require(restored.encode() == original, 'complete frozen740 qualifier source inverse: ' + name)
         def bodies(raw):
             return {node.name: ast.dump(node, include_attributes=False) for node in ast.parse(raw).body
                     if isinstance(node, (ast.FunctionDef, ast.ClassDef))}
         old_bodies, new_bodies = bodies(original), bodies(current)
-        expected = {'package', 'tensor_owner', 'main'} if name == 'run.py' else {'admit'}
+        expected = {'run.py': {'package', 'tensor_owner', 'main', 'entry59'},
+                    'admission.py': {'admit'}, 'processes.py': {'ToolAudit'}}[name]
         require(old_bodies.keys() == new_bodies.keys()
                 and {key for key in old_bodies if old_bodies[key] != new_bodies[key]} == expected,
                 'only package/profile admission, owner binding and result identity change')
@@ -242,7 +283,7 @@ def successor_qualifier(parent, inputs=None):
     modes['package-manifest.json'] = stat.S_IMODE((parent / 'package-manifest.json').stat().st_mode)
     file_modes = {'parent740/' + name: mode for name, mode in modes.items()}
     file_modes.update({name: mode for name, mode in modes.items() if name != 'package-manifest.json'})
-    manifest = dict(schema='heptatorch.generator742-original-qualification-source.v1',
+    manifest = dict(schema='heptatorch.generator761-original-qualification-source.v1',
         parent740_manifest_sha256=QUALIFIER_MANIFEST,
         source_sha256=CURRENT_SOURCE, native_sha256=CURRENT_IMAGE,
         current_source_manifest_sha256=CURRENT_MANIFEST, current_binding_sha256=CURRENT_BINDING,
@@ -256,9 +297,9 @@ def verify_qualifier(package, inputs=None):
     package = Path(package)
     files, modes, manifest, original_proof = successor_qualifier(package / 'parent740', inputs)
     raw = read(package / 'package-manifest.json', inputs=inputs)
-    require(json.loads(raw) == manifest, 'exact derived742 manifest and full frozen740 inverse')
+    require(json.loads(raw) == manifest, 'exact derived761 manifest and full frozen740 inverse')
     actual = {str(path.relative_to(package)) for path in package.rglob('*') if path.is_file()}
-    require(actual == set(files) | {'package-manifest.json'}, 'complete current742 qualifier inventory')
+    require(actual == set(files) | {'package-manifest.json'}, 'complete current761 qualifier inventory')
     for name, expected in files.items():
         require(matches(package / name, manifest['files'][name], inputs) == expected,
                 'every generated qualifier file equals its exact profile-only derivation')

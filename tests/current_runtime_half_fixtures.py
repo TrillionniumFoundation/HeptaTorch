@@ -26,8 +26,8 @@ REFERENCE = 'ae6079c8f0960db53d26e056cc67fbe0a8eee7de04aa0644f4475afc368a75fe'
 READER = '1f67d27b8a5af133955d8a8cdfdb3094415efe31d1d9ee7ab09437f683ecef06'
 SOURCE = '51820849f7becec549be15babace00f00687601ae7f53bcee0e636ca02f721f9'
 IMAGE = 'aa3cc8f0c8738a9505d31c9e8ba5a523b7e08b591b61fc7bfb8592295491618b'
-CURRENT_SOURCE = 'abbc84b8eca16670e72b8872d1d7ab479f8a1d44f7b2b65deea1649f7682b2c7'
-CURRENT_IMAGE = '606f69aaecedbedc7ed6ad8f033275e0b64697f70632036d180106d315243c32'
+CURRENT_SOURCE = 'ab3ed0e0898d2006fbdf145357c79cafd599c2be344fcb3cb65fd6ad55efb231'
+CURRENT_IMAGE = '756de9418c05f4ecfc12319c7262cf1ff22e335e4ec32b140721b6c77ee226d7'
 PACKAGES = {
     'source': (SOURCE_PACKAGE, SOURCE_MANIFEST, SOURCE_ARCHIVE, 471936, 146, 11400278,
                'heptatorch.current736-half47.source-package.v1'),
@@ -157,12 +157,16 @@ def restore_reference(repository, directory, source_directory, inputs):
     return bind_reference(repository,directory,source_directory,inputs)
 
 
-def reader_cli(repository, build, build_sha, reference):
+def reader_cli(repository, build, build_sha, reference, half_mul, half_neg):
     return ['--reader-directory',str(reference['source']),
             '--candidate',str(repository),'--build-directory',str(build),
             '--reference',str(reference['report']),'--expected-source-sha256',CURRENT_SOURCE,
             '--expected-native-sha256',CURRENT_IMAGE,'--expected-build-sha256',build_sha,
-            '--expected-reference-sha256',REFERENCE]
+            '--expected-reference-sha256',REFERENCE,
+            '--half-mul-reference-directory',str(half_mul['root']),
+            '--half-mul-reference-execution',str(half_mul['execution']),
+            '--half-neg-reference-directory',str(half_neg['root']),
+            '--half-neg-reference-execution',str(half_neg['execution'])]
 
 
 def refusal_cli(repository, build, build_sha, source):
@@ -170,7 +174,7 @@ def refusal_cli(repository, build, build_sha, source):
             '--build-directory',str(build),'--expected-build-sha256',build_sha]
 
 
-def current_bridge(repository, reader_directory):
+def current_bridge(repository, reader_directory, half_mul=None, half_neg=None):
     """Wrap the frozen bridge with the exact three-function source inverse."""
     repository = Path(repository).resolve(strict=True)
     helper_path = repository / 'tests/current_runtime_f64_fixtures.py'
@@ -192,6 +196,21 @@ def current_bridge(repository, reader_directory):
     adapted.SOURCE, adapted.IMAGE = CURRENT_SOURCE, CURRENT_IMAGE
     adapted.Adapter = helper.current_adapter_type(original.Adapter, original, repository,
                                                    (helper_path, Path(__file__)), 'half')
+    if half_mul is not None:
+        successor_path = repository / 'tests/current_runtime_half_mul_successor.py'
+        successor = helper.load_module(successor_path.read_bytes(), successor_path,
+                                       'current_half47_mul22_successor')
+        if half_neg is None:
+            adapted.Adapter = successor.adapter_type(adapted.Adapter, repository,
+                                                      directory, half_mul)
+        else:
+            neg_path = repository / 'tests/current_runtime_half_neg_successor.py'
+            neg = helper.load_module(neg_path.read_bytes(), neg_path,
+                                     'current_half47_neg2_successor')
+            adapted.Adapter = neg.adapter_type(adapted.Adapter, successor, repository,
+                                                directory, half_mul, half_neg)
+    else:
+        require(half_neg is None, 'negation admission requires the unchanged22 multiplication adapter')
     return adapted
 
 
@@ -201,12 +220,20 @@ def main():
     parser.add_argument('--candidate', type=Path, required=True)
     parser.add_argument('--reader-directory', type=Path, required=True)
     parser.add_argument('--expected-reference-sha256', required=True)
+    parser.add_argument('--half-mul-reference-directory', type=Path, required=True)
+    parser.add_argument('--half-mul-reference-execution', type=Path, required=True)
+    parser.add_argument('--half-neg-reference-directory', type=Path, required=True)
+    parser.add_argument('--half-neg-reference-execution', type=Path, required=True)
     args, _ = parser.parse_known_args()
     require(args.expected_reference_sha256 == REFERENCE, 'exact original actual Half reference')
-    bridge = current_bridge(args.candidate, args.reader_directory)
+    bridge = current_bridge(args.candidate, args.reader_directory,
+        dict(root=args.half_mul_reference_directory, execution=args.half_mul_reference_execution),
+        dict(root=args.half_neg_reference_directory, execution=args.half_neg_reference_execution))
     original_argv = list(sys.argv)
-    at = sys.argv.index('--reader-directory')
-    sys.argv = sys.argv[:at] + sys.argv[at + 2:]
+    for flag in ('--reader-directory', '--half-mul-reference-directory', '--half-mul-reference-execution',
+                 '--half-neg-reference-directory', '--half-neg-reference-execution'):
+        at = sys.argv.index(flag)
+        sys.argv = sys.argv[:at] + sys.argv[at + 2:]
     try:
         with bridge.original_modules() as (originals, old_run, startup):
             return bridge.Adapter(originals, old_run, startup).current_main()()

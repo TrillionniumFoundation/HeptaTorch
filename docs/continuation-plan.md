@@ -6,13 +6,13 @@ Complete the entire pinned PyTorch v2.15.0 project in native HIA, preserve upstr
 
 Resume from current Git heads/open PRs, [`full-acceptance.json`](../compatibility/full-acceptance.json), the capability inventory, [current audit](current-audit.md) and actual source-bound reports. Newer checked-in results take precedence over chat snapshots. Preserve concurrent work and publish with expected-head leases.
 
-The canonical application is `tools/current_runtime/source/`; its manifest is authoritative. The current candidate has 742 core functions / 14 units and requires **21 groups / 2,156 finite cases**, including separately executed Generator probes. Record the actual complete result, never the sum of unrelated partial successes.
+The canonical application is `tools/current_runtime/source/`; its manifest is authoritative. The current candidate has 761 core functions / 15 units and requires **23 groups / 2,839 finite cases**, including separately executed Generator probes. Record the actual complete result, never the sum of unrelated partial successes.
 
 ## Complete active integration
 
-1. Cold-build and run every current group. Preserve original 20 groups / 1,876 cases and all additional controls. The new 280-case BF16 group requires independently observed fixed-Torch bits/metadata and complete raw replay.
+1. Cold-build and run all 23 groups / 2,839 cases. Preserve all original 21 groups / 2,156 case inputs and additional controls. Exactly 22 of the original 239 Half entry requests now require successful multiplication, and two require successful negation, with actual fixed-Torch results; the other 215 refusals remain unchanged. The new 312-case multiplication and 371-case negation references and complete physical replay are mandatory.
 2. Preserve the original failed 740 CI: 19 groups completed, while missing NumPy prevented numeric-predicate admission before native execution. The repair installs a SHA-pinned wheel, retains the actual pip report and keeps strict stderr checks. Use CPython 3.12 throughout.
-3. Keep BF16 semantics explicit: scalar/vector NaN conversion depends on paired input/output layout in the fixed AVX2/AVX512 kernel. DEFAULT and other architectures remain full-dtype/platform work. Original finite rounding and RNG support stay intact.
+3. Keep Half multiplication semantics explicit: 20 public ordered dtype pairs, rank-sensitive promotion, original scalar-RHS opmath, fixed AVX2/single-thread NaN payload selection, and FBGEMM conversion tails. Half negation separately preserves the vector/scalar NaN distinction and has two actual allocation-failure/recovery controls. Half AD, add/subtract/divide and direct Half/F64 views remain pending in this candidate. Keep BF16 semantics explicit: scalar/vector NaN conversion depends on paired input/output layout in the fixed AVX2/AVX512 kernel. DEFAULT and other architectures remain full-dtype/platform work. Original finite rounding and RNG support stay intact.
 4. Admit each final head only after required real checks and original evidence pass; read back its remote tree. Close superseded PRs as superseded, preserving their original identities.
 
 ## Native implementation order
