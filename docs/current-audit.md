@@ -16,7 +16,9 @@
 
 更早的首轮 9 组、660 例实际返回 FAIL：8 组通过，`current35` 的后续检查因跨 Python 版本的 AST 身份差异被拒绝。原失败与只读诊断保留，未被重新标成成功。
 
-更早的第二次完整执行通过全部 10 组、667 个案例和附加控制。所有组均在固定 CPython 3.12 下重新执行，使用相同 HIA 源、ELF 和实际冷构建回执；全部 1,699 个仓库输入在运行前后逐字节、逐模式复核不变。外层实际 exit 0、stdout 6,464 字节、stderr 0 字节，双流 EOF 完整，无超时或强制清理。完整资格报告 SHA 为 `aa168047fc9a0392707f3c1c08b8ab4cb88c2bc16e1732c4c37c2a3994cc14c0`，其[原验证包](../validation/current-runtime-20261118/manifest.json)保持原字节与范围。
+更早的第二次完整执行通过全部 10 组、667 个案例和附加控制。所有组均在固定 CPython 3.12 下重新执行，使用相同 HIA 源、ELF 和实际冷构建回执；全部 1,699 个仓库输入在运行前后逐字节、逐模式复核不变。外层实际 exit 0、stdout 6,464 字节、stderr 0 字节，双流 EOF 完整，无超时或强制清理。完整资格报告 SHA 为 `aa168047fc9a0392707f3c1c08b8ab4cb88c2bc16e1732c4c37c2a3994cc14c0`，其[原验证包](https://github.com/TrillionniumFoundation/HeptaTorch/blob/9ea2ec5522685a8b1a0080edda88b89dec094474/validation/current-runtime-20261118/manifest.json)保持原字节与范围。
+
+已完成阶段的过程目录与原始归档位置统一列在[历史记录索引](history.md)。当前工作树保留全部活跃参考包和验收输入。
 
 ## 本次 GitHub 实际读回
 

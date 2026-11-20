@@ -97,7 +97,7 @@ These groups overlap. Their counts are not summed into unique APIs or full
 schemas. No complete upstream schema is newly closed by these finite checks.
 The seven-command integration coordinator has now actually completed the fresh
 producer, source custody, owner accounting, resources, owned entry, Saved entry
-and typed handoff against one newly built image. The [original report](../validation/mixed-integer-autograd-root/report.json)
+and typed handoff against one newly built image. The [original report](https://github.com/TrillionniumFoundation/HeptaTorch/blob/9ea2ec5522685a8b1a0080edda88b89dec094474/validation/mixed-integer-autograd-root/report.json)
 is `77ae37fddbce0ad15628c0bf265c9e41649f9614714deaec99b91c15b7c3fbb5`.
 It captured 474 inputs before execution and bound 648 files at completion.
 Its complete archive retains 2,225 original members and 259,777,728 file bytes.
@@ -117,7 +117,7 @@ original transition checks, numerical oracles, provenance, EOF and parameter
 Version conditions. Whole-file and whole-function inverse receipts identify
 the changes. Every one of the 6,344 original transitions has been recomputed from the
 archived wire and 6,321 unique snapshots by the exact frozen observer. The
-[complete remote evidence](../validation/mixed-frozen35-accounting/remote10/)
+[complete remote evidence](https://github.com/TrillionniumFoundation/HeptaTorch/tree/9ea2ec5522685a8b1a0080edda88b89dec094474/validation/mixed-frozen35-accounting/remote10/)
 binds all eleven actual native units and both original eleven-check provenance
 records. Live32 retains 2,132 frames, 17,455 exact words and 1,137,600 RNG bytes.
 Full35 retains 2,590,274 comparisons, all EOF/post-close Version checks, 283
@@ -147,7 +147,7 @@ acceptance decision remains **HOLD**, with zero complete-schema parity.
 
 ## Historical tombstone regression and archive transport
 
-The added [tombstone regression](../validation/mixed-frozen35-accounting/tombstone-legacy-refusal/)
+The added [tombstone regression](https://github.com/TrillionniumFoundation/HeptaTorch/tree/9ea2ec5522685a8b1a0080edda88b89dec094474/validation/mixed-frozen35-accounting/tombstone-legacy-refusal/)
 reproduces one actual native case and four copied refusals. Its original host
 test accidentally loaded the already-corrected checker while expecting the
 old refusal, and its cleanup used a nonexistent `Session.stop`. Both original
@@ -157,7 +157,7 @@ identity bindings; all historical predicate bodies and original assertions
 remain preserved. Its six native frames end with a real successful EOF.
 
 The cold7 original XZ is distributed as two opaque parts because its base64
-request exceeded the connector size cap. [Transport instructions](../validation/mixed-integer-autograd-root/TRANSPORT.md)
+request exceeded the connector size cap. [Transport instructions](https://github.com/TrillionniumFoundation/HeptaTorch/blob/9ea2ec5522685a8b1a0080edda88b89dec094474/validation/mixed-integer-autograd-root/TRANSPORT.md)
 and the exact index permit full verification without extraction. Concatenation
 reproduces the original whole archive SHA and every original member. Neither
 this representation nor the new regression changes the global acceptance gate.

@@ -72,8 +72,8 @@ archive modes and later Git installation modes are recorded separately.
 The original outcomes remain distinct: R1's strict14 replay had 13 passes and
 one failure; R2 passed strict14 but passed only one of four input-boundary cases;
 R3 passed strict14 and input4 and separately passed the scoped 72-case replay.
-The original [R1 runtime evidence](../validation/differentiable-view-r1-native14-history/),
-[R3 build history](../validation/differentiable-view-r3-build-history/) and all
+The original [R1 runtime evidence](https://github.com/TrillionniumFoundation/HeptaTorch/tree/9ea2ec5522685a8b1a0080edda88b89dec094474/validation/differentiable-view-r1-native14-history/),
+[R3 build history](https://github.com/TrillionniumFoundation/HeptaTorch/tree/9ea2ec5522685a8b1a0080edda88b89dec094474/validation/differentiable-view-r3-build-history/) and all
 other reference records are retained unchanged. The complete prior development
 account is available in the
 [fixed historical document](https://github.com/TrillionniumFoundation/HeptaTorch/blob/07eb8fd19539add61458d70b1f0076c9660c8ad3/docs/tensor-to-differentiable-views.md).

@@ -126,7 +126,7 @@ The original full reports are exported without JSON reserialization in the CI ZI
 The 378-function predecessor already passed both exact-head 68-step jobs and its
 own live32/frozen35. Its original 50-report artifact, root333 checks, independent
 7,944 audit assertions and verified merge receipt are retained under
-`validation/hosted-adam-distributions-3e75b3a/`. Those are audit assertions, not
+[validation/hosted-adam-distributions-3e75b3a/](https://github.com/TrillionniumFoundation/HeptaTorch/tree/9ea2ec5522685a8b1a0080edda88b89dec094474/validation/hosted-adam-distributions-3e75b3a/). Those are audit assertions, not
 additional PyTorch tests, and that predecessor's result is not inherited by355/428.
 
 The frozen producer and independent packages are under

@@ -579,7 +579,7 @@ profile entry explicitly binds the new 627/13 identity. Their whole-owner,
 Generator, identity, Version, Saved and Weak comparisons retain the original
 case-specific scope.
 
-The [separate multiaxis72 replay](../validation/differentiable-view-r3-multiaxis72/)
+The [separate multiaxis72 replay](https://github.com/TrillionniumFoundation/HeptaTorch/tree/9ea2ec5522685a8b1a0080edda88b89dec094474/validation/differentiable-view-r3-multiaxis72/)
 passes 72/72, 1,224 frames and 21,312 exact gradient words. It corrects the
 historical R1 all-one input mapping to the actual probe's arange(256), without
 changing gradient comparisons. Its qualification covers gradient
