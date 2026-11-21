@@ -86,7 +86,7 @@ allocation refusals with recovery of the identical request. The independent
 reader replays the retained physical request/response streams and complete owner
 observations without executing Torch or the native image again.
 
-## Current identities and required integration
+## Recorded predecessor identities and current integration
 
 | Entity | SHA-256 |
 | --- | --- |
@@ -94,16 +94,16 @@ observations without executing Torch or the native image again.
 | Static native image | `5cba6f11269f71efb319aa7368009055bb2e9b9571329daeae9bbc453287c3ad` |
 | Ordered 15-unit manifest | `62795753a0e782fe3f75b9086653d41aba743fda356673398c12432d576fac15` |
 
-The complete current gate is **28 groups / 13,075 cases**. It retains the preceding
+The recorded same-F64 predecessor required **28 groups / 13,075 cases**. It retained the preceding
 27 groups / 7,987 cases, including the original F64 48-case entry and its shared
 2,541-case mixed arithmetic reference. The original mixed comparison code is
 recovered by an exact observer inverse; only source admission and the now-false
 "legacy same-F64 route unchanged" marker change. No earlier numerical success is
 transferred to this image.
 
-The [qualification plan](../validation/current-runtime775/qualification-plan.json)
+The [qualification plan](../validation/current-runtime778/qualification-plan.json)
 and [actual execution review](../validation/current-runtime-same-f64/native-review.json)
-record the current scoped results and the requirement for complete new-tree CI,
+separate the current778 requirement of **31 groups / 14,814 cases** from the original scoped results. Current admission requires complete new-tree CI,
 separately executed Generator images, all other head checks and complete original
 artifact readback. The complete PyTorch target remains **HOLD**: no complete
 native declaration, derivative declaration or subsystem is closed by this work.

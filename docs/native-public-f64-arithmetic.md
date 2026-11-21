@@ -76,6 +76,6 @@ The actual48-case run and independent physical reader passed **3,259 frames,17,9
 
 ## Common qualification
 
-The recorded mixed predecessor requires **27 groups / 7,987 cases**. The current same-F64 successor retains all of them and requires **28 groups / 13,075 cases** on a fresh cold build, including 5,088 same-F64 cases. Original controls or explicitly verified numerical successors remain mandatory. Generator ABI and reordered-link probes continue to build and execute their separate current-object images.
+The recorded mixed predecessor requires **27 groups / 7,987 cases**. The recorded same-F64 successor retained all of them and required **28 groups / 13,075 cases** on a fresh cold build, including 5,088 same-F64 cases. Original controls or explicitly verified numerical successors remain mandatory. Generator ABI and reordered-link probes continue to build and execute their separate current-object images.
 
-The two focused groups above cover2,589 cases on the stated predecessor source and image. Their original execution input snapshots remain fixed. They do not establish the successor's complete current-tree pass or any full-project closure. The [current plan](../validation/current-runtime775/qualification-plan.json) and [audit](current-audit.md) record those separate obligations.
+The two focused groups above cover2,589 cases on the stated predecessor source and image. Their original execution input snapshots remain fixed. They do not establish the successor's complete current-tree pass or any full-project closure. The [current plan](../validation/current-runtime778/qualification-plan.json) and [audit](current-audit.md) record those separate obligations and the current778 requirement of31 groups /14,814 cases.
