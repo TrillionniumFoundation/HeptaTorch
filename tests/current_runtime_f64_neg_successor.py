@@ -94,7 +94,7 @@ class Successor:
         driver.check(label+'/all-storage-bits', got['storage'], self.reference['blob'](expected['storage']))
         return got
 
-    def wrap_entry(self, original_entry):
+    def prepare_entry(self, original_entry):
         require(Path(original_entry.__code__.co_filename).resolve() == self.reader/'controls736.py'
                 and original_entry.__name__ == 'entry_controls',
                 'the original complete F64 entry code is used')
@@ -148,6 +148,11 @@ class Successor:
                                     original_entry.__defaults__,original_entry.__closure__)
         cloned.__kwdefaults__ = original_entry.__kwdefaults__
         require(cloned.__code__ is original_entry.__code__,'all original87 recipe code retained')
+
+        return cloned, accepted
+
+    def wrap_entry(self, original_entry):
+        cloned, accepted = self.prepare_entry(original_entry)
 
         def execute(driver):
             require(not driver.operations and not accepted,'fresh complete87 entry-only driver')

@@ -3110,7 +3110,7 @@ block retained_multiply(sm:mutbuf,om:u64,lm:u64,rm:u64)
   productm:u64 = call(sm,om,lm,rm) {"function":"half_mul_tensor"}
   ret(productm)
 block previous(s5:mutbuf,o5:u64,l5:u64,r5:u64)
-  result5:u64 = call(s5,o5,l5,r5) {"function":"half_mul_previous_binary"}
+  result5:u64 = call(s5,o5,l5,r5) {"function":"public_f64_binary"}
   ret(result5)
 end
 fn unary_value(v0:u64,v1:u64) -> (u64) effects(read,write,trap) entry(b0)
@@ -56551,7 +56551,7 @@ end
 fn half_mul_cast(x:u64,source:u64,target:u64,nan_word:u64) -> (u64) effects(read,write,trap) entry(start)
 block start(x:u64,source:u64,target:u64,nan_word:u64)
   same:bool = compare.eq(source,target)
-  branch same unchanged(x) convert(x,source,target,nan_word)
+  branch same unchanged(x) direct_wide_route(x,source,target,nan_word)
 block unchanged(x1:u64)
   ret(x1)
 block convert(x2:u64,s2:u64,t2:u64,n2:u64)
@@ -56576,6 +56576,16 @@ block not_bf(x6:u64,t6:u64)
 block to_double(x7:u64)
   y7:u64 = call(x7) {"function":"widen32"}
   ret(y7)
+block direct_wide_route(xw:u64,sw:u64,tw:u64,nw:u64)
+  integerw:u64 = const() {"value":2}
+  doublew:u64 = const() {"value":4}
+  from_integerw:bool = compare.eq(sw,integerw)
+  to_doublew:bool = compare.eq(tw,doublew)
+  directw:bool = bool.and(from_integerw,to_doublew)
+  branch directw direct_integer(xw) convert(xw,sw,tw,nw)
+block direct_integer(xi:u64)
+  valuei:u64 = call(xi) {"function":"integer_i64_to_f64"}
+  ret(valuei)
 end
 fn half_mul_result_dtype(s:mutbuf,left:u64,right:u64) -> (u64) effects(read,write,trap) entry(start)
 block start(s:mutbuf,left:u64,right:u64)
@@ -57743,4 +57753,122 @@ block element(s12:mutbuf,original12:u64,l12:u64,r12:u64,y12:u64,scalar12:u64,cou
   jump loop(s12,original12,l12,r12,y12,scalar12,count12,inner12,next12)
 block done(y13:u64)
   ret(y13)
+end
+fn integer_i64_to_f64(v0:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(v0:u64)
+  v1:u64 = const() {"value":63}
+  v2:u64 = int.shr.checked(v0,v1)
+  v3:u64 = const() {"value":63}
+  v4:u64 = int.shl.checked(v2,v3)
+  v5:u64 = const() {"value":0}
+  v6:bool = compare.ne(v4,v5)
+  v7:u64 = int.sub.wrap(v5,v0)
+  v8:u64 = select(v6,v7,v0)
+  v9:bool = compare.eq(v8,v5)
+  branch v9 b1() b2(v4,v8)
+block b1()
+  v16:u64 = const() {"value":0}
+  ret(v16)
+block b2(v14:u64,v15:u64)
+  v17:u64 = const() {"value":0}
+  jump b3(v14,v15,v17,v15)
+block b3(v19:u64,v20:u64,v21:u64,v22:u64)
+  v23:u64 = const() {"value":1}
+  v24:bool = compare.gt(v22,v23)
+  branch v24 b4(v19,v20,v21,v22) b5(v19,v20,v21)
+block b4(v26:u64,v27:u64,v28:u64,v29:u64)
+  v35:u64 = const() {"value":1}
+  v36:u64 = int.shr.checked(v29,v35)
+  v37:u64 = int.add.wrap(v28,v35)
+  jump b3(v26,v27,v37,v36)
+block b5(v31:u64,v32:u64,v33:u64)
+  v38:u64 = const() {"value":52}
+  v39:bool = compare.le(v33,v38)
+  branch v39 b6(v31,v32,v33) b7(v31,v32,v33)
+block b6(v41:u64,v42:u64,v43:u64)
+  v50:u64 = const() {"value":52}
+  v51:u64 = int.sub.wrap(v50,v43)
+  v52:u64 = int.shl.checked(v42,v51)
+  jump b11(v41,v43,v52)
+block b7(v46:u64,v47:u64,v48:u64)
+  v53:u64 = const() {"value":52}
+  v54:u64 = int.sub.wrap(v48,v53)
+  v55:u64 = int.shr.checked(v47,v54)
+  v56:u64 = const() {"value":1}
+  v57:u64 = int.shl.checked(v56,v54)
+  v58:u64 = int.sub.wrap(v57,v56)
+  v59:u64 = bit.and(v47,v58)
+  v60:u64 = int.sub.wrap(v54,v56)
+  v61:u64 = int.shl.checked(v56,v60)
+  v62:bool = compare.gt(v59,v61)
+  v63:bool = compare.eq(v59,v61)
+  v64:u64 = bit.and(v55,v56)
+  v65:u64 = const() {"value":0}
+  v66:bool = compare.ne(v64,v65)
+  v67:bool = bool.and(v63,v66)
+  v68:bool = bool.or(v62,v67)
+  v69:u64 = int.add.wrap(v55,v56)
+  v70:u64 = select(v68,v69,v55)
+  v71:u64 = const() {"value":9007199254740992}
+  v72:bool = compare.eq(v70,v71)
+  branch v72 b8(v46,v48,v70) b11(v46,v48,v70)
+block b8(v74:u64,v76:u64,v79:u64)
+  v91:u64 = const() {"value":1}
+  v92:u64 = int.shr.checked(v79,v91)
+  v93:u64 = int.add.wrap(v76,v91)
+  jump b11(v74,v93,v92)
+block b11(v104:u64,v106:u64,v108:u64)
+  v109:u64 = const() {"value":1023}
+  v110:u64 = int.add.wrap(v106,v109)
+  v111:u64 = const() {"value":52}
+  v112:u64 = int.shl.checked(v110,v111)
+  v113:u64 = bit.or(v104,v112)
+  v114:u64 = const() {"value":4503599627370495}
+  v115:u64 = bit.and(v108,v114)
+  v116:u64 = bit.or(v113,v115)
+  ret(v116)
+end
+fn public_f64_binary(s:mutbuf,operation:u64,left:u64,right:u64) -> (u64) effects(read,write,trap) entry(start)
+block start(s:mutbuf,operation:u64,left:u64,right:u64)
+  ld:u64 = call(s,left) {"function":"tensor_dtype"}
+  rd:u64 = call(s,right) {"function":"tensor_dtype"}
+  four:u64 = const() {"value":4}
+  two:u64 = const() {"value":2}
+  one:u64 = const() {"value":1}
+  ldouble:bool = compare.eq(ld,four)
+  rdouble:bool = compare.eq(rd,four)
+  anydouble:bool = bool.or(ldouble,rdouble)
+  different:bool = compare.ne(ld,rd)
+  mixed:bool = bool.and(anydouble,different)
+  lsmall:bool = compare.le(ld,two)
+  rsmall:bool = compare.le(rd,two)
+  lpublic:bool = bool.or(lsmall,ldouble)
+  rpublic:bool = bool.or(rsmall,rdouble)
+  public:bool = bool.and(lpublic,rpublic)
+  types:bool = bool.and(mixed,public)
+  lower:bool = compare.ge(operation,one)
+  upper:bool = compare.le(operation,four)
+  arithmetic:bool = bool.and(lower,upper)
+  admitted:bool = bool.and(types,arithmetic)
+  branch admitted select_operation(s,operation,left,right) previous(s,operation,left,right)
+block previous(sp:mutbuf,op:u64,lp:u64,rp:u64)
+  originalp:u64 = call(sp,op,lp,rp) {"function":"half_mul_previous_binary"}
+  ret(originalp)
+block select_operation(s1:mutbuf,o1:u64,l1:u64,r1:u64)
+  two1:u64 = const() {"value":2}
+  addsub1:bool = compare.le(o1,two1)
+  branch addsub1 addsub(s1,o1,l1,r1) select_product(s1,o1,l1,r1)
+block addsub(s2:mutbuf,o2:u64,l2:u64,r2:u64)
+  result2:u64 = call(s2,o2,l2,r2) {"function":"half_addsub_tensor"}
+  ret(result2)
+block select_product(s3:mutbuf,o3:u64,l3:u64,r3:u64)
+  three3:u64 = const() {"value":3}
+  multiply3:bool = compare.eq(o3,three3)
+  branch multiply3 multiply(s3,o3,l3,r3) divide(s3,o3,l3,r3)
+block multiply(s4:mutbuf,o4:u64,l4:u64,r4:u64)
+  result4:u64 = call(s4,o4,l4,r4) {"function":"half_mul_tensor"}
+  ret(result4)
+block divide(s5:mutbuf,o5:u64,l5:u64,r5:u64)
+  result5:u64 = call(s5,o5,l5,r5) {"function":"half_div_tensor"}
+  ret(result5)
 end

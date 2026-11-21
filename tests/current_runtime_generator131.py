@@ -11,8 +11,8 @@ import types
 from current_runtime_fixtures import require, safe_name, sha
 from current_runtime_generator_fixtures import verify_qualifier, QUALIFIER_MANIFEST
 
-SOURCE = 'f534c77069abc15ba15879d44492aacbc5f3709f6a861a0f0b9e0e365232fca1'
-IMAGE = 'db935c74bf0a2b359038c7be56f5a5721af8f0c2d757a2330527bd751861ae86'
+SOURCE = '4722c53b248780534a846a472784a565c4454ab738db75d655a7801b6623f07f'
+IMAGE = '5cb190cfc4b920bb03e78803e79296e2e046ec90eb6e07b2d5ba6eebfb534edd'
 OWNER = 'c39600e7c37dea390f88cf9e74d86dfa924301456e0f32e127d82c98ad6778b0'
 GROUPS = ('oracle24', 'native11', 'entry59', 'dispatch')
 
@@ -66,10 +66,10 @@ def tensor_owner(package, directory, proof, inputs):
     original = inputs.bind(package / 'frozen/owner_integral.py', OWNER)
     raw = original
     changes = [('HTSINT01', 'HTSINT02', 2), ('HTOSIN01', 'HTOSIN02', 2),
-               ('functions == 699', 'functions == 771', 1),
-               ('sum-integral-source01-UNBOUND-699', 'generator771-dispatch-UNBOUND', 1),
+               ('functions == 699', 'functions == 773', 1),
+               ('sum-integral-source01-UNBOUND-699', 'generator773-dispatch-UNBOUND', 1),
                ('sum-integral-source01-%d-preserved47-48', 'generator%d-dispatch-full-tensor-owner', 1),
-               ('heptatorch.sum-integral-owner-source01.v1', 'heptatorch.generator771-dispatch-tensor-owner.v1', 1)]
+               ('heptatorch.sum-integral-owner-source01.v1', 'heptatorch.generator773-dispatch-tensor-owner.v1', 1)]
     for before, after, count in changes:
         require(raw.count(before.encode()) == count and after.encode() not in raw, 'exact owner identity edits')
         raw = raw.replace(before.encode(), after.encode())
@@ -81,7 +81,7 @@ def tensor_owner(package, directory, proof, inputs):
     path = directory / 'executed-tensor-owner.py'
     require(inputs.bind(path, sha(raw)) == raw, 'actual executed owner source')
     module = loaded(path, 'current_generator131_actual_tensor_owner', inputs)
-    module.bind_profile(SOURCE, IMAGE, 771)
+    module.bind_profile(SOURCE, IMAGE, 773)
     return module
 
 
@@ -212,8 +212,8 @@ def audit_generator_reports(report, directory, package, inputs):
     complete actual cold/tool and source-custody admission.
     """
     directory, package = Path(directory), Path(package)
-    require(report['schema'] == 'heptatorch.generator771-current-native-qualification.v1'
-            and report['status'] == 'PASS_CURRENT771_GENERATOR131' and report['selected_group'] == 'all'
+    require(report['schema'] == 'heptatorch.generator773-current-native-qualification.v1'
+            and report['status'] == 'PASS_CURRENT773_GENERATOR131' and report['selected_group'] == 'all'
             and report['cases'] == 131 and report['original_cases'] == 94 and report['new_dispatch_cases'] == 37,
             'all original94 and new37 actually qualified together')
     require(report['source_sha256'] == SOURCE and report['native_sha256'] == IMAGE

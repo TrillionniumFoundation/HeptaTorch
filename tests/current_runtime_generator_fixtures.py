@@ -181,10 +181,10 @@ def restore_qualifier740(repository, destination, inputs=None):
     return destination
 
 
-CURRENT_SOURCE = 'f534c77069abc15ba15879d44492aacbc5f3709f6a861a0f0b9e0e365232fca1'
-CURRENT_IMAGE = 'db935c74bf0a2b359038c7be56f5a5721af8f0c2d757a2330527bd751861ae86'
-CURRENT_MANIFEST = '15337cd10313c9cd485e0c1db70b6d6da46d2cd4afa21053db9eb7f86d57301e'
-CURRENT_BINDING = '1796d7db8818c5b9b146e0826984239e1c4fb189cfb87d5cca2afa4cbc01003b'
+CURRENT_SOURCE = '4722c53b248780534a846a472784a565c4454ab738db75d655a7801b6623f07f'
+CURRENT_IMAGE = '5cb190cfc4b920bb03e78803e79296e2e046ec90eb6e07b2d5ba6eebfb534edd'
+CURRENT_MANIFEST = 'be3eaf71fe817f7d365f70eee21574fcbefa8d6027babb2a57796764b100e362'
+CURRENT_BINDING = 'a1c015714189c2e4cd666b43fa9ae9b4345df36d5dde76d43d7b431bdd1b06b7'
 
 
 def successor_qualifier(parent, inputs=None):
@@ -214,11 +214,11 @@ def successor_qualifier(parent, inputs=None):
         count = {'run.py': 7, 'admission.py': 8, 'processes.py': 0}[name]
         profile_chunks = re.split(r'([0-9a-f]{64})', current)
         require(current.count('740') == count
-                and sum(chunk.count('771') for chunk in profile_chunks[::2]) == 0,
+                and sum(chunk.count('773') for chunk in profile_chunks[::2]) == 0,
                 'exact original current-profile labels and count guards')
         if count:
-            current = current.replace('740', '771')
-            edits.append(dict(before='740', after='771', count=count))
+            current = current.replace('740', '773')
+            edits.append(dict(before='740', after='773', count=count))
         if name in ('run.py', 'processes.py'):
             require(current.count('current14') == 2 and 'current15' not in current,
                     'exact current object-custody field labels')
@@ -241,12 +241,14 @@ def successor_qualifier(parent, inputs=None):
             # 712 source reconstruction retains its own fifteen-unit layout.
             for before, after in (
                 ("NAMES = ['rng03'] + [f'logical_half_{i:02d}' for i in range(12)] + ['owners']",
-                 "NAMES = ['rng03'] + [f'logical_half_{i:02d}' for i in range(13)] + ['owners']"),
+                 '# Current unit order is admitted from the exact canonical manifest.'),
+                ("[r['name'] for r in processes]==NAMES+['link']",
+                 "[r['name'] for r in processes]==[entry['name'] for entry,_,_ in units]+['link']"),
                 ("receipt['units_planned']==14", "receipt['units_planned']==15"),
                 ("len(receipt['units'])==14", "len(receipt['units'])==15"),
                 ("struct.pack('<3Q',14,4,0)", "struct.pack('<3Q',15,4,0)"),
-                ("'core_functions':771,'units':14,'actual_cold_processes':15",
-                 "'core_functions':771,'units':15,'actual_cold_processes':16"),
+                ("'core_functions':773,'units':14,'actual_cold_processes':15",
+                 "'core_functions':773,'units':15,'actual_cold_processes':16"),
             ):
                 require(current.count(before) == 1 and after not in current,
                         'one exact current cold-build inventory guard: ' + before)
@@ -283,7 +285,7 @@ def successor_qualifier(parent, inputs=None):
     modes['package-manifest.json'] = stat.S_IMODE((parent / 'package-manifest.json').stat().st_mode)
     file_modes = {'parent740/' + name: mode for name, mode in modes.items()}
     file_modes.update({name: mode for name, mode in modes.items() if name != 'package-manifest.json'})
-    manifest = dict(schema='heptatorch.generator771-original-qualification-source.v1',
+    manifest = dict(schema='heptatorch.generator773-original-qualification-source.v1',
         parent740_manifest_sha256=QUALIFIER_MANIFEST,
         source_sha256=CURRENT_SOURCE, native_sha256=CURRENT_IMAGE,
         current_source_manifest_sha256=CURRENT_MANIFEST, current_binding_sha256=CURRENT_BINDING,
@@ -297,9 +299,9 @@ def verify_qualifier(package, inputs=None):
     package = Path(package)
     files, modes, manifest, original_proof = successor_qualifier(package / 'parent740', inputs)
     raw = read(package / 'package-manifest.json', inputs=inputs)
-    require(json.loads(raw) == manifest, 'exact derived771 manifest and full frozen740 inverse')
+    require(json.loads(raw) == manifest, 'exact derived773 manifest and full frozen740 inverse')
     actual = {str(path.relative_to(package)) for path in package.rglob('*') if path.is_file()}
-    require(actual == set(files) | {'package-manifest.json'}, 'complete current771 qualifier inventory')
+    require(actual == set(files) | {'package-manifest.json'}, 'complete current773 qualifier inventory')
     for name, expected in files.items():
         require(matches(package / name, manifest['files'][name], inputs) == expected,
                 'every generated qualifier file equals its exact profile-only derivation')

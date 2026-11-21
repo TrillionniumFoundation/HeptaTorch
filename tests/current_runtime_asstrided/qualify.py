@@ -239,10 +239,10 @@ def qualify_asstrided16(report,build_sha,directory,inputs,*,repository=None):
     """Read a complete actual execution; start no worker and change no evidence."""
     directory=Path(directory).resolve()
     repository=Path(repository).resolve() if repository is not None else HERE.parents[1]
-    require(report['schema']=='heptatorch.current771.asstrided16.v1'
+    require(report['schema']=='heptatorch.current773.asstrided16.v1'
         and report['status']=='PASS_CURRENT_ASSTRIDED16'
         and report['source_sha256']==SOURCE and report['native_sha256']==IMAGE
-        and report['actual_build_sha256']==build_sha and report['functions']==771 and report['units']==15,
+        and report['actual_build_sha256']==build_sha and report['functions']==773 and report['units']==15,
         'complete same-current-image AsStrided16 qualification required')
     require(report['repository']==str(repository) and report['output_directory']==str(directory)
         and report['prepare_only'] is False and report['native_executed'] is True
@@ -314,9 +314,9 @@ def main():
     out.mkdir(parents=True,exist_ok=False)
     build_sha=args.expected_build_sha256 or sha((build/'build.json').read_bytes())
     inputs,rows,failures=common.Inputs(),[],[]
-    report=dict(schema='heptatorch.current771.asstrided16.v1',status='RUNNING',
+    report=dict(schema='heptatorch.current773.asstrided16.v1',status='RUNNING',
         source_sha256=SOURCE,native_sha256=IMAGE,actual_build_sha256=build_sha,
-        functions=771,units=15,required_suites=list(SUITES),required_cases=COUNTS,
+        functions=773,units=15,required_suites=list(SUITES),required_cases=COUNTS,
         required_cases_total=16,prepare_only=args.prepare_only,suites=rows,failures=failures,
         repository=str(repo),build_directory=str(build),reference_directory=str(refs),
         output_directory=str(out),source_directory=str(HERE),python_executable=sys.executable,

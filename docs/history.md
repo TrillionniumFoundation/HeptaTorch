@@ -76,3 +76,33 @@ git worktree add --detach /path/to/historical-heptatorch 9ea2ec5522685a8b1a0080e
 ### 当前771计划替换767计划
 
 771继续退休已被替代的767资格计划（1个文件、1,444字节），原字节保存在[固定提交f8ad6df](https://github.com/TrillionniumFoundation/HeptaTorch/blob/f8ad6df1d0d27776b7efb2c62db1356189523f39/validation/current-runtime767/qualification-plan.json)。当前能力清单、完整验收账本和文档改用771计划；封存器只额外收录这一份当前计划。它不提供数值参考或源码逆变换，原始实际执行结果保持独立身份。精确blob、模式和SHA见[当前计划退休记录](../validation/current-runtime771/retirement.json)。累计移出当前工作树427个过程文件、164,406,894字节；53个已替代源码文件另行记账。
+
+
+## Additional retired process directories after current771
+
+The following completed process packages are retained in immutable [Git history at 87702d6](https://github.com/TrillionniumFoundation/HeptaTorch/tree/87702d6b129198b28098c6c26d905a2e91117512/validation). This batch removes 114 files / 12,877,907 bytes from the active tree. It changes no native implementation, numerical fixture, comparison, resource limit or ownership/EOF predicate. All 2,345 selected code, documentation and manifest blobs were checked against the exact Git tree, including every one of the 1,111 tracked Python/shell/workflow/Makefile entries. None of these paths appears in the independently read original767 archive's 150,929 members, 153,351 declared input bindings or 69 input lists; that prior failed gate is not a qualification of the new tree.
+
+| Retired directory | Files | Bytes | Fixed original |
+| --- | ---: | ---: | --- |
+| validation/current-runtime740 | 3 | 1,946,203 | [Original](https://github.com/TrillionniumFoundation/HeptaTorch/tree/87702d6b129198b28098c6c26d905a2e91117512/validation/current-runtime740) |
+| validation/current-half-logical1391 | 1 | 2,363 | [Original](https://github.com/TrillionniumFoundation/HeptaTorch/tree/87702d6b129198b28098c6c26d905a2e91117512/validation/current-half-logical1391) |
+| validation/current-runtime-ci-failures | 1 | 2,181 | [Original](https://github.com/TrillionniumFoundation/HeptaTorch/tree/87702d6b129198b28098c6c26d905a2e91117512/validation/current-runtime-ci-failures) |
+| validation/differentiable-view-r3-ci-independent-review | 7 | 352,372 | [Original](https://github.com/TrillionniumFoundation/HeptaTorch/tree/87702d6b129198b28098c6c26d905a2e91117512/validation/differentiable-view-r3-ci-independent-review) |
+| validation/differentiable-view-r3-input4 | 7 | 3,244,014 | [Original](https://github.com/TrillionniumFoundation/HeptaTorch/tree/87702d6b129198b28098c6c26d905a2e91117512/validation/differentiable-view-r3-input4) |
+| validation/differentiable-view-r3-native14 | 7 | 4,097,893 | [Original](https://github.com/TrillionniumFoundation/HeptaTorch/tree/87702d6b129198b28098c6c26d905a2e91117512/validation/differentiable-view-r3-native14) |
+| validation/differentiable-view-r3-resource-ci-review | 12 | 224,798 | [Original](https://github.com/TrillionniumFoundation/HeptaTorch/tree/87702d6b129198b28098c6c26d905a2e91117512/validation/differentiable-view-r3-resource-ci-review) |
+| validation/hosted-retained-gradients-cef47 | 25 | 2,394,336 | [Original](https://github.com/TrillionniumFoundation/HeptaTorch/tree/87702d6b129198b28098c6c26d905a2e91117512/validation/hosted-retained-gradients-cef47) |
+| validation/integer-frozen35-accounting | 5 | 55,100 | [Original](https://github.com/TrillionniumFoundation/HeptaTorch/tree/87702d6b129198b28098c6c26d905a2e91117512/validation/integer-frozen35-accounting) |
+| validation/original16-input4-integration-review | 7 | 59,581 | [Original](https://github.com/TrillionniumFoundation/HeptaTorch/tree/87702d6b129198b28098c6c26d905a2e91117512/validation/original16-input4-integration-review) |
+| validation/tensor-to-frozen35-copied672 | 18 | 195,862 | [Original](https://github.com/TrillionniumFoundation/HeptaTorch/tree/87702d6b129198b28098c6c26d905a2e91117512/validation/tensor-to-frozen35-copied672) |
+| validation/view-reshape-r4-identity-epochs | 10 | 188,444 | [Original](https://github.com/TrillionniumFoundation/HeptaTorch/tree/87702d6b129198b28098c6c26d905a2e91117512/validation/view-reshape-r4-identity-epochs) |
+| validation/wrapped-scalar-resource-portable-prepare | 11 | 114,760 | [Original](https://github.com/TrillionniumFoundation/HeptaTorch/tree/87702d6b129198b28098c6c26d905a2e91117512/validation/wrapped-scalar-resource-portable-prepare) |
+
+The immutable `tests/differentiable_view_input4_review/README.md` remains byte-identical because active original-source manifests bind it. Its historical R3 path mentions refer to the fixed snapshot above; the current upstream audit now links directly to the two exact historical reports. Previously recorded successful and failed executions are retained as their original Git blobs. The current-runtime740 plan mentioned in the earlier retirement record was already removed by a different batch; that historical record is unchanged.
+
+
+## 当前773计划与分区替换
+
+773同时退休上述114个过程文件、771旧资格计划（2,158字节）及旧分区生成摘要（3,788字节）。累计过程退休543个文件、177,290,747字节、38个完整阶段目录；完整原件和固定Git身份见[本批退休清单](../validation/current-runtime773/retirement.json)。原13个 `logical_half_*.hepta` 单元由规范773分区替换，全部原函数由完整源码逆变换约束；这13份替换单独记账，不计为13项被移除功能或净源码能力退休。
+
+旧143源码仍跟踪，已进入独立来源恢复的第一阶段，须在全部旧Native/F64/RNG门完成后继续退休。原始参考、失败记录、许可证及仍有真实消费者的包继续保留。

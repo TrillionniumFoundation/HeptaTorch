@@ -1,4 +1,4 @@
-"""Derive current771 identities while preserving the complete original192 suite.
+"""Derive current773 identities while preserving the complete original192 suite.
 
 Only source bytes are transformed here. This module never runs a native image,
 compiler, linker, or Torch producer, and supplies no runtime qualification.
@@ -6,8 +6,8 @@ compiler, linker, or Torch producer, and supplies no runtime qualification.
 import ast
 import hashlib
 
-SOURCE = 'f534c77069abc15ba15879d44492aacbc5f3709f6a861a0f0b9e0e365232fca1'
-IMAGE = 'db935c74bf0a2b359038c7be56f5a5721af8f0c2d757a2330527bd751861ae86'
+SOURCE = '4722c53b248780534a846a472784a565c4454ab738db75d655a7801b6623f07f'
+IMAGE = '5cb190cfc4b920bb03e78803e79296e2e046ec90eb6e07b2d5ba6eebfb534edd'
 ORIGINAL_FILES = {
     'cases.py': 'e689699b519e57eec44edac5d4c319d3ea718a3777056d1514d1f0e43a08bef3',
     'common.py': '29d25567c08e309c25d96d56f4476e3842ceda164c9647eb5c9397a04fad181a',
@@ -72,11 +72,11 @@ def derive(original, author_raw):
     outputs['run736.py'], proof['run'] = change(original['run.py'], [
         ('04ae430e3e851831fcb97a3fab700b16b6318361d52e90fcea90d2183d1d564b', SOURCE),
         ('4749413ea952bfd9d1fe41770f94ce1b9b9e3efabb407aa90f725cf33d59c4db', IMAGE),
-        ("built['functions'] == len(bodies) == 729", "built['functions'] == len(bodies) == 771"),
+        ("built['functions'] == len(bodies) == 729", "built['functions'] == len(bodies) == 773"),
         ("built['units_planned'] == 14", "built['units_planned'] == 15"),
         ("len(cold_inputs.records) == 69", "len(cold_inputs.records) == 73"),
         ('all 69 physical cold-build inputs are required', 'all 73 physical cold-build inputs are required'),
-        ('exact integrated 729-function source and image', 'exact integrated 771-function source and image'),
+        ('exact integrated 729-function source and image', 'exact integrated 773-function source and image'),
         (anchor, anchor + extra),
     ])
     preserved = {}
@@ -113,7 +113,7 @@ def derive(original, author_raw):
     require(current_readback == expected_readback,
             'complete original readback retains every comparison; only cold input count changes')
     proof.update(schema='heptatorch.public-f64-logical192.current736.source-derivation.v1',
-        source_sha256=SOURCE, native_sha256=IMAGE, functions=771, units=15,
+        source_sha256=SOURCE, native_sha256=IMAGE, functions=773, units=15,
         original_files=ORIGINAL_FILES, derivation_source_sha256=sha(author_raw),
         original_complete_definitions=preserved, original_six_files_modified=False,
         original_reference_Python_and_producer_identities_changed=False,

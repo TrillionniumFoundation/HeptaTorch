@@ -10,7 +10,7 @@
 
 此路径不重建历史 HeptaTorch 应用实现。默认 CI 中的 compiler-capacity 历史见证来自单独检出的固定提交 `31d5b1483714b32254730ba56787884c5c76e2fb`，其路径是 `.toolchain/heptatorch-legacy/src/heptatorch.hepta`；该依赖与当前仓库的 `src/heptatorch.hepta` 分开核对。
 
-## 26组验收的保留输入
+## 27组验收的保留输入
 
 表中列出跨目录依赖边。各套件自身的 `.py`、`.json`、固定包和 source-transition 输入仍由其原始 manifest 与绑定代码完整约束；迁移时不能只搬动表中某一个压缩包。
 
@@ -23,15 +23,21 @@
 | `asstrided16` | `validation/tensor-to-original16-recovery` 的原探针、16例参考、安装来源及完整 package manifest | [AsStrided sources](../tests/current_runtime_asstrided/sources.json)、[AsStrided qualifier](../tests/current_runtime_asstrided/qualify.py) |
 | `metadata10` | `validation/cat-metadata10-reference` 的完整参考包，以及固定的原方法、失败控制和源身份 | [metadata sources](../tests/current_runtime_metadata10/source.json)、[metadata worker](../tests/current_runtime_metadata10/worker.py) |
 | `generator131` | `validation/current-generator-candidate`、`current-generator-original26`、`current-generator131-source`；固定 Torch 的实际参考和当前 entropy 工具构建记录 | [Generator fixtures](../tests/current_runtime_generator_fixtures.py)、[coordinator](../tests/qualify_current_runtime.py) |
-| `public_f64_logical192`、`f64_48` | `validation/public-f64-logical192-reference`、`current-f64-48-source`、`current-f64-48-reference`；原F64 neg请求使用本次 `wide_neg` 的实际Torch参考验证显式successor | [public F64](../tests/current_runtime_public_f64_logical192.py)、[F64 fixtures](../tests/current_runtime_f64_fixtures.py) |
+| `public_f64_logical192`、`f64_48` | `validation/public-f64-logical192-reference`、`current-f64-48-source`、`current-f64-48-reference`；原F64 neg请求使用本次 `wide_neg` 实际405参考；22个混合算术单命令与1个原始FE事务使用同一份新实际2541参考验证显式successor | [public F64](../tests/current_runtime_public_f64_logical192.py)、[F64 fixtures](../tests/current_runtime_f64_fixtures.py) |
 | `half47`、`half_logical264`、`half_transactions12` | `validation/current-half47-source`、`current-half47-reference`、`half-logical264-reference`；原拒绝请求保留身份，显式算术successor读取本次乘法、取负和加减参考 | [Half fixtures](../tests/current_runtime_half_fixtures.py)、[logical reference](../tests/half_logical/reference.py)、[logical runner](../tests/half_logical/run.py) |
-| `numeric_predicates`、`bf16_copy`、`half_mul`、`half_neg`、`half_addsub`、`wide_neg`、`half_div` | 各套件新运行的固定Torch参考、完整原生请求/响应和当前源码逆变换输入；乘法组还读本次加减参考；Half47、乘法312、加减1006和除法1196共享同一1196参考；F64与Half原始读回共享对应新参考 | [coordinator](../tests/qualify_current_runtime.py) 与各 `tests/<suite>/run.py`、`reference.py` |
+| `numeric_predicates`、`bf16_copy`、`half_mul`、`half_neg`、`half_addsub`、`wide_neg`、`half_div`、`public_f64_arithmetic` | 各套件新运行的固定Torch参考、完整原生请求/响应和当前源码逆变换输入；乘法组还读本次加减参考；Half47、乘法312、加减1006和除法1196共享同一1196参考；F64与Half原始读回共享对应新参考 | [coordinator](../tests/qualify_current_runtime.py) 与各 `tests/<suite>/run.py`、`reference.py` |
 
 PR48原始归档中，部分共享包由总协调器声明为输入，随后解包给子套件使用。因此，归档里只出现协调器的绑定不表示该包没有子套件消费者。目录扫描还必须检查动态 `glob`/`rglob`、包内源文件清单、源码逆变换和完整包校验。
 
 ## 尚不能移除的旧实现与其他CI
 
 `src/heptatorch.hepta` 仍由 [native workflow](../.github/workflows/native.yml) 的分区、编译及源身份检查读取，[Makefile](../Makefile) 的 `legacy`、monolithic、session和owned-tensor目标也读取该文件。[F64 oracle](../tests/f64_oracle.py) 还直接检查其规范源码字节。退休整个旧实现前，必须把这些真实消费者迁移到当前运行时，保留它们原有案例、失败控制及来源验证，再移除旧入口。
+
+### 历史143来源迁移第一阶段
+
+当前仍跟踪 `src/heptatorch.hepta` 的原始481,516字节。新的 [来源清单](../tools/legacy_source143/manifest.json) 将其绑定到固定f8ad6df提交、Git blob、SHA-256、143个完整函数与原始文件模式。[恢复器](../tools/legacy_source143/restore.py) 已实际验证固定HTTPS下载、离线缓存恢复及现有源码原样准入；16个检查覆盖错误字节、模式、符号／硬链接、FIFO、重定向及尾随内容拒绝。它仅在明确的旧目标或旧CI中运行，默认当前源码构建不依赖此旧应用。
+
+原Native的107个步骤及F64/RNG各8个步骤原样保留，新步骤封存完整来源收据。该阶段的[实际来源记录](../validation/current-runtime773/legacy-source143-review.json)不替代旧测试：必须先让这三条旧流水线在本次精确树上全部通过，才能在另一次完整验证的变更中移除跟踪的旧源码。整个旧协议消费者向当前原生实现的语义迁移仍需继续。
 
 独立的 private-node observer CI 仍通过 [restore_native_inputs.py](../tests/private_node_accounting/restore_native_inputs.py) 恢复三个固定旧映像：
 
@@ -45,7 +51,7 @@ PR48原始归档中，部分共享包由总协调器声明为输入，随后解�
 
 ## 已完成的最小迁移
 
-[CI封存器](../tools/seal_current_ci_evidence.py) 只额外封存当前771的 `qualification-plan.json`。736、740、742、758、761、765旧计划保存在固定Git历史；被771替换的767计划也按[精确退休记录](../validation/current-runtime771/retirement.json)保存在固定提交f8ad6df。742/758/761/765原来仅作为额外归档成员收录，PR48声明输入和输入清单对这六份计划的引用均为零。迁移仅移除四个 `REPOSITORY_PATHS` 常量；函数体、当时全部25组要求、必要输出、工具链和参考来源检查保持一致。
+[CI封存器](../tools/seal_current_ci_evidence.py) 只额外封存当前773的 `qualification-plan.json`。736、740、742、758、761、765旧计划保存在固定Git历史；被771替换的767计划按[原退休记录](../validation/current-runtime771/retirement.json)保存在固定提交f8ad6df。当前773另以新计划替换771计划，并退休旧分区生成摘要；[本批记录](../validation/current-runtime773/retirement.json)给出固定87702d6历史身份。742/758/761/765原来仅作为额外归档成员收录，PR48声明输入和输入清单对这六份计划的引用均为零。迁移仅移除四个 `REPOSITORY_PATHS` 常量；函数体、当时全部25组要求、必要输出、工具链和参考来源检查保持一致。
 
 旧计划退休不影响仍被能力账本引用的真实结果，例如 `validation/current-runtime736/main-ci-44363462524.json`、`validation/current-runtime742/bf16-review.json` 和 `validation/current-runtime765/ci-review.json`。原始CI归档、完整输入包和源码逆变换输入也继续保持原字节。
 

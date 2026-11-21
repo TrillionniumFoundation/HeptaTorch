@@ -17,10 +17,10 @@ from pathlib import Path, PurePosixPath
 GROUPS = ('bool27', 'original76', 'integral24', 'sum_f32_17', 'current35',
           'base270', 'sum32', 'live32', 'logical147', 'resource7', 'asstrided16',
           'cat4', 'metadata10', 'generator131', 'public_f64_logical192',
-          'f64_48', 'half47', 'half_logical264', 'half_transactions12', 'numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div')
-SOURCE = 'f534c77069abc15ba15879d44492aacbc5f3709f6a861a0f0b9e0e365232fca1'
-IMAGE = 'db935c74bf0a2b359038c7be56f5a5721af8f0c2d757a2330527bd751861ae86'
-SOURCE_MANIFEST = '15337cd10313c9cd485e0c1db70b6d6da46d2cd4afa21053db9eb7f86d57301e'
+          'f64_48', 'half47', 'half_logical264', 'half_transactions12', 'numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div', 'public_f64_arithmetic')
+SOURCE = '4722c53b248780534a846a472784a565c4454ab738db75d655a7801b6623f07f'
+IMAGE = '5cb190cfc4b920bb03e78803e79296e2e046ec90eb6e07b2d5ba6eebfb534edd'
+SOURCE_MANIFEST = 'be3eaf71fe817f7d365f70eee21574fcbefa8d6027babb2a57796764b100e362'
 NUMERIC_CASES = '272c9b4fbde339481c32f2ed071dd8c60c9c3b17732e71e2178d973914c79609'
 NUMERIC_PROOF = dict(cases=485, native_sessions=496, frames=11244, assertions=42645,
     owner_snapshots=3615, mapping_snapshots=10, additional_packet_controls=56,
@@ -218,6 +218,89 @@ HALF_DIV_PROOF = {'Torch_executed_by_qualifier': False,
  'protocol_controls': 32,
  'requested_cpu_capability': 'avx2',
  'torch_threads': 1}
+PUBLIC_F64_ARITHMETIC_CASES = '03f58c4d5ae32ccec0eb3772c6bfcf3f06e868b2bab3fc7ca1d3a196210df239'
+PUBLIC_F64_ARITHMETIC_PROOF = {'Torch_executed_by_qualifier': False,
+ 'actual_allocation_refusals': 4,
+ 'assertions': 304449,
+ 'bitwise_elements': 460792,
+ 'cases': 2541,
+ 'cpu_capability': 'AVX2',
+ 'frames': 80200,
+ 'full_project_status': 'HOLD',
+ 'group_counts': {'allocation': 4,
+                  'broadcast_error': 24,
+                  'integer_precision': 32,
+                  'layout': 288,
+                  'legacy_entry': 25,
+                  'nan_layout': 32,
+                  'paired_nan': 144,
+                  'promotion': 192,
+                  'retained_same_f64': 8,
+                  'scalar_precision': 512,
+                  'single_nan': 128,
+                  'special': 96,
+                  'vector_tail': 1056},
+ 'host_expected_values_computed': False,
+ 'identical_request_recoveries': 4,
+ 'legacy_same_f64_route_unchanged': True,
+ 'mapping_reads': 10,
+ 'native_executed_by_qualifier': False,
+ 'native_sessions': 2541,
+ 'original_entry_controls': ['mixed-F32-op1-F64-left',
+                             'mixed-F32-op1-F64-right',
+                             'mixed-F32-op2-F64-left',
+                             'mixed-F32-op2-F64-right',
+                             'mixed-F32-op3-F64-left',
+                             'mixed-F32-op3-F64-right',
+                             'mixed-F32-op4-F64-left',
+                             'mixed-F32-op4-F64-right',
+                             'mixed-Bool-op1-F64-left',
+                             'mixed-Bool-op1-F64-right',
+                             'mixed-Bool-op2-F64-left',
+                             'mixed-Bool-op2-F64-right',
+                             'mixed-Bool-op3-F64-left',
+                             'mixed-Bool-op3-F64-right',
+                             'mixed-Bool-op4-F64-left',
+                             'mixed-Bool-op4-F64-right',
+                             'mixed-I64-op1-F64-left',
+                             'mixed-I64-op1-F64-right',
+                             'mixed-I64-op2-F64-left',
+                             'mixed-I64-op2-F64-right',
+                             'mixed-I64-op3-F64-left',
+                             'mixed-I64-op3-F64-right',
+                             'mixed-I64-op4-F64-left',
+                             'mixed-I64-op4-F64-right',
+                             'same-packet-F64-public-alias-mixed-pair'],
+ 'original_refusal_successors': ['mixed-F32-op1-F64-left',
+                                 'mixed-F32-op1-F64-right',
+                                 'mixed-F32-op2-F64-left',
+                                 'mixed-F32-op2-F64-right',
+                                 'mixed-F32-op3-F64-left',
+                                 'mixed-F32-op3-F64-right',
+                                 'mixed-F32-op4-F64-left',
+                                 'mixed-F32-op4-F64-right',
+                                 'mixed-Bool-op1-F64-left',
+                                 'mixed-Bool-op1-F64-right',
+                                 'mixed-Bool-op3-F64-left',
+                                 'mixed-Bool-op3-F64-right',
+                                 'mixed-Bool-op4-F64-left',
+                                 'mixed-Bool-op4-F64-right',
+                                 'mixed-I64-op1-F64-left',
+                                 'mixed-I64-op1-F64-right',
+                                 'mixed-I64-op2-F64-left',
+                                 'mixed-I64-op2-F64-right',
+                                 'mixed-I64-op3-F64-left',
+                                 'mixed-I64-op3-F64-right',
+                                 'mixed-I64-op4-F64-left',
+                                 'mixed-I64-op4-F64-right',
+                                 'same-packet-F64-public-alias-mixed-pair'],
+ 'owner_snapshots': 22960,
+ 'physical_replay': True,
+ 'protocol_controls': 82,
+ 'requested_cpu_capability': 'avx2',
+ 'retained_bool_subtraction_refusals': ['mixed-Bool-op2-F64-left', 'mixed-Bool-op2-F64-right'],
+ 'same_f64_nan_payload_qualified': False,
+ 'torch_threads': 1}
 TOOLCHAINS = ('hepta-compiler', 'hepta-profile-sources', 'hepta-expanded',
               'hepta-capacity-review', 'hepta-modules-sources', 'hepta-modules-native',
               'hepta-owned-modules', 'hepta-owned-session-tools', 'hepta-stack-budget',
@@ -227,11 +310,14 @@ REPOSITORY_PATHS = (
     'tools/ci_artifact_transport.py',
     'validation/current-runtime767/ci-review.json',
     'validation/current-runtime771/admission-review.json',
-    'docs/native-half-division.md',
+    'docs/native-half-division.md', 'docs/native-public-f64-arithmetic.md',
+    'validation/current-runtime773/native-review.json',
+    'validation/current-runtime773/retirement.json',
+    'validation/current-runtime773/legacy-source143-review.json',
     'tools/current_runtime', 'tools/differentiable_view_recovered_r3/profile.json',
     'tools/stack_budget/inspect_stack.py',
     'validation/view-reshape-r4-native76/archive-location.json',
-    'build/pytorch-install.json', 'tests', 'tests/numeric_predicates', 'tests/bf16_copy', 'tests/half_mul', 'tests/half_neg', 'tests/half_addsub', 'tests/wide_neg', 'tests/half_div', 'compatibility',
+    'build/pytorch-install.json', 'tests', 'tests/numeric_predicates', 'tests/bf16_copy', 'tests/half_mul', 'tests/half_neg', 'tests/half_addsub', 'tests/wide_neg', 'tests/half_div', 'tests/public_f64_arithmetic', 'compatibility',
     'continuation/20261117/evidence',
     'continuation/20261117/source-packages/sum-bool-source-01/hia',
     'validation/sum-bool27-reference', 'validation/current-runtime-references',
@@ -244,7 +330,7 @@ REPOSITORY_PATHS = (
     'validation/public-f64-logical192-reference',
     'validation/current-f64-48-source', 'validation/current-f64-48-reference',
     'validation/current-half47-source', 'validation/current-half47-reference',
-    'validation/current-runtime771/qualification-plan.json',
+    'validation/current-runtime773/qualification-plan.json',
     'validation/current-runtime771/retirement.json',
     'validation/current-runtime771/native-review.json',
     'validation/half-logical264-reference',
@@ -313,6 +399,18 @@ REQUIRED_OUTPUTS += (
     'review/half_div-execution/intent.json', 'review/half_div-execution/runner.json',
     'review/half_div-execution/runner.stdout', 'review/half_div-execution/runner.stderr',
 )
+REQUIRED_OUTPUTS += (
+    'review/public_f64_arithmetic/physical-qualification.json',
+    'review/references/public-f64-arithmetic2541/report.json',
+    'review/references/public-f64-arithmetic2541-execution/process.json',
+    'review/references/public-f64-arithmetic2541-execution/runner.json',
+    'review/references/public-f64-arithmetic2541-execution/runner.stdout',
+    'review/references/public-f64-arithmetic2541-execution/runner.stderr',
+    'review/public_f64_arithmetic-execution/intent.json',
+    'review/public_f64_arithmetic-execution/runner.json',
+    'review/public_f64_arithmetic-execution/runner.stdout',
+    'review/public_f64_arithmetic-execution/runner.stderr',
+)
 INPUT_REPORTS = ('build/build.json', 'review/qualification.json',) + tuple(
     'review/' + name + '/report.json' for name in GROUPS) + (
         'review/base270/current-adapter.json', 'review/base270/cold-build-admission.json',
@@ -363,6 +461,14 @@ INPUT_REPORTS += ('review/half_div/physical-qualification.json',
                  'review/references/half-div1196-execution/runner.json',
                  'review/half_div-execution/intent.json',
                  'review/half_div-execution/runner.json')
+INPUT_REPORTS += (
+    'review/public_f64_arithmetic/physical-qualification.json',
+    'review/references/public-f64-arithmetic2541/report.json',
+    'review/references/public-f64-arithmetic2541-execution/process.json',
+    'review/references/public-f64-arithmetic2541-execution/runner.json',
+    'review/public_f64_arithmetic-execution/intent.json',
+    'review/public_f64_arithmetic-execution/runner.json',
+)
 INPUT_TABLES = ('checked_inputs', 'inputs', 'files', 'source_custody')
 
 
@@ -632,28 +738,33 @@ def live_reference_custody(repo, current, group):
     It performs no Tensor calculation, native execution or case admission.
     The reference digest comes from this run's physical report, never a prior run.
     """
-    if group not in ('numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div'):
+    if group not in ('numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div', 'public_f64_arithmetic'):
         raise ValueError('unknown mandatory live-reference group')
     numeric = group == 'numeric_predicates'
     multiplication = group == 'half_mul'
     negation = group in ('half_neg', 'wide_neg')
     addition = group == 'half_addsub'
     division = group == 'half_div'
+    mixed = group == 'public_f64_arithmetic'
     shared_reference = {'half_mul': 'half-mul312', 'half_neg': 'half-neg371',
                         'half_addsub': 'half-addsub1006', 'wide_neg': 'wide-neg405',
-                        'half_div': 'half-div1196'}.get(group)
+                        'half_div': 'half-div1196',
+                        'public_f64_arithmetic': 'public-f64-arithmetic2541'}.get(group)
     namespace = {'numeric_predicates': 'numeric-predicates', 'bf16_copy': 'bf16-copy',
                  'half_mul': 'half-mul', 'half_neg': 'half-neg', 'half_addsub': 'half-addsub',
-                 'wide_neg': 'wide-neg', 'half_div': 'half-div'}[group]
+                 'wide_neg': 'wide-neg', 'half_div': 'half-div',
+                 'public_f64_arithmetic': 'public-f64-arithmetic'}[group]
     reference_status = 'OBSERVED_' + group.upper()
     physical_status = 'PASS_PHYSICAL_' + group.upper()
     template = {'numeric_predicates': NUMERIC_PROOF, 'bf16_copy': BF16_PROOF,
                 'half_mul': HALF_MUL_PROOF, 'half_neg': HALF_NEG_PROOF, 'half_addsub': HALF_ADDSUB_PROOF,
-                'wide_neg': WIDE_NEG_PROOF, 'half_div': HALF_DIV_PROOF}[group]
+                'wide_neg': WIDE_NEG_PROOF, 'half_div': HALF_DIV_PROOF,
+                'public_f64_arithmetic': PUBLIC_F64_ARITHMETIC_PROOF}[group]
     cases = template['cases']
     case_sha = {'numeric_predicates': NUMERIC_CASES, 'bf16_copy': BF16_CASES,
                 'half_mul': HALF_MUL_CASES, 'half_neg': HALF_NEG_CASES, 'half_addsub': HALF_ADDSUB_CASES,
-                'wide_neg': WIDE_NEG_CASES, 'half_div': HALF_DIV_CASES}[group]
+                'wide_neg': WIDE_NEG_CASES, 'half_div': HALF_DIV_CASES,
+                'public_f64_arithmetic': PUBLIC_F64_ARITHMETIC_CASES}[group]
     bindings = {}
 
     def need(condition, message):
@@ -681,13 +792,13 @@ def live_reference_custody(repo, current, group):
     qualification_path = current / 'review/qualification.json'
     qualification = document(qualification_path)
     check_fields(qualification, dict(schema='heptatorch.current-runtime.qualification.v1',
-        required_suites=list(GROUPS), required_cases_total=5446, functions=771, units=15,
-        source_sha256=SOURCE, native_sha256=IMAGE), 'exact current771 twenty-six-suite inventory and image')
+        required_suites=list(GROUPS), required_cases_total=7987, functions=773, units=15,
+        source_sha256=SOURCE, native_sha256=IMAGE), 'exact current773 twenty-seven-suite inventory and image')
     manifest_raw = bind(repo / 'tools/current_runtime/source/manifest.json', SOURCE_MANIFEST)
     need(bind(current / 'build/manifest.json', SOURCE_MANIFEST) == manifest_raw,
          'the actual cold build used the final complete source manifest')
     manifest = json.loads(manifest_raw)
-    need(manifest['runtime']['sha256'] == SOURCE and manifest['runtime']['functions'] == 771
+    need(manifest['runtime']['sha256'] == SOURCE and manifest['runtime']['functions'] == 773
          and manifest['expected_native_sha256'] == IMAGE and len(manifest['units']) == 15,
          'final complete source and image pins')
     bind(current / 'build/runtime.hepta', SOURCE)
@@ -695,7 +806,7 @@ def live_reference_custody(repo, current, group):
     build_raw = bind(current / 'build/build.json')
     build_sha = digest(build_raw)
     check_fields(json.loads(build_raw), dict(status='PASS_NATIVE_BUILD_ONLY', source_sha256=SOURCE,
-        native_sha256=IMAGE, manifest_sha256=SOURCE_MANIFEST, functions=771, units_planned=15),
+        native_sha256=IMAGE, manifest_sha256=SOURCE_MANIFEST, functions=773, units_planned=15),
         'actual final cold build identity')
     need(qualification['actual_build_sha256'] == build_sha, 'qualifier binds this actual cold build')
     rows = [row for row in qualification['suites'] if row['name'] == group]
@@ -715,6 +826,8 @@ def live_reference_custody(repo, current, group):
         native_extras['mapping_reads'] = 4
     if addition:
         native_extras['mapping_reads'] = 12
+    if mixed:
+        native_extras['mapping_reads'] = 10
     schema_version = 'v2' if multiplication or addition else 'v1'
     check_fields(native, dict(schema='heptatorch.' + namespace + '.native-observation.' + schema_version, status='PASS',
         group=group, cases=cases, expected_cases=cases, case_sha256=case_sha,
@@ -854,14 +967,14 @@ def live_reference_custody(repo, current, group):
         need(metadata == dict(path=spelling, **bindings[spelling]), 'reference input bytes and mode unchanged')
     need(len(observed['rows']) == cases, 'all original independent reference rows')
     for index, row in enumerate(observed['rows']):
-        if multiplication or addition or division:
+        if multiplication or addition or division or mixed:
             original_flags = (row.get('inputs_unchanged') is True and row.get('rng_unchanged') is True
                 and row.get('accepted') is (not row['spec'].get('expected_error', False))
                 and len(row.get('inputs', [])) == 2)
             if row.get('accepted') is True:
                 original_flags = original_flags and row.get('fresh_tensor') is True and row.get('fresh_storage') is True
             else:
-                if addition and row['spec'].get('expected_error') == 'bool_subtraction':
+                if (addition or mixed) and row['spec'].get('expected_error') == 'bool_subtraction':
                     original_flags = (original_flags and row['error']['type'] == 'NotImplementedError'
                         and 'bool tensor' in row['error']['message'])
                 else:
@@ -919,12 +1032,63 @@ def live_reference_custody(repo, current, group):
             reference_sha256=reference_sha, actual_Torch_reference_verified=True,
             host_expected_values_computed=False), 'complete original87 F64 requests share actual405 reference')
         need(f64_proof['wide_neg_successor'] == successor and f64_proof['cases'] == 48
-             and f64_proof['retained_refusals'] == 86 and f64_proof['actual_numeric_successors'] == 1
-             and f64_proof['original_OOM_controls'] == 2,
-             'all48 F64 physical cases and one unchanged-recipe numeric successor')
+             and f64_proof['retained_refusals'] == 63 and f64_proof['actual_numeric_successors'] == 24
+             and f64_proof['actual_mixed_arithmetic_successors'] == 23
+             and f64_proof['original_OOM_controls'] == 2
+             and f64_report['source_admission']['wide_neg_successor_is_preserved_predecessor_scoped_contract'] is True,
+             'all48 F64 cases preserve the original one-negation contract within the complete24 numerical successors')
         for path in (current / 'review/f64_48/report.json', current / 'review/f64_48/physical-qualification.json'):
             need(qualification['checked_inputs'].get(str(path)) == bindings[str(path)],
                  'both original F64 reports are physically bound by the current qualifier')
+    if mixed:
+        f64_path = current / 'review/f64_48/report.json'
+        f64_raw = bind(f64_path)
+        f64_report = json.loads(f64_raw)
+        f64_proof = document(current / 'review/f64_48/physical-qualification.json')
+        successor = f64_report['source_admission']['public_f64_arithmetic_successor']
+        check_fields(successor, dict(schema='heptatorch.f6448.public-f64-arithmetic23-successor.v1',
+            original_request_count=87, original_mixed_request_count=25, retained_refusals=63,
+            accepted_successors=24, new_arithmetic_successors=23, retained_negation_successors=1,
+            single_command_successors=22, original_FE_successors=1, retained_bool_subtraction_refusals=2,
+            labels=PUBLIC_F64_ARITHMETIC_PROOF['original_refusal_successors'],
+            retained_bool_labels=PUBLIC_F64_ARITHMETIC_PROOF['retained_bool_subtraction_refusals'],
+            reference_directory=str(reference), reference_execution=str(execution),
+            reference_sha256=reference_sha, reference_process_sha256=digest(bind(execution / 'process.json')),
+            case_sha256=PUBLIC_F64_ARITHMETIC_CASES, actual_Torch_reference_verified=True,
+            original_frozen_recipe_modified=False, original87_entry_code_object_preserved=True,
+            original_negation_numeric_predicates_unchanged=True, every_original_snapshot_field_checked=True,
+            input_all84words_unchanged_checked=True,
+            exact_FE_all84word_descriptors_and_all_owner_tables_checked=True,
+            same_f64_numerical_predicates_unchanged=True, same_f64_NaN_payload_qualified=False,
+            host_expected_values_computed=False),
+            'all87 original F64 requests share this actual2541 reference and retain exactly23 arithmetic successors')
+        check_fields(f64_proof, dict(status='PASS_PHYSICAL_F64_48', cases=48,
+            actual_report_sha256=digest(f64_raw), source_sha256=SOURCE, native_sha256=IMAGE,
+            actual_build_sha256=build_sha, original_refusal_recipes=87, retained_refusals=63,
+            actual_numeric_successors=24, actual_mixed_arithmetic_successors=23,
+            actual_FE_arithmetic_successors=1, retained_bool_subtraction_refusals=2,
+            original_OOM_controls=2, native_child_EOFs=96, frames=3259, checks=17923,
+            owner_blobs=626, original_recipe_code_preserved=True, all_physical_inputs_unchanged=True,
+            native_executed_by_qualifier=False, Torch_executed_by_qualifier=False),
+            'complete original48 physical cases retain exact controls, owner observations and all24 numerical successors')
+        need(f64_proof['public_f64_arithmetic_successor'] == successor
+             and successor['source_inverse'] == native['source_inverse']
+             and successor['prior_negation_reference_sha256']
+                 == f64_proof['wide_neg_successor']['reference_sha256'],
+             'the actual mixed image and both actual shared references agree across all retained reports')
+        observer_path = repo / 'tools/current_runtime/public_f64_arithmetic_observer_transition.py'
+        bind(observer_path, 'aeeccf1923a5a964bbffac35c8d2bc68b0d6feeb20f73529aaf34498310b559e')
+        observer_spec = importlib.util.spec_from_file_location('sealed_public_f64_arithmetic_observer_inverse', observer_path)
+        observer = importlib.util.module_from_spec(observer_spec)
+        observer_spec.loader.exec_module(observer)
+        _, observer_proof = observer.restore_negation_helper(bind(repo / 'tests/current_runtime_f64_neg_successor.py'), bind)
+        need(successor['negation_observer_inverse'] == observer_proof
+             and qualification['public_f64_arithmetic_observer_transition'] == observer_proof,
+             'the entire original negation observer, numerical predicates and default terminal contract are preserved')
+        for spelling, metadata in bindings.items():
+            if spelling not in custody_outputs:
+                need(qualification['checked_inputs'].get(spelling) == metadata,
+                     'the qualifier bound every original shared2541 consumer and observer input: ' + spelling)
     division_observer_proofs = None
     if division:
         half_path = current / 'review/half47/report.json'
@@ -1025,6 +1189,11 @@ def live_reference_custody(repo, current, group):
         result.update(division_reference_sha256=division_evidence['reference_sha256'],
             division_physical_proof_sha256=division_evidence['physical_proof_sha256'],
             complete_shared_division_reference_custody_bound=True)
+    if mixed:
+        result.update(complete_f6448_successors_share_this_reference=True,
+            f64_original_requests=87, retained_f64_refusals=63,
+            actual_f64_numerical_successors=24, actual_f64_arithmetic_successors=23,
+            negation_observer_inverse=observer_proof)
     if division_observer_proofs is not None:
         result.update(division_observer_inverses=division_observer_proofs,
             complete_half47_and_arithmetic_successors_share_this_reference=True)
@@ -1059,6 +1228,10 @@ def half_div_custody(repo, current):
     return live_reference_custody(repo, current, 'half_div')
 
 
+def public_f64_arithmetic_custody(repo, current):
+    return live_reference_custody(repo, current, 'public_f64_arithmetic')
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--repository', type=Path, required=True)
@@ -1088,11 +1261,11 @@ def main(argv=None):
         scope='File-byte and original POSIX-mode custody only; original numerical reports retain their statuses.',
         required_output_paths=list(REQUIRED_OUTPUTS), required_repository_paths=list(REPOSITORY_PATHS),
         required_toolchain_directories=list(TOOLCHAINS),
-        required_suites=list(GROUPS), required_cases_total=5446,
+        required_suites=list(GROUPS), required_cases_total=7987,
         reference_interpreters=[], execution_interpreter=None,
         reference_process_executables=[], numeric_predicates_evidence=None,
         bf16_copy_evidence=None, half_mul_evidence=None, half_neg_evidence=None, half_addsub_evidence=None,
-        wide_neg_evidence=None, half_div_evidence=None, missing=[], errors=[])
+        wide_neg_evidence=None, half_div_evidence=None, public_f64_arithmetic_evidence=None, missing=[], errors=[])
     selected, declared, parsed_lists, input_declarations = {}, {}, {}, []
     report_declared_paths = set()
     roots = [(current, 'current-runtime'), (repo, 'repository')] + [
@@ -1175,7 +1348,7 @@ def main(argv=None):
                     table='reference_executable_custody', source_path=spelling, expected=metadata))
         except BaseException as error:
             problem('generator-reference-executable', current / 'review/generator131/report.json', error)
-        for group in ('numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div'):
+        for group in ('numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div', 'public_f64_arithmetic'):
             try:
                 evidence, bindings = live_reference_custody(repo, current, group)
                 role = evidence['reference_interpreter']
@@ -1233,9 +1406,9 @@ def main(argv=None):
                 report['original_required_cases'] = document.get('required_cases_total')
                 if (document.get('schema') != 'heptatorch.current-runtime.qualification.v1'
                         or document.get('required_suites') != list(GROUPS)
-                        or document.get('required_cases_total') != 5446):
+                        or document.get('required_cases_total') != 7987):
                     problem('qualification-inventory', path,
-                            ValueError('current twenty-six-group qualification input inventory differs'))
+                            ValueError('current twenty-seven-group qualification input inventory differs'))
             if relative == 'review/metadata10/report.json':
                 worker = document.get('worker_interpreter')
                 if worker is not None:
@@ -1297,6 +1470,7 @@ def main(argv=None):
             half_neg_evidence=report['half_neg_evidence'], half_addsub_evidence=report['half_addsub_evidence'],
             wide_neg_evidence=report['wide_neg_evidence'],
             half_div_evidence=report['half_div_evidence'],
+            public_f64_arithmetic_evidence=report['public_f64_arithmetic_evidence'],
             external_path_mapping=[dict(original_root=str(root), prefix=alias) for root, alias in roots]
                 + [dict(original_file=str(path), member=name)
                    for path, name in sorted(external_executables.items(), key=lambda row: str(row[0]))])

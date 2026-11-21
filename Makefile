@@ -124,6 +124,14 @@ build/current-runtime/build.json build/current-runtime/heptatorch &: $(CURRENT_R
 	mv "$$stage/native" build/current-runtime; \
 	printf 'Current runtime published: %s\n' "$(CURDIR)/build/current-runtime"
 
+# Historical143 provenance is checked only when an explicit old-source target needs it.
+# The tracked source remains during phase 1; frozen consumers and their gates stay unchanged.
+.PHONY: legacy-source
+legacy-source: tools/legacy_source143/manifest.json tools/legacy_source143/restore.py
+	python3 -I -S -B tools/legacy_source143/restore.py --repository "$(CURDIR)"
+
+src/heptatorch.hepta: | legacy-source
+
 legacy: build/heptatorch build/unhex
 
 monolithic: build/heptatorch-monolithic build/unhex
@@ -652,7 +660,7 @@ build/unhex: tools/unhex.hepta | build check-compiler
 	@set -eu; tmp=$$(mktemp build/.unhex.XXXXXX); trap 'rm -f "$$tmp"' EXIT HUP INT TERM; \
 	"$(HEPTA_COMPILER)" < "$<" > "$$tmp"; test -s "$$tmp"; chmod 755 "$$tmp"; mv "$$tmp" "$@"
 
-# The common gate requires eighteen groups / 1127 cases, main image plus separate Generator probes.
+# Run every mandatory suite from the current qualification inventory, including separate Generator probes.
 test: current-runtime
 	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/current-runtime-review.XXXXXX"); \
 	"$(HEPTA_TORCH_PYTHON)" -I -S -B tests/qualify_current_runtime.py \
