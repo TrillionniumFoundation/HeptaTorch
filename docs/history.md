@@ -128,6 +128,6 @@ PR52与PR53的完整Current门分别失败，原归档和结果不升级为通�
 
 ## 当前797前向、布局和版本修复
 
-当前保留797完整HIA源码、15个活动单元和一份35组／16,341例计划。781的13份核心分区、4份元数据及无活动读取的 `validation/rng-independent-handoff.json` 共18份、2,654,116字节退休到固定提交 `683adf048bf083d4f1116a5ef711d18a36f39e24`；[精确清单](../validation/current-runtime797/retirement.json)记录每个Git blob、原SHA及模式。未将未物化的稀疏文件视为删除。
+当前保留797完整HIA源码、15个活动单元和一份35组／16,365例计划。781的13份核心分区、4份元数据及无活动读取的 `validation/rng-independent-handoff.json` 共18份、2,654,116字节退休到固定提交 `683adf048bf083d4f1116a5ef711d18a36f39e24`；[精确清单](../validation/current-runtime797/retirement.json)记录每个Git blob、原SHA及模式。未将未物化的稀疏文件视为删除。
 
 相对781，本轮9个函数修改、16个新增及772个原体不变；相对775的完整合成链为15／22／760。原无梯度matmul/stack的SIGILL、cat错误复制、softmax/conv/pool拒绝、reduce错误结果以及27个归一化／linear元数据失败均保持各自原始记录。新的数值结果、完整wheel/install来源和实际映射补强分别验证。原32组、全部旧错误／Owner／资源／EOF条件继续必需；全量2,590／688／17的闭合数仍为0。

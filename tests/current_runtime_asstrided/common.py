@@ -11,9 +11,9 @@ import sys
 import types
 
 HERE = Path(__file__).resolve().parent
-SOURCE = '0061acfaa8e886885053e8f539cf08187be1c1e10265c19e52df07435a71594b'
-IMAGE = '955ffc996b8870ef67752f45647f5c1ca9a093f41ff402487091f03223372293'
-SOURCES_SHA = '5a1d695bfa8c2a44b0b7002991a1b92f380dae5ee8a2caaf53f5204c7587f49b'
+SOURCE = 'c73a7cb474981056404ac96bc214979d57aaa9a86e6474b1c140c3d98eb05779'
+IMAGE = '1ea247df76ff96c307e293790aa38de4a0bf0ff94b8148a480653c924658679d'
+SOURCES_SHA = '72a24f04071e48a75b71bce3be1d6352ad27b2b34e71db25729649a03a44ff7a'
 SUITES = ('copy4', 'reduction4', 'lanes2', 'branches6')
 COUNTS = dict(copy4=4, reduction4=4, lanes2=2, branches6=6)
 CHECKS = {'python_matches', 'platform_matches', 'version_backend_matches',

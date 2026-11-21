@@ -152,8 +152,8 @@ Or consume an explicit new build:
 | `indexed_f32` | 331 | F32 gather/scatter_add/index_add with and without AD; explicit no-grad geometry, 193 actual gradients and full raw replay |
 | `forward_nograd` | 462 | Matmul and softmax/log_softmax,243 actual backward cases,37 protocol controls,3 successful and12 failed FE transactions,3 real OOM recoveries |
 | `join_forward` | 414 | Cat/stack exact bits and layouts,274 actual backward cases,194 absent gradients,58 protocol controls,2 successful and10 failed FE transactions,2 real OOM recoveries |
-| `spatial_forward` | 320 | Conv/pool/reduce/norm/linear/cross-entropy,174 actual backward cases and234 gradients,28 protocol controls,3 successful and9 failed FE transactions,3 real OOM recoveries |
-| **Total** | **16,341** | Every group and its original or explicitly mapped successor controls are mandatory |
+| `spatial_forward` | 344 | Conv/pool/reduce/norm/linear/cross-entropy,186 actual backward cases and258 gradients,28 protocol controls,3 successful and9 failed FE transactions,3 real OOM recoveries |
+| **Total** | **16,365** | Every group and its original or explicitly mapped successor controls are mandatory |
 
 Production cases use the same main image. Generator ABI/reordered probes are separate current-object images, each bound to its own actual execution. New source identities require a complete new run. The forward797→indexed781→index/signbit778→typed-ReLU775→same-F64773→mixed-F64773→771→767→765→761→758→742→740 whole-source inverse composes with unchanged predecessor proofs; source identity never substitutes for execution. The typed-ReLU successor changes only the old `unary` body, retains the other772 old bodies and adds `typed_relu_value` and `typed_relu_tensor`. Its [source review](../validation/current-runtime775/source-review.json) and [qualification plan](../validation/current-runtime797/qualification-plan.json) keep static identity, scoped numerical results and the full35-group execution distinct.
 
@@ -165,7 +165,7 @@ The typed_relu776, half_neg371 and wide_neg405 groups share one new actual776 Re
 
 The live32 cold-build adapter preserves its original predicates while mapping all seven unit/process inventory literals to the actual fifteen-unit, sixteen-process build. The preceding complete22 and old-head complete23 failures are retained. A focused corrected32 PASS does not substitute for the required complete execution on each new head.
 
-Current results are in [the audit](current-audit.md). The 16,341 finite cases remain distinct from the complete 2,590 native declarations, 688 derivative declarations and 17 system contracts.
+Current results are in [the audit](current-audit.md). The 16,365 finite cases remain distinct from the complete 2,590 native declarations, 688 derivative declarations and 17 system contracts.
 
 ## Changes and retirement
 

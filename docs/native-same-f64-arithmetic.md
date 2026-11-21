@@ -103,7 +103,7 @@ transferred to this image.
 
 The [qualification plan](../validation/current-runtime797/qualification-plan.json)
 and [actual execution review](../validation/current-runtime-same-f64/native-review.json)
-separate the current797 requirement of **35 groups / 16,341 cases** from the original scoped results. Current admission requires complete new-tree CI,
+separate the current797 requirement of **35 groups / 16,365 cases** from the original scoped results. Current admission requires complete new-tree CI,
 separately executed Generator images, all other head checks and complete original
 artifact readback. The complete PyTorch target remains **HOLD**: no complete
 native declaration, derivative declaration or subsystem is closed by this work.

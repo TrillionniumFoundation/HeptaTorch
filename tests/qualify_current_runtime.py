@@ -77,7 +77,7 @@ SOURCE, IMAGE = current_profile.SOURCE, current_profile.IMAGE
 FUNCTIONS, UNITS = current_profile.FUNCTIONS, current_profile.UNITS
 COMPILER = "b1c851a0896fa6071f800e1146c3c27d0c6cf85059e9a6281b46d42908a3f59f"
 LINKER = "761a941fd7a2d53eb9b45869fcfc20e970640e9dd11d60f7c61a89812b61d74e"
-FUSION_RESOURCE_SHA = 'b4cd79a3958efaa516f9e8d5d7ae8bc38ba42518b19525c1b5b1d283985b1dc4'
+FUSION_RESOURCE_SHA = '5fb33b970fb74792abdfb7fab7fe9b62196a9b6d08cfeb1f3ebb5330ebe19e97'
 BOOL_REFERENCE = "21dd75aeb86414818f7aa381f8b866d78b16f9bb3f5738e9a60d27ac3d15dd28"
 BOOL_ARCHIVE = "353a8b2853773bc6678bb62fc9559d6f4244c571ba40c6b80f352b2649cd6edd"
 SUM32_REFERENCE = "c14e4b18f657429ad5dac5498c3abcae303b6a7e7550db7d15a3c9179bdcd728"
@@ -165,9 +165,9 @@ FORWARD_PROOFS = {'forward_nograd': {'Torch_executed_by_qualifier': False,
                   'raw_reference_entities': 15,
                   'torch_shared_libraries_verified': 12},
  'spatial_forward': {'Torch_executed_by_qualifier': False,
-                     'actual_autograd_cases': 174,
+                     'actual_autograd_cases': 186,
                      'actual_environment_transition_verified': True,
-                     'actual_gradient_tensors': 234,
+                     'actual_gradient_tensors': 258,
                      'actual_mapped_torch_cpu_code_verified': True,
                      'actual_supervisor_intent_verified': True,
                      'additional_allocation_recoveries': 3,
@@ -175,12 +175,12 @@ FORWARD_PROOFS = {'forward_nograd': {'Torch_executed_by_qualifier': False,
                      'additional_protocol_controls': 28,
                      'additional_successful_FE_transactions': 3,
                      'all_actual_installed_inputs_unchanged': True,
-                     'assertions': 57082,
-                     'cases': 320,
+                     'assertions': 62006,
+                     'cases': 344,
                      'complete_ci_admission': True,
                      'complete_installed_raw_snapshot_verified': True,
                      'complete_official_wheel_archive_verified': True,
-                     'frames': 10513,
+                     'frames': 11545,
                      'full_installation_provenance_verified': True,
                      'host_expected_values_computed': False,
                      'independent_official_wheel_member_anchor_verified': True,
@@ -188,14 +188,14 @@ FORWARD_PROOFS = {'forward_nograd': {'Torch_executed_by_qualifier': False,
                      'installed_wheel_members_verified': 12567,
                      'mapping_snapshots': 24,
                      'native_executed_by_qualifier': False,
-                     'native_sessions': 323,
+                     'native_sessions': 347,
                      'official_member_anchor_sha256': '0e5377c5bd2767e35bfbcb81346dbc522ad9864e0d2d68b6a3705e0befd042f0',
                      'official_wheel_sha256': '0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3',
                      'original_backward_functions_unchanged': True,
                      'original_eleven_checks_recomputed_from_raw_inputs': True,
                      'original_reference_script_bytes_verified': True,
                      'original_requires_grad_dispatch_preserved': True,
-                     'owner_snapshots': 3201,
+                     'owner_snapshots': 3477,
                      'physical_replay': True,
                      'portable_producer_path_roles': True,
                      'production_oracle_qualified': True,
@@ -274,7 +274,7 @@ def build_binding(directory, inputs):
 def cat_source_binding(directory, inputs):
     """Admit exact797 and three reviewed cat bodies; transfer no old result."""
     outer_path = ROOT / 'tools/current_runtime/fusion_source_transition.py'
-    inputs.bind(outer_path, '012e6169869e450df5a5dcc49f506c14f8b25d6da6c0d538a75c0a84eae68a38')
+    inputs.bind(outer_path, '0d3d073c5f90712821da991038fd1b09d5db4d836a12991de7b08c6c74c971d8')
     outer_spec = importlib.util.spec_from_file_location('current_runtime778_source_transition', outer_path)
     outer = importlib.util.module_from_spec(outer_spec)
     outer_spec.loader.exec_module(outer)
@@ -1085,12 +1085,12 @@ def main(argv=None):
               "sum32": 32, "integral24": 24, "sum_f32_17": 17, "current35": 35, "base270": 270,
               "live32": 32, "logical147": 147, "resource7": 7, "asstrided16": 16, "cat4": 4, "metadata10": 10, "generator131": 131, "public_f64_logical192": 192,
               "f64_48": 48, "half47": 47, "half_logical264": 264, "half_transactions12": 12,
-              "numeric_predicates": 485, "bf16_copy": 280, "half_mul": 312, "half_neg": 371, "half_addsub": 1006, "wide_neg": 405, "half_div": 1196, "public_f64_arithmetic": 2541, "same_f64_arithmetic": 5088, "typed_relu": 776, "signbit": 97, "typed_index_select": 866, "indexed_f32": 331, "forward_nograd": 462, "join_forward": 414, "spatial_forward": 320}, "required_cases_total": 16341,
+              "numeric_predicates": 485, "bf16_copy": 280, "half_mul": 312, "half_neg": 371, "half_addsub": 1006, "wide_neg": 405, "half_div": 1196, "public_f64_arithmetic": 2541, "same_f64_arithmetic": 5088, "typed_relu": 776, "signbit": 97, "typed_index_select": 866, "indexed_f32": 331, "forward_nograd": 462, "join_forward": 414, "spatial_forward": 344}, "required_cases_total": 16365,
               "generator_subgroups": {"oracle24": 24, "native11": 11, "entry59": 59, "dispatch37": 37},
               "image_scope": "All thirteen inherited groups and Generator production cases bind the current main image; "
                   "Generator131 also requires separately linked current-object ABI and reordered probe images. "
                   "Public F64 logical192, F64 48, Half47, Half logical264, Half transactions12 and numeric predicates "
-                  "and BF16 copy280, Half multiplication312, Half negation371, Half addition/subtraction1006, I64/F64 negation405, Half true division1196 and mixed public F64 arithmetic2541, same-F64 arithmetic5088, typed ReLU776, signbit97, typed index_select866 and indexed F32 forward331, no-gradient forward462, cat/stack forward414 and spatial/norm/linear forward320 use the same current main image.",
+                  "and BF16 copy280, Half multiplication312, Half negation371, Half addition/subtraction1006, I64/F64 negation405, Half true division1196 and mixed public F64 arithmetic2541, same-F64 arithmetic5088, typed ReLU776, signbit97, typed index_select866 and indexed F32 forward331, no-gradient forward462, cat/stack forward414 and spatial/norm/linear forward344 use the same current main image.",
               "half_mul_scope": {"actual_reference_cases": 312, "opcode": 2,
                   "cpu_capability": "AVX2", "requested_cpu_capability": "avx2", "torch_threads": 1,
                   "exact_raw_bytes_required": True, "physical_replay_required": True,
@@ -1279,7 +1279,7 @@ def main(argv=None):
                    'actual_absent_gradients_checked': 194,
                    'native_rank_capacity_refusals': 2,
                    'mapping_snapshots': 24},
-              'spatial_forward_scope': {'actual_reference_cases': 320,
+              'spatial_forward_scope': {'actual_reference_cases': 344,
                    'source_dtype_codes': [0],
                    'rank_range': [0, 4],
                    'fresh_pinned_Torch_reference_required': True,
@@ -1288,9 +1288,9 @@ def main(argv=None):
                    'source_strides_and_storage_offset_checked': True,
                    'original_backward_functions_unchanged': True,
                    'original_requires_grad_dispatch_preserved': True,
-                   'actual_autograd_cases': 174,
-                   'actual_gradient_tensors': 234,
-                   'native_sessions': 323,
+                   'actual_autograd_cases': 186,
+                   'actual_gradient_tensors': 258,
+                   'native_sessions': 347,
                    'additional_protocol_controls': 28,
                    'additional_allocation_recoveries': 3,
                    'additional_successful_FE_transactions': 3,
@@ -1350,8 +1350,8 @@ def main(argv=None):
                   'join_forward_native_rank_capacity_refusals': 2,
                   'join_forward_mapping_snapshots': 24,
                   'join_forward_actual_autograd_cases': 274,
-                  'spatial_forward_actual_autograd_cases': 174,
-                  'spatial_forward_actual_gradient_tensors': 234,
+                  'spatial_forward_actual_autograd_cases': 186,
+                  'spatial_forward_actual_gradient_tensors': 258,
                   'spatial_forward_additional_protocol_controls': 28,
                   'spatial_forward_additional_allocation_recoveries': 3,
                   'spatial_forward_additional_successful_FE_transactions': 3,

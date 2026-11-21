@@ -11,8 +11,8 @@ import types
 from current_runtime_fixtures import require, safe_name, sha
 from current_runtime_generator_fixtures import verify_qualifier, QUALIFIER_MANIFEST
 
-SOURCE = '0061acfaa8e886885053e8f539cf08187be1c1e10265c19e52df07435a71594b'
-IMAGE = '955ffc996b8870ef67752f45647f5c1ca9a093f41ff402487091f03223372293'
+SOURCE = 'c73a7cb474981056404ac96bc214979d57aaa9a86e6474b1c140c3d98eb05779'
+IMAGE = '1ea247df76ff96c307e293790aa38de4a0bf0ff94b8148a480653c924658679d'
 OWNER = 'c39600e7c37dea390f88cf9e74d86dfa924301456e0f32e127d82c98ad6778b0'
 GROUPS = ('oracle24', 'native11', 'entry59', 'dispatch')
 
@@ -67,9 +67,9 @@ def tensor_owner(package, directory, proof, inputs):
     raw = original
     changes = [('HTSINT01', 'HTSINT02', 2), ('HTOSIN01', 'HTOSIN02', 2),
                ('functions == 699', 'functions == 797', 1),
-               ('sum-integral-source01-UNBOUND-699', 'generator778-dispatch-UNBOUND', 1),
+               ('sum-integral-source01-UNBOUND-699', 'generator797-dispatch-UNBOUND', 1),
                ('sum-integral-source01-%d-preserved47-48', 'generator%d-dispatch-full-tensor-owner', 1),
-               ('heptatorch.sum-integral-owner-source01.v1', 'heptatorch.generator778-dispatch-tensor-owner.v1', 1)]
+               ('heptatorch.sum-integral-owner-source01.v1', 'heptatorch.generator797-dispatch-tensor-owner.v1', 1)]
     for before, after, count in changes:
         require(raw.count(before.encode()) == count and after.encode() not in raw, 'exact owner identity edits')
         raw = raw.replace(before.encode(), after.encode())
@@ -212,8 +212,8 @@ def audit_generator_reports(report, directory, package, inputs):
     complete actual cold/tool and source-custody admission.
     """
     directory, package = Path(directory), Path(package)
-    require(report['schema'] == 'heptatorch.generator778-current-native-qualification.v1'
-            and report['status'] == 'PASS_CURRENT778_GENERATOR131' and report['selected_group'] == 'all'
+    require(report['schema'] == 'heptatorch.generator797-current-native-qualification.v1'
+            and report['status'] == 'PASS_CURRENT797_GENERATOR131' and report['selected_group'] == 'all'
             and report['cases'] == 131 and report['original_cases'] == 94 and report['new_dispatch_cases'] == 37,
             'all original94 and new37 actually qualified together')
     require(report['source_sha256'] == SOURCE and report['native_sha256'] == IMAGE

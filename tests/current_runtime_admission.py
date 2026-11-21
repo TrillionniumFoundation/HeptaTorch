@@ -253,7 +253,7 @@ def qualify_f32(report, repository, build, build_sha, directory, inputs):
     cat = importlib.util.module_from_spec(cat_spec)
     cat_spec.loader.exec_module(cat)
     outer_path = Path(repository) / 'tools/current_runtime/fusion_source_transition.py'
-    inputs.bind(outer_path, '012e6169869e450df5a5dcc49f506c14f8b25d6da6c0d538a75c0a84eae68a38')
+    inputs.bind(outer_path, '0d3d073c5f90712821da991038fd1b09d5db4d836a12991de7b08c6c74c971d8')
     outer_spec = importlib.util.spec_from_file_location('qualified_current797_source_transition', outer_path)
     outer = importlib.util.module_from_spec(outer_spec)
     outer_spec.loader.exec_module(outer)

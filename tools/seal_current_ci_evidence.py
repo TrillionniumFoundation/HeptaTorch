@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Seal current CI bytes and modes; never grant a numerical qualification."""
 import argparse
+import contextlib
 import hashlib
 import io
+import importlib.machinery
 import importlib.util
 import json
 import lzma
@@ -26,11 +28,11 @@ REQUIRED_CASES = {'bool27': 27, 'original76': 76, 'integral24': 24, 'sum_f32_17'
     'half_transactions12': 12, 'numeric_predicates': 485, 'bf16_copy': 280,
     'half_mul': 312, 'half_neg': 371, 'half_addsub': 1006, 'wide_neg': 405,
     'half_div': 1196, 'public_f64_arithmetic': 2541, 'same_f64_arithmetic': 5088,
-    'typed_relu': 776, 'signbit': 97, 'typed_index_select': 866, 'indexed_f32': 331, 'forward_nograd': 462, 'join_forward': 414, 'spatial_forward': 320}
-REQUIRED_CASES_TOTAL = 16341
-SOURCE = '0061acfaa8e886885053e8f539cf08187be1c1e10265c19e52df07435a71594b'
-IMAGE = '955ffc996b8870ef67752f45647f5c1ca9a093f41ff402487091f03223372293'
-SOURCE_MANIFEST = '2e442fea4961a5111004a1a721fb46e817f5568f50c7068047fc767721df8e21'
+    'typed_relu': 776, 'signbit': 97, 'typed_index_select': 866, 'indexed_f32': 331, 'forward_nograd': 462, 'join_forward': 414, 'spatial_forward': 344}
+REQUIRED_CASES_TOTAL = 16365
+SOURCE = 'c73a7cb474981056404ac96bc214979d57aaa9a86e6474b1c140c3d98eb05779'
+IMAGE = '1ea247df76ff96c307e293790aa38de4a0bf0ff94b8148a480653c924658679d'
+SOURCE_MANIFEST = '7c418ce968226835ae79188a51aa38af8d8746a62d72749e8fc76804ec730c25'
 NUMERIC_CASES = '272c9b4fbde339481c32f2ed071dd8c60c9c3b17732e71e2178d973914c79609'
 NUMERIC_PROOF = dict(cases=485, native_sessions=496, frames=11244, assertions=42645,
     owner_snapshots=3615, mapping_snapshots=10, additional_packet_controls=56,
@@ -394,6 +396,8 @@ REPOSITORY_PATHS = (
     'validation/current-runtime773/retirement.json',
     'validation/current-runtime773/legacy-source143-review.json',
     'tools/current_runtime', 'tools/differentiable_view_recovered_r3/profile.json',
+    'tools/current_f64_consumer', 'tools/dtype-f64/f64.hepta',
+    'tools/dtype-f64/profile.json', 'tools/stack_budget/profile.json',
     'tools/current_runtime/index_signbit_source_transition.py',
     'tools/current_runtime/indexed_forward_source_transition.py',
     'tools/current_runtime/index_signbit_source_delta.json',
@@ -455,7 +459,7 @@ EXTENSION_CASE_HASHES = {
     'indexed_f32': '84967019c0b27b5444a31613875aaf8590f0b9cb0f1280e8d3e4b6a865b04b01',
     'forward_nograd': '9d373bba4d8118f5f71581769c61c8e07e873398c33c0c6a49be609a79c4b784',
     'join_forward': '40db86bd4e39a17b7b0d1bb5fff203e7de1bc4813d462adac543b276534905bd',
-    'spatial_forward': '62f81aa0ed6626b6fe867c89549b04c395ee019114713b43fef2b8e8bf1d3cf3',
+    'spatial_forward': '64be7b4788f8e3c92b6466002df86c0c5ea84ffd002cca5d339ab2f591ae5a3f',
 }
 EXTENSION_PROOFS = {'forward_nograd': {'Torch_executed_by_qualifier': False,
                     'actual_autograd_cases': 243,
@@ -646,9 +650,9 @@ EXTENSION_PROOFS = {'forward_nograd': {'Torch_executed_by_qualifier': False,
                         'raw_reference_entities': 15,
                         'torch_shared_libraries_verified': 12},
  'spatial_forward': {'Torch_executed_by_qualifier': False,
-                     'actual_autograd_cases': 174,
+                     'actual_autograd_cases': 186,
                      'actual_environment_transition_verified': True,
-                     'actual_gradient_tensors': 234,
+                     'actual_gradient_tensors': 258,
                      'actual_mapped_torch_cpu_code_verified': True,
                      'actual_supervisor_intent_verified': True,
                      'additional_allocation_recoveries': 3,
@@ -656,12 +660,12 @@ EXTENSION_PROOFS = {'forward_nograd': {'Torch_executed_by_qualifier': False,
                      'additional_protocol_controls': 28,
                      'additional_successful_FE_transactions': 3,
                      'all_actual_installed_inputs_unchanged': True,
-                     'assertions': 57082,
-                     'cases': 320,
+                     'assertions': 62006,
+                     'cases': 344,
                      'complete_ci_admission': True,
                      'complete_installed_raw_snapshot_verified': True,
                      'complete_official_wheel_archive_verified': True,
-                     'frames': 10513,
+                     'frames': 11545,
                      'full_installation_provenance_verified': True,
                      'host_expected_values_computed': False,
                      'independent_official_wheel_member_anchor_verified': True,
@@ -669,14 +673,14 @@ EXTENSION_PROOFS = {'forward_nograd': {'Torch_executed_by_qualifier': False,
                      'installed_wheel_members_verified': 12567,
                      'mapping_snapshots': 24,
                      'native_executed_by_qualifier': False,
-                     'native_sessions': 323,
+                     'native_sessions': 347,
                      'official_member_anchor_sha256': '0e5377c5bd2767e35bfbcb81346dbc522ad9864e0d2d68b6a3705e0befd042f0',
                      'official_wheel_sha256': '0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3',
                      'original_backward_functions_unchanged': True,
                      'original_eleven_checks_recomputed_from_raw_inputs': True,
                      'original_reference_script_bytes_verified': True,
                      'original_requires_grad_dispatch_preserved': True,
-                     'owner_snapshots': 3201,
+                     'owner_snapshots': 3477,
                      'physical_replay': True,
                      'portable_producer_path_roles': True,
                      'production_oracle_qualified': True,
@@ -794,8 +798,32 @@ EXTENSION_OUTPUTS = tuple(relative for group in EXTENSION_GROUPS for relative in
 REQUIRED_OUTPUTS += EXTENSION_OUTPUTS
 PREPARATION_OUTPUTS = ('preparation/admission.json', 'preparation/owner-profile.json',
                        'preparation/asstrided/report.json', 'preparation/resources/report.json',
-                       'preparation/admission-controls.json')
+                       'preparation/admission-controls.json', 'preparation/f64-sealer-controls.json')
 REQUIRED_OUTPUTS += PREPARATION_OUTPUTS
+F64_SEALER_CONTROL_NAMES = (
+    'valid_component_retains_PARTIAL_scope', 'strict_sqrt_FAIL_and_exit1_remain_FAIL',
+    'reject_failed_CPython_predecessor', 'reject_non_sqrt_numeric_failure',
+    'reject_reclassified_strict_sqrt_failure', 'reject_stale_current_source',
+    'reject_missing_actual_current_object', 'reject_failed_RNE_qualification',
+    'reject_missing_integer_boundary_control', 'reject_unexpected_strict_producer_exit',
+    'reject_unexpected_strict_reader_exit', 'reject_incomplete_original_wheel_provenance',
+    'reject_physical_readback_status_mismatch', 'reject_component_report_hash_mismatch',
+    'reject_missing_F64_consumer_before_sealing',
+    'complete_F64_outputs_reports_and_source_inventory_are_mandatory',
+    'reader_executes_bound_source_and_restores_import_namespace',
+    'reader_rejects_changed_physical_input', 'reader_refuses_process_and_Torch_execution_events',
+)
+F64_CONSUMER_OUTPUTS = (
+    'f64-consumer/build/build.json', 'f64-consumer/build/f64-native',
+    'f64-consumer/build/packet_adapter.hepta', 'f64-consumer/build/packet_adapter.o',
+    'f64-consumer/cpython/execution/report.json', 'f64-consumer/pytorch/execution/report.json',
+    'f64-consumer/cpython-readback.json', 'f64-consumer/pytorch-readback.json',
+    'f64-consumer/strict-exit.txt', 'f64-consumer/readback-exit.txt',
+    'f64-consumer/component-status.json',
+) + tuple('f64-consumer/' + reference + '/reference-process' + suffix
+          for reference in ('cpython', 'pytorch')
+          for suffix in ('.json', '.intent.json', '.stdout', '.stderr'))
+REQUIRED_OUTPUTS += F64_CONSUMER_OUTPUTS
 INPUT_REPORTS = ('build/build.json', 'review/qualification.json',) + tuple(
     'review/' + name + '/report.json' for name in GROUPS) + (
         'review/base270/current-adapter.json', 'review/base270/cold-build-admission.json',
@@ -868,6 +896,7 @@ INPUT_REPORTS += ('review/typed_relu/physical-qualification.json',
  'review/typed_relu-execution/runner.json')
 INPUT_REPORTS += tuple(relative for relative in EXTENSION_OUTPUTS if relative.endswith('.json'))
 INPUT_REPORTS += PREPARATION_OUTPUTS
+INPUT_REPORTS += tuple(relative for relative in F64_CONSUMER_OUTPUTS if relative.endswith('.json'))
 INPUT_TABLES = ('checked_inputs', 'inputs', 'files', 'source_custody')
 
 
@@ -1865,7 +1894,7 @@ def extension_custody(repo, current, group):
         source_sha256=SOURCE, native_sha256=IMAGE), 'complete original35 suite inventory and final image')
     need(len(GROUPS) == len(REQUIRED_CASES) == 35 and set(GROUPS) == set(REQUIRED_CASES)
          and sum(REQUIRED_CASES.values()) == REQUIRED_CASES_TOTAL,
-         'all original32 groups plus462 forward,414 cat/stack and320 spatial cases remain mandatory')
+         'all original32 groups plus462 forward,414 cat/stack and344 spatial cases remain mandatory')
     build = current / 'build'
     manifest_raw = bind(repo / 'tools/current_runtime/source/manifest.json', SOURCE_MANIFEST)
     need(bind(build / 'manifest.json', SOURCE_MANIFEST) == manifest_raw,
@@ -2015,6 +2044,247 @@ def spatial_forward_custody(repo, current):
     return extension_custody(repo, current, 'spatial_forward')
 
 
+def f64_need(condition, message):
+    if not condition:
+        raise ValueError('current F64 consumer: ' + message)
+
+
+def f64_sealer_preparation_custody(repository, path):
+    """Check all nineteen controls and their exact executing source identities."""
+    raw, metadata = info(path)
+    controls = json.loads(raw)
+    f64_need(controls['schema'] == 'heptatorch.current-f64-sealer.synthetic-controls.v1'
+             and controls['status'] == 'PASS_F64_SEALER_CONTROLS'
+             and type(controls['required_controls']) is type(controls['executed_controls']) is int
+             and controls['required_controls'] == controls['executed_controls'] == len(F64_SEALER_CONTROL_NAMES) == 19
+             and tuple(row['name'] for row in controls['controls']) == F64_SEALER_CONTROL_NAMES
+             and all(row['status'] == 'PASS' and type(row['rejected']) is bool for row in controls['controls'])
+             and controls['all_inputs_unchanged'] is True,
+             'all exact nineteen F64 sealer controls must pass')
+    f64_need(all(controls[name] is False for name in (
+        'native_executed', 'Torch_executed', 'compiler_executed', 'runtime_qualification_granted',
+        'whole_pytorch_rewrite_complete', 'repository_fixtures_modified'))
+        and type(controls['numerical_cases_added']) is int and controls['numerical_cases_added'] == 0,
+        'synthetic sealer controls cannot grant numerical qualification')
+    expected = {str(repository / name): info(repository / name)[1] for name in
+                ('tests/check_current_f64_sealer_controls.py', 'tools/seal_current_ci_evidence.py')}
+    f64_need(controls['inputs'] == expected, 'controls must bind this exact sealer and control script')
+    return dict(status=controls['status'], required_controls=19, executed_controls=19,
+                report=metadata, inputs=expected, numerical_cases_added=0)
+
+
+@contextlib.contextmanager
+def f64_reader_scope(repository, bindings):
+    """Load exact reader source and bind physical reads without running a child.
+
+    The consumer's unchanged readers use Path reads rather than a bind argument.
+    Observe those reads, reject changed inputs, and restore the import namespace
+    afterwards. The original comparison and reference predicates are untouched.
+    """
+    repository = Path(repository).resolve()
+    read_bytes, read_text = Path.read_bytes, Path.read_text
+    get_code = importlib.machinery.SourceFileLoader.get_code
+    old_path, old_bytecode = list(sys.path), sys.dont_write_bytecode
+    saved_modules = {}
+    active = [True]
+
+    def audit(event, args):
+        if not active[0]:
+            return
+        if event in ('subprocess.Popen', 'os.system', 'os.exec', 'os.posix_spawn',
+                     'os.spawn', 'os.fork', 'os.forkpty'):
+            raise RuntimeError('current F64 physical reader cannot start a process: ' + event)
+        if event == 'import' and args and str(args[0]).split('.')[0] == 'torch':
+            raise RuntimeError('current F64 physical reader cannot import Torch')
+
+    def bound_bytes(path):
+        path = Path(path)
+        f64_need(path.is_absolute() and str(path.resolve()) == str(path),
+                 'canonical physical input path required: ' + str(path))
+        before = path.lstat()
+        f64_need(stat.S_ISREG(before.st_mode) and not path.is_symlink(),
+                 'regular physical input required: ' + str(path))
+        raw = read_bytes(path)
+        after = path.stat()
+        fields = ('st_dev', 'st_ino', 'st_size', 'st_mode', 'st_mtime_ns', 'st_ctime_ns')
+        f64_need(all(getattr(before, key) == getattr(after, key) for key in fields),
+                 'physical input changed while reading: ' + str(path))
+        metadata = dict(bytes=len(raw), sha256=digest(raw), mode=stat.S_IMODE(after.st_mode))
+        f64_need(str(path) not in bindings or bindings[str(path)] == metadata,
+                 'previously bound physical input changed: ' + str(path))
+        bindings[str(path)] = metadata
+        return raw
+
+    def bound_text(path, *args, **kwargs):
+        bound_bytes(path)
+        value = read_text(path, *args, **kwargs)
+        bound_bytes(path)
+        return value
+
+    def source_code(loader, fullname):
+        path = Path(loader.path).absolute()
+        if path.is_relative_to(repository) and path.suffix == '.py':
+            return compile(bound_bytes(path), str(path), 'exec', dont_inherit=True, optimize=0)
+        return get_code(loader, fullname)
+
+    def load(path, name):
+        path = Path(path).absolute()
+        if name not in saved_modules:
+            saved_modules[name] = sys.modules.get(name)
+        spec = importlib.util.spec_from_file_location(name, path)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[name] = module
+        exec(compile(bound_bytes(path), str(path), 'exec', dont_inherit=True, optimize=0), module.__dict__)
+        return module
+
+    f64_need(not any(name == 'torch' or name.startswith('torch.') for name in sys.modules),
+             'physical readback must begin without Torch')
+    sys.addaudithook(audit)
+    try:
+        Path.read_bytes, Path.read_text = bound_bytes, bound_text
+        importlib.machinery.SourceFileLoader.get_code = source_code
+        sys.dont_write_bytecode = True
+        yield load
+        for spelling in list(bindings):
+            bound_bytes(Path(spelling))
+        f64_need(not any(name == 'torch' or name.startswith('torch.') for name in sys.modules),
+                 'physical readback imported Torch')
+    finally:
+        active[0] = False
+        Path.read_bytes, Path.read_text = read_bytes, read_text
+        importlib.machinery.SourceFileLoader.get_code = get_code
+        sys.path[:] = old_path
+        sys.dont_write_bytecode = old_bytecode
+        for name, previous in saved_modules.items():
+            if previous is None:
+                sys.modules.pop(name, None)
+            else:
+                sys.modules[name] = previous
+
+
+def f64_component_status(build, cp, strict, cp_reader, strict_reader,
+                         component, strict_exit, reader_exit, report_hashes):
+    """Require original strict outcomes while admitting only component custody."""
+    f64_need(build['schema'] == 'heptatorch.current-object-f64-build.v1'
+             and build['status'] == 'PASS_NATIVE_BUILD_ONLY'
+             and build['current_source_sha256'] == SOURCE and build['current_native_sha256'] == IMAGE
+             and build['current_function_count'] == 797 and len(build['current_units']) == 15
+             and build['actual_current_objects_reused'] is True and build['legacy143_restored'] is False
+             and build['runtime_qualified'] is False and build['whole_pytorch_rewrite_complete'] is False,
+             'complete current source and all fifteen actual objects are required')
+    for reference, native, reader in (('cpython', cp, cp_reader), ('pytorch', strict, strict_reader)):
+        f64_need(native['schema'] == 'heptatorch.current-object-f64-run.v1'
+                 and reader['schema'] == 'heptatorch.current-object-f64-physical-readback.v1'
+                 and native['reference'] == reader['reference'] == reference
+                 and native['cases'] == reader['cases'] == len(native['rows']) == 55
+                 and native['current_source_sha256'] == reader['current_source_sha256'] == SOURCE
+                 and native['native_sha256'] == reader['native_sha256'] == build['native_sha256']
+                 and reader['current_objects_verified'] == 15
+                 and reader['native_or_reference_execution_by_reader'] is False
+                 and reader['component_qualification_status'] == 'PARTIAL',
+                 'complete original55 physical readback and current object identity: ' + reference)
+        failures = sum(row['status'] != 'PASS' for row in native['rows'])
+        f64_need(native['status'] == reader['status'] == ('FAIL' if failures else 'PASS')
+                 and native['failed_cases'] == reader['failed_cases'] == failures,
+                 'original strict failure status and count must be preserved: ' + reference)
+        f64_need(all(row['status'] == 'PASS' or
+                     (reference == 'pytorch' and row['status'] == 'FAIL' and row.get('mode') == 4)
+                     for row in native['rows']), 'only preserved strict PyTorch sqrt differences are admissible')
+        rne = native['rne_accuracy']
+        f64_need(rne['status'] == 'PARTIAL' and rne['qualification_status'] == 'PASS'
+                 and rne['cases'] == reader['rne_repeat_cases'] == 55
+                 and rne['integer_checker_boundary_controls'] == reader['integer_boundary_controls'] == 18
+                 and native['sqrt_diagnostic']['native_errors'] == []
+                 and len(native['sqrt_diagnostic']['rows']) == reader['sqrt_diagnostic_cases'] == 5,
+                 'all original RNE55, eighteen integer controls and five rational sqrt groups: ' + reference)
+        f64_need(native['strict_failures_reclassified'] is reader['strict_failures_reclassified'] is False
+                 and native['legacy143_restored'] is False and native['sqrt_public_tensor_support'] is False
+                 and native['whole_pytorch_rewrite_complete'] is reader['whole_pytorch_rewrite_complete'] is False,
+                 'physical custody cannot broaden numerical or rewrite scope: ' + reference)
+    f64_need(cp['status'] == 'PASS' and cp['failed_cases'] == 0 and cp['oracle_provenance'] is None,
+             'complete CPython predecessor must pass')
+    provenance = strict['oracle_provenance']
+    f64_need(provenance['status'] == 'PASS' and type(provenance['checks']) is dict
+             and len(provenance['checks']) == 11 and all(value is True for value in provenance['checks'].values()),
+             'all original eleven strict installed-wheel checks remain mandatory')
+    expected_exit = b'0\n' if strict['status'] == 'PASS' else b'1\n'
+    f64_need(strict_exit == reader_exit == expected_exit, 'actual strict producer and reader exits must match their status')
+    expected = dict(schema='heptatorch.current-object-f64-component.v1', status='PARTIAL',
+        component_qualification_status='PASS', strict_pytorch_status=strict['status'],
+        strict_pytorch_failed_cases=strict['failed_cases'], strict_gate_reclassified=False,
+        current_source_sha256=SOURCE, native_sha256=build['native_sha256'],
+        original_strict_cases=55, original_rne_repeat_cases=55, original_rational_diagnostic_groups=5,
+        legacy143_restored=False, whole_pytorch_rewrite_complete=False, reports=report_hashes)
+    f64_need(component == expected, 'complete component summary must retain the original strict outcome')
+    return expected
+
+
+def current_f64_consumer_custody(repo, current):
+    """Re-enter both actual F64 readers, preserving FAIL as physical evidence."""
+    repo, current = Path(repo).resolve(), Path(current).resolve()
+    directory, bindings = current / 'f64-consumer', {}
+    f64_need(not sys.flags.optimize, 'all original comparison assertions must remain enabled')
+    f64_need(not (repo / 'src/heptatorch.hepta').exists()
+             and not (repo / 'src/heptatorch.hepta').is_symlink(), 'legacy143 must remain absent')
+    with f64_reader_scope(repo, bindings) as load:
+        originals = {relative: (current / relative).read_bytes() for relative in F64_CONSUMER_OUTPUTS}
+        preparation = f64_sealer_preparation_custody(repo, current / 'preparation/f64-sealer-controls.json')
+        for relative in ('tools/current_f64_consumer/README.md', 'tests/test_current_f64_consumer.py',
+                         'tests/f64_oracle.py', 'tests/f64_sqrt_probe.py', 'tests/f64_rne_qualification.py',
+                         'tests/f64_sqrt_integer.py', 'tests/pytorch_oracle.py', 'tests/pinned_reference_custody.py'):
+            (repo / relative).read_bytes()
+        implementation = repo / 'tools/current_f64_consumer'
+        load(implementation / 'build.py', 'build')
+        load(implementation / 'support.py', 'support')
+        reader = load(implementation / 'qualify.py', 'sealed_current_f64_consumer_reader')
+        cp_reader = reader.qualify(repo, current / 'build', directory / 'build', directory / 'cpython')
+        strict_reader = reader.qualify(repo, current / 'build', directory / 'build', directory / 'pytorch')
+        cp_saved = json.loads(originals['f64-consumer/cpython-readback.json'])
+        strict_saved = json.loads(originals['f64-consumer/pytorch-readback.json'])
+        f64_need(cp_reader == cp_saved and strict_reader == strict_saved,
+                 'both complete saved physical readbacks must equal fresh pure replay')
+        build = json.loads(originals['f64-consumer/build/build.json'])
+        cp = json.loads(originals['f64-consumer/cpython/execution/report.json'])
+        strict = json.loads(originals['f64-consumer/pytorch/execution/report.json'])
+        build_sha = digest(originals['f64-consumer/build/build.json'])
+        f64_need(cp['consumer_build_sha256'] == strict['consumer_build_sha256'] == build_sha
+                 and strict['cpython_directory'] == str(directory / 'cpython')
+                 and strict['cpython_report_sha256'] == digest(originals['f64-consumer/cpython/execution/report.json']),
+                 'one actual consumer build and exact same-run CPython predecessor')
+        hashes = {name: digest(originals['f64-consumer/' + name]) for name in
+                  ('cpython-readback.json', 'pytorch-readback.json', 'pytorch/execution/report.json')}
+        component = f64_component_status(build, cp, strict, cp_reader, strict_reader,
+            json.loads(originals['f64-consumer/component-status.json']),
+            originals['f64-consumer/strict-exit.txt'], originals['f64-consumer/readback-exit.txt'], hashes)
+        roles = []
+        for reference in ('cpython', 'pytorch'):
+            process = json.loads(originals['f64-consumer/' + reference + '/reference-process.json'])
+            python = Path(process['interpreter_realpath'])
+            python.read_bytes()
+            f64_need(process['interpreter'] == bindings[str(python)], 'actual reference interpreter bytes and mode')
+            roles.append(dict(role='THIS_CI_CURRENT_F64_' + reference.upper() + '_REFERENCE_INTERPRETER',
+                requested_path=process['argv'][0], original_path=str(python), **bindings[str(python)],
+                report_member='current-runtime/f64-consumer/' + reference + '/execution/report.json',
+                process_member='current-runtime/f64-consumer/' + reference + '/reference-process.json',
+                original_process={key: process[key] for key in ('argv', 'pid', 'exit_code', 'stdout_EOF', 'stderr_EOF')},
+                entity_executed_by_custody=False, runtime_qualification_granted=False))
+    result = dict(schema='heptatorch.current-object-f64.original-evidence-custody.v1',
+        status='PASS_COMPONENT_CUSTODY_ONLY', component_status=component,
+        cpython_physical_readback=cp_reader, strict_pytorch_physical_readback=strict_reader,
+        strict_pytorch_status=strict['status'], strict_pytorch_failed_cases=strict['failed_cases'],
+        strict_failures_reclassified=False, source_manifest_sha256=SOURCE_MANIFEST,
+        current_source_sha256=SOURCE, current_native_sha256=IMAGE,
+        consumer_native_sha256=build['native_sha256'], reference_interpreters=roles,
+        preparation_controls=preparation,
+        actual_current_objects_verified=15, complete_original_input_binding_count=len(bindings),
+        both_original_physical_readers_reentered=True, actual_read_source_bytes_bound=True,
+        original_physical_predicates_rechecked=True, strict_original_provenance_checks=11,
+        native_executed=False, Torch_executed=False, compiler_executed=False,
+        numerical_cases_readmitted=False, runtime_qualification_granted=False,
+        legacy143_restored=False, whole_pytorch_rewrite_complete=False)
+    return result, bindings
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--repository', type=Path, required=True)
@@ -2050,7 +2320,8 @@ def main(argv=None):
         bf16_copy_evidence=None, half_mul_evidence=None, half_neg_evidence=None, half_addsub_evidence=None,
         wide_neg_evidence=None, half_div_evidence=None, public_f64_arithmetic_evidence=None, same_f64_arithmetic_evidence=None, typed_relu_evidence=None,
         signbit_evidence=None, typed_index_select_evidence=None, indexed_f32_evidence=None,
-        forward_nograd_evidence=None, join_forward_evidence=None, spatial_forward_evidence=None, missing=[], errors=[])
+        forward_nograd_evidence=None, join_forward_evidence=None, spatial_forward_evidence=None,
+        current_f64_consumer_evidence=None, missing=[], errors=[])
     selected, declared, parsed_lists, input_declarations = {}, {}, {}, []
     report_declared_paths = set()
     roots = [(current, 'current-runtime'), (repo, 'repository')] + [
@@ -2133,6 +2404,23 @@ def main(argv=None):
                     table='reference_executable_custody', source_path=spelling, expected=metadata))
         except BaseException as error:
             problem('generator-reference-executable', current / 'review/generator131/report.json', error)
+        try:
+            evidence, bindings = current_f64_consumer_custody(repo, current)
+            for role in evidence['reference_interpreters']:
+                python = Path(role['original_path'])
+                if python not in external_executables:
+                    external_executables[python] = 'external/current-f64-reference-python/' + python.name
+                role['member'] = external_executables[python]
+                report['reference_process_executables'].append(role)
+            report['current_f64_consumer_evidence'] = evidence
+            for spelling, metadata in bindings.items():
+                declared.setdefault(spelling, []).append(metadata)
+                report_declared_paths.add(spelling)
+                input_declarations.append(dict(input_report='f64-consumer-original-evidence-custody',
+                    table='actual_physical_reader_inputs', source_path=spelling, expected=metadata))
+                add(Path(spelling))
+        except BaseException as error:
+            problem('current-f64-consumer-original-evidence', current / 'f64-consumer/component-status.json', error)
         for group in ('numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div', 'public_f64_arithmetic', 'same_f64_arithmetic', 'typed_relu', 'signbit', 'typed_index_select', 'indexed_f32', 'forward_nograd', 'join_forward', 'spatial_forward'):
             try:
                 custody = extension_custody if group in EXTENSION_GROUPS else live_reference_custody
@@ -2266,6 +2554,7 @@ def main(argv=None):
             forward_nograd_evidence=report['forward_nograd_evidence'],
             join_forward_evidence=report['join_forward_evidence'],
             spatial_forward_evidence=report['spatial_forward_evidence'],
+            current_f64_consumer_evidence=report['current_f64_consumer_evidence'],
             external_path_mapping=[dict(original_root=str(root), prefix=alias) for root, alias in roots]
                 + [dict(original_file=str(path), member=name)
                    for path, name in sorted(external_executables.items(), key=lambda row: str(row[0]))])

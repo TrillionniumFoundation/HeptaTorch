@@ -3,7 +3,7 @@
 The correction introduced in781 and retained in current797 fixes no-gradient `gather`, `scatter_add` and
 `index_add` while retaining the complete existing gradient paths. The new
 `indexed_f32` group contributes331 fixed cases to the mandatory35-group,
-16,341-case current gate. These finite cases do not close a complete PyTorch
+16,365-case current gate. These finite cases do not close a complete PyTorch
 declaration, the whole indexing subsystem or full autograd.
 
 ## Reproduced defects

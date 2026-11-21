@@ -20,9 +20,9 @@ import types
 
 MUL_HELPER = '47557e7730d00c374864d2e2948a511e86b47ae653034adaa0f776445fc556ad'
 NEG_HELPER = '1d5a464ad7ff3ac56656cd361de2024ca77db3ead2e9da6687a043039a3a5b41'
-FE_OWNER_CONTRACT = 'a12424f47f9f67d8b9cc23c673c907ec658b83138d96a6bb5a4c837dd33dca39'
-FE_TOMBSTONE_CONTRACT = '8ba0d2586a54ac15bb6caa29893bafe0053cdd6b67c25604c3c1dd342e085f64'
-FE_OWNER_READER = '0d71ec10447c65c6e4b1063460fc0347b13e0322bde20bb89a2af9aed2eb3fed'
+FE_OWNER_CONTRACT = '805acb667aaa47b70610d6a8a8073e2fab2db11bfab1c2a46551e39fc5e73426'
+FE_TOMBSTONE_CONTRACT = 'b8b87b3f5cd7b20098e3c0b8ac9e674060f8375c6ac515a46ef3f2ccd37f5efd'
+FE_OWNER_READER = '8d092c21b50d28f8171d4d681f288ab33aee942e877f4c0ae7124f461aa862e9'
 WORDS = {0: (0x3f800000, 0x80000000), 1: (1, 0), 2: (1, 0),
          4: (0x3ff0000000000000, 0x8000000000000000),
          5: (0x3c00, 0x8000), 6: (0x3f80, 0x8000)}
@@ -94,7 +94,7 @@ class Successor:
         relu_spec = importlib.util.spec_from_file_location('half_FE_typed_relu_source_inverse', relu_path)
         relu = importlib.util.module_from_spec(relu_spec); relu_spec.loader.exec_module(relu)
         parent775 = source
-        source = inputs.bind(self.repository / 'tools/current_runtime/source/runtime.hepta', indexing.SOURCE)
+        source = inputs.bind(self.repository / 'tools/current_runtime/source/runtime.hepta', indexing.CURRENT_SOURCE)
         same773, relu_source_proof = relu.restore_source(parent775, inputs.bind)
         require(relu_source_proof['functions'] == 775 and relu_source_proof['parent_functions'] == 773
                 and relu_source_proof['changed_functions'] == ['unary']

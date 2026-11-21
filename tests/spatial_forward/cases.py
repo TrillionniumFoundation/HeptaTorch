@@ -18,6 +18,9 @@ def tensor(shape,requires=False,layout='contiguous',offset=0,pattern='signed'):
     elif layout=='transposed':
         assert len(shape)>=2
         strides=stride.copy();strides[-2]=1;strides[-1]=shape[-2]
+    elif layout=='channels_last':
+        assert len(shape)==4
+        n,c,h,w=shape;strides=[c*h*w,1,w*c,c];storage_offset=1
     else:raise ValueError(layout)
     storage_count=product if strides is None else storage_offset+sum((n-1)*s for n,s in zip(shape,strides))+1
     return dict(shape=shape,requires_grad=requires,strides=strides,offset=storage_offset,
@@ -107,7 +110,28 @@ def catalog():
             for grad in (False,True):
                 add(f'cross-entropy/{shape}/{layout}/grad-{grad}','cross_entropy_probs',
                     [tensor(shape,grad,layout,3),tensor(shape,grad,layout,1,'positive')],{},1e-4,1e-6)
-    assert len(result)==320 and len({r['name'] for r in result})==320
+    # Exact output strides matter when channels-last input is also contiguous
+    # because C=1 or H=W=1. Preserve the original320 rows and add both ambiguity
+    # patterns plus an unambiguous channels-last control, with/without affine
+    # parameters and gradients. Expected bytes/metadata come from actual Torch.
+    for shape in ((2,3,1,1),(2,1,2,2),(2,3,2,2)):
+        for affine in (False,True):
+            for grad in (False,True):
+                tail=shape[-1]
+                add(f'layernorm/{shape}/affine-{affine}/channels_last/grad-{grad}',
+                    'layernorm',[tensor(shape,grad,'channels_last',2),
+                    tensor((tail,),grad,offset=9) if affine else None,
+                    tensor((tail,),grad,offset=11) if affine else None],
+                    dict(epsilon_bits=EPS),5e-4,5e-5)
+                channels=shape[1]
+                add(f'batchnorm/{shape}/affine-{affine}/channels_last/grad-{grad}',
+                    'batchnorm_eval',[tensor(shape,grad,'channels_last',2),
+                    tensor((channels,),False,offset=1),
+                    tensor((channels,),False,pattern='variance'),
+                    tensor((channels,),grad,offset=9) if affine else None,
+                    tensor((channels,),grad,offset=11) if affine else None],
+                    dict(epsilon_bits=EPS),2e-4,2e-5)
+    assert len(result)==344 and len({r['name'] for r in result})==344
     assert sum(r['controls'] for r in result)==sum(r['allocation'] for r in result)==3
     return result
 

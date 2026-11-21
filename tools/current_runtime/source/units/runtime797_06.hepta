@@ -26,6 +26,7 @@ fn half_addsub_tensor(s:mutbuf,operation:u64,left:u64,right:u64) -> (u64) effect
 fn half_div_tensor(s:mutbuf,operation:u64,left:u64,right:u64) -> (u64) effects(read,write,trap) external()
 fn half_mul_inner_extent(s:mutbuf,result:u64,left:u64,right:u64,scalar_right:u64) -> (u64) effects(read,write,trap) external()
 fn half_mul_tensor(s:mutbuf,operation:u64,left:u64,right:u64) -> (u64) effects(read,write,trap) external()
+fn incoming_contiguous_layout(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn integer_as_f32(v0:u64,v1:u64) -> (u64) effects(read,write,trap) external()
 fn integer_pointwise_layout(v0:mutbuf,v1:u64,v2:u64,v3:u64) -> (u64) effects(read,write,trap) external()
 fn is_contiguous(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
@@ -430,7 +431,13 @@ block b2(v6:mutbuf,v7:u64,v8:u64)
   v9:u64 = call(v6,v7) {"function":"is_contiguous"}
   v10:u64 = const() {"value":0}
   v11:bool = compare.ne(v9,v10)
-  branch v11 b1(v7) b3(v6,v7,v8)
+  branch v11 canonical(v6,v7) b3(v6,v7,v8)
+block canonical(layout_state:mutbuf,layout_output:u64)
+  layout_descriptor:u64 = call(layout_state,layout_output) {"function":"dptr"}
+  layout_stride_offset:u64 = const() {"value":128}
+  layout_strides:u64 = int.add.wrap(layout_descriptor,layout_stride_offset)
+  layout_written:u64 = call(layout_state,layout_output,layout_strides) {"function":"incoming_contiguous_layout"}
+  ret(layout_output)
 block b3(v12:mutbuf,v13:u64,v14:u64)
   v15:u64 = const() {"value":0}
   v16:bool = compare.ne(v14,v15)

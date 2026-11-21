@@ -169,11 +169,11 @@ def _restore_indexed_source(source, bind):
         whole_source_inverse_exact=True, whole_round_trip_exact=True)
 
 
-CURRENT_SOURCE = '0061acfaa8e886885053e8f539cf08187be1c1e10265c19e52df07435a71594b'
+CURRENT_SOURCE = 'c73a7cb474981056404ac96bc214979d57aaa9a86e6474b1c140c3d98eb05779'
 CURRENT_FUNCTIONS = 797
 CURRENT_CHANGED = ('entry', 'linear', 'reduce_axis', 'softmax', 'layernorm', 'batchnorm_eval', 'conv2d', 'pool2d', 'matmul', 'index_select', 'gather', 'tensor_join', 'indexed_add', 'predicate_bits', 'predicate_command')
 CURRENT_ADDED = ('typed_index_select_previous', 'typed_index_select', 'typed_index_select_offset', 'indexed_gather_forward_source', 'indexed_add_forward_inputs', 'indexed_add_forward_location', 'matmul_forward_index', 'matmul_forward_point', 'softmax_forward_group', 'axis_source_forward', 'conv_term_forward', 'conv_no_grad_forward', 'pool_point_forward', 'pool_no_grad_forward', 'matmul_output_version', 'concat_forward_target', 'concat_forward_part', 'concat_forward_copy', 'concat_forward_layout', 'concat_forward', 'linear_bias_output_version', 'normalization_output_layout')
-FORWARD_INVERSE_SHA256 = 'fa819ff0ed77c583fa11b26bc8c00dce76264ef7d6872e7dd252bd204183e353'
+FORWARD_INVERSE_SHA256 = 'c8fca08e2c2756873c331cef92003f94296e36cbe2e52014bfd8bc6942d7a1b6'
 
 
 def restore_source(source, bind):

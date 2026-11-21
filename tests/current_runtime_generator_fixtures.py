@@ -181,10 +181,10 @@ def restore_qualifier740(repository, destination, inputs=None):
     return destination
 
 
-CURRENT_SOURCE = '0061acfaa8e886885053e8f539cf08187be1c1e10265c19e52df07435a71594b'
-CURRENT_IMAGE = '955ffc996b8870ef67752f45647f5c1ca9a093f41ff402487091f03223372293'
-CURRENT_MANIFEST = '2e442fea4961a5111004a1a721fb46e817f5568f50c7068047fc767721df8e21'
-CURRENT_BINDING = '6d925821f1103c487af2c3254dc94313aeb03c9caede9ee9e4a8b5990bad93cc'
+CURRENT_SOURCE = 'c73a7cb474981056404ac96bc214979d57aaa9a86e6474b1c140c3d98eb05779'
+CURRENT_IMAGE = '1ea247df76ff96c307e293790aa38de4a0bf0ff94b8148a480653c924658679d'
+CURRENT_MANIFEST = '7c418ce968226835ae79188a51aa38af8d8746a62d72749e8fc76804ec730c25'
+CURRENT_BINDING = '65a7d99423b0872dede3214c845d70af715832df33c4d04b577373315a01c38b'
 
 
 def successor_qualifier(parent, inputs=None):
@@ -285,7 +285,7 @@ def successor_qualifier(parent, inputs=None):
     modes['package-manifest.json'] = stat.S_IMODE((parent / 'package-manifest.json').stat().st_mode)
     file_modes = {'parent740/' + name: mode for name, mode in modes.items()}
     file_modes.update({name: mode for name, mode in modes.items() if name != 'package-manifest.json'})
-    manifest = dict(schema='heptatorch.generator778-original-qualification-source.v1',
+    manifest = dict(schema='heptatorch.generator797-original-qualification-source.v1',
         parent740_manifest_sha256=QUALIFIER_MANIFEST,
         source_sha256=CURRENT_SOURCE, native_sha256=CURRENT_IMAGE,
         current_source_manifest_sha256=CURRENT_MANIFEST, current_binding_sha256=CURRENT_BINDING,

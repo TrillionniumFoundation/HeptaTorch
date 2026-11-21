@@ -6,8 +6,8 @@ compiler, linker, or Torch producer, and supplies no runtime qualification.
 import ast
 import hashlib
 
-SOURCE = '0061acfaa8e886885053e8f539cf08187be1c1e10265c19e52df07435a71594b'
-IMAGE = '955ffc996b8870ef67752f45647f5c1ca9a093f41ff402487091f03223372293'
+SOURCE = 'c73a7cb474981056404ac96bc214979d57aaa9a86e6474b1c140c3d98eb05779'
+IMAGE = '1ea247df76ff96c307e293790aa38de4a0bf0ff94b8148a480653c924658679d'
 ORIGINAL_FILES = {
     'cases.py': 'e689699b519e57eec44edac5d4c319d3ea718a3777056d1514d1f0e43a08bef3',
     'common.py': '29d25567c08e309c25d96d56f4476e3842ceda164c9647eb5c9397a04fad181a',

@@ -47,7 +47,7 @@ def module(path,name,bind):
 
 
 def profile(repository,build,build_sha,inputs):
-    # The unchanged indexed profile admits the entire795 ->781 ->778 ->775
+    # The unchanged indexed profile admits the entire797 ->781 ->778 ->775
     # source inverse, every cold-built object and all original tool receipts.
     previous=module(repository/'tests/indexed_f32/run.py','spatial_forward_current_profile',inputs.bind)
     built=previous.profile(repository,build,build_sha,inputs)
@@ -60,7 +60,7 @@ def profile(repository,build,build_sha,inputs):
 def reference(repository,directory,execution,inputs,allow=False):
     raw_report=inputs.bind(directory/'report.json');report=json.loads(raw_report)
     require(report['schema']=='heptatorch.spatial-forward.reference.v1' and report['case_sha256']==CASE_SHA256
-        and report['expected_cases']==report['cases']==len(report['rows'])==len(CASES)==320
+        and report['expected_cases']==report['cases']==len(report['rows'])==len(CASES)==344
         and report['Torch_executed'] is True and report['native_executed'] is False
         and report['compiler_executed'] is False and report['failures']==[]
         and report['host_expected_values_computed'] is False and report['inputs_unchanged'] is True
@@ -77,7 +77,7 @@ def reference(repository,directory,execution,inputs,allow=False):
         and proof['original_reference_script_bytes_verified'] is True
         and proof['full_installation_provenance_verified'] is (not allow),
         'all original eleven checks independently recomputed from complete raw installation entities')
-    require(json.loads(inputs.bind(execution/'runner.stdout'))==dict(status=wanted,cases=320,expected_cases=320,
+    require(json.loads(inputs.bind(execution/'runner.stdout'))==dict(status=wanted,cases=344,expected_cases=344,
         production_oracle_qualified=not allow,error=None),'complete actual reference stdout')
     files=[repository/'tests/spatial_forward'/name for name in ('__init__.py','cases.py','reference.py')]
     files += [repository/'tests/numeric_predicates'/name for name in ('__init__.py','cases.py','reference.py')]
@@ -121,7 +121,7 @@ def qualify(report,repository,build,build_sha,output,inputs,allow_unverified_loc
     require(report==json.loads(inputs.bind(output/'report.json')),'unchanged original native report')
     wanted='PASS_EXPLORATORY_NATIVE_ONLY' if allow_unverified_local else 'PASS'
     require(report['schema']=='heptatorch.spatial-forward.native.v1' and report['group']=='spatial_forward'
-        and report['status']==wanted and report['cases']==report['expected_cases']==len(CASES)==320
+        and report['status']==wanted and report['cases']==report['expected_cases']==len(CASES)==344
         and report['case_sha256']==CASE_SHA256 and report['failures']==[]
         and report['source_sha256']==built['source_sha256'] and report['native_sha256']==built['native_sha256']
         and report['actual_build_sha256']==build_sha and report['native_executed'] is True
@@ -139,7 +139,7 @@ def qualify(report,repository,build,build_sha,output,inputs,allow_unverified_loc
     fixed=reference(repository,Path(report['reference_directory']),Path(report['reference_process_directory']),inputs,allow_unverified_local)
     require(fixed['report_sha256']==report['reference_sha256'],'exact original independent actual Torch reference')
     wire=load_wire(repository,inputs.bind);cases=recipes(fixed)
-    require(len(report['results'])==len(cases)==323,'complete numerical/control session census')
+    require(len(report['results'])==len(cases)==347,'complete numerical/control session census')
     totals=dict(frames=0,owner_reads=0,mapping_reads=0,checks=0)
     for saved,(name,runner,row) in zip(report['results'],cases):
         require(saved==json.loads(inputs.bind(output/name/'observation.json')) and saved['name']==name and saved['status']=='PASS',
@@ -151,7 +151,7 @@ def qualify(report,repository,build,build_sha,output,inputs,allow_unverified_loc
         for key in totals:totals[key]+=observer.checks if key=='checks' else finish[key]
     require(totals==report['totals'] and all(report[key]==totals[key] for key in totals) and totals['mapping_reads']==24,
             'complete physical frame Owner and mapping census')
-    ordinary=report['results'][:320];allocations=report['results'][320:]
+    ordinary=report['results'][:344];allocations=report['results'][344:]
     grad_cases=sum(any(value is not None and value['requires_grad'] for value in spec['inputs']) for spec in CASES)
     grad_tensors=sum(sum(value is not None and value['requires_grad'] for value in spec['inputs']) for spec in CASES)
     require(len(allocations)==3 and sum(row['result']['controls'] for row in ordinary)==28
@@ -159,7 +159,7 @@ def qualify(report,repository,build,build_sha,output,inputs,allow_unverified_loc
         and sum(row['result']['gradient_tensors_checked'] for row in ordinary)==grad_tensors
         and all(row['result']['actual_allocation_failures']==1 and row['result']['identical_request_recovered'] is True for row in allocations),
         'complete protocol, independent backward and actual OOM recovery coverage')
-    return dict(cases=320,frames=totals['frames'],assertions=totals['checks'],native_sessions=323,
+    return dict(cases=344,frames=totals['frames'],assertions=totals['checks'],native_sessions=347,
         owner_snapshots=totals['owner_reads'],mapping_snapshots=totals['mapping_reads'],physical_replay=True,
         native_executed_by_qualifier=False,Torch_executed_by_qualifier=False,
         complete_ci_admission=not allow_unverified_local,full_installation_provenance_verified=not allow_unverified_local,
@@ -228,7 +228,7 @@ def main():
             path=getattr(value,'__file__',None)
             if path and Path(path).is_file() and Path(path).resolve().is_relative_to(ROOT):inputs.bind(Path(path).resolve())
         inputs.finish();report.update(all_inputs_unchanged=True,totals=totals,**totals)
-        if not report['failures'] and len(report['results'])==323:
+        if not report['failures'] and len(report['results'])==347:
             report['status']='PASS_EXPLORATORY_NATIVE_ONLY' if args.allow_unverified_local else 'PASS'
     except BaseException as error:
         report['error']=dict(type=type(error).__name__,message=str(error),traceback=traceback.format_exc())

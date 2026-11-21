@@ -8,15 +8,15 @@ import json
 from pathlib import Path
 import re
 
-SOURCE = '0061acfaa8e886885053e8f539cf08187be1c1e10265c19e52df07435a71594b'
+SOURCE = 'c73a7cb474981056404ac96bc214979d57aaa9a86e6474b1c140c3d98eb05779'
 PARENT_SOURCE = 'ee214f05b56401ea17a5f55e792aaccf73447974ba0b7e0416990439bff6a8ff'
 FUNCTIONS = 797
 PARENT_FUNCTIONS = 781
-SOURCE_BYTES = 2592583
+SOURCE_BYTES = 2592988
 PARENT_BYTES = 2543906
 CHANGED = ('linear', 'reduce_axis', 'softmax', 'layernorm', 'batchnorm_eval', 'conv2d', 'pool2d', 'matmul', 'tensor_join')
 ADDED = ('matmul_forward_index', 'matmul_forward_point', 'softmax_forward_group', 'axis_source_forward', 'conv_term_forward', 'conv_no_grad_forward', 'pool_point_forward', 'pool_no_grad_forward', 'matmul_output_version', 'concat_forward_target', 'concat_forward_part', 'concat_forward_copy', 'concat_forward_layout', 'concat_forward', 'linear_bias_output_version', 'normalization_output_layout')
-DELTA_SHA256 = '43ec26417cbb9d68bc2692b7ded2a540bd8576b6d98c0bb15648b7ec1d58ea99'
+DELTA_SHA256 = '5d3e68d50ebdf26b4132aaf1536cdb9a4201982b1f37dfd83ff92f3ecf9a7f74'
 HEADER = b'hia-asm.v1 hepta.hia.program.v8 heptatorch_runtime\n'
 PROTECTED = ('record', 'gather', 'indexed_add', 'gather_source', 'indexed_add_forward',
              'indexed_add_location', 'matmul_index', 'matmul_point', 'softmax_group',

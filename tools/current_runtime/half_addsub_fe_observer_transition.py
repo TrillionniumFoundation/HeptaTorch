@@ -112,7 +112,7 @@ def restore_observers(bind):
     manifest = bind(root/'tools/current_runtime/source/manifest.json')
     require(sha(parent)==SOURCE and wide.PARENT_SOURCE==SOURCE
         and same.PARENT_SOURCE==arithmetic.SOURCE and arithmetic.PARENT_SOURCE==division.SOURCE
-        and sha(manifest)=='2e442fea4961a5111004a1a721fb46e817f5568f50c7068047fc767721df8e21',
+        and sha(manifest)=='7c418ce968226835ae79188a51aa38af8d8746a62d72749e8fc76804ec730c25',
         'exact775 native source inverts through same773, mixed773,771 and767 to the complete765 FE predecessor')
     observer_path=Path(__file__).with_name('half_div_observer_transition.py');bind(observer_path)
     spec=importlib.util.spec_from_file_location('fe_half_div_observer_inverse',observer_path)

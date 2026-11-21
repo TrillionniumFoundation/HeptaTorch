@@ -110,6 +110,86 @@ def identity_bindings(repository, inputs, source, image, manifest_sha):
     return {'modules': len(bindings), 'fields': sum(map(len, bindings.values()))}
 
 
+def successor_entry_bindings(repository, inputs, functions):
+    """Check the actual derived entry statements missed by profile-only checks."""
+    generator = repository / 'tests/current_runtime_generator_fixtures.py'
+    tree = ast.parse(inputs.bind(generator))
+    derive = [node for node in tree.body if isinstance(node, ast.FunctionDef)
+              and node.name == 'successor_qualifier']
+    require(len(derive) == 1, 'one actual Generator qualifier derivation')
+    schemas = [keyword.value for node in ast.walk(derive[0])
+               if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+               and node.func.id == 'dict'
+               for keyword in node.keywords if keyword.arg == 'schema']
+    require(len(schemas) == 1 and ast.literal_eval(schemas[0]) ==
+            'heptatorch.generator%d-original-qualification-source.v1' % functions,
+            'derived Generator manifest must match the actual current runner schema')
+
+    reader = ast.parse(inputs.bind(repository / 'tests/current_runtime_generator131.py'))
+    owner = [node for node in reader.body if isinstance(node, ast.FunctionDef)
+             and node.name == 'tensor_owner']
+    require(len(owner) == 1, 'one actual Generator TensorOwner reader')
+    changes = [node.value for node in owner[0].body if isinstance(node, ast.Assign)
+               and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
+               and node.targets[0].id == 'changes']
+    require(len(changes) == 1, 'one complete Generator TensorOwner derivation')
+    labels = {before: after for before, after, count in ast.literal_eval(changes[0])}
+    require(labels['sum-integral-source01-UNBOUND-699'] ==
+            'generator%d-dispatch-UNBOUND' % functions
+            and labels['heptatorch.sum-integral-owner-source01.v1'] ==
+            'heptatorch.generator%d-dispatch-tensor-owner.v1' % functions,
+            'Generator TensorOwner reader identities match the actual generated observer')
+    audits = [node for node in reader.body if isinstance(node, ast.FunctionDef)
+              and node.name == 'audit_generator_reports']
+    require(len(audits) == 1, 'one actual Generator report reader')
+    expected = {'schema': 'heptatorch.generator%d-current-native-qualification.v1' % functions,
+                'status': 'PASS_CURRENT%d_GENERATOR131' % functions}
+    observed = {key: [] for key in expected}
+    for node in ast.walk(audits[0]):
+        if not (isinstance(node, ast.Compare) and isinstance(node.left, ast.Subscript)
+                and isinstance(node.left.value, ast.Name) and node.left.value.id == 'report'
+                and isinstance(node.left.slice, ast.Constant) and node.left.slice.value in expected):
+            continue
+        require(len(node.ops) == len(node.comparators) == 1 and isinstance(node.ops[0], ast.Eq),
+                'Generator report identities require exact equality')
+        observed[node.left.slice.value].append(ast.literal_eval(node.comparators[0]))
+    require(all(observed[key] == [value] for key, value in expected.items()),
+            'Generator report reader identities match the actual generated runner')
+
+    # Execute the actual Half successor's second current-source binding. The
+    # preceding complete inverse is checked separately. This statement must
+    # admit the current input, never an intermediate historical source digest.
+    path = repository / 'tests/current_runtime_half_addsub_successor.py'
+    tree = ast.parse(inputs.bind(path))
+    owners = [node for node in tree.body if isinstance(node, ast.ClassDef)
+              and node.name == 'Successor']
+    require(len(owners) == 1, 'one actual Half successor class')
+    initializers = [node for node in owners[0].body if isinstance(node, ast.FunctionDef)
+                    and node.name == '__init__']
+    require(len(initializers) == 1, 'one actual Half successor initializer')
+    statements = []
+    for node in initializers[0].body:
+        if not (isinstance(node, ast.Assign) and len(node.targets) == 1
+                and isinstance(node.targets[0], ast.Name) and node.targets[0].id == 'source'
+                and isinstance(node.value, ast.Call) and len(node.value.args) == 2):
+            continue
+        digest = node.value.args[1]
+        if (isinstance(digest, ast.Attribute) and isinstance(digest.value, ast.Name)
+                and digest.value.id == 'indexing'):
+            statements.append(node)
+    require(len(statements) == 1, 'one actual current Half source rebind')
+    indexing = load(repository / 'tools/current_runtime/index_signbit_source_transition.py', inputs)
+    from types import SimpleNamespace
+    context = dict(self=SimpleNamespace(repository=repository), inputs=inputs, indexing=indexing)
+    exec(compile(ast.Module(body=statements, type_ignores=[]), str(path), 'exec',
+                 dont_inherit=True, optimize=0), context)
+    require(sha(context['source']) == indexing.CURRENT_SOURCE,
+            'Half successor rebind retains the complete current source')
+    return {'generator_manifest_matches_current_runner': True,
+            'half_actual_current_source_binding_executed': True,
+            'runtime_executed': False, 'Torch_executed': False}
+
+
 def contracts(repository, inputs):
     source = inputs.bind(repository / 'tools/current_runtime/source/runtime.hepta')
     bodies = {m[1].decode(): m[0] for m in re.finditer(
@@ -142,6 +222,28 @@ def contracts(repository, inputs):
                         'bound source mode: ' + name)
             bound_files += 1
     return {'complete_HIA_functions': checked, 'bound_source_files': bound_files}
+
+
+def extension_case_bindings(repository, inputs):
+    """Bind every actual extension catalog before running the numerical gate."""
+    seal = load(repository / 'tools/seal_current_ci_evidence.py', inputs)
+    groups = tuple(seal.EXTENSION_GROUPS)
+    require(groups and len(set(groups)) == len(groups)
+            and set(groups).issubset(seal.GROUPS)
+            and set(seal.EXTENSION_CASE_HASHES) == set(groups),
+            'complete required extension case-hash map is required')
+    observed = {}
+    for group in groups:
+        catalog = load(repository / 'tests' / group / 'cases.py', inputs)
+        require(type(catalog.CASES) is list
+                and len(catalog.CASES) == seal.REQUIRED_CASES[group],
+                'actual extension catalog count differs: ' + group)
+        require(isinstance(catalog.CASE_SHA256, str)
+                and re.fullmatch(r'[0-9a-f]{64}', catalog.CASE_SHA256) is not None
+                and catalog.CASE_SHA256 == seal.EXTENSION_CASE_HASHES[group],
+                'actual extension catalog digest differs: ' + group)
+        observed[group] = dict(cases=len(catalog.CASES), case_sha256=catalog.CASE_SHA256)
+    return {'groups': len(groups), 'catalogs': observed}
 
 
 def inventory(repository, inputs, coordinator):
@@ -270,8 +372,10 @@ def main():
         built = coordinator.current_profile.admit_build(build, inputs.bind, args.expected_build_sha256)
         report.update(source_sha256=built['source_sha256'], native_sha256=built['native_sha256'])
         checks = [('complete-cold-build', lambda: built),
+                  ('actual-extension-case-bindings', lambda: extension_case_bindings(repository, inputs)),
                   ('complete-cat-source-chain', lambda: coordinator.cat_source_binding(build, inputs)),
                   ('generator-source-chain', lambda: load(repository / 'tests/current_runtime_generator_binding.py', inputs).parent_source_files(repository, inputs)),
+                  ('actual-successor-entry-bindings', lambda: successor_entry_bindings(repository, inputs, coordinator.current_profile.FUNCTIONS)),
                   ('metadata10-source-admission', lambda: load(repository / 'tests/current_runtime_metadata10/common.py', inputs).admit(repository, build, args.expected_build_sha256, inputs))]
         for name in ('public_f64_arithmetic', 'same_f64_arithmetic', 'typed_relu', 'half_mul', 'half_addsub'):
             function = getattr(coordinator, name + '_observer_binding')

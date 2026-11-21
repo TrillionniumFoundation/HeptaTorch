@@ -203,6 +203,44 @@ def controls(checker, checker_raw, root, results):
         body=baseline.replace('sys.exit(1 if failures else 0)', 'sys.exit(0)'), reject=True)
     inventory_control('reject_workflow_and_guard', body=baseline.replace(' or ', ' and '), reject=True)
 
+    extension_root = root / 'extension-catalogs'
+    extension_groups = ('signbit', 'typed_index_select', 'indexed_f32',
+                        'forward_nograd', 'join_forward', 'spatial_forward')
+    extension_cases = {name: index + 1 for index, name in enumerate(extension_groups)}
+    extension_hashes = {name: sha(('synthetic-' + name).encode()) for name in extension_groups}
+    # Exercise the exact stale digest that previously survived admission. The
+    # tiny synthetic recipes remain controls only, never numerical coverage.
+    extension_hashes['spatial_forward'] = '64be7b4788f8e3c92b6466002df86c0c5ea84ffd002cca5d339ab2f591ae5a3f'
+    extension_sealer = extension_root / 'tools/seal_current_ci_evidence.py'
+    for name in extension_groups:
+        fresh(extension_root / 'tests' / name / 'cases.py',
+              ('CASES = ' + repr([dict(synthetic=index) for index in range(extension_cases[name])])
+               + '\nCASE_SHA256 = ' + repr(extension_hashes[name]) + '\n').encode())
+
+    def extension_source(hashes):
+        return ('GROUPS = EXTENSION_GROUPS = ' + repr(extension_groups)
+                + '\nREQUIRED_CASES = ' + repr(extension_cases)
+                + '\nEXTENSION_CASE_HASHES = ' + repr(hashes) + '\n').encode()
+
+    fresh(extension_sealer, extension_source(extension_hashes))
+    extension_result = checker['extension_case_bindings'](extension_root, Inputs())
+    require(extension_result == dict(groups=len(extension_groups), catalogs={
+        name: dict(cases=extension_cases[name], case_sha256=extension_hashes[name])
+        for name in extension_groups}), 'all synthetic extension catalogs must be checked')
+    passed('valid_complete_required_extension_catalog_bindings', synthetic_catalogs=len(extension_groups))
+    stale_extension_hashes = dict(extension_hashes)
+    stale_extension_hashes['spatial_forward'] = '62f81aa0ed6626b6fe867c89549b04c395ee019114713b43fef2b8e8bf1d3cf3'
+    extension_sealer.write_bytes(extension_source(stale_extension_hashes))
+    try:
+        checker['extension_case_bindings'](extension_root, Inputs())
+    except ValueError as error:
+        require(str(error) == 'actual extension catalog digest differs: spatial_forward',
+                'stale spatial digest was rejected for an unrelated reason')
+        passed('reject_frozen_spatial320_digest_after_catalog_extension', rejected=True,
+               rejection=str(error))
+    else:
+        raise ValueError('the exact stale spatial 320-case digest was accepted')
+
     mode_root = root / 'mode'
     source_raw = b'fn sentinel()\n  return 0\nend\n'
     support = mode_root / 'support.hepta'
@@ -274,7 +312,7 @@ def controls(checker, checker_raw, root, results):
         require(events == ['enter', 'exit'], 'the production statement must enter and exit its reader')
     passed('production_frozen_reader_enters_exits_and_checks_both_identities',
            synthetic_context_variants=3)
-    require(len(results) == 12, 'the complete twelve synthetic controls must run')
+    require(len(results) == 14, 'the complete fourteen synthetic controls must run')
 
 
 def main():
@@ -290,7 +328,7 @@ def main():
         native_executed=False, Torch_executed=False, runtime_qualification_granted=False,
         full_pytorch_rewrite_complete=False, numerical_cases_added=0,
         repository_fixtures_modified=False, temporary_fixtures_retained=False,
-        required_controls=12, controls=[], inputs={})
+        required_controls=14, controls=[], inputs={})
     originals = {}
     try:
         require(not sys.flags.optimize, 'synthetic controls require unoptimized Python assertions')

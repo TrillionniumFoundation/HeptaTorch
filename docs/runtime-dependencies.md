@@ -1,6 +1,6 @@
 # 当前构建与验收依赖
 
-本页记录当前797函数前向与元数据后继的实际入口；历史来源使用固定提交 `f8ad6df1d0d27776b7efb2c62db1356189523f39`，本次来源移除的审计基线为PR52提交 `be44d3c77c1e3da1e2c859eaf6581ac98ffbfa4d`。当前源码、15个编译单元和预期映像由 [source/manifest.json](../tools/current_runtime/source/manifest.json) 固定；35组、16,341个案例的入口由 [qualify_current_runtime.py](../tests/qualify_current_runtime.py) 定义。新增或迁移消费者时，应同时更新本页。
+本页记录当前797函数前向与元数据后继的实际入口；历史来源使用固定提交 `f8ad6df1d0d27776b7efb2c62db1356189523f39`，本次来源移除的审计基线为PR52提交 `be44d3c77c1e3da1e2c859eaf6581ac98ffbfa4d`。当前源码、15个编译单元和预期映像由 [source/manifest.json](../tools/current_runtime/source/manifest.json) 固定；35组、16,365个案例的入口由 [qualify_current_runtime.py](../tests/qualify_current_runtime.py) 定义。新增或迁移消费者时，应同时更新本页。
 
 依赖判断结合两类证据：固定树全部已跟踪执行代码与相关清单的路径检查，以及PR48/49原始完整CI归档中的声明输入和仓库成员。历史归档只证明各自运行的输入关系；其后增加的 `half_div`、`public_f64_arithmetic`、`same_f64_arithmetic`、`typed_relu`、`signbit`、`typed_index_select`、`indexed_f32`、`forward_nograd`、`join_forward`、`spatial_forward` 及原请求的显式成功后继另按当前执行代码检查。旧运行结果不能转作当前完整35组的资格结果，也不能替代系统调用级文件访问追踪。
 
@@ -86,9 +86,17 @@ Native和F64工作流要求Git索引不再跟踪旧源码，而且源码和缓�
 
 `tools/rng-cpu/rng.hepta` 的17个非入口函数与当前RNG单元相同，但仍作为数据包合同和完整源体对照输入。它还被 Make 的 `tensor-rng`、`tensor-rng-composition` 以及后续 nullable-gradient、optimizer、distribution 历史构建链读取；这些链由Native CI执行。只迁移独立packet工作流不能删除该文件或上述旧构建链。原许可证、六份上游来源和状态参考包继续保留。
 
+## 当前 F64 对象消费者迁移
+
+当前工作流新增 [current_f64_consumer](../tools/current_f64_consumer/README.md)，链接当前完整冷构建的15个对象。原14个F64函数中11个正文与当前源码逐字相同；只编译3个符号改名的原packet入口、字节写入和sqrt函数。全部原55例、RNE55例、18个整数边界控制及5组有理数sqrt诊断继续读取原比较器。新消费端不恢复或构建历史143源码，旧 `tools/dtype-f64/f64.hepta` 仍是3个适配正文与全14体逆向核对的固定来源。
+
+严格PyTorch执行使用原工作流实际安装固定wheel的解释器，保留原11项来源检查，并对完整官方wheel、实际安装快照、导入双流、进程、映射和执行前后状态复核。cache路径在启动前明确绑定，读取器继续要求整个环境相等。每个数值失败保留原status和退出码，只有原sqrt差异允许由独立的RNE组件资格解释，不能转成完整PyTorch严格PASS。封存器还须重新纯读两个实际执行及组件报告。
+
+本地已完成全部CPython执行和独立物理回读。严格新树CI及原始产物验收完成前，旧 `.github/workflows/dtype-f64.yml` 和它的143恢复准备仍保留；此时新旧两个消费者并存是尚未完成的迁移状态。
+
 ## 源码准入准备的原件
 
-当前工作流在数值运行前执行原完整Owner guard控制、[源码准入预检](../tests/check_current_runtime_admission.py)、4套AsStrided和3套资源准备，并通过[12项独立反例检查](../tests/check_current_runtime_admission_controls.py)验证源码读取和拒绝条件。封存器要求5份原准备报告并继续绑定其完整输入。12项反例不计入数值案例，也不授予原生运行资格；随后完整35组实际运行及所有独立读取器的要求不变。
+当前工作流在数值运行前执行原完整Owner guard控制、[源码准入预检](../tests/check_current_runtime_admission.py)、4套AsStrided和3套资源准备，并通过[14项独立反例检查](../tests/check_current_runtime_admission_controls.py)验证源码读取和拒绝条件。封存器要求5份原准备报告并继续绑定其完整输入；新增F64消费者另要求第6份19项封存控制报告，逐项固定名称、来源及结果。14项反例不计入数值案例，也不授予原生运行资格；随后完整35组实际运行及所有独立读取器的要求不变。
 
 ## 当前797前向和来源补强
 

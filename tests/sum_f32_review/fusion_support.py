@@ -108,7 +108,7 @@ def source_inverse(source, inputs, support):
     require(sha(source) == profile.SOURCE and profile.FUNCTIONS == 797 and profile.UNITS == 15,
             'actual complete current797 profile before historical source proofs')
     outer_path = ROOT / 'tools/current_runtime/fusion_source_transition.py'
-    inputs.bind(outer_path, '012e6169869e450df5a5dcc49f506c14f8b25d6da6c0d538a75c0a84eae68a38')
+    inputs.bind(outer_path, '0d3d073c5f90712821da991038fd1b09d5db4d836a12991de7b08c6c74c971d8')
     outer = load(outer_path, 'fusion_current797_source_transition')
     historical700, outer_proof = outer.restore_source(source, inputs.bind)
     path = ROOT / 'tools/current_runtime/cat_source_transition.py'
