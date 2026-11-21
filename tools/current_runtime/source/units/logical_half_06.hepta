@@ -1,5 +1,5 @@
 hia-asm.v1 hepta.hia.program.v8 logical_half_06
-exports(constant_tensor,logf,sigmoidf,isqrt64,sqrtf,expm1smallf,tanhf,unary_value,half_neg_previous_unary,half_neg_value,half_neg_tensor,unary,vector_shape,batchnorm_eval,dtype_original_clone,typed_clone,clone,public_optional,scalar_previous_command_argument,command_argument,concat_channels_last,concat_layout,concat_dimension,wire_node,concat_extent,concat_shape,tensor_join,cat,stack,concat_command,spatial_extent,spatial_pair,conv2d,reduce,reduce_axis,softmax_group,softmax,cross_entropy_probs,detach,finish_command,full_tensor,gather,gather_command,graph_collect,graph_reset,index_select,index_select_command,fmaf,indexed_add_forward,indexed_add_validate,indexed_add,indexed_add_command,to_view_public,retained_parameter_blocker,tgrad,dtype_original_inspect_command,view_previous_inspect_command,inspect_command,layernorm,matmul_point,matmul,scalar_previous_transpose,transpose,linear,mm)
+exports(constant_tensor,logf,sigmoidf,isqrt64,sqrtf,expm1smallf,tanhf,unary_value,half_neg_previous_unary,half_neg_value,half_neg_tensor,wide_neg_previous_unary,wide_neg_tensor,unary,vector_shape,batchnorm_eval,dtype_original_clone,typed_clone,clone,public_optional,scalar_previous_command_argument,command_argument,concat_channels_last,concat_layout,concat_dimension,wire_node,concat_extent,concat_shape,tensor_join,cat,stack,concat_command,spatial_extent,spatial_pair,conv2d,reduce,reduce_axis,softmax_group,softmax,cross_entropy_probs,detach,finish_command,full_tensor,gather,gather_command,graph_collect,graph_reset,index_select,index_select_command,fmaf,indexed_add_forward,indexed_add_validate,indexed_add,indexed_add_command,to_view_public,retained_parameter_blocker,tgrad,dtype_original_inspect_command,view_previous_inspect_command,inspect_command,layernorm,matmul_point,matmul,scalar_previous_transpose,transpose)
 fn absf(v0:u64) -> (u64) effects(read,write,trap) external()
 fn addf(v0:u64,v1:u64) -> (u64) effects(read,write,trap) external()
 fn alloc(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
@@ -700,7 +700,7 @@ block element(s9:mutbuf,x9:u64,d9:u64,y9:u64,count9:u64,inner9:u64,base9:u64,ind
 block done(y10:u64)
   ret(y10)
 end
-fn unary(s:mutbuf,operation:u64,input:u64) -> (u64) effects(read,write,trap) entry(start)
+fn wide_neg_previous_unary(s:mutbuf,operation:u64,input:u64) -> (u64) effects(read,write,trap) entry(start)
 block start(s:mutbuf,operation:u64,input:u64)
   valid:u64 = call(s,input) {"function":"valid"}
   zero:u64 = const() {"value":0}
@@ -722,6 +722,96 @@ block negative(s3:mutbuf,o3:u64,x3:u64)
   ret(y3)
 block previous(s4:mutbuf,o4:u64,x4:u64)
   y4:u64 = call(s4,o4,x4) {"function":"half_neg_previous_unary"}
+  ret(y4)
+end
+fn wide_neg_tensor(s:mutbuf,operation:u64,input:u64) -> (u64) effects(read,write,trap) entry(start)
+block start(s:mutbuf,operation:u64,input:u64)
+  six:u64 = const() {"value":6}
+  negative:bool = compare.eq(operation,six)
+  branch negative admit(s,input) unsupported(s)
+block unsupported(s1:mutbuf)
+  code1:u64 = const() {"value":7}
+  error1:u64 = call(s1,code1) {"function":"terror"}
+  ret(error1)
+block admit(s2:mutbuf,x2:u64)
+  p2:u64 = call(s2,x2) {"function":"dptr"}
+  grad_offset2:u64 = const() {"value":32}
+  gradp2:u64 = int.add.wrap(p2,grad_offset2)
+  grad2:u64 = call(s2,gradp2) {"function":"getw"}
+  zero2:u64 = const() {"value":0}
+  requires_grad2:bool = compare.ne(grad2,zero2)
+  branch requires_grad2 no_ad(s2) allocate(s2,x2,p2)
+block no_ad(s3:mutbuf)
+  code3:u64 = const() {"value":5}
+  error3:u64 = call(s3,code3) {"function":"terror"}
+  ret(error3)
+block allocate(s4:mutbuf,x4:u64,p4:u64)
+  rank4:u64 = call(s4,p4) {"function":"getw"}
+  shape_offset4:u64 = const() {"value":96}
+  shape4:u64 = int.add.wrap(p4,shape_offset4)
+  zero4:u64 = const() {"value":0}
+  one4:u64 = const() {"value":1}
+  dtype4:u64 = call(s4,x4) {"function":"tensor_dtype"}
+  result4:u64 = call(s4,rank4,shape4,zero4,one4,dtype4) {"function":"typed_descriptor"}
+  failed4:bool = compare.eq(result4,zero4)
+  branch failed4 failure() layout(s4,x4,p4,dtype4,result4)
+block failure()
+  zero5:u64 = const() {"value":0}
+  ret(zero5)
+block layout(s6:mutbuf,x6:u64,p6:u64,d6:u64,y6:u64)
+  ready6:u64 = call(s6,y6,x6,x6) {"function":"integer_pointwise_layout"}
+  zero6:u64 = const() {"value":0}
+  failed6:bool = compare.eq(ready6,zero6)
+  branch failed6 failure() prepare(s6,x6,p6,d6,y6)
+block prepare(s7:mutbuf,x7:u64,p7:u64,d7:u64,y7:u64)
+  eight7:u64 = const() {"value":8}
+  countp7:u64 = int.add.wrap(p7,eight7)
+  count7:u64 = call(s7,countp7) {"function":"getw"}
+  zero7:u64 = const() {"value":0}
+  f64_dtype7:u64 = const() {"value":4}
+  floating7:bool = compare.eq(d7,f64_dtype7)
+  jump loop(s7,x7,y7,count7,floating7,zero7)
+block loop(s8:mutbuf,x8:u64,y8:u64,count8:u64,floating8:bool,index8:u64)
+  more8:bool = compare.lt(index8,count8)
+  branch more8 element(s8,x8,y8,count8,floating8,index8) done(y8)
+block element(s9:mutbuf,x9:u64,y9:u64,count9:u64,floating9:bool,index9:u64)
+  word9:u64 = call(s9,x9,index9) {"function":"tget"}
+  address9:u64 = call(s9,y9,index9) {"function":"taddr"}
+  zero9:u64 = const() {"value":0}
+  sign9:u64 = const() {"value":9223372036854775808}
+  integer9:u64 = int.sub.wrap(zero9,word9)
+  float9:u64 = bit.xor(word9,sign9)
+  value9:u64 = select(floating9,float9,integer9)
+  width9:u64 = const() {"value":8}
+  stored9:u64 = call(s9,address9,width9,value9) {"function":"typed_store"}
+  one9:u64 = const() {"value":1}
+  next9:u64 = int.add.wrap(index9,one9)
+  jump loop(s9,x9,y9,count9,floating9,next9)
+block done(y10:u64)
+  ret(y10)
+end
+fn unary(s:mutbuf,operation:u64,input:u64) -> (u64) effects(read,write,trap) entry(start)
+block start(s:mutbuf,operation:u64,input:u64)
+  valid:u64 = call(s,input) {"function":"valid"}
+  zero:u64 = const() {"value":0}
+  failed:bool = compare.eq(valid,zero)
+  branch failed failure() route(s,operation,input)
+block failure()
+  zero1:u64 = const() {"value":0}
+  ret(zero1)
+block route(s2:mutbuf,o2:u64,x2:u64)
+  dtype2:u64 = call(s2,x2) {"function":"tensor_dtype"}
+  i64_dtype2:u64 = const() {"value":2}
+  f64_dtype2:u64 = const() {"value":4}
+  is_i64_2:bool = compare.eq(dtype2,i64_dtype2)
+  is_f64_2:bool = compare.eq(dtype2,f64_dtype2)
+  wide2:bool = bool.or(is_i64_2,is_f64_2)
+  branch wide2 negative(s2,o2,x2) previous(s2,o2,x2)
+block negative(s3:mutbuf,o3:u64,x3:u64)
+  y3:u64 = call(s3,o3,x3) {"function":"wide_neg_tensor"}
+  ret(y3)
+block previous(s4:mutbuf,o4:u64,x4:u64)
+  y4:u64 = call(s4,o4,x4) {"function":"wide_neg_previous_unary"}
   ret(y4)
 end
 fn vector_shape(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) entry(b0)
@@ -1152,7 +1242,10 @@ block b7(v72:mutbuf,v73:u64,v76:u64)
   v129:bool = compare.ne(v73,v128)
   v130:bool = bool.and(v125,v127)
   v131:bool = bool.and(v130,v129)
-  v132:bool = bool.and(v123,v131)
+  wide_unary_opcode:u64 = const() {"value":3}
+  wide_not_unary:bool = compare.ne(v73,wide_unary_opcode)
+  wide_not_admitted:bool = bool.and(v131,wide_not_unary)
+  v132:bool = bool.and(v123,wide_not_admitted)
   v133:bool = compare.eq(v84,v85)
   v86:bool = bool.or(v133,v132)
   v134:u64 = const() {"value":5}
@@ -5578,123 +5671,4 @@ block b11(v76:mutbuf)
   ret(v88)
 block b13(v89:mutbuf,v93:u64)
   ret(v93)
-end
-fn linear(v0:mutbuf,v1:u64,v2:u64,v3:u64) -> (u64) effects(read,write,trap) entry(b0)
-block b0(v0:mutbuf,v1:u64,v2:u64,v3:u64)
-  v4:u64 = call(v0,v1) {"function":"valid_f32"}
-  v5:u64 = const() {"value":0}
-  v6:bool = compare.eq(v4,v5)
-  branch v6 b2(v0,v1,v2,v3,v6) b1(v0,v1,v2,v3)
-block b1(v7:mutbuf,v8:u64,v9:u64,v10:u64)
-  v17:u64 = call(v7,v9) {"function":"valid_f32"}
-  v18:u64 = const() {"value":0}
-  v19:bool = compare.eq(v17,v18)
-  jump b2(v7,v8,v9,v10,v19)
-block b2(v12:mutbuf,v13:u64,v14:u64,v15:u64,v16:bool)
-  branch v16 b3(v12) b4(v12,v13,v14,v15)
-block b3(v20:mutbuf)
-  v28:u64 = const() {"value":0}
-  ret(v28)
-block b4(v24:mutbuf,v25:u64,v26:u64,v27:u64)
-  v29:u64 = call(v24,v25) {"function":"dptr"}
-  v30:u64 = call(v24,v26) {"function":"dptr"}
-  v31:u64 = call(v24,v29) {"function":"getw"}
-  v32:u64 = const() {"value":0}
-  v33:bool = compare.eq(v31,v32)
-  branch v33 b6(v24,v25,v26,v27,v29,v30,v31,v33) b5(v24,v25,v26,v27,v29,v30,v31)
-block b5(v34:mutbuf,v35:u64,v36:u64,v37:u64,v38:u64,v39:u64,v40:u64)
-  v50:u64 = call(v34,v39) {"function":"getw"}
-  v51:u64 = const() {"value":2}
-  v52:bool = compare.ne(v50,v51)
-  jump b6(v34,v35,v36,v37,v38,v39,v40,v52)
-block b6(v42:mutbuf,v43:u64,v44:u64,v45:u64,v46:u64,v47:u64,v48:u64,v49:bool)
-  branch v49 b7(v42) b8(v42,v43,v44,v45,v46,v47,v48)
-block b7(v53:mutbuf)
-  v67:u64 = const() {"value":2}
-  v68:u64 = call(v53,v67) {"function":"terror"}
-  ret(v68)
-block b8(v60:mutbuf,v61:u64,v62:u64,v63:u64,v64:u64,v65:u64,v66:u64)
-  v69:u64 = const() {"value":96}
-  v70:u64 = int.add.wrap(v64,v69)
-  v71:u64 = const() {"value":1}
-  v72:u64 = int.sub.wrap(v66,v71)
-  v73:u64 = const() {"value":8}
-  v74:u64 = int.mul.wrap(v72,v73)
-  v75:u64 = int.add.wrap(v70,v74)
-  v76:u64 = call(v60,v75) {"function":"getw"}
-  v77:u64 = const() {"value":104}
-  v78:u64 = int.add.wrap(v65,v77)
-  v79:u64 = call(v60,v78) {"function":"getw"}
-  v80:bool = compare.ne(v76,v79)
-  branch v80 b9(v60) b10(v60,v61,v62,v63,v65)
-block b9(v81:mutbuf)
-  v95:u64 = const() {"value":2}
-  v96:u64 = call(v81,v95) {"function":"terror"}
-  ret(v96)
-block b10(v88:mutbuf,v89:u64,v90:u64,v91:u64,v93:u64)
-  v97:u64 = const() {"value":0}
-  v98:bool = compare.ne(v91,v97)
-  branch v98 b11(v88,v89,v90,v91,v93) b15(v88,v89,v90,v91)
-block b11(v99:mutbuf,v100:u64,v101:u64,v102:u64,v104:u64)
-  v113:u64 = const() {"value":96}
-  v114:u64 = int.add.wrap(v104,v113)
-  v115:u64 = call(v99,v114) {"function":"getw"}
-  v116:u64 = call(v99,v102,v115) {"function":"vector_shape"}
-  v117:u64 = const() {"value":0}
-  v118:bool = compare.eq(v116,v117)
-  branch v118 b13(v99) b15(v99,v100,v101,v102)
-block b13(v119:mutbuf)
-  v133:u64 = const() {"value":0}
-  ret(v133)
-block b15(v134:mutbuf,v135:u64,v136:u64,v137:u64)
-  v141:u64 = const() {"value":0}
-  v142:u64 = const() {"value":1}
-  v143:u64 = call(v134,v136,v141,v142) {"function":"transpose"}
-  v144:u64 = call(v134,v135,v143) {"function":"matmul"}
-  v145:bool = compare.ne(v137,v141)
-  branch v145 b16(v134,v137,v144) b18(v134,v144)
-block b16(v146:mutbuf,v149:u64,v154:u64)
-  v164:u64 = const() {"value":1}
-  v165:u64 = call(v146,v164,v154,v149) {"function":"binary"}
-  jump b18(v146,v165)
-block b18(v166:mutbuf,v174:u64)
-  ret(v174)
-end
-fn mm(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) entry(b0)
-block b0(v0:mutbuf,v1:u64,v2:u64)
-  v3:u64 = call(v0,v1) {"function":"valid_f32"}
-  v4:u64 = const() {"value":0}
-  v5:bool = compare.eq(v3,v4)
-  branch v5 b2(v0,v1,v2,v5) b1(v0,v1,v2)
-block b1(v6:mutbuf,v7:u64,v8:u64)
-  v14:u64 = call(v6,v8) {"function":"valid_f32"}
-  v15:u64 = const() {"value":0}
-  v16:bool = compare.eq(v14,v15)
-  jump b2(v6,v7,v8,v16)
-block b2(v10:mutbuf,v11:u64,v12:u64,v13:bool)
-  branch v13 b3(v10) b4(v10,v11,v12)
-block b3(v17:mutbuf)
-  v23:u64 = const() {"value":0}
-  ret(v23)
-block b4(v20:mutbuf,v21:u64,v22:u64)
-  v24:u64 = call(v20,v21) {"function":"dptr"}
-  v25:u64 = call(v20,v24) {"function":"getw"}
-  v26:u64 = const() {"value":2}
-  v27:bool = compare.ne(v25,v26)
-  branch v27 b6(v20,v21,v22,v27) b5(v20,v21,v22)
-block b5(v28:mutbuf,v29:u64,v30:u64)
-  v36:u64 = call(v28,v30) {"function":"dptr"}
-  v37:u64 = call(v28,v36) {"function":"getw"}
-  v38:u64 = const() {"value":2}
-  v39:bool = compare.ne(v37,v38)
-  jump b6(v28,v29,v30,v39)
-block b6(v32:mutbuf,v33:u64,v34:u64,v35:bool)
-  branch v35 b7(v32) b8(v32,v33,v34)
-block b7(v40:mutbuf)
-  v46:u64 = const() {"value":2}
-  v47:u64 = call(v40,v46) {"function":"terror"}
-  ret(v47)
-block b8(v43:mutbuf,v44:u64,v45:u64)
-  v48:u64 = call(v43,v44,v45) {"function":"matmul"}
-  ret(v48)
 end

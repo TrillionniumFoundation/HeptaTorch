@@ -1,5 +1,5 @@
 hia-asm.v1 hepta.hia.program.v8 logical_half_09
-exports(gradient_object_command,integer_scalar_binary,integer_binary_element,integer_inplace_overlap,integer_promote_operand,integer_result_dtype,integer_target_shape,integer_binary,integer_command,typed_iteration_address,native_dropout_fill_mask,integer_dropout_nonempty,integer_native_dropout,integer_dropout_command,integer_scalar_add,integer_scalar_command,optimizer_inventory,owned_adam_blob,private_tensor_retain,owned_adam_fill_group,optimizer_payload,owned_adam_word,owned_adam_group_payload,owned_adam_add_group,owned_adam_defaults,owned_adam_create,private_tensor_release,owned_adam_drop,owned_adam_group_at,owned_adam_group_inventory,owned_adam_key,owned_adam_occurrence,owned_adam_state_inventory,owned_adam_config,owned_adam_gradient,owned_optimizer_gradient_value,owned_adam_element,owned_adam_step_exponent,owned_adam_versions_ready,owned_adam_apply,owned_adam_new_moment,owned_adam_new_step,owned_adam_initialize,owned_adam_plan_group,owned_adam_step,history_member_zero_grad,history_member_zero_grad_none,owned_adam_zero,owned_adam_command,to_view_sync_requires,dtype_original_leaf_requires_grad,view_previous_leaf_requires_grad,leaf_requires_grad,optimizer_blob,optimizer_fill_group,optimizer_word,optimizer_group_payload,optimizer_add_group,optimizer_defaults,optimizer_create,optimizer_drop,optimizer_group_at,optimizer_group_inventory,optimizer_key,optimizer_occurrence)
+exports(retained_enable,retained_query,gradient_object_command,integer_scalar_binary,integer_binary_element,integer_inplace_overlap,integer_promote_operand,integer_result_dtype,integer_target_shape,integer_binary,integer_command,typed_iteration_address,native_dropout_fill_mask,integer_dropout_nonempty,integer_native_dropout,integer_dropout_command,integer_scalar_add,integer_scalar_command,optimizer_inventory,owned_adam_blob,private_tensor_retain,owned_adam_fill_group,optimizer_payload,owned_adam_word,owned_adam_group_payload,owned_adam_add_group,owned_adam_defaults,owned_adam_create,private_tensor_release,owned_adam_drop,owned_adam_group_at,owned_adam_group_inventory,owned_adam_key,owned_adam_occurrence,owned_adam_state_inventory,owned_adam_config,owned_adam_gradient,owned_optimizer_gradient_value,owned_adam_element,owned_adam_step_exponent,owned_adam_versions_ready,owned_adam_apply,owned_adam_new_moment,owned_adam_new_step,owned_adam_initialize,owned_adam_plan_group,owned_adam_step,history_member_zero_grad,history_member_zero_grad_none,owned_adam_zero,owned_adam_command,to_view_sync_requires,dtype_original_leaf_requires_grad,view_previous_leaf_requires_grad,leaf_requires_grad,optimizer_blob,optimizer_fill_group,optimizer_word,optimizer_group_payload,optimizer_add_group,optimizer_defaults,optimizer_create,optimizer_drop,optimizer_group_at,optimizer_group_inventory)
 fn absf(v0:u64) -> (u64) effects(read,write,trap) external()
 fn adam_gradient(v0:mutbuf,v1:u64,v2:u64,v3:u64) -> (u64) effects(read,write,trap) external()
 fn adam_parameter(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
@@ -51,9 +51,9 @@ fn put4(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn putw(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn record(v0:mutbuf,v1:u64,v2:u64,v3:u64,v4:u64) -> (u64) effects(read,write,trap) external()
 fn resolve_handle(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
-fn retained_enable(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
+fn retained_enabled(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn retained_parameter_blocker(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
-fn retained_query(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
+fn retained_row(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn rng_axis_order(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn rng_load_scratch(v0:mutbuf,v1:mutbuf,v2:u64) -> (u64) effects(read,write,trap) external()
 fn rng_next64(v0:mutbuf) -> (u64) effects(read,write,trap) external()
@@ -80,6 +80,90 @@ fn typed_store(v0:mutbuf,v1:u64,v2:u64,v3:u64) -> (u64) effects(read,write,trap)
 fn valid(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn valid_f32(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn version_can_bump(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
+fn retained_enable(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(v0:mutbuf,v1:u64)
+  v2:u64 = call(v0,v1) {"function":"public_node"}
+  v3:u64 = const() {"value":0}
+  v4:bool = compare.eq(v2,v3)
+  branch v4 b1(v0) b2(v0,v2)
+block b1(v5:mutbuf)
+  v11:u64 = const() {"value":0}
+  ret(v11)
+block b2(v8:mutbuf,v10:u64)
+  v12:u64 = call(v8,v10) {"function":"dptr"}
+  v13:u64 = const() {"value":32}
+  v14:u64 = int.add.wrap(v12,v13)
+  v15:u64 = call(v8,v14) {"function":"getw"}
+  v16:u64 = const() {"value":0}
+  v17:bool = compare.eq(v15,v16)
+  branch v17 b3(v8) b4(v8,v10,v12)
+block b3(v18:mutbuf)
+  v26:u64 = const() {"value":5}
+  v27:u64 = call(v18,v26) {"function":"terror"}
+  ret(v27)
+block b4(v22:mutbuf,v24:u64,v25:u64)
+  v28:u64 = const() {"value":40}
+  v29:u64 = int.add.wrap(v25,v28)
+  v30:u64 = call(v22,v29) {"function":"getw"}
+  v31:u64 = const() {"value":0}
+  v32:bool = compare.eq(v30,v31)
+  branch v32 b5(v22) b6(v22,v24,v25)
+block b5(v33:mutbuf)
+  v41:u64 = const() {"value":1}
+  ret(v41)
+block b6(v37:mutbuf,v39:u64,v40:u64)
+  v42:u64 = call(v37,v39) {"function":"retained_row"}
+  v43:u64 = const() {"value":0}
+  v44:bool = compare.eq(v42,v43)
+  branch v44 b8(v37,v40,v42,v44) b7(v37,v40,v42)
+block b7(v45:mutbuf,v48:u64,v49:u64)
+  v57:u64 = const() {"value":56}
+  v58:u64 = int.add.wrap(v49,v57)
+  v59:u64 = call(v45,v58) {"function":"so_uget"}
+  v60:u64 = const() {"value":1}
+  v61:bool = compare.gt(v59,v60)
+  jump b8(v45,v48,v49,v61)
+block b8(v51:mutbuf,v54:u64,v55:u64,v56:bool)
+  branch v56 b9(v51) b10(v51,v54,v55)
+block b9(v62:mutbuf)
+  v72:u64 = const() {"value":9}
+  v73:u64 = call(v62,v72) {"function":"terror"}
+  ret(v73)
+block b10(v67:mutbuf,v70:u64,v71:u64)
+  v74:u64 = const() {"value":56}
+  v75:u64 = int.add.wrap(v71,v74)
+  v76:u64 = call(v67,v75) {"function":"so_uget"}
+  v77:u64 = const() {"value":0}
+  v78:bool = compare.eq(v76,v77)
+  branch v78 b11(v67,v70,v71) b13(v67,v71)
+block b11(v79:mutbuf,v82:u64,v83:u64)
+  v89:u64 = const() {"value":608}
+  v90:u64 = int.add.wrap(v82,v89)
+  v91:u64 = call(v79,v90) {"function":"getw"}
+  v92:u64 = const() {"value":65535}
+  v93:u64 = bit.and(v91,v92)
+  v94:u64 = call(v79,v90,v93) {"function":"putw"}
+  jump b13(v79,v83)
+block b13(v95:mutbuf,v99:u64)
+  v100:u64 = const() {"value":56}
+  v101:u64 = int.add.wrap(v99,v100)
+  v102:u64 = const() {"value":1}
+  v103:u64 = call(v95,v101,v102) {"function":"so_uput"}
+  ret(v102)
+end
+fn retained_query(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(v0:mutbuf,v1:u64)
+  v2:u64 = call(v0,v1) {"function":"public_node"}
+  v3:u64 = const() {"value":0}
+  v4:bool = compare.eq(v2,v3)
+  branch v4 b1(v0) b2(v0,v2)
+block b1(v5:mutbuf)
+  v11:u64 = const() {"value":0}
+  ret(v11)
+block b2(v8:mutbuf,v10:u64)
+  v12:u64 = call(v8,v10) {"function":"retained_enabled"}
+  ret(v12)
+end
 fn gradient_object_command(v0:readbuf,v1:mutbuf,v2:mutbuf,v3:u64,v4:u64) -> (u64) effects(read,write,trap) entry(b0)
 block b0(v0:readbuf,v1:mutbuf,v2:mutbuf,v3:u64,v4:u64)
   v5:u64 = call(v0,v3) {"function":"getr"}
@@ -5209,89 +5293,4 @@ block b15(v201:mutbuf,v202:mutbuf,v203:u64,v204:u64,v206:u64,v207:u64,v208:u64,v
   v219:u64 = const() {"value":1}
   v220:u64 = int.add.wrap(v209,v219)
   jump b8(v201,v202,v203,v204,v206,v207,v208,v220)
-end
-fn optimizer_key(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) entry(b0)
-block b0(v0:mutbuf,v1:u64,v2:u64)
-  v3:u64 = const() {"value":16}
-  v4:u64 = int.add.wrap(v2,v3)
-  v5:u64 = call(v0,v4) {"function":"getw"}
-  v6:u64 = const() {"value":8}
-  v7:u64 = int.add.wrap(v1,v6)
-  v8:u64 = call(v0,v7) {"function":"getw"}
-  v9:bool = compare.ge(v5,v8)
-  branch v9 b1(v0) b2(v0,v1,v2,v5)
-block b1(v10:mutbuf)
-  v18:u64 = const() {"value":9}
-  v19:u64 = call(v10,v18) {"function":"terror"}
-  ret(v19)
-block b2(v14:mutbuf,v15:u64,v16:u64,v17:u64)
-  v20:u64 = call(v14,v15,v17) {"function":"optimizer_entry_at"}
-  v21:u64 = call(v14,v20) {"function":"getw"}
-  v22:u64 = call(v14,v16) {"function":"getw"}
-  v23:bool = compare.ne(v21,v22)
-  branch v23 b4(v14,v17,v20,v23) b3(v14,v16,v17,v20)
-block b3(v24:mutbuf,v26:u64,v27:u64,v28:u64)
-  v36:u64 = const() {"value":8}
-  v37:u64 = int.add.wrap(v28,v36)
-  v38:u64 = call(v24,v37) {"function":"getw"}
-  v39:u64 = int.add.wrap(v26,v36)
-  v40:u64 = call(v24,v39) {"function":"getw"}
-  v41:bool = compare.ne(v38,v40)
-  jump b4(v24,v27,v28,v41)
-block b4(v30:mutbuf,v33:u64,v34:u64,v35:bool)
-  branch v35 b6(v30,v34,v35) b5(v30,v33,v34)
-block b5(v42:mutbuf,v45:u64,v46:u64)
-  v54:u64 = const() {"value":16}
-  v55:u64 = int.add.wrap(v46,v54)
-  v56:u64 = call(v42,v55) {"function":"getw"}
-  v57:bool = compare.ne(v56,v45)
-  jump b6(v42,v46,v57)
-block b6(v48:mutbuf,v52:u64,v53:bool)
-  branch v53 b7(v48) b8(v48,v52)
-block b7(v58:mutbuf)
-  v68:u64 = const() {"value":9}
-  v69:u64 = call(v58,v68) {"function":"terror"}
-  ret(v69)
-block b8(v63:mutbuf,v67:u64)
-  ret(v67)
-end
-fn optimizer_occurrence(v0:mutbuf,v1:u64,v2:u64,v3:u64) -> (u64) effects(read,write,trap) entry(b0)
-block b0(v0:mutbuf,v1:u64,v2:u64,v3:u64)
-  v4:u64 = call(v0,v1,v2) {"function":"optimizer_group_at"}
-  v5:u64 = const() {"value":0}
-  v6:bool = compare.eq(v4,v5)
-  branch v6 b1(v0) b2(v0,v1,v3,v4)
-block b1(v7:mutbuf)
-  v17:u64 = const() {"value":0}
-  ret(v17)
-block b2(v12:mutbuf,v13:u64,v15:u64,v16:u64)
-  v18:u64 = const() {"value":56}
-  v19:u64 = int.add.wrap(v16,v18)
-  v20:u64 = call(v12,v19) {"function":"getw"}
-  v21:bool = compare.ge(v15,v20)
-  branch v21 b3(v12) b4(v12,v13,v15,v16)
-block b3(v22:mutbuf)
-  v32:u64 = const() {"value":7}
-  v33:u64 = call(v22,v32) {"function":"terror"}
-  ret(v33)
-block b4(v27:mutbuf,v28:u64,v30:u64,v31:u64)
-  v34:u64 = const() {"value":48}
-  v35:u64 = int.add.wrap(v31,v34)
-  v36:u64 = call(v27,v35) {"function":"getw"}
-  v37:u64 = int.add.wrap(v36,v30)
-  v38:u64 = call(v27,v28,v37) {"function":"optimizer_entry_at"}
-  v39:u64 = call(v27,v38) {"function":"getw"}
-  v40:u64 = const() {"value":8}
-  v41:u64 = int.add.wrap(v38,v40)
-  v42:u64 = call(v27,v41) {"function":"getw"}
-  v43:u64 = call(v27,v39,v42) {"function":"private_tensor"}
-  v44:u64 = const() {"value":0}
-  v45:bool = compare.eq(v43,v44)
-  branch v45 b5(v27) b6(v27,v38)
-block b5(v46:mutbuf)
-  v58:u64 = const() {"value":9}
-  v59:u64 = call(v46,v58) {"function":"terror"}
-  ret(v59)
-block b6(v52:mutbuf,v57:u64)
-  ret(v57)
 end

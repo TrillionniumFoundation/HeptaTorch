@@ -1,5 +1,5 @@
 hia-asm.v1 hepta.hia.program.v8 logical_half_11
-exports(half_previous_to_copy_tensor,to_copy_tensor,typed_copy_from_wire,to_from_raw_wire,scalar_previous_rng_strided_view,rng_strided_view,to_strided_view,to_suggest_channels_last,to_tensor,shape_previous_to_command,shape_clone_contiguous,shape_compute_strides,shape_infer_dimensions,shape_transform,scalar_previous_to_command,wrapped_scalar_mul,sd_previous_to_command,f64_previous_to_command,to_command,predicate_command,reply_error,rng_clone_object,rng_create_object,rng_drop_object,rng_interval,rng_uniform_tensor,rng_command,bool_logical_not_byte,bool_logical_not,history_detach_inplace,dtype_mask_retain,native_dropout_record,native_dropout_scale,native_dropout_write,view_previous_native_dropout,native_dropout,native_dropout_saved_mask,typed_fill,scalar_previous_typed_from_wire,typed_from_wire,view_previous_typed_command,scalar_previous_typed_command,typed_command,entry,state_header,so_state_init,init_state,so_rget,so_copy_range,so_state_migrate,clone_state,object_size,cg_state_valid,cg_stat,cg_find,cg_mutates,cg_payload)
+exports(scalar_previous_to_copy_tensor,f64_previous_to_copy_tensor,half_previous_to_copy_tensor,to_copy_tensor,typed_copy_from_wire,to_from_raw_wire,scalar_previous_rng_strided_view,rng_strided_view,to_strided_view,to_suggest_channels_last,to_tensor,shape_previous_to_command,shape_clone_contiguous,shape_compute_strides,shape_infer_dimensions,shape_transform,scalar_previous_to_command,wrapped_scalar_mul,sd_previous_to_command,f64_previous_to_command,to_command,predicate_command,reply_error,rng_clone_object,rng_create_object,rng_drop_object,rng_interval,rng_uniform_tensor,rng_command,bool_logical_not_byte,bool_logical_not,history_detach_inplace,dtype_mask_retain,native_dropout_record,native_dropout_scale,native_dropout_write,view_previous_native_dropout,native_dropout,native_dropout_saved_mask,typed_fill,scalar_previous_typed_from_wire,typed_from_wire,view_previous_typed_command,scalar_previous_typed_command,typed_command,entry,state_header,so_state_init,init_state,so_rget,so_copy_range,so_state_migrate,clone_state,object_size,cg_state_valid,cg_stat,cg_find,cg_mutates)
 fn absf(v0:u64) -> (u64) effects(read,write,trap) external()
 fn alloc(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn binary_saved_command(v0:readbuf,v1:mutbuf,v2:mutbuf,v3:u64,v4:u64) -> (u64) effects(read,write,trap) external()
@@ -18,7 +18,6 @@ fn dptr(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn dtype_mask_node(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn dtype_width(v0:u64) -> (u64) effects(read,write,trap) external()
 fn f64_cast_admit(v0:mutbuf,v1:u64,v2:u64,v3:u64) -> (u64) effects(read,write,trap) external()
-fn f64_previous_to_copy_tensor(v0:mutbuf,v1:u64,v2:u64,v3:u64) -> (u64) effects(read,write,trap) external()
 fn finish_command(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn fmaf(v0:u64,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn frame_valid(v0:readbuf) -> (u64) effects(read,write,trap) external()
@@ -98,6 +97,127 @@ fn valid_f32(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn version_can_bump(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn wrapped_f64_to_f32(v0:u64) -> (u64) effects(read,write,trap) external()
 fn wrapped_mul_f32(v0:u64,v1:u64) -> (u64) effects(read,write,trap) external()
+fn scalar_previous_to_copy_tensor(v0:mutbuf,v1:u64,v2:u64,v3:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(v0:mutbuf,v1:u64,v2:u64,v3:u64)
+  v4:u64 = call(v0,v1) {"function":"valid"}
+  v5:u64 = const() {"value":0}
+  v6:bool = compare.eq(v4,v5)
+  branch v6 b1(v0) b2(v0,v1,v2,v3)
+block b1(v7:mutbuf)
+  v15:u64 = const() {"value":0}
+  ret(v15)
+block b2(v11:mutbuf,v12:u64,v13:u64,v14:u64)
+  v16:u64 = call(v13) {"function":"dtype_width"}
+  v17:u64 = const() {"value":0}
+  v18:bool = compare.eq(v16,v17)
+  branch v18 b4(v11,v12,v13,v14,v18) b3(v11,v12,v13,v14)
+block b3(v19:mutbuf,v20:u64,v21:u64,v22:u64)
+  v29:u64 = const() {"value":1}
+  v30:bool = compare.gt(v22,v29)
+  jump b4(v19,v20,v21,v22,v30)
+block b4(v24:mutbuf,v25:u64,v26:u64,v27:u64,v28:bool)
+  branch v28 b5(v24) b6(v24,v25,v26,v27)
+block b5(v31:mutbuf)
+  v39:u64 = const() {"value":7}
+  v40:u64 = call(v31,v39) {"function":"terror"}
+  ret(v40)
+block b6(v35:mutbuf,v36:u64,v37:u64,v38:u64)
+  v41:u64 = call(v35,v36) {"function":"dptr"}
+  v42:u64 = const() {"value":0}
+  v43:bool = compare.eq(v37,v42)
+  branch v43 b7(v35,v36,v37,v38,v41) b9(v35,v36,v37,v38,v41,v42)
+block b7(v44:mutbuf,v45:u64,v46:u64,v47:u64,v48:u64)
+  v56:u64 = const() {"value":32}
+  v57:u64 = int.add.wrap(v48,v56)
+  v58:u64 = call(v44,v57) {"function":"getw"}
+  jump b9(v44,v45,v46,v47,v48,v58)
+block b9(v59:mutbuf,v60:u64,v61:u64,v62:u64,v63:u64,v64:u64)
+  v65:u64 = call(v59,v63) {"function":"getw"}
+  v66:u64 = const() {"value":96}
+  v67:u64 = int.add.wrap(v63,v66)
+  v68:u64 = const() {"value":1}
+  v69:u64 = call(v59,v65,v67,v64,v68,v61) {"function":"typed_descriptor"}
+  v70:u64 = const() {"value":0}
+  v71:bool = compare.eq(v69,v70)
+  branch v71 b10(v59) b11(v59,v60,v61,v62,v63,v69)
+block b10(v72:mutbuf)
+  v86:u64 = const() {"value":0}
+  ret(v86)
+block b11(v79:mutbuf,v80:u64,v81:u64,v82:u64,v83:u64,v85:u64)
+  v87:u64 = const() {"value":0}
+  v88:bool = compare.eq(v82,v87)
+  branch v88 b12(v79,v80,v81,v83,v85) b16(v79,v80,v81,v83,v85)
+block b12(v89:mutbuf,v90:u64,v91:u64,v93:u64,v95:u64)
+  v103:u64 = const() {"value":1}
+  v104:u64 = call(v89,v95,v90,v103) {"function":"dist_dense_layout"}
+  v105:u64 = const() {"value":0}
+  v106:bool = compare.eq(v104,v105)
+  branch v106 b14(v89) b16(v89,v90,v91,v93,v95)
+block b14(v107:mutbuf)
+  v121:u64 = const() {"value":0}
+  ret(v121)
+block b16(v122:mutbuf,v123:u64,v124:u64,v126:u64,v128:u64)
+  v129:u64 = const() {"value":576}
+  v130:u64 = int.add.wrap(v126,v129)
+  v131:u64 = call(v122,v130) {"function":"getw"}
+  v132:u64 = call(v124) {"function":"dtype_width"}
+  v133:u64 = const() {"value":0}
+  jump b17(v122,v123,v124,v126,v128,v131,v132,v133)
+block b17(v134:mutbuf,v135:u64,v136:u64,v138:u64,v140:u64,v141:u64,v142:u64,v143:u64)
+  v144:u64 = const() {"value":8}
+  v145:u64 = int.add.wrap(v138,v144)
+  v146:u64 = call(v134,v145) {"function":"getw"}
+  v147:bool = compare.lt(v143,v146)
+  branch v147 b18(v134,v135,v136,v138,v140,v141,v142,v143) b19(v134,v135,v140)
+block b18(v148:mutbuf,v149:u64,v150:u64,v152:u64,v154:u64,v155:u64,v156:u64,v157:u64)
+  v168:u64 = call(v148,v149,v157) {"function":"tget"}
+  v169:u64 = call(v168,v155,v150) {"function":"to_convert_value"}
+  v170:u64 = call(v148,v154,v157) {"function":"taddr"}
+  v171:u64 = call(v148,v170,v156,v169) {"function":"typed_store"}
+  v172:u64 = const() {"value":0}
+  v173:bool = compare.eq(v171,v172)
+  branch v173 b20(v148) b21(v148,v149,v150,v152,v154,v155,v156,v157)
+block b19(v158:mutbuf,v159:u64,v164:u64)
+  v199:u64 = const() {"value":43}
+  v200:u64 = const() {"value":0}
+  v201:u64 = call(v158,v164,v199,v159,v200) {"function":"record"}
+  ret(v201)
+block b20(v174:mutbuf)
+  v196:u64 = const() {"value":0}
+  ret(v196)
+block b21(v185:mutbuf,v186:u64,v187:u64,v189:u64,v191:u64,v192:u64,v193:u64,v194:u64)
+  v197:u64 = const() {"value":1}
+  v198:u64 = int.add.wrap(v194,v197)
+  jump b17(v185,v186,v187,v189,v191,v192,v193,v198)
+end
+fn f64_previous_to_copy_tensor(v0:mutbuf,v1:u64,v2:u64,v3:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(v0:mutbuf,v1:u64,v2:u64,v3:u64)
+  v4:u64 = call(v0,v1) {"function":"valid"}
+  v5:u64 = const() {"value":0}
+  v6:bool = compare.eq(v4,v5)
+  branch v6 b1(v0) b2(v0,v1,v2,v3)
+block b1(v7:mutbuf)
+  v15:u64 = const() {"value":0}
+  ret(v15)
+block b2(v11:mutbuf,v12:u64,v13:u64,v14:u64)
+  v16:u64 = call(v11,v12) {"function":"tensor_dtype"}
+  v17:u64 = const() {"value":3}
+  v18:bool = compare.eq(v16,v17)
+  branch v18 b4(v11,v12,v13,v14,v18) b3(v11,v12,v13,v14)
+block b3(v19:mutbuf,v20:u64,v21:u64,v22:u64)
+  v29:u64 = const() {"value":2}
+  v30:bool = compare.gt(v21,v29)
+  jump b4(v19,v20,v21,v22,v30)
+block b4(v24:mutbuf,v25:u64,v26:u64,v27:u64,v28:bool)
+  branch v28 b5(v24) b6(v24,v25,v26,v27)
+block b5(v31:mutbuf)
+  v39:u64 = const() {"value":7}
+  v40:u64 = call(v31,v39) {"function":"terror"}
+  ret(v40)
+block b6(v35:mutbuf,v36:u64,v37:u64,v38:u64)
+  v41:u64 = call(v35,v36,v37,v38) {"function":"scalar_previous_to_copy_tensor"}
+  ret(v41)
+end
 fn half_previous_to_copy_tensor(v0:mutbuf,v1:u64,v2:u64,v3:u64) -> (u64) effects(read,write,trap) entry(b0)
 block b0(v0:mutbuf,v1:u64,v2:u64,v3:u64)
   v16:u64 = call(v0,v1) {"function":"valid"}
@@ -5466,65 +5586,4 @@ block b6(v32:readbuf,v34:bool)
   v40:u64 = const() {"value":1}
   v41:u64 = select(v34,v39,v40)
   ret(v41)
-end
-fn cg_payload(v0:readbuf) -> (u64) effects(read,write,trap) entry(b0)
-block b0(v0:readbuf)
-  v1:u64 = const() {"value":8}
-  v2:u64 = call(v0,v1) {"function":"getr"}
-  v3:u64 = const() {"value":1}
-  v4:bool = compare.eq(v2,v3)
-  v5:u64 = const() {"value":7}
-  v6:bool = compare.eq(v2,v5)
-  v7:bool = bool.or(v4,v6)
-  v8:u64 = const() {"value":19}
-  v9:bool = compare.eq(v2,v8)
-  v10:bool = bool.or(v7,v9)
-  branch v10 b1(v0) b2(v0,v2)
-block b1(v11:readbuf)
-  v15:u64 = const() {"value":24}
-  v16:u64 = call(v11,v15) {"function":"getr"}
-  v17:u64 = const() {"value":8}
-  v18:u64 = int.mul.wrap(v16,v17)
-  ret(v18)
-block b2(v13:readbuf,v14:u64)
-  v19:u64 = const() {"value":3}
-  v20:bool = compare.eq(v14,v19)
-  v21:u64 = const() {"value":4}
-  v22:bool = compare.eq(v14,v21)
-  v23:bool = bool.or(v20,v22)
-  branch v23 b3(v13) b4(v13,v14)
-block b3(v24:readbuf)
-  v28:u64 = const() {"value":8}
-  ret(v28)
-block b4(v26:readbuf,v27:u64)
-  v29:u64 = const() {"value":5}
-  v30:bool = compare.eq(v27,v29)
-  branch v30 b5(v26) b6(v26,v27)
-block b5(v31:readbuf)
-  v35:u64 = const() {"value":5056}
-  ret(v35)
-block b6(v33:readbuf,v34:u64)
-  v36:u64 = const() {"value":9}
-  v37:bool = compare.ge(v34,v36)
-  v38:u64 = const() {"value":15}
-  v39:bool = compare.le(v34,v38)
-  v40:bool = bool.and(v37,v39)
-  branch v40 b7(v33) b8(v33,v34)
-block b7(v41:readbuf)
-  v45:u64 = const() {"value":24}
-  v46:u64 = call(v41,v45) {"function":"getr"}
-  v47:u64 = const() {"value":8}
-  v48:u64 = int.mul.wrap(v46,v47)
-  ret(v48)
-block b8(v43:readbuf,v44:u64)
-  v49:u64 = const() {"value":18}
-  v50:bool = compare.eq(v44,v49)
-  branch v50 b9(v43) b10(v43)
-block b9(v51:readbuf)
-  v55:u64 = const() {"value":24}
-  v56:u64 = call(v51,v55) {"function":"getr"}
-  ret(v56)
-block b10(v53:readbuf)
-  v57:u64 = const() {"value":0}
-  ret(v57)
 end
