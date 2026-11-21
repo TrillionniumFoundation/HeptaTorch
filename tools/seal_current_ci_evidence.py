@@ -125,10 +125,6 @@ REPOSITORY_PATHS = (
     'validation/public-f64-logical192-reference',
     'validation/current-f64-48-source', 'validation/current-f64-48-reference',
     'validation/current-half47-source', 'validation/current-half47-reference',
-    'validation/current-runtime742/qualification-plan.json',
-    'validation/current-runtime758/qualification-plan.json',
-    'validation/current-runtime761/qualification-plan.json',
-    'validation/current-runtime765/qualification-plan.json',
     'validation/current-runtime767/qualification-plan.json',
     'validation/half-logical264-reference',
 )

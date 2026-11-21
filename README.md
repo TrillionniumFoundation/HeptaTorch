@@ -52,7 +52,7 @@ make test HEPTA_SOURCE_ROOT=/absolute/path/to/fixed-hepta-source \
 
 ## 仓库组织
 
-默认生产目录保留一份完整当前源码及一组有序分区。已退休的过程源码和约 123 MB 的额外历史验证文件已移出当前目录；[历史索引](docs/history.md)指向固定 Git 提交。仍被原比较器、参考包或 bootstrap 读取的内容保留，后续按实际依赖迁移。
+默认生产目录保留一份完整当前源码及一组有序分区。已退休的过程源码和约 164 MB 的额外历史验证文件已移出当前目录；[历史索引](docs/history.md)指向固定 Git 提交。仍被原比较器、参考包或 bootstrap 读取的内容保留，后续按实际依赖迁移。
 
 | 文档 | 内容 |
 | --- | --- |
@@ -65,6 +65,7 @@ make test HEPTA_SOURCE_ROOT=/absolute/path/to/fixed-hepta-source \
 | [I64／F64 取负](docs/native-wide-negation.md) | 405 项实际对照、原 F64 请求继承及完整物理回放 |
 | [Half 取负](docs/native-half-negation.md) | NaN、布局、371 项验证及真实 OOM／恢复控制 |
 | [BF16 转换](tests/bf16_copy/README.md) | 布局语义、逐位对照及适用 CPU 路径 |
+| [保留依赖](docs/runtime-dependencies.md) | 当前构建、25组及旧CI仍读取的文件与迁移要求 |
 | [历史记录](docs/history.md) | 已退休过程文件的固定历史位置 |
 
 许可证与上游通知见 [LICENSE](LICENSE)、[NOTICE](NOTICE) 和 [`third_party/pytorch/`](third_party/pytorch/)。
