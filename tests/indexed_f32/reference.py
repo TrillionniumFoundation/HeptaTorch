@@ -16,6 +16,7 @@ ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT/'tests'))
 from indexed_f32.cases import CASES,CASE_SHA256,raw_input,seed_raw
 from numeric_predicates.reference import tensor,identity
+import pinned_reference_custody as custody
 
 SUPPORT='ef8fe89aa7dbff4ee03f9d5762d2736a3648d9e48e97ad5df7bec615676f04ae'
 LOCK='ca2e54ce65083bbe0ab3d47b6878971271765ab35a9dd70725fa345fceed3944'
@@ -24,7 +25,8 @@ def source_files():
     return [Path(__file__).resolve(),ROOT/'tests/indexed_f32/cases.py',ROOT/'tests/indexed_f32/__init__.py',
         ROOT/'tests/numeric_predicates/reference.py',ROOT/'tests/numeric_predicates/cases.py',
         ROOT/'tests/numeric_predicates/__init__.py',ROOT/'tests/pytorch_oracle.py',
-        ROOT/'compatibility/pytorch-oracle-lock.json',ROOT/'compatibility/upstream-lock.json',Path(sys.executable).resolve()]
+        ROOT/'compatibility/pytorch-oracle-lock.json',ROOT/'compatibility/upstream-lock.json',
+        ROOT/'tests/pinned_reference_custody.py',Path(sys.executable).resolve()] + custody.source_files(ROOT)
 
 def local_identity(torch):
     expected=json.loads((ROOT/'compatibility/pytorch-oracle-lock.json').read_bytes())['oracle']
@@ -59,7 +61,7 @@ def main():
     p.add_argument('--allow-unverified-local',action='store_true',help='Exploratory only; never complete CI qualification.')
     args=p.parse_args();out=args.output.resolve();out.mkdir(parents=True,exist_ok=False);(out/'blobs').mkdir()
     assert Path.cwd().resolve()==ROOT and not sys.flags.optimize
-    os.environ['ATEN_CPU_CAPABILITY']='avx2'
+    context=custody.begin(ROOT,out,__file__,args.allow_unverified_local)
     report=dict(schema='heptatorch.indexed-f32.reference.v1',status='RUNNING',case_sha256=CASE_SHA256,
         expected_cases=len(CASES),rows=[],Torch_executed=False,native_executed=False,compiler_executed=False,
         host_expected_values_computed=False,production_oracle_qualified=False,failures=[],
@@ -82,6 +84,8 @@ def main():
             torch,provenance=ctx['torch'],ctx['PROVENANCE']
             assert provenance['status']=='PASS' and len(provenance['checks'])==11 and all(provenance['checks'].values())
             report.update(oracle_provenance=provenance,production_oracle_qualified=True)
+        custody.finish_capture(context)
+        report['reference_custody']=custody.capture(ROOT,out,__file__,torch,report['oracle_provenance'],args.allow_unverified_local,context)
         torch.set_num_threads(1);torch.manual_seed(1729);torch.backends.mkldnn.enabled=False
         torch.use_deterministic_algorithms(True)
         assert torch.backends.cpu.get_cpu_capability()=='AVX2'
@@ -131,10 +135,12 @@ def main():
                     for field in ('logical','storage'):
                         item=value[field];raw=(out/item['path']).read_bytes()
                         assert len(raw)==item['bytes'] and hashlib.sha256(raw).hexdigest()==item['sha256']
+        custody.finish_reference(context)
         report.update(status='OBSERVED_INDEXED_F32' if report['production_oracle_qualified'] else 'OBSERVED_EXPLORATORY_INDEXED_F32',
             cases=len(report['rows']),inputs_unchanged=True,rng_unchanged=True,
             all_observed_blobs_unchanged=True,rng_sha256=hashlib.sha256(rng).hexdigest())
     except BaseException as error:
+        custody.finish_capture(context)
         report.update(status='FAIL',error=dict(type=type(error).__name__,message=str(error),traceback=traceback.format_exc()))
     (out/'report.json').write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')
     print(json.dumps({key:report.get(key) for key in ('status','cases','expected_cases','production_oracle_qualified','error')}),flush=True)

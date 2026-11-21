@@ -31,6 +31,9 @@ def main():
         snapshot=out.parent/name
         assert not snapshot.exists()
         snapshot.write_bytes(raw)
+    wheel_helper=(repo/'tests/pinned_reference_custody.py').read_bytes()
+    assert sha(wheel_helper)=='fa91a644b8743493ed6ed8f29da966494983cf5eed7300faa715ee4e08c7212e'
+    (out.parent/'pinned_reference_custody.py').write_bytes(wheel_helper)
     reports=[]
     for name, relative in [('rng_cpu_oracle.py','tests/rng_cpu_oracle.py'),
                            ('flat_probe.py','tests/rng_independent/flat_probe.py'),
@@ -43,7 +46,7 @@ def main():
             raw=raw.replace(before,after)
             changes.append({'reason':reason,'before':before,'after':after})
         if name=='rng_cpu_oracle.py':
-            replace('import traceback\n','import traceback\n\nsys.path.insert(0, str(Path(__file__).resolve().parents[1]))\nfrom support import admit, capture, observed_torch\nfrom process_evidence import record_actual_process\nfrom reference_evidence import begin_torch_capture, finish_torch_capture, record_reference\n', 'local reviewed admission and actual process/reference evidence imports')
+            replace('import traceback\n','import traceback\n\nsys.path.insert(0, str(Path(__file__).resolve().parents[1]))\nfrom support import admit, capture, observed_torch\nfrom process_evidence import record_actual_process\nfrom reference_evidence import begin_torch_capture, finish_torch_capture, record_reference, begin_reference_wheel, finish_reference_wheel\n', 'local reviewed admission and actual process/reference evidence imports')
             replace("IMAGE_SHA = 'cffc7c2f6574bf08a184e7d4f84e41a38ce0fb9be2f645bf9c332c93c2621eac'",f"IMAGE_SHA = '{IMAGE}'",'actual current-object adapter ELF identity')
             replace("COMPILER_SHA = '87c247e4d1c3c9a449d2947fd4227fdc186d519bffd203a04cafce7861a4ed54'", "COMPILER_SHA = 'b1c851a0896fa6071f800e1146c3c27d0c6cf85059e9a6281b46d42908a3f59f'", 'actual current native module compiler')
             replace('def main():\n', 'def main():\n    global ROOT\n    record_actual_process(__file__)\n', 'explicit repository path and actual child process receipt')
@@ -56,11 +59,11 @@ def main():
                     "    import_capture = begin_torch_capture(out) if a.reference == 'pytorch' and not a.allow_unverified_local else None\n    torch, provenance = None, None\n",
                     'capture complete actual strict oracle import streams without altering its original branch')
             replace("        assert all(x is True for x in provenance['checks'].values())\n",
-                    "        assert all(x is True for x in provenance['checks'].values())\n    if import_capture is not None:\n        finish_torch_capture(import_capture)\n    if torch is not None:\n        record_reference(ROOT, out, torch, provenance, a.allow_unverified_local)\n",
+                    "        assert all(x is True for x in provenance['checks'].values())\n    if import_capture is not None:\n        finish_torch_capture(import_capture)\n    if torch is not None:\n        record_reference(ROOT, out, torch, provenance, a.allow_unverified_local)\n        wheel_state = begin_reference_wheel(ROOT, out)\n",
                     'bind original strict provenance to actual interpreter/package/metadata/PEP610/pip input entities')
             replace('    rows, frames, value_count, state_bytes_compared = [], 0, 0, 0\n', '    rows, frames, value_count, state_bytes_compared = [], 0, 0, 0\n    captured = []\n', 'retain actual raw packet receipts')
             replace("        assert result.returncode == 0 and not result.stderr, (result.returncode, result.stderr)\n", "        captured.append(capture(out, len(captured), raw, result.stdout, result.stderr, result.returncode))\n        assert result.returncode == 0 and not result.stderr, (result.returncode, result.stderr)\n", 'record actual native input/stdout/stderr; preserve original exit assertions')
-            replace("    raw = json.dumps(report, indent=2)+'\\n';", "    report.update(migration=migration, captured_native_packets=captured,\n                  allow_unverified_local=a.allow_unverified_local,\n                  full_installation_provenance_verified=a.reference == 'pytorch' and not a.allow_unverified_local,\n                  production_oracle_qualified=a.reference == 'pytorch' and not a.allow_unverified_local)\n    if a.allow_unverified_local and not failed:\n        report['status'] = 'PASS_EXPLORATORY_NATIVE_ONLY'\n    assert len(rows) == (76 if a.reference == 'pytorch' else 74)\n    assert len(captured) == frames\n    assert admit(ROOT, a.native_build, a.current_build) == migration\n    raw = json.dumps(report, indent=2)+'\\n';", 'append exact scope/provenance and final custody; do not claim original legacy ELF')
+            replace("    raw = json.dumps(report, indent=2)+'\\n';", "    if torch is not None:\n        finish_reference_wheel(wheel_state)\n    report.update(migration=migration, captured_native_packets=captured,\n                  allow_unverified_local=a.allow_unverified_local,\n                  full_installation_provenance_verified=a.reference == 'pytorch' and not a.allow_unverified_local,\n                  production_oracle_qualified=a.reference == 'pytorch' and not a.allow_unverified_local)\n    if a.allow_unverified_local and not failed:\n        report['status'] = 'PASS_EXPLORATORY_NATIVE_ONLY'\n    assert len(rows) == (76 if a.reference == 'pytorch' else 74)\n    assert len(captured) == frames\n    assert admit(ROOT, a.native_build, a.current_build) == migration\n    raw = json.dumps(report, indent=2)+'\\n';", 'append exact scope/provenance and final custody; do not claim original legacy ELF')
             protected=[('all independent reference classes', original[original.index('def packet('):original.index('\ndef main():')]),
                        ('all 74/76 numerical, state and rejection comparisons',original[original.index('    def scenario('):original.index("    assert sha((ROOT/'tools/rng-cpu/rng.hepta').read_bytes())")])]
         elif name=='flat_probe.py':

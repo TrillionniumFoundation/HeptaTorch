@@ -5,12 +5,14 @@ from pathlib import Path
 import stat
 from numeric_predicates.evidence import require, sha, identity, SUPPORT, LOCK
 from .cases import CASES, CASE_SHA256
+import pinned_reference_custody as custody
 
 
 def read(repository, directory, execution, bind, local_observed=False):
     directory, execution = Path(directory).resolve(), Path(execution).resolve()
     raw = bind(directory / 'report.json')
     report = json.loads(raw)
+    custody_proof=custody.read(repository,directory,execution,report,bind,'tests/signbit/reference.py',local_observed)
     process = json.loads(bind(execution / 'process.json'))
     require(report['schema'] == 'heptatorch.signbit.reference.v1'
         and report['status'] == 'OBSERVED_SIGNBIT'
@@ -71,7 +73,8 @@ def read(repository, directory, execution, bind, local_observed=False):
     files = [repository / 'tests/signbit' / name for name in ('reference.py', '__init__.py', 'cases.py')]
     files += [repository / 'tests/numeric_predicates' / name for name in ('__init__.py', 'cases.py', 'reference.py')]
     files += [repository / 'tests/pytorch_oracle.py', repository / 'compatibility/pytorch-oracle-lock.json',
-              repository / 'compatibility/upstream-lock.json', interpreter]
+              repository / 'compatibility/upstream-lock.json', repository / 'tests/pinned_reference_custody.py', interpreter]
+    files += custody.source_files(repository)
     if not local_observed:
         files.append(repository / 'build/pytorch-install.json')
     require(set(report['inputs']) == {str(path.resolve()) for path in files}, 'complete actual reference input census')
@@ -96,4 +99,4 @@ def read(repository, directory, execution, bind, local_observed=False):
         for value in (row['input'], row['result']):
             blob(value['logical'])
             blob(value['storage'])
-    return dict(root=directory, execution=execution, report=report, report_sha256=sha(raw), blob=blob)
+    return dict(root=directory, execution=execution, report=report, report_sha256=sha(raw), blob=blob, custody=custody_proof)

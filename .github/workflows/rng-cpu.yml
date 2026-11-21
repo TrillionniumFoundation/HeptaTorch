@@ -16,6 +16,7 @@ on:
       - "tests/rng_independent/**"
       - "tests/check_rng_custody.py"
       - "tests/pytorch_oracle.py"
+      - "tests/pinned_reference_custody.py"
       - "compatibility/pytorch*"
       - "third_party/pytorch/rng/**"
       - "validation/*rng*"
@@ -249,6 +250,8 @@ jobs:
           (out/'oracle-import.json').write_text(json.dumps({'argv':command,'exit_code':process.returncode,'stdout_EOF':True,'stderr_EOF':True})+'\n')
           assert process.returncode==0 and not process.stdout and not process.stderr
           IMPORT_CHECK
+          python3 -B tests/pinned_reference_custody.py \
+            --prepare-installed --repository "$GITHUB_WORKSPACE"
 
       - name: Qualify all original 74, 76, 10 and 25 CPU RNG cases on the actual current RNG object
         run: |
@@ -286,6 +289,10 @@ jobs:
             ${{ runner.temp }}/hepta-current-entropy/
             build/pytorch-install.json
             build/pytorch-reference-support-install.json
+            build/pytorch-reference-wheel.whl
+            build/pytorch-reference-installed/
+            tests/pinned_reference_custody.py
+            compatibility/pytorch-official-wheel-members.json
           if-no-files-found: error
           compression-level: 9
           retention-days: 30

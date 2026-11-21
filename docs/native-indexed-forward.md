@@ -1,9 +1,9 @@
 # Native F32 indexed forward correction
 
-The current781 HIA source corrects no-gradient `gather`, `scatter_add` and
+The correction introduced in781 and retained in current797 fixes no-gradient `gather`, `scatter_add` and
 `index_add` while retaining the complete existing gradient paths. The new
-`indexed_f32` group contributes331 fixed cases to the mandatory32-group,
-15,145-case current gate. These finite cases do not close a complete PyTorch
+`indexed_f32` group contributes331 fixed cases to the mandatory35-group,
+16,341-case current gate. These finite cases do not close a complete PyTorch
 declaration, the whole indexing subsystem or full autograd.
 
 ## Reproduced defects
@@ -31,7 +31,7 @@ The complete781→778 inverse checks both call sites, all three new bodies,
 hash and the exact forward round trip. The combined781→778→775 proof also
 retains the signbit and typed-index-selection transition: six changed parent
 bodies, six appended helpers and769 unchanged775 functions. Both nested proof
-identities remain explicit in the [source review](../validation/current-runtime781/source-review.json).
+identities remain explicit in the [source review](https://github.com/TrillionniumFoundation/HeptaTorch/blob/683adf048bf083d4f1116a5ef711d18a36f39e24/validation/current-runtime781/source-review.json).
 
 ## Actual scoped observations
 
@@ -60,7 +60,7 @@ reference.
 
 The original local runs and pure physical replays passed on the exact781
 source and ELF. Their input identities and limitations are recorded in
-[native-review.json](../validation/current-runtime781/native-review.json).
+[native-review.json](https://github.com/TrillionniumFoundation/HeptaTorch/blob/683adf048bf083d4f1116a5ef711d18a36f39e24/validation/current-runtime781/native-review.json).
 The local Torch installation lacks its original pip report and direct_url
 metadata, so those runs remain explicitly exploratory. The default runner and
 qualifier reject that missing provenance. CI must execute the new group with
@@ -77,3 +77,5 @@ python3 -B tests/indexed_f32/run.py \
 
 No old failed result is rewritten. Source inverses describe exactly which
 bytes changed; runtime and reference executions provide the numerical evidence.
+
+The current797 successor prepends its complete forward source inverse and reexecutes this group. Its fresh reference also binds the complete official wheel,12,567 original installed files, actual mapped computation libraries and before/after process custody. Historical781 observations retain their own identities; see the [current audit](current-audit.md) and [native forward contract](native-forward.md).

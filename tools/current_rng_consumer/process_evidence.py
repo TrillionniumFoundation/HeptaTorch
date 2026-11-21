@@ -109,6 +109,10 @@ def plan(context, name):
                  'HEPTATORCH_RNG_PROCESS_RECEIPT': str(out/'processes'/(name+'.actual.json'))}
     if name in ('cpython74', 'flat10', 'independent25', 'pytorch76'):
         overrides['HEPTATORCH_RNG_FLAT_EVIDENCE'] = str(out/name/'flat-evidence')
+    if name == 'pytorch76':
+        # Torch initialization may otherwise add a default cache path after the
+        # startup receipt. Bind the same explicit path before and after import.
+        overrides['TORCHINDUCTOR_CACHE_DIR'] = str(out/name/'torchinductor-cache')
     return {'name': name, 'argv': commands[name], 'cwd': str(repo),
             'environment': dict(ENVIRONMENT, HOME=context['home'], **overrides),
             'environment_overrides': overrides, 'timeout_seconds': 600,

@@ -2,7 +2,7 @@
 
 ## Source and tools
 
-The canonical application is [`tools/current_runtime/source/runtime.hepta`](../tools/current_runtime/source/runtime.hepta). Its [manifest](../tools/current_runtime/source/manifest.json) fixes complete functions, ordered units and native object/image identities. The current candidate has **781 core functions in 15 units (13 core, RNG and owner support)**. HIA machine code performs all tensor numerical work, allocation, ownership, AD, RNG and command execution in a static Linux x86-64 ELF.
+The canonical application is [`tools/current_runtime/source/runtime.hepta`](../tools/current_runtime/source/runtime.hepta). Its [manifest](../tools/current_runtime/source/manifest.json) fixes complete functions, ordered units and native object/image identities. The current candidate has **797 core functions in 15 units (13 core, RNG and owner support)**. HIA machine code performs all tensor numerical work, allocation, ownership, AD, RNG and command execution in a static Linux x86-64 ELF.
 
 Use Hepta source commit `f33d8da316de8fdf27b504371f1a5310997ff548`. The exact bootstrap sequence in [Current HIA Runtime CI](../.github/workflows/current-runtime.yml) reproduces the initial compiler, expanded profile, borrowed modules, owned ABI2, interactive sessions, ABI3 stack tools and entropy linker. Its initial bootstrap uses Python and GNU ld.
 
@@ -48,7 +48,17 @@ assert result.returncode == 0 and not result.stdout and not result.stderr
 PY
 ```
 
-Retain the real pip report at `build/pytorch-install.json`. All eleven original provenance checks remain required. The SHA-pinned NumPy wheel resolves the missing-dependency warning while preserving strict reference-stderr admission. Both libraries are test dependencies.
+Retain the real pip report at `build/pytorch-install.json`. Produce the independent support-install report and shared immutable installed snapshot with the same reference interpreter:
+
+```sh
+/path/to/pinned-env/bin/python -m pip install --disable-pip-version-check --force-reinstall \
+  --report build/pytorch-reference-support-install.json \
+  -r compatibility/pytorch-reference-requirements.txt
+/path/to/pinned-env/bin/python -B tests/pinned_reference_custody.py \
+  --prepare-installed --repository .
+```
+
+The preparation command locates the exact 209,530,490-byte official wheel in the pip cache and checks its full fixed SHA. If the cache is stored elsewhere, pass `--wheel /absolute/path/to/the/exact/official.whl`. Keep the original URL-based installation and actual PEP610/pip records. Preparation reads every immutable installed wheel member and retains one shared snapshot at `build/pytorch-reference-installed/`, plus the original wheel at `build/pytorch-reference-wheel.whl`. References and pure readers bind the full 12,567 files, 12 libraries and actual process mappings before and after numerical execution. This preparation grants no numerical qualification. All eleven original provenance checks remain required. The SHA-pinned NumPy wheel resolves the missing-dependency warning while preserving strict reference-stderr admission. Both libraries are test dependencies.
 
 Use the **same CPython 3.12 interpreter** for the coordinator and live readers; original source inverses contain Python-version-sensitive AST identities. The BF16 exact-bit reference records and requires the actual AVX2/AVX512 path. The Half multiplication, negation, addition/subtraction, true-division, mixed public F64 and same public F64 arithmetic and typed ReLU references explicitly select AVX2 in their own processes and retain the original single-thread setting. Their scalar and vector NaN results are compared bit for bit. DEFAULT dispatch and other architectures remain separate full dtype/platform requirements.
 
@@ -86,7 +96,7 @@ The compiler retains its original limits: 1 MiB source/object, 256 functions inc
 
 The build receipt binds all source/tool/object/image bytes, modes, real exits and both stream EOFs. `PASS_NATIVE_BUILD_ONLY` describes compilation and linking. Runtime qualification is separate.
 
-## Thirty-one mandatory groups
+## 35 mandatory groups
 
 ```sh
 make test HEPTA_SOURCE_ROOT=/absolute/path/to/fixed-hepta-source \
@@ -140,9 +150,12 @@ Or consume an explicit new build:
 | `signbit` | 97 | Seven dtype codes, exhaustive F16/BF16 sign bits, signed zero/NaN, thirteen protocol controls, six successful and six failed FE transactions, and two actual OOM/recovery pairs |
 | `typed_index_select` | 866 | Six tensor dtypes, scalar/rank0–4, noncontiguous storage/offsets, exact copied bits, five actual AD cases, 78 protocol controls, two actual OOM/recoveries and the original Bool packet successor |
 | `indexed_f32` | 331 | F32 gather/scatter_add/index_add with and without AD; explicit no-grad geometry, 193 actual gradients and full raw replay |
-| **Total** | **15,145** | Every group and its original or explicitly mapped successor controls are mandatory |
+| `forward_nograd` | 462 | Matmul and softmax/log_softmax,243 actual backward cases,37 protocol controls,3 successful and12 failed FE transactions,3 real OOM recoveries |
+| `join_forward` | 414 | Cat/stack exact bits and layouts,274 actual backward cases,194 absent gradients,58 protocol controls,2 successful and10 failed FE transactions,2 real OOM recoveries |
+| `spatial_forward` | 320 | Conv/pool/reduce/norm/linear/cross-entropy,174 actual backward cases and234 gradients,28 protocol controls,3 successful and9 failed FE transactions,3 real OOM recoveries |
+| **Total** | **16,341** | Every group and its original or explicitly mapped successor controls are mandatory |
 
-Production cases use the same main image. Generator ABI/reordered probes are separate current-object images, each bound to its own actual execution. New source identities require a complete new run. The indexed781→index/signbit778→typed-ReLU775→same-F64773→mixed-F64773→771→767→765→761→758→742→740 whole-source inverse composes with unchanged predecessor proofs; source identity never substitutes for execution. The typed-ReLU successor changes only the old `unary` body, retains the other772 old bodies and adds `typed_relu_value` and `typed_relu_tensor`. Its [source review](../validation/current-runtime775/source-review.json) and [qualification plan](../validation/current-runtime781/qualification-plan.json) keep static identity, scoped numerical results and the full32-group execution distinct.
+Production cases use the same main image. Generator ABI/reordered probes are separate current-object images, each bound to its own actual execution. New source identities require a complete new run. The forward797→indexed781→index/signbit778→typed-ReLU775→same-F64773→mixed-F64773→771→767→765→761→758→742→740 whole-source inverse composes with unchanged predecessor proofs; source identity never substitutes for execution. The typed-ReLU successor changes only the old `unary` body, retains the other772 old bodies and adds `typed_relu_value` and `typed_relu_tensor`. Its [source review](../validation/current-runtime775/source-review.json) and [qualification plan](../validation/current-runtime797/qualification-plan.json) keep static identity, scoped numerical results and the full35-group execution distinct.
 
 Original numerical assertions, tolerances, resource budgets and failure records remain. The complete 239-request Half entry now requires 151 original refusals and 88 explicitly mapped successes: 22 multiplication, two negation, 40 single-command additions/subtractions, two original 228-byte factory/FE-add frames and22 true divisions. The FE owner extension derives three allocations and one promotion retirement from the fixed HIA source. It checks every word of the three descriptors, all eight owner tables, allocator offsets and free extents, original Storage payloads and RNG; it constructs no observed intermediate state. The complete linked `rng03` unit and its two scalar rounding leaves are included in the source call graph.
 
@@ -152,7 +165,7 @@ The typed_relu776, half_neg371 and wide_neg405 groups share one new actual776 Re
 
 The live32 cold-build adapter preserves its original predicates while mapping all seven unit/process inventory literals to the actual fifteen-unit, sixteen-process build. The preceding complete22 and old-head complete23 failures are retained. A focused corrected32 PASS does not substitute for the required complete execution on each new head.
 
-Current results are in [the audit](current-audit.md). The 15,145 finite cases remain distinct from the complete 2,590 native declarations, 688 derivative declarations and 17 system contracts.
+Current results are in [the audit](current-audit.md). The 16,341 finite cases remain distinct from the complete 2,590 native declarations, 688 derivative declarations and 17 system contracts.
 
 ## Changes and retirement
 

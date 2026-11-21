@@ -6,7 +6,7 @@ HeptaTorch 使用 **HIA 原生源码**实现张量数值、对象分配、梯度
 
 ## 当前运行时
 
-当前候选包含 **781 个核心函数、15 个独立编译单元**。每次构建使用固定 HIA ABI3 编译器重新生成全部应用对象，再由原生 HIA 链接器生成 ELF。运行时接口是有界原生二进制命令协议。
+当前候选包含 **797 个核心函数、15 个独立编译单元**。每次构建使用固定 HIA ABI3 编译器重新生成全部应用对象，再由原生 HIA 链接器生成 ELF。运行时接口是有界原生二进制命令协议。
 
 | 能力 | 当前实现 |
 | --- | --- |
@@ -14,6 +14,7 @@ HeptaTorch 使用 **HIA 原生源码**实现张量数值、对象分配、梯度
 | 对象与生命周期 | 独立 Storage/Version、Saved 张量、可微视图、公开梯度、所有权转移和失败事务回滚 |
 | 逻辑与分类 | `any`、`all`、显式 Bool/F32 `sum`；`isnan`、`isinf`、`isfinite`、`isposinf`、`isneginf`、`signbit` |
 | 原生索引 | F32／Bool／I64／F64／F16／BF16 `index_select`，标量、非连续步长和独立输出；修复 F32 无梯度取错行，保留原 F32 一阶 AD |
+| 前向修复 | 无梯度 matmul、softmax/log_softmax、卷积、池化、按轴归约和 cat/stack 使用显式输入；linear 匹配原生输出 Version，归一化匹配实际连续／channels-last 布局，原反向函数保留 |
 | 训练 | 选定 NN 算子、反向传播、SGD/momentum、Adam/AdamW、CPU Generator 和部分随机分布 |
 | Half 乘法 | rank 相关类型提升、广播、可达布局、原始右侧标量精度，以及固定 AVX2／单线程 NaN 位模式；结果具有独立所有权 |
 | Half 真除法 | 保留原始右侧标量的 F32 运算精度，按固定 Torch 提升、广播和布局规则执行；1,196 项真实对照逐位检查 NaN、尾段和独立所有权 |
@@ -49,9 +50,9 @@ make test HEPTA_SOURCE_ROOT=/absolute/path/to/fixed-hepta-source \
 
 ## 一个当前验收入口
 
-`make test` 和 [Current HIA Runtime CI](.github/workflows/current-runtime.yml)共用 [`tests/qualify_current_runtime.py`](tests/qualify_current_runtime.py)。当前必需范围为 **32 组、15,145 个有限案例**：保留全部前 29 组／13,851 项及原控制或明确验证的成功后继，新增 `signbit` 97 项、`index_select` 866 项及 F32 gather/scatter_add/index_add 331 项实际对照。原 F64 入口 87 个请求完整执行：63 个保留拒绝，1 个取负、22 个混合算术单命令和 1 个原始同帧 FE 事务要求实际 Torch 数值及完整所有权验证。原 Half 入口的 239 个请求完整执行：22 个乘法、2 个取负、40 个单命令加减法、2 个原始同帧 FE 加法及 22 个真除法要求实际数值和所有权验证，其余 151 个保留原拒绝行为。Half47、乘法312、加减1006和除法1196共享同一份实际1196参考及其原始进程、输入和输出。F6448与混合算术2541共享同一份实际2541参考；两条Bool减法错误仍保留。新同类型 F64 组保留两次真实数值失败记录，并要求全部 88 项协议控制和四次真实 OOM／同请求恢复。ReLU776、Half取负371与宽类型取负405必须共享同一份新 ReLU 参考及实际进程收据；原取负中的四条 ReLU 请求保持原字节，改用完整数值、布局与所有权验收。组表、额外控制和独立执行命令见[当前构建说明](docs/current-runtime.md)。
+`make test` 和 [Current HIA Runtime CI](.github/workflows/current-runtime.yml)共用 [`tests/qualify_current_runtime.py`](tests/qualify_current_runtime.py)。当前必需范围为 **35 组、16,341 个有限案例**：保留全部前 29 组／13,851 项及原控制或明确验证的成功后继，保留 `signbit` 97 项、`index_select` 866 项及 F32 gather/scatter_add/index_add 331 项，并追加前向462项、cat/stack414项及空间／归一化320项。原 F64 入口 87 个请求完整执行：63 个保留拒绝，1 个取负、22 个混合算术单命令和 1 个原始同帧 FE 事务要求实际 Torch 数值及完整所有权验证。原 Half 入口的 239 个请求完整执行：22 个乘法、2 个取负、40 个单命令加减法、2 个原始同帧 FE 加法及 22 个真除法要求实际数值和所有权验证，其余 151 个保留原拒绝行为。Half47、乘法312、加减1006和除法1196共享同一份实际1196参考及其原始进程、输入和输出。F6448与混合算术2541共享同一份实际2541参考；两条Bool减法错误仍保留。新同类型 F64 组保留两次真实数值失败记录，并要求全部 88 项协议控制和四次真实 OOM／同请求恢复。ReLU776、Half取负371与宽类型取负405必须共享同一份新 ReLU 参考及实际进程收据；原取负中的四条 ReLU 请求保持原字节，改用完整数值、布局与所有权验收。组表、额外控制和独立执行命令见[当前构建说明](docs/current-runtime.md)。
 
-生产案例绑定本次冷构建的同一主映像；Generator 的 ABI／重排探针由当前对象另行链接并执行。每次源码或映像变化都需要新的完整运行。781 候选的完整组合状态以[当前审计](docs/current-audit.md)及源绑定执行记录为准。
+生产案例绑定本次冷构建的同一主映像；Generator 的 ABI／重排探针由当前对象另行链接并执行。每次源码或映像变化都需要新的完整运行。新的来源检查还要求固定官方 wheel 全文件身份、实际安装库与进程映射、执行前后不变，以及原始 pip／PEP610 记录。797 候选的完整组合状态以[当前审计](docs/current-audit.md)及源绑定执行记录为准。
 
 `make acceptance-status` 检查完整目标账本及已注册的完整契约证据。`make full-acceptance` 只有在全部声明和 17 项系统契约通过独立验收后才能返回成功。目前生产注册表为空，完整闭合数仍为 0；[完整契约验收机制](docs/full-contract-qualification.md)要求当前 HIA 源码、映像、真实构建与执行、独立参考和物理读回全部绑定，账本文字或有限案例的 PASS 不能增加闭合数。
 
@@ -70,12 +71,13 @@ make test HEPTA_SOURCE_ROOT=/absolute/path/to/fixed-hepta-source \
 | [Half 加减法](docs/native-half-addsub.md) | 固定内核语义、1,006 项验证、同帧所有权及原 239 请求继承 |
 | [混合 F64 算术](docs/native-public-f64-arithmetic.md) | 直接 I64 转换、2,541 项实际对照、原 87 请求继承和同帧所有权 |
 | [同类型 F64 算术](docs/native-same-f64-arithmetic.md) | 维度排序与 NaN 载荷修复、原失败保留、5,088 项实际对照及独立物理回放 |
+| [原生前向与元数据修复](docs/native-forward.md) | 显式无梯度输入、归一化布局、linear Version、1196项新增对照及严格来源核验 |
 | [原生 signbit 与 index_select](docs/native-index-signbit.md) | 准确范围、F32 缺陷修复、963 项对照及严格 CI 要求 |
 | [原生 ReLU](docs/native-typed-relu.md) | 四种 dtype 的位模式、776 例、四条原请求的数值后继及共用参考验证 |
 | [I64／F64 取负](docs/native-wide-negation.md) | 405 项实际对照、原 F64 请求继承及完整物理回放 |
 | [Half 取负](docs/native-half-negation.md) | NaN、布局、371 项验证及真实 OOM／恢复控制 |
 | [BF16 转换](tests/bf16_copy/README.md) | 布局语义、逐位对照及适用 CPU 路径 |
-| [保留依赖](docs/runtime-dependencies.md) | 当前构建、32组及旧CI仍读取的文件与迁移要求 |
+| [保留依赖](docs/runtime-dependencies.md) | 当前构建、35组及旧CI仍读取的文件与迁移要求 |
 | [完整契约验收](docs/full-contract-qualification.md) | 固定完整目标、独立验证器、证据约束和真实闭合条件 |
 | [历史记录](docs/history.md) | 已退休过程文件的固定历史位置 |
 

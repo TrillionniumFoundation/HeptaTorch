@@ -81,6 +81,13 @@ environment, executable identity, input, output, error stream, PID and EOF.
 Original producer paths remain labels in the archive: moving the evidence does
 not rewrite the original commands or require recreating the producer's paths.
 
+The PyTorch child receives an explicit `TORCHINDUCTOR_CACHE_DIR` under its new
+evidence directory before it starts. The original strict oracle imports Torch
+compiler support, which otherwise adds this variable after startup. Recording
+the path in the initial intent keeps the complete startup, child and reference
+environments equal. The reader still compares every environment field; the
+earlier strict CI rejection and its original process records remain preserved.
+
 The actual Torch child saves the interpreter, imported package and extension,
 version source, distribution METADATA/WHEEL/RECORD/INSTALLER, PEP610 direct URL,
 original pip install report, fixed source and locks, and complete import
@@ -92,6 +99,21 @@ requires the exact eleven original names, booleans and results; an arbitrary
 set of eleven true flags is not accepted. Missing original pip or PEP610 data
 cannot become production provenance by changing a report's status or flags.
 The fixed NumPy support-install receipt is also checked against its requirement.
+
+The same actual reference process also records all 12,567 immutable installed
+wheel members before and after its numerical work. An independent fixed member
+index and the complete original official wheel anchor these 751,277,549 bytes,
+including twelve computation libraries. The pure reader checks the complete
+shared snapshot, the actual mapped library paths, devices, inodes and executable
+segments, and the connection to the original eleven-check reference process.
+Changing an installed file together with its RECORD and receipt hashes cannot
+replace the official member identity. Foreign or deleted Torch libraries,
+invalid mappings, a different process, and omitted members are rejected.
+
+The shared wheel, independent member index and every immutable installed member
+form exactly 12,569 declared reference inputs. Their complete byte identities
+and modes are checked again after all four suites. The original raw eleven-check
+reader and every original numerical comparison remain unchanged.
 
 All twenty-five direct calls bind their requests to the original case packet,
 including the three independent short-capacity/header literals. Every saved
@@ -113,6 +135,9 @@ native stack-runtime linker. The normal invocation uses the strict original
 PyTorch source/installation checks:
 
 ```bash
+python3 -B tests/pinned_reference_custody.py \
+  --prepare-installed --repository .
+
 python3 -I -S -B tools/current_rng_consumer/run.py \
   --repository . \
   --current-build "$CURRENT_BUILD" \
@@ -129,7 +154,12 @@ python3 -I -S -B tools/current_rng_consumer/qualify.py \
 The dedicated `rng-cpu.yml` workflow rebuilds the existing native toolchain,
 cold-builds the current manifest, freshly installs the exact pinned Torch wheel,
 runs all four original suites, reruns the pure reader, and preserves complete
-consumer and native tool evidence. It never restores historical143.
+consumer and native tool evidence. Install the fixed Torch and NumPy wheels with
+their actual pip reports before preparing the shared snapshot; see the
+[reference environment instructions](../../docs/current-runtime.md#independent-reference-environment).
+Retain the original official wheel, shared installed snapshot, fixed member
+index and shared reader in the same artifact as the consumer evidence.
+The workflow never restores historical143.
 
 For explicitly exploratory local work, `run.py --local-observed-oracle` records
 the observed installed Torch identity without inventing a pip report. Such a

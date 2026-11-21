@@ -276,7 +276,7 @@ def main():
         for name in ('public_f64_arithmetic', 'same_f64_arithmetic', 'typed_relu', 'half_mul', 'half_addsub'):
             function = getattr(coordinator, name + '_observer_binding')
             checks.append((name + '-complete-observer-inverse', lambda function=function: function(inputs)))
-        for name in ('numeric_predicates', 'signbit', 'typed_index_select', 'indexed_f32'):
+        for name in ('numeric_predicates', 'signbit', 'typed_index_select', 'indexed_f32', 'forward_nograd', 'join_forward', 'spatial_forward'):
             module = load(repository / 'tests' / name / 'run.py', inputs)
             checks.append((name + '-source-profile', lambda module=module:
                            module.profile(repository, build, args.expected_build_sha256, inputs)))

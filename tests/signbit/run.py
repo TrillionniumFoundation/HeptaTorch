@@ -45,6 +45,8 @@ def module(path,name,bind):
 
 
 def profile(repository,build,build_sha,inputs):
+    custody=module(repository/'tests/pinned_reference_custody.py','signbit_custody_profile',inputs.bind)
+    for path in custody.source_files(repository):inputs.bind(path)
     qualification=module(repository/'tools/current_runtime/qualification.py','signbit_current_profile',inputs.bind)
     built=qualification.admit_build(build,inputs.bind,build_sha)
     for suite in ('signbit','numeric_predicates','half_logical'):
@@ -53,14 +55,14 @@ def profile(repository,build,build_sha,inputs):
     combined=module(repository/'tools/current_runtime/index_signbit_source_transition.py','signbit_combined_source_proof',inputs.bind)
     source=inputs.bind(repository/'tools/current_runtime/source/runtime.hepta')
     parent,combined_proof=combined.restore_source(source,inputs.bind)
-    require(combined_proof['source_sha256']==built['source_sha256'] and combined_proof['functions']==781
-        and combined_proof['parent_functions']==775 and combined_proof['unchanged_parent_functions']==769
-        and combined_proof['changed_functions']==['entry','index_select','gather','indexed_add','predicate_bits','predicate_command']
-        and combined_proof['appended_functions']==['typed_index_select_previous','typed_index_select','typed_index_select_offset','indexed_gather_forward_source','indexed_add_forward_inputs','indexed_add_forward_location']
+    require(combined_proof['source_sha256']==built['source_sha256'] and combined_proof['functions']==797
+        and combined_proof['parent_functions']==775 and combined_proof['unchanged_parent_functions']==760
+        and combined_proof['changed_functions']==['entry', 'linear', 'reduce_axis', 'softmax', 'layernorm', 'batchnorm_eval', 'conv2d', 'pool2d', 'matmul', 'index_select', 'gather', 'tensor_join', 'indexed_add', 'predicate_bits', 'predicate_command']
+        and combined_proof['appended_functions']==['typed_index_select_previous', 'typed_index_select', 'typed_index_select_offset', 'indexed_gather_forward_source', 'indexed_add_forward_inputs', 'indexed_add_forward_location', 'matmul_forward_index', 'matmul_forward_point', 'softmax_forward_group', 'axis_source_forward', 'conv_term_forward', 'conv_no_grad_forward', 'pool_point_forward', 'pool_no_grad_forward', 'matmul_output_version', 'concat_forward_target', 'concat_forward_part', 'concat_forward_copy', 'concat_forward_layout', 'concat_forward', 'linear_bias_output_version', 'normalization_output_layout']
         and combined_proof['whole_source_inverse_exact'] is True
         and combined_proof['whole_round_trip_exact'] is True
         and combined_proof['admitted_new_opcode']==126 and combined_proof['opcode125_remains_rejected'] is True,
-        'complete781 source inverse precedes every unchanged775 predecessor predicate')
+        'complete797 source inverse precedes every unchanged775 predecessor predicate')
     return built
 
 
@@ -83,6 +85,7 @@ def qualify(report,repository,build,build_sha,output,inputs,local_observed=False
         require(row==evidence.identity(raw,stat.S_IMODE(Path(path).stat().st_mode)),
                 'all recorded original observer inputs retained unchanged')
     fixed=evidence.read(repository,Path(report['reference_directory']),Path(report['reference_process_directory']),inputs.bind,local_observed)
+    require(report['reference_custody']==fixed['custody'],'complete raw fixed-wheel and actual process custody retained')
     require(fixed['report_sha256']==report['reference_sha256'],'exact independent actual reference report retained')
     wire=native.load_wire(repository,inputs.bind);recipes=native.recipes(fixed)
     require(len(report['results'])==len(recipes),'all cases and additional controls completed')
@@ -106,7 +109,14 @@ def qualify(report,repository,build,build_sha,output,inputs,local_observed=False
         Torch_executed_by_qualifier=False,reference_sha256=fixed['report_sha256'],
         additional_packet_controls=13,additional_successful_FE_transactions=6,
         additional_failed_FE_transactions=6,additional_allocation_recoveries=2,
-        host_expected_values_computed=False,old_dispatcher_preserved=True)
+        host_expected_values_computed=False,old_dispatcher_preserved=True,
+        original_eleven_checks_recomputed_from_raw_inputs=True,
+        raw_reference_entities=fixed['custody']['raw_reference_entities'],
+        original_installation_checks=11,
+        original_installation_checks_passed=sum(fixed['custody']['original_checks'].values()),
+        actual_supervisor_intent_verified=True,actual_environment_transition_verified=True,
+        original_reference_script_bytes_verified=True,portable_reference_custody_replayed=True,
+        **{key:fixed['custody'][key] for key in ('official_wheel_sha256', 'official_member_anchor_sha256', 'independent_official_wheel_member_anchor_verified', 'complete_official_wheel_archive_verified', 'installed_wheel_members_verified', 'installed_wheel_bytes_verified', 'torch_shared_libraries_verified', 'actual_mapped_torch_cpu_code_verified', 'all_actual_installed_inputs_unchanged', 'complete_installed_raw_snapshot_verified')})
 
 
 def main():
@@ -135,11 +145,12 @@ def main():
         argv=[str(args.torch_python.absolute()),'-B',str(ROOT/'tests/signbit/reference.py'),
               '--repository',str(ROOT),'--output',str(output/'reference')]
         if args.local_observed_oracle:argv.append('--local-observed-oracle')
-        process=supervisor.execute(argv,execution,300,cwd=ROOT)
+        custody=module(ROOT/'tests/pinned_reference_custody.py','signbit_custody_supervisor',inputs.bind)
+        process=custody.supervise(supervisor,argv,execution,300,ROOT,inputs.bind)
         native.dump(execution/'process.json',process)
         fixed=evidence.read(ROOT,output/'reference',execution,inputs.bind,args.local_observed_oracle)
         report.update(Torch_executed=True,reference_directory=str(fixed['root']),
-            reference_process_directory=str(execution),reference_sha256=fixed['report_sha256'],
+            reference_process_directory=str(execution),reference_sha256=fixed['report_sha256'],reference_custody=fixed['custody'],
             full_installation_provenance_verified=fixed['report']['full_installation_provenance_verified'])
         wire=native.load_wire(ROOT,inputs.bind);recipes=native.recipes(fixed)
         for ordinal,(name,recipe,parameters) in enumerate(recipes):

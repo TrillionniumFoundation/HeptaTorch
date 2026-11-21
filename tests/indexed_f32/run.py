@@ -49,14 +49,24 @@ def module(path,name,bind):
 
 
 def profile(repository,build,build_sha,inputs):
+    custody=module(repository/'tests/pinned_reference_custody.py','indexed_f32_custody_profile',inputs.bind)
+    for path in custody.source_files(repository):inputs.bind(path)
     qualification=module(repository/'tools/current_runtime/qualification.py','indexed_f32_current_profile',inputs.bind)
     built=qualification.admit_build(build,inputs.bind,build_sha)
     for package in ('indexed_f32','numeric_predicates','half_logical'):
         for file in sorted((repository/'tests'/package).glob('*.py')):inputs.bind(file)
     transition=module(repository/'tools/current_runtime/indexed_forward_source_transition.py','indexed_f32_inverse',inputs.bind)
     source=inputs.bind(repository/'tools/current_runtime/source/runtime.hepta')
+    forward=module(repository/'tools/current_runtime/forward_source_transition.py','indexed_f32_forward_source_inverse',inputs.bind)
+    source,forward_proof=forward.restore_source(source,inputs.bind)
+    require(forward_proof['source_sha256']==built['source_sha256'] and forward_proof['functions']==797
+        and forward_proof['parent_functions']==781 and forward_proof['unchanged_parent_functions']==772
+        and forward_proof['whole_source_inverse_exact'] is True and forward_proof['whole_round_trip_exact'] is True
+        and forward_proof['original_indexed_dispatch_unchanged'] is True
+        and forward_proof['original_backward_functions_unchanged'] is True,
+        'complete native forward source inverse before the unchanged indexed source predicates')
     parent,proof=transition.restore_source(source,inputs.bind)
-    require(proof['source_sha256']==built['source_sha256'] and proof['functions']==781
+    require(proof['source_sha256']==forward_proof['parent_source_sha256'] and proof['functions']==781
         and proof['parent_functions']==778 and proof['unchanged_parent_functions']==776
         and proof['changed_functions']==['gather','indexed_add']
         and proof['appended_functions']==['indexed_gather_forward_source','indexed_add_forward_inputs','indexed_add_forward_location']
@@ -97,6 +107,8 @@ def reference(repository,directory,execution,inputs,allow=False):
             row=provenance[key];path=Path(row['path']);data=inputs.bind(path,row['sha256'])
             require(row==dict(path=str(path),bytes=len(data),sha256=sha(data),mode=stat.S_IMODE(path.stat().st_mode)),
                 'actual local Torch binary and package retained unchanged')
+    custody=module(repository/'tests/pinned_reference_custody.py','indexed_f32_custody_reader',inputs.bind)
+    custody_proof=custody.read(repository,directory,execution,report,inputs.bind,'tests/indexed_f32/reference.py',allow)
     process=json.loads(inputs.bind(execution/'process.json'))
     require(process==json.loads(inputs.bind(execution/'runner.json')),'actual independent reference process receipt matches supervisor original')
     require(process['started'] is True and process['exit_code']==0
@@ -122,7 +134,8 @@ def reference(repository,directory,execution,inputs,allow=False):
     files=[repository/'tests/indexed_f32'/name for name in ('__init__.py','cases.py','reference.py')]
     files += [repository/'tests/numeric_predicates'/name for name in ('__init__.py','cases.py','reference.py')]
     files += [repository/'tests/pytorch_oracle.py',repository/'compatibility/pytorch-oracle-lock.json',
-        repository/'compatibility/upstream-lock.json',interpreter]
+        repository/'compatibility/upstream-lock.json',repository/'tests/pinned_reference_custody.py',interpreter]
+    files += custody.source_files(repository)
     if not allow:files.append(repository/'build/pytorch-install.json')
     require(set(report['inputs'])=={str(path.resolve()) for path in files},'complete actual reference input census')
     for path,record in report['inputs'].items():
@@ -141,7 +154,7 @@ def reference(repository,directory,execution,inputs,allow=False):
         for key in ('input_a','input_b','result','seed','gradient_a','gradient_b'):
             if row.get(key) is not None:
                 for field in ('logical','storage'):blob(row[key][field])
-    return dict(report=report,blob=blob,root=directory,execution=execution,report_sha256=sha(raw))
+    return dict(report=report,blob=blob,root=directory,execution=execution,report_sha256=sha(raw),custody=custody_proof)
 
 
 def qualify(report,repository,build,build_sha,output,inputs,allow_unverified_local=False):
@@ -167,6 +180,7 @@ def qualify(report,repository,build,build_sha,output,inputs,allow_unverified_loc
             'every original observer input retained unchanged')
     fixed=reference(repository,Path(report['reference_directory']),Path(report['reference_process_directory']),
         inputs,allow_unverified_local)
+    require(report['reference_custody']==fixed['custody'],'complete raw fixed-wheel and actual process custody retained')
     require(fixed['report_sha256']==report['reference_sha256'],'exact original independent actual Torch reference')
     wire=load_wire(repository,inputs.bind);cases=recipes(fixed)
     require(len(report['results'])==len(cases),'complete original numerical and control observation census')
@@ -194,7 +208,14 @@ def qualify(report,repository,build,build_sha,output,inputs,allow_unverified_loc
         production_oracle_qualified=not allow_unverified_local,reference_sha256=fixed['report_sha256'],
         additional_protocol_controls=56,additional_successful_FE_transactions=3,additional_failed_FE_transactions=12,
         additional_allocation_recoveries=3,actual_autograd_cases=193,host_expected_values_computed=False,
-        original_backward_functions_unchanged=True,original_requires_grad_dispatch_preserved=True)
+        original_backward_functions_unchanged=True,original_requires_grad_dispatch_preserved=True,
+        original_eleven_checks_recomputed_from_raw_inputs=True,
+        raw_reference_entities=fixed['custody']['raw_reference_entities'],
+        original_installation_checks=11,
+        original_installation_checks_passed=sum(fixed['custody']['original_checks'].values()),
+        actual_supervisor_intent_verified=True,actual_environment_transition_verified=True,
+        original_reference_script_bytes_verified=True,portable_reference_custody_replayed=True,
+        **{key:fixed['custody'][key] for key in ('official_wheel_sha256', 'official_member_anchor_sha256', 'independent_official_wheel_member_anchor_verified', 'complete_official_wheel_archive_verified', 'installed_wheel_members_verified', 'installed_wheel_bytes_verified', 'torch_shared_libraries_verified', 'actual_mapped_torch_cpu_code_verified', 'all_actual_installed_inputs_unchanged', 'complete_installed_raw_snapshot_verified')})
 
 
 def main():
@@ -223,11 +244,12 @@ def main():
         argv=[str(args.torch_python.absolute()),'-B',str(ROOT/'tests/indexed_f32/reference.py'),
             '--output',str(output/'reference')]
         if args.allow_unverified_local:argv.append('--allow-unverified-local')
-        process=supervisor.execute(argv,execution,300,cwd=ROOT)
+        custody=module(ROOT/'tests/pinned_reference_custody.py','indexed_f32_custody_supervisor',inputs.bind)
+        process=custody.supervise(supervisor,argv,execution,300,ROOT,inputs.bind)
         dump(execution/'process.json',process)
         fixed=reference(ROOT,output/'reference',execution,inputs,args.allow_unverified_local)
         report.update(Torch_executed=True,reference_directory=str(fixed['root']),
-            reference_process_directory=str(execution),reference_sha256=fixed['report_sha256'],
+            reference_process_directory=str(execution),reference_sha256=fixed['report_sha256'],reference_custody=fixed['custody'],
             production_oracle_qualified=fixed['report']['production_oracle_qualified'],
             full_installation_provenance_verified=fixed['report']['production_oracle_qualified'])
         wire=load_wire(ROOT,inputs.bind);cases=recipes(fixed)

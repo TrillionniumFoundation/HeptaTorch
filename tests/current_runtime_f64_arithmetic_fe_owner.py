@@ -11,8 +11,8 @@ The two original87 FE fixture have sufficient existing slot/pool capacity.
 That scope is checked explicitly; a growing owner needs its own reviewed rule.
 """
 
-SOURCE = 'ee214f05b56401ea17a5f55e792aaccf73447974ba0b7e0416990439bff6a8ff'
-IMAGE = '71309d9e8ef794b9052603fd28f4d4da4886aff6924d8413489af856744ec272'
+SOURCE = '0061acfaa8e886885053e8f539cf08187be1c1e10265c19e52df07435a71594b'
+IMAGE = '955ffc996b8870ef67752f45647f5c1ca9a093f41ff402487091f03223372293'
 
 
 def require(ok, message):

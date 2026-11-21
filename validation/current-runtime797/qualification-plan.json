@@ -1,13 +1,13 @@
 {
-  "schema": "heptatorch.current-runtime781.qualification-plan.v1",
-  "status": "PENDING_ACTUAL_32_GROUP_15145_RUN",
-  "required_functions": 781,
+  "schema": "heptatorch.current-runtime797.qualification-plan.v1",
+  "status": "PENDING_ACTUAL_35_GROUP_16341_RUN",
+  "required_functions": 797,
   "required_units": 15,
-  "required_groups": 32,
-  "required_cases": 15145,
-  "required_source_sha256": "ee214f05b56401ea17a5f55e792aaccf73447974ba0b7e0416990439bff6a8ff",
-  "required_native_sha256": "71309d9e8ef794b9052603fd28f4d4da4886aff6924d8413489af856744ec272",
-  "required_manifest_sha256": "a53b2bf1865a56adfc9f56763feae1b7c5ac9c23243399efe1c201c75db3a8c9",
+  "required_groups": 35,
+  "required_cases": 16341,
+  "required_source_sha256": "0061acfaa8e886885053e8f539cf08187be1c1e10265c19e52df07435a71594b",
+  "required_native_sha256": "955ffc996b8870ef67752f45647f5c1ca9a093f41ff402487091f03223372293",
+  "required_manifest_sha256": "2e442fea4961a5111004a1a721fb46e817f5568f50c7068047fc767721df8e21",
   "required_suites": {
     "bool27": 27,
     "original76": 76,
@@ -40,9 +40,12 @@
     "typed_relu": 776,
     "signbit": 97,
     "typed_index_select": 866,
-    "indexed_f32": 331
+    "indexed_f32": 331,
+    "forward_nograd": 462,
+    "join_forward": 414,
+    "spatial_forward": 320
   },
-  "required_head_checks": "All exact-tree checks, current32/15145, complete Native, dtype-f64 and migrated RNG gates, and original artifact byte/mode/input/process/EOF readback.",
+  "required_head_checks": "All exact-tree checks, current35/16341, complete Native, dtype-f64 and migrated RNG gates, and original artifact byte/mode/input/process/EOF readback.",
   "separate_current_object_Generator_probes_required": true,
   "actual_scoped_results": "native-review.json",
   "source_review": "source-review.json",
@@ -208,5 +211,26 @@
     "original_requires_grad_forward_and_backward_bodies_retained": true
   },
   "source_admission_precheck": "tests/check_current_runtime_admission.py",
-  "source_admission_precheck_grants_runtime_qualification": false
+  "source_admission_precheck_grants_runtime_qualification": false,
+  "forward_complete_source_inverse": "tools/current_runtime/forward_source_transition.py",
+  "raw_reference_custody": "tests/pinned_reference_custody.py",
+  "new_forward_scope": "Explicit no-grad input and operation arguments for matmul, softmax/log_softmax, reduce_axis, conv2d, pool2d, cat/stack; original AD numeric helpers and all backward functions are retained. Vector-times-matrix outputs increment the native absolute version once before record, as independently observed on the fixed Torch build. Linear bias outputs preserve the fixed reference absolute version for noncontiguous input/bias fallback; layer_norm and batch_norm produce the required final layout using the original native copy and AD helper, retaining recognized channels-last batch_norm. All admitted boundaries require their actual new-current-image tests; no complete upstream schema or subsystem is closed.",
+  "forward_nograd": {
+    "cases": 462,
+    "qualification": "tests/forward_nograd/run.py",
+    "strict_original_raw_provenance_checks": 11,
+    "production_qualification_pending": true
+  },
+  "join_forward": {
+    "cases": 414,
+    "qualification": "tests/join_forward/run.py",
+    "strict_original_raw_provenance_checks": 11,
+    "production_qualification_pending": true
+  },
+  "spatial_forward": {
+    "cases": 320,
+    "qualification": "tests/spatial_forward/run.py",
+    "strict_original_raw_provenance_checks": 11,
+    "production_qualification_pending": true
+  }
 }

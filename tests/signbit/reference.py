@@ -17,6 +17,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 from signbit.cases import CASES, CASE_SHA256
 from numeric_predicates.reference import setup, tensor
+import pinned_reference_custody as custody
 
 SUPPORT = 'ef8fe89aa7dbff4ee03f9d5762d2736a3648d9e48e97ad5df7bec615676f04ae'
 LOCK = 'ca2e54ce65083bbe0ab3d47b6878971271765ab35a9dd70725fa345fceed3944'
@@ -33,7 +34,8 @@ def source_files(repo):
     return [HERE / name for name in ('reference.py', '__init__.py', 'cases.py')] + [
         repo / 'tests/numeric_predicates' / name for name in ('__init__.py', 'cases.py', 'reference.py')
     ] + [repo / 'tests/pytorch_oracle.py', repo / 'compatibility/pytorch-oracle-lock.json',
-         repo / 'compatibility/upstream-lock.json', Path(sys.executable).resolve()]
+         repo / 'compatibility/upstream-lock.json', repo / 'tests/pinned_reference_custody.py',
+         Path(sys.executable).resolve()] + custody.source_files(repo)
 
 
 def local_torch_identity(repo):
@@ -88,6 +90,7 @@ def main():
         failures=[], local_observed_oracle=args.local_observed_oracle,
         full_installation_provenance_verified=False,
         actual_process=dict(pid=os.getpid(), argv=list(sys.orig_argv), python=identity(sys.executable)))
+    context=custody.begin(repo,out,__file__,args.local_observed_oracle)
     try:
         if args.local_observed_oracle:
             torch, provenance = local_torch_identity(repo)
@@ -103,6 +106,8 @@ def main():
             assert provenance['status'] == 'PASS' and len(provenance['checks']) == 11
             assert all(provenance['checks'].values())
             report['full_installation_provenance_verified'] = True
+        custody.finish_capture(context)
+        report['reference_custody']=custody.capture(repo,out,__file__,torch,provenance,args.local_observed_oracle,context)
         torch.set_num_threads(1)
         torch.manual_seed(1729)
         torch.backends.mkldnn.enabled = False
@@ -123,6 +128,7 @@ def main():
             report['rows'].append(row)
             (out / ('case-%03d.json' % index)).write_text(json.dumps(row, sort_keys=True, indent=2) + '\n')
         assert all(identity(path) == inputs[str(path)] for path in files)
+        custody.finish_reference(context)
         report.update(status='OBSERVED_SIGNBIT', cases=len(report['rows']), inputs_unchanged=True,
                       rng_unchanged=True, rng_sha256=hashlib.sha256(rng).hexdigest(),
                       all_observed_blobs_unchanged=True)
@@ -133,6 +139,7 @@ def main():
                     raw = (out / blob['path']).read_bytes()
                     assert len(raw) == blob['bytes'] and hashlib.sha256(raw).hexdigest() == blob['sha256']
     except BaseException as error:
+        custody.finish_capture(context)
         report.update(status='FAIL', error=dict(type=type(error).__name__, message=str(error),
                                                 traceback=traceback.format_exc()))
     (out / 'report.json').write_text(json.dumps(report, sort_keys=True, indent=2, allow_nan=False) + '\n')

@@ -37,6 +37,9 @@ from numeric_predicates.run import qualify as qualify_numeric_predicates
 from signbit.run import qualify as qualify_signbit
 from typed_index_select.run import qualify as qualify_typed_index_select
 from indexed_f32.run import qualify as qualify_indexed_f32
+from forward_nograd.run import qualify as qualify_forward_nograd
+from join_forward.run import qualify as qualify_join_forward
+from spatial_forward.run import qualify as qualify_spatial_forward
 from bf16_copy.run import qualify as qualify_bf16_copy
 from half_mul.run import qualify as qualify_half_mul, read_reference as read_half_mul_reference
 from half_neg.run import qualify as qualify_half_neg, read_reference as read_half_neg_reference
@@ -74,7 +77,7 @@ SOURCE, IMAGE = current_profile.SOURCE, current_profile.IMAGE
 FUNCTIONS, UNITS = current_profile.FUNCTIONS, current_profile.UNITS
 COMPILER = "b1c851a0896fa6071f800e1146c3c27d0c6cf85059e9a6281b46d42908a3f59f"
 LINKER = "761a941fd7a2d53eb9b45869fcfc20e970640e9dd11d60f7c61a89812b61d74e"
-FUSION_RESOURCE_SHA = '2c0923df5d692c0fa9add53887fc55e4dde05006e90ddc574831ae5b91f13ce3'
+FUSION_RESOURCE_SHA = 'b4cd79a3958efaa516f9e8d5d7ae8bc38ba42518b19525c1b5b1d283985b1dc4'
 BOOL_REFERENCE = "21dd75aeb86414818f7aa381f8b866d78b16f9bb3f5738e9a60d27ac3d15dd28"
 BOOL_ARCHIVE = "353a8b2853773bc6678bb62fc9559d6f4244c571ba40c6b80f352b2649cd6edd"
 SUM32_REFERENCE = "c14e4b18f657429ad5dac5498c3abcae303b6a7e7550db7d15a3c9179bdcd728"
@@ -82,12 +85,139 @@ INTEGRAL_REFERENCE = "6c9df4b579664c89c200b9d796367dd6d41f93f8260e8ff012f17d5041
 SHARED_ARCHIVE = "validation/current-runtime-references/complete.tar.xz"
 SHARED_ARCHIVE_SHA = "3a29420768a1bf7808976f04cb3ce3e6091db55ff6ae7858879f1b7ff70b69ea"
 SHARED_MANIFEST_SHA = "666fa775586679cfd42606c95656ad261c8856332431931ed4b0fcfd8865057e"
-GROUPS = ("bool27", "original76", "integral24", "sum_f32_17", "current35", "base270", "sum32", "live32", "logical147", "resource7", "asstrided16", "cat4", "metadata10", "generator131", "public_f64_logical192", "f64_48", "half47", "half_logical264", "half_transactions12", "numeric_predicates", "bf16_copy", "half_mul", "half_neg", "half_addsub", "wide_neg", "half_div", "public_f64_arithmetic", "same_f64_arithmetic", "typed_relu", "signbit", "typed_index_select", "indexed_f32")
+FORWARD_PROOFS = {'forward_nograd': {'Torch_executed_by_qualifier': False,
+                    'actual_autograd_cases': 243,
+                    'actual_environment_transition_verified': True,
+                    'actual_mapped_torch_cpu_code_verified': True,
+                    'actual_supervisor_intent_verified': True,
+                    'additional_allocation_recoveries': 3,
+                    'additional_failed_FE_transactions': 12,
+                    'additional_protocol_controls': 37,
+                    'additional_successful_FE_transactions': 3,
+                    'all_actual_installed_inputs_unchanged': True,
+                    'assertions': 48630,
+                    'cases': 462,
+                    'complete_ci_admission': True,
+                    'complete_installed_raw_snapshot_verified': True,
+                    'complete_official_wheel_archive_verified': True,
+                    'frames': 12108,
+                    'full_installation_provenance_verified': True,
+                    'host_expected_values_computed': False,
+                    'independent_official_wheel_member_anchor_verified': True,
+                    'installed_wheel_bytes_verified': 751277549,
+                    'installed_wheel_members_verified': 12567,
+                    'mapping_snapshots': 30,
+                    'native_executed_by_qualifier': False,
+                    'native_resource_capacity_refusals': 2,
+                    'native_sessions': 465,
+                    'official_member_anchor_sha256': '0e5377c5bd2767e35bfbcb81346dbc522ad9864e0d2d68b6a3705e0befd042f0',
+                    'official_wheel_sha256': '0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3',
+                    'original_backward_functions_unchanged': True,
+                    'original_eleven_checks_recomputed_from_raw_inputs': True,
+                    'original_installation_checks': 11,
+                    'original_installation_checks_passed': 11,
+                    'original_reference_script_bytes_verified': True,
+                    'original_requires_grad_dispatch_preserved': True,
+                    'owner_snapshots': 3609,
+                    'physical_replay': True,
+                    'portable_reference_custody_replayed': True,
+                    'production_oracle_qualified': True,
+                    'raw_reference_entities': 15,
+                    'torch_shared_libraries_verified': 12},
+ 'join_forward': {'Torch_executed_by_qualifier': False,
+                  'actual_absent_gradients_checked': 194,
+                  'actual_autograd_cases': 274,
+                  'actual_environment_transition_verified': True,
+                  'actual_mapped_torch_cpu_code_verified': True,
+                  'actual_supervisor_intent_verified': True,
+                  'additional_allocation_recoveries': 2,
+                  'additional_failed_FE_transactions': 10,
+                  'additional_protocol_controls': 58,
+                  'additional_successful_FE_transactions': 2,
+                  'all_actual_installed_inputs_unchanged': True,
+                  'assertions': 53638,
+                  'cases': 414,
+                  'complete_ci_admission': True,
+                  'complete_installed_raw_snapshot_verified': True,
+                  'complete_official_wheel_archive_verified': True,
+                  'frames': 14256,
+                  'full_installation_provenance_verified': True,
+                  'host_expected_values_computed': False,
+                  'independent_official_wheel_member_anchor_verified': True,
+                  'installed_wheel_bytes_verified': 751277549,
+                  'installed_wheel_members_verified': 12567,
+                  'mapping_snapshots': 24,
+                  'native_executed_by_qualifier': False,
+                  'native_rank_capacity_refusals': 2,
+                  'native_sessions': 416,
+                  'official_member_anchor_sha256': '0e5377c5bd2767e35bfbcb81346dbc522ad9864e0d2d68b6a3705e0befd042f0',
+                  'official_wheel_sha256': '0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3',
+                  'original_backward_functions_unchanged': True,
+                  'original_eleven_checks_recomputed_from_raw_inputs': True,
+                  'original_installation_checks': 11,
+                  'original_installation_checks_passed': 11,
+                  'original_reference_script_bytes_verified': True,
+                  'original_requires_grad_dispatch_preserved': True,
+                  'owner_snapshots': 4050,
+                  'physical_replay': True,
+                  'portable_reference_custody_replayed': True,
+                  'production_oracle_qualified': True,
+                  'raw_reference_entities': 15,
+                  'torch_shared_libraries_verified': 12},
+ 'spatial_forward': {'Torch_executed_by_qualifier': False,
+                     'actual_autograd_cases': 174,
+                     'actual_environment_transition_verified': True,
+                     'actual_gradient_tensors': 234,
+                     'actual_mapped_torch_cpu_code_verified': True,
+                     'actual_supervisor_intent_verified': True,
+                     'additional_allocation_recoveries': 3,
+                     'additional_failed_FE_transactions': 9,
+                     'additional_protocol_controls': 28,
+                     'additional_successful_FE_transactions': 3,
+                     'all_actual_installed_inputs_unchanged': True,
+                     'assertions': 57082,
+                     'cases': 320,
+                     'complete_ci_admission': True,
+                     'complete_installed_raw_snapshot_verified': True,
+                     'complete_official_wheel_archive_verified': True,
+                     'frames': 10513,
+                     'full_installation_provenance_verified': True,
+                     'host_expected_values_computed': False,
+                     'independent_official_wheel_member_anchor_verified': True,
+                     'installed_wheel_bytes_verified': 751277549,
+                     'installed_wheel_members_verified': 12567,
+                     'mapping_snapshots': 24,
+                     'native_executed_by_qualifier': False,
+                     'native_sessions': 323,
+                     'official_member_anchor_sha256': '0e5377c5bd2767e35bfbcb81346dbc522ad9864e0d2d68b6a3705e0befd042f0',
+                     'official_wheel_sha256': '0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3',
+                     'original_backward_functions_unchanged': True,
+                     'original_eleven_checks_recomputed_from_raw_inputs': True,
+                     'original_reference_script_bytes_verified': True,
+                     'original_requires_grad_dispatch_preserved': True,
+                     'owner_snapshots': 3201,
+                     'physical_replay': True,
+                     'portable_producer_path_roles': True,
+                     'production_oracle_qualified': True,
+                     'torch_shared_libraries_verified': 12}}
+
+WHEEL_PROOF = {'official_wheel_sha256': '0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3',
+ 'official_member_anchor_sha256': '0e5377c5bd2767e35bfbcb81346dbc522ad9864e0d2d68b6a3705e0befd042f0',
+ 'independent_official_wheel_member_anchor_verified': True,
+ 'complete_official_wheel_archive_verified': True,
+ 'installed_wheel_members_verified': 12567,
+ 'installed_wheel_bytes_verified': 751277549,
+ 'torch_shared_libraries_verified': 12,
+ 'actual_mapped_torch_cpu_code_verified': True,
+ 'all_actual_installed_inputs_unchanged': True,
+ 'complete_installed_raw_snapshot_verified': True}
+
+GROUPS = ("bool27", "original76", "integral24", "sum_f32_17", "current35", "base270", "sum32", "live32", "logical147", "resource7", "asstrided16", "cat4", "metadata10", "generator131", "public_f64_logical192", "f64_48", "half47", "half_logical264", "half_transactions12", "numeric_predicates", "bf16_copy", "half_mul", "half_neg", "half_addsub", "wide_neg", "half_div", "public_f64_arithmetic", "same_f64_arithmetic", "typed_relu", "signbit", "typed_index_select", "indexed_f32", "forward_nograd", "join_forward", "spatial_forward")
 SUITE_TIMEOUT_SECONDS = {"bool27": 600, "original76": 900, "integral24": 900,
                          "sum_f32_17": 900, "current35": 1800, "base270": 1800, "sum32": 3600,
                          "live32": 1800, "logical147": 1200, "resource7": 1200, "asstrided16": 1200, "cat4": 600, "metadata10": 1200, "generator131": 600, "public_f64_logical192": 1200,
                          "f64_48": 1200, "half47": 1200, "half_logical264": 1200, "half_transactions12": 600,
-                         "numeric_predicates": 1200, "bf16_copy": 1200, "half_mul": 1200, "half_neg": 1200, "half_addsub": 1800, "wide_neg": 1200, "half_div": 1800, "public_f64_arithmetic": 3600, "same_f64_arithmetic": 3600, "typed_relu": 1200, "signbit": 1200, "typed_index_select": 1800, "indexed_f32": 1800}
+                         "numeric_predicates": 1200, "bf16_copy": 1200, "half_mul": 1200, "half_neg": 1200, "half_addsub": 1800, "wide_neg": 1200, "half_div": 1800, "public_f64_arithmetic": 3600, "same_f64_arithmetic": 3600, "typed_relu": 1200, "signbit": 1200, "typed_index_select": 1800, "indexed_f32": 1800, "forward_nograd": 1800, "join_forward": 1800, "spatial_forward": 1800}
 
 
 def require(condition, message):
@@ -142,9 +272,9 @@ def build_binding(directory, inputs):
 
 
 def cat_source_binding(directory, inputs):
-    """Admit exact781 and three reviewed cat bodies; transfer no old result."""
+    """Admit exact797 and three reviewed cat bodies; transfer no old result."""
     outer_path = ROOT / 'tools/current_runtime/fusion_source_transition.py'
-    inputs.bind(outer_path, '979221f827f09edb52d46e8202ccdf4bb4e9f50b6b256298f89f1d5056abad40')
+    inputs.bind(outer_path, '012e6169869e450df5a5dcc49f506c14f8b25d6da6c0d538a75c0a84eae68a38')
     outer_spec = importlib.util.spec_from_file_location('current_runtime778_source_transition', outer_path)
     outer = importlib.util.module_from_spec(outer_spec)
     outer_spec.loader.exec_module(outer)
@@ -156,11 +286,11 @@ def cat_source_binding(directory, inputs):
     spec.loader.exec_module(module)
     restored, proof = module.restore_source(historical700, inputs.bind)
     require(module.SOURCE == outer.PARENT_SOURCE == sha(historical700)
-            and FUNCTIONS == 781 and UNITS == 15 and sha(restored) == module.PARENT_SOURCE,
-            'actual781 profile, exact historical700 and exact pre-cat source')
-    return dict(schema='heptatorch.current781-cat.complete-source-inverse.v1',
+            and FUNCTIONS == 797 and UNITS == 15 and sha(restored) == module.PARENT_SOURCE,
+            'actual797 profile, exact historical700 and exact pre-cat source')
+    return dict(schema='heptatorch.current797-cat.complete-source-inverse.v1',
         source_sha256=SOURCE, parent_source_sha256=module.PARENT_SOURCE,
-        functions=781, historical_functions=700, outer_source_inverse=outer_proof,
+        functions=797, historical_functions=700, outer_source_inverse=outer_proof,
         cat_transition=proof, runtime_qualification_transferred=False)
 
 
@@ -668,7 +798,7 @@ def runner_command(name, build, build_sha, output, fixtures, inputs, torch_pytho
             inputs.bind(path)
         source = fixtures.half_logical()
         args = common + ["--group", name, "--reference-directory", str(source["root"])]
-    elif name in ("numeric_predicates", "bf16_copy", "half_mul", "half_neg", "half_addsub", "wide_neg", "half_div", "public_f64_arithmetic", "same_f64_arithmetic", "typed_relu", "signbit", "typed_index_select", "indexed_f32"):
+    elif name in ("numeric_predicates", "bf16_copy", "half_mul", "half_neg", "half_addsub", "wide_neg", "half_div", "public_f64_arithmetic", "same_f64_arithmetic", "typed_relu", "signbit", "typed_index_select", "indexed_f32", "forward_nograd", "join_forward", "spatial_forward"):
         script = ROOT / "tests" / name / "run.py"
         for path in sorted(script.parent.glob("*.py")):
             inputs.bind(path)
@@ -781,7 +911,7 @@ def qualify_resource7(report, build_sha, directory, inputs):
         'backward': ['backward_private_preserve_allocation_oom_recovery'],
         'r3': ['tail_release_reuse', 'preserve_capacity_oom_recovery', 'tail_then_saved_error_prefix'],
     }
-    require(report['schema'] == 'heptatorch.current781.resource7.v1'
+    require(report['schema'] == 'heptatorch.current797.resource7.v1'
             and report['status'] == 'PASS_CURRENT_RESOURCE7'
             and report['actual_build_sha256'] == build_sha
             and report['source_sha256'] == SOURCE and report['native_sha256'] == IMAGE
@@ -799,7 +929,7 @@ def qualify_resource7(report, build_sha, directory, inputs):
     require([row['suite'] for row in report['suites']] == list(expected), 'all three resource readers')
     helper_path = ROOT / 'tools/current_runtime/fusion_resource_transition.py'
     inputs.bind(helper_path, FUSION_RESOURCE_SHA)
-    helper_spec = importlib.util.spec_from_file_location('qualified781_resource_source_paths', helper_path)
+    helper_spec = importlib.util.spec_from_file_location('qualified797_resource_source_paths', helper_path)
     helper = importlib.util.module_from_spec(helper_spec)
     helper_spec.loader.exec_module(helper)
     expected_source_paths = helper.prove(inputs.bind(ROOT / 'tools/current_runtime/source/runtime.hepta', SOURCE), inputs.bind)
@@ -821,7 +951,7 @@ def qualify_resource7(report, build_sha, directory, inputs):
         actual = json.loads(inputs.bind(folder / 'actual/report.json', row['report_sha256']))
         proof = json.loads(inputs.bind(folder / 'adaptation/source-bindings.json'))
         require(proof['fusion_source_path_proof'] == expected_source_paths,
-                'outer independent actual781 resource path proof differs')
+                'outer independent actual797 resource path proof differs')
         require(actual['status'] == 'PASS' and actual['native_executed'] is True
                 and actual['source_sha256'] == SOURCE and actual['native_sha256'] == IMAGE
                 and actual['all_inputs_unchanged'] is True
@@ -955,12 +1085,12 @@ def main(argv=None):
               "sum32": 32, "integral24": 24, "sum_f32_17": 17, "current35": 35, "base270": 270,
               "live32": 32, "logical147": 147, "resource7": 7, "asstrided16": 16, "cat4": 4, "metadata10": 10, "generator131": 131, "public_f64_logical192": 192,
               "f64_48": 48, "half47": 47, "half_logical264": 264, "half_transactions12": 12,
-              "numeric_predicates": 485, "bf16_copy": 280, "half_mul": 312, "half_neg": 371, "half_addsub": 1006, "wide_neg": 405, "half_div": 1196, "public_f64_arithmetic": 2541, "same_f64_arithmetic": 5088, "typed_relu": 776, "signbit": 97, "typed_index_select": 866, "indexed_f32": 331}, "required_cases_total": 15145,
+              "numeric_predicates": 485, "bf16_copy": 280, "half_mul": 312, "half_neg": 371, "half_addsub": 1006, "wide_neg": 405, "half_div": 1196, "public_f64_arithmetic": 2541, "same_f64_arithmetic": 5088, "typed_relu": 776, "signbit": 97, "typed_index_select": 866, "indexed_f32": 331, "forward_nograd": 462, "join_forward": 414, "spatial_forward": 320}, "required_cases_total": 16341,
               "generator_subgroups": {"oracle24": 24, "native11": 11, "entry59": 59, "dispatch37": 37},
               "image_scope": "All thirteen inherited groups and Generator production cases bind the current main image; "
                   "Generator131 also requires separately linked current-object ABI and reordered probe images. "
                   "Public F64 logical192, F64 48, Half47, Half logical264, Half transactions12 and numeric predicates "
-                  "and BF16 copy280, Half multiplication312, Half negation371, Half addition/subtraction1006, I64/F64 negation405, Half true division1196 and mixed public F64 arithmetic2541, same-F64 arithmetic5088, typed ReLU776, signbit97, typed index_select866 and indexed F32 forward331 use the same current main image.",
+                  "and BF16 copy280, Half multiplication312, Half negation371, Half addition/subtraction1006, I64/F64 negation405, Half true division1196 and mixed public F64 arithmetic2541, same-F64 arithmetic5088, typed ReLU776, signbit97, typed index_select866 and indexed F32 forward331, no-gradient forward462, cat/stack forward414 and spatial/norm/linear forward320 use the same current main image.",
               "half_mul_scope": {"actual_reference_cases": 312, "opcode": 2,
                   "cpu_capability": "AVX2", "requested_cpu_capability": "avx2", "torch_threads": 1,
                   "exact_raw_bytes_required": True, "physical_replay_required": True,
@@ -1112,6 +1242,61 @@ def main(argv=None):
                   "additional_successful_FE_transactions": 3, "additional_failed_FE_transactions": 12,
                   "native_sessions": 334, "mapping_snapshots": 30,
                   "full_project_qualification_granted": False},
+              'forward_nograd_scope': {'actual_reference_cases': 462,
+                   'source_dtype_codes': [0],
+                   'rank_range': [0, 4],
+                   'fresh_pinned_Torch_reference_required': True,
+                   'original_provenance_checks_required': 11,
+                   'physical_replay_required': True,
+                   'source_strides_and_storage_offset_checked': True,
+                   'original_backward_functions_unchanged': True,
+                   'original_requires_grad_dispatch_preserved': True,
+                   'actual_autograd_cases': 243,
+                   'native_sessions': 465,
+                   'full_project_qualification_granted': False,
+                   'additional_protocol_controls': 37,
+                   'additional_allocation_recoveries': 3,
+                   'additional_successful_FE_transactions': 3,
+                   'additional_failed_FE_transactions': 12,
+                   'native_resource_capacity_refusals': 2,
+                   'mapping_snapshots': 30},
+              'join_forward_scope': {'actual_reference_cases': 414,
+                   'source_dtype_codes': [0],
+                   'rank_range': [0, 4],
+                   'fresh_pinned_Torch_reference_required': True,
+                   'original_provenance_checks_required': 11,
+                   'physical_replay_required': True,
+                   'source_strides_and_storage_offset_checked': True,
+                   'original_backward_functions_unchanged': True,
+                   'original_requires_grad_dispatch_preserved': True,
+                   'actual_autograd_cases': 274,
+                   'native_sessions': 416,
+                   'full_project_qualification_granted': False,
+                   'additional_protocol_controls': 58,
+                   'additional_allocation_recoveries': 2,
+                   'additional_successful_FE_transactions': 2,
+                   'additional_failed_FE_transactions': 10,
+                   'actual_absent_gradients_checked': 194,
+                   'native_rank_capacity_refusals': 2,
+                   'mapping_snapshots': 24},
+              'spatial_forward_scope': {'actual_reference_cases': 320,
+                   'source_dtype_codes': [0],
+                   'rank_range': [0, 4],
+                   'fresh_pinned_Torch_reference_required': True,
+                   'original_provenance_checks_required': 11,
+                   'physical_replay_required': True,
+                   'source_strides_and_storage_offset_checked': True,
+                   'original_backward_functions_unchanged': True,
+                   'original_requires_grad_dispatch_preserved': True,
+                   'actual_autograd_cases': 174,
+                   'actual_gradient_tensors': 234,
+                   'native_sessions': 323,
+                   'additional_protocol_controls': 28,
+                   'additional_allocation_recoveries': 3,
+                   'additional_successful_FE_transactions': 3,
+                   'additional_failed_FE_transactions': 9,
+                   'mapping_snapshots': 24,
+                   'full_project_qualification_granted': False},
               "required_controls": {"historical_Bool_dtypes": 7, "historical_Integral_dtypes": 5,
                   "current_dtypes": 7, "F32_axes": 4, "entry_and_capability": 10,
                   "Bool_allocation": 1, "F32_allocation_stages": 2,
@@ -1150,6 +1335,28 @@ def main(argv=None):
                   "public_f64_arithmetic_packet_controls": 82, "public_f64_arithmetic_allocation_recoveries": 4,
                   "same_f64_arithmetic_packet_controls": 88, "same_f64_arithmetic_allocation_recoveries": 4,
                   "typed_relu_packet_controls": 90, "typed_relu_allocation_recoveries": 4,
+                  'forward_nograd_additional_protocol_controls': 37,
+                  'forward_nograd_additional_allocation_recoveries': 3,
+                  'forward_nograd_additional_successful_FE_transactions': 3,
+                  'forward_nograd_additional_failed_FE_transactions': 12,
+                  'forward_nograd_native_resource_capacity_refusals': 2,
+                  'forward_nograd_mapping_snapshots': 30,
+                  'forward_nograd_actual_autograd_cases': 243,
+                  'join_forward_additional_protocol_controls': 58,
+                  'join_forward_additional_allocation_recoveries': 2,
+                  'join_forward_additional_successful_FE_transactions': 2,
+                  'join_forward_additional_failed_FE_transactions': 10,
+                  'join_forward_actual_absent_gradients_checked': 194,
+                  'join_forward_native_rank_capacity_refusals': 2,
+                  'join_forward_mapping_snapshots': 24,
+                  'join_forward_actual_autograd_cases': 274,
+                  'spatial_forward_actual_autograd_cases': 174,
+                  'spatial_forward_actual_gradient_tensors': 234,
+                  'spatial_forward_additional_protocol_controls': 28,
+                  'spatial_forward_additional_allocation_recoveries': 3,
+                  'spatial_forward_additional_successful_FE_transactions': 3,
+                  'spatial_forward_additional_failed_FE_transactions': 9,
+                  'spatial_forward_mapping_snapshots': 24,
                   "old_half_neg_ReLU_successors": 2, "old_wide_neg_ReLU_successors": 2},
               "suite_timeout_seconds": SUITE_TIMEOUT_SECONDS,
               "suites": suites, "failures": failures, "full_pytorch_rewrite_complete": False,
@@ -1185,6 +1392,22 @@ def main(argv=None):
                      "typed_index_select/reference.py", "typed_index_select/run.py",
                      "indexed_f32/__init__.py", "indexed_f32/cases.py", "indexed_f32/reference.py",
                      "indexed_f32/native.py", "indexed_f32/run.py",
+                     'pinned_reference_custody.py',
+                     'forward_nograd/__init__.py',
+                     'forward_nograd/cases.py',
+                     'forward_nograd/reference.py',
+                     'forward_nograd/native.py',
+                     'forward_nograd/run.py',
+                     'join_forward/__init__.py',
+                     'join_forward/cases.py',
+                     'join_forward/reference.py',
+                     'join_forward/native.py',
+                     'join_forward/run.py',
+                     'spatial_forward/__init__.py',
+                     'spatial_forward/cases.py',
+                     'spatial_forward/reference.py',
+                     'spatial_forward/native.py',
+                     'spatial_forward/run.py',
                      "bf16_copy/__init__.py", "bf16_copy/cases.py", "bf16_copy/reference.py", "bf16_copy/run.py",
                      "half_mul/__init__.py", "half_mul/cases.py", "half_mul/legacy_controls.py",
                      "half_mul/reference.py", "half_mul/run.py",
@@ -1202,6 +1425,8 @@ def main(argv=None):
                      "current_runtime_typed_relu_controls.py",
                      "pytorch_cpu_generator_oracle.py"):
             inputs.bind(ROOT / "tests" / name)
+        inputs.bind(ROOT / "tools/current_runtime/forward_source_transition.py")
+        inputs.bind(ROOT / "tools/current_runtime/forward_source_delta.json")
         inputs.bind(ROOT / "tools/current_runtime/indexed_forward_source_transition.py")
         for name in ("half_addsub_fe_owner_contract.json", "half_addsub_fe_tombstone_contract.json"):
             inputs.bind(ROOT / "tools/current_runtime" / name)
@@ -1230,7 +1455,7 @@ def main(argv=None):
                 directory = output / name
                 command = runner_command(name, build, build_sha, directory, fixtures, inputs, args.torch_python.absolute())
                 intent = None
-                if name in ("f64_48", "half47", "half_logical264", "half_transactions12", "numeric_predicates", "bf16_copy", "half_mul", "half_neg", "half_addsub", "wide_neg", "half_div", "public_f64_arithmetic", "same_f64_arithmetic", "typed_relu", "signbit", "typed_index_select", "indexed_f32"):
+                if name in ("f64_48", "half47", "half_logical264", "half_transactions12", "numeric_predicates", "bf16_copy", "half_mul", "half_neg", "half_addsub", "wide_neg", "half_div", "public_f64_arithmetic", "same_f64_arithmetic", "typed_relu", "signbit", "typed_index_select", "indexed_f32", "forward_nograd", "join_forward", "spatial_forward"):
                     intent, row["execution_intent"] = observer_intent(command, execution, inputs)
                 receipt = execute(command, execution, SUITE_TIMEOUT_SECONDS[name])
                 row["runner"] = receipt
@@ -1245,7 +1470,7 @@ def main(argv=None):
                         result["Torch_executed"] = report.get("Torch_executed")
                     if name == "generator131" and result["Torch_executed"] is not True:
                         result["Torch_executed"] = report.get("Torch_executed")
-                    if name in ("numeric_predicates", "bf16_copy", "half_mul", "half_neg", "half_addsub", "wide_neg", "half_div", "public_f64_arithmetic", "same_f64_arithmetic", "typed_relu", "signbit", "typed_index_select", "indexed_f32") and result["Torch_executed"] is not True:
+                    if name in ("numeric_predicates", "bf16_copy", "half_mul", "half_neg", "half_addsub", "wide_neg", "half_div", "public_f64_arithmetic", "same_f64_arithmetic", "typed_relu", "signbit", "typed_index_select", "indexed_f32", "forward_nograd", "join_forward", "spatial_forward") and result["Torch_executed"] is not True:
                         result["Torch_executed"] = report.get("Torch_executed")
                 require(receipt["started"] is True and receipt["exit_code"] == 0
                         and receipt["stdout_EOF"] is True and receipt["stderr_EOF"] is True
@@ -1377,6 +1602,19 @@ def main(argv=None):
                     require(json.loads(physical) == counts, "complete indexed F32 frame and owner readback agrees")
                     counts["physical_qualification"] = dict(path=name + "/physical-qualification.json",
                         bytes=len(physical), sha256=sha(physical), status="PASS_PHYSICAL_INDEXED_F32")
+                elif name in FORWARD_PROOFS:
+                    reader = {"forward_nograd": qualify_forward_nograd, "join_forward": qualify_join_forward, "spatial_forward": qualify_spatial_forward}[name]
+                    counts = reader(report, ROOT, build, build_sha, directory, inputs)
+                    reference_raw = inputs.bind(directory / "reference/report.json")
+                    expected = dict(FORWARD_PROOFS[name], reference_sha256=sha(reference_raw))
+                    require(set(counts) == set(expected) and all(
+                                type(counts[key]) is type(value) and counts[key] == value
+                                for key, value in expected.items()),
+                            "every fixed forward comparison, original backward, strict reference and physical control is mandatory")
+                    physical = inputs.bind(directory / "physical-qualification.json")
+                    require(json.loads(physical) == counts, "complete original forward frame and owner readback agrees")
+                    counts["physical_qualification"] = dict(path=name + "/physical-qualification.json",
+                        bytes=len(physical), sha256=sha(physical), status="PASS_PHYSICAL_" + name.upper())
                 elif name == "bf16_copy":
                     counts = qualify_bf16_copy(report, ROOT, build, build_sha, directory, inputs)
                     require(counts["cases"] == 280 and counts["physical_replay"] is True,
@@ -1455,6 +1693,10 @@ def main(argv=None):
                         bytes=len(physical), sha256=sha(physical), status="PASS_PHYSICAL_TYPED_RELU")
                 else:
                     counts = qualify_metadata10(report, ROOT, build, build_sha, directory, inputs, execution)
+                if name in ("signbit", "typed_index_select", "indexed_f32", "forward_nograd", "join_forward", "spatial_forward"):
+                    require(all(type(counts.get(key)) is type(value) and counts[key] == value
+                                for key, value in WHEEL_PROOF.items()),
+                            "complete official wheel, independent members and actual mapped code remain mandatory")
                 row.update(status="PASS", qualified=True, **counts)
             except Exception as error:
                 row.update(status="FAIL", error={"type": type(error).__name__, "message": str(error),

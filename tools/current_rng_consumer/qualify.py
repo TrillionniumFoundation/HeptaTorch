@@ -18,7 +18,7 @@ HERE=Path(__file__).resolve().parent
 sys.path.insert(0,str(HERE))
 from support import IMAGE, admit, require, sha
 from process_evidence import read_context, read_processes
-from reference_evidence import read_reference
+from reference_evidence import read_reference, read_reference_wheel
 
 IMPLEMENTATIONS=('build.py','support.py','prepare.py','prepare_custody.py','run.py','qualify.py',
                  'process_evidence.py','reference_evidence.py')
@@ -83,7 +83,8 @@ def qualify(repository,current_build,directory,allow_unverified_local=False):
                'tools/rng-cpu/THIRD_PARTY_NOTICES.txt','tools/dtype-f16/f16.hepta','tools/dtype-bf16/bf16.hepta',
                'tests/check_rng_custody.py','tests/rng_cpu_oracle.py','tests/rng_mt_reference.cpp',
                'tests/pytorch_oracle.py','compatibility/pytorch-oracle-lock.json','compatibility/upstream-lock.json',
-               'compatibility/pytorch-reference-requirements.txt','validation/rng-independent-package.sha256']
+               'compatibility/pytorch-reference-requirements.txt','validation/rng-independent-package.sha256',
+               'tests/pinned_reference_custody.py','compatibility/pytorch-official-wheel-members.json']
     upstream=json.loads(read('inputs/repository/tools/rng-cpu/upstream-sources.json'))
     repo_paths.extend(row['path'] for row in upstream['sources'])
     for path in repo_paths:
@@ -129,7 +130,7 @@ def qualify(repository,current_build,directory,allow_unverified_local=False):
                 prepare_custody.main()
             for path in expected.iterdir():
                 require(read('code/adapted/'+path.name)==path.read_bytes(),'exact permitted original source transformation: '+path.name)
-            for name in ('build.py','support.py','process_evidence.py','reference_evidence.py'):
+            for name in ('build.py','support.py','process_evidence.py','reference_evidence.py','pinned_reference_custody.py'):
                 require(read('code/'+name)==(expected.parent/name).read_bytes(),'actual imported admission snapshot')
     finally:sys.argv=previous
     source_inverse=json.loads(read('code/adapted/source-inverse.json'))
@@ -308,6 +309,10 @@ def qualify(repository,current_build,directory,allow_unverified_local=False):
     require(torch['full_installation_provenance_verified'] is (not local)
             and torch['production_oracle_qualified'] is (not local), 'actual reference qualification scope')
     reference=read_reference(read,torch,context,actuals['pytorch76'])
+    wheel=read_reference_wheel(repo,root,read,actuals['pytorch76'])
+    require(wheel['shared_inputs']==report['shared_reference_inputs'],
+            'complete declared shared official wheel input census without omissions or substitution')
+    reference.update(wheel['proof'])
     expected_reference_files=set(json.loads(read('pytorch76/reference-inputs.json'))['inputs'])
     require({p.name for p in (root/'pytorch76/reference-inputs').iterdir()}==expected_reference_files,
             'all raw reference entities, no unbound extra or omitted file')
@@ -319,7 +324,7 @@ def qualify(repository,current_build,directory,allow_unverified_local=False):
             'exact_values':exact_values,'serialized_state_bytes':state_bytes,
             'physical_borrowed_buffer_observations':flat_count,'complete_historical_rows_preserved':35,
             'original_74_76_10_25_denominators_retained':True,'migration':migration,
-            'reference_custody':reference,'supervised_python_processes':8,'supervised_native_tool_processes':4,
+            'reference_custody':reference,'shared_reference_inputs':wheel['shared_inputs'],'supervised_python_processes':8,'supervised_native_tool_processes':4,
             'exact_flat_case_requests_bound':25,'all_flat_buffer_extents_verified':True,
             'current_build_input_bindings':build['input_bindings'],
             'native_executed_by_reader':False,'Torch_executed_by_reader':False,

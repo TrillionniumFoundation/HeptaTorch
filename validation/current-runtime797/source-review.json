@@ -1,0 +1,624 @@
+{
+  "schema": "heptatorch.current-runtime797.source-review.v1",
+  "identity": {
+    "source_sha256": "0061acfaa8e886885053e8f539cf08187be1c1e10265c19e52df07435a71594b",
+    "native_sha256": "955ffc996b8870ef67752f45647f5c1ca9a093f41ff402487091f03223372293",
+    "manifest_sha256": "2e442fea4961a5111004a1a721fb46e817f5568f50c7068047fc767721df8e21",
+    "functions": 797,
+    "units": 15
+  },
+  "parent_head": "683adf048bf083d4f1116a5ef711d18a36f39e24",
+  "parent_source_sha256": "ee214f05b56401ea17a5f55e792aaccf73447974ba0b7e0416990439bff6a8ff",
+  "parent_functions": 781,
+  "changed_functions": [
+    "linear",
+    "reduce_axis",
+    "softmax",
+    "layernorm",
+    "batchnorm_eval",
+    "conv2d",
+    "pool2d",
+    "matmul",
+    "tensor_join"
+  ],
+  "added_functions": [
+    "matmul_forward_index",
+    "matmul_forward_point",
+    "softmax_forward_group",
+    "axis_source_forward",
+    "conv_term_forward",
+    "conv_no_grad_forward",
+    "pool_point_forward",
+    "pool_no_grad_forward",
+    "matmul_output_version",
+    "concat_forward_target",
+    "concat_forward_part",
+    "concat_forward_copy",
+    "concat_forward_layout",
+    "concat_forward",
+    "linear_bias_output_version",
+    "normalization_output_layout"
+  ],
+  "unchanged_parent_functions": 772,
+  "source_inverse": "tools/current_runtime/forward_source_transition.py",
+  "source_proof": {
+    "schema": "heptatorch.native-forward-to-indexed781.complete-source-inverse.v1",
+    "source_sha256": "0061acfaa8e886885053e8f539cf08187be1c1e10265c19e52df07435a71594b",
+    "parent_source_sha256": "ee214f05b56401ea17a5f55e792aaccf73447974ba0b7e0416990439bff6a8ff",
+    "functions": 797,
+    "parent_functions": 781,
+    "source_bytes": 2592583,
+    "parent_bytes": 2543906,
+    "changed_functions": [
+      "linear",
+      "reduce_axis",
+      "softmax",
+      "layernorm",
+      "batchnorm_eval",
+      "conv2d",
+      "pool2d",
+      "matmul",
+      "tensor_join"
+    ],
+    "appended_functions": [
+      "matmul_forward_index",
+      "matmul_forward_point",
+      "softmax_forward_group",
+      "axis_source_forward",
+      "conv_term_forward",
+      "conv_no_grad_forward",
+      "pool_point_forward",
+      "pool_no_grad_forward",
+      "matmul_output_version",
+      "concat_forward_target",
+      "concat_forward_part",
+      "concat_forward_copy",
+      "concat_forward_layout",
+      "concat_forward",
+      "linear_bias_output_version",
+      "normalization_output_layout"
+    ],
+    "unchanged_parent_functions": 772,
+    "delta_sha256": "43ec26417cbb9d68bc2692b7ded2a540bd8576b6d98c0bb15648b7ec1d58ea99",
+    "whole_source_inverse_exact": true,
+    "whole_round_trip_exact": true,
+    "complete_source_definition_order_preserved": true,
+    "source_envelope_retained": true,
+    "every_other_byte_constrained_by_complete_parent_sha256": true,
+    "protected_original_function_bodies": [
+      "record",
+      "gather",
+      "indexed_add",
+      "gather_source",
+      "indexed_add_forward",
+      "indexed_add_location",
+      "matmul_index",
+      "matmul_point",
+      "softmax_group",
+      "axis_source",
+      "conv_term",
+      "pool_point",
+      "backward"
+    ],
+    "original_indexed_dispatch_unchanged": true,
+    "original_AD_numeric_helpers_unchanged": true,
+    "original_backward_functions_unchanged": true,
+    "actual_executable_replaced": false,
+    "original_cases_or_expected_values_modified": false,
+    "native_executed": false,
+    "Torch_executed": false,
+    "runtime_qualification_transferred": false
+  },
+  "complete_predecessor_chain": "tools/current_runtime/index_signbit_source_transition.py",
+  "complete_source_proof": {
+    "schema": "heptatorch.forward797-to-relu775.complete-source-inverse.v1",
+    "source_sha256": "0061acfaa8e886885053e8f539cf08187be1c1e10265c19e52df07435a71594b",
+    "parent_source_sha256": "0b000b51288af20490162efd8e525b86359a32cdd6d2521df97ecd9cddbd7b43",
+    "functions": 797,
+    "parent_functions": 775,
+    "changed_functions": [
+      "entry",
+      "linear",
+      "reduce_axis",
+      "softmax",
+      "layernorm",
+      "batchnorm_eval",
+      "conv2d",
+      "pool2d",
+      "matmul",
+      "index_select",
+      "gather",
+      "tensor_join",
+      "indexed_add",
+      "predicate_bits",
+      "predicate_command"
+    ],
+    "appended_functions": [
+      "typed_index_select_previous",
+      "typed_index_select",
+      "typed_index_select_offset",
+      "indexed_gather_forward_source",
+      "indexed_add_forward_inputs",
+      "indexed_add_forward_location",
+      "matmul_forward_index",
+      "matmul_forward_point",
+      "softmax_forward_group",
+      "axis_source_forward",
+      "conv_term_forward",
+      "conv_no_grad_forward",
+      "pool_point_forward",
+      "pool_no_grad_forward",
+      "matmul_output_version",
+      "concat_forward_target",
+      "concat_forward_part",
+      "concat_forward_copy",
+      "concat_forward_layout",
+      "concat_forward",
+      "linear_bias_output_version",
+      "normalization_output_layout"
+    ],
+    "unchanged_parent_functions": 760,
+    "delta_sha256": "2f6d013eb9ca2a77dbe399bfbc14d9f417230fd89747bba73c0e034bcae7a8f1",
+    "original_f32_index_select_function_retained": true,
+    "original_arithmetic_and_backward_functions_retained": true,
+    "admitted_new_opcode": 126,
+    "opcode125_remains_rejected": true,
+    "whole_source_inverse_exact": true,
+    "whole_round_trip_exact": true,
+    "every_other_byte_constrained_by_complete_parent_sha256": true,
+    "newly_accepted_original_requests_require_explicit_numerical_successors": true,
+    "actual_executable_replaced": false,
+    "original_cases_or_expected_values_modified": false,
+    "native_executed": false,
+    "Torch_executed": false,
+    "runtime_qualification_transferred": false,
+    "indexed_forward_source_inverse": {
+      "source_sha256": "ee214f05b56401ea17a5f55e792aaccf73447974ba0b7e0416990439bff6a8ff",
+      "parent_source_sha256": "db88eaad9fb69010ae4f6925f4e8c54edce815b9f46507bc0c7c2536a4cb2c0b",
+      "functions": 781,
+      "parent_functions": 778,
+      "unchanged_parent_functions": 776,
+      "changed_functions": [
+        "gather",
+        "indexed_add"
+      ],
+      "appended_functions": [
+        "indexed_gather_forward_source",
+        "indexed_add_forward_inputs",
+        "indexed_add_forward_location"
+      ],
+      "whole_source_inverse_exact": true,
+      "whole_round_trip_exact": true,
+      "function_order_retained": true,
+      "source_envelope_retained": true,
+      "original_requires_grad_dispatch_preserved": true,
+      "original_backward_functions_unchanged": true
+    },
+    "index_signbit_predecessor_source_inverse": {
+      "schema": "heptatorch.index-signbit778-to-relu775.complete-source-inverse.v1",
+      "source_sha256": "db88eaad9fb69010ae4f6925f4e8c54edce815b9f46507bc0c7c2536a4cb2c0b",
+      "parent_source_sha256": "0b000b51288af20490162efd8e525b86359a32cdd6d2521df97ecd9cddbd7b43",
+      "functions": 778,
+      "parent_functions": 775,
+      "changed_functions": [
+        "entry",
+        "index_select",
+        "predicate_bits",
+        "predicate_command"
+      ],
+      "appended_functions": [
+        "typed_index_select_previous",
+        "typed_index_select",
+        "typed_index_select_offset"
+      ],
+      "unchanged_parent_functions": 771,
+      "delta_sha256": "2f6d013eb9ca2a77dbe399bfbc14d9f417230fd89747bba73c0e034bcae7a8f1",
+      "original_f32_index_select_function_retained": true,
+      "original_arithmetic_and_backward_functions_retained": true,
+      "admitted_new_opcode": 126,
+      "opcode125_remains_rejected": true,
+      "whole_source_inverse_exact": true,
+      "whole_round_trip_exact": true,
+      "every_other_byte_constrained_by_complete_parent_sha256": true,
+      "newly_accepted_original_requests_require_explicit_numerical_successors": true,
+      "actual_executable_replaced": false,
+      "original_cases_or_expected_values_modified": false,
+      "native_executed": false,
+      "Torch_executed": false,
+      "runtime_qualification_transferred": false
+    },
+    "original_requires_grad_dispatch_preserved": true,
+    "original_backward_functions_unchanged": true,
+    "complete_source_definition_order_preserved": true,
+    "forward_source_inverse": {
+      "schema": "heptatorch.native-forward-to-indexed781.complete-source-inverse.v1",
+      "source_sha256": "0061acfaa8e886885053e8f539cf08187be1c1e10265c19e52df07435a71594b",
+      "parent_source_sha256": "ee214f05b56401ea17a5f55e792aaccf73447974ba0b7e0416990439bff6a8ff",
+      "functions": 797,
+      "parent_functions": 781,
+      "source_bytes": 2592583,
+      "parent_bytes": 2543906,
+      "changed_functions": [
+        "linear",
+        "reduce_axis",
+        "softmax",
+        "layernorm",
+        "batchnorm_eval",
+        "conv2d",
+        "pool2d",
+        "matmul",
+        "tensor_join"
+      ],
+      "appended_functions": [
+        "matmul_forward_index",
+        "matmul_forward_point",
+        "softmax_forward_group",
+        "axis_source_forward",
+        "conv_term_forward",
+        "conv_no_grad_forward",
+        "pool_point_forward",
+        "pool_no_grad_forward",
+        "matmul_output_version",
+        "concat_forward_target",
+        "concat_forward_part",
+        "concat_forward_copy",
+        "concat_forward_layout",
+        "concat_forward",
+        "linear_bias_output_version",
+        "normalization_output_layout"
+      ],
+      "unchanged_parent_functions": 772,
+      "delta_sha256": "43ec26417cbb9d68bc2692b7ded2a540bd8576b6d98c0bb15648b7ec1d58ea99",
+      "whole_source_inverse_exact": true,
+      "whole_round_trip_exact": true,
+      "complete_source_definition_order_preserved": true,
+      "source_envelope_retained": true,
+      "every_other_byte_constrained_by_complete_parent_sha256": true,
+      "protected_original_function_bodies": [
+        "record",
+        "gather",
+        "indexed_add",
+        "gather_source",
+        "indexed_add_forward",
+        "indexed_add_location",
+        "matmul_index",
+        "matmul_point",
+        "softmax_group",
+        "axis_source",
+        "conv_term",
+        "pool_point",
+        "backward"
+      ],
+      "original_indexed_dispatch_unchanged": true,
+      "original_AD_numeric_helpers_unchanged": true,
+      "original_backward_functions_unchanged": true,
+      "actual_executable_replaced": false,
+      "original_cases_or_expected_values_modified": false,
+      "native_executed": false,
+      "Torch_executed": false,
+      "runtime_qualification_transferred": false
+    },
+    "indexed_predecessor_source_inverse": {
+      "schema": "heptatorch.indexed781-to-relu775.complete-source-inverse.v1",
+      "source_sha256": "ee214f05b56401ea17a5f55e792aaccf73447974ba0b7e0416990439bff6a8ff",
+      "parent_source_sha256": "0b000b51288af20490162efd8e525b86359a32cdd6d2521df97ecd9cddbd7b43",
+      "functions": 781,
+      "parent_functions": 775,
+      "changed_functions": [
+        "entry",
+        "index_select",
+        "gather",
+        "indexed_add",
+        "predicate_bits",
+        "predicate_command"
+      ],
+      "appended_functions": [
+        "typed_index_select_previous",
+        "typed_index_select",
+        "typed_index_select_offset",
+        "indexed_gather_forward_source",
+        "indexed_add_forward_inputs",
+        "indexed_add_forward_location"
+      ],
+      "unchanged_parent_functions": 769,
+      "delta_sha256": "2f6d013eb9ca2a77dbe399bfbc14d9f417230fd89747bba73c0e034bcae7a8f1",
+      "original_f32_index_select_function_retained": true,
+      "original_arithmetic_and_backward_functions_retained": true,
+      "admitted_new_opcode": 126,
+      "opcode125_remains_rejected": true,
+      "whole_source_inverse_exact": true,
+      "whole_round_trip_exact": true,
+      "every_other_byte_constrained_by_complete_parent_sha256": true,
+      "newly_accepted_original_requests_require_explicit_numerical_successors": true,
+      "actual_executable_replaced": false,
+      "original_cases_or_expected_values_modified": false,
+      "native_executed": false,
+      "Torch_executed": false,
+      "runtime_qualification_transferred": false,
+      "indexed_forward_source_inverse": {
+        "source_sha256": "ee214f05b56401ea17a5f55e792aaccf73447974ba0b7e0416990439bff6a8ff",
+        "parent_source_sha256": "db88eaad9fb69010ae4f6925f4e8c54edce815b9f46507bc0c7c2536a4cb2c0b",
+        "functions": 781,
+        "parent_functions": 778,
+        "unchanged_parent_functions": 776,
+        "changed_functions": [
+          "gather",
+          "indexed_add"
+        ],
+        "appended_functions": [
+          "indexed_gather_forward_source",
+          "indexed_add_forward_inputs",
+          "indexed_add_forward_location"
+        ],
+        "whole_source_inverse_exact": true,
+        "whole_round_trip_exact": true,
+        "function_order_retained": true,
+        "source_envelope_retained": true,
+        "original_requires_grad_dispatch_preserved": true,
+        "original_backward_functions_unchanged": true
+      },
+      "index_signbit_predecessor_source_inverse": {
+        "schema": "heptatorch.index-signbit778-to-relu775.complete-source-inverse.v1",
+        "source_sha256": "db88eaad9fb69010ae4f6925f4e8c54edce815b9f46507bc0c7c2536a4cb2c0b",
+        "parent_source_sha256": "0b000b51288af20490162efd8e525b86359a32cdd6d2521df97ecd9cddbd7b43",
+        "functions": 778,
+        "parent_functions": 775,
+        "changed_functions": [
+          "entry",
+          "index_select",
+          "predicate_bits",
+          "predicate_command"
+        ],
+        "appended_functions": [
+          "typed_index_select_previous",
+          "typed_index_select",
+          "typed_index_select_offset"
+        ],
+        "unchanged_parent_functions": 771,
+        "delta_sha256": "2f6d013eb9ca2a77dbe399bfbc14d9f417230fd89747bba73c0e034bcae7a8f1",
+        "original_f32_index_select_function_retained": true,
+        "original_arithmetic_and_backward_functions_retained": true,
+        "admitted_new_opcode": 126,
+        "opcode125_remains_rejected": true,
+        "whole_source_inverse_exact": true,
+        "whole_round_trip_exact": true,
+        "every_other_byte_constrained_by_complete_parent_sha256": true,
+        "newly_accepted_original_requests_require_explicit_numerical_successors": true,
+        "actual_executable_replaced": false,
+        "original_cases_or_expected_values_modified": false,
+        "native_executed": false,
+        "Torch_executed": false,
+        "runtime_qualification_transferred": false
+      },
+      "original_requires_grad_dispatch_preserved": true,
+      "original_backward_functions_unchanged": true,
+      "complete_source_definition_order_preserved": true
+    },
+    "original_indexed_dispatch_unchanged": true,
+    "original_AD_numeric_helpers_unchanged": true
+  },
+  "source_admission_precheck": "tests/check_current_runtime_admission.py",
+  "source_admission_only": true,
+  "native_qualification_transferred": false,
+  "full_pytorch_rewrite_complete": false,
+  "cold_build": {
+    "status": "PASS_NATIVE_BUILD_ONLY",
+    "two_fresh_cold_builds_same_native_image": true,
+    "application_objects_reused": false,
+    "builds": [
+      {
+        "build_report_sha256": "1c9255b6e923fc5f1bf757a8a5a409ec0444a155f4d09679a6cfdfd34c1949f1",
+        "manifest_sha256": "2964aba39aa1ad74051bf2f0ecbbef88ecf9a4497a2ae1c97866bf8c5d21bf5e",
+        "actual_compile_and_link_processes": 16,
+        "native_sha256": "955ffc996b8870ef67752f45647f5c1ca9a093f41ff402487091f03223372293"
+      },
+      {
+        "build_report_sha256": "372a1574986be3257f5424f2767b1909cf1d714b09de5bbf883a20b86cfb7d43",
+        "manifest_sha256": "2e442fea4961a5111004a1a721fb46e817f5568f50c7068047fc767721df8e21",
+        "actual_compile_and_link_processes": 16,
+        "native_sha256": "955ffc996b8870ef67752f45647f5c1ca9a093f41ff402487091f03223372293"
+      }
+    ]
+  },
+  "current_source_preparation": {
+    "report": {
+      "bytes": 104883,
+      "sha256": "77934e519ccdfe09abd949dd85a548749d3cc3b35b521c19b7aba762d16302b1",
+      "mode": 420
+    },
+    "status": "PASS_SOURCE_ADMISSION_ONLY",
+    "checks": [
+      {
+        "name": "complete-cold-build",
+        "status": "PASS"
+      },
+      {
+        "name": "complete-cat-source-chain",
+        "status": "PASS"
+      },
+      {
+        "name": "generator-source-chain",
+        "status": "PASS"
+      },
+      {
+        "name": "metadata10-source-admission",
+        "status": "PASS"
+      },
+      {
+        "name": "public_f64_arithmetic-complete-observer-inverse",
+        "status": "PASS"
+      },
+      {
+        "name": "same_f64_arithmetic-complete-observer-inverse",
+        "status": "PASS"
+      },
+      {
+        "name": "typed_relu-complete-observer-inverse",
+        "status": "PASS"
+      },
+      {
+        "name": "half_mul-complete-observer-inverse",
+        "status": "PASS"
+      },
+      {
+        "name": "half_addsub-complete-observer-inverse",
+        "status": "PASS"
+      },
+      {
+        "name": "numeric_predicates-source-profile",
+        "status": "PASS"
+      },
+      {
+        "name": "signbit-source-profile",
+        "status": "PASS"
+      },
+      {
+        "name": "typed_index_select-source-profile",
+        "status": "PASS"
+      },
+      {
+        "name": "indexed_f32-source-profile",
+        "status": "PASS"
+      },
+      {
+        "name": "forward_nograd-source-profile",
+        "status": "PASS"
+      },
+      {
+        "name": "join_forward-source-profile",
+        "status": "PASS"
+      },
+      {
+        "name": "spatial_forward-source-profile",
+        "status": "PASS"
+      },
+      {
+        "name": "public_f64_arithmetic-source-inverse",
+        "status": "PASS"
+      },
+      {
+        "name": "same_f64_arithmetic-source-inverse",
+        "status": "PASS"
+      },
+      {
+        "name": "resource-source-chain",
+        "status": "PASS"
+      },
+      {
+        "name": "entered-public192-complete-reader-derivation",
+        "status": "PASS"
+      }
+    ],
+    "contracts": {
+      "bound_source_files": 224,
+      "complete_HIA_functions": 56
+    },
+    "identities": {
+      "fields": 33,
+      "modules": 16
+    },
+    "inventory": {
+      "cases": 16341,
+      "functions": 797,
+      "groups": 35,
+      "units": 15
+    },
+    "runtime_executed": false,
+    "runtime_qualification_granted": false
+  },
+  "original_admission_controls": {
+    "report": {
+      "bytes": 2965,
+      "sha256": "16df170e3adb04566da48b8ecc452e57737be1f2f547b43473b8a75bdfcb0ada",
+      "mode": 420
+    },
+    "executed": 12,
+    "status": "PASS_SYNTHETIC_ADMISSION_CONTROLS"
+  },
+  "original_owner_profile_guards": {
+    "report": {
+      "bytes": 1191,
+      "sha256": "eeaeb0318ed94d1465556fd72d93d5f83e911f4439f344abd02652b133e4a68c",
+      "mode": 420
+    },
+    "status": "PASS",
+    "results": [
+      {
+        "binding_controls": 7,
+        "guard_controls": [
+          "missing_base_guard",
+          "missing_wrapper_guard",
+          "extra_guard",
+          "already_modified_guard",
+          "weakened_type_guard",
+          "weakened_source_guard"
+        ],
+        "guards": 2,
+        "kind": "f64",
+        "original_owner_sha256": "4f041444918c9bb4c1cbd1c7ca3072ce4ae7d03ccef38adb4fe50124aa7382a4",
+        "status": "PASS"
+      },
+      {
+        "binding_controls": 7,
+        "guard_controls": [
+          "missing_base_guard",
+          "missing_wrapper_guard",
+          "extra_guard",
+          "already_modified_guard",
+          "weakened_type_guard",
+          "weakened_source_guard"
+        ],
+        "guards": 2,
+        "kind": "half",
+        "original_owner_sha256": "998b16ee4db0d65230007bf21e375f6b336d1f93c5fb07480c19f0107f0d01ee",
+        "status": "PASS"
+      }
+    ],
+    "runtime_executed": false
+  },
+  "independent_source_review": {
+    "report": {
+      "bytes": 16100,
+      "sha256": "11318e98a99a96c73bc342551a3b6daa9f67c96922ce10e7a23e9dcb818e0ba1",
+      "mode": 420
+    },
+    "scope": "Exact source inverse, complete function structure and rejected malformed variants only; no numerical qualification"
+  },
+  "independent_wiring_review": {
+    "report": {
+      "bytes": 71216,
+      "sha256": "0a062f383ef52ca183b50725f8112069b74b91840db61919de36d57dc8a130ff",
+      "mode": 420
+    },
+    "status": "PASS_FROZEN35_SOURCE_AND_SYNTHETIC_GUARDS",
+    "groups": 35,
+    "cases": 16341,
+    "original32_cases": 15145,
+    "original32_groups_preserved": true,
+    "exact_original_direct_branch_groups": 28,
+    "all_six_strict_contracts_equal_to_frozen_handoffs": true,
+    "rejected_controls": 255,
+    "process_EOF_adversarial_controls_executed": false,
+    "oracle_admission_whole_step_swap_exact_inverse_sha256": "890ef177fd564347e99d10f0c9b1b6b7092cab7204c02e142821dc2ba80ca3a4",
+    "workflow_sha256": "db47c29856b2ca0e8f2a3aea4eb21f0080305f25a336af3817b48185e07a22a5",
+    "scope": "Production controller/wheel/strict-sealer/upstream outcome statement guards executed on explicit synthetic values. Original numerical/Owner/EOF readers preserved; they are not executed or qualified by this wiring audit.",
+    "runtime_qualification_granted": false
+  },
+  "independent_final_source_preparation": {
+    "original_report_sha256": "77934e519ccdfe09abd949dd85a548749d3cc3b35b521c19b7aba762d16302b1",
+    "original_report_bytes": 104883,
+    "status": "PASS_SOURCE_ADMISSION_ONLY",
+    "actual_build_sha256": "372a1574986be3257f5424f2767b1909cf1d714b09de5bbf883a20b86cfb7d43",
+    "inventory": {
+      "cases": 16341,
+      "functions": 797,
+      "groups": 35,
+      "units": 15
+    },
+    "checks_passed": 20,
+    "all_inputs_unchanged": true,
+    "runtime_executed": false,
+    "Torch_executed": false,
+    "runtime_qualification_granted": false
+  }
+}

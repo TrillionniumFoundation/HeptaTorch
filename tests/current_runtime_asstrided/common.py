@@ -11,9 +11,9 @@ import sys
 import types
 
 HERE = Path(__file__).resolve().parent
-SOURCE = 'ee214f05b56401ea17a5f55e792aaccf73447974ba0b7e0416990439bff6a8ff'
-IMAGE = '71309d9e8ef794b9052603fd28f4d4da4886aff6924d8413489af856744ec272'
-SOURCES_SHA = 'f4683605f41791934a5afe6f875a429a9a9f5b5b54bb4473ae58bf6f836eb8e6'
+SOURCE = '0061acfaa8e886885053e8f539cf08187be1c1e10265c19e52df07435a71594b'
+IMAGE = '955ffc996b8870ef67752f45647f5c1ca9a093f41ff402487091f03223372293'
+SOURCES_SHA = '5a1d695bfa8c2a44b0b7002991a1b92f380dae5ee8a2caaf53f5204c7587f49b'
 SUITES = ('copy4', 'reduction4', 'lanes2', 'branches6')
 COUNTS = dict(copy4=4, reduction4=4, lanes2=2, branches6=6)
 CHECKS = {'python_matches', 'platform_matches', 'version_backend_matches',
@@ -110,7 +110,7 @@ def admit(repository, build, expected_build_sha, reference_root, suite, inputs):
             'explicit actual cold-build receipt SHA required')
     pins = json.loads(inputs.bind(HERE/'sources.json', SOURCES_SHA))
     require(pins['suites']==list(SUITES) and pins['cases']==COUNTS, 'original16 denominator changed')
-    require(pins['target']==dict(source_sha256=SOURCE,native_sha256=IMAGE,functions=781,units=15),
+    require(pins['target']==dict(source_sha256=SOURCE,native_sha256=IMAGE,functions=797,units=15),
             'current source profile changed')
     for relative, row in pins['repository_files'].items():
         path = repository/relative
@@ -139,13 +139,13 @@ def admit(repository, build, expected_build_sha, reference_root, suite, inputs):
                 'fixed original recovery custody differs: '+name)
     current = module(repository/'tools/current_runtime/qualification.py',
                      'asstrided16_current_admission', inputs)
-    require((current.SOURCE,current.IMAGE,current.FUNCTIONS,current.UNITS)==(SOURCE,IMAGE,781,15),
+    require((current.SOURCE,current.IMAGE,current.FUNCTIONS,current.UNITS)==(SOURCE,IMAGE,797,15),
             'canonical current manifest changed')
     built = current.admit_build(build, inputs.bind, expected_build_sha)
     raw = inputs.bind(build/'runtime.hepta', SOURCE)
     found = list(re.finditer(rb'^fn ([A-Za-z_][A-Za-z0-9_]*)\(.*?^end\n',raw,re.M|re.S))
     functions = {m[1].decode():m[0] for m in found}
-    require(len(found)==len(functions)==781, 'complete current function denominator changed')
+    require(len(found)==len(functions)==797, 'complete current function denominator changed')
     predicate = module(repository/'tools/current_runtime/predicate_source_transition.py',
                        'asstrided16_predicate_source_inverse', inputs)
     bf16 = module(repository/'tools/current_runtime/bf16_source_transition.py',
@@ -167,10 +167,10 @@ def admit(repository, build, expected_build_sha, reference_root, suite, inputs):
     index_spec = importlib.util.spec_from_file_location('index_signbit_current_source', index_path)
     indexing = importlib.util.module_from_spec(index_spec); index_spec.loader.exec_module(indexing)
     raw, index_inverse = indexing.restore_source(raw, inputs.bind)
-    require(index_inverse['functions'] == 781 and index_inverse['parent_functions'] == 775
+    require(index_inverse['functions'] == 797 and index_inverse['parent_functions'] == 775
             and index_inverse['whole_source_inverse_exact'] is True
             and index_inverse['whole_round_trip_exact'] is True,
-            'complete781 source restores every original775 byte before earlier source proofs')
+            'complete797 source restores every original775 byte before earlier source proofs')
     relu = module(repository/'tools/current_runtime/typed_relu_source_transition.py',
                   'asstrided16_typed_relu_source_inverse', inputs)
     same773, relu_inverse = relu.restore_source(raw, inputs.bind)
@@ -259,7 +259,7 @@ def admit(repository, build, expected_build_sha, reference_root, suite, inputs):
     require(provenance['lock_sha256']==pins['repository_files']['compatibility/pytorch-oracle-lock.json']['sha256'],
             'the original reference must use the canonical fixed Torch lock')
     proof = dict(source_sha256=SOURCE,native_sha256=IMAGE,actual_build_sha256=expected_build_sha,
-        functions=781,units=15,original_layout_functions=layout,current_tag_functions=tags,
+        functions=797,units=15,original_layout_functions=layout,current_tag_functions=tags,
         predicate_source_inverse=predicate_inverse,
         bf16_source_inverse=bf16_inverse,
         half_mul_source_inverse=mul_inverse,

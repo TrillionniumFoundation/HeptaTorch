@@ -20,6 +20,7 @@ HERE=Path(__file__).resolve().parent
 sys.path.insert(0,str(HERE))
 from support import admit, require, sha
 from process_evidence import actual_process, plan
+from reference_evidence import reference_wheel_inputs
 
 PACKAGE='validation/rng-independent-package.sha256'
 SCRIPTS=('build.py','support.py','prepare.py','prepare_custody.py','run.py','qualify.py',
@@ -63,7 +64,7 @@ def main():
               'same_full_current_elf_executed':False,'same_current_rng_object_executed':False,
               'full_rng_gate_closed':False,'whole_pytorch_rewrite_complete':False,
               'execution_context_sha256':sha(context_raw),
-              'processes':reports,'input_snapshots':[],'groups':[]}
+              'processes':reports,'input_snapshots':[],'shared_reference_inputs':{},'groups':[]}
     def save():
         (out/'report.json').write_text(json.dumps(manifest,indent=2,sort_keys=True)+'\n')
     def snapshot(path,role):
@@ -116,7 +117,8 @@ def main():
                'tools/rng-cpu/THIRD_PARTY_NOTICES.txt','tools/dtype-f16/f16.hepta','tools/dtype-bf16/bf16.hepta',
                'tests/check_rng_custody.py','tests/rng_cpu_oracle.py','tests/rng_mt_reference.cpp',
                'tests/pytorch_oracle.py','compatibility/pytorch-oracle-lock.json','compatibility/upstream-lock.json',
-               'compatibility/pytorch-reference-requirements.txt',PACKAGE]
+               'compatibility/pytorch-reference-requirements.txt',PACKAGE,
+               'tests/pinned_reference_custody.py','compatibility/pytorch-official-wheel-members.json']
         upstream=json.loads((repo/'tools/rng-cpu/upstream-sources.json').read_bytes())
         paths.extend(row['path'] for row in upstream['sources'])
         for path in paths:snapshot(repo/path,'repository/'+path)
@@ -132,6 +134,7 @@ def main():
         if pip.is_file():snapshot(pip,'repository/build/pytorch-install.json')
         support_pip=repo/'build/pytorch-reference-support-install.json'
         if support_pip.is_file():snapshot(support_pip,'repository/build/pytorch-reference-support-install.json')
+        manifest['shared_reference_inputs']=reference_wheel_inputs(repo)
         manifest['original_pip_install_report_available']=pip.is_file()
         require(execute('build'), 'native consumer build failed')
         manifest['migration']=admit(repo,out/'packet-build',current);save()
@@ -156,6 +159,8 @@ def main():
         for path,(before,role) in snapshots.items():
             require(path.read_bytes()==before,'input changed during execution: '+role)
         require(admit(repo,out/'packet-build',current)==manifest['migration'],'same current build after all suites')
+        require(reference_wheel_inputs(repo)==manifest['shared_reference_inputs'],
+                'complete original official wheel inputs unchanged through all four suites')
         manifest.update(status='PASS_EXPLORATORY_NATIVE_ONLY' if args.local_observed_oracle else 'PASS',
                         cases=185,all_inputs_unchanged=True,same_current_rng_object_executed=True,
                         full_installation_provenance_verified=not args.local_observed_oracle,

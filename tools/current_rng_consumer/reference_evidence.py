@@ -310,3 +310,102 @@ def read_reference(read, report, context, actual):
             'raw_reference_entities': len(inputs), 'actual_process_verified': True,
             'original_eleven_checks_recomputed_from_raw_inputs': True,
             'full_installation_provenance_verified': not local}
+
+
+
+WHEEL_HELPER_SHA = 'fa91a644b8743493ed6ed8f29da966494983cf5eed7300faa715ee4e08c7212e'
+
+
+def wheel_custody(repository):
+    """Load only the reviewed common wheel reader, including the executed copy."""
+    import importlib.util
+    path=Path(__file__).resolve().with_name('pinned_reference_custody.py')
+    if not path.is_file():
+        path=Path(repository).resolve()/'tests/pinned_reference_custody.py'
+    require(not path.is_symlink() and sha(path.read_bytes())==WHEEL_HELPER_SHA,
+            'exact independently reviewed complete official wheel reader')
+    spec=importlib.util.spec_from_file_location('rng_fixed_wheel_custody',path)
+    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    return module
+
+
+def _wheel_process():
+    process=actual_process(Path(sys.argv[0]));process['name']='pytorch76'
+    return process
+
+
+def begin_reference_wheel(repository,directory):
+    module=wheel_custody(repository)
+    out=Path(directory)/'reference-wheel';out.mkdir(exist_ok=False)
+    state=module.capture_wheel_entities(repository,out,_wheel_process())
+    state['reader_module']=module
+    return state
+
+
+def finish_reference_wheel(state):
+    state['reader_module'].finish_wheel_entities(state,_wheel_process())
+
+
+def _shared_wheel_reader(repository,module):
+    repo=Path(repository).resolve();records={}
+    sources={path.relative_to(repo).as_posix() for path in module.source_files(repo)}
+    def bind(path,expected=None):
+        path=Path(path).absolute()
+        require(path.is_relative_to(repo),'contained shared reference input')
+        relative=path.relative_to(repo).as_posix()
+        require(relative in sources or relative.startswith(module.INSTALLED_PATH+'/'),
+                'one fixed official wheel or installed snapshot role')
+        raw,identity_row=module.stable_bytes(path)
+        require(expected is None or sha(raw)==expected,'independent shared wheel entity hash')
+        row={key:identity_row[key] for key in ('bytes','sha256','mode')}
+        require(relative not in records or records[relative]==row,'shared original wheel input changed')
+        records[relative]=row
+        return raw
+    return bind,records
+
+
+def reference_wheel_inputs(repository):
+    """Declare the complete shared raw corpus without importing Torch."""
+    module=wheel_custody(repository);repo=Path(repository).resolve()
+    bind,records=_shared_wheel_reader(repo,module)
+    anchor=module.wheel_anchor(repo,bind)
+    for name,row in module.immutable_members(anchor).items():
+        raw=bind(repo/module.INSTALLED_PATH/name,row['sha256'])
+        require(len(raw)==row['bytes'] and records[module.INSTALLED_PATH+'/'+name]['mode']==module.installed_mode(row),
+                'entire immutable original wheel snapshot and exact installed mode')
+    require(len(records)==12569,'exact two source inputs plus all12567 installed members')
+    return records
+
+
+def read_reference_wheel(repository,directory,read,actual):
+    """Add independent official member anchors to the unchanged raw eleven checks."""
+    module=wheel_custody(repository);repo=Path(repository).resolve();out=Path(directory).resolve()
+    shared,records=_shared_wheel_reader(repo,module)
+    def bind(path,expected=None):
+        path=Path(path).absolute()
+        if path.is_relative_to(out):
+            return read(path.relative_to(out).as_posix(),expected)
+        return shared(path,expected)
+    proof=module.read_wheel_entities(repo,out/'pytorch76/reference-wheel',bind,actual)
+    anchor=module.wheel_anchor(repo,bind)
+    before=json.loads(read('pytorch76/reference-wheel/installed-before.json'))
+    receipt=json.loads(read('pytorch76/reference-inputs.json'))
+    require(receipt['actual_process']==actual==before['actual_process']
+            and receipt['distribution']['root']==before['distribution_root']
+            and receipt['distribution']['dist_info']==before['dist_info'],
+            'the original strict eleven entities and complete wheel came from the same actual process and installation')
+    for name,member in anchor['captured_core_members'].items():
+        if name=='original-wheel-RECORD':
+            continue
+        raw=read('pytorch76/reference-inputs/'+name)
+        row=receipt['inputs'][name];expected=anchor['members'][member]
+        require(row['path']==before['distribution_root']+'/'+member
+                and row['sha256']==sha(raw)==expected['sha256']
+                and row['bytes']==len(raw)==expected['bytes']
+                and row['mode']==module.installed_mode(expected)
+                and raw==bind(repo/module.INSTALLED_PATH/member,expected['sha256']),
+                'original core reference entity equals the independent official archive and shared bytes: '+name)
+    require(len(records)==12569,'all complete original wheel inputs are bound by the pure reader')
+    for relative,row in list(records.items()):
+        bind(repo/relative,row['sha256'])
+    return dict(proof=proof,shared_inputs=records)
