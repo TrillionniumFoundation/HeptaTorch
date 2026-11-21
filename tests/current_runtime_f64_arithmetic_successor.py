@@ -52,9 +52,18 @@ class Successor:
         _,observer_proof=observer.restore_negation_helper(inputs.bind(helper),inputs.bind)
         require(Path(negation.prepare_entry.__code__.co_filename).resolve()==helper,
             'actual prior negation uses the exact interface-only refactor')
+        same=module(self.repository/'tools/current_runtime/same_f64_arithmetic_source_transition.py',
+            'f6448_same_f64_whole_source_inverse',inputs)
+        previous773,same_source_proof=same.restore_source(inputs.bind(self.repository/'tools/current_runtime/source/runtime.hepta'),inputs.bind)
+        require(same_source_proof['functions']==same_source_proof['parent_functions']==773
+            and same_source_proof['changed_functions']==['half_mul_priority','public_f64_binary']
+            and same_source_proof['whole_source_inverse_exact'] is True
+            and same_source_proof['whole_round_trip_exact'] is True,
+            'actual same-F64 successor admitted without transferring mixed773 execution results')
         source=module(self.repository/'tools/current_runtime/public_f64_arithmetic_source_transition.py',
             'f6448_arithmetic_whole_source_inverse',inputs)
-        _,source_proof=source.restore_source(inputs.bind(self.repository/'tools/current_runtime/source/runtime.hepta'),inputs.bind)
+        _,source_proof=source.restore_source(previous773,inputs.bind)
+        require(source.SOURCE==same.PARENT_SOURCE,'exact current-to-mixed773-to771 source chain')
         self.fe_owner=module(self.repository/'tests/current_runtime_f64_arithmetic_fe_owner.py',
             'f6448_exact_FE_promotion_owner',inputs)
         tests=self.repository/'tests'
@@ -102,7 +111,7 @@ class Successor:
             retained_refusals=63,accepted_successors=24,new_arithmetic_successors=23,
             retained_negation_successors=1,retained_bool_subtraction_refusals=2,
             labels=list(LABELS),retained_bool_labels=list(RETAINED_BOOL),single_command_successors=22,
-            original_FE_successors=1,source_inverse=source_proof,negation_observer_inverse=observer_proof,
+            original_FE_successors=1,source_inverse=same_source_proof,mixed_predecessor_source_inverse=source_proof,negation_observer_inverse=observer_proof,
             prior_negation_reference_sha256=negation.proof['reference_sha256'],
             original_frozen_recipe_modified=False,original87_entry_code_object_preserved=True,
             original_negation_numeric_predicates_unchanged=True,actual_Torch_reference_verified=True,

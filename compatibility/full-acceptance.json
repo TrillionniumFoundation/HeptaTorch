@@ -25,7 +25,7 @@
       "id": "dtype-layout",
       "status": "IN_PROGRESS",
       "required": "All upstream dtypes, conversion, promotion, numerical modes, dense/sparse/compressed/nested/quantized/complex layouts and invariants",
-      "remaining": "Complete dtype promotion, all conversion/rounding modes, ranks, layouts and devices. The scoped BF16 AVX2/AVX512 NaN copy repair is implemented; DEFAULT dispatch and other architectures remain. The new 26-group/5446-case combined candidate requires its own actual run."
+      "remaining": "Complete dtype promotion, all conversion/rounding modes, ranks, layouts and devices. The scoped BF16 AVX2/AVX512 NaN copy repair is implemented; DEFAULT dispatch and other architectures remain. The new28-group/13075-case combined candidate requires its own actual run, including the same-F64 NaN repair."
     },
     {
       "id": "native-schemas",
@@ -109,24 +109,24 @@
       "id": "final-integration",
       "status": "OPEN",
       "required": "Full original test and application acceptance, independent final review, performance/resource/error qualifications and retirement of replaced implementation paths",
-      "remaining": "Run full original upstream/application/performance/resource/error acceptance and independent review of every gate. Complete the current 27-group/7987-case focused run and migrate all remaining active predecessor consumers before final retirement."
+      "remaining": "Run full original upstream/application/performance/resource/error acceptance and independent review of every gate. Complete the current 28-group/13075-case focused run and migrate all remaining active predecessor consumers before final retirement."
     }
   ],
   "current_runtime_integration": {
     "profile": "current",
     "source_manifest": "tools/current_runtime/source/manifest.json",
     "candidate_identity": {
-      "source_sha256": "4722c53b248780534a846a472784a565c4454ab738db75d655a7801b6623f07f",
-      "native_sha256": "5cb190cfc4b920bb03e78803e79296e2e046ec90eb6e07b2d5ba6eebfb534edd",
-      "manifest_sha256": "be3eaf71fe817f7d365f70eee21574fcbefa8d6027babb2a57796764b100e362",
+      "source_sha256": "846e592beaa7847383cee668bc33d25cd81e79052bd4612252e2f72a83d96d05",
+      "native_sha256": "5cba6f11269f71efb319aa7368009055bb2e9b9571329daeae9bbc453287c3ad",
+      "manifest_sha256": "62795753a0e782fe3f75b9086653d41aba743fda356673398c12432d576fac15",
       "functions": 773,
       "units": 15
     },
     "audit": "docs/current-audit.md",
     "qualification_coordinator": "tests/qualify_current_runtime.py",
-    "current_candidate_status": "PENDING_ACTUAL_27_GROUP_7987_RUN",
-    "required_current_image_cases": 7987,
-    "required_current_image_groups": 27,
+    "current_candidate_status": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+    "required_current_image_cases": 13075,
+    "required_current_image_groups": 28,
     "required_suites": [
       "bool27",
       "original76",
@@ -154,7 +154,8 @@
       "half_addsub",
       "wide_neg",
       "half_div",
-      "public_f64_arithmetic"
+      "public_f64_arithmetic",
+      "same_f64_arithmetic"
     ],
     "required_cases": {
       "bool27": 27,
@@ -183,11 +184,12 @@
       "half_addsub": 1006,
       "wide_neg": 405,
       "half_div": 1196,
-      "public_f64_arithmetic": 2541
+      "public_f64_arithmetic": 2541,
+      "same_f64_arithmetic": 5088
     },
-    "qualification_plan": "validation/current-runtime773/qualification-plan.json",
+    "qualification_plan": "validation/current-runtime-same-f64/qualification-plan.json",
     "current_execution_evidence": null,
-    "scope": "One773-function/15-unit HIA candidate. All26 predecessor groups/5446 cases remain mandatory. Half47 retains all239 requests and the shared1196 division reference. F6448 retains all87 requests:63 refusals,one original negation sharing actual405 with wide_neg,22 mixed arithmetic commands andone FE transaction sharing the new actual2541 reference. Mixed public F64 arithmetic adds2541 exact-bit cases. Production cases bind one current main image/cold build; Generator131 also executes separately linked current-object probes.",
+    "scope": "One773-function/15-unit HIA candidate. All26 predecessor groups/5446 cases remain mandatory. Half47 retains all239 requests and the shared1196 division reference. F6448 retains all87 requests:63 refusals,one original negation sharing actual405 with wide_neg,22 mixed arithmetic commands andone FE transaction sharing the new actual2541 reference. Mixed public F64 arithmetic adds2541 exact-bit cases. Production cases bind one current main image/cold build; Generator131 also executes separately linked current-object probes. The same-F64 successor retains all27 groups/7987 cases and adds5088 same-F64 cases, including all original3288 and1800 appended singleton controls. Full28 execution is required on the one new actual image, with separately linked current-object Generator probes.",
     "main_plus_independent_generator_probe_images": true,
     "historical_qualification_transferred": false,
     "closes_any_full_gate": false,
@@ -202,7 +204,7 @@
     "numeric_predicate_coordinator": "tests/numeric_predicates/run.py",
     "protocol_controls_counted_as_successful_torch_compatibility": false,
     "original_logical147_and_Half47_retained": true,
-    "pending_dtype_audit": "Scoped BF16 copy, Half arithmetic, wide negation and mixed public F64 arithmetic require the complete current773 gate. Same-F64 NaN payload parity, DEFAULT/other architectures, general promotion/layout/device semantics and Half/F64 AD remain open.",
+    "pending_dtype_audit": "All28 groups require complete requalification on this source/image. The same-F645088 candidate repairs scalar/vector and singleton stride/rank NaN payload selection. DEFAULT/other architectures, general promotion/layout/device semantics, F64 sqrt and Half/F64 AD remain open. The fresh auxiliary F64 strict sqrt report onAVX512 retains4/55 failed groups and1984 finite1-ULP differences; that sqrt64 is not a supported canonical773 unary operation.",
     "bf16_copy_coordinator": "tests/bf16_copy/run.py",
     "half_mul_coordinator": "tests/half_mul/run.py",
     "half47_mul_successor": "tests/current_runtime_half_mul_successor.py",
@@ -216,7 +218,6 @@
     "f64_48_neg_successor": "tests/current_runtime_f64_neg_successor.py",
     "wide_neg_complete_source_inverse": "tools/current_runtime/wide_neg_source_transition.py",
     "previous_merged_execution": "validation/current-runtime765/ci-review.json",
-    "full_7987_executed": false,
     "half_div_coordinator": "tests/half_div/run.py",
     "half47_div_successor": "tests/current_runtime_half_div_successor.py",
     "half_div_observer_inverse": "tools/current_runtime/half_div_observer_transition.py",
@@ -225,7 +226,11 @@
     "public_f64_arithmetic_coordinator": "tests/public_f64_arithmetic/run.py",
     "f64_48_arithmetic_successor": "tests/current_runtime_f64_arithmetic_successor.py",
     "public_f64_arithmetic_complete_source_inverse": "tools/current_runtime/public_f64_arithmetic_source_transition.py",
-    "public_f64_arithmetic_observer_inverse": "tools/current_runtime/public_f64_arithmetic_observer_transition.py"
+    "public_f64_arithmetic_observer_inverse": "tools/current_runtime/public_f64_arithmetic_observer_transition.py",
+    "same_f64_arithmetic_coordinator": "tests/same_f64_arithmetic/run.py",
+    "same_f64_arithmetic_complete_source_inverse": "tools/current_runtime/same_f64_arithmetic_source_transition.py",
+    "same_f64_arithmetic_observer_inverse": "tools/current_runtime/same_f64_arithmetic_observer_transition.py",
+    "full_13075_executed": false
   },
   "derivative_declaration_count": 688,
   "derivative_declaration_lines_sha256": "5e32bf19142454911112779474e2c52eab08a6789229b46b96a92246c578bac8",

@@ -23,9 +23,9 @@ REFERENCE = 'b1dafeed270b4dd226c349dece9d7f6213c2dabd34681685d97ec13c068e9b11'
 READER = '1deb2fa84d9ea9653ca56769a5527f0102571ba2a4690f8deb85f5d4bdc038b3'
 SOURCE = '51820849f7becec549be15babace00f00687601ae7f53bcee0e636ca02f721f9'
 IMAGE = 'aa3cc8f0c8738a9505d31c9e8ba5a523b7e08b591b61fc7bfb8592295491618b'
-CURRENT_SOURCE = '4722c53b248780534a846a472784a565c4454ab738db75d655a7801b6623f07f'
-CURRENT_IMAGE = '5cb190cfc4b920bb03e78803e79296e2e046ec90eb6e07b2d5ba6eebfb534edd'
-CURRENT_PARTITION = 'be3eaf71fe817f7d365f70eee21574fcbefa8d6027babb2a57796764b100e362'
+CURRENT_SOURCE = '846e592beaa7847383cee668bc33d25cd81e79052bd4612252e2f72a83d96d05'
+CURRENT_IMAGE = '5cba6f11269f71efb319aa7368009055bb2e9b9571329daeae9bbc453287c3ad'
+CURRENT_PARTITION = '62795753a0e782fe3f75b9086653d41aba743fda356673398c12432d576fac15'
 HALF_SOURCE = 'bf3641b1a9061c6f92b8cbeef75adfac89e82ee16d32a9f650cb938d9e918386'
 PREDICATE_INVERSE = '71244cd75fb41ce07876d7f5699b66ae43c73adc5dd5d09fb2da0dec9c8c7439'
 HALF_LOGICAL_INVERSE = 'e0a2eac589ddfe8b09794fb55c569a73d7d7802888130646f59d33adca266f66'
@@ -280,10 +280,19 @@ def current_adapter_type(original_type, bridge, repository, extension_files, kin
                     and planned['expected_native_sha256'] == CURRENT_IMAGE
                     and len(planned['units']) == 15, 'exact current Half-logical source and image')
             source = inputs.bind(repository / 'tools/current_runtime/source/runtime.hepta', CURRENT_SOURCE)
+            same_path = repository / 'tools/current_runtime/same_f64_arithmetic_source_transition.py'
+            same = load_module(inputs.bind(same_path), same_path, kind + '_same_f64_arithmetic_source_inverse')
+            source, same_proof = same.restore_source(source, inputs.bind)
+            require(same.SOURCE == CURRENT_SOURCE and sha(source) == same.PARENT_SOURCE
+                    and same_proof['functions'] == same_proof['parent_functions'] == 773
+                    and same_proof['changed_functions'] == ['half_mul_priority','public_f64_binary']
+                    and same_proof['whole_source_inverse_exact'] is True
+                    and same_proof['whole_round_trip_exact'] is True,
+                    'exact same-F64 route and singleton priority inverse before mixed773')
             arithmetic_path = repository / 'tools/current_runtime/public_f64_arithmetic_source_transition.py'
             arithmetic = load_module(inputs.bind(arithmetic_path), arithmetic_path, kind + '_public_f64_arithmetic_inverse')
             source, arithmetic_proof = arithmetic.restore_source(source, inputs.bind)
-            require(arithmetic.SOURCE == CURRENT_SOURCE and sha(source) == arithmetic.PARENT_SOURCE,
+            require(arithmetic.SOURCE == same.PARENT_SOURCE and sha(source) == arithmetic.PARENT_SOURCE,
                     'exact mixedF64773 extension inverted before Half771')
             div_path = repository / 'tools/current_runtime/half_div_source_transition.py'
             division = load_module(inputs.bind(div_path), div_path, kind + '_half_div_source_inverse')
@@ -357,6 +366,7 @@ def current_adapter_type(original_type, bridge, repository, extension_files, kin
                 half_addsub_source_inverse=addsub_proof,
                 wide_neg_source_inverse=wide_proof, half_div_source_inverse=div_proof,
                 public_f64_arithmetic_source_inverse=arithmetic_proof,
+                same_f64_arithmetic_source_inverse=same_proof,
                 half_logical_to_original736_inverse=extension_proof,
                 original736_source_sha256=frozen_source,
                 current_source_manifest_sha256=CURRENT_PARTITION,

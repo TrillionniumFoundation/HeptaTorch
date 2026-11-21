@@ -1,0 +1,31 @@
+{
+  "changes": [
+    {
+      "parent_sha256": "efff9a4c847762641d119e9cc1f50a5c047e7481e096e547f931538655f0bb07",
+      "path": "tests/public_f64_arithmetic/run.py",
+      "replacements": [
+        {
+          "current": "def source_inverse(built,inputs):\n    actual=inputs.bind(ROOT/'tools/current_runtime/source/runtime.hepta')\n    same=module(ROOT/'tools/current_runtime/same_f64_arithmetic_source_transition.py','same_f64_before_mixed_inverse',inputs.bind)\n    previous,same_proof=same.restore_source(actual,inputs.bind)\n    transition=module(ROOT/'tools/current_runtime/public_f64_arithmetic_source_transition.py','public_f64_arithmetic_exact_inverse',inputs.bind)\n    original,proof=transition.restore_source(previous,inputs.bind)\n    require(same_proof['source_sha256']==built['source_sha256'] and same_proof['functions']==773\n        and same_proof['parent_functions']==773 and same_proof['whole_source_inverse_exact'] is True\n        and same_proof['whole_round_trip_exact'] is True and same_proof['same_f64_op1_to4_route_changed'] is True\n        and same_proof['same_f64_old_fallback_preserved'] is False\n        and proof['source_sha256']==same_proof['parent_source_sha256'] and proof['parent_functions']==771\n        and proof['whole_source_inverse_exact'] is True and proof['whole_round_trip_exact'] is True,\n        'actual same-F64 successor and exact mixed773 then771 predecessor recovery')\n    return dict(same_proof,mixed_predecessor_source_inverse=proof)\n",
+          "original": "def source_inverse(built,inputs):\n    transition=module(ROOT/'tools/current_runtime/public_f64_arithmetic_source_transition.py','public_f64_arithmetic_exact_inverse',inputs.bind)\n    previous,proof=transition.restore_source(inputs.bind(ROOT/'tools/current_runtime/source/runtime.hepta'),inputs.bind)\n    require(proof['source_sha256']==built['source_sha256'] and proof['functions']==773\n        and proof['parent_functions']==771 and proof['whole_source_inverse_exact'] is True\n        and proof['whole_round_trip_exact'] is True and proof['same_f64_route_preserved'] is True,\n        'complete mixed F64 extension and exact771 parent recovery')\n    return proof\n"
+        },
+        {
+          "current": "group_counts=GROUP_COUNTS, same_f64_nan_payload_qualified=False,legacy_same_f64_route_unchanged=False,",
+          "original": "group_counts=GROUP_COUNTS, same_f64_nan_payload_qualified=False,legacy_same_f64_route_unchanged=True,"
+        }
+      ],
+      "source_sha256": "ecf23defe1b35abeb2d51c2fab144d4d57992a8cdc57bcfb53defa8ee36e1f57"
+    },
+    {
+      "parent_sha256": "cd49631824c9b292de0a9729a87f821e48a4ea21775d49cb003cff887a2ba24e",
+      "path": "tests/public_f64_arithmetic/reference.py",
+      "replacements": [
+        {
+          "current": "legacy_same_f64_route_unchanged=False",
+          "original": "legacy_same_f64_route_unchanged=True"
+        }
+      ],
+      "source_sha256": "6d7972a92978f6319cb69a4ba08ad3edfa4a8ee8bfcba0143b0773728e2a1664"
+    }
+  ],
+  "schema": "heptatorch.same-f64-arithmetic.observer-delta.v1"
+}

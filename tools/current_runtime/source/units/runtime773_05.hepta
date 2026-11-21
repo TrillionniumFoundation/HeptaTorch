@@ -1623,20 +1623,53 @@ end
 fn half_mul_priority(s:mutbuf,result:u64,left:u64,right:u64,index:u64,scalar_right:u64,inner:u64) -> (u64) effects(read,write,trap) entry(start)
 block start(s:mutbuf,result:u64,left:u64,right:u64,index:u64,scalar_right:u64,inner:u64)
   dtype:u64 = call(s,result) {"function":"tensor_dtype"}
-  ls:u64 = call(s,result,left) {"function":"half_mul_inner_stride"}
-  rs:u64 = call(s,result,right) {"function":"half_mul_inner_stride"}
-  address:u64 = call(s,result,index) {"function":"taddr"}
-  p:u64 = call(s,result) {"function":"dptr"}
+  four:u64 = const() {"value":4}
+  double:bool = compare.eq(dtype,four)
+  branch double singleton_check(s,result,left,right,index,scalar_right,inner,dtype) original_strides(s,result,left,right,index,scalar_right,inner,dtype)
+block singleton_check(su:mutbuf,yu:u64,lu:u64,ru:u64,iu:u64,sru:u64,nu:u64,du:u64)
+  yp:u64 = call(su,yu) {"function":"dptr"}
+  lp:u64 = call(su,lu) {"function":"dptr"}
+  rp:u64 = call(su,ru) {"function":"dptr"}
+  left_rank:u64 = call(su,lp) {"function":"getw"}
+  right_rank:u64 = call(su,rp) {"function":"getw"}
+  different_rank:bool = compare.ne(left_rank,right_rank)
+  eight:u64 = const() {"value":8}
+  count_at:u64 = int.add.wrap(yp,eight)
+  count:u64 = call(su,count_at) {"function":"getw"}
+  one:u64 = const() {"value":1}
+  singleton:bool = compare.eq(count,one)
+  broadcast_singleton:bool = bool.and(singleton,different_rank)
+  branch broadcast_singleton singleton_strides(su,yu,lu,ru,iu,sru,nu,du,yp,lp,rp) original_strides(su,yu,lu,ru,iu,sru,nu,du)
+block singleton_strides(ss:mutbuf,ys:u64,lsource:u64,rsource:u64,is:u64,srs:u64,ns:u64,ds:u64,yps:u64,lps:u64,rps:u64)
+  order_s:u64 = call(ss,yps,lps,rps) {"function":"integer_pointwise_axis_order"}
+  rank_s:u64 = call(ss,yps) {"function":"getw"}
+  one_s:u64 = const() {"value":1}
+  last_s:u64 = int.sub.wrap(rank_s,one_s)
+  eight_s:u64 = const() {"value":8}
+  shift_s:u64 = int.mul.wrap(last_s,eight_s)
+  packed_s:u64 = int.shr.checked(order_s,shift_s)
+  mask_s:u64 = const() {"value":255}
+  axis:u64 = bit.and(packed_s,mask_s)
+  left_stride:u64 = call(ss,yps,lps,axis) {"function":"dist_probability_stride"}
+  right_stride:u64 = call(ss,yps,rps,axis) {"function":"dist_probability_stride"}
+  jump coordinates(ss,ys,lsource,rsource,is,srs,ns,ds,left_stride,right_stride)
+block original_strides(so:mutbuf,yo:u64,lo:u64,ro:u64,io:u64,sro:u64,no:u64,do:u64)
+  ls:u64 = call(so,yo,lo) {"function":"half_mul_inner_stride"}
+  rs:u64 = call(so,yo,ro) {"function":"half_mul_inner_stride"}
+  jump coordinates(so,yo,lo,ro,io,sro,no,do,ls,rs)
+block coordinates(sc:mutbuf,yc:u64,lc:u64,rc:u64,ic:u64,src:u64,nc:u64,dc:u64,lsc:u64,rsc:u64)
+  address:u64 = call(sc,yc,ic) {"function":"taddr"}
+  p:u64 = call(sc,yc) {"function":"dptr"}
   sixteen:u64 = const() {"value":16}
   bp:u64 = int.add.wrap(p,sixteen)
-  base:u64 = call(s,bp) {"function":"getw"}
+  base:u64 = call(sc,bp) {"function":"getw"}
   offset:u64 = int.sub.wrap(address,base)
-  width:u64 = call(dtype) {"function":"dtype_width"}
+  width:u64 = call(dc) {"function":"dtype_width"}
   physical:u64 = int.div.checked(offset,width)
-  position:u64 = int.rem.checked(physical,inner)
+  position:u64 = int.rem.checked(physical,nc)
   five:u64 = const() {"value":5}
-  ishalf:bool = compare.eq(dtype,five)
-  branch ishalf half(ls,rs,position,inner,scalar_right) ordinary(dtype,ls,rs,position,inner)
+  ishalf:bool = compare.eq(dc,five)
+  branch ishalf half(lsc,rsc,position,nc,src) ordinary(dc,lsc,rsc,position,nc)
 block ordinary(d1:u64,l1:u64,r1:u64,p1:u64,n1:u64)
   answer1:u64 = call(d1,l1,r1,p1,n1) {"function":"half_mul_float_priority"}
   ret(answer1)

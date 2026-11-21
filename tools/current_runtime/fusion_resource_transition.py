@@ -19,9 +19,9 @@ import re
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
-SOURCE = '4722c53b248780534a846a472784a565c4454ab738db75d655a7801b6623f07f'
-IMAGE = '5cb190cfc4b920bb03e78803e79296e2e046ec90eb6e07b2d5ba6eebfb534edd'
-OUTER = '631710879f579ed28f47bf395bc19b40dd49d2e96246a2113e91bbdd008b4fdb'
+SOURCE = '846e592beaa7847383cee668bc33d25cd81e79052bd4612252e2f72a83d96d05'
+IMAGE = '5cba6f11269f71efb319aa7368009055bb2e9b9571329daeae9bbc453287c3ad'
+OUTER = '4fd43c1834a6a5332257d716bdbea967a20e5308e2637826cae19edded58b06d'
 OBLIGATIONS = '4fa8028bec733a72ac2857dce326e25d6d378aafd1045c2504bb5828553cf2bb'
 OWNER = 'e54509ceba0ef3bf171f5fc1018665dc97e56eeccec0cba1e8c14f9a7ed81501'
 CHANGED = ('command_argument', 'dtype_audit', 'to_command', 'typed_command', 'typed_fill')
@@ -71,7 +71,16 @@ def prove(source, bind):
     wide_inverse = complete['wide_neg_source_inverse']
     div_inverse = complete['half_div_source_inverse']
     arithmetic_inverse = complete['public_f64_arithmetic_source_inverse']
-    require(arithmetic_inverse['source_sha256'] == SOURCE
+    same_inverse = complete['same_f64_arithmetic_source_inverse']
+    require(same_inverse['source_sha256'] == SOURCE
+        and same_inverse['functions'] == same_inverse['parent_functions'] == 773
+        and same_inverse['changed_functions'] == ['half_mul_priority','public_f64_binary']
+        and same_inverse['unchanged_parent_functions'] == 771
+        and same_inverse['non_f64_routes_unchanged'] is True
+        and same_inverse['Half_routes_unchanged'] is True
+        and same_inverse['whole_source_inverse_exact'] is True
+        and same_inverse['whole_round_trip_exact'] is True
+        and arithmetic_inverse['source_sha256'] == same_inverse['parent_source_sha256']
         and arithmetic_inverse['functions'] == 773 and arithmetic_inverse['parent_functions'] == 771
         and arithmetic_inverse['changed_functions'] == ['binary','half_mul_cast']
         and arithmetic_inverse['unchanged_parent_functions'] == 769
@@ -164,13 +173,13 @@ def prove(source, bind):
         'complete current binary routes live original-domain operands to the exact retained predecessor body')
     mixed = actual['public_f64_binary']
     mixed_front = mixed.split(b'block previous(', 1)[0]
-    require(sha(mixed) == arithmetic_inverse['actual_mixed_route_sha256']
+    require(sha(mixed) == same_inverse['actual_route_sha256']
+        and same_inverse['parent_route_sha256'] == arithmetic_inverse['actual_mixed_route_sha256']
         and calls(mixed_front) == [b'tensor_dtype', b'tensor_dtype']
         and b'  four:u64 = const() {"value":4}\n  two:u64 = const() {"value":2}\n' in mixed_front
         and b'  ldouble:bool = compare.eq(ld,four)\n  rdouble:bool = compare.eq(rd,four)\n'
             b'  anydouble:bool = bool.or(ldouble,rdouble)\n' in mixed_front
-        and b'  different:bool = compare.ne(ld,rd)\n  mixed:bool = bool.and(anydouble,different)\n' in mixed_front
-        and b'  types:bool = bool.and(mixed,public)\n' in mixed_front
+        and b'  types:bool = bool.and(anydouble,public)\n' in mixed_front
         and b'  admitted:bool = bool.and(types,arithmetic)\n' in mixed_front
         and b'  branch admitted select_operation(s,operation,left,right) previous(s,operation,left,right)\n' in mixed_front
         and b'block previous(sp:mutbuf,op:u64,lp:u64,rp:u64)\n'
@@ -179,8 +188,9 @@ def prove(source, bind):
     binary_route = dict(actual_binary_sha256=sha(binary),
         actual_public_f64_binary_sha256=sha(mixed),
         public_f64_arithmetic_source_inverse=arithmetic_inverse,
+        same_f64_arithmetic_source_inverse=same_inverse,
         new_public_f64_branch_requires_operand_dtype=4,
-        new_public_f64_branch_other_operand_dtype=[0,1,2],
+        new_public_f64_branch_other_operand_dtype=[0,1,2,4],
         new_public_f64_branch_operations=[1,2,3,4],
         new_public_f64_branch_reachable_for_original_domain=False,
         new_public_f64_outcomes_require_separate_successor_evidence=True,

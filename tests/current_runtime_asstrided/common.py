@@ -10,9 +10,9 @@ import sys
 import types
 
 HERE = Path(__file__).resolve().parent
-SOURCE = '4722c53b248780534a846a472784a565c4454ab738db75d655a7801b6623f07f'
-IMAGE = '5cb190cfc4b920bb03e78803e79296e2e046ec90eb6e07b2d5ba6eebfb534edd'
-SOURCES_SHA = '9dbe56891d6798565416a124dd80ca6c63dcbd51422ed2829c8f3ed06317bc24'
+SOURCE = '846e592beaa7847383cee668bc33d25cd81e79052bd4612252e2f72a83d96d05'
+IMAGE = '5cba6f11269f71efb319aa7368009055bb2e9b9571329daeae9bbc453287c3ad'
+SOURCES_SHA = 'ed7ac7bf7bdca0a37712d03ab8700996da658794557cf45a2689bada6d34f7aa'
 SUITES = ('copy4', 'reduction4', 'lanes2', 'branches6')
 COUNTS = dict(copy4=4, reduction4=4, lanes2=2, branches6=6)
 CHECKS = {'python_matches', 'platform_matches', 'version_backend_matches',
@@ -161,7 +161,10 @@ def admit(repository, build, expected_build_sha, reference_root, suite, inputs):
                       'asstrided16_half_div_source_inverse', inputs)
     arithmetic = module(repository/'tools/current_runtime/public_f64_arithmetic_source_transition.py',
                         'asstrided16_public_f64_arithmetic_source_inverse', inputs)
-    old771, arithmetic_inverse = arithmetic.restore_source(raw, inputs.bind)
+    same = module(repository/'tools/current_runtime/same_f64_arithmetic_source_transition.py',
+                  'asstrided16_same_f64_arithmetic_source_inverse', inputs)
+    old773, same_inverse = same.restore_source(raw, inputs.bind)
+    old771, arithmetic_inverse = arithmetic.restore_source(old773, inputs.bind)
     old767, div_inverse = division.restore_source(old771, inputs.bind)
     old765, wide_inverse = wide.restore_source(old767, inputs.bind)
     old761, addsub_inverse = addsub.restore_source(old765, inputs.bind)
@@ -171,7 +174,12 @@ def admit(repository, build, expected_build_sha, reference_root, suite, inputs):
     predecessor, predicate_inverse = predicate.restore_source(old740, inputs.bind)
     guard = predicate_inverse['dispatcher_guard']
     delegation = predicate_inverse['old_path_delegation']
-    require(arithmetic.SOURCE == SOURCE and division.SOURCE == arithmetic.PARENT_SOURCE
+    require(same.SOURCE == SOURCE and arithmetic.SOURCE == same.PARENT_SOURCE
+        and same_inverse['functions'] == same_inverse['parent_functions'] == 773
+        and same_inverse['changed_functions'] == ['half_mul_priority','public_f64_binary']
+        and same_inverse['unchanged_parent_functions'] == 771
+        and same_inverse['whole_source_inverse_exact'] is True and same_inverse['whole_round_trip_exact'] is True
+        and division.SOURCE == arithmetic.PARENT_SOURCE
         and arithmetic_inverse['functions'] == 773 and arithmetic_inverse['parent_functions'] == 771
         and arithmetic_inverse['changed_functions'] == ['binary','half_mul_cast']
         and arithmetic_inverse['unchanged_parent_functions'] == 769
@@ -243,6 +251,7 @@ def admit(repository, build, expected_build_sha, reference_root, suite, inputs):
         wide_neg_source_inverse=wide_inverse,
         half_div_source_inverse=div_inverse,
         public_f64_arithmetic_source_inverse=arithmetic_inverse,
+        same_f64_arithmetic_source_inverse=same_inverse,
         original_source=pins['original_source'],reference_sha256=reference_pin['reference_sha256'],
         probe_sha256=reference_pin['probe_sha256'],reference_provenance=provenance['checks'],
         original_finish=pins['original_finish'],original_denominators=pins['original_denominators'][suite])

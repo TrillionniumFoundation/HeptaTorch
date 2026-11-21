@@ -20,9 +20,9 @@ import types
 
 MUL_HELPER = '47557e7730d00c374864d2e2948a511e86b47ae653034adaa0f776445fc556ad'
 NEG_HELPER = '1d5a464ad7ff3ac56656cd361de2024ca77db3ead2e9da6687a043039a3a5b41'
-FE_OWNER_CONTRACT = 'e68b2718ff407f210e8052d01fcef35bd7f9484c48123d7659b802bd65247fa1'
-FE_TOMBSTONE_CONTRACT = 'abace96ec6f399a7213176dd2f69783054f8e19525ec386d4a58c4068bc30bef'
-FE_OWNER_READER = 'e8e97ea06acf058a9fa48165227982f2e6e1cd22d9ad54b7887b877079dc4fd4'
+FE_OWNER_CONTRACT = '3bf1b2bf1d798ca10c47cbd152d74f532156352c0aed57f73be585ec508e6150'
+FE_TOMBSTONE_CONTRACT = '904d35879aefae1508f4be24b07b176972fb3f388d1e4471a2552e8a5b1bb2a3'
+FE_OWNER_READER = 'bbfd1fe7d8fd31fafeb4320ecfe6343c9a5a23d42723098a1cdfa5a39766b7a5'
 WORDS = {0: (0x3f800000, 0x80000000), 1: (1, 0), 2: (1, 0),
          4: (0x3ff0000000000000, 0x8000000000000000),
          5: (0x3c00, 0x8000), 6: (0x3f80, 0x8000)}
@@ -80,11 +80,22 @@ class Successor:
         contract = json.loads(inputs.bind(contract_path, FE_OWNER_CONTRACT))
         source = inputs.bind(self.repository / 'tools/current_runtime/source/runtime.hepta',
                              contract['source_sha256'])
+        same_path = self.repository / 'tools/current_runtime/same_f64_arithmetic_source_transition.py'
+        inputs.bind(same_path)
+        same_spec = importlib.util.spec_from_file_location('half_FE_same_f64_source_inverse', same_path)
+        same = importlib.util.module_from_spec(same_spec); same_spec.loader.exec_module(same)
+        previous773, same_source_proof = same.restore_source(source, inputs.bind)
+        require(same_source_proof['functions'] == same_source_proof['parent_functions'] == 773
+                and same_source_proof['changed_functions'] == ['half_mul_priority','public_f64_binary']
+                and same_source_proof['Half_routes_unchanged'] is True
+                and same_source_proof['whole_source_inverse_exact'] is True
+                and same_source_proof['whole_round_trip_exact'] is True,
+                'the same-F64 extension preserves the complete original Half FE route')
         arithmetic_path = self.repository / 'tools/current_runtime/public_f64_arithmetic_source_transition.py'
         inputs.bind(arithmetic_path)
         arithmetic_spec = importlib.util.spec_from_file_location('half_FE_public_f64_source_inverse', arithmetic_path)
         arithmetic = importlib.util.module_from_spec(arithmetic_spec); arithmetic_spec.loader.exec_module(arithmetic)
-        previous771, arithmetic_source_proof = arithmetic.restore_source(source, inputs.bind)
+        previous771, arithmetic_source_proof = arithmetic.restore_source(previous773, inputs.bind)
         require(arithmetic_source_proof['functions'] == 773 and arithmetic_source_proof['parent_functions'] == 771
                 and arithmetic_source_proof['changed_functions'] == ['binary','half_mul_cast']
                 and arithmetic_source_proof['unchanged_parent_functions'] == 769
@@ -97,7 +108,7 @@ class Successor:
         inverse_spec = importlib.util.spec_from_file_location('half_FE_division_source_inverse', inverse_path)
         inverse = importlib.util.module_from_spec(inverse_spec); inverse_spec.loader.exec_module(inverse)
         predecessor_source, division_source_proof = inverse.restore_source(previous771, inputs.bind)
-        require(inverse.SOURCE == arithmetic.PARENT_SOURCE
+        require(same.PARENT_SOURCE == arithmetic.SOURCE and inverse.SOURCE == arithmetic.PARENT_SOURCE
                 and division_source_proof['non_division_routes_unchanged'] is True
                 and division_source_proof['whole_round_trip_exact'] is True,
                 'complete native767 inverse preserves the original operation1 FE allocation path')
@@ -299,6 +310,7 @@ class Successor:
             FE_complete_owner_reader_sha256=FE_OWNER_READER,
             half_div_source_inverse=division_source_proof,
             public_f64_arithmetic_source_inverse=arithmetic_source_proof,
+            same_f64_arithmetic_source_inverse=same_source_proof,
             FE_new_public_F64_fallback_reachable=False,
             FE_new_I64_to_F64_cast_guard_reachable=False,
             FE_original_promotion_and_result_dtype=0,

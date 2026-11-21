@@ -9,9 +9,9 @@ from pathlib import Path
 import re
 import types
 
-SOURCE = '4722c53b248780534a846a472784a565c4454ab738db75d655a7801b6623f07f'
-IMAGE = '5cb190cfc4b920bb03e78803e79296e2e046ec90eb6e07b2d5ba6eebfb534edd'
-MANIFEST = 'be3eaf71fe817f7d365f70eee21574fcbefa8d6027babb2a57796764b100e362'
+SOURCE = '846e592beaa7847383cee668bc33d25cd81e79052bd4612252e2f72a83d96d05'
+IMAGE = '5cba6f11269f71efb319aa7368009055bb2e9b9571329daeae9bbc453287c3ad'
+MANIFEST = '62795753a0e782fe3f75b9086653d41aba743fda356673398c12432d576fac15'
 HALF_SOURCE = 'bf3641b1a9061c6f92b8cbeef75adfac89e82ee16d32a9f650cb938d9e918386'
 PREDICATE_INVERSE = '71244cd75fb41ce07876d7f5699b66ae43c73adc5dd5d09fb2da0dec9c8c7439'
 STORAGE_SOURCE = '51820849f7becec549be15babace00f00687601ae7f53bcee0e636ca02f721f9'
@@ -91,12 +91,22 @@ def parent_source_files(repository, inputs=None):
          and witness['unchanged_functions'] == 683,
          'exact independently bound source-only predecessor witness')
     runtime, units, summary, manifest_raw = current_source(repository, inputs)
+    same_path = Path(repository) / 'tools/current_runtime/same_f64_arithmetic_source_transition.py'
+    same = loaded(same_path, read(same_path, inputs), 'generator131_same_f64_arithmetic_source_inverse')
+    runtime, same_inverse = same.restore_source(runtime, lambda path, expected=None: read(path, inputs, expected))
+    need(same.SOURCE == SOURCE and sha(runtime) == same.PARENT_SOURCE
+         and same_inverse['functions'] == same_inverse['parent_functions'] == 773
+         and same_inverse['changed_functions'] == ['half_mul_priority','public_f64_binary']
+         and same_inverse['unchanged_parent_functions'] == 771
+         and same_inverse['whole_source_inverse_exact'] is True
+         and same_inverse['whole_round_trip_exact'] is True,
+         'exact same-F64 arithmetic inverse before the frozen mixed773 source')
     arithmetic_path = Path(repository) / 'tools/current_runtime/public_f64_arithmetic_source_transition.py'
     arithmetic = loaded(arithmetic_path, read(arithmetic_path, inputs),
                         'generator131_public_f64_arithmetic_source_inverse')
     runtime, arithmetic_inverse = arithmetic.restore_source(
         runtime, lambda path, expected=None: read(path, inputs, expected))
-    need(arithmetic.SOURCE == SOURCE and sha(runtime) == arithmetic.PARENT_SOURCE
+    need(arithmetic.SOURCE == same.PARENT_SOURCE and sha(runtime) == arithmetic.PARENT_SOURCE
          and arithmetic_inverse['functions'] == 773 and arithmetic_inverse['parent_functions'] == 771
          and arithmetic_inverse['changed_functions'] == ['binary','half_mul_cast']
          and arithmetic_inverse['unchanged_parent_functions'] == 769
@@ -235,6 +245,7 @@ def parent_source_files(repository, inputs=None):
         wide_neg_source_inverse=wide_inverse,
         half_div_source_inverse=div_inverse,
         public_f64_arithmetic_source_inverse=arithmetic_inverse,
+        same_f64_arithmetic_source_inverse=same_inverse,
         physical_functions=773, physical_units=15, parent_source_sha256=PARENT_SOURCE,
         parent_functions=712, parent_units=15, unchanged_parent_bodies=683,
         changed_parent_bodies=changed, removed_parent_bodies=removed, added_physical_bodies=added,

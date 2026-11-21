@@ -1,7 +1,7 @@
 # Historical core execution protocol (HTORCH01)
 
 This page records the original F32 `HTORCH01` core and its optional interactive
-framing, implemented by the [retained core source](../src/heptatorch.hepta).
+framing, implemented by the [fixed historical core source](../tools/legacy_source143/manifest.json).
 Its command definitions are also referenced by later profiles, which specify
 their own handles, metadata, transaction and dtype rules.
 

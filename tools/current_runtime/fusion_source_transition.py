@@ -12,7 +12,7 @@ import re
 HERE = Path(__file__).resolve().parent
 SOURCE = '51820849f7becec549be15babace00f00687601ae7f53bcee0e636ca02f721f9'
 HALF_SOURCE = 'bf3641b1a9061c6f92b8cbeef75adfac89e82ee16d32a9f650cb938d9e918386'
-CURRENT_SOURCE = '4722c53b248780534a846a472784a565c4454ab738db75d655a7801b6623f07f'
+CURRENT_SOURCE = '846e592beaa7847383cee668bc33d25cd81e79052bd4612252e2f72a83d96d05'
 PREDICATE_INVERSE = '71244cd75fb41ce07876d7f5699b66ae43c73adc5dd5d09fb2da0dec9c8c7439'
 PARENT_SOURCE = 'ba96abc05717643eaf4f2056325089d9a51f5a2e9838f89473e9a4e76e46fd99'
 DELTA_SHA = '1d47ee1f02e33cc29b4277afa0019dc55c7519a39b23022b0e5e97217bc9de53'
@@ -130,13 +130,26 @@ def predicate_parent(source, bind):
     """Check the new opcode routing and recover the exact Half parent bytes."""
     bind(Path(__file__).resolve())
     require(sha(source) == CURRENT_SOURCE, 'only the exact admitted predicate source')
+    same_path = HERE / 'same_f64_arithmetic_source_transition.py'
+    bind(same_path)
+    same_spec = importlib.util.spec_from_file_location('same_f64_arithmetic_complete_outer_inverse', same_path)
+    same = importlib.util.module_from_spec(same_spec); same_spec.loader.exec_module(same)
+    source, same_inverse = same.restore_source(source, bind)
+    require(same.SOURCE == CURRENT_SOURCE and sha(source) == same.PARENT_SOURCE
+            and same_inverse['functions'] == same_inverse['parent_functions'] == 773
+            and same_inverse['changed_functions'] == ['half_mul_priority','public_f64_binary']
+            and same_inverse['unchanged_parent_functions'] == 771
+            and same_inverse['exact_failed_v1_source_recovered'] is True
+            and same_inverse['whole_source_inverse_exact'] is True
+            and same_inverse['whole_round_trip_exact'] is True,
+            'exact same-F64 route and singleton-priority successor to mixed773')
     arithmetic_path = HERE / 'public_f64_arithmetic_source_transition.py'
     bind(arithmetic_path, 'bfab0304ac467af58a3590a55ffd376b1bcc8cac0aefd4d4c80d08f344d9e1ec')
     arithmetic_spec = importlib.util.spec_from_file_location('public_f64_arithmetic_complete_outer_inverse', arithmetic_path)
     arithmetic = importlib.util.module_from_spec(arithmetic_spec)
     arithmetic_spec.loader.exec_module(arithmetic)
     source, arithmetic_inverse = arithmetic.restore_source(source, bind)
-    require(arithmetic.SOURCE == CURRENT_SOURCE and sha(source) == arithmetic.PARENT_SOURCE
+    require(arithmetic.SOURCE == same.PARENT_SOURCE and sha(source) == arithmetic.PARENT_SOURCE
             and arithmetic.FUNCTIONS == 773 and arithmetic.PARENT_FUNCTIONS == 771,
             'exact mixed public F64773 to Half771 complete source relation')
     div_path = HERE / 'half_div_source_transition.py'
@@ -196,12 +209,12 @@ def predicate_parent(source, bind):
     require(extension.SOURCE == bf16.PARENT_SOURCE and extension.PARENT_SOURCE == HALF_SOURCE
             and sha(previous) == HALF_SOURCE,
             'complete predicate-to-Half source relation')
-    return previous, proof, bf16_inverse, mul_inverse, neg_inverse, addsub_inverse, wide_inverse, div_inverse, arithmetic_inverse
+    return previous, proof, bf16_inverse, mul_inverse, neg_inverse, addsub_inverse, wide_inverse, div_inverse, arithmetic_inverse, same_inverse
 
 
 def restore_source(source, bind):
     """Compose all exact source inverses; preserve the actual current runtime."""
-    previous, predicate_inverse, bf16_inverse, mul_inverse, neg_inverse, addsub_inverse, wide_inverse, div_inverse, arithmetic_inverse = predicate_parent(source, bind)
+    previous, predicate_inverse, bf16_inverse, mul_inverse, neg_inverse, addsub_inverse, wide_inverse, div_inverse, arithmetic_inverse, same_inverse = predicate_parent(source, bind)
     restored, half_inverse = restore_half_source(previous, bind)
     return restored, dict(
         schema='heptatorch.current773-to-cat700.complete-source-inverse.v1',
@@ -215,6 +228,7 @@ def restore_source(source, bind):
         wide_neg_source_inverse=wide_inverse,
         half_div_source_inverse=div_inverse,
         public_f64_arithmetic_source_inverse=arithmetic_inverse,
+        same_f64_arithmetic_source_inverse=same_inverse,
         half_and_storage_source_inverse=half_inverse,
         whole_source_inverse_exact=True, whole_round_trip_exact=True,
         every_other_byte_constrained_by_complete_parent_sha256=True,

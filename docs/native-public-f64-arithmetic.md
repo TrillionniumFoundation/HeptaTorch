@@ -1,14 +1,19 @@
 # Native mixed public F64 arithmetic
 
+The identities and scoped execution results below record the mixed-F64
+predecessor. The [same-F64 successor](native-same-f64-arithmetic.md) retains this
+2,541-case matrix and changes the common F64 multiplication priority for
+single-element unequal-rank inputs. Its new image requires its own complete run.
+
 Command `2`, operations `1`–`4`, implements native addition, subtraction, multiplication and true division for admitted no-gradient public F64 tensors paired with F32, Bool or I64, in either operand order. All numerical work, promotion, allocation, ownership and rollback execute in HIA. The interface retains the existing rank 0–4, construction and layout limits.
 
 This extension includes direct signed-I64-to-F64 conversion with round-to-nearest, ties-to-even. It avoids an intermediate F32 rounding step, which would lose integer precision before the F64 calculation. Rank-dependent promotion is retained: a rank-zero F64 operand paired with a dimensioned F32 tensor can produce F32 under the fixed Torch rules. Both original Bool subtraction errors remain explicit.
 
-The current implementation is bounded. Same-F64 arithmetic still uses its original path; exact NaN payload parity for that path is open. F64 AD, `out=`, inplace variants, non-default `alpha`, `rounding_mode`, complete layouts/devices and other CPU architectures are also open. No complete upstream declaration or system contract is closed by this finite extension.
+The mixed predecessor was bounded and retained the old same-F64 path. The current same-F64 successor routes those pairs through the native kernels and adds 5,088 actual-reference cases. F64 AD, `out=`, inplace variants, non-default `alpha`, `rounding_mode`, complete layouts/devices and other CPU architectures remain open. No complete upstream declaration or system contract is closed by either finite extension.
 
 ## Source identity and complete inverse
 
-| Current mixed-arithmetic identity | SHA-256 |
+| Recorded mixed-arithmetic predecessor | SHA-256 |
 | --- | --- |
 | Complete HIA source | `4722c53b248780534a846a472784a565c4454ab738db75d655a7801b6623f07f` |
 | Native ELF | `5cb190cfc4b920bb03e78803e79296e2e046ec90eb6e07b2d5ba6eebfb534edd` |
@@ -51,7 +56,7 @@ Two failed attempts are preserved as original evidence. The first stopped during
 
 ## Preserve all87 original F64 requests
 
-The original F6448 reader still executes33 numerical recipes,12 boundary recipes,one87-request entry recipe andtwo real allocation-recovery recipes. Original request bytes remain unchanged. Its current entry partition is:
+The original F6448 reader still executes33 numerical recipes,12 boundary recipes,one87-request entry recipe andtwo real allocation-recovery recipes. Original request recipes and their validation predicates remain mandatory; fresh capability words are bound to their actual native allocation/release history. Its current entry partition is:
 
 | Outcome | Requests |
 | --- | ---: |
@@ -71,6 +76,6 @@ The actual48-case run and independent physical reader passed **3,259 frames,17,9
 
 ## Common qualification
 
-The coordinator and CI require **27 groups /7,987 cases** on a fresh cold build of this exact current source. All26 preceding groups and their original controls or explicitly verified numerical successors remain mandatory. Generator ABI and reordered-link probes continue to build and execute their separate current-object images.
+The recorded mixed predecessor requires **27 groups / 7,987 cases**. The current same-F64 successor retains all of them and requires **28 groups / 13,075 cases** on a fresh cold build, including 5,088 same-F64 cases. Original controls or explicitly verified numerical successors remain mandatory. Generator ABI and reordered-link probes continue to build and execute their separate current-object images.
 
-The two focused groups above cover2,589 cases on the stated source and image. Their original execution input snapshots remain fixed. They do not establish the final repository's full27-group pass or any full-project closure. The [current plan](../validation/current-runtime773/qualification-plan.json) and [audit](current-audit.md) record those separate obligations.
+The two focused groups above cover2,589 cases on the stated predecessor source and image. Their original execution input snapshots remain fixed. They do not establish the successor's complete current-tree pass or any full-project closure. The [current plan](../validation/current-runtime-same-f64/qualification-plan.json) and [audit](current-audit.md) record those separate obligations.

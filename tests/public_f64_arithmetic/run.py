@@ -123,13 +123,19 @@ def read_reference(directory,execution,inputs):
 
 
 def source_inverse(built,inputs):
+    actual=inputs.bind(ROOT/'tools/current_runtime/source/runtime.hepta')
+    same=module(ROOT/'tools/current_runtime/same_f64_arithmetic_source_transition.py','same_f64_before_mixed_inverse',inputs.bind)
+    previous,same_proof=same.restore_source(actual,inputs.bind)
     transition=module(ROOT/'tools/current_runtime/public_f64_arithmetic_source_transition.py','public_f64_arithmetic_exact_inverse',inputs.bind)
-    previous,proof=transition.restore_source(inputs.bind(ROOT/'tools/current_runtime/source/runtime.hepta'),inputs.bind)
-    require(proof['source_sha256']==built['source_sha256'] and proof['functions']==773
-        and proof['parent_functions']==771 and proof['whole_source_inverse_exact'] is True
-        and proof['whole_round_trip_exact'] is True and proof['same_f64_route_preserved'] is True,
-        'complete mixed F64 extension and exact771 parent recovery')
-    return proof
+    original,proof=transition.restore_source(previous,inputs.bind)
+    require(same_proof['source_sha256']==built['source_sha256'] and same_proof['functions']==773
+        and same_proof['parent_functions']==773 and same_proof['whole_source_inverse_exact'] is True
+        and same_proof['whole_round_trip_exact'] is True and same_proof['same_f64_op1_to4_route_changed'] is True
+        and same_proof['same_f64_old_fallback_preserved'] is False
+        and proof['source_sha256']==same_proof['parent_source_sha256'] and proof['parent_functions']==771
+        and proof['whole_source_inverse_exact'] is True and proof['whole_round_trip_exact'] is True,
+        'actual same-F64 successor and exact mixed773 then771 predecessor recovery')
+    return dict(same_proof,mixed_predecessor_source_inverse=proof)
 
 
 def legacy_alias_packet(n,left,right,invalid_suffix=False):
@@ -335,7 +341,7 @@ def qualify(report,repository,build,build_sha,output,inputs):
             if 'legacy_refusal_label' in row['spec'] and row['accepted']],
         retained_bool_subtraction_refusals=[row['spec']['legacy_refusal_label'] for row in reference['report']['rows']
             if 'legacy_refusal_label' in row['spec'] and not row['accepted']],
-        group_counts=GROUP_COUNTS, same_f64_nan_payload_qualified=False,legacy_same_f64_route_unchanged=True,
+        group_counts=GROUP_COUNTS, same_f64_nan_payload_qualified=False,legacy_same_f64_route_unchanged=False,
         full_project_status='HOLD',host_expected_values_computed=False)
 
 

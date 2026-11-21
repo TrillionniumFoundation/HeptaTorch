@@ -57,7 +57,7 @@ def main():
     os.environ['ATEN_CPU_CAPABILITY']=REQUESTED_CPU_CAPABILITY
     report=dict(schema='heptatorch.public-f64-arithmetic.reference.v1',status='RUNNING',case_sha256=CASE_SHA256,expected_cases=len(CASES),
         rows=[],inputs=inputs,Torch_executed=False,native_executed=False,host_expected_values_computed=False,failures=[],
-        same_f64_nan_payload_qualified=False,legacy_same_f64_route_unchanged=True,
+        same_f64_nan_payload_qualified=False,legacy_same_f64_route_unchanged=False,
         actual_process=dict(pid=os.getpid(),argv=list(sys.orig_argv),python=identity(sys.executable)),
         requested_cpu_capability=REQUESTED_CPU_CAPABILITY,cpu_environment=os.environ.get('ATEN_CPU_CAPABILITY'),
         inherited_cpu_capability=inherited_capability)

@@ -41,8 +41,17 @@ jobs:
           persist-credentials: false
           fetch-depth: 1
 
+      - name: Require the current build to start without historical143 source
+        run: |
+          test -z "$(git ls-files -- src/heptatorch.hepta)"
+          test ! -e src/heptatorch.hepta
+          test ! -L src/heptatorch.hepta
+
       - name: Check that the complete upstream target remains recorded
-        run: python3 -I -S -B tools/check_acceptance.py
+        run: |
+          python3 -I -S -B tools/check_acceptance.py
+          python3 -I -S -B tests/check_acceptance_negative.py
+          python3 -I -S -B tests/check_acceptance_contracts.py
 
       - name: Check lossless original artifact transfer and failure handling
         run: python3 -I -S -B tests/test_ci_artifact_transport.py
@@ -367,15 +376,19 @@ jobs:
           PYTORCH_INSTALL
 
 
-      - name: Qualify all twenty-seven suites and the independent Generator probe images
+      - name: Qualify all twenty-eight suites and the independent Generator probe images
         id: current_qualification
         if: ${{ !cancelled() && steps.current_build.outcome == 'success' }}
         run: |
+          test ! -e src/heptatorch.hepta
+          test ! -L src/heptatorch.hepta
           python3 -I -S -B tests/qualify_current_runtime.py \
             --build-directory "$CURRENT_OUTPUT/build" \
             --tool-build "$RUNNER_TEMP/hepta-current-entropy" \
             --stack-build "$RUNNER_TEMP/hepta-stack-budget" \
             --output "$CURRENT_OUTPUT/review"
+          test ! -e src/heptatorch.hepta
+          test ! -L src/heptatorch.hepta
 
       - name: Publish the actual current-runtime qualification result
         if: ${{ always() }}
@@ -397,7 +410,7 @@ jobs:
           output = Path(os.environ['CURRENT_OUTPUT'])
           output.mkdir(parents=True, exist_ok=True)
           failures, qualification, binding = [], None, None
-          predicate_evidence = bf16_evidence = half_mul_evidence = half_neg_evidence = half_addsub_evidence = wide_neg_evidence = half_div_evidence = public_f64_arithmetic_evidence = None
+          predicate_evidence = bf16_evidence = half_mul_evidence = half_neg_evidence = half_addsub_evidence = wide_neg_evidence = half_div_evidence = public_f64_arithmetic_evidence = same_f64_arithmetic_evidence = None
           for key in ('TOOLCHAIN_OUTCOME', 'ENTROPY_TOOL_OUTCOME', 'BUILD_OUTCOME', 'ORACLE_OUTCOME', 'QUALIFICATION_OUTCOME'):
               if os.environ.get(key) != 'success':
                   failures.append(key + '=' + os.environ.get(key, 'missing'))
@@ -407,15 +420,15 @@ jobs:
               binding = {'path': 'review/qualification.json', 'bytes': len(raw),
                          'sha256': hashlib.sha256(raw).hexdigest()}
               if qualification['status'] != 'PASS_CURRENT_RUNTIME_FOCUSED':
-                  failures.append('the mandatory twenty-seven-suite qualifier did not pass')
-              if (qualification['required_cases_total'] != 7987
-                      or qualification['executed_cases_total'] != 7987
+                  failures.append('the mandatory twenty-eight-suite qualifier did not pass')
+              if (qualification['required_cases_total'] != 13075
+                      or qualification['executed_cases_total'] != 13075
                       or qualification['required_suites'] != [
-                      'bool27', 'original76', 'integral24', 'sum_f32_17', 'current35', 'base270', 'sum32', 'live32', 'logical147', 'resource7', 'asstrided16', 'cat4', 'metadata10', 'generator131', 'public_f64_logical192', 'f64_48', 'half47', 'half_logical264', 'half_transactions12', 'numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div', 'public_f64_arithmetic']):
+                      'bool27', 'original76', 'integral24', 'sum_f32_17', 'current35', 'base270', 'sum32', 'live32', 'logical147', 'resource7', 'asstrided16', 'cat4', 'metadata10', 'generator131', 'public_f64_logical192', 'f64_48', 'half47', 'half_logical264', 'half_transactions12', 'numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div', 'public_f64_arithmetic', 'same_f64_arithmetic']):
                   failures.append('the mandatory case denominator or suite order changed')
               if (qualification['functions'] != 773 or qualification['units'] != 15
-                      or qualification['source_sha256'] != '4722c53b248780534a846a472784a565c4454ab738db75d655a7801b6623f07f'
-                      or qualification['native_sha256'] != '5cb190cfc4b920bb03e78803e79296e2e046ec90eb6e07b2d5ba6eebfb534edd'):
+                      or qualification['source_sha256'] != '846e592beaa7847383cee668bc33d25cd81e79052bd4612252e2f72a83d96d05'
+                      or qualification['native_sha256'] != '5cba6f11269f71efb319aa7368009055bb2e9b9571329daeae9bbc453287c3ad'):
                   failures.append('the same complete current773 source and image were not qualified')
               public_f64 = [row for row in qualification['suites'] if row['name'] == 'public_f64_logical192']
               if (len(public_f64) != 1 or public_f64[0]['status'] != 'PASS'
@@ -513,6 +526,8 @@ jobs:
                   Path.cwd().resolve(), output.resolve())
               public_f64_arithmetic_evidence, public_f64_arithmetic_inputs = custody_module.public_f64_arithmetic_custody(
                   Path.cwd().resolve(), output.resolve())
+              same_f64_arithmetic_evidence, same_f64_arithmetic_inputs = custody_module.same_f64_arithmetic_custody(
+                  Path.cwd().resolve(), output.resolve())
               if (qualification['full_pytorch_rewrite_complete'] is not False
                       or qualification['schema_closure'] is not False
                       or qualification['full_project_status'] != 'HOLD'):
@@ -560,15 +575,16 @@ jobs:
                      'wide_neg_evidence': wide_neg_evidence,
                      'half_div_evidence': half_div_evidence,
                      'public_f64_arithmetic_evidence': public_f64_arithmetic_evidence,
+                     'same_f64_arithmetic_evidence': same_f64_arithmetic_evidence,
                      'failures': failures,
                      'full_pytorch_rewrite_complete': False, 'full_project_status': 'HOLD'}
           (output / 'qualification.json').write_text(json.dumps(summary, indent=2, sort_keys=True) + '\n')
           print(json.dumps(summary, indent=2, sort_keys=True))
           with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a') as stream:
               stream.write('## Current HIA runtime\n\n' + summary['status'] + '\n\n')
-              stream.write('The common local/CI gate requires one complete main cold build and all 7987 finite cases: '
+              stream.write('The common local/CI gate requires one complete main cold build and all 13075 finite cases: '
                            'Bool27, view/scalar76, Integral24, explicit-F32 Sum17, lifecycle35, '
-                           'base/NN270, original F32 Sum32, live Tensor/RNG/backward32, logical147, resource7, original AsStrided16, Cat4, cat metadata10, Generator131, public F64 logical192, original F64 48, Half47, Half logical264, Half transactions12, numeric predicates485, BF16 copy280, Half multiplication312, Half negation371, Half addition/subtraction1006, I64/F64 negation405, Half true division1196 and mixed public F64 arithmetic2541. '
+                           'base/NN270, original F32 Sum32, live Tensor/RNG/backward32, logical147, resource7, original AsStrided16, Cat4, cat metadata10, Generator131, public F64 logical192, original F64 48, Half47, Half logical264, Half transactions12, numeric predicates485, BF16 copy280, Half multiplication312, Half negation371, Half addition/subtraction1006, I64/F64 negation405, Half true division1196, mixed public F64 arithmetic2541 and same public F64 arithmetic5088. '
                            'Every suite must execute and pass. Generator131 additionally links and executes separate '
                            'current-object ABI and reordered probe images; these are not the main executable.\n\n')
               stream.write('Current controls include seven dtype cases, four axis errors, ten entry checks, '

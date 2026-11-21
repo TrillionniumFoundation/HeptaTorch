@@ -22,7 +22,13 @@ jobs:
           fetch-depth: 1
 
       - name: Admit the fixed historical143 source
-        run: python3 -I -S -B tools/legacy_source143/restore.py --repository .
+        run: |
+          test -z "$(git ls-files -- src/heptatorch.hepta)"
+          test ! -e src/heptatorch.hepta
+          test ! -L src/heptatorch.hepta
+          test ! -e build/legacy-source143
+          test ! -L build/legacy-source143
+          python3 -I -S -B tools/legacy_source143/restore.py --repository .
 
       - name: Check historical143 restoration refusal controls
         run: python3 -I -S -B tests/test_legacy_source143.py
@@ -58,6 +64,7 @@ jobs:
         run: |
           python3 -I -S -B tools/check_acceptance.py
           python3 -I -S -B tests/check_acceptance_negative.py
+          python3 -I -S -B tests/check_acceptance_contracts.py
           python3 -I -S -B tests/check_session_reports.py sources
 
       - name: Bootstrap and reproduce the native HIA compiler

@@ -56,9 +56,16 @@ def profile(repository,build,build_sha,inputs):
     neg=module(repository/'tools/current_runtime/half_neg_source_transition.py','predicate_half_neg_source_proof',inputs.bind)
     addsub=module(repository/'tools/current_runtime/half_addsub_source_transition.py','predicate_half_addsub_source_proof',inputs.bind)
     current=inputs.bind(repository/'tools/current_runtime/source/runtime.hepta')
+    same=module(repository/'tools/current_runtime/same_f64_arithmetic_source_transition.py','predicate_same_f64_arithmetic_source_proof',inputs.bind)
+    current,same_extension=same.restore_source(current,inputs.bind)
+    require(same_extension['source_sha256']==built['source_sha256'] and same_extension['functions']==773
+        and same_extension['parent_functions']==773 and same_extension['unchanged_parent_functions']==771
+        and same_extension['changed_functions']==['half_mul_priority','public_f64_binary']
+        and same_extension['whole_source_inverse_exact'] is True
+        and same_extension['whole_round_trip_exact'] is True,'exact same-F64 arithmetic successor source relation')
     arithmetic=module(repository/'tools/current_runtime/public_f64_arithmetic_source_transition.py','predicate_public_f64_arithmetic_source_proof',inputs.bind)
     current,arithmetic_extension=arithmetic.restore_source(current,inputs.bind)
-    require(arithmetic_extension['source_sha256']==built['source_sha256'] and arithmetic_extension['functions']==773
+    require(arithmetic_extension['source_sha256']==same_extension['parent_source_sha256'] and arithmetic_extension['functions']==773
         and arithmetic_extension['parent_functions']==771
         and arithmetic_extension['changed_functions']==['binary','half_mul_cast']
         and arithmetic_extension['unchanged_parent_functions']==769
