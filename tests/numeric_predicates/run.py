@@ -56,9 +56,20 @@ def profile(repository,build,build_sha,inputs):
     neg=module(repository/'tools/current_runtime/half_neg_source_transition.py','predicate_half_neg_source_proof',inputs.bind)
     addsub=module(repository/'tools/current_runtime/half_addsub_source_transition.py','predicate_half_addsub_source_proof',inputs.bind)
     current=inputs.bind(repository/'tools/current_runtime/source/runtime.hepta')
+    relu_path=repository/'tools/current_runtime/typed_relu_source_transition.py'
+    inputs.bind(relu_path,'d06390c160833aa829c1a65cffa5ed8698d7aa23b72675c2942fca006f5350f9')
+    relu=module(relu_path,'predicate_typed_relu_source_proof',inputs.bind)
+    current,relu_extension=relu.restore_source(current,inputs.bind)
+    require(relu_extension['source_sha256']==built['source_sha256'] and relu_extension['functions']==775
+        and relu_extension['parent_functions']==773 and relu_extension['unchanged_parent_functions']==772
+        and relu_extension['changed_functions']==['unary']
+        and relu_extension['appended_functions']==['typed_relu_value','typed_relu_tensor']
+        and relu_extension['new_branch_operation']==5 and relu_extension['new_branch_dtypes']==[2,4,5,6]
+        and relu_extension['whole_source_inverse_exact'] is True
+        and relu_extension['whole_round_trip_exact'] is True,'exact typed ReLU775 successor source relation')
     same=module(repository/'tools/current_runtime/same_f64_arithmetic_source_transition.py','predicate_same_f64_arithmetic_source_proof',inputs.bind)
     current,same_extension=same.restore_source(current,inputs.bind)
-    require(same_extension['source_sha256']==built['source_sha256'] and same_extension['functions']==773
+    require(same_extension['source_sha256']==relu_extension['parent_source_sha256'] and same_extension['functions']==773
         and same_extension['parent_functions']==773 and same_extension['unchanged_parent_functions']==771
         and same_extension['changed_functions']==['half_mul_priority','public_f64_binary']
         and same_extension['whole_source_inverse_exact'] is True
