@@ -26,6 +26,23 @@ class ShortReads(io.BytesIO):
         return super().read(min(size, 3))
 
 
+class MetadataResponse(io.BytesIO):
+    status = 200
+
+
+class MetadataClock:
+    def __init__(self):
+        self.now = 0
+        self.waits = []
+
+    def monotonic(self):
+        return self.now
+
+    def sleep(self, seconds):
+        self.waits.append(seconds)
+        self.now += seconds
+
+
 class TransportTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
@@ -185,6 +202,168 @@ class TransportTests(unittest.TestCase):
         self.assertEqual(result['run_attempt'], 1)
         self.assertFalse(result['head_relationships']['checkout_matches_pr_head'])
         self.assertTrue(result['head_relationships']['rest_run_matches_pr_head'])
+
+    def metadata_client(self):
+        with mock.patch.dict(os.environ, {'GITHUB_TOKEN': 'private-test-token'}):
+            github = transport.GitHub()
+        github.authenticated = mock.Mock()
+        clock, stderr = MetadataClock(), io.StringIO()
+        self.enterContext(mock.patch.object(transport.time, 'monotonic', clock.monotonic))
+        self.enterContext(mock.patch.object(transport.time, 'sleep', clock.sleep))
+        self.enterContext(contextlib.redirect_stderr(stderr))
+        return github, clock, stderr
+
+    def metadata_error(self, code=404, headers=None):
+        # Deliberately put private material in every untrusted error field.
+        secret = 'https://storage.invalid/file?signature=private-test-token'
+        return urllib.error.HTTPError(secret, code, secret, headers or {}, io.BytesIO(secret.encode()))
+
+    def test_new_artifact_metadata_retries_same_identity_after_404(self):
+        github, clock, stderr = self.metadata_client()
+        errors = [self.metadata_error(), self.metadata_error()]
+        github.authenticated.open.side_effect = errors + [MetadataResponse(b'{"id": 81}')]
+        path = '/repos/o/r/actions/artifacts/81'
+        self.assertEqual(github.document(path), {'id': 81})
+        self.assertEqual(clock.waits, [1, 2])
+        self.assertTrue(all(error.closed for error in errors))
+        for call in github.authenticated.open.call_args_list:
+            request = call.args[0]
+            self.assertEqual(request.full_url, transport.API + path)
+            self.assertEqual(request.get_method(), 'GET')
+            self.assertEqual(request.get_header('Authorization'), 'Bearer private-test-token')
+        notices = [json.loads(line) for line in stderr.getvalue().splitlines()]
+        self.assertEqual([notice['http_status'] for notice in notices], [404, 404])
+        self.assertTrue(all(notice['endpoint'] == 'artifact' for notice in notices))
+        self.assertNotIn('private-test-token', stderr.getvalue())
+        self.assertNotIn('https:', stderr.getvalue())
+
+    def test_exact_producer_attempt_retries_transient_server_errors(self):
+        for code in (500, 502, 503, 504):
+            with self.subTest(code=code):
+                github, clock, stderr = self.metadata_client()
+                github.authenticated.open.side_effect = [self.metadata_error(code), MetadataResponse(b'{"id": 71}')]
+                path = '/repos/o/r/actions/runs/71/attempts/1'
+                self.assertEqual(github.document(path), {'id': 71})
+                self.assertEqual(clock.waits, [1])
+                self.assertEqual(json.loads(stderr.getvalue())['endpoint'], 'producer run-attempt')
+                self.assertTrue(all(call.args[0].full_url == transport.API + path
+                                    for call in github.authenticated.open.call_args_list))
+
+    def test_persistent_metadata_404_has_finite_attempts_and_keeps_error(self):
+        github, clock, stderr = self.metadata_client()
+        github.authenticated.open.side_effect = lambda *args, **kwargs: (_ for _ in ()).throw(self.metadata_error())
+        with self.assertRaisesRegex(transport.TransportError, 'artifact metadata request failed HTTP 404 after 7 attempt'):
+            github.document('/repos/o/r/actions/artifacts/81')
+        self.assertEqual(github.authenticated.open.call_count, 7)
+        self.assertEqual(clock.waits, [1, 2, 4, 8, 16, 30])
+        self.assertLess(clock.now, transport.METADATA_RETRY_DEADLINE_SECONDS)
+        self.assertNotIn('private-test-token', stderr.getvalue())
+
+    def test_metadata_deadline_caps_request_timeout_and_prevents_more_attempts(self):
+        github, clock, stderr = self.metadata_client()
+
+        def slow_failure(*args, **kwargs):
+            clock.now += kwargs['timeout']
+            raise self.metadata_error()
+
+        github.authenticated.open.side_effect = slow_failure
+        with self.assertRaisesRegex(transport.TransportError, 'metadata retry deadline exhausted'):
+            github.document('/repos/o/r/actions/artifacts/81')
+        self.assertEqual(clock.waits, [1])
+        self.assertEqual([call.kwargs['timeout'] for call in github.authenticated.open.call_args_list], [60, 29])
+        self.assertEqual(clock.now, transport.METADATA_RETRY_DEADLINE_SECONDS)
+
+    def test_metadata_received_after_deadline_is_not_accepted(self):
+        github, clock, stderr = self.metadata_client()
+
+        def late_success(*args, **kwargs):
+            clock.now = transport.METADATA_RETRY_DEADLINE_SECONDS + 1
+            return MetadataResponse(b'{"id": 81}')
+
+        github.authenticated.open.side_effect = late_success
+        with self.assertRaisesRegex(transport.TransportError, 'exceeded the metadata retry deadline'):
+            github.document('/repos/o/r/actions/artifacts/81')
+        self.assertEqual(github.authenticated.open.call_count, 1)
+        self.assertEqual(clock.waits, [])
+
+    def test_metadata_retry_after_is_respected_or_fails_without_early_retry(self):
+        github, clock, stderr = self.metadata_client()
+        github.authenticated.open.side_effect = [self.metadata_error(503, {'Retry-After': '9'}),
+                                                 MetadataResponse(b'{"id": 81}')]
+        self.assertEqual(github.document('/repos/o/r/actions/artifacts/81'), {'id': 81})
+        self.assertEqual(clock.waits, [9])
+        for delay in ('91', 'Wed, 01 Jan 2031 00:00:00 GMT', 'private-test-token'):
+            with self.subTest(delay=delay):
+                github, clock, stderr = self.metadata_client()
+                github.authenticated.open.side_effect = self.metadata_error(503, {'Retry-After': delay})
+                with self.assertRaises(transport.TransportError) as caught:
+                    github.document('/repos/o/r/actions/artifacts/81')
+                self.assertEqual(github.authenticated.open.call_count, 1)
+                self.assertEqual(clock.waits, [])
+                self.assertNotIn(delay, str(caught.exception))
+
+    def test_metadata_authentication_rate_limit_and_other_errors_are_not_retried(self):
+        for code in (301, 302, 400, 401, 403, 410, 422, 429):
+            with self.subTest(code=code):
+                github, clock, stderr = self.metadata_client()
+                error = self.metadata_error(code)
+                github.authenticated.open.side_effect = error
+                with self.assertRaisesRegex(transport.TransportError, 'failed HTTP ' + str(code)):
+                    github.document('/repos/o/r/actions/artifacts/81')
+                self.assertEqual(github.authenticated.open.call_count, 1)
+                self.assertEqual(clock.waits, [])
+                self.assertTrue(error.closed)
+
+    def test_invalid_metadata_is_not_retried_until_a_better_document_arrives(self):
+        for raw in (b'not JSON', b'[]', b' ' * (1024 * 1024 + 1)):
+            with self.subTest(bytes=len(raw)):
+                github, clock, stderr = self.metadata_client()
+                github.authenticated.open.return_value = MetadataResponse(raw)
+                with self.assertRaises((transport.TransportError, ValueError)):
+                    github.document('/repos/o/r/actions/artifacts/81')
+                self.assertEqual(github.authenticated.open.call_count, 1)
+                self.assertEqual(clock.waits, [])
+
+    def test_other_repository_metadata_is_not_given_publication_retries(self):
+        github, clock, stderr = self.metadata_client()
+        github.authenticated.open.side_effect = self.metadata_error()
+        with self.assertRaisesRegex(transport.TransportError, 'repository metadata request failed HTTP 404 after 1 attempt'):
+            github.document('/repos/o/r/commits/main')
+        self.assertEqual(github.authenticated.open.call_count, 1)
+        self.assertEqual(clock.waits, [])
+
+    def test_transport_network_errors_remain_redacted_and_fail_without_retries(self):
+        for error in (urllib.error.URLError('private-test-token'), TimeoutError('private-test-token')):
+            with self.subTest(error=type(error).__name__):
+                github, clock, stderr = self.metadata_client()
+                github.authenticated.open.side_effect = error
+                with self.assertRaisesRegex(transport.TransportError, '^artifact metadata request failed$'):
+                    github.document('/repos/o/r/actions/artifacts/81')
+                self.assertEqual(github.authenticated.open.call_count, 1)
+                self.assertEqual(clock.waits, [])
+
+    def test_identity_mismatch_after_retry_still_rejects_the_artifact(self):
+        merge, head = 'a' * 40, 'c' * 40
+        args = argparse.Namespace(repository='o/r', run_id=71, run_attempt=1, artifact_id=81,
+            checkout_sha=merge, pull_request_head_sha=head, artifact_digest='b' * 64,
+            event_name='pull_request', expected_run_head_sha=head, artifact_bytes=123,
+            helper_sha256=hashlib.sha256(HELPER.read_bytes()).hexdigest())
+        artifact = dict(id=81, name=transport.ARTIFACT_NAME, expired=False,
+            size_in_bytes=123, digest='sha256:' + 'b' * 64, created_at='created', expires_at='expires',
+            workflow_run=dict(id=71, head_sha=head))
+        run = dict(id=71, run_attempt=1, repository=dict(full_name='o/r'), event='pull_request', head_sha=head)
+        for changed in ({'id': 82}, {'name': 'another-artifact'}, {'expired': True},
+                        {'digest': 'sha256:' + 'd' * 64}, {'size_in_bytes': 124},
+                        {'workflow_run': dict(id=72, head_sha=head)}):
+            with self.subTest(changed=changed):
+                github, clock, stderr = self.metadata_client()
+                wrong = dict(artifact, **changed)
+                github.authenticated.open.side_effect = [self.metadata_error(),
+                    MetadataResponse(json.dumps(wrong).encode()), MetadataResponse(json.dumps(run).encode())]
+                with self.assertRaises(transport.TransportError):
+                    transport.identity(args, github)
+                self.assertEqual(github.authenticated.open.call_count, 3)
+                self.assertEqual(clock.waits, [1])
 
 
 if __name__ == '__main__':

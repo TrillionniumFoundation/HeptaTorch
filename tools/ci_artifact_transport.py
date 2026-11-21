@@ -14,6 +14,7 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -23,6 +24,9 @@ CHUNK_BYTES = 200 * 1024 * 1024
 SCHEMA = 'heptatorch.official-artifact-zip-transport.v1'
 ARTIFACT_NAME = 'current-runtime-native-evidence'
 API = 'https://api.github.com'
+METADATA_RETRY_SECONDS = (1, 2, 4, 8, 16, 30)
+METADATA_RETRY_DEADLINE_SECONDS = 90
+METADATA_RETRY_HTTP = frozenset((404, 500, 502, 503, 504))
 
 
 class TransportError(ValueError):
@@ -87,16 +91,53 @@ class GitHub:
         return urllib.request.Request(API + path, headers=self.headers)
 
     def document(self, path):
-        try:
-            with self.authenticated.open(self.request(path), timeout=60) as response:
-                need(response.status == 200, 'artifact metadata HTTP200 required')
-                raw = response.read(1024 * 1024 + 1)
-                need(len(raw) <= 1024 * 1024, 'bounded artifact metadata required')
-        except (urllib.error.URLError, TimeoutError) as error:
-            raise network_error(error, 'artifact metadata request') from None
-        value = json.loads(raw)
-        need(isinstance(value, dict), 'artifact metadata object required')
-        return value
+        prefix = r'/repos/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/actions/'
+        kind = ('artifact' if re.fullmatch(prefix + r'artifacts/[1-9][0-9]*', path)
+                else 'producer run-attempt' if re.fullmatch(
+                    prefix + r'runs/[1-9][0-9]*/attempts/[1-9][0-9]*', path)
+                else None)
+        label = (kind or 'repository') + ' metadata request'
+        # A just-finalized upload can fail its first metadata read. Retry only
+        # these exact read-only identities, never a different artifact, run,
+        # credential or endpoint. Persistent 404s still fail the transport.
+        deadline = time.monotonic() + METADATA_RETRY_DEADLINE_SECONDS
+        for index in range(len(METADATA_RETRY_SECONDS) + 1):
+            remaining = deadline - time.monotonic()
+            need(remaining > 0, label + ' exceeded the metadata retry deadline')
+            try:
+                with self.authenticated.open(self.request(path), timeout=min(60, remaining)) as response:
+                    need(response.status == 200, 'artifact metadata HTTP200 required')
+                    raw = response.read(1024 * 1024 + 1)
+                    need(len(raw) <= 1024 * 1024, 'bounded artifact metadata required')
+            except urllib.error.HTTPError as error:
+                message = str(network_error(error, label))
+                status = error.code
+                retry_after = error.headers.get('Retry-After') if error.headers else None
+                error.close()
+                if kind is None or status not in METADATA_RETRY_HTTP or index == len(METADATA_RETRY_SECONDS):
+                    raise TransportError(message + ' after ' + str(index + 1) + ' attempt(s)') from None
+                delay = METADATA_RETRY_SECONDS[index]
+                if retry_after is not None:
+                    # Never retry earlier than the server asks. An unfamiliar
+                    # or over-budget instruction fails closed rather than
+                    # guessing a shorter delay; no response header is logged.
+                    retry_after = retry_after.strip()
+                    need(re.fullmatch('[0-9]+', retry_after) is not None,
+                         message + '; unsupported Retry-After, no early retry')
+                    delay = max(delay, int(retry_after))
+                need(delay < deadline - time.monotonic(),
+                     message + '; metadata retry deadline exhausted')
+                print(json.dumps(dict(status='RETRY_ARTIFACT_METADATA', endpoint=kind,
+                                      attempt=index + 1, http_status=status, wait_seconds=delay),
+                                 sort_keys=True), file=sys.stderr)
+                time.sleep(delay)
+                continue
+            except (urllib.error.URLError, TimeoutError) as error:
+                raise network_error(error, label) from None
+            need(time.monotonic() <= deadline, label + ' exceeded the metadata retry deadline')
+            value = json.loads(raw)
+            need(isinstance(value, dict), 'artifact metadata object required')
+            return value
 
     def payload(self, path):
         try:
