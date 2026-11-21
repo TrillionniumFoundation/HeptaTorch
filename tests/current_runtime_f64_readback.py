@@ -1,9 +1,11 @@
-"""Pure physical qualification of current736 F64 48 observations.
+"""Pure physical qualification of current767 F64 48 observations.
 
 Complete original numerical, boundary, resource and owner functions consume
-the recorded native frames. Only the reviewed two factory status expectations
-differ from the original87 controls. No native constructor, process, Torch,
-compiler, prlimit, /proc read, or rewrite of original evidence is performed.
+the recorded native frames. Two malformed factory controls retain their reviewed
+status changes; the original F64 negation request is checked against the same
+actual405 Torch reference used by wide_neg. All87 original requests remain.
+No native constructor, process, Torch, compiler, prlimit, /proc read, or rewrite
+of original evidence is performed.
 """
 import ast
 import hashlib
@@ -16,8 +18,8 @@ import sys
 import types
 import zlib
 
-SOURCE = 'b4b2996978dce56c9375ce97b2d2638472cbb154a4c0a7c5de822234e31a9c68'
-IMAGE = '62f74e9232ae30027a64ca61881bb581320b1787529c6ee9e96818a0f8447afe'
+SOURCE = 'e0c8e0a3c3ee16d11cad8af6be1b52bd56295581e74bdcc65131f71a57540025'
+IMAGE = '3ee1fae0e9d20d10dfd2645a3575d23357bcaca0dae03e5f0ff6bf1d4b4197a5'
 READER = '1deb2fa84d9ea9653ca56769a5527f0102571ba2a4690f8deb85f5d4bdc038b3'
 ENTRY = '32196771085c4dbf24751ce9fa3b052a35655bd9c7cddb392d019174ffa50a44'
 REFERENCE = 'b1dafeed270b4dd226c349dece9d7f6213c2dabd34681685d97ec13c068e9b11'
@@ -151,7 +153,10 @@ def outer_execution(report, repository, build, build_sha, directory,
         '--candidate', str(repository), '--build-directory', str(build),
         '--reference', str(reference_directory / 'report.json'), '--expected-source-sha256', SOURCE,
         '--expected-native-sha256', IMAGE, '--expected-build-sha256', build_sha,
-        '--expected-reference-sha256', REFERENCE, '--output', str(directory)]
+        '--expected-reference-sha256', REFERENCE,
+        '--wide-neg-reference-directory', report['source_admission']['wide_neg_successor']['reference_directory'],
+        '--wide-neg-reference-execution', report['source_admission']['wide_neg_successor']['reference_execution'],
+        '--output', str(directory)]
     require(argv == expected, 'complete actual current48 argv and physical source route')
     python = Path(argv[0]).resolve(strict=True)
     bound.read(python)
@@ -537,7 +542,9 @@ def qualify_f64_48(report, repository, build, build_sha, directory, reader_direc
     execution = outer_execution(report, repository, build, build_sha, directory,
                                 reader_directory, reference_directory, execution_directory, bound)
     results = []
-    with reader.current_reader(repository, reader_directory) as adapter:
+    negation = report['source_admission']['wide_neg_successor']
+    shared = dict(root=negation['reference_directory'], execution=negation['reference_execution'])
+    with reader.current_reader(repository, reader_directory, shared) as adapter:
         originals, old_run = adapter.old, adapter.run
         original, owner, bindings, cold = prepare_originals(adapter, report, repository, build, build_sha, bound)
         mapping = parse(original.bind(reader_directory / 'frozen-candidate719/original55-mapping.json', old_run.MAPPING))
@@ -588,8 +595,10 @@ def qualify_f64_48(report, repository, build, build_sha, directory, reader_direc
             elif category == 'boundary_cases':
                 details = old_run.boundary_case(driver, spec, wanted)
             elif category == 'entry_groups':
-                details = controls['entry_controls'](driver)
-                require(details['actual_refusals'] == len(driver.operations) == 87, 'all original87 refusal recipes')
+                details = adapter.wide_neg_successor.wrap_entry(controls['entry_controls'])(driver)
+                require(details['original_entry_requests'] == len(driver.operations) == 87
+                        and details['actual_refusals'] == 86 and details['actual_successful_negations'] == 1,
+                        'all original87 requests,86 retained refusals and one checked negation')
                 changed = [operation for operation in driver.operations if operation['label'] in
                            ('public-factory-dtype-5', 'public-factory-dtype-6')]
                 require([operation['label'] for operation in changed] ==
@@ -629,7 +638,8 @@ def qualify_f64_48(report, repository, build, build_sha, directory, reader_direc
         actual_build_sha256=build_sha, cases=48, original_counts=dict(numeric=33, boundary=12, entry=1, allocation=2),
         frames=sum(row['frames'] for row in results), checks=sum(row['checks'] for row in results),
         original_input_values=1798174, original_refusal_recipes=87, changed_factory_status_expectations=2,
-        unchanged_other_refusal_expectations=85, original_OOM_controls=2,
+        unchanged_other_refusal_expectations=84, retained_refusals=86,
+        actual_numeric_successors=1, wide_neg_successor=negation, original_OOM_controls=2,
         exact_non_nan=sum(row['exact_non_nan'] for row in numeric),
         nan_classification=sum(row['nan_classification'] for row in numeric),
         complete_snapshot_predicate_calls=sum(row['complete_snapshot_predicate_calls'] for row in results),

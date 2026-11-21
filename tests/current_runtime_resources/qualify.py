@@ -13,9 +13,9 @@ import traceback
 
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
-SOURCE = 'b4b2996978dce56c9375ce97b2d2638472cbb154a4c0a7c5de822234e31a9c68'
-IMAGE = '62f74e9232ae30027a64ca61881bb581320b1787529c6ee9e96818a0f8447afe'
-FUSION_RESOURCE_SHA = '7f5994ba97bee0d29d6c818764e4cb4d600ff759917d9fdde2983775c409edf8'
+SOURCE = 'e0c8e0a3c3ee16d11cad8af6be1b52bd56295581e74bdcc65131f71a57540025'
+IMAGE = '3ee1fae0e9d20d10dfd2645a3575d23357bcaca0dae03e5f0ff6bf1d4b4197a5'
+FUSION_RESOURCE_SHA = '2f4955f950cec1e7798639007d00936d882cd1982eaa282ff8eb4c5cd724c441'
 ARCHIVE = 'ce4aff6daaf5bb727fa6a520cbecf98dd8e09e67ffffa6cb60171a210b82e490'
 ARCHIVE_MANIFEST = 'a3d49014e99b68a98a7cc41a787d4fa6102129b63aed720dc857b5d6e862ef4d'
 ARCHIVE_LOCATION = '33df7752cb769610e6c30421e9154bca2168c696a0d67bf5422c8d699a05e444'
@@ -79,9 +79,9 @@ def main():
     out.mkdir(parents=True, exist_ok=False)
     inputs, rows, failures = {}, [], []
     selected = list(CASES) if args.suite == 'all' else [args.suite]
-    report = dict(schema='heptatorch.current765.resource7.v1',status='RUNNING',
+    report = dict(schema='heptatorch.current767.resource7.v1',status='RUNNING',
         source_sha256=SOURCE,native_sha256=IMAGE,actual_build_sha256=build_sha,
-        functions=765,units=15,required_cases=CASES,required_case_count=7,
+        functions=767,units=15,required_cases=CASES,required_case_count=7,
         selected_suites=selected,prepare_only=args.prepare_only,suites=rows,failures=failures,
         native_executed=False,Torch_executed=False,compiler_executed=False,
         full_pytorch_rewrite_complete=False,schema_closure=False,old_pass_transferred=False)
@@ -105,7 +105,7 @@ def main():
         current.admit_build(build,bind,build_sha)
         source_helper_path = repo/'tools/current_runtime/fusion_resource_transition.py'
         bind(source_helper_path,FUSION_RESOURCE_SHA)
-        source_helper = module(source_helper_path,'resource765_independent_source_paths')
+        source_helper = module(source_helper_path,'resource767_independent_source_paths')
         expected_source_paths = source_helper.prove(bind(build/'runtime.hepta',SOURCE),bind)
         process = module(repo/'tests/current_runtime_process.py','resource7_process')
         archive_path = repo/'validation/current-runtime76-reference/complete.tar.xz'
@@ -199,7 +199,7 @@ def main():
                 require(actual is not None,'original worker report is required')
                 proof = json.loads(bind(directory/'adaptation/source-bindings.json'))
                 require(proof['fusion_source_path_proof']==expected_source_paths,
-                        'independent complete actual765 source path proof differs')
+                        'independent complete actual767 source path proof differs')
                 require(actual['source_sha256']==SOURCE and actual['native_sha256']==IMAGE
                         and actual['all_inputs_unchanged'] is True,'actual current identity/custody')
                 require(proof['all_original_inputs_unchanged'] is True and proof['whole_file_inverse_exact'] is True
@@ -259,6 +259,8 @@ def main():
                                 'complete response/request frame denominator')
                         require(not set(opcodes).intersection((115,116,117,118,119)),
                                 'old recipes must use the proven old dispatcher delegation')
+                        require(3 not in opcodes,
+                                'original resource recipes must not enter the new wide unary route')
                         transports.append(dict(case=case['name'],pid=ledger['pid'],frames=frames,
                             requests_sha256=sha(request),responses_sha256=sha(response),
                             response_frames=response_frames,response_rows_exact=True,

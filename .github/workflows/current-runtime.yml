@@ -353,7 +353,7 @@ jobs:
           PYTORCH_INSTALL
 
 
-      - name: Qualify all twenty-four suites and the independent Generator probe images
+      - name: Qualify all twenty-five suites and the independent Generator probe images
         id: current_qualification
         if: ${{ !cancelled() && steps.current_build.outcome == 'success' }}
         run: |
@@ -383,7 +383,7 @@ jobs:
           output = Path(os.environ['CURRENT_OUTPUT'])
           output.mkdir(parents=True, exist_ok=True)
           failures, qualification, binding = [], None, None
-          predicate_evidence = bf16_evidence = half_mul_evidence = half_neg_evidence = half_addsub_evidence = None
+          predicate_evidence = bf16_evidence = half_mul_evidence = half_neg_evidence = half_addsub_evidence = wide_neg_evidence = None
           for key in ('TOOLCHAIN_OUTCOME', 'ENTROPY_TOOL_OUTCOME', 'BUILD_OUTCOME', 'ORACLE_OUTCOME', 'QUALIFICATION_OUTCOME'):
               if os.environ.get(key) != 'success':
                   failures.append(key + '=' + os.environ.get(key, 'missing'))
@@ -393,16 +393,16 @@ jobs:
               binding = {'path': 'review/qualification.json', 'bytes': len(raw),
                          'sha256': hashlib.sha256(raw).hexdigest()}
               if qualification['status'] != 'PASS_CURRENT_RUNTIME_FOCUSED':
-                  failures.append('the mandatory twenty-four-suite qualifier did not pass')
-              if (qualification['required_cases_total'] != 3845
-                      or qualification['executed_cases_total'] != 3845
+                  failures.append('the mandatory twenty-five-suite qualifier did not pass')
+              if (qualification['required_cases_total'] != 4250
+                      or qualification['executed_cases_total'] != 4250
                       or qualification['required_suites'] != [
-                      'bool27', 'original76', 'integral24', 'sum_f32_17', 'current35', 'base270', 'sum32', 'live32', 'logical147', 'resource7', 'asstrided16', 'cat4', 'metadata10', 'generator131', 'public_f64_logical192', 'f64_48', 'half47', 'half_logical264', 'half_transactions12', 'numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub']):
+                      'bool27', 'original76', 'integral24', 'sum_f32_17', 'current35', 'base270', 'sum32', 'live32', 'logical147', 'resource7', 'asstrided16', 'cat4', 'metadata10', 'generator131', 'public_f64_logical192', 'f64_48', 'half47', 'half_logical264', 'half_transactions12', 'numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg']):
                   failures.append('the mandatory case denominator or suite order changed')
-              if (qualification['functions'] != 765 or qualification['units'] != 15
-                      or qualification['source_sha256'] != 'b4b2996978dce56c9375ce97b2d2638472cbb154a4c0a7c5de822234e31a9c68'
-                      or qualification['native_sha256'] != '62f74e9232ae30027a64ca61881bb581320b1787529c6ee9e96818a0f8447afe'):
-                  failures.append('the same complete current765 source and image were not qualified')
+              if (qualification['functions'] != 767 or qualification['units'] != 15
+                      or qualification['source_sha256'] != 'e0c8e0a3c3ee16d11cad8af6be1b52bd56295581e74bdcc65131f71a57540025'
+                      or qualification['native_sha256'] != '3ee1fae0e9d20d10dfd2645a3575d23357bcaca0dae03e5f0ff6bf1d4b4197a5'):
+                  failures.append('the same complete current767 source and image were not qualified')
               public_f64 = [row for row in qualification['suites'] if row['name'] == 'public_f64_logical192']
               if (len(public_f64) != 1 or public_f64[0]['status'] != 'PASS'
                       or public_f64[0]['qualified'] is not True or public_f64[0]['cases'] != 192
@@ -431,7 +431,7 @@ jobs:
                           or physical['sha256'] != hashlib.sha256(proof_raw).hexdigest()
                           or physical['status'] != json.loads(proof_raw)['status']):
                       failures.append(name + ': complete physical qualification binding differs')
-                  if name == 'f64_48' and (rows[0]['frames'] != 2856 or rows[0]['assertions'] != 15355):
+                  if name == 'f64_48' and (rows[0]['frames'] != 2867 or rows[0]['assertions'] != 15421):
                       failures.append('f64_48: original complete frame/check census differs')
                   if name == 'half47':
                       expected_entry = dict(original_entry_requests=239, original_refusals=239,
@@ -491,6 +491,8 @@ jobs:
                   Path.cwd().resolve(), output.resolve())
               half_addsub_evidence, half_addsub_inputs = custody_module.half_addsub_custody(
                   Path.cwd().resolve(), output.resolve())
+              wide_neg_evidence, wide_neg_inputs = custody_module.wide_neg_custody(
+                  Path.cwd().resolve(), output.resolve())
               if (qualification['full_pytorch_rewrite_complete'] is not False
                       or qualification['schema_closure'] is not False
                       or qualification['full_project_status'] != 'HOLD'):
@@ -535,15 +537,16 @@ jobs:
                      'numeric_predicates_evidence': predicate_evidence,
                      'bf16_copy_evidence': bf16_evidence, 'half_mul_evidence': half_mul_evidence,
                      'half_neg_evidence': half_neg_evidence, 'half_addsub_evidence': half_addsub_evidence,
+                     'wide_neg_evidence': wide_neg_evidence,
                      'failures': failures,
                      'full_pytorch_rewrite_complete': False, 'full_project_status': 'HOLD'}
           (output / 'qualification.json').write_text(json.dumps(summary, indent=2, sort_keys=True) + '\n')
           print(json.dumps(summary, indent=2, sort_keys=True))
           with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a') as stream:
               stream.write('## Current HIA runtime\n\n' + summary['status'] + '\n\n')
-              stream.write('The common local/CI gate requires one complete main cold build and all 3845 finite cases: '
+              stream.write('The common local/CI gate requires one complete main cold build and all 4250 finite cases: '
                            'Bool27, view/scalar76, Integral24, explicit-F32 Sum17, lifecycle35, '
-                           'base/NN270, original F32 Sum32, live Tensor/RNG/backward32, logical147, resource7, original AsStrided16, Cat4, cat metadata10, Generator131, public F64 logical192, original F64 48, Half47, Half logical264, Half transactions12, numeric predicates485, BF16 copy280, Half multiplication312, Half negation371 and Half addition/subtraction1006. '
+                           'base/NN270, original F32 Sum32, live Tensor/RNG/backward32, logical147, resource7, original AsStrided16, Cat4, cat metadata10, Generator131, public F64 logical192, original F64 48, Half47, Half logical264, Half transactions12, numeric predicates485, BF16 copy280, Half multiplication312, Half negation371, Half addition/subtraction1006 and I64/F64 negation405. '
                            'Every suite must execute and pass. Generator131 additionally links and executes separate '
                            'current-object ABI and reordered probe images; these are not the main executable.\n\n')
               stream.write('Current controls include seven dtype cases, four axis errors, ten entry checks, '
@@ -567,12 +570,12 @@ jobs:
                            'bind full physical owner bytes, all original command frames, ten actual exits and twenty native EOFs. '
                            'Generator131 preserves original24, native11, entry59 and dispatch37, complete Tensor/Generator owners, '
                            'real entropy, current-object ABI and reordered links, exact controls and actual process EOFs.\n\n')
-              stream.write('Public F64 logical192 keeps all original 192 dense no-gradient comparisons, nineteen packet '
+              stream.write('Public F64 logical192 keeps all original 192 dense no-gradient comparisons, eighteen packet '
                            'controls, two actual allocation rollback/retry controls and 196 complete native exits. '
                            'Its two additional native scope controls and six outside-scope Torch observations are '
                            'retained separately and are not counted as Torch compatibility. Logical147 remains required.\n\n')
               stream.write('Original F64 48 preserves 33 numeric, twelve boundary, one entry and two allocation '
-                           'recipes, including all 87 original refusal controls. Half47 preserves 26 numeric recipes, '
+                           'recipes, including all 87 original requests:86 refusals and one exact numeric negation successor. Half47 preserves 26 numeric recipes, '
                            'sixteen boundaries, all 239 original entry requests and four allocation rollback/retry recipes. '
                            'Exactly22 original multiplications, two negations and42 additions/subtractions now require fresh actual Torch result bytes, '
                            'including two same-frame FE operations; the other173 remain refusals and historical239 evidence remains unchanged. '
@@ -592,6 +595,9 @@ jobs:
                            'full physical replay, four actual allocation recoveries and70 protocol controls. '
                            'Forty original single-command results, two same-frame FE results, four actual Bool subtraction errors '
                            'and eight private-dtype protocol refusals are kept distinct. '
+                           'I64/F64 negation405 binds287,275 exact result elements,10,484 frames,37,314 assertions, '
+                           '2,959 full owners,46 protocol controls and2 actual allocation recoveries. '
+                           'The same actual405 reference also validates the original F64 negation request. '
                            'Historical reference argv/interpreter gaps remain explicit; the current CI interpreter '
                            'does not replace a historical reference producer.\n\n')
               stream.write('Numeric predicates485 observes isnan/isinf/isfinite/isposinf/isneginf with a newly '
@@ -643,6 +649,6 @@ jobs:
             ${{ runner.temp }}/heptatorch-current/qualification.json
           if-no-files-found: error
           # Compress JSON manifests and reports while retaining all archive bytes.
-          compression-level: 6
+          compression-level: 9
           retention-days: 30
 

@@ -57,7 +57,7 @@ def transform(raw, edits, allowed):
 
 
 def inventory_edits():
-    require(FUNCTIONS==765 and UNITS==15,'this reviewed owner requires canonical current765/15')
+    require(FUNCTIONS==767 and UNITS==15,'this reviewed owner requires canonical current767/15')
     return [("built['complete_core_bodies_matched'] == 701",
              "built['complete_core_bodies_matched'] == "+str(FUNCTIONS)),
             ('len(functions) == len(bodies) == 701',

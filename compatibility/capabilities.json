@@ -40,9 +40,9 @@
     "bounded_types": {
       "0": "IEEE binary32 Tensor: documented arithmetic, AD and conversion paths",
       "1": "Bool Tensor with one-byte elements: documented typed/logical/reduction paths",
-      "2": "signed int64 Tensor with eight-byte elements: documented typed/integer/mixed/reduction paths",
+      "2": "signed int64 Tensor with eight-byte elements: documented typed/integer/mixed/reduction paths; native wrapping negation in admitted no-grad layouts",
       "3": "internal rank-zero wrapped IEEE binary64 Scalar only; no general F64 Tensor service",
-      "4": "Public binary64 selected storage, conversion and dense no-grad logical paths, plus numeric predicates. Direct requires_grad construction and direct as_strided remain explicit boundaries; this is not general F64 Tensor parity.",
+      "4": "Public binary64 selected storage, conversion and dense no-grad logical paths, plus numeric predicates and bit-exact native negation. Direct requires_grad construction and direct as_strided remain explicit boundaries; this is not general F64 Tensor parity.",
       "5": "Public F16 storage/copy/fill, selected F32 conversion, dense no-grad logical operations, numeric predicates and tested tensor addition/subtraction (alpha=1), multiplication and negation. Arithmetic uses an explicit AVX2 fixed-wheel Torch oracle. Other arithmetic forms, architectures and Half AD remain open.",
       "6": "Public BF16 storage/copy/fill, selected F32 conversions, dense no-grad logical operations, numeric predicates and tested tensor addition/subtraction (alpha=1), multiplication and negation. Copy follows fixed AVX2/AVX512 layouts; arithmetic uses an explicit AVX2 fixed-wheel Torch oracle. DEFAULT, other architectures, other arithmetic forms and Half AD remain open."
     },
@@ -199,22 +199,24 @@
       },
       "3": {
         "operation_selector": 6,
-        "name": "Half tensor negation",
-        "scope": "Public F16/BF16 no-grad tensors in admitted layouts. Exact fresh AVX2 Torch bytes, NaN behavior, geometry, independent ownership and input preservation are required. Other Half unary operations and Half AD remain unsupported.",
+        "name": "Half, I64 and public F64 tensor negation",
+        "scope": "Public F16/BF16/I64/F64 no-grad tensors in admitted layouts. Exact fresh fixed-wheel Torch bytes, NaN payloads, geometry, independent ownership and unchanged inputs are required. I64 uses wrapping zero-minus; F64 flips only the sign bit. Other typed unary operations and Half/F64 AD remain unsupported.",
         "required_current_image_suites": [
           "half47",
-          "half_neg"
+          "half_neg",
+          "f64_48",
+          "wide_neg"
         ],
         "full_dtype_qualified": false
       }
     },
     "current_image_qualification": {
-      "status": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+      "status": "PENDING_ACTUAL_25_GROUP_4250_RUN",
       "candidate_identity": {
-        "source_sha256": "b4b2996978dce56c9375ce97b2d2638472cbb154a4c0a7c5de822234e31a9c68",
-        "native_sha256": "62f74e9232ae30027a64ca61881bb581320b1787529c6ee9e96818a0f8447afe",
-        "manifest_sha256": "100f60ce946ac809949d79faf4eca8e8e16d5f4aeacfd907d228edc1ea0c1fd2",
-        "functions": 765,
+        "source_sha256": "e0c8e0a3c3ee16d11cad8af6be1b52bd56295581e74bdcc65131f71a57540025",
+        "native_sha256": "3ee1fae0e9d20d10dfd2645a3575d23357bcaca0dae03e5f0ff6bf1d4b4197a5",
+        "manifest_sha256": "32d826cfaaaaca910c7e2b209d977dd705a314f64267cfd0808f01f08d3865d1",
+        "functions": 767,
         "units": 15
       },
       "source_manifest": "tools/current_runtime/source/manifest.json",
@@ -242,18 +244,19 @@
         "bf16_copy": 280,
         "half_mul": 312,
         "half_neg": 371,
-        "half_addsub": 1006
+        "half_addsub": 1006,
+        "wide_neg": 405
       },
-      "required_group_count": 24,
-      "required_cases_total": 3845,
-      "success_rule": "All24 groups must execute anew and pass on the current source, main image and actual cold build. Generator131 also executes separately linked current-object probes. Every original numerical predicate, tolerance, resource recovery, owner/transport readback, exit/EOF and unchanged-input requirement remains mandatory. The original239 Half entry requests partition into173 refusals,22 multiplication results,2 negations and42 add/sub results (40 single commands and2 same-frame FE transactions), all with explicit fresh actual-Torch successor evidence. Four former multiplication-observer arithmetic refusals bind the same1006-case reference. Original failure evidence remains unchanged.",
+      "required_group_count": 25,
+      "required_cases_total": 4250,
+      "success_rule": "All25 groups must execute anew and pass on the current source, main image and actual cold build. Generator131 also executes separately linked current-object probes. Every original numerical predicate, tolerance, resource recovery, owner/transport readback, exit/EOF and unchanged-input requirement remains mandatory. The original239 Half entry requests partition into173 refusals,22 multiplication results,2 negations and42 add/sub results (40 single commands and2 same-frame FE transactions), all with explicit fresh actual-Torch successor evidence. Four former multiplication-observer arithmetic refusals bind the same1006-case reference. Original failure evidence remains unchanged. F6448 preserves all87 entry requests as86 refusals and one numeric negation successor backed by the same complete actual405 reference as wide_neg.",
       "current_execution_evidence": null,
       "observed_executions": [],
       "historical_qualification_transferred": false,
-      "qualification_plan": "validation/current-runtime765/qualification-plan.json",
+      "qualification_plan": "validation/current-runtime767/qualification-plan.json",
       "group_contracts": {
         "generator131": {
-          "status": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+          "status": "PENDING_ACTUAL_25_GROUP_4250_RUN",
           "subgroups": {
             "original24": 24,
             "native11": 11,
@@ -269,7 +272,7 @@
           "historical_probe_pass_transferred": false
         },
         "public_f64_logical192": {
-          "status": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+          "status": "PENDING_ACTUAL_25_GROUP_4250_RUN",
           "cases": 192,
           "reader": "tests/public_f64_logical/qualify.py",
           "pure_admission": "tests/current_runtime_public_f64_logical192.py",
@@ -285,7 +288,7 @@
           "original147_replaced": false
         },
         "f64_48": {
-          "status": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+          "status": "PENDING_ACTUAL_25_GROUP_4250_RUN",
           "cases": 48,
           "original_subgroups": {
             "numeric": 33,
@@ -295,21 +298,26 @@
           },
           "original_refusal_controls": 87,
           "pure_admission": "tests/current_runtime_f64_readback.py",
-          "original_unmodified_refusal_expectations": 85,
+          "original_unmodified_refusal_expectations": 84,
           "explicit_malformed_half_status_adaptations": 2,
           "historical_refusal_failures_preserved": true,
-          "required_frames": 2856,
-          "required_assertions": 15355,
+          "required_frames": 2867,
+          "required_assertions": 15421,
           "fixture_restorer": "tests/current_runtime_f64_fixtures.py",
           "source_package": "validation/current-f64-48-source",
           "reference_package": "validation/current-f64-48-reference",
           "historical_reference_actual_argv_available": false,
           "historical_reference_interpreter_entity_available": false,
           "original_reference_provenance_checks": 11,
-          "historical_pass_transferred": false
+          "historical_pass_transferred": false,
+          "original_entry_requests": 87,
+          "retained_refusal_controls": 86,
+          "accepted_negation_successors": 1,
+          "successor_adapter": "tests/current_runtime_f64_neg_successor.py",
+          "successor_reference_group": "wide_neg"
         },
         "half47": {
-          "status": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+          "status": "PENDING_ACTUAL_25_GROUP_4250_RUN",
           "cases": 47,
           "original_subgroups": {
             "numeric": 26,
@@ -353,7 +361,7 @@
           "addsub_reference_group": "half_addsub"
         },
         "half_logical264": {
-          "status": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+          "status": "PENDING_ACTUAL_25_GROUP_4250_RUN",
           "cases": 264,
           "accepted_reference_cases": 222,
           "observed_reference_errors": 42,
@@ -367,7 +375,7 @@
           "historical_pass_transferred": false
         },
         "half_transactions12": {
-          "status": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+          "status": "PENDING_ACTUAL_25_GROUP_4250_RUN",
           "cases": 12,
           "direct_successes": 6,
           "failed_transactions_with_invalid_suffix": 6,
@@ -379,7 +387,7 @@
           "historical_Half47_and239_evidence_rewritten": false
         },
         "numeric_predicates": {
-          "status": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+          "status": "PENDING_ACTUAL_25_GROUP_4250_RUN",
           "cases": 485,
           "input_recipes": 97,
           "operations": [
@@ -413,7 +421,7 @@
           "historical_pass_transferred": false
         },
         "bf16_copy": {
-          "status": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+          "status": "PENDING_ACTUAL_25_GROUP_4250_RUN",
           "cases": 280,
           "source": "tests/bf16_copy/",
           "pure_admission": "tests/bf16_copy/run.py",
@@ -431,7 +439,7 @@
           "full_dtype_qualified": false
         },
         "half_mul": {
-          "status": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+          "status": "PENDING_ACTUAL_25_GROUP_4250_RUN",
           "cases": 312,
           "source": "tests/half_mul/",
           "pure_admission": "tests/half_mul/run.py",
@@ -454,7 +462,7 @@
           "complete_original_observer_inverse": "tools/current_runtime/half_addsub_observer_transition.py"
         },
         "half_neg": {
-          "status": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+          "status": "PENDING_ACTUAL_25_GROUP_4250_RUN",
           "cases": 371,
           "source": "tests/half_neg/",
           "pure_admission": "tests/half_neg/run.py",
@@ -478,7 +486,7 @@
           "full_dtype_qualified": false
         },
         "half_addsub": {
-          "status": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+          "status": "PENDING_ACTUAL_25_GROUP_4250_RUN",
           "cases": 1006,
           "source": "tests/half_addsub/",
           "pure_admission": "tests/half_addsub/run.py",
@@ -508,11 +516,36 @@
           "complete_original_observer_inverse": "tools/current_runtime/half_addsub_fe_observer_transition.py",
           "historical239_evidence_rewritten": false,
           "full_dtype_qualified": false
+        },
+        "wide_neg": {
+          "status": "PENDING_ACTUAL_25_GROUP_4250_RUN",
+          "cases": 405,
+          "source": "tests/wide_neg/",
+          "pure_admission": "tests/wide_neg/run.py",
+          "case_sha256": "22063936e50a4e5da53be543fecc446a0fef529712da140a9afdb863b69da73a",
+          "fresh_pinned_Torch_reference_required": true,
+          "exact_bits_and_metadata": true,
+          "cpu_capability": "AVX2",
+          "requested_cpu_capability": "avx2",
+          "torch_threads": 1,
+          "required_frames": 10484,
+          "required_assertions": 37314,
+          "required_owner_snapshots": 2959,
+          "required_bitwise_elements": 287275,
+          "required_mapping_reads": 4,
+          "required_packet_controls": 46,
+          "required_actual_allocation_refusals": 2,
+          "required_identical_request_recoveries": 2,
+          "physical_replay_required": true,
+          "original_F64_refusal_successors": 1,
+          "historical87_evidence_rewritten": false,
+          "full_dtype_qualified": false
         }
       },
       "image_scope": "One main production image plus separately identified Generator ABI/reordered probe images.",
       "cold_build_scope": "PASS_NATIVE_BUILD_ONLY and source preparation do not establish runtime qualification.",
-      "full_3845_executed": false
+      "full_4250_executed": false,
+      "previous_merged_execution": "validation/current-runtime765/ci-review.json"
     },
     "controls_required": {
       "original35_positive": 4,
@@ -551,7 +584,12 @@
       "half_private_dtype3_addsub_protocol_refusals": 8,
       "half_addsub_packet_controls": 70,
       "half_addsub_allocation_recoveries": 4,
-      "multiplication_observer_addsub_successors": 4
+      "multiplication_observer_addsub_successors": 4,
+      "f64_original_entry_requests": 87,
+      "f64_retained_refusals": 86,
+      "f64_negation_successors": 1,
+      "wide_neg_packet_controls": 46,
+      "wide_neg_allocation_recoveries": 2
     },
     "reference_policy": "Fixed independently produced reference bytes or the exact pinned live Torch CPU interpreter; no native-result-derived expected values.",
     "torch_reference_lock": "compatibility/pytorch-oracle-lock.json",
@@ -561,8 +599,8 @@
     "pending_audit_findings": [
       {
         "id": "bf16-to-nan-payload",
-        "status": "PENDING_CURRENT_24_GROUP_REQUALIFICATION",
-        "scope": "The scoped F32-to-BF16 AVX2/AVX512 NaN copy repair has independent predecessor evidence. Its280 exact-bit cases must execute anew on current765; DEFAULT and other architecture paths remain outside the claim.",
+        "status": "PENDING_CURRENT_25_GROUP_REQUALIFICATION",
+        "scope": "The scoped F32-to-BF16 AVX2/AVX512 NaN copy repair has independent predecessor evidence. Its280 exact-bit cases must execute anew on current767; DEFAULT and other architecture paths remain outside the claim.",
         "full_dtype_closure_claimed": false,
         "historical_review": "validation/current-runtime742/bf16-review.json"
       }
@@ -577,7 +615,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_25_GROUP_4250_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -588,7 +626,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_25_GROUP_4250_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -602,7 +640,7 @@
         "sum_f32_17",
         "asstrided16"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_25_GROUP_4250_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -615,7 +653,7 @@
         "half_logical264",
         "half_transactions12"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_25_GROUP_4250_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -629,7 +667,7 @@
         "half_logical264",
         "half_transactions12"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_25_GROUP_4250_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -640,7 +678,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_25_GROUP_4250_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -653,7 +691,7 @@
         "current35",
         "asstrided16"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_25_GROUP_4250_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -665,7 +703,7 @@
         "current35",
         "live32"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_25_GROUP_4250_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -676,7 +714,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_25_GROUP_4250_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -687,7 +725,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_25_GROUP_4250_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -698,7 +736,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_25_GROUP_4250_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -709,7 +747,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_25_GROUP_4250_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -722,7 +760,7 @@
         "cat4",
         "metadata10"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_25_GROUP_4250_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -735,7 +773,7 @@
         "logical147",
         "resource7"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_25_GROUP_4250_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -747,7 +785,7 @@
         "current35",
         "live32"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_25_GROUP_4250_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -760,7 +798,7 @@
         "logical147",
         "generator131"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_25_GROUP_4250_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -771,7 +809,7 @@
         "f64_48",
         "public_f64_logical192"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_25_GROUP_4250_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -784,7 +822,7 @@
         "half_transactions12",
         "bf16_copy"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_25_GROUP_4250_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -794,7 +832,7 @@
       "required_current_image_suites": [
         "numeric_predicates"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_25_GROUP_4250_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -805,7 +843,7 @@
         "half47",
         "half_mul"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_25_GROUP_4250_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -816,7 +854,7 @@
         "half47",
         "half_neg"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_25_GROUP_4250_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -828,7 +866,18 @@
         "half_mul",
         "half_addsub"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_24_GROUP_3845_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_25_GROUP_4250_RUN",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "public-i64-f64-negation",
+      "implementation": "PRESENT_IN_CURRENT_HIA_SOURCE",
+      "scope": "Command3 operation6: wrapping I64 and exact-bit public F64 negation, including signed zero, all F64 exponent classes and NaN payloads, INT64_MIN, admitted rank0..4 layouts, fresh independent ownership, input preservation and allocation failure/recovery.",
+      "required_current_image_suites": [
+        "wide_neg",
+        "f64_48"
+      ],
+      "current_image_qualification": "PENDING_ACTUAL_25_GROUP_4250_RUN",
       "full_upstream_schema_qualified": false
     }
   ],
@@ -871,10 +920,12 @@
     ],
     "original_archives_licenses_and_custody_preserved": true,
     "remaining_original_fixtures_require_verified_consumer_migration": true,
-    "removed_process_files": 269,
-    "removed_process_bytes": 104970124,
-    "removed_process_directories": 16,
+    "removed_process_files": 294,
+    "removed_process_bytes": 123049051,
+    "removed_process_directories": 19,
     "process_history_index": "docs/history.md",
-    "process_history_commit": "9ea2ec5522685a8b1a0080edda88b89dec094474"
+    "process_history_commit": "9ea2ec5522685a8b1a0080edda88b89dec094474",
+    "additional_process_history_commit": "0e006aebddfc9de564d5d14879d7aca190817ce7",
+    "additional_process_retirement": "validation/current-runtime767/retirement.json"
   }
 }

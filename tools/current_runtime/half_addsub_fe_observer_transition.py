@@ -6,6 +6,7 @@ requires their genuine reference results, complete ownership and rollback.
 No native source changes and no prior execution qualification is transferred.
 """
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
 
@@ -61,9 +62,16 @@ def restore_observers(bind):
     require(delta['schema']=='heptatorch.half-addsub-fe1006.observer-delta.v1'
         and delta['parent_commit']=='3fe56570dca9b755f0cceeb6fa5df78ffa531581'
         and set(delta['files'])==set(PATHS),'exact three successor observer files')
-    require(sha(bind(root/'tools/current_runtime/source/runtime.hepta'))==SOURCE
-        and sha(bind(root/'tools/current_runtime/source/manifest.json'))==MANIFEST,
-        'the765 native source and native object manifest remain unchanged')
+    source = bind(root/'tools/current_runtime/source/runtime.hepta')
+    wide_path = Path(__file__).with_name('wide_neg_source_transition.py')
+    bind(wide_path)
+    spec = importlib.util.spec_from_file_location('fe_wide_neg_source_inverse', wide_path)
+    wide = importlib.util.module_from_spec(spec); spec.loader.exec_module(wide)
+    parent, wide_proof = wide.restore_source(source, bind)
+    manifest = bind(root/'tools/current_runtime/source/manifest.json')
+    require(sha(parent)==SOURCE and wide.PARENT_SOURCE==SOURCE
+        and sha(manifest)=='32d826cfaaaaca910c7e2b209d977dd705a314f64267cfd0808f01f08d3865d1',
+        'exact767 native source inverts to the complete765 FE predecessor')
     parents={path:restore_file(bind(root/path),delta['files'][path]) for path in PATHS}
     return parents,dict(schema='heptatorch.half-addsub-fe1006.observer-inverse.v1',
         delta_sha256=DELTA,files={path:{key:value for key,value in delta['files'][path].items() if key!='edits'} for path in PATHS},
@@ -72,5 +80,7 @@ def restore_observers(bind):
         all1004_original_numerical_error_resource_and_lifetime_predicates_retained=True,
         exact_original_two_command_FE_packets_checked=True,
         real_reference_bits_complete_owner_and_rollback_required=True,
-        source_sha256=SOURCE,native_source_unchanged=True,manifest_sha256=MANIFEST,
+        source_sha256=wide.SOURCE, parent_source_sha256=SOURCE, native_source_unchanged=False,
+        native_wide_neg_inverse=wide_proof, original_FE_native_bodies_unchanged=True,
+        manifest_sha256=sha(manifest), parent_manifest_sha256=MANIFEST,
         whole_source_inverse_exact=True,whole_round_trip_exact=True,runtime_qualification_transferred=False)
