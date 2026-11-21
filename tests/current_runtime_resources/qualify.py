@@ -13,9 +13,9 @@ import traceback
 
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
-SOURCE = 'db88eaad9fb69010ae4f6925f4e8c54edce815b9f46507bc0c7c2536a4cb2c0b'
-IMAGE = '929529e7c86ea3ce12e522f9b01b1a7c4180feb00bde812bc26268091d5032e4'
-FUSION_RESOURCE_SHA = 'f19070208717b80fc3cc014ff9fc7a18f7ef9fe41c946d2393dcc1f758182ec5'
+SOURCE = 'ee214f05b56401ea17a5f55e792aaccf73447974ba0b7e0416990439bff6a8ff'
+IMAGE = '71309d9e8ef794b9052603fd28f4d4da4886aff6924d8413489af856744ec272'
+FUSION_RESOURCE_SHA = '2c0923df5d692c0fa9add53887fc55e4dde05006e90ddc574831ae5b91f13ce3'
 ARCHIVE = 'ce4aff6daaf5bb727fa6a520cbecf98dd8e09e67ffffa6cb60171a210b82e490'
 ARCHIVE_MANIFEST = 'a3d49014e99b68a98a7cc41a787d4fa6102129b63aed720dc857b5d6e862ef4d'
 ARCHIVE_LOCATION = '33df7752cb769610e6c30421e9154bca2168c696a0d67bf5422c8d699a05e444'
@@ -79,9 +79,9 @@ def main():
     out.mkdir(parents=True, exist_ok=False)
     inputs, rows, failures = {}, [], []
     selected = list(CASES) if args.suite == 'all' else [args.suite]
-    report = dict(schema='heptatorch.current778.resource7.v1',status='RUNNING',
+    report = dict(schema='heptatorch.current781.resource7.v1',status='RUNNING',
         source_sha256=SOURCE,native_sha256=IMAGE,actual_build_sha256=build_sha,
-        functions=778,units=15,required_cases=CASES,required_case_count=7,
+        functions=781,units=15,required_cases=CASES,required_case_count=7,
         selected_suites=selected,prepare_only=args.prepare_only,suites=rows,failures=failures,
         native_executed=False,Torch_executed=False,compiler_executed=False,
         full_pytorch_rewrite_complete=False,schema_closure=False,old_pass_transferred=False)
@@ -199,7 +199,7 @@ def main():
                 require(actual is not None,'original worker report is required')
                 proof = json.loads(bind(directory/'adaptation/source-bindings.json'))
                 require(proof['fusion_source_path_proof']==expected_source_paths,
-                        'independent complete actual778 source path proof differs')
+                        'independent complete actual781 source path proof differs')
                 require(actual['source_sha256']==SOURCE and actual['native_sha256']==IMAGE
                         and actual['all_inputs_unchanged'] is True,'actual current identity/custody')
                 require(proof['all_original_inputs_unchanged'] is True and proof['whole_file_inverse_exact'] is True

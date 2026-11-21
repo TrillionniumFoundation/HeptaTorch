@@ -58,14 +58,14 @@ def profile(repository,build,build_sha,inputs):
     combined=module(repository/'tools/current_runtime/index_signbit_source_transition.py','typed_index_select_combined_source_proof',inputs.bind)
     source=inputs.bind(repository/'tools/current_runtime/source/runtime.hepta')
     parent,proof=combined.restore_source(source,inputs.bind)
-    require(proof['source_sha256']==built['source_sha256'] and proof['functions']==778
-        and proof['parent_functions']==775 and proof['unchanged_parent_functions']==771
-        and proof['changed_functions']==['entry','index_select','predicate_bits','predicate_command']
-        and proof['appended_functions']==['typed_index_select_previous','typed_index_select','typed_index_select_offset']
+    require(proof['source_sha256']==built['source_sha256'] and proof['functions']==781
+        and proof['parent_functions']==775 and proof['unchanged_parent_functions']==769
+        and proof['changed_functions']==['entry','index_select','gather','indexed_add','predicate_bits','predicate_command']
+        and proof['appended_functions']==['typed_index_select_previous','typed_index_select','typed_index_select_offset','indexed_gather_forward_source','indexed_add_forward_inputs','indexed_add_forward_location']
         and proof['whole_source_inverse_exact'] is True and proof['whole_round_trip_exact'] is True
         and proof['original_f32_index_select_function_retained'] is True
         and proof['original_arithmetic_and_backward_functions_retained'] is True,
-        'complete778 source inverse and all original F32 AD bodies retained')
+        'complete781 source inverse and all original F32 AD bodies retained')
     return built
 
 

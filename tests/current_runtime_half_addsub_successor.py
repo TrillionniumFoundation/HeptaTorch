@@ -20,9 +20,9 @@ import types
 
 MUL_HELPER = '47557e7730d00c374864d2e2948a511e86b47ae653034adaa0f776445fc556ad'
 NEG_HELPER = '1d5a464ad7ff3ac56656cd361de2024ca77db3ead2e9da6687a043039a3a5b41'
-FE_OWNER_CONTRACT = 'c245847b12673e6f6030badb180866925543081ee7008a04b3106e154869899c'
-FE_TOMBSTONE_CONTRACT = '75f732ef35d2b71eea51615e436826899993255326b4826c8168e1ceeba8dc9d'
-FE_OWNER_READER = '18c1539c663ca8117a315cc3b611e7cbcc99bf2cf86c5da8dbcb2c5675dac747'
+FE_OWNER_CONTRACT = '4c3ce9d59569c398dedc7b7627227c6468548051ce6562a25b863625f0e268c2'
+FE_TOMBSTONE_CONTRACT = '9f539928dc5b6f99fedbfc7faad0ef2b88db1b5fb1e2c50ebb0eff16a189f956'
+FE_OWNER_READER = '8dac020a73f0c2f65ea85c6477299e2054a3af5243309608dbcaf13058173bcb'
 WORDS = {0: (0x3f800000, 0x80000000), 1: (1, 0), 2: (1, 0),
          4: (0x3ff0000000000000, 0x8000000000000000),
          5: (0x3c00, 0x8000), 6: (0x3f80, 0x8000)}
@@ -85,10 +85,10 @@ class Successor:
         index_spec = importlib.util.spec_from_file_location('index_signbit_current_source', index_path)
         indexing = importlib.util.module_from_spec(index_spec); index_spec.loader.exec_module(indexing)
         source, index_inverse = indexing.restore_source(source, inputs.bind)
-        require(index_inverse['functions'] == 778 and index_inverse['parent_functions'] == 775
+        require(index_inverse['functions'] == 781 and index_inverse['parent_functions'] == 775
                 and index_inverse['whole_source_inverse_exact'] is True
                 and index_inverse['whole_round_trip_exact'] is True,
-                'complete778 source restores every original775 byte before earlier source proofs')
+                'complete781 source restores every original775 byte before earlier source proofs')
         relu_path = self.repository / 'tools/current_runtime/typed_relu_source_transition.py'
         inputs.bind(relu_path)
         relu_spec = importlib.util.spec_from_file_location('half_FE_typed_relu_source_inverse', relu_path)
@@ -145,7 +145,7 @@ class Successor:
                 'three allocations derive from the fixed native source, not observed-count adjustment')
         matches = list(re.finditer(rb'^fn ([A-Za-z_][A-Za-z0-9_]*)\(.*?^end\n', source, re.M | re.S))
         functions = {item[1].decode('ascii'): item[0] for item in matches}
-        require(len(functions) == len(matches) == 778, 'complete actual775 function census')
+        require(len(functions) == len(matches) == 781, 'complete actual775 function census')
         cast = functions['half_mul_cast']
         require(sha(cast) == arithmetic_source_proof['actual_cast_sha256']
                 and b'  integerw:u64 = const() {"value":2}\n  doublew:u64 = const() {"value":4}\n' in cast
@@ -207,8 +207,8 @@ class Successor:
         tombstone = json.loads(inputs.bind(tombstone_path, FE_TOMBSTONE_CONTRACT))
         owner_path = tests / 'current_runtime_half_fe_owner.py'
         owner_raw = inputs.bind(owner_path, FE_OWNER_READER)
-        require(tombstone['schema'] == 'heptatorch.current778-half-FE-owner-source-contract.v1'
-                and tombstone['source'] == dict(functions=778,
+        require(tombstone['schema'] == 'heptatorch.current781-half-FE-owner-source-contract.v1'
+                and tombstone['source'] == dict(functions=781,
                     path='tools/current_runtime/source/runtime.hepta', sha256=sha(source))
                 and tombstone['functions_verified'] == len(tombstone['functions']) == 44
                 and tombstone['predicate'] == dict(bytes=len(owner_raw),

@@ -1,8 +1,8 @@
 # Native signbit and index_select
 
-The current778 candidate adds these two bounded CPU contracts to the one HIA source and static image. HIA performs classification, iteration, allocation, raw element copies, ownership and rollback. Python transports commands and observes results; the independent Torch process produces expected bytes.
+The current781 candidate adds these two bounded CPU contracts to the one HIA source and static image. HIA performs classification, iteration, allocation, raw element copies, ownership and rollback. Python transports commands and observes results; the independent Torch process produces expected bytes.
 
-The [source review](../validation/current-runtime778/source-review.json) fixes the complete source and image. The [qualification plan](../validation/current-runtime778/qualification-plan.json) requires all31 groups/14,814 cases. Local targeted execution and physical replay have passed, but the local Torch installation lacks the complete original provenance; those results remain exploratory until strict exact-tree CI passes.
+The [source review](../validation/current-runtime781/source-review.json) fixes the complete source and image. The [qualification plan](../validation/current-runtime781/qualification-plan.json) requires all32 groups/15,145 cases. Local targeted execution and physical replay have passed, but the local Torch installation lacks the complete original provenance; those results remain exploratory until strict exact-tree CI passes.
 
 ## Signbit
 
@@ -51,7 +51,7 @@ The Bool successor preserves the original setup allocation order and all three o
 
 ## Source and evidence admission
 
-The combined source changes only `entry`, `index_select`, `predicate_bits` and `predicate_command`, appending `typed_index_select_previous`, `typed_index_select` and `typed_index_select_offset`. The other771 original functions remain byte-identical and in order. The whole source inverse reconstructs the exact775 parent and forward-round-trips to current778; original arithmetic and backward bodies remain exact. Three existing observer source-admission functions gain the new inverse ahead of the retained chain; their numerical comparisons are unchanged.
+The original signbit/index-select extension changes four775 bodies and adds three helpers. The current781 image also contains the [F32 indexed-forward corrections](native-indexed-forward.md), which change two further call sites and add three helpers. The complete781→778→775 inverse retains both intermediate identities and proves the aggregate six changed functions, six appended functions and769 unchanged parent bodies. It reconstructs the exact775 source and forward-round-trips to the exact781 bytes. All original backward bodies and the retained F32 index-select implementation remain byte-identical. Three existing observer source-admission functions gain this full inverse before the unchanged predecessor chain; every numerical comparison remains unchanged.
 
 Each new strict runner binds the current complete cold build, current source, actual native image, actual Torch reference, all11 original installation provenance checks, exact input bytes/modes, native process receipts and both output EOFs. Its pure qualifier replays every original request/response and Owner snapshot without executing native code or Torch again. The coordinator and sealer reject exploratory local reports.
 

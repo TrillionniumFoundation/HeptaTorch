@@ -21,9 +21,9 @@ import re
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
-SOURCE = 'db88eaad9fb69010ae4f6925f4e8c54edce815b9f46507bc0c7c2536a4cb2c0b'
-IMAGE = '929529e7c86ea3ce12e522f9b01b1a7c4180feb00bde812bc26268091d5032e4'
-OUTER = '469412cf8989f32b4479dd08d9f846ef3a9056637eef1c92f54d774d27297fcb'
+SOURCE = 'ee214f05b56401ea17a5f55e792aaccf73447974ba0b7e0416990439bff6a8ff'
+IMAGE = '71309d9e8ef794b9052603fd28f4d4da4886aff6924d8413489af856744ec272'
+OUTER = '979221f827f09edb52d46e8202ccdf4bb4e9f50b6b256298f89f1d5056abad40'
 OBLIGATIONS = '4fa8028bec733a72ac2857dce326e25d6d378aafd1045c2504bb5828553cf2bb'
 OWNER = 'e54509ceba0ef3bf171f5fc1018665dc97e56eeccec0cba1e8c14f9a7ed81501'
 CHANGED = ('command_argument', 'dtype_audit', 'to_command', 'typed_command', 'typed_fill')
@@ -63,7 +63,7 @@ def prove(source, bind):
     outer = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(outer)
     historical, complete = outer.restore_source(source, bind)
-    actual, parent = outer.functions(source, 778), outer.functions(historical, 700)
+    actual, parent = outer.functions(source, 781), outer.functions(historical, 700)
     predicate_inverse = complete['predicate_source_inverse']
     guard = predicate_inverse['dispatcher_guard']
     delegation = predicate_inverse['old_path_delegation']
@@ -76,7 +76,7 @@ def prove(source, bind):
     same_inverse = complete['same_f64_arithmetic_source_inverse']
     relu_inverse = complete['typed_relu_source_inverse']
     index_inverse = complete['index_signbit_source_inverse']
-    require(index_inverse['source_sha256'] == SOURCE and index_inverse['functions'] == 778
+    require(index_inverse['source_sha256'] == SOURCE and index_inverse['functions'] == 781
         and index_inverse['parent_functions'] == 775
         and index_inverse['whole_source_inverse_exact'] is True
         and index_inverse['whole_round_trip_exact'] is True
@@ -453,7 +453,7 @@ def prove(source, bind):
     require(body.count(b'need(dtype in (0, 1, 2, 3), "dtype-code", node=i)') == 1,
             'unchanged full owner still rejects public4/5/6 in the original resource recipe domain')
     return dict(schema='heptatorch.fusion778.resource7-source-paths.v1', source_sha256=SOURCE,
-        native_sha256=IMAGE, functions=778, units=15, outer_source_inverse=complete,
+        native_sha256=IMAGE, functions=781, units=15, outer_source_inverse=complete,
         changed_R4_obligations=list(CHANGED), obligations={n:rows[n] for n in CHANGED},
         binary_original_domain_route=binary_route,
         unary_original_domain_route=unary_route,

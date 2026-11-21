@@ -6,7 +6,7 @@ HeptaTorch 使用 **HIA 原生源码**实现张量数值、对象分配、梯度
 
 ## 当前运行时
 
-当前候选包含 **778 个核心函数、15 个独立编译单元**。每次构建使用固定 HIA ABI3 编译器重新生成全部应用对象，再由原生 HIA 链接器生成 ELF。运行时接口是有界原生二进制命令协议。
+当前候选包含 **781 个核心函数、15 个独立编译单元**。每次构建使用固定 HIA ABI3 编译器重新生成全部应用对象，再由原生 HIA 链接器生成 ELF。运行时接口是有界原生二进制命令协议。
 
 | 能力 | 当前实现 |
 | --- | --- |
@@ -49,9 +49,9 @@ make test HEPTA_SOURCE_ROOT=/absolute/path/to/fixed-hepta-source \
 
 ## 一个当前验收入口
 
-`make test` 和 [Current HIA Runtime CI](.github/workflows/current-runtime.yml)共用 [`tests/qualify_current_runtime.py`](tests/qualify_current_runtime.py)。当前必需范围为 **31 组、14,814 个有限案例**：保留全部前 29 组／13,851 项及原控制或明确验证的成功后继，新增 `signbit` 97 项及 `index_select` 866 项实际对照。原 F64 入口 87 个请求完整执行：63 个保留拒绝，1 个取负、22 个混合算术单命令和 1 个原始同帧 FE 事务要求实际 Torch 数值及完整所有权验证。原 Half 入口的 239 个请求完整执行：22 个乘法、2 个取负、40 个单命令加减法、2 个原始同帧 FE 加法及 22 个真除法要求实际数值和所有权验证，其余 151 个保留原拒绝行为。Half47、乘法312、加减1006和除法1196共享同一份实际1196参考及其原始进程、输入和输出。F6448与混合算术2541共享同一份实际2541参考；两条Bool减法错误仍保留。新同类型 F64 组保留两次真实数值失败记录，并要求全部 88 项协议控制和四次真实 OOM／同请求恢复。ReLU776、Half取负371与宽类型取负405必须共享同一份新 ReLU 参考及实际进程收据；原取负中的四条 ReLU 请求保持原字节，改用完整数值、布局与所有权验收。组表、额外控制和独立执行命令见[当前构建说明](docs/current-runtime.md)。
+`make test` 和 [Current HIA Runtime CI](.github/workflows/current-runtime.yml)共用 [`tests/qualify_current_runtime.py`](tests/qualify_current_runtime.py)。当前必需范围为 **32 组、15,145 个有限案例**：保留全部前 29 组／13,851 项及原控制或明确验证的成功后继，新增 `signbit` 97 项、`index_select` 866 项及 F32 gather/scatter_add/index_add 331 项实际对照。原 F64 入口 87 个请求完整执行：63 个保留拒绝，1 个取负、22 个混合算术单命令和 1 个原始同帧 FE 事务要求实际 Torch 数值及完整所有权验证。原 Half 入口的 239 个请求完整执行：22 个乘法、2 个取负、40 个单命令加减法、2 个原始同帧 FE 加法及 22 个真除法要求实际数值和所有权验证，其余 151 个保留原拒绝行为。Half47、乘法312、加减1006和除法1196共享同一份实际1196参考及其原始进程、输入和输出。F6448与混合算术2541共享同一份实际2541参考；两条Bool减法错误仍保留。新同类型 F64 组保留两次真实数值失败记录，并要求全部 88 项协议控制和四次真实 OOM／同请求恢复。ReLU776、Half取负371与宽类型取负405必须共享同一份新 ReLU 参考及实际进程收据；原取负中的四条 ReLU 请求保持原字节，改用完整数值、布局与所有权验收。组表、额外控制和独立执行命令见[当前构建说明](docs/current-runtime.md)。
 
-生产案例绑定本次冷构建的同一主映像；Generator 的 ABI／重排探针由当前对象另行链接并执行。每次源码或映像变化都需要新的完整运行。778 候选的完整组合状态以[当前审计](docs/current-audit.md)及源绑定执行记录为准。
+生产案例绑定本次冷构建的同一主映像；Generator 的 ABI／重排探针由当前对象另行链接并执行。每次源码或映像变化都需要新的完整运行。781 候选的完整组合状态以[当前审计](docs/current-audit.md)及源绑定执行记录为准。
 
 `make acceptance-status` 检查完整目标账本及已注册的完整契约证据。`make full-acceptance` 只有在全部声明和 17 项系统契约通过独立验收后才能返回成功。目前生产注册表为空，完整闭合数仍为 0；[完整契约验收机制](docs/full-contract-qualification.md)要求当前 HIA 源码、映像、真实构建与执行、独立参考和物理读回全部绑定，账本文字或有限案例的 PASS 不能增加闭合数。
 
@@ -75,8 +75,10 @@ make test HEPTA_SOURCE_ROOT=/absolute/path/to/fixed-hepta-source \
 | [I64／F64 取负](docs/native-wide-negation.md) | 405 项实际对照、原 F64 请求继承及完整物理回放 |
 | [Half 取负](docs/native-half-negation.md) | NaN、布局、371 项验证及真实 OOM／恢复控制 |
 | [BF16 转换](tests/bf16_copy/README.md) | 布局语义、逐位对照及适用 CPU 路径 |
-| [保留依赖](docs/runtime-dependencies.md) | 当前构建、31组及旧CI仍读取的文件与迁移要求 |
+| [保留依赖](docs/runtime-dependencies.md) | 当前构建、32组及旧CI仍读取的文件与迁移要求 |
 | [完整契约验收](docs/full-contract-qualification.md) | 固定完整目标、独立验证器、证据约束和真实闭合条件 |
 | [历史记录](docs/history.md) | 已退休过程文件的固定历史位置 |
 
 许可证与上游通知见 [LICENSE](LICENSE)、[NOTICE](NOTICE) 和 [`third_party/pytorch/`](third_party/pytorch/)。
+
+RNG 原 74／76／10／25 项消费者已迁到[当前实际 RNG 对象](tools/current_rng_consumer/README.md)，不再恢复旧143应用源码；这条迁移仍需本次严格CI。完整PyTorch的2,590条声明、688条导数和17项系统合同仍未闭合，详见当前审计。

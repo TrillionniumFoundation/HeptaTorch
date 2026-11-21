@@ -1,10 +1,11 @@
-"""Recover the complete775 predecessor before native indexing and signbit.
+"""Recover the exact775 predecessor of the current781 native indexing image.
 
-Only source bytes are reconstructed. Every runtime test still executes the new
-778-function image. This relation grants no numerical or whole-project result.
+The two complete source inverses preserve their own identities and scopes.
+Only source bytes are reconstructed; no old execution qualification transfers.
 """
 
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
 import re
@@ -34,7 +35,7 @@ def functions(raw, count):
     return bodies
 
 
-def restore_source(source, bind):
+def _restore_index_signbit_source(source, bind):
     bind(Path(__file__).resolve())
     delta_raw = bind(Path(__file__).with_name('index_signbit_source_delta.json'))
     delta = json.loads(delta_raw)
@@ -101,3 +102,68 @@ def restore_source(source, bind):
         newly_accepted_original_requests_require_explicit_numerical_successors=True,
         actual_executable_replaced=False, original_cases_or_expected_values_modified=False,
         native_executed=False, Torch_executed=False, runtime_qualification_transferred=False)
+
+
+CURRENT_SOURCE = 'ee214f05b56401ea17a5f55e792aaccf73447974ba0b7e0416990439bff6a8ff'
+CURRENT_FUNCTIONS = 781
+CURRENT_CHANGED = ('entry', 'index_select', 'gather', 'indexed_add',
+                   'predicate_bits', 'predicate_command')
+CURRENT_ADDED = ADDED + ('indexed_gather_forward_source', 'indexed_add_forward_inputs',
+                         'indexed_add_forward_location')
+
+
+def restore_source(source, bind):
+    """Bind both inverse steps and prove the complete actual source relation."""
+    bind(Path(__file__).resolve())
+    # The new indexed group explicitly verifies the first inverse itself before
+    # supplying the exact778 intermediate to this immutable second inverse.
+    if sha(source) == SOURCE:
+        return _restore_index_signbit_source(source, bind)
+    require(sha(source) == CURRENT_SOURCE, 'exact current781 source only')
+    path = Path(__file__).with_name('indexed_forward_source_transition.py')
+    bind(path)
+    spec = importlib.util.spec_from_file_location('complete_indexed_forward_inverse', path)
+    indexed = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(indexed)
+    intermediate, indexed_proof = indexed.restore_source(source, bind)
+    require(sha(intermediate) == SOURCE and indexed_proof['source_sha256'] == CURRENT_SOURCE
+            and indexed_proof['parent_source_sha256'] == SOURCE
+            and indexed_proof['functions'] == CURRENT_FUNCTIONS
+            and indexed_proof['parent_functions'] == FUNCTIONS
+            and indexed_proof['unchanged_parent_functions'] == 776
+            and indexed_proof['changed_functions'] == ['gather', 'indexed_add']
+            and indexed_proof['appended_functions'] == list(CURRENT_ADDED[len(ADDED):])
+            and indexed_proof['whole_source_inverse_exact'] is True
+            and indexed_proof['original_requires_grad_dispatch_preserved'] is True
+            and indexed_proof['original_backward_functions_unchanged'] is True,
+            'complete781-to778 source inverse and unchanged autograd dispatch')
+    parent, predecessor = _restore_index_signbit_source(intermediate, bind)
+    actual, previous = functions(source, CURRENT_FUNCTIONS), functions(parent, PARENT_FUNCTIONS)
+    require(tuple(actual)[:PARENT_FUNCTIONS] == tuple(previous)
+            and tuple(actual)[PARENT_FUNCTIONS:] == CURRENT_ADDED
+            and tuple(name for name in previous if actual[name] != previous[name]) == CURRENT_CHANGED
+            and sum(actual[name] == previous[name] for name in previous) == 769,
+            'all781 definitions, six changed parent bodies and all769 unchanged parent bodies')
+    suffix = b''.join(actual[name] for name in CURRENT_ADDED)
+    forward = parent
+    for name in CURRENT_CHANGED:
+        require(forward.count(previous[name]) == 1, 'one complete parent body: ' + name)
+        forward = forward.replace(previous[name], actual[name], 1)
+    require(forward + suffix == source, 'complete781-to775 inverse and exact forward round trip')
+    retained = ('gather_source', 'indexed_add_forward', 'indexed_add_location', 'backward',
+                'index_select_source', 'binary', 'unary', 'predicate_tensor', 'to_command',
+                'command', 'typed_descriptor', 'integer_pointwise_layout', 'tget', 'taddr',
+                'typed_store')
+    require(all(actual[name] == previous[name] for name in retained),
+            'complete original arithmetic, owner, requires-grad indexing and backward bodies retained')
+    return parent, dict(predecessor,
+        schema='heptatorch.indexed781-to-relu775.complete-source-inverse.v1',
+        source_sha256=CURRENT_SOURCE, functions=CURRENT_FUNCTIONS,
+        changed_functions=list(CURRENT_CHANGED), appended_functions=list(CURRENT_ADDED),
+        unchanged_parent_functions=769,
+        indexed_forward_source_inverse=indexed_proof,
+        index_signbit_predecessor_source_inverse=predecessor,
+        original_requires_grad_dispatch_preserved=True,
+        original_backward_functions_unchanged=True,
+        complete_source_definition_order_preserved=True,
+        whole_source_inverse_exact=True, whole_round_trip_exact=True)

@@ -12,7 +12,7 @@ import re
 HERE = Path(__file__).resolve().parent
 SOURCE = '51820849f7becec549be15babace00f00687601ae7f53bcee0e636ca02f721f9'
 HALF_SOURCE = 'bf3641b1a9061c6f92b8cbeef75adfac89e82ee16d32a9f650cb938d9e918386'
-CURRENT_SOURCE = 'db88eaad9fb69010ae4f6925f4e8c54edce815b9f46507bc0c7c2536a4cb2c0b'
+CURRENT_SOURCE = 'ee214f05b56401ea17a5f55e792aaccf73447974ba0b7e0416990439bff6a8ff'
 PREDICATE_INVERSE = '71244cd75fb41ce07876d7f5699b66ae43c73adc5dd5d09fb2da0dec9c8c7439'
 PARENT_SOURCE = 'ba96abc05717643eaf4f2056325089d9a51f5a2e9838f89473e9a4e76e46fd99'
 DELTA_SHA = '1d47ee1f02e33cc29b4277afa0019dc55c7519a39b23022b0e5e97217bc9de53'
@@ -135,10 +135,10 @@ def predicate_parent(source, bind):
     index_spec = importlib.util.spec_from_file_location('index_signbit_current_source', index_path)
     indexing = importlib.util.module_from_spec(index_spec); index_spec.loader.exec_module(indexing)
     source, index_inverse = indexing.restore_source(source, bind)
-    require(index_inverse['functions'] == 778 and index_inverse['parent_functions'] == 775
+    require(index_inverse['functions'] == 781 and index_inverse['parent_functions'] == 775
             and index_inverse['whole_source_inverse_exact'] is True
             and index_inverse['whole_round_trip_exact'] is True,
-            'complete778 source restores every original775 byte before earlier source proofs')
+            'complete781 source restores every original775 byte before earlier source proofs')
     relu_path = HERE / 'typed_relu_source_transition.py'
     bind(relu_path, 'd06390c160833aa829c1a65cffa5ed8698d7aa23b72675c2942fca006f5350f9')
     relu_spec = importlib.util.spec_from_file_location('typed_relu_complete_outer_inverse', relu_path)
@@ -241,9 +241,9 @@ def restore_source(source, bind):
     previous, predicate_inverse, bf16_inverse, mul_inverse, neg_inverse, addsub_inverse, wide_inverse, div_inverse, arithmetic_inverse, same_inverse, relu_inverse, index_inverse = predicate_parent(source, bind)
     restored, half_inverse = restore_half_source(previous, bind)
     return restored, dict(
-        schema='heptatorch.current778-to-cat700.complete-source-inverse.v1',
+        schema='heptatorch.current781-to-cat700.complete-source-inverse.v1',
         source_sha256=CURRENT_SOURCE, intermediate_source_sha256=HALF_SOURCE,
-        parent_source_sha256=PARENT_SOURCE, functions=778, parent_functions=700,
+        parent_source_sha256=PARENT_SOURCE, functions=781, parent_functions=700,
         predicate_source_inverse=predicate_inverse,
         bf16_source_inverse=bf16_inverse,
         half_mul_source_inverse=mul_inverse,

@@ -181,10 +181,10 @@ def restore_qualifier740(repository, destination, inputs=None):
     return destination
 
 
-CURRENT_SOURCE = 'db88eaad9fb69010ae4f6925f4e8c54edce815b9f46507bc0c7c2536a4cb2c0b'
-CURRENT_IMAGE = '929529e7c86ea3ce12e522f9b01b1a7c4180feb00bde812bc26268091d5032e4'
-CURRENT_MANIFEST = '361609f574cdde8854d176f22c810aea9a72ef80adcfd0d8beeb1c67ae4b6f52'
-CURRENT_BINDING = 'c7aa79a969210ddd443c7ac9d9ee3b059529dd1f6b36f62f355c41fe4ebc377f'
+CURRENT_SOURCE = 'ee214f05b56401ea17a5f55e792aaccf73447974ba0b7e0416990439bff6a8ff'
+CURRENT_IMAGE = '71309d9e8ef794b9052603fd28f4d4da4886aff6924d8413489af856744ec272'
+CURRENT_MANIFEST = 'a53b2bf1865a56adfc9f56763feae1b7c5ac9c23243399efe1c201c75db3a8c9'
+CURRENT_BINDING = 'a8935c062543ecce42d8e113f8c2ba04f1fb893358d35ea1f02221d6ae473428'
 
 
 def successor_qualifier(parent, inputs=None):
@@ -214,11 +214,11 @@ def successor_qualifier(parent, inputs=None):
         count = {'run.py': 7, 'admission.py': 8, 'processes.py': 0}[name]
         profile_chunks = re.split(r'([0-9a-f]{64})', current)
         require(current.count('740') == count
-                and sum(chunk.count('778') for chunk in profile_chunks[::2]) == 0,
+                and sum(chunk.count('781') for chunk in profile_chunks[::2]) == 0,
                 'exact original current-profile labels and count guards')
         if count:
-            current = current.replace('740', '778')
-            edits.append(dict(before='740', after='778', count=count))
+            current = current.replace('740', '781')
+            edits.append(dict(before='740', after='781', count=count))
         if name in ('run.py', 'processes.py'):
             require(current.count('current14') == 2 and 'current15' not in current,
                     'exact current object-custody field labels')
@@ -247,8 +247,8 @@ def successor_qualifier(parent, inputs=None):
                 ("receipt['units_planned']==14", "receipt['units_planned']==15"),
                 ("len(receipt['units'])==14", "len(receipt['units'])==15"),
                 ("struct.pack('<3Q',14,4,0)", "struct.pack('<3Q',15,4,0)"),
-                ("'core_functions':778,'units':14,'actual_cold_processes':15",
-                 "'core_functions':778,'units':15,'actual_cold_processes':16"),
+                ("'core_functions':781,'units':14,'actual_cold_processes':15",
+                 "'core_functions':781,'units':15,'actual_cold_processes':16"),
             ):
                 require(current.count(before) == 1 and after not in current,
                         'one exact current cold-build inventory guard: ' + before)
@@ -301,7 +301,7 @@ def verify_qualifier(package, inputs=None):
     raw = read(package / 'package-manifest.json', inputs=inputs)
     require(json.loads(raw) == manifest, 'exact derived778 manifest and full frozen740 inverse')
     actual = {str(path.relative_to(package)) for path in package.rglob('*') if path.is_file()}
-    require(actual == set(files) | {'package-manifest.json'}, 'complete current778 qualifier inventory')
+    require(actual == set(files) | {'package-manifest.json'}, 'complete current781 qualifier inventory')
     for name, expected in files.items():
         require(matches(package / name, manifest['files'][name], inputs) == expected,
                 'every generated qualifier file equals its exact profile-only derivation')

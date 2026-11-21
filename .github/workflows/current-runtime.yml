@@ -337,6 +337,32 @@ jobs:
             --output "$CURRENT_OUTPUT/build"
           cmp "$RUNNER_TEMP/hepta-current-entropy/generator-session-linker" "$CURRENT_OUTPUT/build/toolchain/stack-linker-session"
 
+      - name: Verify current source and reader admission before numerical execution
+        id: current_admission
+        run: |
+          mkdir -p "$CURRENT_OUTPUT/preparation"
+          current_build_sha=$(python3 -I -S -B -c 'from pathlib import Path; import hashlib,sys; print(hashlib.sha256(Path(sys.argv[1]).read_bytes()).hexdigest())' "$CURRENT_OUTPUT/build/build.json")
+          python3 -I -S -B tests/check_current_runtime_admission_controls.py \
+            --repository "$GITHUB_WORKSPACE" \
+            --output "$CURRENT_OUTPUT/preparation/admission-controls.json"
+          python3 -I -S -B tests/check_current_owner_profile.py \
+            --output "$CURRENT_OUTPUT/preparation/owner-profile.json"
+          python3 -I -S -B tests/check_current_runtime_admission.py \
+            --repository "$GITHUB_WORKSPACE" \
+            --build-directory "$CURRENT_OUTPUT/build" \
+            --expected-build-sha256 "$current_build_sha" \
+            --output "$CURRENT_OUTPUT/preparation/admission.json"
+          python3 -I -S -B tests/current_runtime_asstrided/qualify.py \
+            --repository "$GITHUB_WORKSPACE" \
+            --build-directory "$CURRENT_OUTPUT/build" \
+            --expected-build-sha256 "$current_build_sha" \
+            --output "$CURRENT_OUTPUT/preparation/asstrided" --prepare-only
+          python3 -I -S -B tests/current_runtime_resources/qualify.py \
+            --repository "$GITHUB_WORKSPACE" \
+            --build-directory "$CURRENT_OUTPUT/build" \
+            --expected-build-sha256 "$current_build_sha" \
+            --output "$CURRENT_OUTPUT/preparation/resources" --prepare-only
+
       - name: Install the independent pinned PyTorch CPU oracle
         id: oracle
         shell: bash
@@ -376,9 +402,9 @@ jobs:
           PYTORCH_INSTALL
 
 
-      - name: Qualify all thirty-one suites and the independent Generator probe images
+      - name: Qualify all thirty-two suites and the independent Generator probe images
         id: current_qualification
-        if: ${{ !cancelled() && steps.current_build.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.current_build.outcome == 'success' && steps.current_admission.outcome == 'success' && steps.oracle.outcome == 'success' }}
         run: |
           test ! -e src/heptatorch.hepta
           test ! -L src/heptatorch.hepta
@@ -396,6 +422,7 @@ jobs:
           TOOLCHAIN_OUTCOME: ${{ steps.toolchain.outcome }}
           ENTROPY_TOOL_OUTCOME: ${{ steps.entropy_tool.outcome }}
           BUILD_OUTCOME: ${{ steps.current_build.outcome }}
+          ADMISSION_OUTCOME: ${{ steps.current_admission.outcome }}
           ORACLE_OUTCOME: ${{ steps.oracle.outcome }}
           QUALIFICATION_OUTCOME: ${{ steps.current_qualification.outcome }}
         run: |
@@ -405,31 +432,117 @@ jobs:
           import hashlib
           import json
           import os
+          import stat
           import sys
 
           output = Path(os.environ['CURRENT_OUTPUT'])
           output.mkdir(parents=True, exist_ok=True)
           failures, qualification, binding = [], None, None
-          predicate_evidence = bf16_evidence = half_mul_evidence = half_neg_evidence = half_addsub_evidence = wide_neg_evidence = half_div_evidence = public_f64_arithmetic_evidence = same_f64_arithmetic_evidence = typed_relu_evidence = signbit_evidence = typed_index_select_evidence = None
-          for key in ('TOOLCHAIN_OUTCOME', 'ENTROPY_TOOL_OUTCOME', 'BUILD_OUTCOME', 'ORACLE_OUTCOME', 'QUALIFICATION_OUTCOME'):
+          predicate_evidence = bf16_evidence = half_mul_evidence = half_neg_evidence = half_addsub_evidence = wide_neg_evidence = half_div_evidence = public_f64_arithmetic_evidence = same_f64_arithmetic_evidence = typed_relu_evidence = signbit_evidence = typed_index_select_evidence = indexed_f32_evidence = None
+          for key in ('TOOLCHAIN_OUTCOME', 'ENTROPY_TOOL_OUTCOME', 'BUILD_OUTCOME', 'ADMISSION_OUTCOME', 'ORACLE_OUTCOME', 'QUALIFICATION_OUTCOME'):
               if os.environ.get(key) != 'success':
                   failures.append(key + '=' + os.environ.get(key, 'missing'))
+          preparation_evidence = {}
+          try:
+              build_sha = hashlib.sha256((output / 'build/build.json').read_bytes()).hexdigest()
+              controls_path = 'preparation/admission-controls.json'
+              controls_raw = (output / controls_path).read_bytes()
+              controls = json.loads(controls_raw)
+              expected_control_names = {
+                  'direct_load_executes_bound_source_despite_valid_stale_pyc',
+                  'ordinary_import_executes_bound_source',
+                  'helper_spec_loader_executes_bound_source',
+                  'valid_physical_inventory_and_connected_workflow',
+                  'reject_actual_coordinator_wrong_case_map',
+                  'reject_actual_coordinator_wrong_total',
+                  'reject_workflow_dead_comparisons',
+                  'reject_workflow_missing_failure_append',
+                  'reject_workflow_unconditional_success_exit',
+                  'reject_workflow_and_guard',
+                  'reject_special_permission_bit_mismatch',
+                  'production_frozen_reader_enters_exits_and_checks_both_identities',
+              }
+              if (controls['status'] != 'PASS_SYNTHETIC_ADMISSION_CONTROLS'
+                      or type(controls['executed_controls']) is not int or controls['executed_controls'] != 12
+                      or type(controls['required_controls']) is not int or controls['required_controls'] != 12
+                      or type(controls['controls']) is not list or len(controls['controls']) != 12
+                      or {row['name'] for row in controls['controls']} != expected_control_names
+                      or any(row['status'] != 'PASS' for row in controls['controls'])
+                      or controls['all_inputs_unchanged'] is not True
+                      or controls['runtime_executed'] is not False or controls['native_executed'] is not False
+                      or controls['Torch_executed'] is not False
+                      or controls['runtime_qualification_granted'] is not False
+                      or type(controls['numerical_cases_added']) is not int or controls['numerical_cases_added'] != 0):
+                  raise ValueError('the twelve independent admission regression controls failed')
+              repository = Path(os.environ['GITHUB_WORKSPACE']).resolve(strict=True)
+              control_sources = tuple(repository / 'tests' / name for name in (
+                  'check_current_runtime_admission.py', 'check_current_runtime_admission_controls.py'))
+              if (type(controls['inputs']) is not dict
+                      or set(controls['inputs']) != {str(path) for path in control_sources}):
+                  raise ValueError('admission controls must bind exactly their two actual checkout sources')
+
+              def control_source_identity(path):
+                  if path.is_symlink():
+                      raise ValueError('symlinked admission control source')
+                  before = path.stat()
+                  if not stat.S_ISREG(before.st_mode):
+                      raise ValueError('regular admission control source required')
+                  source_raw = path.read_bytes()
+                  after = path.stat()
+                  identity = lambda row: (row.st_dev, row.st_ino, row.st_mode, row.st_size,
+                                          row.st_mtime_ns, row.st_ctime_ns)
+                  if identity(before) != identity(after) or len(source_raw) != after.st_size:
+                      raise ValueError('admission control source changed while reading')
+                  return {'bytes': len(source_raw), 'sha256': hashlib.sha256(source_raw).hexdigest(),
+                          'mode': stat.S_IMODE(after.st_mode)}
+
+              for path in control_sources:
+                  declared = controls['inputs'][str(path)]
+                  if (type(declared) is not dict or set(declared) != {'bytes', 'sha256', 'mode'}
+                          or type(declared['bytes']) is not int or type(declared['mode']) is not int
+                          or declared != control_source_identity(path)):
+                      raise ValueError('admission control source identity differs from its complete input binding')
+              for path in control_sources:
+                  if controls['inputs'][str(path)] != control_source_identity(path):
+                      raise ValueError('admission control source changed after its first binding')
+              preparation_evidence[controls_path] = {'bytes': len(controls_raw),
+                  'sha256': hashlib.sha256(controls_raw).hexdigest(), 'status': controls['status'],
+                  'runtime_qualification_granted': False}
+              for relative, expected_status, native_field in (
+                      ('preparation/admission.json', 'PASS_SOURCE_ADMISSION_ONLY', 'runtime_executed'),
+                      ('preparation/owner-profile.json', 'PASS', 'runtime_executed'),
+                      ('preparation/asstrided/report.json', 'PREPARED_NOT_RUN', 'native_executed'),
+                      ('preparation/resources/report.json', 'PREPARED_NOT_RUN', 'native_executed')):
+                  preparation_raw = (output / relative).read_bytes()
+                  preparation = json.loads(preparation_raw)
+                  if (preparation['status'] != expected_status or preparation[native_field] is not False
+                          or preparation['source_sha256'] != 'ee214f05b56401ea17a5f55e792aaccf73447974ba0b7e0416990439bff6a8ff'
+                          or preparation['native_sha256'] != '71309d9e8ef794b9052603fd28f4d4da4886aff6924d8413489af856744ec272'):
+                      raise ValueError('current source preparation failed: ' + relative)
+                  if relative != 'preparation/owner-profile.json':
+                      if preparation['actual_build_sha256'] != build_sha or preparation['all_inputs_unchanged'] is not True:
+                          raise ValueError('current source preparation used another build or changed inputs')
+                  preparation_evidence[relative] = {'bytes': len(preparation_raw),
+                      'sha256': hashlib.sha256(preparation_raw).hexdigest(), 'status': preparation['status'],
+                      'runtime_qualification_granted': False}
+          except Exception as error:
+              failures.append('missing or incomplete current source preparation: ' + repr(error))
           try:
               raw = (output / 'review/qualification.json').read_bytes()
               qualification = json.loads(raw)
               binding = {'path': 'review/qualification.json', 'bytes': len(raw),
                          'sha256': hashlib.sha256(raw).hexdigest()}
               if qualification['status'] != 'PASS_CURRENT_RUNTIME_FOCUSED':
-                  failures.append('the mandatory thirty-one-suite qualifier did not pass')
-              if (qualification['required_cases_total'] != 14814
-                      or qualification['executed_cases_total'] != 14814
+                  failures.append('the mandatory thirty-two-suite qualifier did not pass')
+              if (qualification['required_cases_total'] != 15145
+                      or qualification['executed_cases_total'] != 15145
                       or qualification['required_suites'] != [
-                      'bool27', 'original76', 'integral24', 'sum_f32_17', 'current35', 'base270', 'sum32', 'live32', 'logical147', 'resource7', 'asstrided16', 'cat4', 'metadata10', 'generator131', 'public_f64_logical192', 'f64_48', 'half47', 'half_logical264', 'half_transactions12', 'numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div', 'public_f64_arithmetic', 'same_f64_arithmetic', 'typed_relu', 'signbit', 'typed_index_select']):
+                      'bool27', 'original76', 'integral24', 'sum_f32_17', 'current35', 'base270', 'sum32', 'live32', 'logical147', 'resource7', 'asstrided16', 'cat4', 'metadata10', 'generator131', 'public_f64_logical192', 'f64_48', 'half47', 'half_logical264', 'half_transactions12', 'numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div', 'public_f64_arithmetic', 'same_f64_arithmetic', 'typed_relu', 'signbit', 'typed_index_select', 'indexed_f32']):
                   failures.append('the mandatory case denominator or suite order changed')
-              if (qualification['functions'] != 778 or qualification['units'] != 15
-                      or qualification['source_sha256'] != 'db88eaad9fb69010ae4f6925f4e8c54edce815b9f46507bc0c7c2536a4cb2c0b'
-                      or qualification['native_sha256'] != '929529e7c86ea3ce12e522f9b01b1a7c4180feb00bde812bc26268091d5032e4'):
-                  failures.append('the same complete current778 source and image were not qualified')
+              if (qualification['functions'] != 781 or qualification['units'] != 15
+                      or qualification['source_sha256'] != 'ee214f05b56401ea17a5f55e792aaccf73447974ba0b7e0416990439bff6a8ff'
+                      or qualification['native_sha256'] != '71309d9e8ef794b9052603fd28f4d4da4886aff6924d8413489af856744ec272'):
+                  failures.append('the same complete current781 source and image were not qualified')
               public_f64 = [row for row in qualification['suites'] if row['name'] == 'public_f64_logical192']
               if (len(public_f64) != 1 or public_f64[0]['status'] != 'PASS'
                       or public_f64[0]['qualified'] is not True or public_f64[0]['cases'] != 192
@@ -534,6 +647,8 @@ jobs:
                   Path.cwd().resolve(), output.resolve())
               typed_index_select_evidence, typed_index_select_inputs = custody_module.typed_index_select_custody(
                   Path.cwd().resolve(), output.resolve())
+              indexed_f32_evidence, indexed_f32_inputs = custody_module.indexed_f32_custody(
+                  Path.cwd().resolve(), output.resolve())
               if (qualification['full_pytorch_rewrite_complete'] is not False
                       or qualification['schema_closure'] is not False
                       or qualification['full_project_status'] != 'HOLD'):
@@ -575,6 +690,7 @@ jobs:
                      'commit': os.environ.get('GITHUB_SHA'),
                      'hepta_commit': 'f33d8da316de8fdf27b504371f1a5310997ff548',
                      'qualification': binding, 'entropy_tool_build': entropy_binding,
+                     'source_preparation_evidence': preparation_evidence,
                      'numeric_predicates_evidence': predicate_evidence,
                      'bf16_copy_evidence': bf16_evidence, 'half_mul_evidence': half_mul_evidence,
                      'half_neg_evidence': half_neg_evidence, 'half_addsub_evidence': half_addsub_evidence,
@@ -585,23 +701,29 @@ jobs:
                      'typed_relu_evidence': typed_relu_evidence,
                      'signbit_evidence': signbit_evidence,
                      'typed_index_select_evidence': typed_index_select_evidence,
+                     'indexed_f32_evidence': indexed_f32_evidence,
                      'failures': failures,
                      'full_pytorch_rewrite_complete': False, 'full_project_status': 'HOLD'}
           (output / 'qualification.json').write_text(json.dumps(summary, indent=2, sort_keys=True) + '\n')
           print(json.dumps(summary, indent=2, sort_keys=True))
           with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a') as stream:
               stream.write('## Current HIA runtime\n\n' + summary['status'] + '\n\n')
-              stream.write('The common local/CI gate requires one complete main cold build and all 14814 finite cases: '
+              stream.write('The common local/CI gate requires one complete main cold build and all 15145 finite cases: '
                            'Bool27, view/scalar76, Integral24, explicit-F32 Sum17, lifecycle35, '
-                           'base/NN270, original F32 Sum32, live Tensor/RNG/backward32, logical147, resource7, original AsStrided16, Cat4, cat metadata10, Generator131, public F64 logical192, original F64 48, Half47, Half logical264, Half transactions12, numeric predicates485, BF16 copy280, Half multiplication312, Half negation371, Half addition/subtraction1006, I64/F64 negation405, Half true division1196, mixed public F64 arithmetic2541, same public F64 arithmetic5088, typed ReLU776, signbit97 and typed index_select866. '
+                           'base/NN270, original F32 Sum32, live Tensor/RNG/backward32, logical147, resource7, original AsStrided16, Cat4, cat metadata10, Generator131, public F64 logical192, original F64 48, Half47, Half logical264, Half transactions12, numeric predicates485, BF16 copy280, Half multiplication312, Half negation371, Half addition/subtraction1006, I64/F64 negation405, Half true division1196, mixed public F64 arithmetic2541, same public F64 arithmetic5088, typed ReLU776, signbit97, typed index_select866 and indexed F32 forward331. '
                            'Every suite must execute and pass. Generator131 additionally links and executes separate '
                            'current-object ABI and reordered probe images; these are not the main executable.\n\n')
               stream.write('Signbit97 adds opcode126 across seven dtypes, exhaustive F16/BF16 encodings, thirteen packet controls, '
                            'six successful and six rolled-back FE transactions, and two real allocation recoveries. '
                            'Typed index_select866 checks six dtypes, scalars and noncontiguous storage, the corrected F32 no-gradient '
                            'row-selection path, five actual autograd comparisons, 78 protocol controls, two real allocation recoveries, '
-                           'and the original three-command Bool packet as an explicit numerical successor. Both groups require '
+                           'and the original three-command Bool packet as an explicit numerical successor. These groups require '
                            'all eleven original Torch installation provenance checks and replay complete native frames and owners.\n\n')
+              stream.write('Indexed F32 forward331 corrects gather row geometry and scatter_add/index_add input access when no AD edges exist. '
+                           'It retains the complete original requires-grad dispatch and backward functions, with193 actual autograd cases, '
+                           '56 protocol controls, three successful and twelve failed same-frame transactions, and three real allocation recoveries. '
+                           'All334 original native sessions,9,938 frames,37,094 assertions,2,918 full owners and30 mappings are replayed '
+                           'against this run’s independent Torch observations with all eleven installation provenance checks.\n\n')
               stream.write('Current controls include seven dtype cases, four axis errors, ten entry checks, '
                            'both F32 allocation stages, the original Bool allocation case, '
                            'four positive and nineteen negative owner controls, and fourteen real '

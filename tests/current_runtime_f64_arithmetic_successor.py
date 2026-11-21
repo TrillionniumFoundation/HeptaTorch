@@ -58,9 +58,9 @@ class Successor:
             'f6448_index_signbit_whole_source_inverse',inputs)
         parent775,index_inverse=indexing.restore_source(
             inputs.bind(self.repository/'tools/current_runtime/source/runtime.hepta'),inputs.bind)
-        require(index_inverse['functions']==778 and index_inverse['parent_functions']==775
+        require(index_inverse['functions']==781 and index_inverse['parent_functions']==775
             and index_inverse['whole_source_inverse_exact'] is True
-            and index_inverse['whole_round_trip_exact'] is True,'complete778 to775 source relation')
+            and index_inverse['whole_round_trip_exact'] is True,'complete781 to775 source relation')
         same773,relu_source_proof=relu.restore_source(parent775,inputs.bind)
         require(relu_source_proof['functions']==775 and relu_source_proof['parent_functions']==773
             and relu_source_proof['changed_functions']==['unary']

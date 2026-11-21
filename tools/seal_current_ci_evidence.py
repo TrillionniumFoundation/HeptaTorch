@@ -17,8 +17,8 @@ from pathlib import Path, PurePosixPath
 GROUPS = ('bool27', 'original76', 'integral24', 'sum_f32_17', 'current35',
           'base270', 'sum32', 'live32', 'logical147', 'resource7', 'asstrided16',
           'cat4', 'metadata10', 'generator131', 'public_f64_logical192',
-          'f64_48', 'half47', 'half_logical264', 'half_transactions12', 'numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div', 'public_f64_arithmetic', 'same_f64_arithmetic', 'typed_relu', 'signbit', 'typed_index_select')
-EXTENSION_GROUPS = ('signbit', 'typed_index_select')
+          'f64_48', 'half47', 'half_logical264', 'half_transactions12', 'numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div', 'public_f64_arithmetic', 'same_f64_arithmetic', 'typed_relu', 'signbit', 'typed_index_select', 'indexed_f32')
+EXTENSION_GROUPS = ('signbit', 'typed_index_select', 'indexed_f32')
 REQUIRED_CASES = {'bool27': 27, 'original76': 76, 'integral24': 24, 'sum_f32_17': 17,
     'current35': 35, 'base270': 270, 'sum32': 32, 'live32': 32, 'logical147': 147,
     'resource7': 7, 'asstrided16': 16, 'cat4': 4, 'metadata10': 10, 'generator131': 131,
@@ -26,11 +26,11 @@ REQUIRED_CASES = {'bool27': 27, 'original76': 76, 'integral24': 24, 'sum_f32_17'
     'half_transactions12': 12, 'numeric_predicates': 485, 'bf16_copy': 280,
     'half_mul': 312, 'half_neg': 371, 'half_addsub': 1006, 'wide_neg': 405,
     'half_div': 1196, 'public_f64_arithmetic': 2541, 'same_f64_arithmetic': 5088,
-    'typed_relu': 776, 'signbit': 97, 'typed_index_select': 866}
-REQUIRED_CASES_TOTAL = 14814
-SOURCE = 'db88eaad9fb69010ae4f6925f4e8c54edce815b9f46507bc0c7c2536a4cb2c0b'
-IMAGE = '929529e7c86ea3ce12e522f9b01b1a7c4180feb00bde812bc26268091d5032e4'
-SOURCE_MANIFEST = '361609f574cdde8854d176f22c810aea9a72ef80adcfd0d8beeb1c67ae4b6f52'
+    'typed_relu': 776, 'signbit': 97, 'typed_index_select': 866, 'indexed_f32': 331}
+REQUIRED_CASES_TOTAL = 15145
+SOURCE = 'ee214f05b56401ea17a5f55e792aaccf73447974ba0b7e0416990439bff6a8ff'
+IMAGE = '71309d9e8ef794b9052603fd28f4d4da4886aff6924d8413489af856744ec272'
+SOURCE_MANIFEST = 'a53b2bf1865a56adfc9f56763feae1b7c5ac9c23243399efe1c201c75db3a8c9'
 NUMERIC_CASES = '272c9b4fbde339481c32f2ed071dd8c60c9c3b17732e71e2178d973914c79609'
 NUMERIC_PROOF = dict(cases=485, native_sessions=496, frames=11244, assertions=42645,
     owner_snapshots=3615, mapping_snapshots=10, additional_packet_controls=56,
@@ -395,12 +395,13 @@ REPOSITORY_PATHS = (
     'validation/current-runtime773/legacy-source143-review.json',
     'tools/current_runtime', 'tools/differentiable_view_recovered_r3/profile.json',
     'tools/current_runtime/index_signbit_source_transition.py',
+    'tools/current_runtime/indexed_forward_source_transition.py',
     'tools/current_runtime/index_signbit_source_delta.json',
     'tools/current_runtime/index_signbit_admission_transition.py',
     'tools/current_runtime/index_signbit_admission_delta.json',
     'tools/stack_budget/inspect_stack.py',
     'validation/view-reshape-r4-native76/archive-location.json',
-    'build/pytorch-install.json', 'tests', 'tests/numeric_predicates', 'tests/bf16_copy', 'tests/half_mul', 'tests/half_neg', 'tests/half_addsub', 'tests/wide_neg', 'tests/half_div', 'tests/public_f64_arithmetic', 'tests/signbit', 'tests/typed_index_select', 'compatibility',
+    'build/pytorch-install.json', 'tests', 'tests/numeric_predicates', 'tests/bf16_copy', 'tests/half_mul', 'tests/half_neg', 'tests/half_addsub', 'tests/wide_neg', 'tests/half_div', 'tests/public_f64_arithmetic', 'tests/signbit', 'tests/typed_index_select', 'tests/indexed_f32', 'compatibility',
     'continuation/20261117/evidence',
     'continuation/20261117/source-packages/sum-bool-source-01/hia',
     'validation/sum-bool27-reference', 'validation/current-runtime-references',
@@ -413,10 +414,10 @@ REPOSITORY_PATHS = (
     'validation/public-f64-logical192-reference',
     'validation/current-f64-48-source', 'validation/current-f64-48-reference',
     'validation/current-half47-source', 'validation/current-half47-reference',
-    'validation/current-runtime778/qualification-plan.json',
-    'validation/current-runtime778/native-review.json',
-    'validation/current-runtime778/source-review.json',
-    'validation/current-runtime778/retirement.json',
+    'validation/current-runtime781/qualification-plan.json',
+    'validation/current-runtime781/native-review.json',
+    'validation/current-runtime781/source-review.json',
+    'validation/current-runtime781/retirement.json',
     'docs/native-typed-relu.md',
     'validation/current-runtime-same-f64/native-review.json',
     'validation/current-runtime-same-f64/source-review.json',
@@ -449,6 +450,7 @@ TYPED_RELU_PROOF = {'Torch_executed_by_qualifier': False,
 EXTENSION_CASE_HASHES = {
     'signbit': '2ff2864d65dbbf2d2b1e14640ba194e952ea607849813ccfc2488431164fc57c',
     'typed_index_select': 'a291ae36b8e20566bffa2795a9667211ba5dd5d734a7d402a5c36cae8c4c369e',
+    'indexed_f32': '84967019c0b27b5444a31613875aaf8590f0b9cb0f1280e8d3e4b6a865b04b01',
 }
 EXTENSION_PROOFS = {
     'signbit': dict(cases=97, native_sessions=106, frames=2347, assertions=8843,
@@ -466,6 +468,15 @@ EXTENSION_PROOFS = {
         additional_allocation_recoveries=2, original_bool_packet_numerical_successors=1,
         actual_autograd_cases=5, host_expected_values_computed=False,
         original_f32_ad_function_preserved=True),
+    'indexed_f32': dict(cases=331, native_sessions=334, frames=9938, assertions=37094,
+        owner_snapshots=2918, mapping_snapshots=30, physical_replay=True,
+        full_installation_provenance_verified=True, complete_ci_admission=True,
+        production_oracle_qualified=True, native_executed_by_qualifier=False,
+        Torch_executed_by_qualifier=False, additional_protocol_controls=56,
+        additional_successful_FE_transactions=3, additional_failed_FE_transactions=12,
+        additional_allocation_recoveries=3, actual_autograd_cases=193,
+        host_expected_values_computed=False, original_backward_functions_unchanged=True,
+        original_requires_grad_dispatch_preserved=True),
 }
 
 REFERENCE_INTERPRETER_PACKAGES = (
@@ -577,6 +588,10 @@ EXTENSION_OUTPUTS = tuple(relative for group in EXTENSION_GROUPS for relative in
     'review/' + group + '-execution/runner.stderr',
 ))
 REQUIRED_OUTPUTS += EXTENSION_OUTPUTS
+PREPARATION_OUTPUTS = ('preparation/admission.json', 'preparation/owner-profile.json',
+                       'preparation/asstrided/report.json', 'preparation/resources/report.json',
+                       'preparation/admission-controls.json')
+REQUIRED_OUTPUTS += PREPARATION_OUTPUTS
 INPUT_REPORTS = ('build/build.json', 'review/qualification.json',) + tuple(
     'review/' + name + '/report.json' for name in GROUPS) + (
         'review/base270/current-adapter.json', 'review/base270/cold-build-admission.json',
@@ -648,6 +663,7 @@ INPUT_REPORTS += ('review/typed_relu/physical-qualification.json',
  'review/typed_relu-execution/intent.json',
  'review/typed_relu-execution/runner.json')
 INPUT_REPORTS += tuple(relative for relative in EXTENSION_OUTPUTS if relative.endswith('.json'))
+INPUT_REPORTS += PREPARATION_OUTPUTS
 INPUT_TABLES = ('checked_inputs', 'inputs', 'files', 'source_custody')
 
 
@@ -978,13 +994,13 @@ def live_reference_custody(repo, current, group):
     qualification_path = current / 'review/qualification.json'
     qualification = document(qualification_path)
     check_fields(qualification, dict(schema='heptatorch.current-runtime.qualification.v1',
-        required_suites=list(GROUPS), required_cases_total=REQUIRED_CASES_TOTAL, functions=778, units=15,
-        source_sha256=SOURCE, native_sha256=IMAGE), 'exact current778 thirty-one-suite inventory and image')
+        required_suites=list(GROUPS), required_cases_total=REQUIRED_CASES_TOTAL, functions=781, units=15,
+        source_sha256=SOURCE, native_sha256=IMAGE), 'exact current781 thirty-two-suite inventory and image')
     manifest_raw = bind(repo / 'tools/current_runtime/source/manifest.json', SOURCE_MANIFEST)
     need(bind(current / 'build/manifest.json', SOURCE_MANIFEST) == manifest_raw,
          'the actual cold build used the final complete source manifest')
     manifest = json.loads(manifest_raw)
-    need(manifest['runtime']['sha256'] == SOURCE and manifest['runtime']['functions'] == 778
+    need(manifest['runtime']['sha256'] == SOURCE and manifest['runtime']['functions'] == 781
          and manifest['expected_native_sha256'] == IMAGE and len(manifest['units']) == 15,
          'final complete source and image pins')
     bind(current / 'build/runtime.hepta', SOURCE)
@@ -992,7 +1008,7 @@ def live_reference_custody(repo, current, group):
     build_raw = bind(current / 'build/build.json')
     build_sha = digest(build_raw)
     check_fields(json.loads(build_raw), dict(status='PASS_NATIVE_BUILD_ONLY', source_sha256=SOURCE,
-        native_sha256=IMAGE, manifest_sha256=SOURCE_MANIFEST, functions=778, units_planned=15),
+        native_sha256=IMAGE, manifest_sha256=SOURCE_MANIFEST, functions=781, units_planned=15),
         'actual final cold build identity')
     need(qualification['actual_build_sha256'] == build_sha, 'qualifier binds this actual cold build')
     rows = [row for row in qualification['suites'] if row['name'] == group]
@@ -1096,11 +1112,11 @@ def live_reference_custody(repo, current, group):
         indexing = importlib.util.module_from_spec(index_spec); index_spec.loader.exec_module(indexing)
         parent775, index_inverse = indexing.restore_source(bind(current / 'build/runtime.hepta', SOURCE), bind)
         need(qualification['cat_source_transition']['outer_source_inverse']['index_signbit_source_inverse'] == index_inverse,
-             'the actual778 source and complete source chain have the same exact775 predecessor')
+             'the actual781 source and complete source chain have the same exact775 predecessor')
         _, relu_source_proof = transition.restore_source(parent775, bind)
         need(qualification['cat_source_transition']['outer_source_inverse']['typed_relu_source_inverse']
                  == relu_source_proof,
-             'the actual778 source and the complete original source chain have the same ReLU inverse')
+             'the actual781 source and the complete original source chain have the same ReLU inverse')
     if negation:
         relu_evidence, relu_bindings = live_reference_custody(repo, current, 'typed_relu')
         relu_reference = current / 'review/references/typed-relu776'
@@ -1381,7 +1397,7 @@ def live_reference_custody(repo, current, group):
              and same_source_proof['whole_source_inverse_exact'] is True
              and same_source_proof['whole_round_trip_exact'] is True
              and same_source_proof['all_arithmetic_value_kernel_bodies_unchanged'] is True,
-             'actual778 preserves the complete same773 predecessor and its original arithmetic kernels')
+             'actual781 preserves the complete same773 predecessor and its original arithmetic kernels')
         if mixed:
             mixed_path = repo / 'tools/current_runtime/public_f64_arithmetic_source_transition.py'
             bind(mixed_path)
@@ -1392,7 +1408,7 @@ def live_reference_custody(repo, current, group):
         source_proof = dict(index_inverse, typed_relu_predecessor_source_inverse=
             dict(typed_source_proof, same_f64_predecessor_source_inverse=same_source_proof))
         need(native['source_inverse'] == source_proof,
-             'the complete actual778-to-same773-to-mixed773 source proof matches the original native report')
+             'the complete actual781-to-same773-to-mixed773 source proof matches the original native report')
         for spelling, metadata in bindings.items():
             if spelling not in custody_outputs:
                 need(qualification['checked_inputs'].get(spelling) == metadata,
@@ -1564,7 +1580,7 @@ def typed_relu_custody(repo, current):
 def require_production_extension(group, native, observed, proof):
     """Reject exploratory reports before reading them as complete CI evidence."""
     if group not in EXTENSION_GROUPS:
-        raise ValueError('unknown current778 extension')
+        raise ValueError('unknown current781 extension')
     common = (native.get('status') == 'PASS'
         and native.get('full_installation_provenance_verified') is True
         and observed.get('status') == 'OBSERVED_' + group.upper()
@@ -1596,7 +1612,7 @@ def extension_custody(repo, current, group):
     Every file read is returned to the ordinary archive input-binding path.
     """
     if group not in EXTENSION_GROUPS:
-        raise ValueError('unknown current778 extension custody group')
+        raise ValueError('unknown current781 extension custody group')
     repo, current = Path(repo), Path(current)
     bindings = {}
 
@@ -1641,11 +1657,11 @@ def extension_custody(repo, current, group):
     qualification = document(qualification_path)
     fields(qualification, dict(schema='heptatorch.current-runtime.qualification.v1',
         required_suites=list(GROUPS), required_cases=REQUIRED_CASES,
-        required_cases_total=REQUIRED_CASES_TOTAL, functions=778, units=15,
-        source_sha256=SOURCE, native_sha256=IMAGE), 'complete original31 suite inventory and final image')
-    need(len(GROUPS) == len(REQUIRED_CASES) == 31 and set(GROUPS) == set(REQUIRED_CASES)
+        required_cases_total=REQUIRED_CASES_TOTAL, functions=781, units=15,
+        source_sha256=SOURCE, native_sha256=IMAGE), 'complete original32 suite inventory and final image')
+    need(len(GROUPS) == len(REQUIRED_CASES) == 32 and set(GROUPS) == set(REQUIRED_CASES)
          and sum(REQUIRED_CASES.values()) == REQUIRED_CASES_TOTAL,
-         'all original29 groups plus97 signbit and866 index_select cases remain mandatory')
+         'all original31 groups plus331 indexed F32 cases remain mandatory')
     build = current / 'build'
     manifest_raw = bind(repo / 'tools/current_runtime/source/manifest.json', SOURCE_MANIFEST)
     need(bind(build / 'manifest.json', SOURCE_MANIFEST) == manifest_raw,
@@ -1654,9 +1670,9 @@ def extension_custody(repo, current, group):
     bind(build / 'heptatorch', IMAGE)
     build_raw = bind(build / 'build.json'); build_sha = digest(build_raw)
     fields(json.loads(build_raw), dict(status='PASS_NATIVE_BUILD_ONLY', source_sha256=SOURCE,
-        native_sha256=IMAGE, manifest_sha256=SOURCE_MANIFEST, functions=778, units_planned=15),
+        native_sha256=IMAGE, manifest_sha256=SOURCE_MANIFEST, functions=781, units_planned=15),
         'actual final extension cold-build identity')
-    need(qualification['actual_build_sha256'] == build_sha, 'original31 qualifier bound the actual cold build')
+    need(qualification['actual_build_sha256'] == build_sha, 'original32 qualifier bound the actual cold build')
     template = EXTENSION_PROOFS[group]
     suites = [row for row in qualification['suites'] if row['name'] == group]
     need(len(suites) == 1, 'one original mandatory extension suite')
@@ -1698,7 +1714,7 @@ def extension_custody(repo, current, group):
          bytes=len(proof_raw), sha256=digest(proof_raw), status='PASS_PHYSICAL_' + group.upper()),
          'complete original extension physical-proof byte binding')
 
-    # Both routines are pure physical readers. Leaving their final argument
+    # All extension routines are pure physical readers. Leaving their final argument
     # absent deliberately selects the mandatory original11 provenance path.
     runner_path = repo / 'tests' / group / 'run.py'
     bind(runner_path)
@@ -1750,7 +1766,7 @@ def extension_custody(repo, current, group):
     for spelling, metadata in bindings.items():
         if spelling not in custody_outputs:
             need(qualification['checked_inputs'].get(spelling) == metadata,
-                 'complete31 qualifier bound every original extension input: ' + spelling)
+                 'complete32 qualifier bound every original extension input: ' + spelling)
     inputs.recheck()
     role = dict(role='THIS_CI_' + group.upper() + '_TORCH_REFERENCE_INTERPRETER',
         requested_path=argv[0], original_path=str(python), **bindings[str(python)],
@@ -1777,6 +1793,10 @@ def signbit_custody(repo, current):
 
 def typed_index_select_custody(repo, current):
     return extension_custody(repo, current, 'typed_index_select')
+
+
+def indexed_f32_custody(repo, current):
+    return extension_custody(repo, current, 'indexed_f32')
 
 
 def main(argv=None):
@@ -1813,7 +1833,7 @@ def main(argv=None):
         reference_process_executables=[], numeric_predicates_evidence=None,
         bf16_copy_evidence=None, half_mul_evidence=None, half_neg_evidence=None, half_addsub_evidence=None,
         wide_neg_evidence=None, half_div_evidence=None, public_f64_arithmetic_evidence=None, same_f64_arithmetic_evidence=None, typed_relu_evidence=None,
-        signbit_evidence=None, typed_index_select_evidence=None, missing=[], errors=[])
+        signbit_evidence=None, typed_index_select_evidence=None, indexed_f32_evidence=None, missing=[], errors=[])
     selected, declared, parsed_lists, input_declarations = {}, {}, {}, []
     report_declared_paths = set()
     roots = [(current, 'current-runtime'), (repo, 'repository')] + [
@@ -1896,7 +1916,7 @@ def main(argv=None):
                     table='reference_executable_custody', source_path=spelling, expected=metadata))
         except BaseException as error:
             problem('generator-reference-executable', current / 'review/generator131/report.json', error)
-        for group in ('numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div', 'public_f64_arithmetic', 'same_f64_arithmetic', 'typed_relu', 'signbit', 'typed_index_select'):
+        for group in ('numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div', 'public_f64_arithmetic', 'same_f64_arithmetic', 'typed_relu', 'signbit', 'typed_index_select', 'indexed_f32'):
             try:
                 custody = extension_custody if group in EXTENSION_GROUPS else live_reference_custody
                 evidence, bindings = custody(repo, current, group)
@@ -1958,7 +1978,7 @@ def main(argv=None):
                         or document.get('required_cases') != REQUIRED_CASES
                         or document.get('required_cases_total') != REQUIRED_CASES_TOTAL):
                     problem('qualification-inventory', path,
-                            ValueError('current thirty-one-group14814 qualification input inventory differs'))
+                            ValueError('current thirty-two-group15145 qualification input inventory differs'))
             if relative == 'review/metadata10/report.json':
                 worker = document.get('worker_interpreter')
                 if worker is not None:
@@ -2025,6 +2045,7 @@ def main(argv=None):
             typed_relu_evidence=report['typed_relu_evidence'],
             signbit_evidence=report['signbit_evidence'],
             typed_index_select_evidence=report['typed_index_select_evidence'],
+            indexed_f32_evidence=report['indexed_f32_evidence'],
             external_path_mapping=[dict(original_root=str(root), prefix=alias) for root, alias in roots]
                 + [dict(original_file=str(path), member=name)
                    for path, name in sorted(external_executables.items(), key=lambda row: str(row[0]))])

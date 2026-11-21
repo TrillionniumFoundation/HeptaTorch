@@ -58,14 +58,14 @@ def profile(repository,build,build_sha,inputs):
     current=inputs.bind(repository/'tools/current_runtime/source/runtime.hepta')
     combined=module(repository/'tools/current_runtime/index_signbit_source_transition.py','numeric_predicates_index_signbit_inverse',inputs.bind)
     current,combined_proof=combined.restore_source(current,inputs.bind)
-    require(combined_proof['source_sha256']==built['source_sha256'] and combined_proof['functions']==778
-        and combined_proof['parent_functions']==775 and combined_proof['unchanged_parent_functions']==771
-        and combined_proof['changed_functions']==['entry','index_select','predicate_bits','predicate_command']
-        and combined_proof['appended_functions']==['typed_index_select_previous','typed_index_select','typed_index_select_offset']
+    require(combined_proof['source_sha256']==built['source_sha256'] and combined_proof['functions']==781
+        and combined_proof['parent_functions']==775 and combined_proof['unchanged_parent_functions']==769
+        and combined_proof['changed_functions']==['entry','index_select','gather','indexed_add','predicate_bits','predicate_command']
+        and combined_proof['appended_functions']==['typed_index_select_previous','typed_index_select','typed_index_select_offset','indexed_gather_forward_source','indexed_add_forward_inputs','indexed_add_forward_location']
         and combined_proof['whole_source_inverse_exact'] is True
         and combined_proof['whole_round_trip_exact'] is True
         and combined_proof['admitted_new_opcode']==126 and combined_proof['opcode125_remains_rejected'] is True,
-        'complete778 source inverse precedes every unchanged775 predecessor predicate')
+        'complete781 source inverse precedes every unchanged775 predecessor predicate')
     relu_path=repository/'tools/current_runtime/typed_relu_source_transition.py'
     inputs.bind(relu_path,'d06390c160833aa829c1a65cffa5ed8698d7aa23b72675c2942fca006f5350f9')
     relu=module(relu_path,'predicate_typed_relu_source_proof',inputs.bind)

@@ -2,7 +2,7 @@
 
 ## Source and tools
 
-The canonical application is [`tools/current_runtime/source/runtime.hepta`](../tools/current_runtime/source/runtime.hepta). Its [manifest](../tools/current_runtime/source/manifest.json) fixes complete functions, ordered units and native object/image identities. The current candidate has **778 core functions in 15 units (13 core, RNG and owner support)**. HIA machine code performs all tensor numerical work, allocation, ownership, AD, RNG and command execution in a static Linux x86-64 ELF.
+The canonical application is [`tools/current_runtime/source/runtime.hepta`](../tools/current_runtime/source/runtime.hepta). Its [manifest](../tools/current_runtime/source/manifest.json) fixes complete functions, ordered units and native object/image identities. The current candidate has **781 core functions in 15 units (13 core, RNG and owner support)**. HIA machine code performs all tensor numerical work, allocation, ownership, AD, RNG and command execution in a static Linux x86-64 ELF.
 
 Use Hepta source commit `f33d8da316de8fdf27b504371f1a5310997ff548`. The exact bootstrap sequence in [Current HIA Runtime CI](../.github/workflows/current-runtime.yml) reproduces the initial compiler, expanded profile, borrowed modules, owned ABI2, interactive sessions, ABI3 stack tools and entropy linker. Its initial bootstrap uses Python and GNU ld.
 
@@ -139,9 +139,10 @@ Or consume an explicit new build:
 | `typed_relu` | 776 | Exact I64/F64/F16/BF16 ReLU bits, negative zero, all Half words, scalar/vector NaNs, rank0..4 layouts, 90 protocol controls and four actual OOM/recovery pairs |
 | `signbit` | 97 | Seven dtype codes, exhaustive F16/BF16 sign bits, signed zero/NaN, thirteen protocol controls, six successful and six failed FE transactions, and two actual OOM/recovery pairs |
 | `typed_index_select` | 866 | Six tensor dtypes, scalar/rank0–4, noncontiguous storage/offsets, exact copied bits, five actual AD cases, 78 protocol controls, two actual OOM/recoveries and the original Bool packet successor |
-| **Total** | **14,814** | Every group and its original or explicitly mapped successor controls are mandatory |
+| `indexed_f32` | 331 | F32 gather/scatter_add/index_add with and without AD; explicit no-grad geometry, 193 actual gradients and full raw replay |
+| **Total** | **15,145** | Every group and its original or explicitly mapped successor controls are mandatory |
 
-Production cases use the same main image. Generator ABI/reordered probes are separate current-object images, each bound to its own actual execution. New source identities require a complete new run. The index/signbit778→typed-ReLU775→same-F64773→mixed-F64773→771→767→765→761→758→742→740 whole-source inverse composes with unchanged predecessor proofs; source identity never substitutes for execution. The typed-ReLU successor changes only the old `unary` body, retains the other772 old bodies and adds `typed_relu_value` and `typed_relu_tensor`. Its [source review](../validation/current-runtime775/source-review.json) and [qualification plan](../validation/current-runtime778/qualification-plan.json) keep static identity, scoped numerical results and full29-tree execution distinct.
+Production cases use the same main image. Generator ABI/reordered probes are separate current-object images, each bound to its own actual execution. New source identities require a complete new run. The indexed781→index/signbit778→typed-ReLU775→same-F64773→mixed-F64773→771→767→765→761→758→742→740 whole-source inverse composes with unchanged predecessor proofs; source identity never substitutes for execution. The typed-ReLU successor changes only the old `unary` body, retains the other772 old bodies and adds `typed_relu_value` and `typed_relu_tensor`. Its [source review](../validation/current-runtime775/source-review.json) and [qualification plan](../validation/current-runtime781/qualification-plan.json) keep static identity, scoped numerical results and the full32-group execution distinct.
 
 Original numerical assertions, tolerances, resource budgets and failure records remain. The complete 239-request Half entry now requires 151 original refusals and 88 explicitly mapped successes: 22 multiplication, two negation, 40 single-command additions/subtractions, two original 228-byte factory/FE-add frames and22 true divisions. The FE owner extension derives three allocations and one promotion retirement from the fixed HIA source. It checks every word of the three descriptors, all eight owner tables, allocator offsets and free extents, original Storage payloads and RNG; it constructs no observed intermediate state. The complete linked `rng03` unit and its two scalar rounding leaves are included in the source call graph.
 
@@ -151,10 +152,12 @@ The typed_relu776, half_neg371 and wide_neg405 groups share one new actual776 Re
 
 The live32 cold-build adapter preserves its original predicates while mapping all seven unit/process inventory literals to the actual fifteen-unit, sixteen-process build. The preceding complete22 and old-head complete23 failures are retained. A focused corrected32 PASS does not substitute for the required complete execution on each new head.
 
-Current results are in [the audit](current-audit.md). The 14,814 finite cases remain distinct from the complete 2,590 native declarations, 688 derivative declarations and 17 system contracts.
+Current results are in [the audit](current-audit.md). The 15,145 finite cases remain distinct from the complete 2,590 native declarations, 688 derivative declarations and 17 system contracts.
 
 ## Changes and retirement
 
 Edit the canonical source and regenerate ordered units with [`partition.py`](../tools/current_runtime/partition.py). Cold-build every object and run affected qualification. Before deleting a predecessor path, migrate its live consumers, preserve original outcomes at immutable Git identities and run their current replacements. See [the history index](history.md); licenses and active reference/bootstrap inputs remain in the current tree.
 
 The two new groups have explicit exploratory local flags for development. The common coordinator never supplies them; strict qualification and sealing reject local reports without all original Torch installation provenance checks. See [the native indexing/signbit scope](native-index-signbit.md).
+
+The early source-admission step checks the actual cold build, full inverse chains, current reader identities, generated owners and the exact group/case inventory. It also prepares all four AsStrided and three resource readers. Twelve independent regression controls exercise stale bytecode, incorrect case counts, inactive workflow guards, full file modes and actual reader context entry. The sealer requires all five preparation reports. These checks grant no runtime qualification and add no numerical cases; all32 numerical groups still execute. The independent [RNG packet consumer](../tools/current_rng_consumer/README.md) now links the current cold build’s RNG object and preserves all185 original tests, with strict new-tree CI still required.

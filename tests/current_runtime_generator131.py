@@ -11,8 +11,8 @@ import types
 from current_runtime_fixtures import require, safe_name, sha
 from current_runtime_generator_fixtures import verify_qualifier, QUALIFIER_MANIFEST
 
-SOURCE = 'db88eaad9fb69010ae4f6925f4e8c54edce815b9f46507bc0c7c2536a4cb2c0b'
-IMAGE = '929529e7c86ea3ce12e522f9b01b1a7c4180feb00bde812bc26268091d5032e4'
+SOURCE = 'ee214f05b56401ea17a5f55e792aaccf73447974ba0b7e0416990439bff6a8ff'
+IMAGE = '71309d9e8ef794b9052603fd28f4d4da4886aff6924d8413489af856744ec272'
 OWNER = 'c39600e7c37dea390f88cf9e74d86dfa924301456e0f32e127d82c98ad6778b0'
 GROUPS = ('oracle24', 'native11', 'entry59', 'dispatch')
 
@@ -66,7 +66,7 @@ def tensor_owner(package, directory, proof, inputs):
     original = inputs.bind(package / 'frozen/owner_integral.py', OWNER)
     raw = original
     changes = [('HTSINT01', 'HTSINT02', 2), ('HTOSIN01', 'HTOSIN02', 2),
-               ('functions == 699', 'functions == 778', 1),
+               ('functions == 699', 'functions == 781', 1),
                ('sum-integral-source01-UNBOUND-699', 'generator778-dispatch-UNBOUND', 1),
                ('sum-integral-source01-%d-preserved47-48', 'generator%d-dispatch-full-tensor-owner', 1),
                ('heptatorch.sum-integral-owner-source01.v1', 'heptatorch.generator778-dispatch-tensor-owner.v1', 1)]
@@ -81,7 +81,7 @@ def tensor_owner(package, directory, proof, inputs):
     path = directory / 'executed-tensor-owner.py'
     require(inputs.bind(path, sha(raw)) == raw, 'actual executed owner source')
     module = loaded(path, 'current_generator131_actual_tensor_owner', inputs)
-    module.bind_profile(SOURCE, IMAGE, 778)
+    module.bind_profile(SOURCE, IMAGE, 781)
     return module
 
 

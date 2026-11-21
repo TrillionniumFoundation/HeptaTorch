@@ -9,9 +9,9 @@ from pathlib import Path
 import re
 import types
 
-SOURCE = 'db88eaad9fb69010ae4f6925f4e8c54edce815b9f46507bc0c7c2536a4cb2c0b'
-IMAGE = '929529e7c86ea3ce12e522f9b01b1a7c4180feb00bde812bc26268091d5032e4'
-MANIFEST = '361609f574cdde8854d176f22c810aea9a72ef80adcfd0d8beeb1c67ae4b6f52'
+SOURCE = 'ee214f05b56401ea17a5f55e792aaccf73447974ba0b7e0416990439bff6a8ff'
+IMAGE = '71309d9e8ef794b9052603fd28f4d4da4886aff6924d8413489af856744ec272'
+MANIFEST = 'a53b2bf1865a56adfc9f56763feae1b7c5ac9c23243399efe1c201c75db3a8c9'
 HALF_SOURCE = 'bf3641b1a9061c6f92b8cbeef75adfac89e82ee16d32a9f650cb938d9e918386'
 PREDICATE_INVERSE = '71244cd75fb41ce07876d7f5699b66ae43c73adc5dd5d09fb2da0dec9c8c7439'
 STORAGE_SOURCE = '51820849f7becec549be15babace00f00687601ae7f53bcee0e636ca02f721f9'
@@ -65,7 +65,7 @@ def current_source(repository, inputs):
     manifest_raw = read(source / 'manifest.json', inputs, MANIFEST)
     manifest = json.loads(manifest_raw)
     names = [row['name'] for row in manifest['units']]
-    need(manifest['runtime']['sha256'] == SOURCE and manifest['runtime']['functions'] == 778
+    need(manifest['runtime']['sha256'] == SOURCE and manifest['runtime']['functions'] == 781
          and manifest['expected_native_sha256'] == IMAGE
          and len(names) == len(set(names)) == 15
          and names[0] == 'rng03' and names[-1] == 'owners',
@@ -74,8 +74,8 @@ def current_source(repository, inputs):
     builder = loaded(path, read(path, inputs, BUILDER), 'generator131_actual736_builder')
     bind = (lambda path, expected=None: read(path, inputs, expected))
     runtime, units, summary = builder.check_sources(manifest, source, bind)
-    need(summary['source_sha256'] == SOURCE and summary['functions'] == 778
-         and summary['complete_core_bodies_matched'] == 778 and summary['units_planned'] == 15,
+    need(summary['source_sha256'] == SOURCE and summary['functions'] == 781
+         and summary['complete_core_bodies_matched'] == 781 and summary['units_planned'] == 15,
          'every physical775 body and all fifteen source partitions')
     return runtime, units, summary, manifest_raw
 
@@ -94,11 +94,11 @@ def parent_source_files(repository, inputs=None):
     index_path = Path(repository) / 'tools/current_runtime/index_signbit_source_transition.py'
     indexing = loaded(index_path, read(index_path, inputs), 'generator131_index_signbit_source_inverse')
     runtime, index_inverse = indexing.restore_source(runtime, lambda path, expected=None: read(path, inputs, expected))
-    need(index_inverse['source_sha256'] == SOURCE and index_inverse['functions'] == 778
+    need(index_inverse['source_sha256'] == SOURCE and index_inverse['functions'] == 781
          and index_inverse['parent_functions'] == 775
          and index_inverse['whole_source_inverse_exact'] is True
          and index_inverse['whole_round_trip_exact'] is True,
-         'complete778 source before the original775 Generator source obligations')
+         'complete781 source before the original775 Generator source obligations')
     relu_path = Path(repository) / 'tools/current_runtime/typed_relu_source_transition.py'
     relu = loaded(relu_path, read(relu_path, inputs), 'generator131_typed_relu_source_inverse')
     runtime, relu_inverse = relu.restore_source(runtime, lambda path, expected=None: read(path, inputs, expected))
@@ -265,7 +265,7 @@ def parent_source_files(repository, inputs=None):
         typed_relu_source_inverse=relu_inverse,
         index_signbit_source_inverse=index_inverse,
         same_f64_arithmetic_source_inverse=same_inverse,
-        physical_functions=778, physical_units=15, parent_source_sha256=PARENT_SOURCE,
+        physical_functions=781, physical_units=15, parent_source_sha256=PARENT_SOURCE,
         parent_functions=712, parent_units=15, unchanged_parent_bodies=683,
         changed_parent_bodies=changed, removed_parent_bodies=removed, added_physical_bodies=added,
         all11_generator_bodies_byte_exact=True, owners_and_rng_support_byte_exact=True,
@@ -285,7 +285,7 @@ def bind_current(repository, candidate, build, build_sha, inputs):
     path = repository / 'tools/current_runtime/qualification.py'
     qualification = loaded(path, read(path, inputs, QUALIFICATION), 'generator131_current736_qualification')
     need((qualification.SOURCE, qualification.IMAGE, qualification.FUNCTIONS, qualification.UNITS)
-         == (SOURCE, IMAGE, 778, 15), 'shared admission has the exact physical775 profile')
+         == (SOURCE, IMAGE, 781, 15), 'shared admission has the exact physical775 profile')
     built = qualification.admit_build(build, inputs.bind, expected=build_sha)
     runtime, units, summary, manifest_raw = current_source(repository, inputs)
     return runtime, units, summary, manifest_raw, built, proof

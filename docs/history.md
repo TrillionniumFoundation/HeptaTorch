@@ -113,6 +113,15 @@ The immutable `tests/differentiable_view_input4_review/README.md` remains byte-i
 
 PR52与PR53的完整Current门分别失败，原归档和结果不升级为通过。PR53失败原件14700680070已完整读回；25组／13,007例通过，另外3组／68例在原生案例前被来源校验阻止，资格后的源码缺失检查未执行。775需要重新完成全部29组／13,851例及原件复核。固定旧143源码已从跟踪树移除，但旧Native/F64/RNG及Make消费者仍实际恢复使用它；其完整语义迁移尚未完成。
 
-## 当前778计划与分区
+## 历史778候选计划与分区
 
-当前树只保留778活动计划及15个活动单元。13份被替换的775分区和775计划保存在固定PR55提交 `6378ae1b469e9e98a75547fa2670f7cc9e9badf6`，完整路径、Git blob、字节数与模式见[778退休记录](../validation/current-runtime778/retirement.json)。新增两原生契约需要完整31组／14,814例重新执行；历史成功与失败均保留各自身份。
+778候选当时只保留其活动计划及15个活动单元。13份被替换的775分区和775计划保存在固定PR55提交 `6378ae1b469e9e98a75547fa2670f7cc9e9badf6`，完整路径、Git blob、字节数与模式见[固定778退休记录](https://github.com/TrillionniumFoundation/HeptaTorch/blob/8993eb44a034c2ae388936c6a9ce777c6dad0cf6/validation/current-runtime778/retirement.json)。新增两原生契约需要完整31组／14,814例重新执行；历史成功与失败均保留各自身份。
+
+
+## 当前781索引修复与消费者迁移
+
+当前树保留781完整HIA源码、15个活动单元与唯一32组／15,145例资格计划。13份778分区和4份被替代候选元数据共2,626,149字节按原Git身份保存在 `8993eb44a034c2ae388936c6a9ce777c6dad0cf6`，见[781退休清单](../validation/current-runtime781/retirement.json)。这17项替换不计为删除功能，也不减少全量PyTorch的目标。
+
+781补入无梯度gather/scatter_add/index_add的前向修复，并保留778的signbit和typed index_select。完整源逆链精确保留769个775原函数和全部旧AD助手。新的源码准备门先检查实际加载的读取器、Owner guards、完整资源来源及32组分母；原全部数值门仍要在本次冷构建上执行。
+
+独立RNG packet消费者改为复用当前实际对象，完整185例及其原参考、错误、资源条件继续保留。它不再恢复143；Native/F64及显式历史Make消费者仍有真实依赖。只有本次严格新树运行与原件审读通过，才能把对应迁移标为验收完成。
