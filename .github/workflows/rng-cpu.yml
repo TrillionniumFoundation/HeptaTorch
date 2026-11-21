@@ -1,28 +1,45 @@
-name: Native HIA CPU RNG sequence and state qualification
+name: Current HIA CPU RNG sequence and state qualification
 on:
   push:
-    branches: ["feature/native-cpu-rng"]
+    branches: ["main"]
   pull_request:
-    paths: ["tools/legacy_source143/**", "tests/test_legacy_source143.py", "src/heptatorch.hepta", "tools/rng-cpu/**", "tests/rng*", "tests/rng_independent/**", "tests/check_rng_custody.py", "third_party/pytorch/rng/**", "validation/*rng*", ".github/workflows/rng-cpu.yml"]
+    paths:
+      - "tools/current_rng_consumer/**"
+      - "tools/current_runtime/**"
+      - "tools/compiler-profile/**"
+      - "tools/modules/**"
+      - "tools/owned_modules/**"
+      - "tools/owned_sessions/**"
+      - "tools/stack_budget/**"
+      - "tools/rng-cpu/**"
+      - "tests/rng*"
+      - "tests/rng_independent/**"
+      - "tests/check_rng_custody.py"
+      - "tests/pytorch_oracle.py"
+      - "tests/pinned_reference_custody.py"
+      - "compatibility/pytorch*"
+      - "third_party/pytorch/rng/**"
+      - "validation/*rng*"
+      - ".github/workflows/rng-cpu.yml"
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   rng:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
-      - name: Admit the fixed historical143 source
+      - name: Require the current consumer to start without historical143 source
         run: |
           test -z "$(git ls-files -- src/heptatorch.hepta)"
           test ! -e src/heptatorch.hepta
           test ! -L src/heptatorch.hepta
-          test ! -e build/legacy-source143
-          test ! -L build/legacy-source143
-          python3 -I -S -B tools/legacy_source143/restore.py --repository .
+          mkdir -p "$RUNNER_TEMP/rng-consumer"
+          printf 'RNG_OUTPUT=%s/rng-consumer\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+          git rev-parse HEAD > "$RUNNER_TEMP/rng-consumer/checkout-head.txt"
 
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -65,6 +82,146 @@ jobs:
               assert p.returncode==0 and not p.stderr and p.stdout==compiler.read_bytes()
           print('PASS native HIA compiler reproduction')
           PY
+      - name: Reproduce the compiler capacity and native module profile
+        run: |
+          python3 -I -S -B tools/compiler-profile/adapt.py \
+            --source-root "$GITHUB_WORKSPACE/.toolchain/hepta" \
+            --output "$RUNNER_TEMP/hepta-profile-sources"
+          python3 -I -S -B tools/compiler-profile/generate_packer.py \
+            --source-root "$GITHUB_WORKSPACE/.toolchain/hepta" \
+            --output "$RUNNER_TEMP/hepta-profile-sources"
+          bash tools/compiler-profile/rebuild.sh \
+            "$RUNNER_TEMP/rng-compiler/native-compiler" \
+            "$RUNNER_TEMP/hepta-profile-sources" \
+            "$RUNNER_TEMP/hepta-expanded"
+          python3 -I -S -B tools/compiler-profile/check_capacity.py \
+            --compiler "$RUNNER_TEMP/hepta-expanded/hia-native-compiler" \
+            --output "$RUNNER_TEMP/hepta-capacity-review"
+          python3 -I -S -B - <<'PROFILE'
+          from pathlib import Path
+          import hashlib,json,os
+          temporary=Path(os.environ['RUNNER_TEMP'])
+          profile=json.loads(Path('compatibility/hia-expanded-profile.json').read_bytes())
+          assert hashlib.sha256((temporary/'hepta-expanded/hia-native-compiler').read_bytes()).hexdigest()==profile['generated']['native_compiler']['sha256']
+          capacity=json.loads((temporary/'hepta-capacity-review/summary.json').read_bytes())
+          assert capacity['pass'] and capacity['passed']==capacity['total']==16
+          PROFILE
+
+      - name: Verify the pinned module adaptation inputs
+        shell: bash
+        run: |
+          python3 -I -S -B - <<'MODULE_INPUTS'
+          from pathlib import Path
+          import hashlib
+          import json
+          recorded = json.loads(Path('validation/native-modules.json').read_text())
+          assert recorded['status'] == 'PASS'
+          for path, expected in recorded['packaged_tools_sha256'].items():
+              assert hashlib.sha256(Path(path).read_bytes()).hexdigest() == expected, path
+          profile = json.loads(Path('tools/modules/profile.json').read_text())
+          assert profile['profile'] == recorded['profile'] == 'heptatorch.hia.borrowed-modules.v1'
+          assert profile['upstream_commit'] == recorded['upstream_commit'] == 'f33d8da316de8fdf27b504371f1a5310997ff548'
+          print('PASS: exact module adaptation, native authoring additions and test-source pins')
+          MODULE_INPUTS
+
+      - name: Author and reproduce three native module-compiler generations
+        shell: bash
+        run: |
+          python3 -I -S -B tools/modules/build_module_compiler.py \
+            --source-root "$GITHUB_WORKSPACE/.toolchain/hepta" \
+            --capacity-adaptation "$RUNNER_TEMP/hepta-profile-sources/adaptation.json" \
+            --output "$RUNNER_TEMP/hepta-modules-sources"
+          python3 -I -S -B tools/modules/build_module_linker.py \
+            --source-root "$GITHUB_WORKSPACE/.toolchain/hepta" \
+            --capacity-adaptation "$RUNNER_TEMP/hepta-profile-sources/adaptation.json" \
+            --output "$RUNNER_TEMP/hepta-modules-sources"
+          cp "$RUNNER_TEMP/hepta-profile-sources/compiler-packer.hepta" \
+            "$RUNNER_TEMP/hepta-modules-sources/compiler-packer.hepta"
+          bash tools/modules/rebuild.sh \
+            "$RUNNER_TEMP/hepta-expanded/hia-native-compiler" \
+            "$RUNNER_TEMP/hepta-modules-sources" \
+            "$RUNNER_TEMP/hepta-modules-native"
+          python3 -I -S -B - <<'MODULE_REPRODUCTION'
+          from pathlib import Path
+          import hashlib
+          import json
+          import os
+          temporary = Path(os.environ['RUNNER_TEMP'])
+          sources = temporary / 'hepta-modules-sources'
+          native = temporary / 'hepta-modules-native'
+          recorded = json.loads(Path('validation/native-modules.json').read_text())
+          digest = lambda p: hashlib.sha256(Path(p).read_bytes()).hexdigest()
+          assert json.loads((sources / 'compiler-adaptation.json').read_text()) == recorded['compiler_authoring']
+          assert json.loads((sources / 'linker-authoring.json').read_text()) == recorded['linker_authoring']
+          assert digest(native / 'module-compiler') == recorded['compiler_executable_sha256']
+          assert digest(native / 'module-linker') == recorded['linker_executable_sha256']
+          generations = []
+          for generation in range(3):
+              generations.append({'generation': generation,
+                                  'flat_sha256': digest(native / ('M' + str(generation) + '.image')),
+                                  'executable_sha256': digest(native / ('compiler-' + str(generation)))})
+          assert generations == recorded['native_reproduction']['generations']
+          print(json.dumps({'schema': 'heptatorch.hosted-module-reproduction.v1', 'status': 'PASS',
+                            'profile': recorded['profile'], 'native_generations': generations,
+                            'compiler_authoring_closure_files': len(recorded['compiler_authoring']['upstream_source_files_verified_before_and_after']),
+                            'linker_authoring_closure_files': len(recorded['linker_authoring']['upstream_source_files_verified_before_and_after'])}))
+          MODULE_REPRODUCTION
+
+      - name: Reproduce the owned-resource ABI2 compiler and native syscall allocator
+        shell: bash
+        run: |
+          sha256sum -c validation/owned-module-package.sha256
+          python3 -I -S -B tools/owned_modules/rebuild.py \
+            --source-root "$GITHUB_WORKSPACE/.toolchain/hepta" \
+            --capacity-adaptation "$RUNNER_TEMP/hepta-profile-sources/adaptation.json" \
+            --borrowed-tools "$RUNNER_TEMP/hepta-modules-native" \
+            --output "$RUNNER_TEMP/hepta-owned-modules"
+
+      - name: Reproduce checked owned-state interactive entry and cleanup tools
+        shell: bash
+        run: |
+          sha256sum -c validation/owned-session-package.sha256
+          python3 -I -S -B tools/owned_sessions/rebuild.py \
+            --source-root "$GITHUB_WORKSPACE/.toolchain/hepta" \
+            --owned-build "$RUNNER_TEMP/hepta-owned-modules" \
+            --owned-profile tools/owned_modules/profile.json \
+            --borrowed-tools "$RUNNER_TEMP/hepta-modules-native" \
+            --output "$RUNNER_TEMP/hepta-owned-session-tools"
+
+      - name: Reproduce ABI3 native stack admission and guarded startup
+        id: toolchain
+        run: |
+          sha256sum -c validation/stack-budget-package.sha256
+          python3 -I -S -B tools/stack_budget/rebuild.py \
+            --source-root "$GITHUB_WORKSPACE/.toolchain/hepta" \
+            --owned-build "$RUNNER_TEMP/hepta-owned-modules" \
+            --session-build "$RUNNER_TEMP/hepta-owned-session-tools" \
+            --borrowed-tools "$RUNNER_TEMP/hepta-modules-native" \
+            --output "$RUNNER_TEMP/hepta-stack-budget"
+
+      - name: Reproduce the native four-argument entropy linker
+        id: entropy_tool
+        run: |
+          sha256sum -c tools/current_runtime/entropy_linker/source-pins.sha256
+          python3 -I -S -B tools/current_runtime/entropy_linker/build_tool.py \
+            --upstream "$GITHUB_WORKSPACE/.toolchain/hepta" \
+            --stack-build "$RUNNER_TEMP/hepta-stack-budget" \
+            --output "$RUNNER_TEMP/hepta-current-entropy"
+          for name in linker.hepta linker-authoring.txt startup-authoring.txt; do
+            cmp "tools/current_runtime/entropy_linker/source/$name" "$RUNNER_TEMP/hepta-current-entropy/$name"
+          done
+
+      - name: Cold-build the current runtime whose actual RNG object will be reused
+        run: |
+          python3 -I -S -B tools/current_runtime/build.py \
+            --manifest tools/current_runtime/source/manifest.json \
+            --source-root tools/current_runtime/source \
+            --compiler "$RUNNER_TEMP/hepta-stack-budget/native/stack-module-compiler" \
+            --linker "$RUNNER_TEMP/hepta-current-entropy/generator-session-linker" \
+            --output "$RNG_OUTPUT/current-build"
+          cmp "$RUNNER_TEMP/hepta-current-entropy/generator-session-linker" \
+            "$RNG_OUTPUT/current-build/toolchain/stack-linker-session"
+
       - name: Install exact independent PyTorch wheel
         run: |
           python3 - <<'PY'
@@ -77,29 +234,65 @@ jobs:
           subprocess.run([sys.executable,'-m','pip','install','--disable-pip-version-check','--force-reinstall',
              '--index-url','https://download.pytorch.org/whl/cpu','--report',x['install_report'],url],check=True)
           PY
-      - name: Verify native RNG source and frozen independent package custody
+      - name: Install the fixed reference support dependency and verify silent imports
         run: |
-          python3 -I -S -B tests/check_rng_custody.py
-          sha256sum -c validation/rng-independent-package.sha256
-      - name: Compare native RNG with independent standard-library engines
-        run: |
-          python3 -I -S -B tests/rng_cpu_oracle.py --compiler "$RUNNER_TEMP/rng-compiler/native-compiler" --reference cpython --output build/rng-cpython
-      - name: Exercise native flat ABI and independent state boundaries
-        run: |
-          python3 tests/rng_independent/flat_probe.py --native build/rng-cpython/rng-native --expect-short return-zero --output build/rng-flat-review
-          python3 tests/rng_independent/review_rng.py --native build/rng-cpython/rng-native --source tools/rng-cpu/rng.hepta --output build/rng-state-review
-          cat build/rng-flat-review/report.json
-          cat build/rng-state-review/report.json
-      - name: Compare RNG sequences and full state with the exact pinned PyTorch CPU wheel
-        run: |
-          python3 tests/rng_cpu_oracle.py --compiler "$RUNNER_TEMP/rng-compiler/native-compiler" --reference pytorch --output build/rng-pytorch
+          python3 -m pip install --disable-pip-version-check --force-reinstall \
+            --report build/pytorch-reference-support-install.json \
+            -r compatibility/pytorch-reference-requirements.txt
+          python3 -I -S -B - <<'IMPORT_CHECK'
+          from pathlib import Path
+          import json,os,subprocess,sys
+          out=Path(os.environ['RNG_OUTPUT'])
+          command=[sys.executable,'-B','-W','error','-c','import numpy; import torch']
+          process=subprocess.run(command,capture_output=True,timeout=60)
+          (out/'oracle-import.stdout').write_bytes(process.stdout)
+          (out/'oracle-import.stderr').write_bytes(process.stderr)
+          (out/'oracle-import.json').write_text(json.dumps({'argv':command,'exit_code':process.returncode,'stdout_EOF':True,'stderr_EOF':True})+'\n')
+          assert process.returncode==0 and not process.stdout and not process.stderr
+          IMPORT_CHECK
+          python3 -B tests/pinned_reference_custody.py \
+            --prepare-installed --repository "$GITHUB_WORKSPACE"
 
-      - name: Preserve complete historical143 source custody
+      - name: Qualify all original 74, 76, 10 and 25 CPU RNG cases on the actual current RNG object
+        run: |
+          test ! -e src/heptatorch.hepta
+          test ! -L src/heptatorch.hepta
+          python3 -I -S -B tools/current_rng_consumer/run.py \
+            --repository . \
+            --current-build "$RNG_OUTPUT/current-build" \
+            --flat-linker "$RUNNER_TEMP/hepta-stack-budget/native/stack-linker-runtime" \
+            --output "$RNG_OUTPUT/review"
+          python3 -I -S -B tools/current_rng_consumer/qualify.py \
+            --repository . \
+            --current-build "$RNG_OUTPUT/current-build" \
+            --evidence "$RNG_OUTPUT/review" \
+            --output "$RNG_OUTPUT/qualification.json"
+          test ! -e src/heptatorch.hepta
+          test ! -L src/heptatorch.hepta
+
+      - name: Preserve complete current RNG consumer and native tool evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: historical143-source-custody-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: build/legacy-source143/
+          name: current-rng-consumer-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/rng-consumer/
+            ${{ runner.temp }}/rng-compiler/
+            ${{ runner.temp }}/hepta-profile-sources/
+            ${{ runner.temp }}/hepta-expanded/
+            ${{ runner.temp }}/hepta-capacity-review/
+            ${{ runner.temp }}/hepta-modules-sources/
+            ${{ runner.temp }}/hepta-modules-native/
+            ${{ runner.temp }}/hepta-owned-modules/
+            ${{ runner.temp }}/hepta-owned-session-tools/
+            ${{ runner.temp }}/hepta-stack-budget/
+            ${{ runner.temp }}/hepta-current-entropy/
+            build/pytorch-install.json
+            build/pytorch-reference-support-install.json
+            build/pytorch-reference-wheel.whl
+            build/pytorch-reference-installed/
+            tests/pinned_reference_custody.py
+            compatibility/pytorch-official-wheel-members.json
           if-no-files-found: error
           compression-level: 9
           retention-days: 30

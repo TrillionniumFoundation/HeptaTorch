@@ -1,7 +1,7 @@
 # Native HIA binary64 arithmetic
 
 **Component status: PARTIAL.** The native arithmetic passes the full CPython
-bitwise corpus. The unchanged strict PyTorch corpus currently fails four sqrt
+bitwise corpus. The recorded unchanged strict PyTorch corpus fails four sqrt
 groups: 4,008 observed non-NaN results differ by one encoding step. Integer
 rounding-cell checks show native RNE for these inputs and non-RNE results from
 the fixed MKL-backed reference. This does not close fixed-backend bitwise parity,
@@ -12,9 +12,25 @@ square root, exact binary32 widening and rounded binary32 narrowing. Every targe
 operation uses HIA unsigned integer instructions. The emitted ELF has no Python,
 PyTorch, libc floating-point or host arithmetic dependency.
 
-This is a scalar arithmetic foundation. It is not yet connected to the numerical
-Tensor dtype field, promotion, dispatch, autograd or device-specific kernels.
-The complete PyTorch dtype and operator gates remain open.
+The add/subtract/multiply/divide and conversion bodies are already used by the
+current public F64 Tensor implementation, including the bounded no-gradient
+mixed-F64 and same-F64 arithmetic paths. The
+[current-object packet consumer](../current_f64_consumer/README.md) links all
+fifteen objects from the actual current cold build: eleven original function
+bodies are byte-identical in the current source, while the packet entry, byte
+writer and scalar `sqrt64` adapter retain their original bodies with only
+symbol renames checked by an exact inverse. `f64.hepta` and `profile.json`
+remain required source witnesses.
+
+Scalar packet sqrt is separate from the public Tensor interface. This consumer
+does **not** add a public F64 Tensor sqrt operation or full F64 autograd/device
+support. The strict sqrt mismatch remains FAIL; the separately proved RNE
+component remains PARTIAL. The800 public-view extension has only local
+exploratory execution and complete physical replay so far; its strict view gate,
+full35-group run and current-object component CI remain required. See the
+[current audit](../../docs/current-audit.md) and
+[public-view contract](../../docs/native-public-f64-views.md). The complete
+dtype/operator gates remain open and whole-project status remains HOLD.
 
 ## Numerical contract
 
@@ -64,6 +80,13 @@ Malformed requests return only status 1. A widening input with nonzero high
 values. There is no persistent target state.
 
 ## Independent qualification
+
+The commands below describe the retained original standalone component and its
+fixed image. The old `dtype-f64` workflow remains in this candidate. Use the
+[current-object consumer instructions](../current_f64_consumer/README.md) for
+the replacement path; its strict execution and original-artifact readback must
+complete before retiring the old workflow. Local797 current-object results do
+not grant800 qualification.
 
 ```sh
 python3 -I -S -B tests/f64_oracle.py \

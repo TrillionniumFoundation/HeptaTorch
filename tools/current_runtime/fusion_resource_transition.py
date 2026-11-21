@@ -21,9 +21,9 @@ import re
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
-SOURCE = '0b000b51288af20490162efd8e525b86359a32cdd6d2521df97ecd9cddbd7b43'
-IMAGE = 'ef82340209edc4dfb8d7ed0ecbc65e144fe26078cb29a0ba327798533476e86e'
-OUTER = '9c3e95d835c01fc64a19828e60574f47a09c30c106af54f87baa4b0abd4c574c'
+SOURCE = 'aab2e736ff0ef4a282ff73fb1a69a95d2ceeea5260bbdada0af5b30cc16dcd3c'
+IMAGE = '083a92ad78977396f6d2cacff7b7f559cec4871dfcfb67624db48b6f8d64c3d5'
+OUTER = 'f6367a2fba18703e9d807f250e18d503c717969454369754166ee510640c7a40'
 OBLIGATIONS = '4fa8028bec733a72ac2857dce326e25d6d378aafd1045c2504bb5828553cf2bb'
 OWNER = 'e54509ceba0ef3bf171f5fc1018665dc97e56eeccec0cba1e8c14f9a7ed81501'
 CHANGED = ('command_argument', 'dtype_audit', 'to_command', 'typed_command', 'typed_fill')
@@ -63,7 +63,14 @@ def prove(source, bind):
     outer = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(outer)
     historical, complete = outer.restore_source(source, bind)
-    actual, parent = outer.functions(source, 775), outer.functions(historical, 700)
+    actual, parent = outer.functions(source, 800), outer.functions(historical, 700)
+    view_path = HERE / 'public_f64_view_source_transition.py'
+    view_raw = bind(view_path)
+    import types
+    view = types.ModuleType('resource_current_f64_view_original_domain')
+    view.__file__ = str(view_path)
+    exec(compile(view_raw, str(view_path), 'exec'), view.__dict__)
+    view_route = view.prove_original_domain(source, bind)
     predicate_inverse = complete['predicate_source_inverse']
     guard = predicate_inverse['dispatcher_guard']
     delegation = predicate_inverse['old_path_delegation']
@@ -75,7 +82,12 @@ def prove(source, bind):
     arithmetic_inverse = complete['public_f64_arithmetic_source_inverse']
     same_inverse = complete['same_f64_arithmetic_source_inverse']
     relu_inverse = complete['typed_relu_source_inverse']
-    require(relu_inverse['source_sha256'] == SOURCE
+    index_inverse = complete['index_signbit_source_inverse']
+    require(index_inverse['source_sha256'] == SOURCE and index_inverse['functions'] == 800
+        and index_inverse['parent_functions'] == 775
+        and index_inverse['whole_source_inverse_exact'] is True
+        and index_inverse['whole_round_trip_exact'] is True
+        and relu_inverse['source_sha256'] == index_inverse['parent_source_sha256']
         and relu_inverse['functions'] == 775 and relu_inverse['parent_functions'] == 773
         and relu_inverse['changed_functions'] == ['unary']
         and relu_inverse['appended_functions'] == ['typed_relu_value','typed_relu_tensor']
@@ -132,13 +144,17 @@ def prove(source, bind):
         and delegation['argument_order_preserved'] is True
         and delegation['complete_parent_body_unchanged'] is True
         and delegation['parent_body_sha256'] == delegation['actual_body_sha256']
-            == sha(actual['to_command']),
+            == view_route['old_to_command_sha256']
+        and view_route['source_sha256'] == SOURCE
+        and view_route['original_domain_dispatcher_guard_unchanged'] is True
+        and view_route['original_non_f64_constructor_and_all_arguments_retained'] is True,
         'physical775 entry delegates every original108..119 opcode through the exact six-argument original to_command body')
     predicate_route = dict(
         actual_entry_sha256=sha(actual['entry']),
         actual_predicate_command_sha256=sha(actual['predicate_command']),
         actual_to_command_sha256=sha(actual['to_command']),
-        entry_only_upper_bound_and_dispatch_target_changed=True,
+        historical740_entry_only_upper_bound_and_dispatch_target_changed=True,
+        current_signbit_opcode=126, current_source_extension=index_inverse,
         entry_original_delegation_opcodes=list(range(108, 120)),
         dispatcher_guard=guard, old_path_delegation=delegation,
         new_predicate_branch_reachable_for_original_opcodes=False,
@@ -368,12 +384,11 @@ def prove(source, bind):
         b'  v89:u64 = const() {"value":6}\n', b'  v89:u64 = const() {"value":3}\n',
         parent['scalar_previous_dtype_audit'], 'scalar_previous_dtype_audit')
     audit = actual['f64_dtype_audit']
-    require(set(calls(audit)) == {b'scalar_previous_dtype_audit',b'getw',b'dptr'}
-        and audit.count(b'{"function":"scalar_previous_dtype_audit"}') == 1
-        and b'  v12:u64 = call(v0) {"function":"scalar_previous_dtype_audit"}\n' in audit
-        and b'  branch v14 b1(v12) b2(v0)\n' in audit
-        and b'  v28:u64 = const() {"value":4}\n  v29:bool = compare.eq(v27,v28)\n  v30:bool = bool.and(v24,v29)\n  branch v30 b5(v5,v6,v19) b6(v5,v6)\n' in audit,
-        'fixed original audit first, then read-only scan whose checks require live dtype4')
+    require(view_route['actual_f64_dtype_audit_sha256'] == sha(audit)
+        and view_route['original_dtype_audit_called_first_and_unchanged'] is True
+        and view_route['new_audit_checks_only_live_public_dtype4'] is True
+        and view_route['original_root_incarnation_version_release_audits_unchanged'] is True,
+        'actual complete F64 audit preserves the original dtype0/1/2/3 resource domain')
     half_audit = actual['half_dtype_audit']
     require(set(calls(half_audit)) == {b'f64_dtype_audit',b'getw',b'dptr'}
         and half_audit.count(b'{"function":"f64_dtype_audit"}') == 1
@@ -399,7 +414,7 @@ def prove(source, bind):
         b'terror',b'shape_command_finish',b'f64_previous_to_command'}
         and wrapper.count(b'{"function":"f64_previous_to_command"}') == 1
         and b'  v52:u64 = call(v25,v26,v27,v28,v29,v30) {"function":"f64_previous_to_command"}\n  ret(v52)\n' in wrapper
-        and b'  v44:u64 = const() {"value":4}\n  v45:bool = compare.eq(v43,v44)\n  v80:u64 = const() {"value":5}\n  v81:u64 = const() {"value":6}\n  v82:bool = compare.eq(v43,v80)\n  v83:bool = compare.eq(v43,v81)\n  v84:bool = bool.or(v82,v83)\n  v85:bool = bool.or(v45,v84)\n  branch v85 b3(v15,v14,v17,v19) b4(v13,v14,v15,v16,v17,v18)\n' in wrapper
+        and b'  v44:u64 = const() {"value":4}\n  v45:bool = compare.eq(v43,v44)\n  v80:u64 = const() {"value":5}\n  v81:u64 = const() {"value":6}\n  v82:bool = compare.eq(v43,v80)\n  v83:bool = compare.eq(v43,v81)\n  v84:bool = bool.or(v82,v83)\n  as_strided_opcode:u64 = const() {"value":111}\n  other_f64_command:bool = compare.ne(v19,as_strided_opcode)\n  rejected_f64:bool = bool.and(v45,other_f64_command)\n  v85:bool = bool.or(rejected_f64,v84)\n  branch v85 b3(v15,v14,v17,v19) b4(v13,v14,v15,v16,v17,v18)\n' in wrapper
         and b'  branch v42 b4(v6,v7,v8,v9,v10,v11) b2(v6,v7,v8,v9,v10,v11,v12,v40)\n' in wrapper,
         'fixed complete F64/Half wrapper delegates the original domain and unresolved source with all six arguments')
     after = b'''  v427:u64 = const() {"value":4}
@@ -431,8 +446,15 @@ def prove(source, bind):
         new_refusal_requires_valid_public_dtype=[4,5,6], unresolved_source_delegates=True,
         delegated_argument_order_unchanged=True, original_invalid_token_precedence_preserved=True)
 
-    for name in ('getr','getw','dptr','scalar_peek_public','scalar_peek_resolved','so_tensor_live','so_uget','tensor_dtype','valid'):
+    for name in ('getr','getw','dptr','scalar_peek_public','scalar_peek_resolved','so_uget','tensor_dtype','valid'):
         require(actual[name] == parent[name], 'guard lookup helper is unchanged: ' + name)
+    require(view_route['old_so_tensor_live_sha256'] == sha(parent['so_tensor_live'])
+        and view_route['actual_so_tensor_live_sha256'] == sha(actual['so_tensor_live'])
+        and view_route['original_byte_offset_domain'] == [0,1073741824]
+        and view_route['ordinary_owner_byte_limit_span_and_successor_arguments_retained'] is True
+        and view_route['added_ordinary_owner_guard_uses_only_unchanged_read_helpers'] is True
+        and view_route['original_legal_owner_offsets_never_enter_new_tag_helper'] is True,
+        'actual owner lookup retains original byte-offset behavior through explicitly proved tag guards')
     for name in CHANGED:
         if name != 'to_command':
             require(sha(parent[name]) == pins[name], 'original R4 complete obligation pin: ' + name)
@@ -446,9 +468,10 @@ def prove(source, bind):
     body = ast.get_source_segment(owner.decode(), fn).encode()
     require(body.count(b'need(dtype in (0, 1, 2, 3), "dtype-code", node=i)') == 1,
             'unchanged full owner still rejects public4/5/6 in the original resource recipe domain')
-    return dict(schema='heptatorch.fusion775.resource7-source-paths.v1', source_sha256=SOURCE,
-        native_sha256=IMAGE, functions=775, units=15, outer_source_inverse=complete,
+    return dict(schema='heptatorch.fusion778.resource7-source-paths.v1', source_sha256=SOURCE,
+        native_sha256=IMAGE, functions=800, units=15, outer_source_inverse=complete,
         changed_R4_obligations=list(CHANGED), obligations={n:rows[n] for n in CHANGED},
+        public_f64_view_original_domain_route=view_route,
         binary_original_domain_route=binary_route,
         unary_original_domain_route=unary_route,
         original_owner_sha256=OWNER, original_verify_snapshot_sha256=sha(body),

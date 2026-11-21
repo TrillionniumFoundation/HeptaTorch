@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Seal current CI bytes and modes; never grant a numerical qualification."""
 import argparse
+import contextlib
 import hashlib
 import io
+import importlib.machinery
 import importlib.util
 import json
 import lzma
@@ -17,10 +19,20 @@ from pathlib import Path, PurePosixPath
 GROUPS = ('bool27', 'original76', 'integral24', 'sum_f32_17', 'current35',
           'base270', 'sum32', 'live32', 'logical147', 'resource7', 'asstrided16',
           'cat4', 'metadata10', 'generator131', 'public_f64_logical192',
-          'f64_48', 'half47', 'half_logical264', 'half_transactions12', 'numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div', 'public_f64_arithmetic', 'same_f64_arithmetic', 'typed_relu')
-SOURCE = '0b000b51288af20490162efd8e525b86359a32cdd6d2521df97ecd9cddbd7b43'
-IMAGE = 'ef82340209edc4dfb8d7ed0ecbc65e144fe26078cb29a0ba327798533476e86e'
-SOURCE_MANIFEST = '348ed8e949256f985cdca0d9c612dc646ae738beee6013c27ab405d2df3e67c8'
+          'f64_48', 'half47', 'half_logical264', 'half_transactions12', 'numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div', 'public_f64_arithmetic', 'same_f64_arithmetic', 'typed_relu', 'signbit', 'typed_index_select', 'indexed_f32', 'forward_nograd', 'join_forward', 'spatial_forward')
+EXTENSION_GROUPS = ('signbit', 'typed_index_select', 'indexed_f32', 'forward_nograd', 'join_forward', 'spatial_forward')
+REQUIRED_CASES = {'bool27': 27, 'original76': 76, 'integral24': 24, 'sum_f32_17': 17,
+    'current35': 35, 'base270': 270, 'sum32': 32, 'live32': 32, 'logical147': 147,
+    'resource7': 7, 'asstrided16': 16, 'cat4': 4, 'metadata10': 10, 'generator131': 131,
+    'public_f64_logical192': 192, 'f64_48': 48, 'half47': 47, 'half_logical264': 264,
+    'half_transactions12': 12, 'numeric_predicates': 485, 'bf16_copy': 280,
+    'half_mul': 312, 'half_neg': 371, 'half_addsub': 1006, 'wide_neg': 405,
+    'half_div': 1196, 'public_f64_arithmetic': 2541, 'same_f64_arithmetic': 5088,
+    'typed_relu': 776, 'signbit': 97, 'typed_index_select': 866, 'indexed_f32': 331, 'forward_nograd': 462, 'join_forward': 414, 'spatial_forward': 344}
+REQUIRED_CASES_TOTAL = 16365
+SOURCE = 'aab2e736ff0ef4a282ff73fb1a69a95d2ceeea5260bbdada0af5b30cc16dcd3c'
+IMAGE = '083a92ad78977396f6d2cacff7b7f559cec4871dfcfb67624db48b6f8d64c3d5'
+SOURCE_MANIFEST = 'a5cf09f191db4887b4452001e0b72e75fffb2147f2476544cc3be49d8ffa2c85'
 NUMERIC_CASES = '272c9b4fbde339481c32f2ed071dd8c60c9c3b17732e71e2178d973914c79609'
 NUMERIC_PROOF = dict(cases=485, native_sessions=496, frames=11244, assertions=42645,
     owner_snapshots=3615, mapping_snapshots=10, additional_packet_controls=56,
@@ -384,9 +396,18 @@ REPOSITORY_PATHS = (
     'validation/current-runtime773/retirement.json',
     'validation/current-runtime773/legacy-source143-review.json',
     'tools/current_runtime', 'tools/differentiable_view_recovered_r3/profile.json',
+    'tools/current_f64_consumer', 'tools/dtype-f64/f64.hepta',
+    'tools/dtype-f64/profile.json', 'tools/stack_budget/profile.json',
+    'tools/current_runtime/index_signbit_source_transition.py',
+    'tools/current_runtime/indexed_forward_source_transition.py',
+    'tools/current_runtime/index_signbit_source_delta.json',
+    'tools/current_runtime/index_signbit_admission_transition.py',
+    'tools/current_runtime/index_signbit_admission_delta.json',
     'tools/stack_budget/inspect_stack.py',
     'validation/view-reshape-r4-native76/archive-location.json',
-    'build/pytorch-install.json', 'tests', 'tests/numeric_predicates', 'tests/bf16_copy', 'tests/half_mul', 'tests/half_neg', 'tests/half_addsub', 'tests/wide_neg', 'tests/half_div', 'tests/public_f64_arithmetic', 'compatibility',
+    'build/pytorch-install.json', 'build/pytorch-reference-support-install.json',
+    'build/pytorch-reference-wheel.whl', 'build/pytorch-reference-installed',
+    'tests', 'tests/numeric_predicates', 'tests/bf16_copy', 'tests/half_mul', 'tests/half_neg', 'tests/half_addsub', 'tests/wide_neg', 'tests/half_div', 'tests/public_f64_arithmetic', 'tests/signbit', 'tests/typed_index_select', 'tests/indexed_f32', 'compatibility',
     'continuation/20261117/evidence',
     'continuation/20261117/source-packages/sum-bool-source-01/hia',
     'validation/sum-bool27-reference', 'validation/current-runtime-references',
@@ -399,9 +420,10 @@ REPOSITORY_PATHS = (
     'validation/public-f64-logical192-reference',
     'validation/current-f64-48-source', 'validation/current-f64-48-reference',
     'validation/current-half47-source', 'validation/current-half47-reference',
-    'validation/current-runtime775/qualification-plan.json',
-    'validation/current-runtime775/native-review.json',
-    'validation/current-runtime775/source-review.json',
+    'validation/current-runtime800/qualification-plan.json',
+    'validation/current-runtime800/native-review.json',
+    'validation/current-runtime800/source-review.json',
+    'validation/current-runtime800/retirement.json',
     'docs/native-typed-relu.md',
     'validation/current-runtime-same-f64/native-review.json',
     'validation/current-runtime-same-f64/source-review.json',
@@ -431,6 +453,239 @@ TYPED_RELU_PROOF = {'Torch_executed_by_qualifier': False,
  'protocol_controls': 90,
  'requested_cpu_capability': 'avx2',
  'torch_threads': 1}
+EXTENSION_CASE_HASHES = {
+    'signbit': '2ff2864d65dbbf2d2b1e14640ba194e952ea607849813ccfc2488431164fc57c',
+    'typed_index_select': 'a291ae36b8e20566bffa2795a9667211ba5dd5d734a7d402a5c36cae8c4c369e',
+    'indexed_f32': '84967019c0b27b5444a31613875aaf8590f0b9cb0f1280e8d3e4b6a865b04b01',
+    'forward_nograd': '9d373bba4d8118f5f71581769c61c8e07e873398c33c0c6a49be609a79c4b784',
+    'join_forward': '40db86bd4e39a17b7b0d1bb5fff203e7de1bc4813d462adac543b276534905bd',
+    'spatial_forward': '64be7b4788f8e3c92b6466002df86c0c5ea84ffd002cca5d339ab2f591ae5a3f',
+}
+EXTENSION_PROOFS = {'forward_nograd': {'Torch_executed_by_qualifier': False,
+                    'actual_autograd_cases': 243,
+                    'actual_environment_transition_verified': True,
+                    'actual_mapped_torch_cpu_code_verified': True,
+                    'actual_supervisor_intent_verified': True,
+                    'additional_allocation_recoveries': 3,
+                    'additional_failed_FE_transactions': 12,
+                    'additional_protocol_controls': 37,
+                    'additional_successful_FE_transactions': 3,
+                    'all_actual_installed_inputs_unchanged': True,
+                    'assertions': 48630,
+                    'cases': 462,
+                    'complete_ci_admission': True,
+                    'complete_installed_raw_snapshot_verified': True,
+                    'complete_official_wheel_archive_verified': True,
+                    'frames': 12108,
+                    'full_installation_provenance_verified': True,
+                    'host_expected_values_computed': False,
+                    'independent_official_wheel_member_anchor_verified': True,
+                    'installed_wheel_bytes_verified': 751277549,
+                    'installed_wheel_members_verified': 12567,
+                    'mapping_snapshots': 30,
+                    'native_executed_by_qualifier': False,
+                    'native_resource_capacity_refusals': 2,
+                    'native_sessions': 465,
+                    'official_member_anchor_sha256': '0e5377c5bd2767e35bfbcb81346dbc522ad9864e0d2d68b6a3705e0befd042f0',
+                    'official_wheel_sha256': '0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3',
+                    'original_backward_functions_unchanged': True,
+                    'original_eleven_checks_recomputed_from_raw_inputs': True,
+                    'original_installation_checks': 11,
+                    'original_installation_checks_passed': 11,
+                    'original_reference_script_bytes_verified': True,
+                    'original_requires_grad_dispatch_preserved': True,
+                    'owner_snapshots': 3609,
+                    'physical_replay': True,
+                    'portable_reference_custody_replayed': True,
+                    'production_oracle_qualified': True,
+                    'raw_reference_entities': 15,
+                    'torch_shared_libraries_verified': 12},
+ 'indexed_f32': {'Torch_executed_by_qualifier': False,
+                 'actual_autograd_cases': 193,
+                 'actual_environment_transition_verified': True,
+                 'actual_mapped_torch_cpu_code_verified': True,
+                 'actual_supervisor_intent_verified': True,
+                 'additional_allocation_recoveries': 3,
+                 'additional_failed_FE_transactions': 12,
+                 'additional_protocol_controls': 56,
+                 'additional_successful_FE_transactions': 3,
+                 'all_actual_installed_inputs_unchanged': True,
+                 'assertions': 37094,
+                 'cases': 331,
+                 'complete_ci_admission': True,
+                 'complete_installed_raw_snapshot_verified': True,
+                 'complete_official_wheel_archive_verified': True,
+                 'frames': 9938,
+                 'full_installation_provenance_verified': True,
+                 'host_expected_values_computed': False,
+                 'independent_official_wheel_member_anchor_verified': True,
+                 'installed_wheel_bytes_verified': 751277549,
+                 'installed_wheel_members_verified': 12567,
+                 'mapping_snapshots': 30,
+                 'native_executed_by_qualifier': False,
+                 'native_sessions': 334,
+                 'official_member_anchor_sha256': '0e5377c5bd2767e35bfbcb81346dbc522ad9864e0d2d68b6a3705e0befd042f0',
+                 'official_wheel_sha256': '0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3',
+                 'original_backward_functions_unchanged': True,
+                 'original_eleven_checks_recomputed_from_raw_inputs': True,
+                 'original_installation_checks': 11,
+                 'original_installation_checks_passed': 11,
+                 'original_reference_script_bytes_verified': True,
+                 'original_requires_grad_dispatch_preserved': True,
+                 'owner_snapshots': 2918,
+                 'physical_replay': True,
+                 'portable_reference_custody_replayed': True,
+                 'production_oracle_qualified': True,
+                 'raw_reference_entities': 15,
+                 'torch_shared_libraries_verified': 12},
+ 'join_forward': {'Torch_executed_by_qualifier': False,
+                  'actual_absent_gradients_checked': 194,
+                  'actual_autograd_cases': 274,
+                  'actual_environment_transition_verified': True,
+                  'actual_mapped_torch_cpu_code_verified': True,
+                  'actual_supervisor_intent_verified': True,
+                  'additional_allocation_recoveries': 2,
+                  'additional_failed_FE_transactions': 10,
+                  'additional_protocol_controls': 58,
+                  'additional_successful_FE_transactions': 2,
+                  'all_actual_installed_inputs_unchanged': True,
+                  'assertions': 53638,
+                  'cases': 414,
+                  'complete_ci_admission': True,
+                  'complete_installed_raw_snapshot_verified': True,
+                  'complete_official_wheel_archive_verified': True,
+                  'frames': 14256,
+                  'full_installation_provenance_verified': True,
+                  'host_expected_values_computed': False,
+                  'independent_official_wheel_member_anchor_verified': True,
+                  'installed_wheel_bytes_verified': 751277549,
+                  'installed_wheel_members_verified': 12567,
+                  'mapping_snapshots': 24,
+                  'native_executed_by_qualifier': False,
+                  'native_rank_capacity_refusals': 2,
+                  'native_sessions': 416,
+                  'official_member_anchor_sha256': '0e5377c5bd2767e35bfbcb81346dbc522ad9864e0d2d68b6a3705e0befd042f0',
+                  'official_wheel_sha256': '0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3',
+                  'original_backward_functions_unchanged': True,
+                  'original_eleven_checks_recomputed_from_raw_inputs': True,
+                  'original_installation_checks': 11,
+                  'original_installation_checks_passed': 11,
+                  'original_reference_script_bytes_verified': True,
+                  'original_requires_grad_dispatch_preserved': True,
+                  'owner_snapshots': 4050,
+                  'physical_replay': True,
+                  'portable_reference_custody_replayed': True,
+                  'production_oracle_qualified': True,
+                  'raw_reference_entities': 15,
+                  'torch_shared_libraries_verified': 12},
+ 'signbit': {'Torch_executed_by_qualifier': False,
+             'actual_environment_transition_verified': True,
+             'actual_mapped_torch_cpu_code_verified': True,
+             'actual_supervisor_intent_verified': True,
+             'additional_allocation_recoveries': 2,
+             'additional_failed_FE_transactions': 6,
+             'additional_packet_controls': 13,
+             'additional_successful_FE_transactions': 6,
+             'all_actual_installed_inputs_unchanged': True,
+             'assertions': 8843,
+             'cases': 97,
+             'complete_ci_admission': True,
+             'complete_installed_raw_snapshot_verified': True,
+             'complete_official_wheel_archive_verified': True,
+             'frames': 2347,
+             'full_installation_provenance_verified': True,
+             'host_expected_values_computed': False,
+             'independent_official_wheel_member_anchor_verified': True,
+             'installed_wheel_bytes_verified': 751277549,
+             'installed_wheel_members_verified': 12567,
+             'mapping_snapshots': 12,
+             'native_executed_by_qualifier': False,
+             'native_sessions': 106,
+             'official_member_anchor_sha256': '0e5377c5bd2767e35bfbcb81346dbc522ad9864e0d2d68b6a3705e0befd042f0',
+             'official_wheel_sha256': '0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3',
+             'old_dispatcher_preserved': True,
+             'original_eleven_checks_recomputed_from_raw_inputs': True,
+             'original_installation_checks': 11,
+             'original_installation_checks_passed': 11,
+             'original_reference_script_bytes_verified': True,
+             'owner_snapshots': 774,
+             'physical_replay': True,
+             'portable_reference_custody_replayed': True,
+             'raw_reference_entities': 15,
+             'torch_shared_libraries_verified': 12},
+ 'typed_index_select': {'Torch_executed_by_qualifier': False,
+                        'actual_autograd_cases': 5,
+                        'actual_environment_transition_verified': True,
+                        'actual_mapped_torch_cpu_code_verified': True,
+                        'actual_supervisor_intent_verified': True,
+                        'additional_allocation_recoveries': 2,
+                        'additional_protocol_controls': 78,
+                        'all_actual_installed_inputs_unchanged': True,
+                        'assertions': 64271,
+                        'cases': 866,
+                        'complete_ci_admission': True,
+                        'complete_installed_raw_snapshot_verified': True,
+                        'complete_official_wheel_archive_verified': True,
+                        'frames': 17153,
+                        'full_installation_provenance_verified': True,
+                        'host_expected_values_computed': False,
+                        'independent_official_wheel_member_anchor_verified': True,
+                        'installed_wheel_bytes_verified': 751277549,
+                        'installed_wheel_members_verified': 12567,
+                        'mapping_snapshots': 26,
+                        'native_executed_by_qualifier': False,
+                        'native_sessions': 869,
+                        'official_member_anchor_sha256': '0e5377c5bd2767e35bfbcb81346dbc522ad9864e0d2d68b6a3705e0befd042f0',
+                        'official_wheel_sha256': '0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3',
+                        'original_bool_packet_numerical_successors': 1,
+                        'original_eleven_checks_recomputed_from_raw_inputs': True,
+                        'original_f32_ad_function_preserved': True,
+                        'original_installation_checks': 11,
+                        'original_installation_checks_passed': 11,
+                        'original_reference_script_bytes_verified': True,
+                        'owner_snapshots': 5759,
+                        'physical_replay': True,
+                        'portable_reference_custody_replayed': True,
+                        'production_oracle_qualified': True,
+                        'raw_reference_entities': 15,
+                        'torch_shared_libraries_verified': 12},
+ 'spatial_forward': {'Torch_executed_by_qualifier': False,
+                     'actual_autograd_cases': 186,
+                     'actual_environment_transition_verified': True,
+                     'actual_gradient_tensors': 258,
+                     'actual_mapped_torch_cpu_code_verified': True,
+                     'actual_supervisor_intent_verified': True,
+                     'additional_allocation_recoveries': 3,
+                     'additional_failed_FE_transactions': 9,
+                     'additional_protocol_controls': 28,
+                     'additional_successful_FE_transactions': 3,
+                     'all_actual_installed_inputs_unchanged': True,
+                     'assertions': 62006,
+                     'cases': 344,
+                     'complete_ci_admission': True,
+                     'complete_installed_raw_snapshot_verified': True,
+                     'complete_official_wheel_archive_verified': True,
+                     'frames': 11545,
+                     'full_installation_provenance_verified': True,
+                     'host_expected_values_computed': False,
+                     'independent_official_wheel_member_anchor_verified': True,
+                     'installed_wheel_bytes_verified': 751277549,
+                     'installed_wheel_members_verified': 12567,
+                     'mapping_snapshots': 24,
+                     'native_executed_by_qualifier': False,
+                     'native_sessions': 347,
+                     'official_member_anchor_sha256': '0e5377c5bd2767e35bfbcb81346dbc522ad9864e0d2d68b6a3705e0befd042f0',
+                     'official_wheel_sha256': '0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3',
+                     'original_backward_functions_unchanged': True,
+                     'original_eleven_checks_recomputed_from_raw_inputs': True,
+                     'original_reference_script_bytes_verified': True,
+                     'original_requires_grad_dispatch_preserved': True,
+                     'owner_snapshots': 3477,
+                     'physical_replay': True,
+                     'portable_producer_path_roles': True,
+                     'production_oracle_qualified': True,
+                     'torch_shared_libraries_verified': 12}}
+
 
 REFERENCE_INTERPRETER_PACKAGES = (
     'validation/cat-metadata10-reference', 'validation/public-f64-logical192-reference',
@@ -528,6 +783,55 @@ REQUIRED_OUTPUTS += ('review/typed_relu/physical-qualification.json',
  'review/typed_relu-execution/runner.json',
  'review/typed_relu-execution/runner.stdout',
  'review/typed_relu-execution/runner.stderr')
+EXTENSION_OUTPUTS = tuple(relative for group in EXTENSION_GROUPS for relative in (
+    'review/' + group + '/physical-qualification.json',
+    'review/' + group + '/reference/report.json',
+    'review/' + group + '/reference-execution/process.json',
+    'review/' + group + '/reference-execution/runner.json',
+    'review/' + group + '/reference-execution/runner.stdout',
+    'review/' + group + '/reference-execution/runner.stderr',
+    'review/' + group + '-execution/intent.json',
+    'review/' + group + '-execution/runner.json',
+    'review/' + group + '-execution/runner.stdout',
+    'review/' + group + '-execution/runner.stderr',
+))
+REQUIRED_OUTPUTS += EXTENSION_OUTPUTS
+PREPARATION_OUTPUTS = ('preparation/admission.json', 'preparation/owner-profile.json',
+                       'preparation/asstrided/report.json', 'preparation/resources/report.json',
+                       'preparation/admission-controls.json', 'preparation/f64-sealer-controls.json')
+REQUIRED_OUTPUTS += PREPARATION_OUTPUTS
+F64_SEALER_CONTROL_NAMES = (
+    'valid_component_retains_PARTIAL_scope', 'strict_sqrt_FAIL_and_exit1_remain_FAIL',
+    'reject_failed_CPython_predecessor', 'reject_non_sqrt_numeric_failure',
+    'reject_reclassified_strict_sqrt_failure', 'reject_stale_current_source',
+    'reject_missing_actual_current_object', 'reject_failed_RNE_qualification',
+    'reject_missing_integer_boundary_control', 'reject_unexpected_strict_producer_exit',
+    'reject_unexpected_strict_reader_exit', 'reject_incomplete_original_wheel_provenance',
+    'reject_physical_readback_status_mismatch', 'reject_component_report_hash_mismatch',
+    'reject_missing_F64_consumer_before_sealing',
+    'complete_F64_outputs_reports_and_source_inventory_are_mandatory',
+    'reader_executes_bound_source_and_restores_import_namespace',
+    'reader_rejects_changed_physical_input', 'reader_refuses_process_and_Torch_execution_events',
+)
+F64_CONSUMER_OUTPUTS = (
+    'f64-consumer/build/build.json', 'f64-consumer/build/f64-native',
+    'f64-consumer/build/packet_adapter.hepta', 'f64-consumer/build/packet_adapter.o',
+    'f64-consumer/cpython/execution/report.json', 'f64-consumer/pytorch/execution/report.json',
+    'f64-consumer/cpython-readback.json', 'f64-consumer/pytorch-readback.json',
+    'f64-consumer/strict-exit.txt', 'f64-consumer/readback-exit.txt',
+    'f64-consumer/component-status.json',
+) + tuple('f64-consumer/' + reference + '/reference-process' + suffix
+          for reference in ('cpython', 'pytorch')
+          for suffix in ('.json', '.intent.json', '.stdout', '.stderr'))
+REQUIRED_OUTPUTS += F64_CONSUMER_OUTPUTS
+F64_VIEW_OUTPUTS = (
+    'f64-view/report.json', 'f64-view/physical-qualification.json',
+    'f64-view/reference/report.json', 'f64-view/reference/families/report.json',
+    'f64-view/reference-execution/process.json', 'f64-view/reference-execution/runner.json',
+    'f64-view/reference-execution/reference-intent.json',
+    'f64-view/reference-execution/runner.stdout', 'f64-view/reference-execution/runner.stderr',
+)
+REQUIRED_OUTPUTS += F64_VIEW_OUTPUTS
 INPUT_REPORTS = ('build/build.json', 'review/qualification.json',) + tuple(
     'review/' + name + '/report.json' for name in GROUPS) + (
         'review/base270/current-adapter.json', 'review/base270/cold-build-admission.json',
@@ -598,6 +902,10 @@ INPUT_REPORTS += ('review/typed_relu/physical-qualification.json',
  'review/references/typed-relu776-execution/runner.json',
  'review/typed_relu-execution/intent.json',
  'review/typed_relu-execution/runner.json')
+INPUT_REPORTS += tuple(relative for relative in EXTENSION_OUTPUTS if relative.endswith('.json'))
+INPUT_REPORTS += PREPARATION_OUTPUTS
+INPUT_REPORTS += tuple(relative for relative in F64_CONSUMER_OUTPUTS if relative.endswith('.json'))
+INPUT_REPORTS += tuple(relative for relative in F64_VIEW_OUTPUTS if relative.endswith('.json'))
 INPUT_TABLES = ('checked_inputs', 'inputs', 'files', 'source_custody')
 
 
@@ -928,13 +1236,13 @@ def live_reference_custody(repo, current, group):
     qualification_path = current / 'review/qualification.json'
     qualification = document(qualification_path)
     check_fields(qualification, dict(schema='heptatorch.current-runtime.qualification.v1',
-        required_suites=list(GROUPS), required_cases_total=13851, functions=775, units=15,
-        source_sha256=SOURCE, native_sha256=IMAGE), 'exact current775 twenty-nine-suite inventory and image')
+        required_suites=list(GROUPS), required_cases_total=REQUIRED_CASES_TOTAL, functions=800, units=15,
+        source_sha256=SOURCE, native_sha256=IMAGE), 'exact current800 thirty-two-suite inventory and image')
     manifest_raw = bind(repo / 'tools/current_runtime/source/manifest.json', SOURCE_MANIFEST)
     need(bind(current / 'build/manifest.json', SOURCE_MANIFEST) == manifest_raw,
          'the actual cold build used the final complete source manifest')
     manifest = json.loads(manifest_raw)
-    need(manifest['runtime']['sha256'] == SOURCE and manifest['runtime']['functions'] == 775
+    need(manifest['runtime']['sha256'] == SOURCE and manifest['runtime']['functions'] == 800
          and manifest['expected_native_sha256'] == IMAGE and len(manifest['units']) == 15,
          'final complete source and image pins')
     bind(current / 'build/runtime.hepta', SOURCE)
@@ -942,7 +1250,7 @@ def live_reference_custody(repo, current, group):
     build_raw = bind(current / 'build/build.json')
     build_sha = digest(build_raw)
     check_fields(json.loads(build_raw), dict(status='PASS_NATIVE_BUILD_ONLY', source_sha256=SOURCE,
-        native_sha256=IMAGE, manifest_sha256=SOURCE_MANIFEST, functions=775, units_planned=15),
+        native_sha256=IMAGE, manifest_sha256=SOURCE_MANIFEST, functions=800, units_planned=15),
         'actual final cold build identity')
     need(qualification['actual_build_sha256'] == build_sha, 'qualifier binds this actual cold build')
     rows = [row for row in qualification['suites'] if row['name'] == group]
@@ -1040,10 +1348,17 @@ def live_reference_custody(repo, current, group):
         transition_spec = importlib.util.spec_from_file_location('sealed_typed_relu_source_inverse', transition_path)
         transition = importlib.util.module_from_spec(transition_spec)
         transition_spec.loader.exec_module(transition)
-        _, relu_source_proof = transition.restore_source(bind(current / 'build/runtime.hepta', SOURCE), bind)
+        index_path = repo / 'tools/current_runtime/index_signbit_source_transition.py'
+        bind(index_path)
+        index_spec = importlib.util.spec_from_file_location('sealed_index_signbit_source_inverse', index_path)
+        indexing = importlib.util.module_from_spec(index_spec); index_spec.loader.exec_module(indexing)
+        parent775, index_inverse = indexing.restore_source(bind(current / 'build/runtime.hepta', SOURCE), bind)
+        need(qualification['cat_source_transition']['outer_source_inverse']['index_signbit_source_inverse'] == index_inverse,
+             'the actual800 source and complete source chain have the same exact775 predecessor')
+        _, relu_source_proof = transition.restore_source(parent775, bind)
         need(qualification['cat_source_transition']['outer_source_inverse']['typed_relu_source_inverse']
                  == relu_source_proof,
-             'the actual775 source and the complete original source chain have the same ReLU inverse')
+             'the actual800 source and the complete original source chain have the same ReLU inverse')
     if negation:
         relu_evidence, relu_bindings = live_reference_custody(repo, current, 'typed_relu')
         relu_reference = current / 'review/references/typed-relu776'
@@ -1223,11 +1538,12 @@ def live_reference_custody(repo, current, group):
             reference_sha256=reference_sha, actual_Torch_reference_verified=True,
             host_expected_values_computed=False), 'complete original87 F64 requests share actual405 reference')
         need(f64_proof['wide_neg_successor'] == successor and f64_proof['cases'] == 48
-             and f64_proof['retained_refusals'] == 63 and f64_proof['actual_numeric_successors'] == 24
+             and f64_proof['retained_refusals'] == 61 and f64_proof['actual_numeric_successors'] == 24
+             and f64_proof['actual_view_successors'] == 2
              and f64_proof['actual_mixed_arithmetic_successors'] == 23
              and f64_proof['original_OOM_controls'] == 2
              and f64_report['source_admission']['wide_neg_successor_is_preserved_predecessor_scoped_contract'] is True,
-             'all48 F64 cases preserve the original one-negation contract within the complete24 numerical successors')
+             'all48 F64 cases preserve the original one-negation contract within24 numerical and2 view successors')
         for path in (current / 'review/f64_48/report.json', current / 'review/f64_48/physical-qualification.json'):
             need(qualification['checked_inputs'].get(str(path)) == bindings[str(path)],
                  'both original F64 reports are physically bound by the current qualifier')
@@ -1255,18 +1571,34 @@ def live_reference_custody(repo, current, group):
             'all87 original F64 requests share this actual2541 reference and retain exactly23 arithmetic successors')
         check_fields(f64_proof, dict(status='PASS_PHYSICAL_F64_48', cases=48,
             actual_report_sha256=digest(f64_raw), source_sha256=SOURCE, native_sha256=IMAGE,
-            actual_build_sha256=build_sha, original_refusal_recipes=87, retained_refusals=63,
-            actual_numeric_successors=24, actual_mixed_arithmetic_successors=23,
+            actual_build_sha256=build_sha, original_refusal_recipes=87, retained_refusals=61,
+            actual_numeric_successors=24, actual_view_successors=2, actual_mixed_arithmetic_successors=23,
             actual_FE_arithmetic_successors=1, retained_bool_subtraction_refusals=2,
-            original_OOM_controls=2, native_child_EOFs=96, frames=3259, checks=17923,
-            owner_blobs=626, original_recipe_code_preserved=True, all_physical_inputs_unchanged=True,
+            original_OOM_controls=2, native_child_EOFs=96, frames=3285, checks=18069,
+            owner_blobs=631, original_recipe_code_preserved=True, all_physical_inputs_unchanged=True,
             native_executed_by_qualifier=False, Torch_executed_by_qualifier=False),
-            'complete original48 physical cases retain exact controls, owner observations and all24 numerical successors')
+            'complete original48 physical cases retain exact controls, owner observations,24 numerical and2 view successors')
+        view_successor = f64_report['source_admission']['public_f64_view_successor']
+        check_fields(view_successor, dict(schema='heptatorch.f64-view.original3-successors.v1',
+            source_sha256=SOURCE, native_sha256=IMAGE, actual_build_sha256=build_sha,
+            original87_requests=87, retained87_refusals=61, retained_numeric_successors=24,
+            new87_view_successors=2, full_lifetime_companion_indices=[174, 175, 176],
+            companion_execution_required=True, strict_reference_qualified=True,
+            original_frozen_recipe_code_modified=False, all_inputs_and_expected_bytes_original=True,
+            native_or_Torch_executed_by_constructor=False, full_pytorch_rewrite_complete=False,
+            reference_directory=str(current / 'f64-view/reference'),
+            reference_execution=str(current / 'f64-view/reference-execution')),
+            'the original87 two-view successor uses this exact mandatory view reference and build')
+        need(f64_proof['public_f64_view_successor'] == view_successor
+             and f64_report['source_admission']['arithmetic24_is_preserved_predecessor_scoped_contract'] is True,
+             'all view source/reference bindings agree while the original arithmetic24 contract retains its scope')
         need(f64_proof['public_f64_arithmetic_successor'] == successor
-             and dict(successor['source_inverse'],
-                      same_f64_predecessor_source_inverse=dict(
-                          successor['same_f64_predecessor_source_inverse'],
-                          mixed_predecessor_source_inverse=successor['mixed_predecessor_source_inverse']))
+             and dict(successor['index_signbit_source_inverse'],
+                      typed_relu_predecessor_source_inverse=dict(
+                          successor['source_inverse'],
+                          same_f64_predecessor_source_inverse=dict(
+                              successor['same_f64_predecessor_source_inverse'],
+                              mixed_predecessor_source_inverse=successor['mixed_predecessor_source_inverse'])))
                  == native['source_inverse']
              and successor['prior_negation_reference_sha256']
                  == f64_proof['wide_neg_successor']['reference_sha256'],
@@ -1305,7 +1637,12 @@ def live_reference_custody(repo, current, group):
         bind(relu_path, 'd06390c160833aa829c1a65cffa5ed8698d7aa23b72675c2942fca006f5350f9')
         relu_spec = importlib.util.spec_from_file_location('sealed_arithmetic_typed_relu_inverse', relu_path)
         relu = importlib.util.module_from_spec(relu_spec); relu_spec.loader.exec_module(relu)
-        same773, typed_source_proof = relu.restore_source(bind(current / 'build/runtime.hepta', SOURCE), bind)
+        index_path = repo / 'tools/current_runtime/index_signbit_source_transition.py'
+        bind(index_path)
+        index_spec = importlib.util.spec_from_file_location('sealed_index_signbit_arithmetic_inverse', index_path)
+        indexing = importlib.util.module_from_spec(index_spec); index_spec.loader.exec_module(indexing)
+        parent775, index_inverse = indexing.restore_source(bind(current / 'build/runtime.hepta', SOURCE), bind)
+        same773, typed_source_proof = relu.restore_source(parent775, bind)
         transition_path = repo / 'tools/current_runtime/same_f64_arithmetic_source_transition.py'
         bind(transition_path)
         transition_spec = importlib.util.spec_from_file_location(
@@ -1317,7 +1654,7 @@ def live_reference_custody(repo, current, group):
              and same_source_proof['whole_source_inverse_exact'] is True
              and same_source_proof['whole_round_trip_exact'] is True
              and same_source_proof['all_arithmetic_value_kernel_bodies_unchanged'] is True,
-             'actual775 preserves the complete same773 predecessor and its original arithmetic kernels')
+             'actual800 preserves the complete same773 predecessor and its original arithmetic kernels')
         if mixed:
             mixed_path = repo / 'tools/current_runtime/public_f64_arithmetic_source_transition.py'
             bind(mixed_path)
@@ -1325,9 +1662,10 @@ def live_reference_custody(repo, current, group):
             mixed_transition = importlib.util.module_from_spec(mixed_spec); mixed_spec.loader.exec_module(mixed_transition)
             _, mixed_source_proof = mixed_transition.restore_source(mixed773, bind)
             same_source_proof = dict(same_source_proof, mixed_predecessor_source_inverse=mixed_source_proof)
-        source_proof = dict(typed_source_proof, same_f64_predecessor_source_inverse=same_source_proof)
+        source_proof = dict(index_inverse, typed_relu_predecessor_source_inverse=
+            dict(typed_source_proof, same_f64_predecessor_source_inverse=same_source_proof))
         need(native['source_inverse'] == source_proof,
-             'the complete actual775-to-same773-to-mixed773 source proof matches the original native report')
+             'the complete actual800-to-same773-to-mixed773 source proof matches the original native report')
         for spelling, metadata in bindings.items():
             if spelling not in custody_outputs:
                 need(qualification['checked_inputs'].get(spelling) == metadata,
@@ -1496,6 +1834,538 @@ def typed_relu_custody(repo, current):
     return live_reference_custody(repo, current, 'typed_relu')
 
 
+def require_production_extension(group, native, observed, proof):
+    """Reject exploratory reports before reading them as complete CI evidence."""
+    if group not in EXTENSION_GROUPS:
+        raise ValueError('unknown current800 extension')
+    common = (native.get('status') == 'PASS'
+        and native.get('full_installation_provenance_verified') is True
+        and observed.get('status') == 'OBSERVED_' + group.upper()
+        and proof.get('complete_ci_admission') is True
+        and proof.get('full_installation_provenance_verified') is True)
+    if group == 'signbit':
+        specific = (native.get('local_observed_oracle') is False
+            and observed.get('local_observed_oracle') is False
+            and observed.get('full_installation_provenance_verified') is True)
+    else:
+        specific = (native.get('allow_unverified_local') is False
+            and native.get('production_oracle_qualified') is True
+            and observed.get('production_oracle_qualified') is True
+            and proof.get('production_oracle_qualified') is True)
+    provenance = observed.get('oracle_provenance', {})
+    checks = provenance.get('checks', {})
+    if not (common and specific and provenance.get('status') == 'PASS'
+            and isinstance(checks, dict) and len(checks) == 11
+            and all(value is True for value in checks.values())):
+        raise ValueError(group + ': exploratory or incomplete wheel provenance cannot enter complete CI custody')
+
+
+def extension_custody(repo, current, group):
+    """Recheck each added group using only its original physical evidence.
+
+    The standard qualifier is called in its strict default mode. Its Replay
+    readers consume saved frames, complete owners, mappings and process EOFs;
+    this function never starts a native process, Torch reference or compiler.
+    Every file read is returned to the ordinary archive input-binding path.
+    """
+    if group not in EXTENSION_GROUPS:
+        raise ValueError('unknown current800 extension custody group')
+    repo, current = Path(repo), Path(current)
+    bindings = {}
+
+    def need(condition, message):
+        if not condition:
+            raise ValueError(message)
+
+    def bind(path, expected=None):
+        path = Path(path)
+        need(path.is_absolute() and str(path.resolve()) == str(path), 'canonical extension custody path')
+        raw, metadata = info(path)
+        need(expected is None or metadata['sha256'] == expected, 'extension custody SHA: ' + str(path))
+        need(str(path) not in bindings or bindings[str(path)] == metadata,
+             'extension custody input changed: ' + str(path))
+        bindings[str(path)] = metadata
+        return raw
+
+    def document(path):
+        value = json.loads(bind(path))
+        need(isinstance(value, dict), 'extension custody JSON object required')
+        return value
+
+    def fields(actual, expected, message):
+        need(all(type(actual.get(key)) is type(value) and actual[key] == value
+                 for key, value in expected.items()), message)
+
+    class ReadbackInputs:
+        records = bindings
+        files = bindings
+
+        def bind(self, path, expected=None):
+            return bind(path, expected)
+
+        def recheck(self):
+            for path, saved in list(bindings.items()):
+                bind(Path(path), saved['sha256'])
+
+        finish = recheck
+
+    inputs = ReadbackInputs()
+    qualification_path = current / 'review/qualification.json'
+    qualification = document(qualification_path)
+    fields(qualification, dict(schema='heptatorch.current-runtime.qualification.v1',
+        required_suites=list(GROUPS), required_cases=REQUIRED_CASES,
+        required_cases_total=REQUIRED_CASES_TOTAL, functions=800, units=15,
+        source_sha256=SOURCE, native_sha256=IMAGE), 'complete original35 suite inventory and final image')
+    need(len(GROUPS) == len(REQUIRED_CASES) == 35 and set(GROUPS) == set(REQUIRED_CASES)
+         and sum(REQUIRED_CASES.values()) == REQUIRED_CASES_TOTAL,
+         'all original32 groups plus462 forward,414 cat/stack and344 spatial cases remain mandatory')
+    build = current / 'build'
+    manifest_raw = bind(repo / 'tools/current_runtime/source/manifest.json', SOURCE_MANIFEST)
+    need(bind(build / 'manifest.json', SOURCE_MANIFEST) == manifest_raw,
+         'actual complete cold-build source manifest retained')
+    bind(build / 'runtime.hepta', SOURCE)
+    bind(build / 'heptatorch', IMAGE)
+    build_raw = bind(build / 'build.json'); build_sha = digest(build_raw)
+    fields(json.loads(build_raw), dict(status='PASS_NATIVE_BUILD_ONLY', source_sha256=SOURCE,
+        native_sha256=IMAGE, manifest_sha256=SOURCE_MANIFEST, functions=800, units_planned=15),
+        'actual final extension cold-build identity')
+    need(qualification['actual_build_sha256'] == build_sha, 'original35 qualifier bound the actual cold build')
+    template = EXTENSION_PROOFS[group]
+    suites = [row for row in qualification['suites'] if row['name'] == group]
+    need(len(suites) == 1, 'one original mandatory extension suite')
+    suite = suites[0]
+    fields(suite, dict(status='PASS', qualified=True, **template),
+           'all original extension cases and control counts retained')
+    directory = current / 'review' / group
+    native_raw = bind(directory / 'report.json'); native = json.loads(native_raw)
+    need(suite['original_report'] == dict(path=group + '/report.json',
+         bytes=len(native_raw), sha256=digest(native_raw)), 'original extension native report binding')
+    fields(native, dict(status='PASS', group=group, cases=template['cases'], expected_cases=template['cases'],
+        case_sha256=EXTENSION_CASE_HASHES[group], source_sha256=SOURCE, native_sha256=IMAGE,
+        actual_build_sha256=build_sha, native_executed=True, Torch_executed=True,
+        compiler_executed=False, host_expected_values_computed=False,
+        original_reference_modified=False, all_inputs_unchanged=True, failures=[],
+        frames=template['frames'], checks=template['assertions'],
+        owner_reads=template['owner_snapshots'], mapping_reads=template['mapping_snapshots']),
+        'complete original extension numerical and physical census')
+    if group == 'typed_index_select':
+        need(native['results'][-1]['name'] == 'legacy-0865', 'original Bool admission successor retains its fixed identity')
+        fields(native['results'][-1]['result'], dict(original_request_bytes=240,
+            original_request_sha256='db7d6cb9b3ccd954b154bc41191960ac18c8e1732ed5e686e089ab5af1a37198',
+            original_three_command_fields_preserved=True, original_setup_allocation_order_preserved=True,
+            actual_uniform_and_logical_not_prefix_checked=True, complete_suffix_rollback_checked=True),
+            'all240 original523 Bool command bytes and the complete numerical successor remain mandatory')
+    reference = directory / 'reference'; execution = directory / 'reference-execution'
+    need(native['reference_directory'] == str(reference)
+         and native['reference_process_directory'] == str(execution), 'original this-run extension reference paths')
+    reference_raw = bind(reference / 'report.json'); observed = json.loads(reference_raw)
+    reference_sha = digest(reference_raw)
+    proof_raw = bind(directory / 'physical-qualification.json'); proof = json.loads(proof_raw)
+    require_production_extension(group, native, observed, proof)
+    expected_proof = dict(template, reference_sha256=reference_sha)
+    need(set(proof) == set(expected_proof), 'all original extension physical-proof fields required')
+    fields(proof, expected_proof, 'exact strict extension physical proof and actual reference')
+    need(native['reference_sha256'] == suite['reference_sha256'] == reference_sha,
+         'one original independently observed reference shared by all extension records')
+    need(suite['physical_qualification'] == dict(path=group + '/physical-qualification.json',
+         bytes=len(proof_raw), sha256=digest(proof_raw), status='PASS_PHYSICAL_' + group.upper()),
+         'complete original extension physical-proof byte binding')
+
+    # All extension routines are pure physical readers. Leaving their final argument
+    # absent deliberately selects the mandatory original11 provenance path.
+    runner_path = repo / 'tests' / group / 'run.py'
+    bind(runner_path)
+    spec = importlib.util.spec_from_file_location('sealed_' + group + '_physical_reader', runner_path)
+    reader = importlib.util.module_from_spec(spec); spec.loader.exec_module(reader)
+    replay = reader.qualify(native, repo, build, build_sha, directory, inputs)
+    need(replay == proof, 'strict pure reader reapplied every original extension frame and owner comparison')
+    fields(replay, dict(native_executed_by_qualifier=False, Torch_executed_by_qualifier=False,
+        host_expected_values_computed=False, physical_replay=True, complete_ci_admission=True,
+        full_installation_provenance_verified=True), 'physical readback cannot claim new numerical execution')
+    process = document(execution / 'process.json')
+    need(document(execution / 'runner.json') == process, 'original actual reference supervisor receipt unchanged')
+    fields(process, dict(started=True, exit_code=0, stdout_EOF=True, stderr_EOF=True,
+        forced_cleanup=False, stderr_bytes=0, cleanup_errors=[], running_descendants_after_cleanup=[],
+        terminated_process_groups=[]), 'original extension reference completed with both EOFs')
+    need(not process.get('timed_out') and not process.get('error') and not process.get('execution_error'),
+         'reference did not time out or fail')
+    for channel in ('stdout', 'stderr'):
+        stream = bind(execution / ('runner.' + channel), process[channel + '_sha256'])
+        need(len(stream) == process[channel + '_bytes'], 'complete original extension reference stream')
+    argv = process['argv']; python = Path(argv[0]).resolve(strict=True)
+    bind(python)
+    need(observed['actual_process']['python'] == dict(path=str(python), **bindings[str(python)]),
+         'actual reference interpreter bytes and original mode')
+    outer = current / 'review' / (group + '-execution')
+    outer_process = document(outer / 'runner.json')
+    need(outer_process == suite['runner'], 'original extension observer supervisor receipt unchanged')
+    fields(outer_process, dict(started=True, exit_code=0, stdout_EOF=True, stderr_EOF=True,
+        forced_cleanup=False, stderr_bytes=0, cleanup_errors=[], running_descendants_after_cleanup=[],
+        terminated_process_groups=[]), 'original extension observer normal completion and both EOFs')
+    need(not outer_process.get('timed_out') and not outer_process.get('error')
+         and not outer_process.get('execution_error'), 'observer did not time out or fail')
+    expected_tail = ['-I', '-S', '-B', str(runner_path), '--build-directory', str(build),
+                     '--expected-build-sha256', build_sha, '--torch-python', argv[0], '--output', str(directory)]
+    need(outer_process['argv'][1:] == expected_tail, 'exact strict original extension observer invocation')
+    for channel in ('stdout', 'stderr'):
+        stream = bind(outer / ('runner.' + channel), outer_process[channel + '_sha256'])
+        need(len(stream) == outer_process[channel + '_bytes'], 'complete original extension observer stream')
+    intent_raw = bind(outer / 'intent.json'); intent = json.loads(intent_raw)
+    need(suite['execution_intent'] == dict(path=group + '-execution/intent.json',
+         bytes=len(intent_raw), sha256=digest(intent_raw))
+         and intent['argv'] == outer_process['argv'], 'original pre-execution extension observer intent')
+    observer_python = Path(outer_process['argv'][0]).resolve(strict=True)
+    bind(observer_python)
+    need(intent['observer_python'] == dict(path=str(observer_python), **bindings[str(observer_python)]),
+         'exact original observer interpreter bytes and mode')
+    custody_outputs = {str(qualification_path), str(execution / 'runner.json'),
+        str(outer / 'runner.json'), str(outer / 'runner.stdout'), str(outer / 'runner.stderr')}
+    for spelling, metadata in bindings.items():
+        if spelling not in custody_outputs:
+            need(qualification['checked_inputs'].get(spelling) == metadata,
+                 'complete35 qualifier bound every original extension input: ' + spelling)
+    inputs.recheck()
+    role = dict(role='THIS_CI_' + group.upper() + '_TORCH_REFERENCE_INTERPRETER',
+        requested_path=argv[0], original_path=str(python), **bindings[str(python)],
+        report_member='current-runtime/' + (reference / 'report.json').relative_to(current).as_posix(),
+        process_member='current-runtime/' + (execution / 'process.json').relative_to(current).as_posix(),
+        original_process={key: process[key] for key in ('argv', 'pid', 'exit_code', 'stdout_EOF', 'stderr_EOF')},
+        entity_executed_by_custody=False, runtime_qualification_granted=False)
+    result = dict(schema='heptatorch.' + group.replace('_', '-') + '.original-evidence-custody.v1',
+        original_proof=proof, reference_sha256=reference_sha, native_report_sha256=digest(native_raw),
+        physical_proof_sha256=digest(proof_raw), source_manifest_sha256=SOURCE_MANIFEST,
+        reference_interpreter=role, complete_reference_process_streams_and_inputs_bound=True,
+        original_physical_predicates_rechecked=True, strict_original_provenance_checks=11,
+        complete_original_input_binding_count=len(bindings), exploratory_evidence_accepted=False,
+        additional_original_supervisor_output_members=sorted(
+            'current-runtime/' + Path(path).relative_to(current).as_posix() for path in custody_outputs),
+        numerical_cases_readmitted=False, native_executed=False, Torch_executed=False, compiler_executed=False,
+        runtime_qualification_granted=False)
+    return result, bindings
+
+
+def signbit_custody(repo, current):
+    return extension_custody(repo, current, 'signbit')
+
+
+def typed_index_select_custody(repo, current):
+    return extension_custody(repo, current, 'typed_index_select')
+
+
+def indexed_f32_custody(repo, current):
+    return extension_custody(repo, current, 'indexed_f32')
+
+
+def forward_nograd_custody(repo, current):
+    return extension_custody(repo, current, 'forward_nograd')
+
+
+def join_forward_custody(repo, current):
+    return extension_custody(repo, current, 'join_forward')
+
+
+def spatial_forward_custody(repo, current):
+    return extension_custody(repo, current, 'spatial_forward')
+
+
+def f64_need(condition, message):
+    if not condition:
+        raise ValueError('current F64 consumer: ' + message)
+
+
+def f64_sealer_preparation_custody(repository, path):
+    """Check all nineteen controls and their exact executing source identities."""
+    raw, metadata = info(path)
+    controls = json.loads(raw)
+    f64_need(controls['schema'] == 'heptatorch.current-f64-sealer.synthetic-controls.v1'
+             and controls['status'] == 'PASS_F64_SEALER_CONTROLS'
+             and type(controls['required_controls']) is type(controls['executed_controls']) is int
+             and controls['required_controls'] == controls['executed_controls'] == len(F64_SEALER_CONTROL_NAMES) == 19
+             and tuple(row['name'] for row in controls['controls']) == F64_SEALER_CONTROL_NAMES
+             and all(row['status'] == 'PASS' and type(row['rejected']) is bool for row in controls['controls'])
+             and controls['all_inputs_unchanged'] is True,
+             'all exact nineteen F64 sealer controls must pass')
+    f64_need(all(controls[name] is False for name in (
+        'native_executed', 'Torch_executed', 'compiler_executed', 'runtime_qualification_granted',
+        'whole_pytorch_rewrite_complete', 'repository_fixtures_modified'))
+        and type(controls['numerical_cases_added']) is int and controls['numerical_cases_added'] == 0,
+        'synthetic sealer controls cannot grant numerical qualification')
+    expected = {str(repository / name): info(repository / name)[1] for name in
+                ('tests/check_current_f64_sealer_controls.py', 'tools/seal_current_ci_evidence.py')}
+    f64_need(controls['inputs'] == expected, 'controls must bind this exact sealer and control script')
+    return dict(status=controls['status'], required_controls=19, executed_controls=19,
+                report=metadata, inputs=expected, numerical_cases_added=0)
+
+
+@contextlib.contextmanager
+def f64_reader_scope(repository, bindings):
+    """Load exact reader source and bind physical reads without running a child.
+
+    The consumer's unchanged readers use Path reads rather than a bind argument.
+    Observe those reads, reject changed inputs, and restore the import namespace
+    afterwards. The original comparison and reference predicates are untouched.
+    """
+    repository = Path(repository).resolve()
+    read_bytes, read_text = Path.read_bytes, Path.read_text
+    get_code = importlib.machinery.SourceFileLoader.get_code
+    old_path, old_bytecode = list(sys.path), sys.dont_write_bytecode
+    saved_modules = {}
+    active = [True]
+
+    def audit(event, args):
+        if not active[0]:
+            return
+        if event in ('subprocess.Popen', 'os.system', 'os.exec', 'os.posix_spawn',
+                     'os.spawn', 'os.fork', 'os.forkpty'):
+            raise RuntimeError('current F64 physical reader cannot start a process: ' + event)
+        if event == 'import' and args and str(args[0]).split('.')[0] == 'torch':
+            raise RuntimeError('current F64 physical reader cannot import Torch')
+
+    def bound_bytes(path):
+        path = Path(path)
+        f64_need(path.is_absolute() and str(path.resolve()) == str(path),
+                 'canonical physical input path required: ' + str(path))
+        before = path.lstat()
+        f64_need(stat.S_ISREG(before.st_mode) and not path.is_symlink(),
+                 'regular physical input required: ' + str(path))
+        raw = read_bytes(path)
+        after = path.stat()
+        fields = ('st_dev', 'st_ino', 'st_size', 'st_mode', 'st_mtime_ns', 'st_ctime_ns')
+        f64_need(all(getattr(before, key) == getattr(after, key) for key in fields),
+                 'physical input changed while reading: ' + str(path))
+        metadata = dict(bytes=len(raw), sha256=digest(raw), mode=stat.S_IMODE(after.st_mode))
+        f64_need(str(path) not in bindings or bindings[str(path)] == metadata,
+                 'previously bound physical input changed: ' + str(path))
+        bindings[str(path)] = metadata
+        return raw
+
+    def bound_text(path, *args, **kwargs):
+        bound_bytes(path)
+        value = read_text(path, *args, **kwargs)
+        bound_bytes(path)
+        return value
+
+    def source_code(loader, fullname):
+        path = Path(loader.path).absolute()
+        if path.is_relative_to(repository) and path.suffix == '.py':
+            return compile(bound_bytes(path), str(path), 'exec', dont_inherit=True, optimize=0)
+        return get_code(loader, fullname)
+
+    def load(path, name):
+        path = Path(path).absolute()
+        if name not in saved_modules:
+            saved_modules[name] = sys.modules.get(name)
+        spec = importlib.util.spec_from_file_location(name, path)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[name] = module
+        exec(compile(bound_bytes(path), str(path), 'exec', dont_inherit=True, optimize=0), module.__dict__)
+        return module
+
+    f64_need(not any(name == 'torch' or name.startswith('torch.') for name in sys.modules),
+             'physical readback must begin without Torch')
+    sys.addaudithook(audit)
+    try:
+        Path.read_bytes, Path.read_text = bound_bytes, bound_text
+        importlib.machinery.SourceFileLoader.get_code = source_code
+        sys.dont_write_bytecode = True
+        yield load
+        for spelling in list(bindings):
+            bound_bytes(Path(spelling))
+        f64_need(not any(name == 'torch' or name.startswith('torch.') for name in sys.modules),
+                 'physical readback imported Torch')
+    finally:
+        active[0] = False
+        Path.read_bytes, Path.read_text = read_bytes, read_text
+        importlib.machinery.SourceFileLoader.get_code = get_code
+        sys.path[:] = old_path
+        sys.dont_write_bytecode = old_bytecode
+        for name, previous in saved_modules.items():
+            if previous is None:
+                sys.modules.pop(name, None)
+            else:
+                sys.modules[name] = previous
+
+
+def f64_component_status(build, cp, strict, cp_reader, strict_reader,
+                         component, strict_exit, reader_exit, report_hashes):
+    """Require original strict outcomes while admitting only component custody."""
+    f64_need(build['schema'] == 'heptatorch.current-object-f64-build.v1'
+             and build['status'] == 'PASS_NATIVE_BUILD_ONLY'
+             and build['current_source_sha256'] == SOURCE and build['current_native_sha256'] == IMAGE
+             and build['current_function_count'] == 800 and len(build['current_units']) == 15
+             and build['actual_current_objects_reused'] is True and build['legacy143_restored'] is False
+             and build['runtime_qualified'] is False and build['whole_pytorch_rewrite_complete'] is False,
+             'complete current source and all fifteen actual objects are required')
+    for reference, native, reader in (('cpython', cp, cp_reader), ('pytorch', strict, strict_reader)):
+        f64_need(native['schema'] == 'heptatorch.current-object-f64-run.v1'
+                 and reader['schema'] == 'heptatorch.current-object-f64-physical-readback.v1'
+                 and native['reference'] == reader['reference'] == reference
+                 and native['cases'] == reader['cases'] == len(native['rows']) == 55
+                 and native['current_source_sha256'] == reader['current_source_sha256'] == SOURCE
+                 and native['native_sha256'] == reader['native_sha256'] == build['native_sha256']
+                 and reader['current_objects_verified'] == 15
+                 and reader['native_or_reference_execution_by_reader'] is False
+                 and reader['component_qualification_status'] == 'PARTIAL',
+                 'complete original55 physical readback and current object identity: ' + reference)
+        failures = sum(row['status'] != 'PASS' for row in native['rows'])
+        f64_need(native['status'] == reader['status'] == ('FAIL' if failures else 'PASS')
+                 and native['failed_cases'] == reader['failed_cases'] == failures,
+                 'original strict failure status and count must be preserved: ' + reference)
+        f64_need(all(row['status'] == 'PASS' or
+                     (reference == 'pytorch' and row['status'] == 'FAIL' and row.get('mode') == 4)
+                     for row in native['rows']), 'only preserved strict PyTorch sqrt differences are admissible')
+        rne = native['rne_accuracy']
+        f64_need(rne['status'] == 'PARTIAL' and rne['qualification_status'] == 'PASS'
+                 and rne['cases'] == reader['rne_repeat_cases'] == 55
+                 and rne['integer_checker_boundary_controls'] == reader['integer_boundary_controls'] == 18
+                 and native['sqrt_diagnostic']['native_errors'] == []
+                 and len(native['sqrt_diagnostic']['rows']) == reader['sqrt_diagnostic_cases'] == 5,
+                 'all original RNE55, eighteen integer controls and five rational sqrt groups: ' + reference)
+        f64_need(native['strict_failures_reclassified'] is reader['strict_failures_reclassified'] is False
+                 and native['legacy143_restored'] is False and native['sqrt_public_tensor_support'] is False
+                 and native['whole_pytorch_rewrite_complete'] is reader['whole_pytorch_rewrite_complete'] is False,
+                 'physical custody cannot broaden numerical or rewrite scope: ' + reference)
+    f64_need(cp['status'] == 'PASS' and cp['failed_cases'] == 0 and cp['oracle_provenance'] is None,
+             'complete CPython predecessor must pass')
+    provenance = strict['oracle_provenance']
+    f64_need(provenance['status'] == 'PASS' and type(provenance['checks']) is dict
+             and len(provenance['checks']) == 11 and all(value is True for value in provenance['checks'].values()),
+             'all original eleven strict installed-wheel checks remain mandatory')
+    expected_exit = b'0\n' if strict['status'] == 'PASS' else b'1\n'
+    f64_need(strict_exit == reader_exit == expected_exit, 'actual strict producer and reader exits must match their status')
+    expected = dict(schema='heptatorch.current-object-f64-component.v1', status='PARTIAL',
+        component_qualification_status='PASS', strict_pytorch_status=strict['status'],
+        strict_pytorch_failed_cases=strict['failed_cases'], strict_gate_reclassified=False,
+        current_source_sha256=SOURCE, native_sha256=build['native_sha256'],
+        original_strict_cases=55, original_rne_repeat_cases=55, original_rational_diagnostic_groups=5,
+        legacy143_restored=False, whole_pytorch_rewrite_complete=False, reports=report_hashes)
+    f64_need(component == expected, 'complete component summary must retain the original strict outcome')
+    return expected
+
+
+def current_f64_consumer_custody(repo, current):
+    """Re-enter both actual F64 readers, preserving FAIL as physical evidence."""
+    repo, current = Path(repo).resolve(), Path(current).resolve()
+    directory, bindings = current / 'f64-consumer', {}
+    f64_need(not sys.flags.optimize, 'all original comparison assertions must remain enabled')
+    f64_need(not (repo / 'src/heptatorch.hepta').exists()
+             and not (repo / 'src/heptatorch.hepta').is_symlink(), 'legacy143 must remain absent')
+    with f64_reader_scope(repo, bindings) as load:
+        originals = {relative: (current / relative).read_bytes() for relative in F64_CONSUMER_OUTPUTS}
+        preparation = f64_sealer_preparation_custody(repo, current / 'preparation/f64-sealer-controls.json')
+        for relative in ('tools/current_f64_consumer/README.md', 'tests/test_current_f64_consumer.py',
+                         'tests/f64_oracle.py', 'tests/f64_sqrt_probe.py', 'tests/f64_rne_qualification.py',
+                         'tests/f64_sqrt_integer.py', 'tests/pytorch_oracle.py', 'tests/pinned_reference_custody.py'):
+            (repo / relative).read_bytes()
+        implementation = repo / 'tools/current_f64_consumer'
+        load(implementation / 'build.py', 'build')
+        load(implementation / 'support.py', 'support')
+        reader = load(implementation / 'qualify.py', 'sealed_current_f64_consumer_reader')
+        cp_reader = reader.qualify(repo, current / 'build', directory / 'build', directory / 'cpython')
+        strict_reader = reader.qualify(repo, current / 'build', directory / 'build', directory / 'pytorch')
+        cp_saved = json.loads(originals['f64-consumer/cpython-readback.json'])
+        strict_saved = json.loads(originals['f64-consumer/pytorch-readback.json'])
+        f64_need(cp_reader == cp_saved and strict_reader == strict_saved,
+                 'both complete saved physical readbacks must equal fresh pure replay')
+        build = json.loads(originals['f64-consumer/build/build.json'])
+        cp = json.loads(originals['f64-consumer/cpython/execution/report.json'])
+        strict = json.loads(originals['f64-consumer/pytorch/execution/report.json'])
+        build_sha = digest(originals['f64-consumer/build/build.json'])
+        f64_need(cp['consumer_build_sha256'] == strict['consumer_build_sha256'] == build_sha
+                 and strict['cpython_directory'] == str(directory / 'cpython')
+                 and strict['cpython_report_sha256'] == digest(originals['f64-consumer/cpython/execution/report.json']),
+                 'one actual consumer build and exact same-run CPython predecessor')
+        hashes = {name: digest(originals['f64-consumer/' + name]) for name in
+                  ('cpython-readback.json', 'pytorch-readback.json', 'pytorch/execution/report.json')}
+        component = f64_component_status(build, cp, strict, cp_reader, strict_reader,
+            json.loads(originals['f64-consumer/component-status.json']),
+            originals['f64-consumer/strict-exit.txt'], originals['f64-consumer/readback-exit.txt'], hashes)
+        roles = []
+        for reference in ('cpython', 'pytorch'):
+            process = json.loads(originals['f64-consumer/' + reference + '/reference-process.json'])
+            python = Path(process['interpreter_realpath'])
+            python.read_bytes()
+            f64_need(process['interpreter'] == bindings[str(python)], 'actual reference interpreter bytes and mode')
+            roles.append(dict(role='THIS_CI_CURRENT_F64_' + reference.upper() + '_REFERENCE_INTERPRETER',
+                requested_path=process['argv'][0], original_path=str(python), **bindings[str(python)],
+                report_member='current-runtime/f64-consumer/' + reference + '/execution/report.json',
+                process_member='current-runtime/f64-consumer/' + reference + '/reference-process.json',
+                original_process={key: process[key] for key in ('argv', 'pid', 'exit_code', 'stdout_EOF', 'stderr_EOF')},
+                entity_executed_by_custody=False, runtime_qualification_granted=False))
+    result = dict(schema='heptatorch.current-object-f64.original-evidence-custody.v1',
+        status='PASS_COMPONENT_CUSTODY_ONLY', component_status=component,
+        cpython_physical_readback=cp_reader, strict_pytorch_physical_readback=strict_reader,
+        strict_pytorch_status=strict['status'], strict_pytorch_failed_cases=strict['failed_cases'],
+        strict_failures_reclassified=False, source_manifest_sha256=SOURCE_MANIFEST,
+        current_source_sha256=SOURCE, current_native_sha256=IMAGE,
+        consumer_native_sha256=build['native_sha256'], reference_interpreters=roles,
+        preparation_controls=preparation,
+        actual_current_objects_verified=15, complete_original_input_binding_count=len(bindings),
+        both_original_physical_readers_reentered=True, actual_read_source_bytes_bound=True,
+        original_physical_predicates_rechecked=True, strict_original_provenance_checks=11,
+        native_executed=False, Torch_executed=False, compiler_executed=False,
+        numerical_cases_readmitted=False, runtime_qualification_granted=False,
+        legacy143_restored=False, whole_pytorch_rewrite_complete=False)
+    return result, bindings
+
+
+
+def current_f64_view_custody(repo, current):
+    """Reapply the complete view reader to this run's original physical bytes."""
+    repo,current=Path(repo).resolve(),Path(current).resolve()
+    directory,bindings=current/'f64-view',{}
+    f64_need(not sys.flags.optimize,'all original view comparison predicates remain enabled')
+    with f64_reader_scope(repo,bindings) as load:
+        originals={relative:(current/relative).read_bytes() for relative in F64_VIEW_OUTPUTS}
+        runner=load(repo/'tests/f64_view/run.py','sealed_current_public_f64_view_reader')
+        f64_need(runner.ROOT==repo and runner.SOURCE==SOURCE and runner.IMAGE==IMAGE,
+                 'actual fixed current view reader source/image/repository')
+        report=json.loads(originals['f64-view/report.json'])
+        build_raw=(current/'build/build.json').read_bytes()
+        build_sha=digest(build_raw)
+        proof=runner.qualify(report,repo,current/'build',build_sha,directory,runner.Inputs())
+        saved=json.loads(originals['f64-view/physical-qualification.json'])
+        f64_need(proof==saved and proof['status']=='PASS_PHYSICAL_F64_VIEW'
+                 and proof['source_sha256']==SOURCE and proof['native_sha256']==IMAGE
+                 and proof['actual_build_sha256']==build_sha
+                 and proof['cases']==proof['compatible_tensor_cases']==1124
+                 and proof['native_sessions']==1175 and proof['known_native_capacity_gaps']==[]
+                 and proof['original_cases']==188 and proof['empty_cases']==841
+                 and proof['wide_cases']==20 and proof['offset_cases']==75
+                 and proof['alias_chains']==3 and proof['allocation_families']==3
+                 and proof['owner_controls']==44 and proof['protocol_controls']==19
+                 and proof['strict_reference_qualified'] is True
+                 and proof['original_eleven_provenance_checks_recomputed'] is True
+                 and proof['complete_raw_physical_replay'] is True
+                 and proof['native_executed_by_qualifier'] is proof['Torch_executed_by_qualifier'] is False
+                 and proof['full_project_status']=='HOLD' and proof['full_pytorch_rewrite_complete'] is False,
+                 'complete saved and fresh physical view proofs agree without reducing any case or control')
+        reference=json.loads(originals['f64-view/reference/report.json'])
+        process=json.loads(originals['f64-view/reference-execution/process.json'])
+        python=Path(reference['actual_process']['python']['path'])
+        python.read_bytes()
+        f64_need(reference['actual_process']['argv']==process['argv']
+                 and reference['actual_process']['pid']==process['pid']
+                 and all(reference['actual_process']['python'][key]==bindings[str(python)][key]
+                         for key in ('bytes','sha256','mode')),
+                 'actual view reference interpreter role binds original process and full executable bytes/mode')
+        role=dict(role='THIS_CI_CURRENT_F64_VIEW_REFERENCE_INTERPRETER',
+            requested_path=process['argv'][0],original_path=str(python),**bindings[str(python)],
+            report_member='current-runtime/f64-view/reference/report.json',
+            process_member='current-runtime/f64-view/reference-execution/process.json',
+            original_process={key:process[key] for key in ('argv','pid','exit_code','stdout_EOF','stderr_EOF')},
+            entity_executed_by_custody=False,runtime_qualification_granted=False)
+    result=dict(schema='heptatorch.public-f64-view.original-evidence-custody.v1',
+        status='PASS_F64_VIEW_CUSTODY_ONLY',current_source_sha256=SOURCE,current_native_sha256=IMAGE,
+        source_manifest_sha256=SOURCE_MANIFEST,physical_readback=proof,
+        reference_interpreters=[role],complete_original_input_binding_count=len(bindings),
+        actual_read_source_bytes_bound=True,complete_original_physical_reader_reentered=True,
+        native_executed=False,Torch_executed=False,compiler_executed=False,
+        numerical_cases_readmitted=False,runtime_qualification_granted=False,
+        legacy143_restored=False,whole_pytorch_rewrite_complete=False)
+    return result,bindings
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--repository', type=Path, required=True)
@@ -1525,11 +2395,14 @@ def main(argv=None):
         scope='File-byte and original POSIX-mode custody only; original numerical reports retain their statuses.',
         required_output_paths=list(REQUIRED_OUTPUTS), required_repository_paths=list(REPOSITORY_PATHS),
         required_toolchain_directories=list(TOOLCHAINS),
-        required_suites=list(GROUPS), required_cases_total=13851,
+        required_suites=list(GROUPS), required_cases=REQUIRED_CASES, required_cases_total=REQUIRED_CASES_TOTAL,
         reference_interpreters=[], execution_interpreter=None,
         reference_process_executables=[], numeric_predicates_evidence=None,
         bf16_copy_evidence=None, half_mul_evidence=None, half_neg_evidence=None, half_addsub_evidence=None,
-        wide_neg_evidence=None, half_div_evidence=None, public_f64_arithmetic_evidence=None, same_f64_arithmetic_evidence=None, typed_relu_evidence=None, missing=[], errors=[])
+        wide_neg_evidence=None, half_div_evidence=None, public_f64_arithmetic_evidence=None, same_f64_arithmetic_evidence=None, typed_relu_evidence=None,
+        signbit_evidence=None, typed_index_select_evidence=None, indexed_f32_evidence=None,
+        forward_nograd_evidence=None, join_forward_evidence=None, spatial_forward_evidence=None,
+        current_f64_consumer_evidence=None, current_f64_view_evidence=None, missing=[], errors=[])
     selected, declared, parsed_lists, input_declarations = {}, {}, {}, []
     report_declared_paths = set()
     roots = [(current, 'current-runtime'), (repo, 'repository')] + [
@@ -1612,9 +2485,44 @@ def main(argv=None):
                     table='reference_executable_custody', source_path=spelling, expected=metadata))
         except BaseException as error:
             problem('generator-reference-executable', current / 'review/generator131/report.json', error)
-        for group in ('numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div', 'public_f64_arithmetic', 'same_f64_arithmetic', 'typed_relu'):
+        try:
+            evidence, bindings = current_f64_consumer_custody(repo, current)
+            for role in evidence['reference_interpreters']:
+                python = Path(role['original_path'])
+                if python not in external_executables:
+                    external_executables[python] = 'external/current-f64-reference-python/' + python.name
+                role['member'] = external_executables[python]
+                report['reference_process_executables'].append(role)
+            report['current_f64_consumer_evidence'] = evidence
+            for spelling, metadata in bindings.items():
+                declared.setdefault(spelling, []).append(metadata)
+                report_declared_paths.add(spelling)
+                input_declarations.append(dict(input_report='f64-consumer-original-evidence-custody',
+                    table='actual_physical_reader_inputs', source_path=spelling, expected=metadata))
+                add(Path(spelling))
+        except BaseException as error:
+            problem('current-f64-consumer-original-evidence', current / 'f64-consumer/component-status.json', error)
+        try:
+            evidence,bindings=current_f64_view_custody(repo,current)
+            for role in evidence['reference_interpreters']:
+                python=Path(role['original_path'])
+                if python not in external_executables:
+                    external_executables[python]='external/current-f64-view-reference-python/'+python.name
+                role['member']=external_executables[python]
+                report['reference_process_executables'].append(role)
+            report['current_f64_view_evidence']=evidence
+            for spelling,metadata in bindings.items():
+                declared.setdefault(spelling,[]).append(metadata)
+                report_declared_paths.add(spelling)
+                input_declarations.append(dict(input_report='f64-view-original-evidence-custody',
+                    table='actual_physical_reader_inputs',source_path=spelling,expected=metadata))
+                add(Path(spelling))
+        except BaseException as error:
+            problem('current-f64-view-original-evidence',current/'f64-view/physical-qualification.json',error)
+        for group in ('numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div', 'public_f64_arithmetic', 'same_f64_arithmetic', 'typed_relu', 'signbit', 'typed_index_select', 'indexed_f32', 'forward_nograd', 'join_forward', 'spatial_forward'):
             try:
-                evidence, bindings = live_reference_custody(repo, current, group)
+                custody = extension_custody if group in EXTENSION_GROUPS else live_reference_custody
+                evidence, bindings = custody(repo, current, group)
                 role = evidence['reference_interpreter']
                 reference_python = Path(role['original_path'])
                 if reference_python not in external_executables:
@@ -1670,9 +2578,10 @@ def main(argv=None):
                 report['original_required_cases'] = document.get('required_cases_total')
                 if (document.get('schema') != 'heptatorch.current-runtime.qualification.v1'
                         or document.get('required_suites') != list(GROUPS)
-                        or document.get('required_cases_total') != 13851):
+                        or document.get('required_cases') != REQUIRED_CASES
+                        or document.get('required_cases_total') != REQUIRED_CASES_TOTAL):
                     problem('qualification-inventory', path,
-                            ValueError('current twenty-eight-group qualification input inventory differs'))
+                            ValueError('the complete current qualification input inventory differs'))
             if relative == 'review/metadata10/report.json':
                 worker = document.get('worker_interpreter')
                 if worker is not None:
@@ -1737,6 +2646,14 @@ def main(argv=None):
             public_f64_arithmetic_evidence=report['public_f64_arithmetic_evidence'],
             same_f64_arithmetic_evidence=report['same_f64_arithmetic_evidence'],
             typed_relu_evidence=report['typed_relu_evidence'],
+            signbit_evidence=report['signbit_evidence'],
+            typed_index_select_evidence=report['typed_index_select_evidence'],
+            indexed_f32_evidence=report['indexed_f32_evidence'],
+            forward_nograd_evidence=report['forward_nograd_evidence'],
+            join_forward_evidence=report['join_forward_evidence'],
+            spatial_forward_evidence=report['spatial_forward_evidence'],
+            current_f64_consumer_evidence=report['current_f64_consumer_evidence'],
+            current_f64_view_evidence=report['current_f64_view_evidence'],
             external_path_mapping=[dict(original_root=str(root), prefix=alias) for root, alias in roots]
                 + [dict(original_file=str(path), member=name)
                    for path, name in sorted(external_executables.items(), key=lambda row: str(row[0]))])

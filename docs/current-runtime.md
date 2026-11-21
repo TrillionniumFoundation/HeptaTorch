@@ -2,7 +2,7 @@
 
 ## Source and tools
 
-The canonical application is [`tools/current_runtime/source/runtime.hepta`](../tools/current_runtime/source/runtime.hepta). Its [manifest](../tools/current_runtime/source/manifest.json) fixes complete functions, ordered units and native object/image identities. The current candidate has **775 core functions in 15 units (13 core, RNG and owner support)**. HIA machine code performs all tensor numerical work, allocation, ownership, AD, RNG and command execution in a static Linux x86-64 ELF.
+The canonical application is [`tools/current_runtime/source/runtime.hepta`](../tools/current_runtime/source/runtime.hepta). Its [manifest](../tools/current_runtime/source/manifest.json) fixes complete functions, ordered units and native object/image identities. The current candidate has **800 core functions in 15 units (13 core, RNG and owner support)**. HIA machine code performs all tensor numerical work, allocation, ownership, AD, RNG and command execution in a static Linux x86-64 ELF.
 
 Use Hepta source commit `f33d8da316de8fdf27b504371f1a5310997ff548`. The exact bootstrap sequence in [Current HIA Runtime CI](../.github/workflows/current-runtime.yml) reproduces the initial compiler, expanded profile, borrowed modules, owned ABI2, interactive sessions, ABI3 stack tools and entropy linker. Its initial bootstrap uses Python and GNU ld.
 
@@ -48,7 +48,17 @@ assert result.returncode == 0 and not result.stdout and not result.stderr
 PY
 ```
 
-Retain the real pip report at `build/pytorch-install.json`. All eleven original provenance checks remain required. The SHA-pinned NumPy wheel resolves the missing-dependency warning while preserving strict reference-stderr admission. Both libraries are test dependencies.
+Retain the real pip report at `build/pytorch-install.json`. Produce the independent support-install report and shared immutable installed snapshot with the same reference interpreter:
+
+```sh
+/path/to/pinned-env/bin/python -m pip install --disable-pip-version-check --force-reinstall \
+  --report build/pytorch-reference-support-install.json \
+  -r compatibility/pytorch-reference-requirements.txt
+/path/to/pinned-env/bin/python -B tests/pinned_reference_custody.py \
+  --prepare-installed --repository .
+```
+
+The preparation command locates the exact 209,530,490-byte official wheel in the pip cache and checks its full fixed SHA. If the cache is stored elsewhere, pass `--wheel /absolute/path/to/the/exact/official.whl`. Keep the original URL-based installation and actual PEP610/pip records. Preparation reads every immutable installed wheel member and retains one shared snapshot at `build/pytorch-reference-installed/`, plus the original wheel at `build/pytorch-reference-wheel.whl`. References and pure readers bind the full 12,567 files, 12 libraries and actual process mappings before and after numerical execution. This preparation grants no numerical qualification. All eleven original provenance checks remain required. The SHA-pinned NumPy wheel resolves the missing-dependency warning while preserving strict reference-stderr admission. Both libraries are test dependencies.
 
 Use the **same CPython 3.12 interpreter** for the coordinator and live readers; original source inverses contain Python-version-sensitive AST identities. The BF16 exact-bit reference records and requires the actual AVX2/AVX512 path. The Half multiplication, negation, addition/subtraction, true-division, mixed public F64 and same public F64 arithmetic and typed ReLU references explicitly select AVX2 in their own processes and retain the original single-thread setting. Their scalar and vector NaN results are compared bit for bit. DEFAULT dispatch and other architectures remain separate full dtype/platform requirements.
 
@@ -86,7 +96,7 @@ The compiler retains its original limits: 1 MiB source/object, 256 functions inc
 
 The build receipt binds all source/tool/object/image bytes, modes, real exits and both stream EOFs. `PASS_NATIVE_BUILD_ONLY` describes compilation and linking. Runtime qualification is separate.
 
-## Twenty-nine mandatory groups
+## Required F64 view gate, then all 35 groups
 
 ```sh
 make test HEPTA_SOURCE_ROOT=/absolute/path/to/fixed-hepta-source \
@@ -95,16 +105,33 @@ make test HEPTA_SOURCE_ROOT=/absolute/path/to/fixed-hepta-source \
           HEPTA_TORCH_PYTHON=/absolute/path/to/pinned-env/bin/python
 ```
 
-Or consume an explicit new build:
+Or consume an explicit new cold build in this order. The view producer and pure reader must receive the **same actual build-receipt SHA**. The coordinator recomputes that receipt identity from the same build directory and independently replays the supplied view directory before any old successor uses its reference.
 
 ```sh
+view_build=/absolute/path/to/current-runtime-build
+view_review=/new/current-runtime-review
+view_build_sha=$(sha256sum "$view_build/build.json" | cut -d ' ' -f 1)
+
+/path/to/pinned-env/bin/python -I -S -B tests/f64_view/run.py \
+  --build-directory "$view_build" --expected-build-sha256 "$view_build_sha" \
+  --torch-python /absolute/path/to/pinned-env/bin/python \
+  --output "$view_review/f64-view"
+/path/to/pinned-env/bin/python -I -S -B tests/f64_view/qualify.py \
+  --build-directory "$view_build" --expected-build-sha256 "$view_build_sha" \
+  --directory "$view_review/f64-view" \
+  --output "$view_review/f64-view/physical-qualification.json"
 /path/to/pinned-env/bin/python -I -S -B tests/qualify_current_runtime.py \
-  --build-directory /absolute/path/to/current-runtime-build \
+  --build-directory "$view_build" \
   --tool-build /absolute/path/to/current-entropy-tools \
   --stack-build /absolute/path/to/stack-budget-tools \
   --torch-python /absolute/path/to/pinned-env/bin/python \
-  --output /new/current-runtime-review
+  --f64-view-directory "$view_review/f64-view" \
+  --output "$view_review/results"
 ```
+
+The [public F64 view gate](native-public-f64-views.md) separately requires **1,124 tensor cases / 1,175 sessions**, with 852 accepted geometries, 272 observed errors, 55,530 frames, 391,786 assertions and 30,180 complete Owner reads. The original188 cases remain intact, including an explicit accepted successor for case187. All added observations are produced in the same original reference process; every reader requires all eleven original provenance expressions and complete wheel/install/process/mapping custody. There is no local-provenance override for this gate. The physical qualifier starts neither native nor Torch processes.
+
+These are required counts and the observed local exploratory census. **Strict800 view qualification, the full35 run and final800 CI remain pending.** The separate view gate does not change the following35-group /16,365-case denominator.
 
 | Group | Cases | Preserved contract |
 | --- | ---: | --- |
@@ -122,8 +149,8 @@ Or consume an explicit new build:
 | `cat4` | 4 | Original raw packets and explicit capacity control |
 | `metadata10` | 10 | Actual cat metadata, Version and gradient presence |
 | `generator131` | 131 | Original24/native11/entry59/dispatch37 plus separate current-object probes |
-| `public_f64_logical192` | 192 | Original dense F64 logical results and separate scope controls |
-| `f64_48` | 48 | All original numeric/boundary/entry/OOM recipes; all87 entry requests comprise63 retained refusals,one negation,22 mixed arithmetic commands andone FE successor;3,259 frames/17,923 assertions |
+| `public_f64_logical192` | 192 | All original dense F64 results, two scope controls,18 packet controls andtwo OOM controls; the original no-AD view request has an explicit same-build success, while its AD refusal remains |
+| `f64_48` | 48 | All original numeric/boundary/entry/OOM recipes;87 entry requests comprise61 retained refusals,24 retained numerical successors andtwo view successors; expected3,285 frames/18,069 assertions/631 Owner blobs, still requiring the full new run |
 | `half47` | 47 | All original cases; 239 entry requests comprise 151 unchanged refusals, 22 multiplication, two negation, 42 exact add/sub and22 true-division successors, including two original same-frame FE packets; four original allocation recoveries;3,887 frames/20,133 assertions |
 | `half_logical264` | 264 | Actual Half results/errors, exhaustive encodings and allocation recovery |
 | `half_transactions12` | 12 | Direct successes and invalid-suffix rollbacks |
@@ -137,20 +164,32 @@ Or consume an explicit new build:
 | `public_f64_arithmetic` | 2541 | Mixed public F64/F32/Bool/I64 arithmetic; direct I64 nearest-even conversion, exact bits, rank-aware promotion/layouts,23 original arithmetic successors,82 controls andfour real OOM/recovery pairs |
 | `same_f64_arithmetic` | 5088 | Same public F64 pairs; exact bits including NaNs and signed zero, original3288 recipes plus1800 singleton rank/stride controls, independent ownership,88 protocol controls andfour real OOM/recovery pairs |
 | `typed_relu` | 776 | Exact I64/F64/F16/BF16 ReLU bits, negative zero, all Half words, scalar/vector NaNs, rank0..4 layouts, 90 protocol controls and four actual OOM/recovery pairs |
-| **Total** | **13,851** | Every group and its original or explicitly mapped successor controls are mandatory |
+| `signbit` | 97 | Seven dtype codes, exhaustive F16/BF16 sign bits, signed zero/NaN, thirteen protocol controls, six successful and six failed FE transactions, and two actual OOM/recovery pairs |
+| `typed_index_select` | 866 | Six tensor dtypes, scalar/rank0–4, noncontiguous storage/offsets, exact copied bits, five actual AD cases, 78 protocol controls, two actual OOM/recoveries and the original Bool packet successor |
+| `indexed_f32` | 331 | F32 gather/scatter_add/index_add with and without AD; explicit no-grad geometry, 193 actual gradients and full raw replay |
+| `forward_nograd` | 462 | Matmul and softmax/log_softmax,243 actual backward cases,37 protocol controls,3 successful and12 failed FE transactions,3 real OOM recoveries |
+| `join_forward` | 414 | Cat/stack exact bits and layouts,274 actual backward cases,194 absent gradients,58 protocol controls,2 successful and10 failed FE transactions,2 real OOM recoveries |
+| `spatial_forward` | 344 | Conv/pool/reduce/norm/linear/cross-entropy,186 actual backward cases and258 gradients,28 protocol controls,3 successful and9 failed FE transactions,3 real OOM recoveries |
+| **Total** | **16,365** | Every group and its original or explicitly mapped successor controls are mandatory |
 
-Production cases use the same main image. Generator ABI/reordered probes are separate current-object images, each bound to its own actual execution. New source identities require a complete new run. The typed-ReLU775→same-F64773→mixed-F64773→771→767→765→761→758→742→740 whole-source inverse composes with unchanged predecessor proofs; source identity never substitutes for execution. The typed-ReLU successor changes only the old `unary` body, retains the other772 old bodies and adds `typed_relu_value` and `typed_relu_tensor`. Its [source review](../validation/current-runtime775/source-review.json) and [qualification plan](../validation/current-runtime775/qualification-plan.json) keep static identity, scoped numerical results and full29-tree execution distinct.
+Production cases use the same main image. Generator ABI/reordered probes are separate current-object images, each bound to its own actual execution. New source identities require a complete new run. The public-F64-view800→forward797→indexed781→index/signbit778→typed-ReLU775→same-F64773→mixed-F64773→771→767→765→761→758→742→740 whole-source inverse composes with unchanged predecessor proofs; source identity never substitutes for execution. The typed-ReLU successor changes only the old `unary` body, retains the other772 old bodies and adds `typed_relu_value` and `typed_relu_tensor`. Its [source review](../validation/current-runtime775/source-review.json) and [qualification plan](../validation/current-runtime800/qualification-plan.json) keep static identity, scoped numerical results and the full35-group execution distinct.
 
 Original numerical assertions, tolerances, resource budgets and failure records remain. The complete 239-request Half entry now requires 151 original refusals and 88 explicitly mapped successes: 22 multiplication, two negation, 40 single-command additions/subtractions, two original 228-byte factory/FE-add frames and22 true divisions. The FE owner extension derives three allocations and one promotion retirement from the fixed HIA source. It checks every word of the three descriptors, all eight owner tables, allocator offsets and free extents, original Storage payloads and RNG; it constructs no observed intermediate state. The complete linked `rng03` unit and its two scalar rounding leaves are included in the source call graph.
 
-Each actual reference (312 multiplication, 371 Half negation, 1006 addition/subtraction,405 I64/F64 negation 1196 Half true-division and2541 mixed public F64 arithmetic cases) is generated once. F6448 and wide_neg405 share the identical actual405 reference, process receipt and input bindings; the unchanged original87-request F64 recipe keeps63 refusals and requires the actual405 result for its original negation successor. It additionally shares one actual2541 reference with public_f64_arithmetic for22 single-command results andone original240-byte FE transaction, while both original Bool subtraction refusals remain. The F64 FE owner rule checks all84 words of three descriptors, all eight owner tables, first-fit extents and temporary-promotion reclamation. Half47 shares the multiplication, Half negation, add/sub and division references. The multiplication group also binds the same 1006 reference for four former add/sub refusal controls; those original requests and numerical checks are retained. The same actual1196 division reference also supplies exact numerical successors for the two original division controls in multiplication312 and four in addition/subtraction1006. Their original observer files are recovered byte for byte by a complete inverse before applying these explicit successors. Actual process argv, interpreters, input files, outputs and EOFs remain bound. The original BF16 group keeps its exact-bit comparisons. Missing inputs, skips, timeout, incomplete EOF, altered inputs or failed physical readback prevent combined PASS. The CI archive preserves raw frames, full owner/storage snapshots, reference inputs, actual process streams and native tool receipts. Historical reference-interpreter gaps remain explicitly recorded.
+Each actual reference (312 multiplication, 371 Half negation, 1006 addition/subtraction,405 I64/F64 negation 1196 Half true-division and2541 mixed public F64 arithmetic cases) is generated once. F6448 and wide_neg405 share the identical actual405 reference, process receipt and input bindings; the unchanged original87-request F64 recipe keeps61 refusals and requires the actual405 result for its original negation successor. It additionally shares one actual2541 reference with public_f64_arithmetic for22 single-command results andone original240-byte FE transaction, while both original Bool subtraction refusals remain. Two original view requests additionally consume the strict original188 reference and this same admitted build; public_f64_logical192 consumes its third companion. The full1,124-case view reader remains mandatory, and companion rows174/175/176 retain full alias, mutation, Version and lifetime observations. The F64 FE owner rule checks all84 words of three descriptors, all eight owner tables, first-fit extents and temporary-promotion reclamation. Half47 shares the multiplication, Half negation, add/sub and division references. The multiplication group also binds the same 1006 reference for four former add/sub refusal controls; those original requests and numerical checks are retained. The same actual1196 division reference also supplies exact numerical successors for the two original division controls in multiplication312 and four in addition/subtraction1006. Their original observer files are recovered byte for byte by a complete inverse before applying these explicit successors. Actual process argv, interpreters, input files, outputs and EOFs remain bound. The original BF16 group keeps its exact-bit comparisons. Missing inputs, skips, timeout, incomplete EOF, altered inputs or failed physical readback prevent combined PASS. The CI archive preserves raw frames, full owner/storage snapshots, reference inputs, actual process streams and native tool receipts. Historical reference-interpreter gaps remain explicitly recorded.
 
-The typed_relu776, half_neg371 and wide_neg405 groups share one new actual776 ReLU reference and its exact process receipt. Four original command3/operation5 requests receive explicit numerical successors: Half cases369/370 map to ReLU774/775, and wide cases403/404 map to ReLU403/404. All original input words and request bytes remain; each old negation group retains46 control slots (typed_relu retains90), with two old slots now requiring exact result bytes, geometry, fresh Tensor/Storage/Version ownership, unchanged source/negation/RNG and complete release. The original239 Half and87 F64 entry partitions contain no ReLU requests and remain unchanged. See [the ReLU contract](native-typed-relu.md).
+The typed_relu776, half_neg371 and wide_neg405 groups share one new actual776 ReLU reference and its exact process receipt. Four original command3/operation5 requests receive explicit numerical successors: Half cases369/370 map to ReLU774/775, and wide cases403/404 map to ReLU403/404. All original input words and request bytes remain; each old negation group retains46 control slots (typed_relu retains90), with two old slots now requiring exact result bytes, geometry, fresh Tensor/Storage/Version ownership, unchanged source/negation/RNG and complete release. Neither the original239 Half nor the87 F64 entry recipe contains ReLU requests. All original request bytes remain; the separately declared F64 view successors change only the two view outcomes described above. See [the ReLU contract](native-typed-relu.md).
 
 The live32 cold-build adapter preserves its original predicates while mapping all seven unit/process inventory literals to the actual fifteen-unit, sixteen-process build. The preceding complete22 and old-head complete23 failures are retained. A focused corrected32 PASS does not substitute for the required complete execution on each new head.
 
-Current results are in [the audit](current-audit.md). The 13,851 finite cases remain distinct from the complete 2,590 native declarations, 688 derivative declarations and 17 system contracts.
+The F6448 census update is derived from actual old797/new800 execution of the same two original requests with identical setup/teardown:15→41 frames,34→180 assertions and5→10 complete Owner blobs. Adding these differences to the previously qualified3,259/17,923/626 census gives the expected3,285/18,069/631. Its96 original native child EOFs andtwo original OOM controls remain required. This focused measurement and its full pure replay did not execute all87 entry requests, all48 cases or all35 groups; the final run must prove the expected census. See [the800 native summary](../validation/current-runtime800/native-review.json).
+
+Current results are in [the audit](current-audit.md). The 16,365 finite cases remain distinct from the complete 2,590 native declarations, 688 derivative declarations and 17 system contracts.
 
 ## Changes and retirement
 
 Edit the canonical source and regenerate ordered units with [`partition.py`](../tools/current_runtime/partition.py). Cold-build every object and run affected qualification. Before deleting a predecessor path, migrate its live consumers, preserve original outcomes at immutable Git identities and run their current replacements. See [the history index](history.md); licenses and active reference/bootstrap inputs remain in the current tree.
+
+The signbit and typed_index_select development runners retain their explicit exploratory flags. The common coordinator never supplies them; strict qualification and sealing reject local reports without all original Torch installation provenance checks. The new F64 view gate has no such override. See [the native indexing/signbit scope](native-index-signbit.md).
+
+The early source-admission step checks the actual cold build, complete source and observer inverses, current reader identities, generated owners and the exact group/case inventory. Source-admission refusal controls, owner guards, all four AsStrided and three resource preparations remain required. The sealer binds their actual preparation reports, the mandatory view report and its complete physical evidence before accepting the35-group result. The800 v4 preparation snapshot passed22 source checks,26 F64/Half owner guard controls,14 source-admission refusal controls and19 current-F64 sealer refusal controls; the actual800 builder stale-bytecode control and launch/syntax checks have separately identified scopes. These checks grant no runtime qualification and add no numerical cases. Every required step must run on the final tree; all35 numerical groups still execute. The independent [RNG packet consumer](../tools/current_rng_consumer/README.md) now links the current cold build’s RNG object and preserves all185 original tests, with strict new-tree CI still required.

@@ -25,7 +25,7 @@
       "id": "dtype-layout",
       "status": "IN_PROGRESS",
       "required": "All upstream dtypes, conversion, promotion, numerical modes, dense/sparse/compressed/nested/quantized/complex layouts and invariants",
-      "remaining": "Complete dtype promotion, all conversion/rounding modes, ranks, layouts and devices. The scoped BF16 AVX2/AVX512 NaN copy repair is implemented; DEFAULT dispatch and other architectures remain. The new29-group/13851-case combined candidate requires its own actual run, including the same-F64 NaN repair."
+      "remaining": "Complete dtype promotion, all conversion/rounding modes, ranks, layouts and devices. The scoped BF16 AVX2/AVX512 NaN copy repair is implemented; DEFAULT dispatch and other architectures remain. The current35-group/16365-case candidate and its additional1124-case public-F64 view gate require their own complete strict run, including the same-F64 NaN repair."
     },
     {
       "id": "native-schemas",
@@ -37,7 +37,7 @@
       "id": "views-mutation",
       "status": "IN_PROGRESS",
       "required": "All view/stride/offset/overlap/indexing semantics, out and inplace variants, alias/version behavior and mutation errors",
-      "remaining": "Complete all ranks, strides, offsets, overlap, mutation/out variants, dtypes and devices with exact alias/version/history/resource behavior. Current limited view/reshape/as_strided paths retain their original regressions and await the current combined run."
+      "remaining": "Complete all ranks, strides, offsets, overlap, mutation/out variants, dtypes and devices with exact alias/version/history/resource behavior. Current limited view/reshape/as_strided paths retain their original regressions and await the current combined run. The800 candidate implements bounded public no-gradient F64 as_strided, including proven-empty large offsets;1124 local native cases and1175 sessions have exploratory readback only. Its single strict reference, full physical replay and all affected original87/public192 successors remain mandatory."
     },
     {
       "id": "autodiff-transforms",
@@ -109,24 +109,24 @@
       "id": "final-integration",
       "status": "OPEN",
       "required": "Full original test and application acceptance, independent final review, performance/resource/error qualifications and retirement of replaced implementation paths",
-      "remaining": "Run full original upstream/application/performance/resource/error acceptance and independent review of every gate. Complete the current 29-group/13851-case focused run and migrate all remaining active predecessor consumers before final retirement."
+      "remaining": "Run full original upstream/application/performance/resource/error acceptance and independent review of every gate. Complete the current 35-group/16365-case focused run and migrate all remaining active predecessor consumers before final retirement."
     }
   ],
   "current_runtime_integration": {
     "profile": "current",
     "source_manifest": "tools/current_runtime/source/manifest.json",
     "candidate_identity": {
-      "source_sha256": "0b000b51288af20490162efd8e525b86359a32cdd6d2521df97ecd9cddbd7b43",
-      "native_sha256": "ef82340209edc4dfb8d7ed0ecbc65e144fe26078cb29a0ba327798533476e86e",
-      "manifest_sha256": "348ed8e949256f985cdca0d9c612dc646ae738beee6013c27ab405d2df3e67c8",
-      "functions": 775,
+      "source_sha256": "aab2e736ff0ef4a282ff73fb1a69a95d2ceeea5260bbdada0af5b30cc16dcd3c",
+      "native_sha256": "083a92ad78977396f6d2cacff7b7f559cec4871dfcfb67624db48b6f8d64c3d5",
+      "manifest_sha256": "a5cf09f191db4887b4452001e0b72e75fffb2147f2476544cc3be49d8ffa2c85",
+      "functions": 800,
       "units": 15
     },
     "audit": "docs/current-audit.md",
     "qualification_coordinator": "tests/qualify_current_runtime.py",
-    "current_candidate_status": "PENDING_ACTUAL_29_GROUP_13851_RUN",
-    "required_current_image_cases": 13851,
-    "required_current_image_groups": 29,
+    "current_candidate_status": "PENDING_ACTUAL_35_GROUP_16365_RUN",
+    "required_current_image_cases": 16365,
+    "required_current_image_groups": 35,
     "required_suites": [
       "bool27",
       "original76",
@@ -156,7 +156,13 @@
       "half_div",
       "public_f64_arithmetic",
       "same_f64_arithmetic",
-      "typed_relu"
+      "typed_relu",
+      "signbit",
+      "typed_index_select",
+      "indexed_f32",
+      "forward_nograd",
+      "join_forward",
+      "spatial_forward"
     ],
     "required_cases": {
       "bool27": 27,
@@ -187,11 +193,17 @@
       "half_div": 1196,
       "public_f64_arithmetic": 2541,
       "same_f64_arithmetic": 5088,
-      "typed_relu": 776
+      "typed_relu": 776,
+      "signbit": 97,
+      "typed_index_select": 866,
+      "indexed_f32": 331,
+      "forward_nograd": 462,
+      "join_forward": 414,
+      "spatial_forward": 344
     },
-    "qualification_plan": "validation/current-runtime775/qualification-plan.json",
+    "qualification_plan": "validation/current-runtime800/qualification-plan.json",
     "current_execution_evidence": null,
-    "scope": "One775-function/15-unit HIA candidate. All28 predecessor groups/13075 cases remain mandatory; typed ReLU adds776 fixed AVX2 no-grad cases for I64/F64/F16/BF16. Four old ReLU control requests have explicit numerical successors using the same actual776 reference. Half239 and F6487 request partitions are unchanged. All29 groups/13851 cases must pass one actual cold-built main image; Generator131 also executes separately linked current-object probes. Whole-PyTorch qualification is not implied.",
+    "scope": "One800-function/15-unit HIA candidate. All32 predecessor groups/15145 cases remain mandatory; the current coordinator has 35 groups/16365 cases. Every group must execute on one actual cold-built main image; Generator probes remain separately linked. All11 original Torch provenance checks, physical readers, original numerical tolerances, protocol/resource/owner predicates and complete process EOF remain mandatory. Local exploratory observations and previous source/ELF results do not qualify the current tree. Full PyTorch qualification is not implied. The additional public-F64 view gate has1124 cases/1175 sessions and does not alter the original35-group/16365 denominator. The same actual build and one complete strict original188/families reference must bind its own replay plus the three affected old-gate successors.",
     "main_plus_independent_generator_probe_images": true,
     "historical_qualification_transferred": false,
     "closes_any_full_gate": false,
@@ -206,7 +218,7 @@
     "numeric_predicate_coordinator": "tests/numeric_predicates/run.py",
     "protocol_controls_counted_as_successful_torch_compatibility": false,
     "original_logical147_and_Half47_retained": true,
-    "pending_dtype_audit": "All29 groups require complete requalification on this source/image. ReLU775 has one actual shared1552-case Half-negation371, wide-negation405 and ReLU776 run with original physical replay and complete report readback; source inverses do not qualify the complete image. Previous PR53 current-runtime44883329985 failed its full28 gate and remains a failure. The independent old F64 strict sqrt report remains4/55 failed groups: PR52 observed1984 differences under AVX512, PR53 observed4008 under AVX2. Hardware capability alone is not an established cause. The auxiliary sqrt64 is not an admitted canonical775 unary operation. General dtype/layout/device/architecture semantics and typed AD remain open.",
+    "pending_dtype_audit": "All35 groups require a fresh complete strict run on current800. The native forward fixes, finite dtype/kernel scopes, errors, owner/FE and resource boundaries require same-image qualification. Original failed runs and the independent F64 sqrt strict failures remain unchanged. General dtype/layout/device/architecture semantics, typed AD and all17 complete contracts remain open.",
     "bf16_copy_coordinator": "tests/bf16_copy/run.py",
     "half_mul_coordinator": "tests/half_mul/run.py",
     "half47_mul_successor": "tests/current_runtime_half_mul_successor.py",
@@ -245,11 +257,52 @@
     "same_f64_arithmetic_coordinator": "tests/same_f64_arithmetic/run.py",
     "same_f64_arithmetic_complete_source_inverse": "tools/current_runtime/same_f64_arithmetic_source_transition.py",
     "same_f64_arithmetic_observer_inverse": "tools/current_runtime/same_f64_arithmetic_observer_transition.py",
-    "full_13851_executed": false,
     "typed_relu_coordinator": "tests/typed_relu/run.py",
     "typed_relu_complete_source_inverse": "tools/current_runtime/typed_relu_source_transition.py",
     "typed_relu_original_controls_successor": "tests/current_runtime_typed_relu_controls.py",
-    "typed_relu_complete_observer_inverse": "tools/current_runtime/typed_relu_observer_transition.py"
+    "typed_relu_complete_observer_inverse": "tools/current_runtime/typed_relu_observer_transition.py",
+    "signbit_coordinator": "tests/signbit/run.py",
+    "typed_index_select_coordinator": "tests/typed_index_select/run.py",
+    "index_signbit_complete_source_inverse": "tools/current_runtime/index_signbit_source_transition.py",
+    "indexed_f32_coordinator": "tests/indexed_f32/run.py",
+    "indexed_forward_complete_source_inverse": "tools/current_runtime/indexed_forward_source_transition.py",
+    "source_admission_precheck": "tests/check_current_runtime_admission.py",
+    "forward_complete_source_inverse": "tools/current_runtime/forward_source_transition.py",
+    "raw_reference_custody": "tests/pinned_reference_custody.py",
+    "full_current_gate_executed": false,
+    "forward_nograd_coordinator": "tests/forward_nograd/run.py",
+    "join_forward_coordinator": "tests/join_forward/run.py",
+    "spatial_forward_coordinator": "tests/spatial_forward/run.py",
+    "additional_mandatory_gates": {
+      "public_f64_view": {
+        "status": "PENDING_ACTUAL_STRICT_CURRENT_IMAGE_RUN",
+        "cases": 1124,
+        "accepted_tensor_cases": 852,
+        "expected_error_cases": 272,
+        "native_sessions": 1175,
+        "expected_frames": 55530,
+        "expected_assertions": 391786,
+        "expected_owner_snapshots": 30180,
+        "protocol_controls": 19,
+        "owner_controls": 44,
+        "actual_allocation_recoveries_required": 3,
+        "allocation_alias_capacity": 256,
+        "source": "tests/f64_view/",
+        "producer": "tests/f64_view/run.py",
+        "physical_reader": "tests/f64_view/qualify.py",
+        "source_inverse": "tools/current_runtime/public_f64_view_source_transition.py",
+        "shared_reference_required": true,
+        "original188_cases_preserved": true,
+        "required_original_companion_indices": [
+          174,
+          175,
+          176
+        ],
+        "all_original_provenance_checks": 11,
+        "actual_strict_reference_or_full35_run_completed": false,
+        "full_upstream_contract_qualified": false
+      }
+    }
   },
   "derivative_declaration_count": 688,
   "derivative_declaration_lines_sha256": "5e32bf19142454911112779474e2c52eab08a6789229b46b96a92246c578bac8",

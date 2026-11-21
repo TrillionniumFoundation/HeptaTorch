@@ -18,12 +18,13 @@ sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 sys.path.insert(0, str(HERE))
+sys.path.insert(1, str(ROOT / 'tests'))
 import cases
 import common
 import native
 
-SOURCE_SHA = '0b000b51288af20490162efd8e525b86359a32cdd6d2521df97ecd9cddbd7b43'
-IMAGE_SHA = 'ef82340209edc4dfb8d7ed0ecbc65e144fe26078cb29a0ba327798533476e86e'
+SOURCE_SHA = 'aab2e736ff0ef4a282ff73fb1a69a95d2ceeea5260bbdada0af5b30cc16dcd3c'
+IMAGE_SHA = '083a92ad78977396f6d2cacff7b7f559cec4871dfcfb67624db48b6f8d64c3d5'
 PYTHON_SHA = 'e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f'
 BUILDER_SHA = '9c93f8ff3fcfda8358e51a4c12efb3b0e0962abed9b5a750ca32d5a5568ac14d'
 ADMISSION_SHA = '9a45cee45a289dae0a35b0a256f66f6a1ea2d3c8becd30bb2174da1ffb51e9bb'
@@ -34,8 +35,8 @@ SOURCE_FILES = {
     'native.py': 'cc48760e9dad13dfdd834dca5086bc5fb96803dc29914d43b20f29cfb239320e',
     'run.py': 'a155cea27556e7c8647835f11641b4732557dd882d3ec024820a06cd96aeab5f',
     'qualify.py': '98b150d9295451c3be9ff4209d9f42350430e46ec0c3cd42ab3e84eab91b84f2',
-    'qualify736.py': '5b89e78607e070cc8475d468078fe00a3cbb1643fc756d70c8d97689cbccb7ee',
-    'derive736.py': 'aa8e6ac9f3f90d37224d1eaa12a48b1bd3e7432e67d6a58f0df16c6f5d76154b',
+    'qualify736.py': '347550d93205e72ee6e33435b6ec8b2b5b83172ca82febf4c6b1520b51846ed9',
+    'derive736.py': '62051d7c5778bd7cbbb2b1d45e194e72fd5c3faf47acb984e76da7ebf5bf71b3',
 }
 SUPPORT_FILES = {
     'tests/pytorch_oracle.py': 'ef8fe89aa7dbff4ee03f9d5762d2736a3648d9e48e97ad5df7bec615676f04ae',
@@ -200,42 +201,17 @@ def admit(args, inputs):
         inputs.bind(Path(path), identity['sha256'])
         require(inputs.records[path] == identity, 'cold-build physical input identity changed')
     require(built['source_sha256'] == SOURCE_SHA and built['native_sha256'] == IMAGE_SHA
-            and built['functions'] == len(bodies) == 775 and built['units_planned'] == 15,
-            'this reader requires the exact integrated 775-function source and image')
+            and built['functions'] == len(bodies) == 800 and built['units_planned'] == 15,
+            'this reader requires the exact integrated 800-function source and image')
     reference, execution = admit_reference(args, inputs)
+    from f64_view.legacy_binding import from_arguments
+    args.f64_view_successor = from_arguments(args, inputs)
     return built, reference, execution, cold_inputs.records
 
 
 def scope_controls(args, wire, folder):
-    """Retain current native boundaries without comparing them to Torch acceptance."""
-    n = native.Native(args, wire, folder)
-    rows = []
-    try:
-        source = n.create(4, [2], struct.pack('<2Q', 0, 0x8000000000000000), 0)
-        before, _ = n.tensor(source)
-        gen = n.one(60, 1729)['value']
-        rng = n.one(63, gen)['payload']
-        n.check('boundary-complete-RNG-width', len(rng), 5056)
-        cfg = struct.pack('<8Q', 1, 1, 2, 0, 0, 0, 160, 16)
-        payload = wire.Payload(cfg + struct.pack('<2Q', 0, 0x8000000000000000))
-        view = wire.Payload(struct.pack('<10Q', 1, 2, 0, 0, 0, 1, 0, 0, 0, 0))
-        controls = [('requires-grad-public-f64-create', (97, 4, payload), 5),
-                    ('public-f64-as-strided', (111, source, view, 80), 7)]
-        for name, command, expected in controls:
-            status, records, _, _ = n.issue([command], name)
-            n.check(name + '/status', status, expected)
-            n.check(name + '/no-records', records, [])
-            after, _ = n.tensor(source)
-            n.check(name + '/source-unchanged', after, before)
-            rows.append(dict(name=name, status='PASS_NATIVE_BOUNDARY_ONLY', error_status=status,
-                             complete_owner_rollback=True, torch_compatibility_claimed=False))
-        n.check('boundary-complete-RNG-unchanged', n.one(63, gen)['payload'], rng)
-        n.one(41, source)
-        n.one(66, gen)
-        return dict(status='PASS_NATIVE_BOUNDARIES_ONLY', controls=2, rows=rows,
-                    checks=n.checks, frames=n.s.frames, torch_compatibility_claimed=False)
-    finally:
-        n.finish()
+    from f64_view.legacy_successors import scope_controls as actual_scope
+    return actual_scope(args, wire, folder, native, args.f64_view_successor)
 
 
 def arguments():
@@ -247,10 +223,12 @@ def arguments():
     parser.add_argument('--expected-reference-sha256', required=True)
     parser.add_argument('--reference-execution', type=Path, required=True)
     parser.add_argument('--expected-execution-sha256', required=True)
+    parser.add_argument('--f64-view-reference', type=Path, required=True)
+    parser.add_argument('--f64-view-reference-execution', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--prepare-only', action='store_true')
     args = parser.parse_args()
-    for key in ('repository', 'build_directory', 'reference', 'reference_execution', 'output'):
+    for key in ('repository', 'build_directory', 'reference', 'reference_execution', 'f64_view_reference', 'f64_view_reference_execution', 'output'):
         setattr(args, key, getattr(args, key).resolve())
     args.binary = args.build_directory / 'heptatorch'
     return args

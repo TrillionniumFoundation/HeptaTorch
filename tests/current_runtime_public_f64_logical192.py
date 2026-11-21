@@ -33,9 +33,9 @@ READER_FILES = {
 }
 
 WRAPPER_FILES = {
-    'derive736.py': 'aa8e6ac9f3f90d37224d1eaa12a48b1bd3e7432e67d6a58f0df16c6f5d76154b',
-    'run736.py': 'f241beef32e8489dae48eb7649b7e6c0091c1775b51761e94c361bfee2597303',
-    'qualify736.py': '5b89e78607e070cc8475d468078fe00a3cbb1643fc756d70c8d97689cbccb7ee',
+    'derive736.py': '62051d7c5778bd7cbbb2b1d45e194e72fd5c3faf47acb984e76da7ebf5bf71b3',
+    'run736.py': '7893891880dd4ee5736825b837d88371a49dfb2b4dd47618856e4ece810abf84',
+    'qualify736.py': '347550d93205e72ee6e33435b6ec8b2b5b83172ca82febf4c6b1520b51846ed9',
 }
 
 
@@ -198,20 +198,24 @@ def frozen_reader(repository, inputs):
                 sys.modules[name] = module
 
 
-def reader_arguments(repository, build, build_sha, output, reference):
+def reader_arguments(repository, build, build_sha, output, reference, public_f64_view):
     return SimpleNamespace(repository=repository, build_directory=build,
         expected_build_sha256=build_sha, reference=reference['report'],
         expected_reference_sha256=REFERENCE_SHA, reference_execution=reference['execution'],
         expected_execution_sha256=EXECUTION_SHA, output=output,
-        binary=build / 'heptatorch', prepare_only=False)
+        binary=build / 'heptatorch', prepare_only=False,
+        f64_view_reference=Path(public_f64_view['root']),
+        f64_view_reference_execution=Path(public_f64_view['execution']))
 
 
-def reader_cli(repository, build, build_sha, reference):
+def reader_cli(repository, build, build_sha, reference, public_f64_view):
     return ['--repository', str(repository), '--build-directory', str(build),
             '--expected-build-sha256', build_sha, '--reference', str(reference['report']),
             '--expected-reference-sha256', REFERENCE_SHA,
             '--reference-execution', str(reference['execution']),
-            '--expected-execution-sha256', EXECUTION_SHA]
+            '--expected-execution-sha256', EXECUTION_SHA,
+            '--f64-view-reference', str(public_f64_view['root']),
+            '--f64-view-reference-execution', str(public_f64_view['execution'])]
 
 
 def read_process(directory, inputs, argv_tail, timeout):
@@ -247,7 +251,9 @@ def qualify_public192(report, repository, build, build_sha, directory, reference
             and report['full_schema_closure'] is False and report['prepare_only'] is False
             and report['all_inputs_unchanged'] is True and report['input_recheck_errors'] == [],
             'the finite public F64 qualification scope and actual execution are required')
-    cli = reader_cli(repository, build, build_sha, reference)
+    view = dict(root=report['view_successor']['reference_directory'],
+                execution=report['view_successor']['reference_execution'])
+    cli = reader_cli(repository, build, build_sha, reference, view)
     here = repository / 'tests/public_f64_logical'
     outer, outer_streams = read_process(execution_directory, inputs,
         ['-I', '-S', '-B', str(here / 'qualify736.py'), *cli, '--output', str(directory)], 1200)
@@ -266,7 +272,7 @@ def qualify_public192(report, repository, build, build_sha, directory, reference
         path = here / name
         require(str(path) in report['inputs'] and report['inputs'][str(path)] == inputs.records[str(path)],
                 'public F64 qualifier omitted an actual source-derived entry or derivation input')
-    args = reader_arguments(repository, build, build_sha, directory, reference)
+    args = reader_arguments(repository, build, build_sha, directory, reference, view)
     with frozen_reader(repository, inputs) as original:
         built, actual_reference, actual_execution, cold_inputs = original.run.admit(args, inputs)
         require(report['source_sha256'] == built['source_sha256']
@@ -289,6 +295,7 @@ def qualify_public192(report, repository, build, build_sha, directory, reference
             'physical public F64 stdout summaries differ from their original reports')
     return dict(cases=192, frames=checked['frames'], assertions=checked['total_checks'],
         native_sessions=196, packet_controls=18, allocation_controls=2, native_boundary_controls=2,
+        retained_native_scope_refusals=1, explicit_view_successors=1, view_successor=report['view_successor'],
         boundary_controls_counted_as_torch_compatibility=False, outside_native_scope_torch_observations=6,
         original147_replaced=False, complete_original_reader_reapplied=True,
         complete_raw_frames_reparsed=True, full_owner_archives_rechecked=True,
