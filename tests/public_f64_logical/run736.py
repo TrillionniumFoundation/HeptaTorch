@@ -22,8 +22,8 @@ import cases
 import common
 import native
 
-SOURCE_SHA = 'e0c8e0a3c3ee16d11cad8af6be1b52bd56295581e74bdcc65131f71a57540025'
-IMAGE_SHA = '3ee1fae0e9d20d10dfd2645a3575d23357bcaca0dae03e5f0ff6bf1d4b4197a5'
+SOURCE_SHA = 'f534c77069abc15ba15879d44492aacbc5f3709f6a861a0f0b9e0e365232fca1'
+IMAGE_SHA = 'db935c74bf0a2b359038c7be56f5a5721af8f0c2d757a2330527bd751861ae86'
 PYTHON_SHA = 'e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f'
 BUILDER_SHA = '9c93f8ff3fcfda8358e51a4c12efb3b0e0962abed9b5a750ca32d5a5568ac14d'
 ADMISSION_SHA = '9a45cee45a289dae0a35b0a256f66f6a1ea2d3c8becd30bb2174da1ffb51e9bb'
@@ -35,7 +35,7 @@ SOURCE_FILES = {
     'run.py': 'a155cea27556e7c8647835f11641b4732557dd882d3ec024820a06cd96aeab5f',
     'qualify.py': '98b150d9295451c3be9ff4209d9f42350430e46ec0c3cd42ab3e84eab91b84f2',
     'qualify736.py': '5b89e78607e070cc8475d468078fe00a3cbb1643fc756d70c8d97689cbccb7ee',
-    'derive736.py': 'a66e71be94a2746d112a1bda0500628377c8489db599380ec40dbc0cfa3d4ca4',
+    'derive736.py': 'f0ead5238746c231daec5cba7d2346d29944fdbf4255ef1d0312c4e02d4b1067',
 }
 SUPPORT_FILES = {
     'tests/pytorch_oracle.py': 'ef8fe89aa7dbff4ee03f9d5762d2736a3648d9e48e97ad5df7bec615676f04ae',
@@ -200,8 +200,8 @@ def admit(args, inputs):
         inputs.bind(Path(path), identity['sha256'])
         require(inputs.records[path] == identity, 'cold-build physical input identity changed')
     require(built['source_sha256'] == SOURCE_SHA and built['native_sha256'] == IMAGE_SHA
-            and built['functions'] == len(bodies) == 767 and built['units_planned'] == 15,
-            'this reader requires the exact integrated 767-function source and image')
+            and built['functions'] == len(bodies) == 771 and built['units_planned'] == 15,
+            'this reader requires the exact integrated 771-function source and image')
     reference, execution = admit_reference(args, inputs)
     return built, reference, execution, cold_inputs.records
 

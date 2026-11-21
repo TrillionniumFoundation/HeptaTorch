@@ -17,6 +17,7 @@ sys.path.insert(0,str(ROOT/'tests'))
 from half_addsub.cases import CASES,CASE_SHA256,raw_input,overwrite_words,SUCCESSORS,BOOL_REFUSALS,MUL_CONTROL_SUCCESSORS,LEGACY_FE_SUCCESSORS,ORIGINAL_CASE_SHA256
 from numeric_predicates.native import Observer as BaseObserver,Live,Replay,Memory,load_wire,dump
 from numeric_predicates.run import Inputs
+import current_runtime_half_div_controls as division_controls
 
 sha=lambda raw:hashlib.sha256(raw).hexdigest()
 
@@ -249,7 +250,7 @@ def compare_legacy_fe(n,row):
         complete_existing_owner_rows_preserved=len(old_rows),new_Tensor_Storage_Version_counts=[2,2,2])
 
 
-def compare(n,row):
+def compare(n,row,division_reference):
     if 'legacy_fe_successor_label' in row['spec']:return compare_legacy_fe(n,row)
     spec=row['spec'];generator,rng=n.begin();left,lh=n.setup(spec['left'])
     right,rh=(left,[]) if spec.get('same_handle') else n.setup(spec['right'])
@@ -264,7 +265,7 @@ def compare(n,row):
     n.check('all84 right descriptor words unchanged',Memory(before['bytes']).node(right),Memory(after['bytes']).node(right))
     n.check('complete left unchanged',n.tensor(left)[0],left_before)
     n.check('complete right unchanged',n.tensor(right)[0],right_before)
-    elements=controls=0
+    elements=controls=0;division_successors=[]
     if row['accepted']:
         n.check('exact add/sub response',[r['opcode'] for r in records],[2])
         result=records[0]['value'];actual,node=n.tensor(result)
@@ -284,8 +285,13 @@ def compare(n,row):
                 bad=list(command);bad[side]=stale
                 refused,_,_,_=n.issue(n.wire.packet([bad]));n.check('stale operand handle rollback',refused,1);controls+=1
             for operation in (0,4,5,(1<<64)-1):
-                refused,_,_,_=n.issue(n.wire.packet([(2,operation,left,right)]))
-                n.check('remaining unimplemented Half arithmetic explicit refusal',refused,7);controls+=1
+                if operation==4:
+                    elements+=division_controls.compare(n,row,left,right,division_reference,'half_addsub')
+                    division_successors.append(spec['name'])
+                else:
+                    refused,_,_,_=n.issue(n.wire.packet([(2,operation,left,right)]))
+                    n.check('remaining unimplemented Half arithmetic explicit refusal',refused,7)
+                controls+=1
             refused,_,_,_=n.issue(n.wire.packet([command,(125,left)]))
             n.check('successful add/sub then invalid suffix rolls back allocation',refused,4);controls+=1
             grad=n.create(0,[1],struct.pack('<I',0x3f800000),True)
@@ -314,7 +320,8 @@ def compare(n,row):
     if spec.get('allocation_control'):
         allocation=allocation_control(n,row);elements+=actual['numel']
     return dict(index=row['index'],name=spec['name'],operation=spec['operation'],accepted=row['accepted'],
-        expected_error=spec.get('expected_error'),elements=elements,bitwise=True,controls=controls,allocation_control=allocation)
+        expected_error=spec.get('expected_error'),elements=elements,bitwise=True,controls=controls,allocation_control=allocation,
+        division_successors=division_successors)
 
 
 def qualify(report,repository,build,build_sha,output,inputs):
@@ -338,24 +345,32 @@ def qualify(report,repository,build,build_sha,output,inputs):
     reference=read_reference(Path(report['reference_directory']).resolve(strict=True),
         Path(report['reference_process_directory']).resolve(strict=True),inputs)
     require(reference['report_sha256']==report['reference_sha256'],'exact independent original reference')
+    division_reference=division_controls.read_reference(ROOT,
+        Path(report['division_reference_directory']).resolve(strict=True),
+        Path(report['division_reference_process_directory']).resolve(strict=True),inputs)
+    require(division_reference['report_sha256']==report['division_reference_sha256'],
+        'same complete actual1196 reference for original division controls')
     wire=load_wire(ROOT,inputs.bind);frames=checks=owners=elements=mappings=allocation_refusals=protocol_controls=0
-    fe_successors=[]
+    fe_successors=[];division_successors=[]
     require(len(report['results'])==len(CASES),'all Half addition/subtraction native child cases')
     for row,saved in zip(reference['report']['rows'],report['results']):
         require(saved==json.loads(inputs.bind(output/saved['name']/'observation.json'))
             and saved['status']=='PASS' and saved['name']=='case-%03d'%row['index'],'complete native per-case record')
         session=Replay(build/'heptatorch',wire,output/saved['name'],inputs.bind)
-        n=Observer(session,wire,reference);observed=compare(n,row);finish=session.finish()
+        n=Observer(session,wire,reference);observed=compare(n,row,division_reference);finish=session.finish()
         require(observed==saved['result'] and n.checks==saved['checks'] and finish==saved['finish'],
             'every original bitwise geometry lifetime predicate reapplied to raw physical evidence')
         frames+=finish['frames'];owners+=finish['owner_reads'];checks+=n.checks;elements+=observed['elements']
         mappings+=finish['mapping_reads'];protocol_controls+=observed['controls']
+        division_successors.extend(observed.get('division_successors',[]))
         if 'legacy_fe_successor_label' in observed:fe_successors.append(observed['legacy_fe_successor_label'])
         if observed['allocation_control'] is not None:allocation_refusals+=observed['allocation_control']['allocation_refusals']
     require((frames,owners,checks,mappings)==(report['frames'],report['owner_reads'],report['checks'],report['mapping_reads']),'complete physical replay census')
     require(allocation_refusals==4 and protocol_controls==70,'four real OOM recoveries and all70 protocol controls')
     require(fe_successors==[label for label,_ in LEGACY_FE_SUCCESSORS],
         'both original FE requests physically replayed exactly once')
+    require(division_successors==list(division_controls.LABELS['half_addsub']),
+        'all and only original division controls physically replayed against the shared reference')
     inputs.recheck()
     return dict(cases=1006,frames=frames,assertions=checks,owner_snapshots=owners,native_sessions=1006,
         bitwise_elements=elements,mapping_reads=mappings,actual_allocation_refusals=allocation_refusals,
@@ -370,6 +385,8 @@ def qualify(report,repository,build,build_sha,output,inputs):
             if 'multiplication_refusal_label' in row['spec']],
         original_fe_successors=fe_successors,original1004_case_sha256=ORIGINAL_CASE_SHA256,
         original1004_cases_unchanged=True,
+        division_reference_sha256=division_reference['report_sha256'],
+        replaced_division_refusals=division_successors,
         full_project_status='HOLD',host_expected_values_computed=False)
 
 
@@ -381,6 +398,8 @@ def main():
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--reference-directory',type=Path)
     parser.add_argument('--reference-execution',type=Path)
+    parser.add_argument('--half-div-reference-directory',type=Path,required=True)
+    parser.add_argument('--half-div-reference-execution',type=Path,required=True)
     args=parser.parse_args();build=args.build_directory.resolve();output=args.output.resolve()
     output.mkdir(parents=True,exist_ok=False);inputs=Inputs();started=time.monotonic()
     report=dict(schema='heptatorch.half-addsub.native-observation.v2',status='FAIL',group='half_addsub',
@@ -412,12 +431,19 @@ def main():
             'configured Torch interpreter equals the actual retained reference process')
         report.update(Torch_executed=True,reference_sha256=reference['report_sha256'],cpu_capability=reference['report']['cpu_capability'],
             requested_cpu_capability=reference['report']['requested_cpu_capability'],torch_threads=reference['report']['torch_threads'])
+        division_directory=args.half_div_reference_directory.resolve(strict=True)
+        division_execution=args.half_div_reference_execution.resolve(strict=True)
+        division_reference=division_controls.read_reference(ROOT,division_directory,division_execution,inputs)
+        require(Path(args.torch_python).resolve(strict=True)==Path(division_reference['report']['actual_process']['python']['path']),
+            'same pinned actual interpreter for original arithmetic and division controls')
+        report.update(division_reference_directory=str(division_directory),division_reference_process_directory=str(division_execution),
+            division_reference_sha256=division_reference['report_sha256'])
         wire=load_wire(ROOT,inputs.bind)
         for row in reference['report']['rows']:
             name='case-%03d'%row['index'];saved=dict(name=name,status='FAIL');session=None;n=None
             try:
                 session=Live(build/'heptatorch',wire,output/name,inputs.bind);report['native_executed']=True
-                n=Observer(session,wire,reference);saved['result']=compare(n,row);saved['status']='PASS'
+                n=Observer(session,wire,reference);saved['result']=compare(n,row,division_reference);saved['status']='PASS'
             except BaseException as error:
                 saved['error']=dict(type=type(error).__name__,message=str(error),traceback=traceback.format_exc())
             finally:

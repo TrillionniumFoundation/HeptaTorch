@@ -11,8 +11,9 @@ not close the full dtype gate, autograd gate, CPU backend gate, or the complete
 2,590-schema inventory.
 
 The identities below record the original758 multiplication increment. Its
-sixteen helpers remain byte-identical in current765, which also implements
-[negation](native-half-negation.md) and [addition/subtraction](native-half-addsub.md).
+sixteen helpers remain byte-identical in current771, which also implements
+[negation](native-half-negation.md), [addition/subtraction](native-half-addsub.md)
+and [true division](native-half-division.md).
 Current combined requirements and actual results are in [the audit](current-audit.md).
 
 ## Original758 source and executable
@@ -87,7 +88,7 @@ require gradients keep the explicit Half AD boundary. A successful product
 followed by an invalid command in the same request is rolled back in full.
 
 Direct Half/F64 `as_strided`, Half view/reshape APIs, in-place multiplication,
-`out=`, Half autograd, division in the current765 candidate, private dtype3 arithmetic,
+`out=`, Half autograd, division rounding modes, private dtype3 arithmetic,
 and other devices remain open. Noncontiguous Half/F64 inputs in this suite are
 constructed through the already supported F32 view and preserve-format cast.
 The suite does not fabricate unsupported input descriptors.
@@ -162,15 +163,15 @@ The last 22 recipes are exact successors to 22 historical Half47 refusals.
 `tests/half_mul/legacy_controls.py` identifies every original label and literal
 operand recipe and binds the original control source and function body hashes.
 These requests succeed and must match fresh actual Torch output. The initial758
-partition left217 refusals. Current765 also requires two negation and42 add/sub
-successors, leaving173 refusals in the same complete239-request recipe. All
+partition left217 refusals. Current771 also requires two negation,42 add/sub
+and22 true-division successors, leaving151 refusals in the same complete239-request recipe. All
 original numerical groups, boundaries and four resource-failure controls remain
 required. Frozen reference packages and historical evidence are unchanged; no
 former refusal is silently omitted or counted as a continuing refusal.
 
-A current765 standalone run creates a new multiplication reference and consumes
-the actual1006 reference plus its recorded process, produced by the common
-coordinator. `make test` generates and shares these references automatically.
+A current771 standalone run creates a new multiplication reference and consumes
+the actual1006 add/sub and1196 division references plus their recorded processes,
+produced by the common coordinator. `make test` generates and shares these references automatically.
 
 ```sh
 python3 -B tests/half_mul/run.py \
@@ -179,6 +180,8 @@ python3 -B tests/half_mul/run.py \
   --torch-python /absolute/path/to/pinned-python \
   --addsub-reference-directory /absolute/path/to/current-review/references/half-addsub1006 \
   --addsub-reference-execution /absolute/path/to/current-review/references/half-addsub1006-execution \
+  --half-div-reference-directory /absolute/path/to/current-review/references/half-div1196 \
+  --half-div-reference-execution /absolute/path/to/current-review/references/half-div1196-execution \
   --output /absolute/path/to/new-half-mul-evidence
 ```
 
@@ -192,3 +195,11 @@ Four original op1/op2 refusal controls now require exact add/sub results from
 that shared1006 reference. The current765 run with these actual bindings passed
 9,664 frames,37,168 assertions,2,868 owner snapshots and1,313,606 exact elements;
 its original312 input corpus and multiplication reference producer are unchanged.
+
+On771 the two original division-control requests are also executed against
+the same actual1196 reference used by Half47 and the division suite. The
+actual312 run and physical replay passed9,696 frames,37,314 assertions,2,878
+owner snapshots and1,313,608 exact result elements. The complete observer
+inverse removes the explicit division successors before applying the original
+add/sub inverse; original multiplication predicates and reference recipes are
+unchanged. See [the source-bound771 review](../validation/current-runtime771/native-review.json).

@@ -1,6 +1,6 @@
 # Native Half addition and subtraction
 
-The current 765 source adds ordinary, out-of-place addition and subtraction to
+The original765 increment added ordinary, out-of-place addition and subtraction to
 the existing binary command when at least one operand is public F16 or BF16.
 The arithmetic executes in HIA. Python supplies literal inputs, starts the
 fixed reference wheel, and checks retained bytes; it does not evaluate expected
@@ -23,7 +23,8 @@ arithmetic or serve as a runtime fallback.
 
 The public F64 tag is 4. Private wrapped-F64 tag 3 remains protected by the
 unchanged command-argument guard and does not become a public operand type.
-This contract does not add division, arbitrary alpha, in-place/out variants,
+True division is specified separately in [its current contract](native-half-division.md).
+This add/sub contract does not add arbitrary alpha, in-place/out variants,
 new Half view APIs, Half autograd, devices or the remainder of the full PyTorch
 surface. The full-project status remains **HOLD**.
 
@@ -81,7 +82,7 @@ transfer a historical runtime PASS to a new executable.
 | Original1004-case prefix | `553e1a15e63bc66a60faf1276e827410165c9ed8ff0b05d6fb013421930cc6d8` |
 | Current1006-case corpus | `07fee181f5b4ea4eff68ccb98c15fbfaf1b81e4b39f0573b21489681443aeea8` |
 
-## Actual local verification
+## Original765 scoped verification
 
 The final native765 image passed the complete **1006-case** actual suite and
 pure physical replay. The entire original1004 input prefix is byte-identical;
@@ -142,9 +143,13 @@ restores the complete original 1004 cases, reference and native observer with
 an exact forward round trip. The original numerical/error/resource predicates
 remain; old execution results are not transferred to a new observer.
 
-The new repository gate is 24 groups / 3,845 finite cases and remains pending until
-an actual complete run and independent original-artifact readback pass. See
-[the scoped evidence summary](../validation/current-runtime765/native-review.json).
+The complete765 gate subsequently passed24 groups /3,845 cases and independent
+original-artifact readback; see [the merged CI review](../validation/current-runtime765/ci-review.json).
+The current771 successor requires a fresh26-group /5,446-case run. Its original1006
+add/sub cases and four original division-control requests passed actual execution
+and independent physical replay:31,532 frames,120,134 assertions,9,186 owner snapshots
+and2,899,316 exact elements. The four division controls share the actual1196 reference
+with Half47, multiplication312 and division1196; see [the771 review](../validation/current-runtime771/native-review.json).
 
 ## Exact old refusal transitions
 
@@ -219,4 +224,9 @@ schema v1. The optional paired `--addsub-reference-directory` and
 The report and physical proof retain its actual hash and the exact four
 replaced-control labels. The global coordinator and sealer must validate both
 reference custodianships and the raw physical proof, alongside the original
-Half47 transition, before admitting the current 24-group/3845-case profile.
+Half47 transition, before admitting the current26-group/5446-case profile.
+Both the multiplication and add/sub runners additionally require paired
+`--half-div-reference-directory` and `--half-div-reference-execution` arguments.
+Their native reports and physical proofs retain `division_reference_sha256`
+and all2/4 replaced-division labels. The complete old inverse APIs remain,
+with a preceding exact division-observer inverse; no original predicate is omitted.

@@ -1,4 +1,4 @@
-"""Pure physical qualification of current767 F64 48 observations.
+"""Pure physical qualification of current771 F64 48 observations.
 
 Complete original numerical, boundary, resource and owner functions consume
 the recorded native frames. Two malformed factory controls retain their reviewed
@@ -18,8 +18,8 @@ import sys
 import types
 import zlib
 
-SOURCE = 'e0c8e0a3c3ee16d11cad8af6be1b52bd56295581e74bdcc65131f71a57540025'
-IMAGE = '3ee1fae0e9d20d10dfd2645a3575d23357bcaca0dae03e5f0ff6bf1d4b4197a5'
+SOURCE = 'f534c77069abc15ba15879d44492aacbc5f3709f6a861a0f0b9e0e365232fca1'
+IMAGE = 'db935c74bf0a2b359038c7be56f5a5721af8f0c2d757a2330527bd751861ae86'
 READER = '1deb2fa84d9ea9653ca56769a5527f0102571ba2a4690f8deb85f5d4bdc038b3'
 ENTRY = '32196771085c4dbf24751ce9fa3b052a35655bd9c7cddb392d019174ffa50a44'
 REFERENCE = 'b1dafeed270b4dd226c349dece9d7f6213c2dabd34681685d97ec13c068e9b11'

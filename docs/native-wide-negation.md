@@ -10,7 +10,7 @@ F64 direct as_strided and F64 AD remain separate unimplemented contracts. Reacha
 
 ## Source and build
 
-The canonical manifest contains767 functions and15 ordered compilation units. Only predecessor `unary` and `command_argument` change;763 original functions remain byte-identical and two native helpers are appended. [wide_neg_source_transition.py](../tools/current_runtime/wide_neg_source_transition.py) restores the complete765 source, verifies every old function and exact forward round trip, and composes with all existing source inverses. [The current audit](current-audit.md) gives the exact source, ELF and manifest hashes.
+The negation increment was introduced in767 functions and15 ordered compilation units. In that increment, only predecessor `unary` and `command_argument` change;763 original functions remain byte-identical and two native helpers are appended. [wide_neg_source_transition.py](../tools/current_runtime/wide_neg_source_transition.py) restores the complete765 source, verifies every old function and exact forward round trip, and composes with all existing source inverses. The original767 identities and observed results remain in [its source-bound review](../validation/current-runtime767/native-review.json). [The current audit](current-audit.md) gives the current successor source, ELF and manifest hashes.
 
 Every application object is freshly compiled by the pinned HIA ABI3 compiler and linked by the pinned native entropy linker. The unchanged build admission rejects an unpinned or different manifest even when a preliminary build happens to produce the same ELF.
 
@@ -22,4 +22,4 @@ Coverage includes dense lengths0..70, signed zeros, infinities, all2048 F64 expo
 
 The actual405 run and independent replay passed10,484 frames,37,314 assertions,287,275 exact result elements,2,959 owner snapshots and four mapping reads. The original F6448 suite also passed on the same767 image with the same actual405 reference:2,867 frames and15,421 assertions. Its complete87-request entry recipe is unchanged:86 refusals and one F64-negation numeric successor. The original48 sub-sessions, both OOM/recovery pairs and original exact/non-NaN plus NaN-classification predicates remain.
 
-The combined current gate requires all25 groups/4,250 cases on this image; these two focused successes do not qualify unrelated groups or close any complete upstream declaration or subsystem. See [the qualification plan](../validation/current-runtime767/qualification-plan.json).
+The current771 successor requires a new complete26-group/5,446-case run. The two original767 focused successes do not transfer to771 or close any complete upstream declaration or subsystem. See [the current qualification plan](../validation/current-runtime771/qualification-plan.json).

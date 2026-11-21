@@ -69,6 +69,10 @@ git worktree add --detach /path/to/historical-heptatorch 9ea2ec5522685a8b1a0080e
 
 ### 只封存当前候选的资格计划
 
-原 736、740、742、758、761、765 六份 `qualification-plan.json`（共 20,743 字节）也退休到[上述固定提交](https://github.com/TrillionniumFoundation/HeptaTorch/tree/66582c67f76cee822e942c73435b5cebe126a132/validation)。当前封存器只额外收录 767 计划。旧计划不提供数值参考、源码逆变换或实际输入清单；PR48 原始归档确认四份计划只是额外归档成员，其声明输入引用均为零。
+原 736、740、742、758、761、765 六份 `qualification-plan.json`（共 20,743 字节）也退休到[上述固定提交](https://github.com/TrillionniumFoundation/HeptaTorch/tree/66582c67f76cee822e942c73435b5cebe126a132/validation)。PR50的封存器当时只额外收录767计划。旧计划不提供数值参考、源码逆变换或实际输入清单；PR48 原始归档确认四份计划只是额外归档成员，其声明输入引用均为零。
 
 修改仅移除 `tools/seal_current_ci_evidence.py` 的四个旧计划路径常量；全部函数体、25 组要求、必要输出、工具链和原始参考来源检查保持完整。实际执行结果、失败归档、完整输入以及仍被读取的源文件和 manifest 保留原字节。以上两部分合计退休 132 个文件、41,356,399 字节。
+
+### 当前771计划替换767计划
+
+771继续退休已被替代的767资格计划（1个文件、1,444字节），原字节保存在[固定提交f8ad6df](https://github.com/TrillionniumFoundation/HeptaTorch/blob/f8ad6df1d0d27776b7efb2c62db1356189523f39/validation/current-runtime767/qualification-plan.json)。当前能力清单、完整验收账本和文档改用771计划；封存器只额外收录这一份当前计划。它不提供数值参考或源码逆变换，原始实际执行结果保持独立身份。精确blob、模式和SHA见[当前计划退休记录](../validation/current-runtime771/retirement.json)。累计移出当前工作树427个过程文件、164,406,894字节；53个已替代源码文件另行记账。

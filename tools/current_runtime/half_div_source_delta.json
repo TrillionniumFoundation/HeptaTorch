@@ -1,0 +1,32 @@
+{
+  "appended_bodies": {
+    "half_div_element": "5441f1bfc0e1c9f2d5a297ae0f234da5f1b4ee2c7ec9f8af401320fc7172dea2",
+    "half_div_f32": "b68f3c7159159e18d40fa827088bcc174f6e4e699539fcd3b9bb3618e65df128",
+    "half_div_f64": "c709a8d76479ca1cb82e4bcdc4d6b06fe03f579ede60da1e04c31750ac53610e",
+    "half_div_tensor": "ac07effb7f823285d238c459d4c86ed49768404641697c43ce3b5dbc9cd0d2cb"
+  },
+  "appended_bytes": 8058,
+  "appended_functions": [
+    "half_div_f32",
+    "half_div_f64",
+    "half_div_element",
+    "half_div_tensor"
+  ],
+  "changed_functions": [
+    "binary"
+  ],
+  "functions": 771,
+  "new_binary_sha256": "52f132ef5dd64058110d619777cad7e34038395ee54581796277913692547d80",
+  "new_route": "block multiply(s4:mutbuf,o4:u64,l4:u64,r4:u64)\n  four4:u64 = const() {\"value\":4}\n  division4:bool = compare.eq(o4,four4)\n  branch division4 divide(s4,o4,l4,r4) retained_multiply(s4,o4,l4,r4)\nblock divide(sd:mutbuf,od:u64,ld:u64,rd:u64)\n  quotientd:u64 = call(sd,od,ld,rd) {\"function\":\"half_div_tensor\"}\n  ret(quotientd)\nblock retained_multiply(sm:mutbuf,om:u64,lm:u64,rm:u64)\n  productm:u64 = call(sm,om,lm,rm) {\"function\":\"half_mul_tensor\"}\n  ret(productm)\n",
+  "original_binary": "fn binary(s:mutbuf,operation:u64,left:u64,right:u64) -> (u64) effects(read,write,trap) entry(start)\nblock start(s:mutbuf,operation:u64,left:u64,right:u64)\n  valid_left:u64 = call(s,left) {\"function\":\"valid\"}\n  zero:u64 = const() {\"value\":0}\n  failed:bool = compare.eq(valid_left,zero)\n  branch failed failure() validate_right(s,operation,left,right)\nblock failure()\n  zero1:u64 = const() {\"value\":0}\n  ret(zero1)\nblock validate_right(s2:mutbuf,o2:u64,l2:u64,r2:u64)\n  valid_right2:u64 = call(s2,r2) {\"function\":\"valid\"}\n  zero2:u64 = const() {\"value\":0}\n  failed2:bool = compare.eq(valid_right2,zero2)\n  branch failed2 failure() route(s2,o2,l2,r2)\nblock route(s3:mutbuf,o3:u64,l3:u64,r3:u64)\n  ld3:u64 = call(s3,l3) {\"function\":\"tensor_dtype\"}\n  rd3:u64 = call(s3,r3) {\"function\":\"tensor_dtype\"}\n  five3:u64 = const() {\"value\":5}\n  six3:u64 = const() {\"value\":6}\n  lh3:bool = compare.eq(ld3,five3)\n  lb3:bool = compare.eq(ld3,six3)\n  rh3:bool = compare.eq(rd3,five3)\n  rb3:bool = compare.eq(rd3,six3)\n  left_half3:bool = bool.or(lh3,lb3)\n  right_half3:bool = bool.or(rh3,rb3)\n  half3:bool = bool.or(left_half3,right_half3)\n  branch half3 arithmetic(s3,o3,l3,r3) previous(s3,o3,l3,r3)\nblock arithmetic(sa:mutbuf,oa:u64,la:u64,ra:u64)\n  onea:u64 = const() {\"value\":1}\n  twoa:u64 = const() {\"value\":2}\n  adda:bool = compare.eq(oa,onea)\n  suba:bool = compare.eq(oa,twoa)\n  addsuba:bool = bool.or(adda,suba)\n  branch addsuba addsub(sa,oa,la,ra) multiply(sa,oa,la,ra)\nblock addsub(ss:mutbuf,os:u64,ls:u64,rs:u64)\n  results:u64 = call(ss,os,ls,rs) {\"function\":\"half_addsub_tensor\"}\n  ret(results)\nblock multiply(s4:mutbuf,o4:u64,l4:u64,r4:u64)\n  result4:u64 = call(s4,o4,l4,r4) {\"function\":\"half_mul_tensor\"}\n  ret(result4)\nblock previous(s5:mutbuf,o5:u64,l5:u64,r5:u64)\n  result5:u64 = call(s5,o5,l5,r5) {\"function\":\"half_mul_previous_binary\"}\n  ret(result5)\nend\n",
+  "original_binary_sha256": "f947e91c7b68efeef08d87e691cbbf6d12416a50d69b01c6e1565c0432ef0392",
+  "original_route": "block multiply(s4:mutbuf,o4:u64,l4:u64,r4:u64)\n  result4:u64 = call(s4,o4,l4,r4) {\"function\":\"half_mul_tensor\"}\n  ret(result4)\n",
+  "parent_functions": 767,
+  "parent_source_sha256": "e0c8e0a3c3ee16d11cad8af6be1b52bd56295581e74bdcc65131f71a57540025",
+  "prior_native769_source_or_evidence_reused": false,
+  "schema": "heptatorch.half-div.source-extension.v1",
+  "scope": "no-grad CPU binary operation4 with at least one Half/BF16 operand; actual original scalar RHS opmath; IEEE division; existing layouts/promotion",
+  "source_sha256": "f534c77069abc15ba15879d44492aacbc5f3709f6a861a0f0b9e0e365232fca1",
+  "unchanged_parent_functions": 766,
+  "whole_source_inverse_exact": true
+}
