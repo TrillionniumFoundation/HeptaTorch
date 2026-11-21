@@ -17,6 +17,7 @@ sys.path.insert(0,str(ROOT/'tests'))
 from half_neg.cases import CASES,CASE_SHA256,raw_input,overwrite_words
 from numeric_predicates.native import Observer as BaseObserver,Live,Replay,Memory,load_wire,dump,allocation_control
 from numeric_predicates.run import Inputs
+import current_runtime_typed_relu_controls as relu_controls
 
 sha=lambda raw:hashlib.sha256(raw).hexdigest()
 
@@ -123,7 +124,7 @@ def read_reference(directory,execution,inputs):
     return dict(report=report,blob=blob,report_sha256=sha(inputs.bind(directory/'report.json')))
 
 
-def compare(n,row):
+def compare(n,row,typed_relu_reference):
     spec=row['spec'];generator,rng=n.begin();source,handles=n.setup(spec['input'])
     original,source_node=n.tensor(source)
     n.check('complete independent source geometry and bits',original,n.expected(row['input']))
@@ -139,15 +140,19 @@ def compare(n,row):
         [result!=source,node[27]!=source_node[27],node[28]!=source_node[28]],[True]*3)
     no_edges=(32,40,48,56,72,80,88,176,184,248,280,288,296,312,360,384,392,400,408,584,592,600,608,616,624,640,648,656,664)
     n.check('result has no AD Saved input or view retention edges',[node[o//8] for o in no_edges],[0]*len(no_edges))
-    controls=0
+    controls=0;typed_relu_successors=[]
     if spec.get('controls'):
         for invalid in (0,1,generator):
             refused,_,_,_=n.issue(n.wire.packet([(3,6,invalid)]));n.check('invalid operand handle rollback',refused,1);controls+=1
         stale=n.create(spec['input']['dtype'],[1],b'\x00\x00');n.one(41,stale)
         refused,_,_,_=n.issue(n.wire.packet([(3,6,stale)]));n.check('stale operand handle rollback',refused,1);controls+=1
         for operation in (0,1,2,3,4,5,7,11,12,13,14,15,(1<<64)-1):
-            refused,_,_,_=n.issue(n.wire.packet([(3,operation,source)]))
-            n.check('unimplemented Half unary remains an explicit refusal',refused,7);controls+=1
+            if operation==5:
+                typed_relu_successors.append(relu_controls.compare(n,row,source,result,generator,typed_relu_reference,'half_neg'))
+            else:
+                refused,_,_,_=n.issue(n.wire.packet([(3,operation,source)]))
+                n.check('unimplemented Half unary remains an explicit refusal',refused,7)
+            controls+=1
         refused,_,_,_=n.issue(factory_packet(n,spec['input'],requires=True))
         n.check('Half requires-grad factory remains an explicit boundary',refused,5);controls+=1
         grad=n.create(0,[2],struct.pack('<2I',0x3f800000,0x40000000),True)
@@ -170,12 +175,12 @@ def compare(n,row):
     for token in handles:n.one(41,token)
     n.check('result survives complete input release',n.tensor(result)[0],actual)
     n.one(41,result);n.end(generator,rng)
-    allocation=None;elements=actual['numel']
+    allocation=None;elements=actual['numel']+sum(item['elements'] for item in typed_relu_successors)
     if spec.get('allocation_control'):
         allocation_row=dict(row,spec=spec['input'])
         allocation=allocation_control(n,allocation_row);elements+=actual['numel']
     return dict(index=row['index'],name=spec['name'],accepted=True,elements=elements,
-        bitwise=True,controls=controls,allocation_control=allocation)
+        bitwise=True,controls=controls,allocation_control=allocation,typed_relu_successors=typed_relu_successors)
 
 
 def qualify(report,repository,build,build_sha,output,inputs):
@@ -184,7 +189,7 @@ def qualify(report,repository,build,build_sha,output,inputs):
     qualification=module(ROOT/'tools/current_runtime/qualification.py','half_neg_readback_build',inputs.bind)
     built=qualification.admit_build(build,inputs.bind,build_sha)
     require(report==json.loads(inputs.bind(output/'report.json'))
-        and report['schema']=='heptatorch.half-neg.native-observation.v1'
+        and report['schema']=='heptatorch.half-neg.native-observation.v2'
         and report['status']=='PASS' and report['group']=='half_neg'
         and report['cases']==report['expected_cases']==len(CASES)==371
         and report['case_sha256']==CASE_SHA256 and not report['failures']
@@ -199,27 +204,41 @@ def qualify(report,repository,build,build_sha,output,inputs):
     reference=read_reference(Path(report['reference_directory']).resolve(strict=True),
         Path(report['reference_process_directory']).resolve(strict=True),inputs)
     require(reference['report_sha256']==report['reference_sha256'],'exact independent original reference')
+    typed_relu_reference=relu_controls.read_reference(ROOT,
+        Path(report['typed_relu_reference_directory']).resolve(strict=True),
+        Path(report['typed_relu_reference_process_directory']).resolve(strict=True),inputs)
+    require(typed_relu_reference['report_sha256']==report['typed_relu_reference_sha256']
+        and typed_relu_reference['admission']['reference_process_sha256']==report['typed_relu_reference_process_sha256']
+        and typed_relu_reference['admission']==report['typed_relu_reference_admission']
+        and typed_relu_reference['report']['actual_process']['python']==reference['report']['actual_process']['python'],
+        'same complete actual776 reference, process, fixed interpreter and exact four original recipes')
+    typed_relu_successors=[]
     wire=load_wire(ROOT,inputs.bind);frames=checks=owners=elements=mappings=allocation_refusals=protocol_controls=0
     require(len(report['results'])==len(CASES),'all Half negation native child cases')
     for row,saved in zip(reference['report']['rows'],report['results']):
         require(saved==json.loads(inputs.bind(output/saved['name']/'observation.json'))
             and saved['status']=='PASS' and saved['name']=='case-%03d'%row['index'],'complete native per-case record')
         session=Replay(build/'heptatorch',wire,output/saved['name'],inputs.bind)
-        n=Observer(session,wire,reference);observed=compare(n,row);finish=session.finish()
+        n=Observer(session,wire,reference);observed=compare(n,row,typed_relu_reference);finish=session.finish()
         require(observed==saved['result'] and n.checks==saved['checks'] and finish==saved['finish'],
             'every original bitwise geometry lifetime predicate reapplied to raw physical evidence')
         frames+=finish['frames'];owners+=finish['owner_reads'];checks+=n.checks;elements+=observed['elements']
         mappings+=finish['mapping_reads'];protocol_controls+=observed['controls']
+        typed_relu_successors.extend(observed['typed_relu_successors'])
         if observed['allocation_control'] is not None:allocation_refusals+=observed['allocation_control']['allocation_refusals']
     require((frames,owners,checks,mappings)==(report['frames'],report['owner_reads'],report['checks'],report['mapping_reads']),
         'complete physical replay census')
     require(allocation_refusals==2 and protocol_controls==46,'both actual allocation failures and all46 protocol controls')
+    typed_relu_proof=relu_controls.qualify_successors(typed_relu_reference,typed_relu_successors,'half_neg')
     inputs.recheck()
     return dict(cases=371,frames=frames,assertions=checks,owner_snapshots=owners,native_sessions=371,
         bitwise_elements=elements,mapping_reads=mappings,actual_allocation_refusals=allocation_refusals,
         identical_request_recoveries=allocation_refusals,protocol_controls=protocol_controls,
         physical_replay=True,native_executed_by_qualifier=False,
         Torch_executed_by_qualifier=False,reference_sha256=reference['report_sha256'],
+        typed_relu_reference_sha256=typed_relu_reference['report_sha256'],
+        typed_relu_reference_process_sha256=typed_relu_reference['admission']['reference_process_sha256'],
+        typed_relu_control_successors=typed_relu_proof,
         cpu_capability=reference['report']['cpu_capability'],requested_cpu_capability='avx2',torch_threads=1,
         original_refusal_successors=[row['spec']['legacy_refusal_label'] for row in reference['report']['rows']
             if 'legacy_refusal_label' in row['spec']],
@@ -234,9 +253,11 @@ def main():
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--reference-directory',type=Path)
     parser.add_argument('--reference-execution',type=Path)
+    parser.add_argument('--typed-relu-reference-directory',type=Path,required=True)
+    parser.add_argument('--typed-relu-reference-execution',type=Path,required=True)
     args=parser.parse_args();build=args.build_directory.resolve();output=args.output.resolve()
     output.mkdir(parents=True,exist_ok=False);inputs=Inputs();started=time.monotonic()
-    report=dict(schema='heptatorch.half-neg.native-observation.v1',status='FAIL',group='half_neg',
+    report=dict(schema='heptatorch.half-neg.native-observation.v2',status='FAIL',group='half_neg',
         cases=len(CASES),expected_cases=len(CASES),case_sha256=CASE_SHA256,results=[],failures=[],
         native_executed=False,Torch_executed=False,host_expected_values_computed=False,frames=0,checks=0,owner_reads=0,mapping_reads=0,
         actual_build_sha256=args.expected_build_sha256,full_project_status='HOLD')
@@ -261,6 +282,15 @@ def main():
             execution=args.reference_execution.resolve(strict=True)
         report.update(reference_directory=str(reference_directory),reference_process_directory=str(execution))
         reference=read_reference(reference_directory,execution,inputs)
+        typed_relu_reference=relu_controls.read_reference(ROOT,args.typed_relu_reference_directory,
+            args.typed_relu_reference_execution,inputs)
+        require(typed_relu_reference['report']['actual_process']['python']==reference['report']['actual_process']['python'],
+            'the shared ReLU and original negation observations used the identical fixed interpreter')
+        report.update(typed_relu_reference_directory=typed_relu_reference['admission']['reference_directory'],
+            typed_relu_reference_process_directory=typed_relu_reference['admission']['reference_process_directory'],
+            typed_relu_reference_sha256=typed_relu_reference['report_sha256'],
+            typed_relu_reference_process_sha256=typed_relu_reference['admission']['reference_process_sha256'],
+            typed_relu_reference_admission=typed_relu_reference['admission'])
         require(Path(args.torch_python).resolve(strict=True)==Path(reference['report']['actual_process']['python']['path']),
             'configured Torch interpreter equals the actual retained reference process')
         report.update(Torch_executed=True,reference_sha256=reference['report_sha256'],cpu_capability=reference['report']['cpu_capability'],
@@ -270,7 +300,7 @@ def main():
             name='case-%03d'%row['index'];saved=dict(name=name,status='FAIL');session=None;n=None
             try:
                 session=Live(build/'heptatorch',wire,output/name,inputs.bind);report['native_executed']=True
-                n=Observer(session,wire,reference);saved['result']=compare(n,row);saved['status']='PASS'
+                n=Observer(session,wire,reference);saved['result']=compare(n,row,typed_relu_reference);saved['status']='PASS'
             except BaseException as error:
                 saved['error']=dict(type=type(error).__name__,message=str(error),traceback=traceback.format_exc())
             finally:

@@ -1,0 +1,52 @@
+{
+  "schema": "heptatorch.same-f64-arithmetic.independent-source-review.v1",
+  "status": "PASS_SOURCE_REVIEW_ONLY",
+  "parent_commit": "be44d3c77c1e3da1e2c859eaf6581ac98ffbfa4d",
+  "parent_tree": "47b1227bf315e391745472cde7973b49db5fc0e9",
+  "parent_source_sha256": "4722c53b248780534a846a472784a565c4454ab738db75d655a7801b6623f07f",
+  "source_sha256": "846e592beaa7847383cee668bc33d25cd81e79052bd4612252e2f72a83d96d05",
+  "functions": 773,
+  "changed_functions": [
+    "half_mul_priority",
+    "public_f64_binary"
+  ],
+  "unchanged_function_bodies": 771,
+  "unchanged_function_order": true,
+  "unchanged_helpers": {
+    "integer_pointwise_axis_order": "d07a2d5d17239c8e1c45fb710cb9846bdb1c3e931b373dbf13b34f19f209d32a",
+    "integer_pointwise_compare_axes": "991c2b512828c2d3f3fbbbc792949cbc572a8ba91b91ed95d26acc93e3f7503c",
+    "dist_probability_stride": "5eb5964eb7601b311fe55f8b8f8b98bbef099aad36095bf7a2f73fec2e2b52bd",
+    "half_mul_float_priority": "05dd1f4fb9aadc41e5c4773f33cc48098e3a97a83fe91f21c1e765e191c839ec",
+    "half_mul_inner_stride": "bc6eb97660aedfea573aa85aab9d8aab1be84249aa7e751075494142c5c008a7"
+  },
+  "upstream_source": "https://github.com/pytorch/pytorch/blob/31a77fc9c0a7c6fff15a1ff58c743f53b1a9d457/aten/src/ATen/TensorIterator.cpp",
+  "upstream_functions": [
+    "compute_strides",
+    "reorder_dimensions",
+    "coalesce_dimensions",
+    "compute_fast_setup_type",
+    "fast_set_up"
+  ],
+  "findings": [
+    "The new multiplication branch requires output dtype4, numel1, and unequal input ranks.",
+    "Unequal ranks and numel1 imply output rank>=1; admitted rank<=4 bounds the packed permutation shift to24 bits.",
+    "The existing insertion sort starts from reversed axes, compares left then right input strides, skips a comparison with a zero stride, and retains strict comparisons and shape ties.",
+    "For all-unit shapes, coalescing selects the final reordered axis stride. The successor reads that axis instead of a fixed leading axis.",
+    "Existing sorting and stride helpers are unchanged; no new allocation or owner path is introduced.",
+    "All other value kernels, original non-singleton and non-F64 priority branches remain source-bound to the parent."
+  ],
+  "native_execution_claimed": false,
+  "numerical_qualification_claimed": false,
+  "whole_pytorch_rewrite_complete": false,
+  "required_actual_revalidation": [
+    "same_f64_arithmetic5088",
+    "public_f64_arithmetic2541",
+    "f64_48",
+    "all28_current_groups13075",
+    "all_exact_tree_workflows_and_original_artifacts",
+    "all_original_Half_multiplication_and_mixed_dtype_groups",
+    "public_f64_logical192"
+  ],
+  "priority_guard_uses_promoted_result_dtype": true,
+  "Half_routes_unchanged_field_scope": "Unchanged result-dtype5/6 priority branches; Half/F64 inputs promoted to result4 may take the new singleton branch."
+}

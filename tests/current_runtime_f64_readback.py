@@ -1,4 +1,4 @@
-"""Pure physical qualification of current771 F64 48 observations.
+"""Pure physical qualification of current773 F64 48 observations.
 
 Complete original numerical, boundary, resource and owner functions consume
 the recorded native frames. Two malformed factory controls retain their reviewed
@@ -18,8 +18,8 @@ import sys
 import types
 import zlib
 
-SOURCE = 'f534c77069abc15ba15879d44492aacbc5f3709f6a861a0f0b9e0e365232fca1'
-IMAGE = 'db935c74bf0a2b359038c7be56f5a5721af8f0c2d757a2330527bd751861ae86'
+SOURCE = '0b000b51288af20490162efd8e525b86359a32cdd6d2521df97ecd9cddbd7b43'
+IMAGE = 'ef82340209edc4dfb8d7ed0ecbc65e144fe26078cb29a0ba327798533476e86e'
 READER = '1deb2fa84d9ea9653ca56769a5527f0102571ba2a4690f8deb85f5d4bdc038b3'
 ENTRY = '32196771085c4dbf24751ce9fa3b052a35655bd9c7cddb392d019174ffa50a44'
 REFERENCE = 'b1dafeed270b4dd226c349dece9d7f6213c2dabd34681685d97ec13c068e9b11'
@@ -156,6 +156,8 @@ def outer_execution(report, repository, build, build_sha, directory,
         '--expected-reference-sha256', REFERENCE,
         '--wide-neg-reference-directory', report['source_admission']['wide_neg_successor']['reference_directory'],
         '--wide-neg-reference-execution', report['source_admission']['wide_neg_successor']['reference_execution'],
+        '--public-f64-arithmetic-reference-directory', report['source_admission']['public_f64_arithmetic_successor']['reference_directory'],
+        '--public-f64-arithmetic-reference-execution', report['source_admission']['public_f64_arithmetic_successor']['reference_execution'],
         '--output', str(directory)]
     require(argv == expected, 'complete actual current48 argv and physical source route')
     python = Path(argv[0]).resolve(strict=True)
@@ -544,7 +546,9 @@ def qualify_f64_48(report, repository, build, build_sha, directory, reader_direc
     results = []
     negation = report['source_admission']['wide_neg_successor']
     shared = dict(root=negation['reference_directory'], execution=negation['reference_execution'])
-    with reader.current_reader(repository, reader_directory, shared) as adapter:
+    arithmetic = report['source_admission']['public_f64_arithmetic_successor']
+    mixed = dict(root=arithmetic['reference_directory'], execution=arithmetic['reference_execution'])
+    with reader.current_reader(repository, reader_directory, shared, mixed) as adapter:
         originals, old_run = adapter.old, adapter.run
         original, owner, bindings, cold = prepare_originals(adapter, report, repository, build, build_sha, bound)
         mapping = parse(original.bind(reader_directory / 'frozen-candidate719/original55-mapping.json', old_run.MAPPING))
@@ -595,10 +599,12 @@ def qualify_f64_48(report, repository, build, build_sha, directory, reader_direc
             elif category == 'boundary_cases':
                 details = old_run.boundary_case(driver, spec, wanted)
             elif category == 'entry_groups':
-                details = adapter.wide_neg_successor.wrap_entry(controls['entry_controls'])(driver)
+                details = adapter.public_f64_arithmetic_successor.wrap_entry(controls['entry_controls'])(driver)
                 require(details['original_entry_requests'] == len(driver.operations) == 87
-                        and details['actual_refusals'] == 86 and details['actual_successful_negations'] == 1,
-                        'all original87 requests,86 retained refusals and one checked negation')
+                        and details['actual_refusals'] == 63 and details['actual_successful_negations'] == 1
+                        and details['actual_successful_mixed_arithmetic'] == 23
+                        and details['actual_successful_FE_arithmetic'] == 1,
+                        'all original87 requests,63 retained refusals,one checked negation and23 checked arithmetic results')
                 changed = [operation for operation in driver.operations if operation['label'] in
                            ('public-factory-dtype-5', 'public-factory-dtype-6')]
                 require([operation['label'] for operation in changed] ==
@@ -638,8 +644,10 @@ def qualify_f64_48(report, repository, build, build_sha, directory, reader_direc
         actual_build_sha256=build_sha, cases=48, original_counts=dict(numeric=33, boundary=12, entry=1, allocation=2),
         frames=sum(row['frames'] for row in results), checks=sum(row['checks'] for row in results),
         original_input_values=1798174, original_refusal_recipes=87, changed_factory_status_expectations=2,
-        unchanged_other_refusal_expectations=84, retained_refusals=86,
-        actual_numeric_successors=1, wide_neg_successor=negation, original_OOM_controls=2,
+        unchanged_other_refusal_expectations=61, retained_refusals=63,
+        actual_numeric_successors=24, wide_neg_successor=negation, original_OOM_controls=2,
+        public_f64_arithmetic_successor=arithmetic, retained_bool_subtraction_refusals=2,
+        actual_mixed_arithmetic_successors=23, actual_FE_arithmetic_successors=1,
         exact_non_nan=sum(row['exact_non_nan'] for row in numeric),
         nan_classification=sum(row['nan_classification'] for row in numeric),
         complete_snapshot_predicate_calls=sum(row['complete_snapshot_predicate_calls'] for row in results),

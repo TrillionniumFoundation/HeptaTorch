@@ -570,8 +570,8 @@ layout contract clone non-dense incoming gradients. A scoped coverage-division
 helper retains NaN sign/payload and quiets the numerator; global division
 remains unchanged. Public G Version 0 follows the clone operation.
 
-The [R3 original14](../validation/differentiable-view-r3-native14/report.json)
-and [R3 input4](../validation/differentiable-view-r3-input4/report.json) executions
+The [R3 original14](https://github.com/TrillionniumFoundation/HeptaTorch/blob/87702d6b129198b28098c6c26d905a2e91117512/validation/differentiable-view-r3-native14/report.json)
+and [R3 input4](https://github.com/TrillionniumFoundation/HeptaTorch/blob/87702d6b129198b28098c6c26d905a2e91117512/validation/differentiable-view-r3-input4/report.json) executions
 pass 14/14 and 4/4 with 96,461 and 77,432 strict assertions respectively,
 unchanged inputs and all sessions at EOF/exit zero. Semantic comparison
 methods and immutable actual references are unchanged; the original14

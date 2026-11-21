@@ -12,7 +12,7 @@ import struct
 import sys
 import types
 
-ADDSUB_HELPER='08b21584133fd23999128981a4368b049d06cb990adcaacf2a3cd1ab006e4f41'
+ADDSUB_HELPER='8daca00bb8535c61ead25519e864069f8c5ab88be80eaa4b0674d9bdf34de186'
 
 
 def require(ok,message):

@@ -36,8 +36,15 @@ def restore_mul_runner(raw,bind):
     inverse=importlib.util.module_from_spec(spec);spec.loader.exec_module(inverse)
     raw,division_proof=inverse.restore_runner(raw,PATH,bind)
     root=Path(__file__).resolve().parents[2]
+    relu_path=Path(__file__).with_name('typed_relu_observer_transition.py');bind(relu_path)
+    relu_spec=importlib.util.spec_from_file_location('half_mul_negation_relu_observer_inverse',relu_path)
+    relu_inverse=importlib.util.module_from_spec(relu_spec);relu_spec.loader.exec_module(relu_inverse)
+    negation_relu_proof=None
     for path,expected in NEGATION_INPUTS.items():
-        require(sha(bind(root/path))==expected,'unchanged complete371-case negation observer: '+path)
+        original=bind(root/path)
+        if path=='tests/half_neg/run.py':
+            original,negation_relu_proof=relu_inverse.restore_runner(original,path,bind)
+        require(sha(original)==expected,'unchanged complete371-case negation observer: '+path)
     delta_raw=bind(Path(__file__).with_name('half_addsub_mul_observer_delta.json'));delta=json.loads(delta_raw)
     require(sha(raw)==SOURCE and delta['source_sha256']==SOURCE and delta['parent_sha256']==PARENT
         and delta['schema']=='heptatorch.half-addsub-mul-observer-delta.v1' and delta['path']==PATH,
@@ -63,5 +70,6 @@ def restore_mul_runner(raw,bind):
         replacement_controls_require_fresh_ownership_and_unchanged_inputs=True,
         all371_negation_cases_and_observer_bytes_unchanged=NEGATION_INPUTS,
         native_division_observer_inverse=division_proof,
+        native_typed_relu_negation_observer_inverse=negation_relu_proof,
         actual_runner_sha256=division_proof['source_sha256'],
         whole_source_inverse_exact=True,whole_round_trip_exact=True,runtime_qualification_transferred=False)

@@ -20,9 +20,9 @@ import types
 
 MUL_HELPER = '47557e7730d00c374864d2e2948a511e86b47ae653034adaa0f776445fc556ad'
 NEG_HELPER = '1d5a464ad7ff3ac56656cd361de2024ca77db3ead2e9da6687a043039a3a5b41'
-FE_OWNER_CONTRACT = '62261026bb58bee9d4dda9208eb3589703703e4db1335e1920767066aeb72e11'
-FE_TOMBSTONE_CONTRACT = '5b704b874281d9f353c25ad4ef34a41be2df99cf79d8848c3f82a99f6f78475f'
-FE_OWNER_READER = '3398d5600a1980b29a59bd5cb3d5154c87862c7736f9508e62af214fa34a63a3'
+FE_OWNER_CONTRACT = 'dc3f1e69485f15f0b6a3bb44ec223414bf211d1b376c718ac4d7b1cfbdad6b9a'
+FE_TOMBSTONE_CONTRACT = 'e1a2ba6d480c1ebe4e9312cb517205b1c8d2faaff5caf68f579772a1dc237a7d'
+FE_OWNER_READER = '18c1539c663ca8117a315cc3b611e7cbcc99bf2cf86c5da8dbcb2c5675dac747'
 WORDS = {0: (0x3f800000, 0x80000000), 1: (1, 0), 2: (1, 0),
          4: (0x3ff0000000000000, 0x8000000000000000),
          5: (0x3c00, 0x8000), 6: (0x3f80, 0x8000)}
@@ -80,12 +80,47 @@ class Successor:
         contract = json.loads(inputs.bind(contract_path, FE_OWNER_CONTRACT))
         source = inputs.bind(self.repository / 'tools/current_runtime/source/runtime.hepta',
                              contract['source_sha256'])
+        relu_path = self.repository / 'tools/current_runtime/typed_relu_source_transition.py'
+        inputs.bind(relu_path)
+        relu_spec = importlib.util.spec_from_file_location('half_FE_typed_relu_source_inverse', relu_path)
+        relu = importlib.util.module_from_spec(relu_spec); relu_spec.loader.exec_module(relu)
+        same773, relu_source_proof = relu.restore_source(source, inputs.bind)
+        require(relu_source_proof['functions'] == 775 and relu_source_proof['parent_functions'] == 773
+                and relu_source_proof['changed_functions'] == ['unary']
+                and relu_source_proof['whole_source_inverse_exact'] is True
+                and relu_source_proof['whole_round_trip_exact'] is True,
+                'complete typed ReLU775 inverse before the frozen same-F64 source')
+        same_path = self.repository / 'tools/current_runtime/same_f64_arithmetic_source_transition.py'
+        inputs.bind(same_path)
+        same_spec = importlib.util.spec_from_file_location('half_FE_same_f64_source_inverse', same_path)
+        same = importlib.util.module_from_spec(same_spec); same_spec.loader.exec_module(same)
+        previous773, same_source_proof = same.restore_source(same773, inputs.bind)
+        require(same.SOURCE == relu.PARENT_SOURCE
+                and same_source_proof['functions'] == same_source_proof['parent_functions'] == 773
+                and same_source_proof['changed_functions'] == ['half_mul_priority','public_f64_binary']
+                and same_source_proof['Half_routes_unchanged'] is True
+                and same_source_proof['whole_source_inverse_exact'] is True
+                and same_source_proof['whole_round_trip_exact'] is True,
+                'the same-F64 extension preserves the complete original Half FE route')
+        arithmetic_path = self.repository / 'tools/current_runtime/public_f64_arithmetic_source_transition.py'
+        inputs.bind(arithmetic_path)
+        arithmetic_spec = importlib.util.spec_from_file_location('half_FE_public_f64_source_inverse', arithmetic_path)
+        arithmetic = importlib.util.module_from_spec(arithmetic_spec); arithmetic_spec.loader.exec_module(arithmetic)
+        previous771, arithmetic_source_proof = arithmetic.restore_source(previous773, inputs.bind)
+        require(arithmetic_source_proof['functions'] == 773 and arithmetic_source_proof['parent_functions'] == 771
+                and arithmetic_source_proof['changed_functions'] == ['binary','half_mul_cast']
+                and arithmetic_source_proof['unchanged_parent_functions'] == 769
+                and arithmetic_source_proof['preexisting_half_binary_routes_unchanged'] is True
+                and arithmetic_source_proof['whole_source_inverse_exact'] is True
+                and arithmetic_source_proof['whole_round_trip_exact'] is True,
+                'exact mixed773 predecessor source relation preserves the complete Half binary route')
         inverse_path = self.repository / 'tools/current_runtime/half_div_source_transition.py'
         inputs.bind(inverse_path)
         inverse_spec = importlib.util.spec_from_file_location('half_FE_division_source_inverse', inverse_path)
         inverse = importlib.util.module_from_spec(inverse_spec); inverse_spec.loader.exec_module(inverse)
-        predecessor_source, division_source_proof = inverse.restore_source(source, inputs.bind)
-        require(division_source_proof['non_division_routes_unchanged'] is True
+        predecessor_source, division_source_proof = inverse.restore_source(previous771, inputs.bind)
+        require(same.PARENT_SOURCE == arithmetic.SOURCE and inverse.SOURCE == arithmetic.PARENT_SOURCE
+                and division_source_proof['non_division_routes_unchanged'] is True
                 and division_source_proof['whole_round_trip_exact'] is True,
                 'complete native767 inverse preserves the original operation1 FE allocation path')
         require(contract['schema'] == 'heptatorch.half-addsub.exact-fe-allocation-path.v2'
@@ -99,7 +134,18 @@ class Successor:
                 'three allocations derive from the fixed native source, not observed-count adjustment')
         matches = list(re.finditer(rb'^fn ([A-Za-z_][A-Za-z0-9_]*)\(.*?^end\n', source, re.M | re.S))
         functions = {item[1].decode('ascii'): item[0] for item in matches}
-        require(len(functions) == len(matches) == 771, 'complete actual771 function census')
+        require(len(functions) == len(matches) == 775, 'complete actual775 function census')
+        cast = functions['half_mul_cast']
+        require(sha(cast) == arithmetic_source_proof['actual_cast_sha256']
+                and b'  integerw:u64 = const() {"value":2}\n  doublew:u64 = const() {"value":4}\n' in cast
+                and b'  from_integerw:bool = compare.eq(sw,integerw)\n'
+                    b'  to_doublew:bool = compare.eq(tw,doublew)\n'
+                    b'  directw:bool = bool.and(from_integerw,to_doublew)\n'
+                    b'  branch directw direct_integer(xw) convert(xw,sw,tw,nw)\n' in cast
+                and contract['exact_input'] == dict(half_dtypes=[5,6], left_shape=[2], left_words=[1,2],
+                    opcodes=[97,2], operation=1, requires_grad=False, right_dtype=0, right_shape=[2],
+                    right_words=[1065353216,2147483648]),
+                'the actual direct I64-to-F64 guard is false for both fixed original Half/F32 FE inputs')
         calls = {name: [item.decode('ascii') for item in re.findall(
                     rb'call\([^\n]*\)\s+\{"function":"([^"]+)"\}', raw)]
                  for name, raw in functions.items()}
@@ -150,8 +196,8 @@ class Successor:
         tombstone = json.loads(inputs.bind(tombstone_path, FE_TOMBSTONE_CONTRACT))
         owner_path = tests / 'current_runtime_half_fe_owner.py'
         owner_raw = inputs.bind(owner_path, FE_OWNER_READER)
-        require(tombstone['schema'] == 'heptatorch.current771-half-FE-owner-source-contract.v1'
-                and tombstone['source'] == dict(functions=771,
+        require(tombstone['schema'] == 'heptatorch.current775-half-FE-owner-source-contract.v1'
+                and tombstone['source'] == dict(functions=775,
                     path='tools/current_runtime/source/runtime.hepta', sha256=sha(source))
                 and tombstone['functions_verified'] == len(tombstone['functions']) == 44
                 and tombstone['predicate'] == dict(bytes=len(owner_raw),
@@ -274,6 +320,12 @@ class Successor:
             FE_tombstone_source_contract_sha256=FE_TOMBSTONE_CONTRACT,
             FE_complete_owner_reader_sha256=FE_OWNER_READER,
             half_div_source_inverse=division_source_proof,
+            public_f64_arithmetic_source_inverse=arithmetic_source_proof,
+            typed_relu_source_inverse=relu_source_proof,
+            same_f64_arithmetic_source_inverse=same_source_proof,
+            FE_new_public_F64_fallback_reachable=False,
+            FE_new_I64_to_F64_cast_guard_reachable=False,
+            FE_original_promotion_and_result_dtype=0,
             FE_exact_source_functions_verified=len(contract['function_identities']),
             FE_exact_tombstone_source_functions_verified=len(tombstone['functions']),
             FE_exact_no_allocation_subtrees_verified=len(contract['pure_subtrees_without_descriptor_constructors']),

@@ -9,9 +9,9 @@ from pathlib import Path
 import re
 import types
 
-SOURCE = 'f534c77069abc15ba15879d44492aacbc5f3709f6a861a0f0b9e0e365232fca1'
-IMAGE = 'db935c74bf0a2b359038c7be56f5a5721af8f0c2d757a2330527bd751861ae86'
-MANIFEST = '15337cd10313c9cd485e0c1db70b6d6da46d2cd4afa21053db9eb7f86d57301e'
+SOURCE = '0b000b51288af20490162efd8e525b86359a32cdd6d2521df97ecd9cddbd7b43'
+IMAGE = 'ef82340209edc4dfb8d7ed0ecbc65e144fe26078cb29a0ba327798533476e86e'
+MANIFEST = '348ed8e949256f985cdca0d9c612dc646ae738beee6013c27ab405d2df3e67c8'
 HALF_SOURCE = 'bf3641b1a9061c6f92b8cbeef75adfac89e82ee16d32a9f650cb938d9e918386'
 PREDICATE_INVERSE = '71244cd75fb41ce07876d7f5699b66ae43c73adc5dd5d09fb2da0dec9c8c7439'
 STORAGE_SOURCE = '51820849f7becec549be15babace00f00687601ae7f53bcee0e636ca02f721f9'
@@ -21,7 +21,6 @@ PARENT_MANIFEST = '708e4b642f630604cedb1d2cf566fefcfb3d9afd74a835f5a265d7e51f1ff
 BUILDER = '9c93f8ff3fcfda8358e51a4c12efb3b0e0962abed9b5a750ca32d5a5568ac14d'
 QUALIFICATION = '9a45cee45a289dae0a35b0a256f66f6a1ea2d3c8becd30bb2174da1ffb51e9bb'
 WITNESS = 'b4422af9ec3512eb3eb1676345e35515d4ff94dbb79e202d370b0a0a12a7c83d'
-NAMES = ['rng03'] + ['logical_half_%02d' % i for i in range(13)] + ['owners']
 PARENT_NAMES = ['rng03'] + ['cat_f32_%02d' % i for i in range(12)] + ['cg_model', 'owners']
 FUNCTION = re.compile(rb'^fn ([A-Za-z_][A-Za-z_0-9]*)\([^\n]* entry\([A-Za-z_][A-Za-z_0-9]*\)\n.*?^end\n', re.M | re.S)
 
@@ -65,17 +64,19 @@ def current_source(repository, inputs):
     source = repository / 'tools/current_runtime/source'
     manifest_raw = read(source / 'manifest.json', inputs, MANIFEST)
     manifest = json.loads(manifest_raw)
-    need(manifest['runtime']['sha256'] == SOURCE and manifest['runtime']['functions'] == 771
+    names = [row['name'] for row in manifest['units']]
+    need(manifest['runtime']['sha256'] == SOURCE and manifest['runtime']['functions'] == 775
          and manifest['expected_native_sha256'] == IMAGE
-         and [row['name'] for row in manifest['units']] == NAMES,
-         'exact physical771/15 source and executable profile')
+         and len(names) == len(set(names)) == 15
+         and names[0] == 'rng03' and names[-1] == 'owners',
+         'exact physical775/15 source and executable profile')
     path = repository / 'tools/current_runtime/build.py'
     builder = loaded(path, read(path, inputs, BUILDER), 'generator131_actual736_builder')
     bind = (lambda path, expected=None: read(path, inputs, expected))
     runtime, units, summary = builder.check_sources(manifest, source, bind)
-    need(summary['source_sha256'] == SOURCE and summary['functions'] == 771
-         and summary['complete_core_bodies_matched'] == 771 and summary['units_planned'] == 15,
-         'every physical771 body and all fifteen source partitions')
+    need(summary['source_sha256'] == SOURCE and summary['functions'] == 775
+         and summary['complete_core_bodies_matched'] == 775 and summary['units_planned'] == 15,
+         'every physical775 body and all fifteen source partitions')
     return runtime, units, summary, manifest_raw
 
 
@@ -90,11 +91,42 @@ def parent_source_files(repository, inputs=None):
          and witness['unchanged_functions'] == 683,
          'exact independently bound source-only predecessor witness')
     runtime, units, summary, manifest_raw = current_source(repository, inputs)
+    relu_path = Path(repository) / 'tools/current_runtime/typed_relu_source_transition.py'
+    relu = loaded(relu_path, read(relu_path, inputs), 'generator131_typed_relu_source_inverse')
+    runtime, relu_inverse = relu.restore_source(runtime, lambda path, expected=None: read(path, inputs, expected))
+    need(relu.SOURCE == SOURCE and sha(runtime) == relu.PARENT_SOURCE
+         and relu_inverse['functions'] == 775 and relu_inverse['parent_functions'] == 773
+         and relu_inverse['changed_functions'] == ['unary']
+         and relu_inverse['whole_source_inverse_exact'] is True
+         and relu_inverse['whole_round_trip_exact'] is True,
+         'complete typed ReLU775 inverse before the frozen same-F64 source')
+    same_path = Path(repository) / 'tools/current_runtime/same_f64_arithmetic_source_transition.py'
+    same = loaded(same_path, read(same_path, inputs), 'generator131_same_f64_arithmetic_source_inverse')
+    runtime, same_inverse = same.restore_source(runtime, lambda path, expected=None: read(path, inputs, expected))
+    need(same.SOURCE == relu.PARENT_SOURCE and sha(runtime) == same.PARENT_SOURCE
+         and same_inverse['functions'] == same_inverse['parent_functions'] == 773
+         and same_inverse['changed_functions'] == ['half_mul_priority','public_f64_binary']
+         and same_inverse['unchanged_parent_functions'] == 771
+         and same_inverse['whole_source_inverse_exact'] is True
+         and same_inverse['whole_round_trip_exact'] is True,
+         'exact same-F64 arithmetic inverse before the frozen mixed773 source')
+    arithmetic_path = Path(repository) / 'tools/current_runtime/public_f64_arithmetic_source_transition.py'
+    arithmetic = loaded(arithmetic_path, read(arithmetic_path, inputs),
+                        'generator131_public_f64_arithmetic_source_inverse')
+    runtime, arithmetic_inverse = arithmetic.restore_source(
+        runtime, lambda path, expected=None: read(path, inputs, expected))
+    need(arithmetic.SOURCE == same.PARENT_SOURCE and sha(runtime) == arithmetic.PARENT_SOURCE
+         and arithmetic_inverse['functions'] == 773 and arithmetic_inverse['parent_functions'] == 771
+         and arithmetic_inverse['changed_functions'] == ['binary','half_mul_cast']
+         and arithmetic_inverse['unchanged_parent_functions'] == 769
+         and arithmetic_inverse['whole_source_inverse_exact'] is True
+         and arithmetic_inverse['whole_round_trip_exact'] is True,
+         'exact mixed public F64 extension inverted before Half771')
     div_path = Path(repository) / 'tools/current_runtime/half_div_source_transition.py'
     division = loaded(div_path, read(div_path, inputs), 'generator131_half_div_source_inverse')
     runtime, div_inverse = division.restore_source(
         runtime, lambda path, expected=None: read(path, inputs, expected))
-    need(division.SOURCE == SOURCE and sha(runtime) == division.PARENT_SOURCE
+    need(division.SOURCE == arithmetic.PARENT_SOURCE and sha(runtime) == division.PARENT_SOURCE
          and div_inverse['functions'] == 771 and div_inverse['parent_functions'] == 767
          and div_inverse['changed_functions'] == ['binary']
          and div_inverse['unchanged_parent_functions'] == 766
@@ -211,7 +243,7 @@ def parent_source_files(repository, inputs=None):
     need(len(originals) == 17 and set(originals) == set(witness['source_members']),
          'only the original aggregate/manifest/fifteen source units reconstructed')
     return originals, dict(
-        schema='heptatorch.generator131.physical771-parent712-inverse.v1',
+        schema='heptatorch.generator131.physical775-parent712-inverse.v1',
         physical_source_sha256=SOURCE, physical_native_sha256=IMAGE,
         half_logical_source_inverse=half_inverse,
         predicate_source_inverse=predicate_inverse,
@@ -221,7 +253,10 @@ def parent_source_files(repository, inputs=None):
         half_addsub_source_inverse=addsub_inverse,
         wide_neg_source_inverse=wide_inverse,
         half_div_source_inverse=div_inverse,
-        physical_functions=771, physical_units=15, parent_source_sha256=PARENT_SOURCE,
+        public_f64_arithmetic_source_inverse=arithmetic_inverse,
+        typed_relu_source_inverse=relu_inverse,
+        same_f64_arithmetic_source_inverse=same_inverse,
+        physical_functions=775, physical_units=15, parent_source_sha256=PARENT_SOURCE,
         parent_functions=712, parent_units=15, unchanged_parent_bodies=683,
         changed_parent_bodies=changed, removed_parent_bodies=removed, added_physical_bodies=added,
         all11_generator_bodies_byte_exact=True, owners_and_rng_support_byte_exact=True,
@@ -241,7 +276,7 @@ def bind_current(repository, candidate, build, build_sha, inputs):
     path = repository / 'tools/current_runtime/qualification.py'
     qualification = loaded(path, read(path, inputs, QUALIFICATION), 'generator131_current736_qualification')
     need((qualification.SOURCE, qualification.IMAGE, qualification.FUNCTIONS, qualification.UNITS)
-         == (SOURCE, IMAGE, 771, 15), 'shared admission has the exact physical771 profile')
+         == (SOURCE, IMAGE, 775, 15), 'shared admission has the exact physical775 profile')
     built = qualification.admit_build(build, inputs.bind, expected=build_sha)
     runtime, units, summary, manifest_raw = current_source(repository, inputs)
     return runtime, units, summary, manifest_raw, built, proof

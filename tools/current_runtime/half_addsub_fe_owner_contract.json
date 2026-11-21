@@ -7,7 +7,8 @@
     "half_addsub_tensor allocate then calls typed_descriptor exactly once for result dtype0; subsequent layout and element loop contain no transitive descriptor constructors",
     "Each successful scalar_previous_typed_descriptor b37 increments header120 incarnation once and writes node320; b50 increments header8 next once",
     "factory and result are published via retained_publish_original b15 setting descriptor200=1. promotion is never published and has no history/input/view edges",
-    "finish_command clears descriptor200=2 temporary roots to0 then graph_collect_since releases the sole unpublished promotion; factory and result public roots remain"
+    "finish_command clears descriptor200=2 temporary roots to0 then graph_collect_since releases the sole unpublished promotion; factory and result public roots remain",
+    "The current773 binary keeps the complete original Half operand route. The new public mixed F64 fallback requires dtype4 and is not reached by this fixed Half/F32 FE request. Its original promotion/result target is0; the new half_mul_cast direct route requires source2 and target4, so it is not reached here. The complete no-constructor call graph nevertheless includes and verifies the new integer_i64_to_f64 scalar leaf."
   ],
   "exact_descriptor_order": [
     "factory-Half",
@@ -369,6 +370,7 @@
       "half_widen_bf16",
       "integer_as_f32",
       "integer_i64_to_f32",
+      "integer_i64_to_f64",
       "object_address",
       "pack64",
       "packf",
@@ -410,6 +412,7 @@
       "half_widen_bf16",
       "integer_as_f32",
       "integer_i64_to_f32",
+      "integer_i64_to_f64",
       "is_dense",
       "object_address",
       "putw",
@@ -470,7 +473,7 @@
     ]
   },
   "schema": "heptatorch.half-addsub.exact-fe-allocation-path.v2",
-  "source_sha256": "f534c77069abc15ba15879d44492aacbc5f3709f6a861a0f0b9e0e365232fca1",
+  "source_sha256": "0b000b51288af20490162efd8e525b86359a32cdd6d2521df97ecd9cddbd7b43",
   "successful_descriptor_allocations": 3,
   "support_function_identities": {
     "round_bf16": {

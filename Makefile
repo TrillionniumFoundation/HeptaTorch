@@ -124,6 +124,14 @@ build/current-runtime/build.json build/current-runtime/heptatorch &: $(CURRENT_R
 	mv "$$stage/native" build/current-runtime; \
 	printf 'Current runtime published: %s\n' "$(CURDIR)/build/current-runtime"
 
+# Historical143 provenance is checked only when an explicit old-source target needs it.
+# The source is restored from fixed history; frozen consumers and their gates stay unchanged.
+.PHONY: legacy-source
+legacy-source: tools/legacy_source143/manifest.json tools/legacy_source143/restore.py
+	python3 -I -S -B tools/legacy_source143/restore.py --repository "$(CURDIR)"
+
+src/heptatorch.hepta: | legacy-source
+
 legacy: build/heptatorch build/unhex
 
 monolithic: build/heptatorch-monolithic build/unhex
@@ -171,7 +179,7 @@ build/storage-interactive/build.json: build/storage-native/build.json tools/stor
 	  --linker "$$(command -v "$(HEPTA_OWNED_SESSION_LINKER)")" --output "$$tmp/native"; \
 	mkdir -p build/storage-interactive; cp "$$tmp/native/"* build/storage-interactive/
 
-test-storage-objects: storage-objects
+test-storage-objects: storage-objects | legacy-source
 	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/.storage-review.XXXXXX"); \
 	python3 -I -S -B tools/owned_sessions/qualify.py --build "$(HEPTA_OWNED_SESSION_BUILD)" \
 	  --compiler "$$(command -v "$(HEPTA_OWNED_COMPILER)")" --output "$$review/owned-session" \
@@ -652,7 +660,7 @@ build/unhex: tools/unhex.hepta | build check-compiler
 	@set -eu; tmp=$$(mktemp build/.unhex.XXXXXX); trap 'rm -f "$$tmp"' EXIT HUP INT TERM; \
 	"$(HEPTA_COMPILER)" < "$<" > "$$tmp"; test -s "$$tmp"; chmod 755 "$$tmp"; mv "$$tmp" "$@"
 
-# The common gate requires eighteen groups / 1127 cases, main image plus separate Generator probes.
+# Run every mandatory suite from the current qualification inventory, including separate Generator probes.
 test: current-runtime
 	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/current-runtime-review.XXXXXX"); \
 	"$(HEPTA_TORCH_PYTHON)" -I -S -B tests/qualify_current_runtime.py \

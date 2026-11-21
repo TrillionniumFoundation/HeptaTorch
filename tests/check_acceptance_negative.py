@@ -56,6 +56,10 @@ def main():
         ("scoped-kernel-promoted-to-full-schema", "compatibility/capabilities.json", lambda d: d["capabilities"][0].update(full_upstream_schema_qualified=True)),
         ("changed-upstream-pin", "compatibility/upstream-lock.json", lambda d: d.update(commit="0" * 40)),
         ("erased-derivative-capability-count", "compatibility/capabilities.json", lambda d: d.update(derivative_declaration_inventory_count=0)),
+        ("erased-derivative-ledger-count", "compatibility/full-acceptance.json", lambda d: d.update(derivative_declaration_count=0)),
+        ("changed-derivative-ledger-digest", "compatibility/full-acceptance.json", lambda d: d.update(derivative_declaration_lines_sha256="0" * 64)),
+        ("fabricated-native-qualified-count", "compatibility/capabilities.json", lambda d: d.update(full_upstream_schema_parity_count=1)),
+        ("fabricated-derivative-qualified-count", "compatibility/capabilities.json", lambda d: d.update(full_derivative_declaration_parity_count=1)),
         ("erased-derivative-upstream-count", "compatibility/upstream-lock.json", lambda d: derivative_source(d).update(named_entry_count=0)),
         ("deleted-derivative-declaration", "compatibility/upstream-derivatives.json", lambda d: d["derivatives"].pop()),
         ("changed-derivative-preserving-count", "compatibility/upstream-derivatives.json", lambda d: d["derivatives"][0].update(name="invented(Tensor x) -> Tensor")),
@@ -92,6 +96,9 @@ def main():
     print(json.dumps({"schema": "heptatorch.acceptance-negative-controls.v1",
                       "status": "PASS", "cases": len(rows), "rows": rows,
                       "verifier_sha256": hashlib.sha256(VERIFIER.read_bytes()).hexdigest(),
+                      "verifier_dependencies": {
+                          "tools/acceptance_contracts.py": hashlib.sha256(
+                              Path(acceptance.contracts.__file__).read_bytes()).hexdigest()},
                       "whole_project_status": "HOLD"}, sort_keys=True))
 
 

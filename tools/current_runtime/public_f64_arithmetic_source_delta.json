@@ -1,0 +1,53 @@
+{
+  "appended_bodies": {
+    "integer_i64_to_f64": "f9b481cb6ade5b41171b010f734e44ce64ab4c196c1d41b7c4e70774ff37bae8",
+    "public_f64_binary": "180974b295d1c8176062051873ec31cbad5a0fa52b63cc58059bf6c100ad215e"
+  },
+  "appended_bytes": 4398,
+  "appended_functions": [
+    "integer_i64_to_f64",
+    "public_f64_binary"
+  ],
+  "binary_route_after": "  result5:u64 = call(s5,o5,l5,r5) {\"function\":\"public_f64_binary\"}\n",
+  "binary_route_before": "  result5:u64 = call(s5,o5,l5,r5) {\"function\":\"half_mul_previous_binary\"}\n",
+  "cast_guard": "block direct_wide_route(xw:u64,sw:u64,tw:u64,nw:u64)\n  integerw:u64 = const() {\"value\":2}\n  doublew:u64 = const() {\"value\":4}\n  from_integerw:bool = compare.eq(sw,integerw)\n  to_doublew:bool = compare.eq(tw,doublew)\n  directw:bool = bool.and(from_integerw,to_doublew)\n  branch directw direct_integer(xw) convert(xw,sw,tw,nw)\nblock direct_integer(xi:u64)\n  valuei:u64 = call(xi) {\"function\":\"integer_i64_to_f64\"}\n  ret(valuei)\n",
+  "cast_route_after": "  branch same unchanged(x) direct_wide_route(x,source,target,nan_word)\n",
+  "cast_route_before": "  branch same unchanged(x) convert(x,source,target,nan_word)\n",
+  "changed_functions": [
+    "binary",
+    "half_mul_cast"
+  ],
+  "current_body_sha256": {
+    "binary": "2c102e8604f9119639f84fcb45f447e89895167587c9ade346413d700ae7d4ed",
+    "half_mul_cast": "e82ef4a225e6c35d55e7cd67e8ca1bfa2dd4df8bad6b06a75996858fcde65935"
+  },
+  "direct_integer_conversion": {
+    "absolute_value_uses_unsigned_wrap": true,
+    "intermediate_f32_conversion": false,
+    "rounding": "round-to-nearest-ties-to-even",
+    "signed_source_treated_as_u64_bits": true,
+    "source_bits": 64,
+    "source_dtype": 2,
+    "target_bits": 64,
+    "target_dtype": 4
+  },
+  "functions": 773,
+  "original_bodies": {
+    "binary": "fn binary(s:mutbuf,operation:u64,left:u64,right:u64) -> (u64) effects(read,write,trap) entry(start)\nblock start(s:mutbuf,operation:u64,left:u64,right:u64)\n  valid_left:u64 = call(s,left) {\"function\":\"valid\"}\n  zero:u64 = const() {\"value\":0}\n  failed:bool = compare.eq(valid_left,zero)\n  branch failed failure() validate_right(s,operation,left,right)\nblock failure()\n  zero1:u64 = const() {\"value\":0}\n  ret(zero1)\nblock validate_right(s2:mutbuf,o2:u64,l2:u64,r2:u64)\n  valid_right2:u64 = call(s2,r2) {\"function\":\"valid\"}\n  zero2:u64 = const() {\"value\":0}\n  failed2:bool = compare.eq(valid_right2,zero2)\n  branch failed2 failure() route(s2,o2,l2,r2)\nblock route(s3:mutbuf,o3:u64,l3:u64,r3:u64)\n  ld3:u64 = call(s3,l3) {\"function\":\"tensor_dtype\"}\n  rd3:u64 = call(s3,r3) {\"function\":\"tensor_dtype\"}\n  five3:u64 = const() {\"value\":5}\n  six3:u64 = const() {\"value\":6}\n  lh3:bool = compare.eq(ld3,five3)\n  lb3:bool = compare.eq(ld3,six3)\n  rh3:bool = compare.eq(rd3,five3)\n  rb3:bool = compare.eq(rd3,six3)\n  left_half3:bool = bool.or(lh3,lb3)\n  right_half3:bool = bool.or(rh3,rb3)\n  half3:bool = bool.or(left_half3,right_half3)\n  branch half3 arithmetic(s3,o3,l3,r3) previous(s3,o3,l3,r3)\nblock arithmetic(sa:mutbuf,oa:u64,la:u64,ra:u64)\n  onea:u64 = const() {\"value\":1}\n  twoa:u64 = const() {\"value\":2}\n  adda:bool = compare.eq(oa,onea)\n  suba:bool = compare.eq(oa,twoa)\n  addsuba:bool = bool.or(adda,suba)\n  branch addsuba addsub(sa,oa,la,ra) multiply(sa,oa,la,ra)\nblock addsub(ss:mutbuf,os:u64,ls:u64,rs:u64)\n  results:u64 = call(ss,os,ls,rs) {\"function\":\"half_addsub_tensor\"}\n  ret(results)\nblock multiply(s4:mutbuf,o4:u64,l4:u64,r4:u64)\n  four4:u64 = const() {\"value\":4}\n  division4:bool = compare.eq(o4,four4)\n  branch division4 divide(s4,o4,l4,r4) retained_multiply(s4,o4,l4,r4)\nblock divide(sd:mutbuf,od:u64,ld:u64,rd:u64)\n  quotientd:u64 = call(sd,od,ld,rd) {\"function\":\"half_div_tensor\"}\n  ret(quotientd)\nblock retained_multiply(sm:mutbuf,om:u64,lm:u64,rm:u64)\n  productm:u64 = call(sm,om,lm,rm) {\"function\":\"half_mul_tensor\"}\n  ret(productm)\nblock previous(s5:mutbuf,o5:u64,l5:u64,r5:u64)\n  result5:u64 = call(s5,o5,l5,r5) {\"function\":\"half_mul_previous_binary\"}\n  ret(result5)\nend\n",
+    "half_mul_cast": "fn half_mul_cast(x:u64,source:u64,target:u64,nan_word:u64) -> (u64) effects(read,write,trap) entry(start)\nblock start(x:u64,source:u64,target:u64,nan_word:u64)\n  same:bool = compare.eq(source,target)\n  branch same unchanged(x) convert(x,source,target,nan_word)\nblock unchanged(x1:u64)\n  ret(x1)\nblock convert(x2:u64,s2:u64,t2:u64,n2:u64)\n  f2:u64 = call(x2,s2) {\"function\":\"half_mul_to_f32\"}\n  half2:u64 = const() {\"value\":5}\n  ishalf2:bool = compare.eq(t2,half2)\n  branch ishalf2 to_half(f2) not_half(f2,t2,n2)\nblock to_half(x3:u64)\n  y3:u64 = call(x3) {\"function\":\"round_f16\"}\n  ret(y3)\nblock not_half(x4:u64,t4:u64,n4:u64)\n  bf4:u64 = const() {\"value\":6}\n  isbf4:bool = compare.eq(t4,bf4)\n  branch isbf4 to_bf(x4,n4) not_bf(x4,t4)\nblock to_bf(x5:u64,n5:u64)\n  y5:u64 = call(x5,n5) {\"function\":\"half_narrow_bf16\"}\n  ret(y5)\nblock not_bf(x6:u64,t6:u64)\n  double6:u64 = const() {\"value\":4}\n  isdouble6:bool = compare.eq(t6,double6)\n  branch isdouble6 to_double(x6) unchanged(x6)\nblock to_double(x7:u64)\n  y7:u64 = call(x7) {\"function\":\"widen32\"}\n  ret(y7)\nend\n"
+  },
+  "original_body_sha256": {
+    "binary": "52f132ef5dd64058110d619777cad7e34038395ee54581796277913692547d80",
+    "half_mul_cast": "c3094f6546748cc32309e5bd6e49855a51e7d86600f646e4115eadc13085b0d4"
+  },
+  "parent_functions": 771,
+  "parent_source_sha256": "f534c77069abc15ba15879d44492aacbc5f3709f6a861a0f0b9e0e365232fca1",
+  "preexisting_half_routes_preserved": true,
+  "same_f64_route_preserved": true,
+  "schema": "heptatorch.public-f64-arithmetic.source-extension.v1",
+  "scope": "No-grad mixed public F64 with F32/Bool/I64, binary op1..4; legacy same-F64, Half and private routes retained.",
+  "source_sha256": "4722c53b248780534a846a472784a565c4454ab738db75d655a7801b6623f07f",
+  "unchanged_parent_functions": 769,
+  "whole_round_trip_exact": true,
+  "whole_source_inverse_exact": true
+}
