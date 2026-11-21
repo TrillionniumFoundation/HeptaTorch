@@ -57,9 +57,16 @@ def profile(repository,build,build_sha,inputs):
         for file in sorted((repository/'tests'/package).glob('*.py')):inputs.bind(file)
     transition=module(repository/'tools/current_runtime/indexed_forward_source_transition.py','indexed_f32_inverse',inputs.bind)
     source=inputs.bind(repository/'tools/current_runtime/source/runtime.hepta')
+    view=module(repository/'tools/current_runtime/public_f64_view_source_transition.py','indexed_f32_f64_view_source_inverse',inputs.bind)
+    source,view_proof=view.restore_source(source,inputs.bind)
+    require(view_proof['source_sha256']==built['source_sha256'] and view_proof['functions']==800
+        and view_proof['parent_functions']==797 and view_proof['parent_source_sha256']==view.PARENT_SOURCE
+        and view_proof['whole_source_inverse_exact'] is True and view_proof['whole_round_trip_exact'] is True
+        and view_proof['original_backward_functions_unchanged'] is True,
+        'complete actual F64 view source inverse before all original forward predicates')
     forward=module(repository/'tools/current_runtime/forward_source_transition.py','indexed_f32_forward_source_inverse',inputs.bind)
     source,forward_proof=forward.restore_source(source,inputs.bind)
-    require(forward_proof['source_sha256']==built['source_sha256'] and forward_proof['functions']==797
+    require(forward_proof['source_sha256']==view_proof['parent_source_sha256'] and forward_proof['functions']==797
         and forward_proof['parent_functions']==781 and forward_proof['unchanged_parent_functions']==772
         and forward_proof['whole_source_inverse_exact'] is True and forward_proof['whole_round_trip_exact'] is True
         and forward_proof['original_indexed_dispatch_unchanged'] is True

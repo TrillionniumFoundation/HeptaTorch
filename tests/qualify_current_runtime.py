@@ -77,7 +77,7 @@ SOURCE, IMAGE = current_profile.SOURCE, current_profile.IMAGE
 FUNCTIONS, UNITS = current_profile.FUNCTIONS, current_profile.UNITS
 COMPILER = "b1c851a0896fa6071f800e1146c3c27d0c6cf85059e9a6281b46d42908a3f59f"
 LINKER = "761a941fd7a2d53eb9b45869fcfc20e970640e9dd11d60f7c61a89812b61d74e"
-FUSION_RESOURCE_SHA = '5fb33b970fb74792abdfb7fab7fe9b62196a9b6d08cfeb1f3ebb5330ebe19e97'
+FUSION_RESOURCE_SHA = '4df494ba1d70cfb9c15899ab5818abc0f1bed9b2f1b3d471a77da7c10b60ca41'
 BOOL_REFERENCE = "21dd75aeb86414818f7aa381f8b866d78b16f9bb3f5738e9a60d27ac3d15dd28"
 BOOL_ARCHIVE = "353a8b2853773bc6678bb62fc9559d6f4244c571ba40c6b80f352b2649cd6edd"
 SUM32_REFERENCE = "c14e4b18f657429ad5dac5498c3abcae303b6a7e7550db7d15a3c9179bdcd728"
@@ -272,9 +272,9 @@ def build_binding(directory, inputs):
 
 
 def cat_source_binding(directory, inputs):
-    """Admit exact797 and three reviewed cat bodies; transfer no old result."""
+    """Admit exact800 and three reviewed cat bodies; transfer no old result."""
     outer_path = ROOT / 'tools/current_runtime/fusion_source_transition.py'
-    inputs.bind(outer_path, '0d3d073c5f90712821da991038fd1b09d5db4d836a12991de7b08c6c74c971d8')
+    inputs.bind(outer_path, 'f6367a2fba18703e9d807f250e18d503c717969454369754166ee510640c7a40')
     outer_spec = importlib.util.spec_from_file_location('current_runtime778_source_transition', outer_path)
     outer = importlib.util.module_from_spec(outer_spec)
     outer_spec.loader.exec_module(outer)
@@ -286,11 +286,11 @@ def cat_source_binding(directory, inputs):
     spec.loader.exec_module(module)
     restored, proof = module.restore_source(historical700, inputs.bind)
     require(module.SOURCE == outer.PARENT_SOURCE == sha(historical700)
-            and FUNCTIONS == 797 and UNITS == 15 and sha(restored) == module.PARENT_SOURCE,
-            'actual797 profile, exact historical700 and exact pre-cat source')
-    return dict(schema='heptatorch.current797-cat.complete-source-inverse.v1',
+            and FUNCTIONS == 800 and UNITS == 15 and sha(restored) == module.PARENT_SOURCE,
+            'actual800 profile, exact historical700 and exact pre-cat source')
+    return dict(schema='heptatorch.current800-cat.complete-source-inverse.v1',
         source_sha256=SOURCE, parent_source_sha256=module.PARENT_SOURCE,
-        functions=797, historical_functions=700, outer_source_inverse=outer_proof,
+        functions=800, historical_functions=700, outer_source_inverse=outer_proof,
         cat_transition=proof, runtime_qualification_transferred=False)
 
 
@@ -363,6 +363,38 @@ def half_addsub_observer_binding(inputs):
             and proof['all1004_original_numerical_error_resource_and_lifetime_predicates_retained'] is True,
             'all original1004 numerical and resource predicates precede the two explicit FE successors')
     return proof
+
+def public_f64_view_binding(directory, build, build_sha, inputs):
+    """Reapply the full same-build view reader before any old gate uses its reference."""
+    import types
+    from f64_view.legacy_binding import StrictInputs
+    directory=Path(directory).resolve(strict=True)
+    path=ROOT/'tests/f64_view/run.py'
+    raw=inputs.bind(path)
+    runner=types.ModuleType('coordinator_current_public_f64_view')
+    runner.__file__=str(path)
+    exec(compile(raw,str(path),'exec',dont_inherit=True,optimize=0),runner.__dict__)
+    report_raw=inputs.bind(directory/'report.json')
+    report=json.loads(report_raw)
+    proof=runner.qualify(report,ROOT,build,build_sha,directory,StrictInputs(inputs))
+    saved_raw=inputs.bind(directory/'physical-qualification.json')
+    require(proof==json.loads(saved_raw) and proof['status']=='PASS_PHYSICAL_F64_VIEW'
+        and proof['source_sha256']==SOURCE and proof['native_sha256']==IMAGE
+        and proof['actual_build_sha256']==build_sha and proof['cases']==1124
+        and proof['native_sessions']==1175 and proof['original_cases']==188
+        and proof['strict_reference_qualified'] is True
+        and proof['original_eleven_provenance_checks_recomputed'] is True,
+        'all old view successors require this same complete native build and strict original reference')
+    binding=dict(root=directory/'reference',execution=directory/'reference-execution',
+        build=build,build_sha=build_sha)
+    evidence=dict(status=proof['status'],original_case_denominator=188,new_gate_case_denominator=1124,
+        original35_case_denominator=16365,same_build_and_strict_reference_required=True,
+        source_sha256=SOURCE,native_sha256=IMAGE,actual_build_sha256=build_sha,
+        native_report=dict(path=str(directory/'report.json'),bytes=len(report_raw),sha256=sha(report_raw)),
+        physical_qualification=dict(path=str(directory/'physical-qualification.json'),bytes=len(saved_raw),sha256=sha(saved_raw)),
+        full_physical_proof=proof)
+    return binding,evidence
+
 
 class Fixtures:
     def __init__(self, output, inputs, torch_python):
@@ -499,6 +531,10 @@ class Fixtures:
             }
         return self.cache["generator"]
 
+
+    def public_f64_view(self):
+        require('public_f64_view' in self.cache,'same-run public view gate must be fully read before use')
+        return self.cache['public_f64_view']
 
     def public_f64_logical192(self):
         if "public_f64_logical192" not in self.cache:
@@ -781,12 +817,12 @@ def runner_command(name, build, build_sha, output, fixtures, inputs, torch_pytho
         script = ROOT / "tests/public_f64_logical/qualify736.py"
         for filename, expected in {**public_f64_logical192.READER_FILES, **public_f64_logical192.WRAPPER_FILES}.items():
             inputs.bind(script.parent / filename, expected)
-        args = public_f64_logical192.reader_cli(ROOT, build, build_sha, source)
+        args = public_f64_logical192.reader_cli(ROOT, build, build_sha, source, fixtures.public_f64_view())
     elif name == "f64_48":
         source = fixtures.f64_48()
         script = ROOT / "tests/current_runtime_f64_fixtures.py"
         args = f64_fixtures.reader_cli(ROOT, build, build_sha, source, fixtures.wide_neg(),
-                                       fixtures.public_f64_arithmetic())
+                                       fixtures.public_f64_arithmetic(), fixtures.public_f64_view())
     elif name == "half47":
         source = fixtures.half47()
         script = ROOT / "tests/current_runtime_half_fixtures.py"
@@ -911,7 +947,7 @@ def qualify_resource7(report, build_sha, directory, inputs):
         'backward': ['backward_private_preserve_allocation_oom_recovery'],
         'r3': ['tail_release_reuse', 'preserve_capacity_oom_recovery', 'tail_then_saved_error_prefix'],
     }
-    require(report['schema'] == 'heptatorch.current797.resource7.v1'
+    require(report['schema'] == 'heptatorch.current800.resource7.v1'
             and report['status'] == 'PASS_CURRENT_RESOURCE7'
             and report['actual_build_sha256'] == build_sha
             and report['source_sha256'] == SOURCE and report['native_sha256'] == IMAGE
@@ -929,7 +965,7 @@ def qualify_resource7(report, build_sha, directory, inputs):
     require([row['suite'] for row in report['suites']] == list(expected), 'all three resource readers')
     helper_path = ROOT / 'tools/current_runtime/fusion_resource_transition.py'
     inputs.bind(helper_path, FUSION_RESOURCE_SHA)
-    helper_spec = importlib.util.spec_from_file_location('qualified797_resource_source_paths', helper_path)
+    helper_spec = importlib.util.spec_from_file_location('qualified800_resource_source_paths', helper_path)
     helper = importlib.util.module_from_spec(helper_spec)
     helper_spec.loader.exec_module(helper)
     expected_source_paths = helper.prove(inputs.bind(ROOT / 'tools/current_runtime/source/runtime.hepta', SOURCE), inputs.bind)
@@ -951,7 +987,7 @@ def qualify_resource7(report, build_sha, directory, inputs):
         actual = json.loads(inputs.bind(folder / 'actual/report.json', row['report_sha256']))
         proof = json.loads(inputs.bind(folder / 'adaptation/source-bindings.json'))
         require(proof['fusion_source_path_proof'] == expected_source_paths,
-                'outer independent actual797 resource path proof differs')
+                'outer independent actual800 resource path proof differs')
         require(actual['status'] == 'PASS' and actual['native_executed'] is True
                 and actual['source_sha256'] == SOURCE and actual['native_sha256'] == IMAGE
                 and actual['all_inputs_unchanged'] is True
@@ -1068,6 +1104,7 @@ def main(argv=None):
     parser.add_argument("--torch-python", type=Path, default=Path(sys.executable))
     parser.add_argument("--tool-build", type=Path, required=True)
     parser.add_argument("--stack-build", type=Path, required=True)
+    parser.add_argument("--f64-view-directory", type=Path, required=True)
     args = parser.parse_args(argv)
     require(not sys.flags.optimize, "all original assertions must remain enabled")
     build, output = args.build_directory.resolve(), args.output.resolve()
@@ -1126,7 +1163,7 @@ def main(argv=None):
                   "fresh_pinned_Torch_reference_required": True,
                   "original_f64_48_refusals_with_explicit_successor": 1,
                   "original_f64_48_refusals_before_mixed_arithmetic": 86,
-                  "original_f64_48_retained_refusals": 63, "original_entry_requests_preserved": 87,
+                  "original_f64_48_retained_refusals": 61, "original_f64_48_view_successors": 2, "original_entry_requests_preserved": 87,
                   "additional_packet_controls": 46, "actual_allocation_recoveries": 2},
               "half_div_scope": {"actual_reference_cases": 1196, "opcode": 2, "operation": 4,
                   "cpu_capability": "AVX2", "requested_cpu_capability": "avx2", "torch_threads": 1,
@@ -1143,7 +1180,7 @@ def main(argv=None):
                   "exact_raw_bytes_required": True, "physical_replay_required": True,
                   "fresh_pinned_Torch_reference_required": True,
                   "original_f64_48_arithmetic_successors": 23, "original_f64_48_single_command_successors": 22,
-                  "original_f64_48_FE_arithmetic_successors": 1, "original_f64_48_retained_refusals": 63,
+                  "original_f64_48_FE_arithmetic_successors": 1, "original_f64_48_retained_refusals": 61, "original_f64_48_view_successors": 2,
                   "original_f64_48_retained_bool_subtraction_refusals": 2,
                   "same_actual_reference_required_for": ["f64_48", "public_f64_arithmetic"],
                   "same_f64_route_preserved": False, "same_f64_nan_payload_qualified": False,
@@ -1306,7 +1343,7 @@ def main(argv=None):
                   "inherited_resource_allocation_recoveries": 3, "cat_expanded_capacity": 1,
                   "public_f64_packet_controls": 18, "public_f64_allocation_stages": 2,
                   "public_f64_native_scope_controls": 2,
-                  "f64_48_entry_refusals": 63, "f64_48_original_entry_requests": 87,
+                  "f64_48_entry_refusals": 61, "f64_48_view_successors": 2, "f64_48_original_entry_requests": 87,
                   "f64_48_wide_neg_numeric_successors": 1, "f64_48_mixed_arithmetic_successors": 23,
                   "f64_48_FE_arithmetic_successors": 1, "f64_48_Bool_subtraction_refusals": 2,
                   "f64_48_allocation_recoveries": 2,
@@ -1445,6 +1482,9 @@ def main(argv=None):
         result["stack_build"] = str(stack_build)
         fixtures = Fixtures(output, inputs, args.torch_python)
         fixtures.cache["generator_tool_paths"] = (tool_build, stack_build)
+        view_binding,view_evidence=public_f64_view_binding(args.f64_view_directory,build,build_sha,inputs)
+        fixtures.cache["public_f64_view"]=view_binding
+        result["mandatory_public_f64_view"]=view_evidence
         for name in GROUPS:
             execution = output / (name + "-execution")
             execution.mkdir()

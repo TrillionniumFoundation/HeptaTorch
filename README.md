@@ -6,12 +6,13 @@ HeptaTorch 使用 **HIA 原生源码**实现张量数值、对象分配、梯度
 
 ## 当前运行时
 
-当前候选包含 **797 个核心函数、15 个独立编译单元**。每次构建使用固定 HIA ABI3 编译器重新生成全部应用对象，再由原生 HIA 链接器生成 ELF。运行时接口是有界原生二进制命令协议。
+当前候选包含 **800 个核心函数、15 个独立编译单元**。每次构建使用固定 HIA ABI3 编译器重新生成全部应用对象，再由原生 HIA 链接器生成 ELF。运行时接口是有界原生二进制命令协议。800 的公开 F64 视图已完成本地 1,124 例、1,175 个会话的探索验证和完整物理读回；严格参考、独立视图门、完整 35 组和最终 800 CI 尚待实际完成。下表列出实现范围，前驱的专项结果不转移为本候选的运行资格。
 
 | 能力 | 当前实现 |
 | --- | --- |
 | CPU 张量 | F32 算术与一阶反向 AD；选定 Bool/I64 路径；受限无梯度 F64，以及 F64 与 F32/Bool/I64 的混合加减乘除；F16/BF16 存储、复制、填充及 F32 转换；含 Half 操作数的 20 种公开 dtype 有序组合的无梯度乘法，F16/BF16 原生取负，固定 alpha=1 的无梯度加法／减法，以及原生真除法 |
 | 对象与生命周期 | 独立 Storage/Version、Saved 张量、可微视图、公开梯度、所有权转移和失败事务回滚 |
+| 公开 F64 视图 | 无梯度 `as_strided`，rank 0–4；共享 Storage/Version、根对象生命周期、重叠／零步长与空视图，含固定参考接受的有符号空形状和高元素偏移。独立 1,124 例／1,175 会话严格门仍待完成 |
 | 逻辑与分类 | `any`、`all`、显式 Bool/F32 `sum`；`isnan`、`isinf`、`isfinite`、`isposinf`、`isneginf`、`signbit` |
 | 原生索引 | F32／Bool／I64／F64／F16／BF16 `index_select`，标量、非连续步长和独立输出；修复 F32 无梯度取错行，保留原 F32 一阶 AD |
 | 前向修复 | 无梯度 matmul、softmax/log_softmax、卷积、池化、按轴归约和 cat/stack 使用显式输入；linear 匹配原生输出 Version，归一化匹配实际连续／channels-last 布局，原反向函数保留 |
@@ -50,15 +51,15 @@ make test HEPTA_SOURCE_ROOT=/absolute/path/to/fixed-hepta-source \
 
 ## 一个当前验收入口
 
-`make test` 和 [Current HIA Runtime CI](.github/workflows/current-runtime.yml)共用 [`tests/qualify_current_runtime.py`](tests/qualify_current_runtime.py)。当前必需范围为 **35 组、16,365 个有限案例**：保留全部前 29 组／13,851 项及原控制或明确验证的成功后继，保留 `signbit` 97 项、`index_select` 866 项及 F32 gather/scatter_add/index_add 331 项，并追加前向462项、cat/stack414项及空间／归一化344项（原320项加24个单例维度回归）。原 F64 入口 87 个请求完整执行：63 个保留拒绝，1 个取负、22 个混合算术单命令和 1 个原始同帧 FE 事务要求实际 Torch 数值及完整所有权验证。原 Half 入口的 239 个请求完整执行：22 个乘法、2 个取负、40 个单命令加减法、2 个原始同帧 FE 加法及 22 个真除法要求实际数值和所有权验证，其余 151 个保留原拒绝行为。Half47、乘法312、加减1006和除法1196共享同一份实际1196参考及其原始进程、输入和输出。F6448与混合算术2541共享同一份实际2541参考；两条Bool减法错误仍保留。新同类型 F64 组保留两次真实数值失败记录，并要求全部 88 项协议控制和四次真实 OOM／同请求恢复。ReLU776、Half取负371与宽类型取负405必须共享同一份新 ReLU 参考及实际进程收据；原取负中的四条 ReLU 请求保持原字节，改用完整数值、布局与所有权验收。组表、额外控制和独立执行命令见[当前构建说明](docs/current-runtime.md)。
+`make test` 和 [Current HIA Runtime CI](.github/workflows/current-runtime.yml)先以同一实际 `build.json` 的 SHA 运行 [`f64_view/run.py`](tests/f64_view/run.py) 和 [`f64_view/qualify.py`](tests/f64_view/qualify.py)，再把 `--f64-view-directory` 交给共用的 [`tests/qualify_current_runtime.py`](tests/qualify_current_runtime.py)。协调器重新纯读完整视图证据后才执行原 35 组。当前必需范围为 **35 组、16,365 个有限案例**：保留全部前 29 组／13,851 项及原控制或明确验证的成功后继，保留 `signbit` 97 项、`index_select` 866 项及 F32 gather/scatter_add/index_add 331 项，并追加前向462项、cat/stack414项及空间／归一化344项（原320项加24个单例维度回归）。原 F64 入口 87 个请求继续完整执行：61 个保留拒绝，24 个既有数值后继（1 个取负、22 个混合算术单命令、1 个原始同帧 FE 算术事务），另加 2 个原字节不变的视图后继；两条 Bool 减法拒绝继续保留。原 Half 入口的 239 个请求完整执行：22 个乘法、2 个取负、40 个单命令加减法、2 个原始同帧 FE 加法及 22 个真除法要求实际数值和所有权验证，其余 151 个保留原拒绝行为。Half47、乘法312、加减1006和除法1196共享同一份实际1196参考及其原始进程、输入和输出。F6448与混合算术2541共享同一份实际2541参考；两条Bool减法错误仍保留。新同类型 F64 组保留两次真实数值失败记录，并要求全部 88 项协议控制和四次真实 OOM／同请求恢复。ReLU776、Half取负371与宽类型取负405必须共享同一份新 ReLU 参考及实际进程收据；原取负中的四条 ReLU 请求保持原字节，改用完整数值、布局与所有权验收。组表、额外控制和独立执行命令见[当前构建说明](docs/current-runtime.md)。
 
-生产案例绑定本次冷构建的同一主映像；Generator 的 ABI／重排探针由当前对象另行链接并执行。每次源码或映像变化都需要新的完整运行。新的来源检查还要求固定官方 wheel 全文件身份、实际安装库与进程映射、执行前后不变，以及原始 pip／PEP610 记录。797 候选的完整组合状态以[当前审计](docs/current-audit.md)及源绑定执行记录为准。
+生产案例绑定本次冷构建的同一主映像；Generator 的 ABI／重排探针由当前对象另行链接并执行。每次源码或映像变化都需要新的完整运行。新的来源检查还要求固定官方 wheel 全文件身份、实际安装库与进程映射、执行前后不变，以及原始 pip／PEP610 记录。新增 F64 视图门独立要求 **1,124 例、1,175 会话、852 个接受、272 个错误、55,530 帧、391,786 项断言和 30,180 次完整 Owner 读取**，不改变原 35 组／16,365 例分母。`f64_48` 的新预期为 3,285 帧／18,069 项断言／631 个 Owner blob；这些数来自两条原请求的实测差分，尚非完整门通过。详见[视图合同](docs/native-public-f64-views.md)和[800 计划](validation/current-runtime800/qualification-plan.json)。审计快照中已验收主线仍为 PR55 合并提交 `e9444902df9878060ab389a70ee957c1b7f4a887`；PR56 的 Current 工作流仍运行。800 候选状态以[当前审计](docs/current-audit.md)及各自源绑定记录为准。
 
 `make acceptance-status` 检查完整目标账本及已注册的完整契约证据。`make full-acceptance` 只有在全部声明和 17 项系统契约通过独立验收后才能返回成功。目前生产注册表为空，完整闭合数仍为 0；[完整契约验收机制](docs/full-contract-qualification.md)要求当前 HIA 源码、映像、真实构建与执行、独立参考和物理读回全部绑定，账本文字或有限案例的 PASS 不能增加闭合数。
 
 ## 仓库组织
 
-默认生产目录保留一份完整当前源码及一组有序分区。已退休的过程源码和约 177 MB 的额外历史验证文件已移出当前目录；[历史索引](docs/history.md)指向固定 Git 提交。仍被原比较器、参考包或 bootstrap 读取的内容保留，后续按实际依赖迁移。
+默认生产目录保留一份完整当前源码及一组有序分区。已退休的过程源码和约 177 MB 的额外历史验证文件已移出当前目录；[历史索引](docs/history.md)指向固定 Git 提交。仍被原比较器、参考包或 bootstrap 读取的内容保留，后续按实际依赖迁移。800 的[清理摘要](validation/current-runtime800/retirement.json)仅记录已移除的未发布 799 过程计划及可恢复的原字节／模式；旧独立 F64 工作流、Native/Make 所需历史来源及历史证据仍保留。
 
 | 文档 | 内容 |
 | --- | --- |
@@ -70,6 +71,7 @@ make test HEPTA_SOURCE_ROOT=/absolute/path/to/fixed-hepta-source \
 | [Half 真除法](docs/native-half-division.md) | 原生运算精度、1,196 项实际对照、原请求继承及物理回放 |
 | [Half 加减法](docs/native-half-addsub.md) | 固定内核语义、1,006 项验证、同帧所有权及原 239 请求继承 |
 | [混合 F64 算术](docs/native-public-f64-arithmetic.md) | 直接 I64 转换、2,541 项实际对照、原 87 请求继承和同帧所有权 |
+| [公开 F64 视图](docs/native-public-f64-views.md) | 有界别名、空形状、高元素偏移、1,124 例独立门及旧请求继承 |
 | [同类型 F64 算术](docs/native-same-f64-arithmetic.md) | 维度排序与 NaN 载荷修复、原失败保留、5,088 项实际对照及独立物理回放 |
 | [原生前向与元数据修复](docs/native-forward.md) | 显式无梯度输入、归一化布局、linear Version、1196项新增对照及严格来源核验 |
 | [原生 signbit 与 index_select](docs/native-index-signbit.md) | 准确范围、F32 缺陷修复、963 项对照及严格 CI 要求 |

@@ -486,9 +486,28 @@ jobs:
           test ! -e src/heptatorch.hepta
           test ! -L src/heptatorch.hepta
 
+      - name: Qualify bounded public F64 views on the same complete native build
+        id: current_f64_view
+        if: ${{ !cancelled() && steps.current_build.outcome == 'success' && steps.current_admission.outcome == 'success' && steps.oracle.outcome == 'success' }}
+        run: |
+          test ! -e src/heptatorch.hepta
+          current_build_sha=$(sha256sum "$CURRENT_OUTPUT/build/build.json" | cut -d ' ' -f 1)
+          reference_python=$(python3 -c 'import sys; print(sys.executable)')
+          python3 -I -S -B tests/f64_view/run.py \
+            --build-directory "$CURRENT_OUTPUT/build" \
+            --expected-build-sha256 "$current_build_sha" \
+            --torch-python "$reference_python" \
+            --output "$CURRENT_OUTPUT/f64-view"
+          python3 -I -S -B tests/f64_view/qualify.py \
+            --build-directory "$CURRENT_OUTPUT/build" \
+            --expected-build-sha256 "$current_build_sha" \
+            --directory "$CURRENT_OUTPUT/f64-view" \
+            --output "$CURRENT_OUTPUT/f64-view/physical-qualification.json"
+          test ! -e src/heptatorch.hepta
+
       - name: Qualify all mandatory suites and the independent Generator probe images
         id: current_qualification
-        if: ${{ !cancelled() && steps.current_build.outcome == 'success' && steps.current_admission.outcome == 'success' && steps.oracle.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.current_build.outcome == 'success' && steps.current_admission.outcome == 'success' && steps.oracle.outcome == 'success' && steps.current_f64_view.outcome == 'success' }}
         run: |
           test ! -e src/heptatorch.hepta
           test ! -L src/heptatorch.hepta
@@ -496,6 +515,7 @@ jobs:
             --build-directory "$CURRENT_OUTPUT/build" \
             --tool-build "$RUNNER_TEMP/hepta-current-entropy" \
             --stack-build "$RUNNER_TEMP/hepta-stack-budget" \
+            --f64-view-directory "$CURRENT_OUTPUT/f64-view" \
             --output "$CURRENT_OUTPUT/review"
           test ! -e src/heptatorch.hepta
           test ! -L src/heptatorch.hepta
@@ -510,6 +530,7 @@ jobs:
           ORACLE_OUTCOME: ${{ steps.oracle.outcome }}
           QUALIFICATION_OUTCOME: ${{ steps.current_qualification.outcome }}
           F64_CONSUMER_OUTCOME: ${{ steps.current_f64_consumer.outcome }}
+          F64_VIEW_OUTCOME: ${{ steps.current_f64_view.outcome }}
         run: |
           export CURRENT_OUTPUT="${CURRENT_OUTPUT:-$RUNNER_TEMP/heptatorch-current}"
           python3 -I -S -B - <<'SUMMARY'
@@ -524,9 +545,10 @@ jobs:
           output.mkdir(parents=True, exist_ok=True)
           failures, qualification, binding = [], None, None
           predicate_evidence = bf16_evidence = half_mul_evidence = half_neg_evidence = half_addsub_evidence = wide_neg_evidence = half_div_evidence = public_f64_arithmetic_evidence = same_f64_arithmetic_evidence = typed_relu_evidence = signbit_evidence = typed_index_select_evidence = indexed_f32_evidence = forward_nograd_evidence = join_forward_evidence = spatial_forward_evidence = None
-          for key in ('TOOLCHAIN_OUTCOME', 'ENTROPY_TOOL_OUTCOME', 'BUILD_OUTCOME', 'ADMISSION_OUTCOME', 'ORACLE_OUTCOME', 'QUALIFICATION_OUTCOME', 'F64_CONSUMER_OUTCOME'):
+          for key in ('TOOLCHAIN_OUTCOME', 'ENTROPY_TOOL_OUTCOME', 'BUILD_OUTCOME', 'ADMISSION_OUTCOME', 'ORACLE_OUTCOME', 'QUALIFICATION_OUTCOME', 'F64_CONSUMER_OUTCOME', 'F64_VIEW_OUTCOME'):
               if os.environ.get(key) != 'success':
                   failures.append(key + '=' + os.environ.get(key, 'missing'))
+          f64_view_evidence = None
           preparation_evidence = {}
           try:
               build_sha = hashlib.sha256((output / 'build/build.json').read_bytes()).hexdigest()
@@ -603,8 +625,8 @@ jobs:
                   preparation_raw = (output / relative).read_bytes()
                   preparation = json.loads(preparation_raw)
                   if (preparation['status'] != expected_status or preparation[native_field] is not False
-                          or preparation['source_sha256'] != 'c73a7cb474981056404ac96bc214979d57aaa9a86e6474b1c140c3d98eb05779'
-                          or preparation['native_sha256'] != '1ea247df76ff96c307e293790aa38de4a0bf0ff94b8148a480653c924658679d'):
+                          or preparation['source_sha256'] != 'aab2e736ff0ef4a282ff73fb1a69a95d2ceeea5260bbdada0af5b30cc16dcd3c'
+                          or preparation['native_sha256'] != '083a92ad78977396f6d2cacff7b7f559cec4871dfcfb67624db48b6f8d64c3d5'):
                       raise ValueError('current source preparation failed: ' + relative)
                   if relative != 'preparation/owner-profile.json':
                       if preparation['actual_build_sha256'] != build_sha or preparation['all_inputs_unchanged'] is not True:
@@ -626,10 +648,10 @@ jobs:
                       or qualification['required_suites'] != [
                       'bool27', 'original76', 'integral24', 'sum_f32_17', 'current35', 'base270', 'sum32', 'live32', 'logical147', 'resource7', 'asstrided16', 'cat4', 'metadata10', 'generator131', 'public_f64_logical192', 'f64_48', 'half47', 'half_logical264', 'half_transactions12', 'numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div', 'public_f64_arithmetic', 'same_f64_arithmetic', 'typed_relu', 'signbit', 'typed_index_select', 'indexed_f32', 'forward_nograd', 'join_forward', 'spatial_forward']):
                   failures.append('the mandatory case denominator or suite order changed')
-              if (qualification['functions'] != 797 or qualification['units'] != 15
-                      or qualification['source_sha256'] != 'c73a7cb474981056404ac96bc214979d57aaa9a86e6474b1c140c3d98eb05779'
-                      or qualification['native_sha256'] != '1ea247df76ff96c307e293790aa38de4a0bf0ff94b8148a480653c924658679d'):
-                  failures.append('the same complete current797 source and image were not qualified')
+              if (qualification['functions'] != 800 or qualification['units'] != 15
+                      or qualification['source_sha256'] != 'aab2e736ff0ef4a282ff73fb1a69a95d2ceeea5260bbdada0af5b30cc16dcd3c'
+                      or qualification['native_sha256'] != '083a92ad78977396f6d2cacff7b7f559cec4871dfcfb67624db48b6f8d64c3d5'):
+                  failures.append('the same complete current800 source and image were not qualified')
               public_f64 = [row for row in qualification['suites'] if row['name'] == 'public_f64_logical192']
               if (len(public_f64) != 1 or public_f64[0]['status'] != 'PASS'
                       or public_f64[0]['qualified'] is not True or public_f64[0]['cases'] != 192
@@ -658,7 +680,7 @@ jobs:
                           or physical['sha256'] != hashlib.sha256(proof_raw).hexdigest()
                           or physical['status'] != json.loads(proof_raw)['status']):
                       failures.append(name + ': complete physical qualification binding differs')
-                  if name == 'f64_48' and (rows[0]['frames'] != 3259 or rows[0]['assertions'] != 17923):
+                  if name == 'f64_48' and (rows[0]['frames'] != 3285 or rows[0]['assertions'] != 18069):
                       failures.append('f64_48: original complete frame/check census differs')
                   if name == 'half47':
                       expected_entry = dict(original_entry_requests=239, original_refusals=239,
@@ -742,6 +764,8 @@ jobs:
                   Path.cwd().resolve(), output.resolve())
               spatial_forward_evidence, spatial_forward_inputs = custody_module.spatial_forward_custody(
                   Path.cwd().resolve(), output.resolve())
+              f64_view_evidence, f64_view_inputs = custody_module.current_f64_view_custody(
+                  Path.cwd().resolve(), output.resolve())
               if (qualification['full_pytorch_rewrite_complete'] is not False
                       or qualification['schema_closure'] is not False
                       or qualification['full_project_status'] != 'HOLD'):
@@ -798,6 +822,7 @@ jobs:
                      'forward_nograd_evidence': forward_nograd_evidence,
                      'join_forward_evidence': join_forward_evidence,
                      'spatial_forward_evidence': spatial_forward_evidence,
+                     'current_f64_view_evidence': f64_view_evidence,
                      'failures': failures,
                      'full_pytorch_rewrite_complete': False, 'full_project_status': 'HOLD'}
           (output / 'qualification.json').write_text(json.dumps(summary, indent=2, sort_keys=True) + '\n')

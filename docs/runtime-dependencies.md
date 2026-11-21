@@ -1,8 +1,8 @@
 # 当前构建与验收依赖
 
-本页记录当前797函数前向与元数据后继的实际入口；历史来源使用固定提交 `f8ad6df1d0d27776b7efb2c62db1356189523f39`，本次来源移除的审计基线为PR52提交 `be44d3c77c1e3da1e2c859eaf6581ac98ffbfa4d`。当前源码、15个编译单元和预期映像由 [source/manifest.json](../tools/current_runtime/source/manifest.json) 固定；35组、16,365个案例的入口由 [qualify_current_runtime.py](../tests/qualify_current_runtime.py) 定义。新增或迁移消费者时，应同时更新本页。
+本页记录当前800函数公开F64视图后继的实际入口；历史来源使用固定提交 `f8ad6df1d0d27776b7efb2c62db1356189523f39`，本次来源移除的审计基线为PR52提交 `be44d3c77c1e3da1e2c859eaf6581ac98ffbfa4d`。当前源码、15个编译单元和预期映像由 [source/manifest.json](../tools/current_runtime/source/manifest.json) 固定；原35组、16,365个案例的入口由 [qualify_current_runtime.py](../tests/qualify_current_runtime.py) 定义；先执行独立 [F64视图门](native-public-f64-views.md) 的1,124例／1,175会话，再将相同构建的完整结果通过 `--f64-view-directory` 交给协调器。新增或迁移消费者时，应同时更新本页。
 
-依赖判断结合两类证据：固定树全部已跟踪执行代码与相关清单的路径检查，以及PR48/49原始完整CI归档中的声明输入和仓库成员。历史归档只证明各自运行的输入关系；其后增加的 `half_div`、`public_f64_arithmetic`、`same_f64_arithmetic`、`typed_relu`、`signbit`、`typed_index_select`、`indexed_f32`、`forward_nograd`、`join_forward`、`spatial_forward` 及原请求的显式成功后继另按当前执行代码检查。旧运行结果不能转作当前完整35组的资格结果，也不能替代系统调用级文件访问追踪。
+依赖判断结合两类证据：固定树全部已跟踪执行代码与相关清单的路径检查，以及PR48/49原始完整CI归档中的声明输入和仓库成员。历史归档只证明各自运行的输入关系；其后增加的 `half_div`、`public_f64_arithmetic`、`same_f64_arithmetic`、`typed_relu`、`signbit`、`typed_index_select`、`indexed_f32`、`forward_nograd`、`join_forward`、`spatial_forward` 、独立 `f64_view` 门及原请求的显式成功后继另按当前执行代码检查。旧运行结果不能转作当前完整35组的资格结果，也不能替代系统调用级文件访问追踪。
 
 ## 默认原生构建
 
@@ -72,13 +72,13 @@ Native和F64工作流要求Git索引不再跟踪旧源码，而且源码和缓�
 
 ## 已完成的最小迁移
 
-[CI封存器](../tools/seal_current_ci_evidence.py) 只额外封存当前797后继的[唯一活动计划](../validation/current-runtime797/qualification-plan.json)。被替换的 same-F64 计划（3,964 字节）按原字节保存在固定 PR53 提交 `83ed6b41ea67aa37182d23159ec0cb436e632dac`，见[本次退休记录](../validation/current-runtime775/retirement.json)。更早被替换的 mixed773 计划按原字节保存在固定PR52提交 `be44d3c77c1e3da1e2c859eaf6581ac98ffbfa4d` 的 `validation/current-runtime773/qualification-plan.json`；该计划移除不删除任何实际参考包。736、740、742、758、761、765旧计划继续保存在固定Git历史；被771替换的767计划按[原退休记录](../validation/current-runtime771/retirement.json)保存在固定提交f8ad6df。773曾替换771计划并退休旧分区生成摘要，[对应记录](../validation/current-runtime773/retirement.json)保留固定87702d6历史身份。早期计划的封存选择清理未改函数体、必要输出、工具链或参考来源检查；当前35组的完整要求继续由实际协调器与封存器强制执行。
+[CI封存器](../tools/seal_current_ci_evidence.py) 的活动计划入口改为[800计划](../validation/current-runtime800/qualification-plan.json)，并同时封存其source-review/native-review/retirement摘要。797计划和已执行证据保留各自历史身份；未发布799过程计划7,804字节已从候选目录移除，[800清理摘要](../validation/current-runtime800/retirement.json)记录既存checkpoint的原字节／模式恢复验证；未删除已发布历史证据。被替换的 same-F64 计划（3,964 字节）按原字节保存在固定 PR53 提交 `83ed6b41ea67aa37182d23159ec0cb436e632dac`，见[本次退休记录](../validation/current-runtime775/retirement.json)。更早被替换的 mixed773 计划按原字节保存在固定PR52提交 `be44d3c77c1e3da1e2c859eaf6581ac98ffbfa4d` 的 `validation/current-runtime773/qualification-plan.json`；该计划移除不删除任何实际参考包。736、740、742、758、761、765旧计划继续保存在固定Git历史；被771替换的767计划按[原退休记录](../validation/current-runtime771/retirement.json)保存在固定提交f8ad6df。773曾替换771计划并退休旧分区生成摘要，[对应记录](../validation/current-runtime773/retirement.json)保留固定87702d6历史身份。早期计划的封存选择清理未改函数体、必要输出、工具链或参考来源检查；当前35组的完整要求继续由实际协调器与封存器强制执行。
 
 旧计划退休不影响仍被能力账本引用的真实结果，例如 `validation/current-runtime736/main-ci-44363462524.json`、`validation/current-runtime742/bf16-review.json` 和 `validation/current-runtime765/ci-review.json`。原始CI归档、完整输入包和源码逆变换输入也继续保持原字节。
 
 清理状态以当前消费者为准。[完整验收目标](../compatibility/full-acceptance.json) 的2,590条原生算子、688条导数及17项系统契约没有因删除历史文件而缩小；当前公共运行时仍需继续补齐该目标。
 
-781替换13份778核心分区和4份候选元数据，原字节保存在固定PR56提交 `8993eb44a034c2ae388936c6a9ce777c6dad0cf6`；[781退休记录](https://github.com/TrillionniumFoundation/HeptaTorch/blob/683adf048bf083d4f1116a5ef711d18a36f39e24/validation/current-runtime781/retirement.json)逐项固定路径、Git blob、字节数与模式。此前775分区与计划的退休记录保存在[固定778历史](https://github.com/TrillionniumFoundation/HeptaTorch/blob/8993eb44a034c2ae388936c6a9ce777c6dad0cf6/validation/current-runtime778/retirement.json)。三新组共享现有原生协议和物理读回支持，完整32组以及全部原来源检查继续必需。
+781替换13份778核心分区和4份候选元数据，原字节保存在固定PR56提交 `8993eb44a034c2ae388936c6a9ce777c6dad0cf6`；[781退休记录](https://github.com/TrillionniumFoundation/HeptaTorch/blob/683adf048bf083d4f1116a5ef711d18a36f39e24/validation/current-runtime781/retirement.json)逐项固定路径、Git blob、字节数与模式。此前775分区与计划的退休记录保存在[固定778历史](https://github.com/TrillionniumFoundation/HeptaTorch/blob/8993eb44a034c2ae388936c6a9ce777c6dad0cf6/validation/current-runtime778/retirement.json)。781当时的三新组共享原生协议和物理读回支持，其完整32组记录保留历史范围；800要求完整35组、独立视图门及全部原来源检查。
 
 ## 当前 RNG 对象消费者迁移
 
@@ -92,7 +92,7 @@ Native和F64工作流要求Git索引不再跟踪旧源码，而且源码和缓�
 
 严格PyTorch执行使用原工作流实际安装固定wheel的解释器，保留原11项来源检查，并对完整官方wheel、实际安装快照、导入双流、进程、映射和执行前后状态复核。cache路径在启动前明确绑定，读取器继续要求整个环境相等。每个数值失败保留原status和退出码，只有原sqrt差异允许由独立的RNE组件资格解释，不能转成完整PyTorch严格PASS。封存器还须重新纯读两个实际执行及组件报告。
 
-本地已完成全部CPython执行和独立物理回读。严格新树CI及原始产物验收完成前，旧 `.github/workflows/dtype-f64.yml` 和它的143恢复准备仍保留；此时新旧两个消费者并存是尚未完成的迁移状态。
+797前驱消费端本地已完成全部CPython执行和独立物理回读；这些结果不转移为800资格。严格新树CI及原始产物验收完成前，旧 `.github/workflows/dtype-f64.yml` 和它的143恢复准备仍保留；此时新旧两个消费者并存是尚未完成的迁移状态。
 
 ## 源码准入准备的原件
 

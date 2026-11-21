@@ -24,9 +24,9 @@ REFERENCE = 'b1dafeed270b4dd226c349dece9d7f6213c2dabd34681685d97ec13c068e9b11'
 READER = '1deb2fa84d9ea9653ca56769a5527f0102571ba2a4690f8deb85f5d4bdc038b3'
 SOURCE = '51820849f7becec549be15babace00f00687601ae7f53bcee0e636ca02f721f9'
 IMAGE = 'aa3cc8f0c8738a9505d31c9e8ba5a523b7e08b591b61fc7bfb8592295491618b'
-CURRENT_SOURCE = 'c73a7cb474981056404ac96bc214979d57aaa9a86e6474b1c140c3d98eb05779'
-CURRENT_IMAGE = '1ea247df76ff96c307e293790aa38de4a0bf0ff94b8148a480653c924658679d'
-CURRENT_PARTITION = '7c418ce968226835ae79188a51aa38af8d8746a62d72749e8fc76804ec730c25'
+CURRENT_SOURCE = 'aab2e736ff0ef4a282ff73fb1a69a95d2ceeea5260bbdada0af5b30cc16dcd3c'
+CURRENT_IMAGE = '083a92ad78977396f6d2cacff7b7f559cec4871dfcfb67624db48b6f8d64c3d5'
+CURRENT_PARTITION = 'a5cf09f191db4887b4452001e0b72e75fffb2147f2476544cc3be49d8ffa2c85'
 HALF_SOURCE = 'bf3641b1a9061c6f92b8cbeef75adfac89e82ee16d32a9f650cb938d9e918386'
 PREDICATE_INVERSE = '71244cd75fb41ce07876d7f5699b66ae43c73adc5dd5d09fb2da0dec9c8c7439'
 HALF_LOGICAL_INVERSE = 'e0a2eac589ddfe8b09794fb55c569a73d7d7802888130646f59d33adca266f66'
@@ -229,7 +229,7 @@ def restore_reference(repository, directory, source_directory, inputs):
 
 
 
-def reader_cli(repository, build, build_sha, reference, wide_neg, public_f64_arithmetic):
+def reader_cli(repository, build, build_sha, reference, wide_neg, public_f64_arithmetic, public_f64_view):
     return ['--reader-directory',str(reference['source']),
             '--candidate',str(repository),'--build-directory',str(build),
             '--reference',str(reference['report']),'--expected-source-sha256',CURRENT_SOURCE,
@@ -238,7 +238,9 @@ def reader_cli(repository, build, build_sha, reference, wide_neg, public_f64_ari
             '--wide-neg-reference-directory',str(wide_neg['root']),
             '--wide-neg-reference-execution',str(wide_neg['execution']),
             '--public-f64-arithmetic-reference-directory',str(public_f64_arithmetic['root']),
-            '--public-f64-arithmetic-reference-execution',str(public_f64_arithmetic['execution'])]
+            '--public-f64-arithmetic-reference-execution',str(public_f64_arithmetic['execution']),
+            '--f64-view-reference',str(public_f64_view['root']),
+            '--f64-view-reference-execution',str(public_f64_view['execution'])]
 
 
 def load_module(raw, path, name):
@@ -277,7 +279,7 @@ def current_adapter_type(original_type, bridge, repository, extension_files, kin
             manifest_raw = inputs.bind(repository / 'tools/current_runtime/source/manifest.json', CURRENT_PARTITION)
             planned = bridge.parse(manifest_raw)
             require(planned['runtime']['sha256'] == CURRENT_SOURCE
-                    and planned['runtime']['functions'] == 797
+                    and planned['runtime']['functions'] == 800
                     and planned['expected_native_sha256'] == CURRENT_IMAGE
                     and len(planned['units']) == 15, 'exact current Half-logical source and image')
             source = inputs.bind(repository / 'tools/current_runtime/source/runtime.hepta', CURRENT_SOURCE)
@@ -286,10 +288,10 @@ def current_adapter_type(original_type, bridge, repository, extension_files, kin
             index_spec = importlib.util.spec_from_file_location('index_signbit_current_source', index_path)
             indexing = importlib.util.module_from_spec(index_spec); index_spec.loader.exec_module(indexing)
             source, index_inverse = indexing.restore_source(source, inputs.bind)
-            require(index_inverse['functions'] == 797 and index_inverse['parent_functions'] == 775
+            require(index_inverse['functions'] == 800 and index_inverse['parent_functions'] == 775
                     and index_inverse['whole_source_inverse_exact'] is True
                     and index_inverse['whole_round_trip_exact'] is True,
-                    'complete797 source restores every original775 byte before earlier source proofs')
+                    'complete800 source restores every original775 byte before earlier source proofs')
             relu_path = repository / 'tools/current_runtime/typed_relu_source_transition.py'
             relu = load_module(inputs.bind(relu_path), relu_path, kind + '_typed_relu_source_inverse')
             source, relu_proof = relu.restore_source(source, inputs.bind)
@@ -372,12 +374,12 @@ def current_adapter_type(original_type, bridge, repository, extension_files, kin
                                   kind + '_current_unchanged_shared_admission')
             require(profile.ROOT == repository and profile.PROFILE_BYTES == manifest_raw
                     and profile.SOURCE == CURRENT_SOURCE and profile.IMAGE == CURRENT_IMAGE
-                    and profile.FUNCTIONS == 797 and profile.UNITS == 15,
+                    and profile.FUNCTIONS == 800 and profile.UNITS == 15,
                     'unchanged strict shared source/build admission for the actual current profile')
             inputs.bind(repository / 'tools/current_runtime/build.py', bridge.BUILDER)
             self.repository, self.profile = repository, profile
             result = dict(schema='heptatorch.half-logical.' + kind + '.source-admission.v1',
-                source_sha256=CURRENT_SOURCE, native_sha256=CURRENT_IMAGE, functions=797, units=15,
+                source_sha256=CURRENT_SOURCE, native_sha256=CURRENT_IMAGE, functions=800, units=15,
                 predicate_source_inverse=predicate_proof,
                 bf16_source_inverse=bf16_proof,
                 half_mul_source_inverse=mul_proof,
@@ -396,7 +398,7 @@ def current_adapter_type(original_type, bridge, repository, extension_files, kin
                     current=CURRENT_SOURCE, original_owner_source_sha256=bridge.OWNER,
                     original_function_bodies_changed=['bind_profile'],
                     original_owner_predicates_changed=False,
-                    original_function_count=736, current_function_count=797,
+                    original_function_count=736, current_function_count=800,
                     only_exact_profile_count_guard_changed=True,
                     exact_profile_count_guards_changed=2),
                 original_reference_producer_source_sha256=bridge.PRODUCER_SOURCE,
@@ -413,7 +415,7 @@ def current_adapter_type(original_type, bridge, repository, extension_files, kin
                     original_sum_refusal_is_default_dtype_U64MAX=True,
                     current_explicit_Bool_sum_and_any_all_outside_this48_suite=True)
                 return dict(schema='heptatorch.half-logical.f64-48.explicit-controls-source-admission.v1',
-                    source_sha256=CURRENT_SOURCE, native_sha256=CURRENT_IMAGE, functions=797, units=15,
+                    source_sha256=CURRENT_SOURCE, native_sha256=CURRENT_IMAGE, functions=800, units=15,
                     original_identity_source_admission=result,
                     original87_source_bytes_unchanged=True,
                     current87_expected_status_changes=self.control_proof,
@@ -448,7 +450,7 @@ def current_adapter_type(original_type, bridge, repository, extension_files, kin
                 physical[key] = inputs.rows[key]
                 return raw
             built = self.profile.admit_build(directory, bound, report_sha)
-            require(len(physical) == 73 and built['functions'] == 797
+            require(len(physical) == 73 and built['functions'] == 800
                     and len(built['units']) == 15 and len(built['processes']) == 16,
                     'all73 current physical inputs,15 fresh compilers and1 linker')
             require(inputs.bind(directory / 'manifest.json', CURRENT_PARTITION) == self.profile.PROFILE_BYTES,
@@ -458,7 +460,7 @@ def current_adapter_type(original_type, bridge, repository, extension_files, kin
                     inputs.bind(path, row['sha256'], row['bytes'])
             return dict(schema='heptatorch.half-logical.' + kind + '.cold-admission.v1',
                 status='PASS_BUILD_ADMISSION_ONLY', source_sha256=CURRENT_SOURCE, native_sha256=CURRENT_IMAGE,
-                build_sha256=report_sha, functions=797, units=15, physical_inputs=73, files=physical,
+                build_sha256=report_sha, functions=800, units=15, physical_inputs=73, files=physical,
                 compiler_processes=15, linker_processes=1,
                 shared_admission_sha256=bridge.QUALIFICATION, builder_sha256=bridge.BUILDER,
                 manifest_sha256=CURRENT_PARTITION, original_shared_predicates_unchanged=True,
@@ -481,12 +483,12 @@ def current_adapter_type(original_type, bridge, repository, extension_files, kin
                 b'         "f64-source-candidate-profile-required")\n',
             )
             require(original_owner.count(b'functions == 736') == len(guards)
-                    and b'functions == 797' not in original_owner,
+                    and b'functions == 800' not in original_owner,
                     'exactly the two original owner profile-count guards')
             current_owner = original_owner
             replacements = []
             for before_guard in guards:
-                after_guard = before_guard.replace(b'functions == 736', b'functions == 797')
+                after_guard = before_guard.replace(b'functions == 736', b'functions == 800')
                 require(current_owner.count(before_guard) == 1 and after_guard not in current_owner,
                         'one complete original owner profile-count guard at each layer')
                 current_owner = current_owner.replace(before_guard, after_guard, 1)
@@ -505,7 +507,7 @@ def current_adapter_type(original_type, bridge, repository, extension_files, kin
             # identity and the exact function-count guard describe the new image;
             # every structural/numerical owner predicate remains original.
             owner.F64_SOURCE_SHA256 = CURRENT_SOURCE
-            owner.bind_profile(CURRENT_SOURCE, CURRENT_IMAGE, 797)
+            owner.bind_profile(CURRENT_SOURCE, CURRENT_IMAGE, 800)
             return owner
 
         def current_main(self):
@@ -538,7 +540,7 @@ def current_adapter_type(original_type, bridge, repository, extension_files, kin
 
 
 @contextlib.contextmanager
-def current_reader(repository, reader_directory, wide_neg=None, public_f64_arithmetic=None):
+def current_reader(repository, reader_directory, wide_neg=None, public_f64_arithmetic=None, public_f64_view=None):
     directory = Path(reader_directory).resolve(strict=True)
     entry_path = directory / 'current48.py'
     entry_raw = entry_path.read_bytes()
@@ -559,6 +561,9 @@ def current_reader(repository, reader_directory, wide_neg=None, public_f64_arith
     arithmetic_path = Path(repository).resolve() / 'tests/current_runtime_f64_arithmetic_successor.py'
     arithmetic = load_module(arithmetic_path.read_bytes(), arithmetic_path, 'current_f64_arithmetic23_successor')
     adapter = arithmetic.adapter_type(adapter, repository, directory, public_f64_arithmetic)
+    require(public_f64_view is not None, 'the two original views require their shared strict188 reference and actual build')
+    from f64_view.legacy_binding import adapter_type as view_adapter_type
+    adapter = view_adapter_type(adapter, repository, directory, public_f64_view)
     with bridge.original_modules() as (originals, old_run, startup):
         yield adapter(originals, old_run, startup)
 
@@ -567,6 +572,10 @@ def main():
     import argparse
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('--candidate', type=Path, required=True)
+    parser.add_argument('--build-directory', type=Path, required=True)
+    parser.add_argument('--expected-build-sha256', required=True)
+    parser.add_argument('--f64-view-reference', type=Path, required=True)
+    parser.add_argument('--f64-view-reference-execution', type=Path, required=True)
     parser.add_argument('--reader-directory', type=Path, required=True)
     parser.add_argument('--wide-neg-reference-directory', type=Path, required=True)
     parser.add_argument('--wide-neg-reference-execution', type=Path, required=True)
@@ -575,13 +584,16 @@ def main():
     args, _ = parser.parse_known_args()
     original_argv = list(sys.argv)
     for flag in ('--reader-directory', '--wide-neg-reference-directory', '--wide-neg-reference-execution',
-                 '--public-f64-arithmetic-reference-directory', '--public-f64-arithmetic-reference-execution'):
+                 '--public-f64-arithmetic-reference-directory', '--public-f64-arithmetic-reference-execution',
+                 '--f64-view-reference', '--f64-view-reference-execution'):
         at = sys.argv.index(flag)
         sys.argv = sys.argv[:at] + sys.argv[at + 2:]
     try:
         reference = dict(root=args.wide_neg_reference_directory, execution=args.wide_neg_reference_execution)
         arithmetic = dict(root=args.public_f64_arithmetic_reference_directory, execution=args.public_f64_arithmetic_reference_execution)
-        with current_reader(args.candidate, args.reader_directory, reference, arithmetic) as adapter:
+        view = dict(root=args.f64_view_reference, execution=args.f64_view_reference_execution,
+                    build=args.build_directory, build_sha=args.expected_build_sha256)
+        with current_reader(args.candidate, args.reader_directory, reference, arithmetic, view) as adapter:
             return adapter.current_main()()
     finally:
         sys.argv = original_argv

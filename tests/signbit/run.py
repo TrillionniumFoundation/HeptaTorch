@@ -55,14 +55,14 @@ def profile(repository,build,build_sha,inputs):
     combined=module(repository/'tools/current_runtime/index_signbit_source_transition.py','signbit_combined_source_proof',inputs.bind)
     source=inputs.bind(repository/'tools/current_runtime/source/runtime.hepta')
     parent,combined_proof=combined.restore_source(source,inputs.bind)
-    require(combined_proof['source_sha256']==built['source_sha256'] and combined_proof['functions']==797
-        and combined_proof['parent_functions']==775 and combined_proof['unchanged_parent_functions']==760
-        and combined_proof['changed_functions']==['entry', 'linear', 'reduce_axis', 'softmax', 'layernorm', 'batchnorm_eval', 'conv2d', 'pool2d', 'matmul', 'index_select', 'gather', 'tensor_join', 'indexed_add', 'predicate_bits', 'predicate_command']
-        and combined_proof['appended_functions']==['typed_index_select_previous', 'typed_index_select', 'typed_index_select_offset', 'indexed_gather_forward_source', 'indexed_add_forward_inputs', 'indexed_add_forward_location', 'matmul_forward_index', 'matmul_forward_point', 'softmax_forward_group', 'axis_source_forward', 'conv_term_forward', 'conv_no_grad_forward', 'pool_point_forward', 'pool_no_grad_forward', 'matmul_output_version', 'concat_forward_target', 'concat_forward_part', 'concat_forward_copy', 'concat_forward_layout', 'concat_forward', 'linear_bias_output_version', 'normalization_output_layout']
+    require(combined_proof['source_sha256']==built['source_sha256'] and combined_proof['functions']==800
+        and combined_proof['parent_functions']==775 and combined_proof['unchanged_parent_functions']==755
+        and combined_proof['changed_functions']==['entry', 'linear', 'reduce_axis', 'softmax', 'layernorm', 'batchnorm_eval', 'conv2d', 'pool2d', 'matmul', 'index_select', 'gather', 'tensor_join', 'indexed_add', 'bind_alias', 'so_tensor_live', 'to_command', 'to_strided_view', 'f64_dtype_audit', 'predicate_bits', 'predicate_command']
+        and combined_proof['appended_functions']==['typed_index_select_previous', 'typed_index_select', 'typed_index_select_offset', 'indexed_gather_forward_source', 'indexed_add_forward_inputs', 'indexed_add_forward_location', 'matmul_forward_index', 'matmul_forward_point', 'softmax_forward_group', 'axis_source_forward', 'conv_term_forward', 'conv_no_grad_forward', 'pool_point_forward', 'pool_no_grad_forward', 'matmul_output_version', 'concat_forward_target', 'concat_forward_part', 'concat_forward_copy', 'concat_forward_layout', 'concat_forward', 'linear_bias_output_version', 'normalization_output_layout', 'public_f64_empty_strided_view', 'public_f64_empty_descriptor', 'so_f64_empty_offset_live']
         and combined_proof['whole_source_inverse_exact'] is True
         and combined_proof['whole_round_trip_exact'] is True
         and combined_proof['admitted_new_opcode']==126 and combined_proof['opcode125_remains_rejected'] is True,
-        'complete797 source inverse precedes every unchanged775 predecessor predicate')
+        'complete799 source inverse precedes every unchanged775 predecessor predicate')
     return built
 
 

@@ -1,4 +1,4 @@
-"""Derive current797 identities while preserving the complete original192 suite.
+"""Derive current800 identities while preserving the complete original192 suite.
 
 Only source bytes are transformed here. This module never runs a native image,
 compiler, linker, or Torch producer, and supplies no runtime qualification.
@@ -6,8 +6,8 @@ compiler, linker, or Torch producer, and supplies no runtime qualification.
 import ast
 import hashlib
 
-SOURCE = 'c73a7cb474981056404ac96bc214979d57aaa9a86e6474b1c140c3d98eb05779'
-IMAGE = '1ea247df76ff96c307e293790aa38de4a0bf0ff94b8148a480653c924658679d'
+SOURCE = 'aab2e736ff0ef4a282ff73fb1a69a95d2ceeea5260bbdada0af5b30cc16dcd3c'
+IMAGE = '083a92ad78977396f6d2cacff7b7f559cec4871dfcfb67624db48b6f8d64c3d5'
 ORIGINAL_FILES = {
     'cases.py': 'e689699b519e57eec44edac5d4c319d3ea718a3777056d1514d1f0e43a08bef3',
     'common.py': '29d25567c08e309c25d96d56f4476e3842ceda164c9647eb5c9397a04fad181a',
@@ -72,11 +72,11 @@ def derive(original, author_raw):
     outputs['run736.py'], proof['run'] = change(original['run.py'], [
         ('04ae430e3e851831fcb97a3fab700b16b6318361d52e90fcea90d2183d1d564b', SOURCE),
         ('4749413ea952bfd9d1fe41770f94ce1b9b9e3efabb407aa90f725cf33d59c4db', IMAGE),
-        ("built['functions'] == len(bodies) == 729", "built['functions'] == len(bodies) == 797"),
+        ("built['functions'] == len(bodies) == 729", "built['functions'] == len(bodies) == 800"),
         ("built['units_planned'] == 14", "built['units_planned'] == 15"),
         ("len(cold_inputs.records) == 69", "len(cold_inputs.records) == 73"),
         ('all 69 physical cold-build inputs are required', 'all 73 physical cold-build inputs are required'),
-        ('exact integrated 729-function source and image', 'exact integrated 797-function source and image'),
+        ('exact integrated 729-function source and image', 'exact integrated 800-function source and image'),
         (anchor, anchor + extra),
     ])
     preserved = {}
@@ -113,7 +113,7 @@ def derive(original, author_raw):
     require(current_readback == expected_readback,
             'complete original readback retains every comparison; only cold input count changes')
     proof.update(schema='heptatorch.public-f64-logical192.current736.source-derivation.v1',
-        source_sha256=SOURCE, native_sha256=IMAGE, functions=797, units=15,
+        source_sha256=SOURCE, native_sha256=IMAGE, functions=800, units=15,
         original_files=ORIGINAL_FILES, derivation_source_sha256=sha(author_raw),
         original_complete_definitions=preserved, original_six_files_modified=False,
         original_reference_Python_and_producer_identities_changed=False,
@@ -125,4 +125,12 @@ def derive(original, author_raw):
         numeric_or_case_or_control_predicates_changed=False,
         native_boundary_controls_counted_as_Torch_compatibility=False,
         runtime_PASS_transferred=False, native_executed=False, Torch_executed=False, compiler_executed=False)
-    return outputs, proof
+    import importlib.util
+    from pathlib import Path
+    helper_path = Path(__file__).resolve().parent.parent / 'f64_view/legacy_integration.py'
+    helper_spec = importlib.util.spec_from_file_location('public192_exact_view_successor_derivation', helper_path)
+    helper = importlib.util.module_from_spec(helper_spec)
+    helper_spec.loader.exec_module(helper)
+    derived, successor_proof = helper.extend_public_outputs(outputs, proof)
+    successor_proof['integration_source_sha256'] = sha(helper_path.read_bytes())
+    return derived, successor_proof

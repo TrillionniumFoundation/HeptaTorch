@@ -42,7 +42,7 @@ def admit_build(directory, bind, expected=None):
     builder_raw = bind(builder_path)
     spec = importlib.util.spec_from_file_location("current_runtime_source_checks", builder_path)
     builder = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(builder)
+    exec(compile(builder_raw, str(builder_path), 'exec', dont_inherit=True, optimize=0), builder.__dict__)
     source, source_units, summary = builder.check_sources(PROFILE, PROFILE_PATH.parent, bind)
     raw = bind(directory / "build.json", expected)
     built = json.loads(raw)

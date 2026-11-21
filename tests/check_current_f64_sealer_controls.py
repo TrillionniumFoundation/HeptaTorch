@@ -45,7 +45,7 @@ def controls(seal, results):
               ('cpython-readback.json', 'pytorch-readback.json', 'pytorch/execution/report.json')}
     baseline = dict(build=dict(schema='heptatorch.current-object-f64-build.v1',
         status='PASS_NATIVE_BUILD_ONLY', current_source_sha256=seal.SOURCE,
-        current_native_sha256=seal.IMAGE, current_function_count=797,
+        current_native_sha256=seal.IMAGE, current_function_count=800,
         current_units=[dict(synthetic=i) for i in range(15)],
         native_sha256='synthetic-native-image', actual_current_objects_reused=True,
         legacy143_restored=False, runtime_qualified=False, whole_pytorch_rewrite_complete=False),

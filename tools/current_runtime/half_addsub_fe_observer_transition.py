@@ -68,10 +68,10 @@ def restore_observers(bind):
     index_spec = importlib.util.spec_from_file_location('index_signbit_current_source', index_path)
     indexing = importlib.util.module_from_spec(index_spec); index_spec.loader.exec_module(indexing)
     source, index_inverse = indexing.restore_source(source, bind)
-    require(index_inverse['functions'] == 797 and index_inverse['parent_functions'] == 775
+    require(index_inverse['functions'] == 800 and index_inverse['parent_functions'] == 775
             and index_inverse['whole_source_inverse_exact'] is True
             and index_inverse['whole_round_trip_exact'] is True,
-            'complete797 source restores every original775 byte before earlier source proofs')
+            'complete800 source restores every original775 byte before earlier source proofs')
     relu_path=Path(__file__).with_name('typed_relu_source_transition.py');bind(relu_path)
     spec=importlib.util.spec_from_file_location('fe_typed_relu_source_inverse',relu_path)
     relu=importlib.util.module_from_spec(spec);spec.loader.exec_module(relu)
@@ -112,7 +112,7 @@ def restore_observers(bind):
     manifest = bind(root/'tools/current_runtime/source/manifest.json')
     require(sha(parent)==SOURCE and wide.PARENT_SOURCE==SOURCE
         and same.PARENT_SOURCE==arithmetic.SOURCE and arithmetic.PARENT_SOURCE==division.SOURCE
-        and sha(manifest)=='7c418ce968226835ae79188a51aa38af8d8746a62d72749e8fc76804ec730c25',
+        and sha(manifest)=='a5cf09f191db4887b4452001e0b72e75fffb2147f2476544cc3be49d8ffa2c85',
         'exact775 native source inverts through same773, mixed773,771 and767 to the complete765 FE predecessor')
     observer_path=Path(__file__).with_name('half_div_observer_transition.py');bind(observer_path)
     spec=importlib.util.spec_from_file_location('fe_half_div_observer_inverse',observer_path)

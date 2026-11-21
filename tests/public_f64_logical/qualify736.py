@@ -182,14 +182,11 @@ def read_back(args, inputs, built, reference, cold_inputs, directory):
                     and all(attempt['status'] == 0 for attempt in row['attempts'][:-1]) for row in allocations),
             'both actual owner-growth failures and identical retries are required')
     boundary = result['scope_controls']
-    require(boundary['status'] == 'PASS_NATIVE_BOUNDARIES_ONLY' and boundary['controls'] == 2
-            and boundary['torch_compatibility_claimed'] is False
-            and [row['name'] for row in boundary['rows']] ==
-            ['requires-grad-public-f64-create', 'public-f64-as-strided']
-            and [row['error_status'] for row in boundary['rows']] == [5, 7]
-            and all(row['status'] == 'PASS_NATIVE_BOUNDARY_ONLY' and row['complete_owner_rollback'] is True
-                    and row['torch_compatibility_claimed'] is False for row in boundary['rows']),
-            'current native scope boundaries or their explicit limitation changed')
+    from f64_view.legacy_successors import replay_scope
+    require(args.f64_view_successor.proof['strict_reference_qualified'] is True,
+            'strict shared original188 reference is mandatory for the view successor')
+    replay_scope(args, native.load_wire(ROOT), directory / 'scope-controls', native,
+                 args.f64_view_successor, inputs, boundary)
     expected_folders = ['case-%03d' % index for index in range(192)]
     expected_folders += ['packet-controls', 'allocation-118', 'allocation-119', 'scope-controls']
     require(sorted(path.parent.parent.name for path in directory.glob('*/raw/transport.json')) == sorted(expected_folders),
@@ -221,7 +218,7 @@ def read_back(args, inputs, built, reference, cold_inputs, directory):
                 allocation_controls=2, native_boundary_controls=2, native_children=196,
                 frames=result['frames'], case_checks=result['checks'],
                 total_checks=sum(child['checks'] for child in children),
-                native_report_sha256=sha(raw), all_native_EOF=True,
+                native_report_sha256=sha(raw), view_successor=args.f64_view_successor.proof, all_native_EOF=True,
                 complete_raw_frames_reparsed=True, full_owner_archives_rechecked=True,
                 children=children)
 
@@ -254,6 +251,8 @@ def main():
                        '--reference', str(args.reference), '--expected-reference-sha256', args.expected_reference_sha256,
                        '--reference-execution', str(args.reference_execution),
                        '--expected-execution-sha256', args.expected_execution_sha256,
+                       '--f64-view-reference', str(args.f64_view_reference),
+                       '--f64-view-reference-execution', str(args.f64_view_reference_execution),
                        '--output', str(args.output / 'native')]
             report['native_attempted'] = True
             receipt = run_native(command, args.output)

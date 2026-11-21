@@ -1,8 +1,8 @@
 # Native signbit and index_select
 
-The extension introduced in781 and retained in current797 adds these two bounded CPU contracts to the one HIA source and static image. HIA performs classification, iteration, allocation, raw element copies, ownership and rollback. Python transports commands and observes results; the independent Torch process produces expected bytes.
+The extension introduced in781 and retained through797 in candidate800 adds these two bounded CPU contracts to the one HIA source and static image. HIA performs classification, iteration, allocation, raw element copies, ownership and rollback. Python transports commands and observes results; the independent Torch process produces expected bytes.
 
-The [source review](https://github.com/TrillionniumFoundation/HeptaTorch/blob/683adf048bf083d4f1116a5ef711d18a36f39e24/validation/current-runtime781/source-review.json) fixes the complete source and image. The [qualification plan](../validation/current-runtime797/qualification-plan.json) requires all35 groups/16,365 cases. Local targeted execution and physical replay have passed, but the local Torch installation lacks the complete original provenance; those results remain exploratory until strict exact-tree CI passes.
+The [source review](https://github.com/TrillionniumFoundation/HeptaTorch/blob/683adf048bf083d4f1116a5ef711d18a36f39e24/validation/current-runtime781/source-review.json) fixes the complete source and image. The [qualification plan](../validation/current-runtime800/qualification-plan.json) requires all35 groups/16,365 cases plus the separate [public F64 view gate](native-public-f64-views.md). The recorded predecessor targeted execution and physical replay passed, but the local Torch installation lacks the complete original provenance; those results remain exploratory and do not qualify800; its strict exact-tree CI is still required.
 
 ## Signbit
 

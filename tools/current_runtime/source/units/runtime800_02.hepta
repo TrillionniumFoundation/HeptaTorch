@@ -1,5 +1,5 @@
-hia-asm.v1 hepta.hia.program.v8 runtime797_02
-exports(retained_axis_order,incoming_reshape_layout,incoming_describe_cat,incoming_zero_axis_order,incoming_zero_layout,dtype_mask_node,is_contiguous,native_dropout_compare_axes,native_dropout_axis_order,native_dropout_grad_layout,to_original_incoming_describe,view_previous_incoming_describe,toggle_previous_incoming_describe,dview_previous_incoming_describe,shape_previous_incoming_describe,scalar_previous_incoming_describe,sd_previous_incoming_describe,incoming_describe,incoming_merge_edge,gradient_finish,to_original_gradient_direct,view_previous_gradient_direct,shape_previous_gradient_direct,sd_previous_gradient_direct,gradient_direct,gradient_parent_count,gradient_prepare,hold_release,incoming_drop_cache,incoming_clear,incoming_gadd,gadd,sd_backward,sd_permute_backward,dview_output_value,to_as_strided_backward,to_backward,dist_backward_bernoulli,coordinate,axis_source,backward_getw,fromu,back_axis,taddr,typed_load,tget,wrapped_f64_to_f32,binary_backward_read,bindex,incoming_gadd_first,incoming_gadd_second,mulf,negf,scalar_previous_back_binary,wrapped_mul_f32,wrapped_scalar_back_binary,back_binary,concat_target,incoming_gadd_selected,concat_part,incoming_concat_part,concat_copy,back_concat,gather_source,back_gather)
+hia-asm.v1 hepta.hia.program.v8 runtime800_02
+exports(retained_compare_axes,retained_axis_order,incoming_reshape_layout,incoming_describe_cat,incoming_zero_axis_order,incoming_zero_layout,dtype_mask_node,is_contiguous,native_dropout_compare_axes,native_dropout_axis_order,native_dropout_grad_layout,to_original_incoming_describe,view_previous_incoming_describe,toggle_previous_incoming_describe,dview_previous_incoming_describe,shape_previous_incoming_describe,scalar_previous_incoming_describe,sd_previous_incoming_describe,incoming_describe,incoming_merge_edge,gradient_finish,to_original_gradient_direct,view_previous_gradient_direct,shape_previous_gradient_direct,sd_previous_gradient_direct,gradient_direct,gradient_parent_count,gradient_prepare,hold_release,incoming_drop_cache,incoming_clear,incoming_gadd,gadd,sd_backward,sd_permute_backward,dview_output_value,to_as_strided_backward,to_backward,dist_backward_bernoulli,coordinate,axis_source,backward_getw,fromu,back_axis,taddr,typed_load,tget,wrapped_f64_to_f32,binary_backward_read,bindex,incoming_gadd_first,incoming_gadd_second,mulf,negf,scalar_previous_back_binary,wrapped_mul_f32,wrapped_scalar_back_binary,back_binary,concat_target,incoming_gadd_selected,concat_part,incoming_concat_part,concat_copy,back_concat,gather_source)
 fn addf(v0:u64,v1:u64) -> (u64) effects(read,write,trap) external()
 fn divf(v0:u64,v1:u64) -> (u64) effects(read,write,trap) external()
 fn dptr(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
@@ -32,7 +32,6 @@ fn packf(v0:u64,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn private_tensor(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn put4(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn putw(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
-fn retained_compare_axes(v0:mutbuf,v1:u64,v2:u64,v3:u64,v4:u64) -> (u64) effects(read,write,trap) external()
 fn scalar_add_preserving_bits(v0:u64,v1:u64) -> (u64) effects(read,write,trap) external()
 fn sd_expand_gradient_layout(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn sd_permute_gradient_layout(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
@@ -55,6 +54,77 @@ fn to_as_reduction_representative(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read
 fn to_sum_value0(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn to_view_logical_offset(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn valid(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
+fn retained_compare_axes(v0:mutbuf,v1:u64,v2:u64,v3:u64,v4:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(v0:mutbuf,v1:u64,v2:u64,v3:u64,v4:u64)
+  v5:u64 = call(v0,v1) {"function":"dptr"}
+  v6:u64 = call(v0,v2) {"function":"dptr"}
+  v7:u64 = const() {"value":0}
+  jump b1(v0,v3,v4,v5,v6,v7)
+block b1(v8:mutbuf,v11:u64,v12:u64,v13:u64,v14:u64,v15:u64)
+  v16:u64 = const() {"value":2}
+  v17:bool = compare.lt(v15,v16)
+  branch v17 b2(v8,v11,v12,v13,v14,v15) b3(v8)
+block b2(v18:mutbuf,v21:u64,v22:u64,v23:u64,v24:u64,v25:u64)
+  v34:u64 = const() {"value":128}
+  v35:u64 = int.add.wrap(v24,v34)
+  v36:u64 = const() {"value":1}
+  v37:bool = compare.eq(v25,v36)
+  v38:u64 = const() {"value":496}
+  v39:u64 = int.add.wrap(v23,v38)
+  v40:u64 = select(v37,v39,v35)
+  v41:u64 = const() {"value":8}
+  v42:u64 = int.mul.wrap(v21,v41)
+  v43:u64 = int.add.wrap(v40,v42)
+  v44:u64 = call(v18,v43) {"function":"getw"}
+  v45:u64 = const() {"value":2}
+  v46:u64 = int.shl.checked(v44,v45)
+  v47:u64 = int.mul.wrap(v22,v41)
+  v48:u64 = int.add.wrap(v40,v47)
+  v49:u64 = call(v18,v48) {"function":"getw"}
+  v50:u64 = int.shl.checked(v49,v45)
+  v51:u64 = const() {"value":0}
+  v52:bool = compare.ne(v46,v51)
+  v53:bool = compare.ne(v50,v51)
+  v54:bool = bool.and(v52,v53)
+  branch v54 b4(v18,v21,v22,v23,v24,v25,v46,v50) b12(v18,v21,v22,v23,v24,v25)
+block b3(v26:mutbuf)
+  v186:u64 = const() {"value":0}
+  ret(v186)
+block b4(v55:mutbuf,v58:u64,v59:u64,v60:u64,v61:u64,v62:u64,v64:u64,v65:u64)
+  v77:u64 = const() {"value":9223372036854775808}
+  v78:u64 = bit.xor(v64,v77)
+  v79:u64 = bit.xor(v65,v77)
+  v80:bool = compare.lt(v78,v79)
+  branch v80 b6(v55) b7(v55,v58,v59,v60,v61,v62,v78,v79)
+block b6(v81:mutbuf)
+  v107:u64 = const() {"value":1}
+  ret(v107)
+block b7(v94:mutbuf,v97:u64,v98:u64,v99:u64,v100:u64,v101:u64,v105:u64,v106:u64)
+  v108:bool = compare.gt(v105,v106)
+  branch v108 b8(v94) b9(v94,v97,v98,v99,v100,v101)
+block b8(v109:mutbuf)
+  v135:u64 = const() {"value":2}
+  ret(v135)
+block b9(v122:mutbuf,v125:u64,v126:u64,v127:u64,v128:u64,v129:u64)
+  v136:u64 = const() {"value":96}
+  v137:u64 = int.add.wrap(v127,v136)
+  v138:u64 = const() {"value":8}
+  v139:u64 = int.mul.wrap(v125,v138)
+  v140:u64 = int.add.wrap(v137,v139)
+  v141:u64 = call(v122,v140) {"function":"getw"}
+  v142:u64 = int.mul.wrap(v126,v138)
+  v143:u64 = int.add.wrap(v137,v142)
+  v144:u64 = call(v122,v143) {"function":"getw"}
+  v145:bool = compare.gt(v141,v144)
+  branch v145 b10(v122) b12(v122,v125,v126,v127,v128,v129)
+block b10(v146:mutbuf)
+  v172:u64 = const() {"value":2}
+  ret(v172)
+block b12(v173:mutbuf,v176:u64,v177:u64,v178:u64,v179:u64,v180:u64)
+  v184:u64 = const() {"value":1}
+  v185:u64 = int.add.wrap(v180,v184)
+  jump b1(v173,v176,v177,v178,v179,v185)
+end
 fn retained_axis_order(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) entry(b0)
 block b0(v0:mutbuf,v1:u64,v2:u64)
   v3:u64 = call(v0,v1) {"function":"dptr"}
@@ -3883,35 +3953,4 @@ block b6(v75:mutbuf,v76:u64,v77:u64,v79:u64,v80:u64,v81:u64,v82:u64,v83:u64,v84:
   v94:u64 = const() {"value":1}
   v95:u64 = int.add.wrap(v83,v94)
   jump b1(v75,v76,v77,v79,v80,v81,v82,v95,v93)
-end
-fn back_gather(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) entry(b0)
-block b0(v0:mutbuf,v1:u64)
-  v2:u64 = call(v0,v1) {"function":"dptr"}
-  v3:u64 = const() {"value":48}
-  v4:u64 = int.add.wrap(v2,v3)
-  v5:u64 = call(v0,v4) {"function":"backward_getw"}
-  v6:u64 = const() {"value":160}
-  v7:u64 = int.add.wrap(v2,v6)
-  v8:u64 = call(v0,v7) {"function":"backward_getw"}
-  v9:u64 = const() {"value":0}
-  jump b1(v0,v1,v2,v5,v8,v9)
-block b1(v10:mutbuf,v11:u64,v12:u64,v13:u64,v14:u64,v15:u64)
-  v16:u64 = const() {"value":8}
-  v17:u64 = int.add.wrap(v12,v16)
-  v18:u64 = call(v10,v17) {"function":"backward_getw"}
-  v19:bool = compare.lt(v15,v18)
-  branch v19 b2(v10,v11,v12,v13,v14,v15) b3(v10)
-block b2(v20:mutbuf,v21:u64,v22:u64,v23:u64,v24:u64,v25:u64)
-  v32:u64 = call(v20,v21,v25) {"function":"gather_source"}
-  v33:u64 = const() {"value":4}
-  v34:u64 = int.mul.wrap(v25,v33)
-  v35:u64 = int.add.wrap(v24,v34)
-  v36:u64 = call(v20,v35) {"function":"get4"}
-  v37:u64 = call(v20,v23,v32,v36) {"function":"gadd"}
-  v38:u64 = const() {"value":1}
-  v39:u64 = int.add.wrap(v25,v38)
-  jump b1(v20,v21,v22,v23,v24,v39)
-block b3(v26:mutbuf)
-  v40:u64 = const() {"value":1}
-  ret(v40)
 end

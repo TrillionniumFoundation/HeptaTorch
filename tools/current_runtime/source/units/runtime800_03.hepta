@@ -1,10 +1,9 @@
-hia-asm.v1 hepta.hia.program.v8 runtime797_03
-exports(index_select_source,back_index_select,indexed_dim,indexed_add_location,back_indexed_add,matmul_index,matmul_saved_get,back_matmul_point,back_matmul,back_reduce,ltf,round_magnitude,scale2f,subf,expf,soft_index,back_softmax_group,back_softmax,conv_term,conv_point,absf,pool_range,pool_input,pool_point,back_spatial,transindex,back_unary,version_can_bump,bump_version,gradient_binding,incoming_adopt_gradient,incoming_obeys_contract,gradient_accumulate,partial_apply_node_gradient,dtype_original_partial_apply_node,history_incoming_obeys_contract,history_accumulate_source,history_accumulator_check,native_dropout_backward,to_original_partial_apply_node,view_previous_partial_apply_node,shape_previous_partial_apply_node,sd_previous_partial_apply_node,partial_apply_node,gradient_apply,gradient_clear_marks,gradient_workspace_size,incoming_seed,live_id,indexed_add_backward_check_body,indexed_add_backward_check,history_original_partial_check_node,history_preflight_saved,history_order,history_push,partial_mark,mark_graph,retained_gc_enqueue_original,retained_temporary_root,dtype_original_gradient_gc_enqueue,gradient_gc_enqueue,node_release,binary_saved_release,mixed_original_mask_release,dtype_mask_release)
+hia-asm.v1 hepta.hia.program.v8 runtime800_03
+exports(back_gather,index_select_source,back_index_select,indexed_dim,indexed_add_location,back_indexed_add,matmul_index,matmul_saved_get,back_matmul_point,back_matmul,back_reduce,ltf,round_magnitude,scale2f,subf,expf,soft_index,back_softmax_group,back_softmax,conv_term,conv_point,absf,pool_range,pool_input,pool_point,back_spatial,transindex,back_unary,version_can_bump,bump_version,gradient_binding,incoming_adopt_gradient,incoming_obeys_contract,gradient_accumulate,partial_apply_node_gradient,dtype_original_partial_apply_node,history_incoming_obeys_contract,history_accumulate_source,history_accumulator_check,native_dropout_backward,to_original_partial_apply_node,view_previous_partial_apply_node,shape_previous_partial_apply_node,sd_previous_partial_apply_node,partial_apply_node,gradient_apply,gradient_clear_marks,gradient_workspace_size,incoming_seed,live_id,indexed_add_backward_check_body,indexed_add_backward_check,history_original_partial_check_node,history_preflight_saved,history_order,history_push,partial_mark,mark_graph,retained_gc_enqueue_original,retained_temporary_root,dtype_original_gradient_gc_enqueue,gradient_gc_enqueue,node_release,binary_saved_release,mixed_original_mask_release)
 fn addf(v0:u64,v1:u64) -> (u64) effects(read,write,trap) external()
 fn back_axis(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn back_binary(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn back_concat(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
-fn back_gather(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn backward_getw(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn binary_saved_base(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn coordinate(v0:mutbuf,v1:u64,v2:u64,v3:u64) -> (u64) effects(read,write,trap) external()
@@ -14,6 +13,7 @@ fn dptr(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn dtype_mask_node(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn fromu(v0:u64) -> (u64) effects(read,write,trap) external()
 fn gadd(v0:mutbuf,v1:u64,v2:u64,v3:u64) -> (u64) effects(read,write,trap) external()
+fn gather_source(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn get4(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn getw(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn gradient_finish(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
@@ -57,6 +57,37 @@ fn tget(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn to_as_strided_backward(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn to_backward(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn valid(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
+fn back_gather(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(v0:mutbuf,v1:u64)
+  v2:u64 = call(v0,v1) {"function":"dptr"}
+  v3:u64 = const() {"value":48}
+  v4:u64 = int.add.wrap(v2,v3)
+  v5:u64 = call(v0,v4) {"function":"backward_getw"}
+  v6:u64 = const() {"value":160}
+  v7:u64 = int.add.wrap(v2,v6)
+  v8:u64 = call(v0,v7) {"function":"backward_getw"}
+  v9:u64 = const() {"value":0}
+  jump b1(v0,v1,v2,v5,v8,v9)
+block b1(v10:mutbuf,v11:u64,v12:u64,v13:u64,v14:u64,v15:u64)
+  v16:u64 = const() {"value":8}
+  v17:u64 = int.add.wrap(v12,v16)
+  v18:u64 = call(v10,v17) {"function":"backward_getw"}
+  v19:bool = compare.lt(v15,v18)
+  branch v19 b2(v10,v11,v12,v13,v14,v15) b3(v10)
+block b2(v20:mutbuf,v21:u64,v22:u64,v23:u64,v24:u64,v25:u64)
+  v32:u64 = call(v20,v21,v25) {"function":"gather_source"}
+  v33:u64 = const() {"value":4}
+  v34:u64 = int.mul.wrap(v25,v33)
+  v35:u64 = int.add.wrap(v24,v34)
+  v36:u64 = call(v20,v35) {"function":"get4"}
+  v37:u64 = call(v20,v23,v32,v36) {"function":"gadd"}
+  v38:u64 = const() {"value":1}
+  v39:u64 = int.add.wrap(v25,v38)
+  jump b1(v20,v21,v22,v23,v24,v39)
+block b3(v26:mutbuf)
+  v40:u64 = const() {"value":1}
+  ret(v40)
+end
 fn index_select_source(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) entry(b0)
 block b0(v0:mutbuf,v1:u64,v2:u64)
   v3:u64 = call(v0,v1) {"function":"dptr"}
@@ -3735,20 +3766,4 @@ block b8(v60:mutbuf,v62:u64,v63:u64,v64:u64)
   v79:u64 = call(v60,v75,v78) {"function":"putw"}
   v80:u64 = call(v60,v63) {"function":"node_release"}
   ret(v80)
-end
-fn dtype_mask_release(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) entry(b0)
-block b0(v0:mutbuf,v1:u64)
-  v2:u64 = call(v0,v1) {"function":"dptr"}
-  v3:u64 = const() {"value":584}
-  v4:u64 = int.add.wrap(v2,v3)
-  v5:u64 = call(v0,v4) {"function":"getw"}
-  v6:u64 = const() {"value":65535}
-  v7:bool = compare.gt(v5,v6)
-  branch v7 b1(v0,v1) b2(v0,v1)
-block b1(v8:mutbuf,v9:u64)
-  v12:u64 = call(v8,v9) {"function":"binary_saved_release"}
-  ret(v12)
-block b2(v10:mutbuf,v11:u64)
-  v13:u64 = call(v10,v11) {"function":"mixed_original_mask_release"}
-  ret(v13)
 end

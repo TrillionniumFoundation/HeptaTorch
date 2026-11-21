@@ -169,19 +169,19 @@ def _restore_indexed_source(source, bind):
         whole_source_inverse_exact=True, whole_round_trip_exact=True)
 
 
-CURRENT_SOURCE = 'c73a7cb474981056404ac96bc214979d57aaa9a86e6474b1c140c3d98eb05779'
-CURRENT_FUNCTIONS = 797
-CURRENT_CHANGED = ('entry', 'linear', 'reduce_axis', 'softmax', 'layernorm', 'batchnorm_eval', 'conv2d', 'pool2d', 'matmul', 'index_select', 'gather', 'tensor_join', 'indexed_add', 'predicate_bits', 'predicate_command')
-CURRENT_ADDED = ('typed_index_select_previous', 'typed_index_select', 'typed_index_select_offset', 'indexed_gather_forward_source', 'indexed_add_forward_inputs', 'indexed_add_forward_location', 'matmul_forward_index', 'matmul_forward_point', 'softmax_forward_group', 'axis_source_forward', 'conv_term_forward', 'conv_no_grad_forward', 'pool_point_forward', 'pool_no_grad_forward', 'matmul_output_version', 'concat_forward_target', 'concat_forward_part', 'concat_forward_copy', 'concat_forward_layout', 'concat_forward', 'linear_bias_output_version', 'normalization_output_layout')
+FORWARD_SOURCE = 'c73a7cb474981056404ac96bc214979d57aaa9a86e6474b1c140c3d98eb05779'
+FORWARD_FUNCTIONS = 797
+FORWARD_CHANGED = ('entry', 'linear', 'reduce_axis', 'softmax', 'layernorm', 'batchnorm_eval', 'conv2d', 'pool2d', 'matmul', 'index_select', 'gather', 'tensor_join', 'indexed_add', 'predicate_bits', 'predicate_command')
+FORWARD_ADDED = ('typed_index_select_previous', 'typed_index_select', 'typed_index_select_offset', 'indexed_gather_forward_source', 'indexed_add_forward_inputs', 'indexed_add_forward_location', 'matmul_forward_index', 'matmul_forward_point', 'softmax_forward_group', 'axis_source_forward', 'conv_term_forward', 'conv_no_grad_forward', 'pool_point_forward', 'pool_no_grad_forward', 'matmul_output_version', 'concat_forward_target', 'concat_forward_part', 'concat_forward_copy', 'concat_forward_layout', 'concat_forward', 'linear_bias_output_version', 'normalization_output_layout')
 FORWARD_INVERSE_SHA256 = 'c8fca08e2c2756873c331cef92003f94296e36cbe2e52014bfd8bc6942d7a1b6'
 
 
-def restore_source(source, bind):
+def _restore_forward_source(source, bind):
     """Compose the forward repair with both complete original indexing inverses."""
     bind(Path(__file__).resolve())
     if sha(source) in (SOURCE, INDEXED_SOURCE):
         return _restore_indexed_source(source, bind)
-    require(sha(source) == CURRENT_SOURCE, 'exact current797 forward source only')
+    require(sha(source) == FORWARD_SOURCE, 'exact current797 forward source only')
     path = Path(__file__).with_name('forward_source_transition.py')
     raw = bind(path, FORWARD_INVERSE_SHA256)
     require(sha(raw) == FORWARD_INVERSE_SHA256, 'complete forward inverse helper identity')
@@ -192,9 +192,9 @@ def restore_source(source, bind):
     exec(compile(raw, str(path), 'exec'), extension.__dict__)
     intermediate, forward_proof = extension.restore_source(source, bind)
     require(sha(intermediate) == INDEXED_SOURCE
-            and forward_proof['source_sha256'] == CURRENT_SOURCE
+            and forward_proof['source_sha256'] == FORWARD_SOURCE
             and forward_proof['parent_source_sha256'] == INDEXED_SOURCE
-            and forward_proof['functions'] == CURRENT_FUNCTIONS
+            and forward_proof['functions'] == FORWARD_FUNCTIONS
             and forward_proof['parent_functions'] == INDEXED_FUNCTIONS
             and forward_proof['unchanged_parent_functions'] == 772
             and forward_proof['changed_functions'] == ['linear', 'reduce_axis', 'softmax', 'layernorm', 'batchnorm_eval', 'conv2d', 'pool2d', 'matmul', 'tensor_join']
@@ -206,25 +206,81 @@ def restore_source(source, bind):
             and forward_proof['original_backward_functions_unchanged'] is True,
             'complete797 to781 source inverse before all original indexing proofs')
     parent, predecessor = _restore_indexed_source(intermediate, bind)
-    actual, previous = functions(source, CURRENT_FUNCTIONS), functions(parent, PARENT_FUNCTIONS)
+    actual, previous = functions(source, FORWARD_FUNCTIONS), functions(parent, PARENT_FUNCTIONS)
     require(tuple(actual)[:PARENT_FUNCTIONS] == tuple(previous)
-            and tuple(actual)[PARENT_FUNCTIONS:] == CURRENT_ADDED
-            and tuple(name for name in previous if actual[name] != previous[name]) == CURRENT_CHANGED
+            and tuple(actual)[PARENT_FUNCTIONS:] == FORWARD_ADDED
+            and tuple(name for name in previous if actual[name] != previous[name]) == FORWARD_CHANGED
             and sum(actual[name] == previous[name] for name in previous) == 760,
             'all797 definitions and every one of the760 unchanged775 parent bodies')
-    suffix = b''.join(actual[name] for name in CURRENT_ADDED)
+    suffix = b''.join(actual[name] for name in FORWARD_ADDED)
     rebuilt = parent
-    for name in CURRENT_CHANGED:
+    for name in FORWARD_CHANGED:
         require(rebuilt.count(previous[name]) == 1, 'unique complete predecessor body: '+name)
         rebuilt = rebuilt.replace(previous[name], actual[name], 1)
     require(rebuilt + suffix == source, 'complete797 to775 source inverse and exact forward round trip')
     return parent, dict(predecessor,
         schema='heptatorch.forward797-to-relu775.complete-source-inverse.v1',
-        source_sha256=CURRENT_SOURCE, functions=CURRENT_FUNCTIONS,
-        changed_functions=list(CURRENT_CHANGED), appended_functions=list(CURRENT_ADDED),
+        source_sha256=FORWARD_SOURCE, functions=FORWARD_FUNCTIONS,
+        changed_functions=list(FORWARD_CHANGED), appended_functions=list(FORWARD_ADDED),
         unchanged_parent_functions=760, forward_source_inverse=forward_proof,
         indexed_predecessor_source_inverse=predecessor,
         original_indexed_dispatch_unchanged=True, original_AD_numeric_helpers_unchanged=True,
         original_backward_functions_unchanged=True, complete_source_definition_order_preserved=True,
+        whole_source_inverse_exact=True, whole_round_trip_exact=True,
+        native_executed=False, Torch_executed=False, runtime_qualification_transferred=False)
+
+
+CURRENT_SOURCE = 'aab2e736ff0ef4a282ff73fb1a69a95d2ceeea5260bbdada0af5b30cc16dcd3c'
+CURRENT_FUNCTIONS = 800
+CURRENT_CHANGED = ('entry', 'linear', 'reduce_axis', 'softmax', 'layernorm', 'batchnorm_eval', 'conv2d', 'pool2d', 'matmul', 'index_select', 'gather', 'tensor_join', 'indexed_add', 'bind_alias', 'so_tensor_live', 'to_command', 'to_strided_view', 'f64_dtype_audit', 'predicate_bits', 'predicate_command')
+CURRENT_ADDED = ('typed_index_select_previous', 'typed_index_select', 'typed_index_select_offset', 'indexed_gather_forward_source', 'indexed_add_forward_inputs', 'indexed_add_forward_location', 'matmul_forward_index', 'matmul_forward_point', 'softmax_forward_group', 'axis_source_forward', 'conv_term_forward', 'conv_no_grad_forward', 'pool_point_forward', 'pool_no_grad_forward', 'matmul_output_version', 'concat_forward_target', 'concat_forward_part', 'concat_forward_copy', 'concat_forward_layout', 'concat_forward', 'linear_bias_output_version', 'normalization_output_layout', 'public_f64_empty_strided_view', 'public_f64_empty_descriptor', 'so_f64_empty_offset_live')
+F64_VIEW_INVERSE_SHA256 = 'b0f73d2732f3045ef00f106ab02b379f83afdb7a45feb6e054bcdf2655554b5d'
+
+
+def restore_source(source, bind):
+    """Compose the native F64 view inverse with every retained source proof."""
+    bind(Path(__file__).resolve())
+    if sha(source) in (SOURCE, INDEXED_SOURCE, FORWARD_SOURCE):
+        return _restore_forward_source(source, bind)
+    require(sha(source) == CURRENT_SOURCE, 'exact complete current native source only')
+    path = Path(__file__).with_name('public_f64_view_source_transition.py')
+    raw = bind(path, F64_VIEW_INVERSE_SHA256)
+    require(sha(raw) == F64_VIEW_INVERSE_SHA256, 'complete fixed F64 view source reader')
+    import types
+    extension = types.ModuleType('current_complete_f64_view_inverse')
+    extension.__file__ = str(path)
+    exec(compile(raw, str(path), 'exec'), extension.__dict__)
+    intermediate, view_proof = extension.restore_source(source, bind)
+    require(sha(intermediate) == FORWARD_SOURCE
+            and view_proof['source_sha256'] == CURRENT_SOURCE
+            and view_proof['parent_source_sha256'] == FORWARD_SOURCE
+            and view_proof['functions'] == CURRENT_FUNCTIONS
+            and view_proof['parent_functions'] == FORWARD_FUNCTIONS
+            and view_proof['whole_source_inverse_exact'] is True
+            and view_proof['whole_round_trip_exact'] is True
+            and view_proof['original_backward_functions_unchanged'] is True,
+            'exact new F64 source returns the complete published797 before all previous proofs')
+    parent, predecessor = _restore_forward_source(intermediate, bind)
+    actual, previous = functions(source, CURRENT_FUNCTIONS), functions(parent, PARENT_FUNCTIONS)
+    require(tuple(actual)[:PARENT_FUNCTIONS] == tuple(previous)
+            and tuple(actual)[PARENT_FUNCTIONS:] == CURRENT_ADDED
+            and tuple(name for name in previous if actual[name] != previous[name]) == CURRENT_CHANGED
+            and sum(actual[name] == previous[name] for name in previous) == PARENT_FUNCTIONS - len(CURRENT_CHANGED),
+            'all current definitions and every unchanged original775 body')
+    suffix = b''.join(actual[name] for name in CURRENT_ADDED)
+    rebuilt = parent
+    for name in CURRENT_CHANGED:
+        require(rebuilt.count(previous[name]) == 1, 'one complete predecessor definition: ' + name)
+        rebuilt = rebuilt.replace(previous[name], actual[name], 1)
+    require(rebuilt + suffix == source, 'complete current-to775 exact inverse and forward round trip')
+    return parent, dict(predecessor,
+        schema='heptatorch.public-f64-view-to-relu775.complete-source-inverse.v1',
+        source_sha256=CURRENT_SOURCE, functions=CURRENT_FUNCTIONS,
+        changed_functions=list(CURRENT_CHANGED), appended_functions=list(CURRENT_ADDED),
+        unchanged_parent_functions=PARENT_FUNCTIONS - len(CURRENT_CHANGED),
+        public_f64_view_source_inverse=view_proof,
+        forward797_predecessor_source_inverse=predecessor,
+        original_backward_functions_unchanged=True,
+        complete_source_definition_order_preserved=True,
         whole_source_inverse_exact=True, whole_round_trip_exact=True,
         native_executed=False, Torch_executed=False, runtime_qualification_transferred=False)

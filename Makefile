@@ -663,10 +663,17 @@ build/unhex: tools/unhex.hepta | build check-compiler
 # Run every mandatory suite from the current qualification inventory, including separate Generator probes.
 test: current-runtime
 	@set -eu; review=$$(mktemp -d "$(CURDIR)/build/current-runtime-review.XXXXXX"); \
+	build_sha=$$(sha256sum "$(CURDIR)/build/current-runtime/build.json" | cut -d ' ' -f 1); \
+	"$(HEPTA_TORCH_PYTHON)" -I -S -B tests/f64_view/run.py \
+	  --build-directory "$(CURDIR)/build/current-runtime" --expected-build-sha256 "$$build_sha" \
+	  --torch-python "$(HEPTA_TORCH_PYTHON)" --output "$$review/f64-view"; \
+	"$(HEPTA_TORCH_PYTHON)" -I -S -B tests/f64_view/qualify.py \
+	  --build-directory "$(CURDIR)/build/current-runtime" --expected-build-sha256 "$$build_sha" \
+	  --directory "$$review/f64-view" --output "$$review/f64-view/physical-qualification.json"; \
 	"$(HEPTA_TORCH_PYTHON)" -I -S -B tests/qualify_current_runtime.py \
 	  --build-directory "$(CURDIR)/build/current-runtime" --torch-python "$(HEPTA_TORCH_PYTHON)" \
 	  --tool-build "$(abspath $(HEPTA_ENTROPY_BUILD))" --stack-build "$(abspath $(HEPTA_STACK_BUILD))" \
-	  --output "$$review/results"
+	  --f64-view-directory "$$review/f64-view" --output "$$review/results"
 
 test-legacy: legacy
 	sh tests/run.sh

@@ -1,5 +1,5 @@
-hia-asm.v1 hepta.hia.program.v8 runtime797_05
-exports(typed_store,half_addsub_element,dist_probability_stride,half_mul_inner_extent,rng_axis_order,dist_dense_layout,half_bf16_nan_word,half_mul_copy_value,half_mul_promote,half_mul_result_dtype,integer_pointwise_compare_axes,integer_pointwise_axis_order,integer_pointwise_layout,half_addsub_tensor,half_div_f32,div64,half_div_f64,half_div_element,half_mul_is_scalar,half_div_tensor,half_mul_f32,multiply_high,mul64,half_mul_f64,half_mul_float_priority,half_mul_inner_stride,half_mul_priority,half_mul_element,half_mul_tensor,sub64,f64_scalar_binary,f64_valid,f64_binary,pointwise_compare_axes,pointwise_axis_order,pointwise_layout,history_accumulator_retain,history_edge_address,history_rebind_captured_edges,history_snapshot,history_transfer_role,history_capture,to_view_base_node,tversion,binary_saved_retain_one,binary_saved_bind,bind_alias,fold_view,matmul_copy_side,saved_copy,saved_create,record_body,to_view_edge_flag_at,history_original_record,history_route_new_edges,to_view_root_retain,integer_view_root_retain,mixed_original_record,view_previous_record,to_view_refresh,record,scalar_binary,tnew,valid_f32,f64_previous_binary)
+hia-asm.v1 hepta.hia.program.v8 runtime800_05
+exports(half_mul_nan_word,typed_store,half_addsub_element,dist_probability_stride,half_mul_inner_extent,rng_axis_order,dist_dense_layout,half_bf16_nan_word,half_mul_copy_value,half_mul_promote,half_mul_result_dtype,integer_pointwise_compare_axes,integer_pointwise_axis_order,integer_pointwise_layout,half_addsub_tensor,half_div_f32,div64,half_div_f64,half_div_element,half_mul_is_scalar,half_div_tensor,half_mul_f32,multiply_high,mul64,half_mul_f64,half_mul_float_priority,half_mul_inner_stride,half_mul_priority,half_mul_element,half_mul_tensor,sub64,f64_scalar_binary,f64_valid,f64_binary,pointwise_compare_axes,pointwise_axis_order,pointwise_layout,history_accumulator_retain,history_edge_address,history_rebind_captured_edges,history_snapshot,history_transfer_role,history_capture,to_view_base_node,tversion,binary_saved_retain_one,binary_saved_bind,bind_alias,fold_view,matmul_copy_side,saved_copy,saved_create,record_body,to_view_edge_flag_at,history_original_record,history_route_new_edges,to_view_root_retain,integer_view_root_retain,mixed_original_record,view_previous_record,to_view_refresh,record,scalar_binary,tnew,valid_f32)
 fn add64(v0:u64,v1:u64) -> (u64) effects(read,write,trap) external()
 fn addf(v0:u64,v1:u64) -> (u64) effects(read,write,trap) external()
 fn alloc(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
@@ -19,7 +19,6 @@ fn graph_parent_at(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) ex
 fn half_addsub_f32(a:u64,b:u64,operation:u64,right_first:u64) -> (u64) effects(read,write,trap) external()
 fn half_addsub_f64(a:u64,b:u64,operation:u64,right_first:u64) -> (u64) effects(read,write,trap) external()
 fn half_mul_cast(x:u64,source:u64,target:u64,nan_word:u64) -> (u64) effects(read,write,trap) external()
-fn half_mul_nan_word(s:mutbuf,result:u64,index:u64,inner:u64) -> (u64) effects(read,write,trap) external()
 fn half_mul_to_f32(x:u64,dtype:u64) -> (u64) effects(read,write,trap) external()
 fn history_accumulator_target(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn history_order(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
@@ -57,6 +56,27 @@ fn terror(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn tget(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn typed_descriptor(v0:mutbuf,v1:u64,v2:u64,v3:u64,v4:u64,v5:u64) -> (u64) effects(read,write,trap) external()
 fn valid(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
+fn half_mul_nan_word(s:mutbuf,result:u64,index:u64,inner:u64) -> (u64) effects(read,write,trap) entry(start)
+block start(s:mutbuf,result:u64,index:u64,inner:u64)
+  address:u64 = call(s,result,index) {"function":"taddr"}
+  descriptor:u64 = call(s,result) {"function":"dptr"}
+  offset:u64 = const() {"value":16}
+  base_at:u64 = int.add.wrap(descriptor,offset)
+  base:u64 = call(s,base_at) {"function":"getw"}
+  bytes:u64 = int.sub.wrap(address,base)
+  dtype:u64 = call(s,result) {"function":"tensor_dtype"}
+  width:u64 = call(dtype) {"function":"dtype_width"}
+  position:u64 = int.div.checked(bytes,width)
+  lane:u64 = int.rem.checked(position,inner)
+  vector_size:u64 = const() {"value":32}
+  vectors:u64 = int.div.checked(inner,vector_size)
+  extent:u64 = int.mul.wrap(vectors,vector_size)
+  vector:bool = compare.lt(lane,extent)
+  vector_nan:u64 = const() {"value":65535}
+  scalar_nan:u64 = const() {"value":32704}
+  result_word:u64 = select(vector,vector_nan,scalar_nan)
+  ret(result_word)
+end
 fn typed_store(v0:mutbuf,v1:u64,v2:u64,v3:u64) -> (u64) effects(read,write,trap) entry(b0)
 block b0(v0:mutbuf,v1:u64,v2:u64,v3:u64)
   v4:u64 = call(v0,v1) {"function":"object_address"}
@@ -3158,11 +3178,15 @@ block b4(v45:mutbuf,v48:u64,v49:u64,v50:u64,v51:u64)
   v70:u64 = call(v45,v66,v69) {"function":"so_uput"}
   v71:u64 = call(v45,v50) {"function":"so_storage_live"}
   v72:u64 = const() {"value":0}
-  v73:u64 = call(v45,v68) {"function":"getw"}
-  v74:u64 = int.add.wrap(v71,v62)
-  v75:u64 = call(v45,v74) {"function":"so_uget"}
+  alias_high:u64 = const() {"value":9223372036854775808}
+  alias_encoded:bool = compare.ge(v69,alias_high)
+  branch alias_encoded b7(v45,v48,v49,v50,v51,v58,v72) ordinary_span(v45,v48,v49,v50,v51,v58,v71,v68,v62,v72)
+block ordinary_span(as_s:mutbuf,as_node:u64,as_source:u64,as_storage:u64,as_version:u64,as_row:u64,as_storage_row:u64,as_offset_at:u64,as_size_field:u64,as_zero:u64)
+  v73:u64 = call(as_s,as_offset_at) {"function":"getw"}
+  v74:u64 = int.add.wrap(as_storage_row,as_size_field)
+  v75:u64 = call(as_s,v74) {"function":"so_uget"}
   v76:bool = compare.le(v73,v75)
-  branch v76 b5(v45,v48,v49,v50,v51,v58,v71) b7(v45,v48,v49,v50,v51,v58,v72)
+  branch v76 b5(as_s,as_node,as_source,as_storage,as_version,as_row,as_storage_row) b7(as_s,as_node,as_source,as_storage,as_version,as_row,as_zero)
 block b5(v77:mutbuf,v80:u64,v81:u64,v82:u64,v83:u64,v84:u64,v85:u64)
   v97:u64 = const() {"value":24}
   v98:u64 = int.add.wrap(v85,v97)
@@ -4766,86 +4790,4 @@ block b3(v13:mutbuf)
 block b4(v15:mutbuf)
   v19:u64 = const() {"value":1}
   ret(v19)
-end
-fn f64_previous_binary(v0:mutbuf,v1:u64,v2:u64,v3:u64) -> (u64) effects(read,write,trap) entry(b0)
-block b0(v0:mutbuf,v1:u64,v2:u64,v3:u64)
-  v4:u64 = call(v0,v2) {"function":"valid_f32"}
-  v5:u64 = const() {"value":0}
-  v6:bool = compare.eq(v4,v5)
-  branch v6 b2(v0,v1,v2,v3,v6) b1(v0,v1,v2,v3)
-block b1(v7:mutbuf,v8:u64,v9:u64,v10:u64)
-  v17:u64 = call(v7,v10) {"function":"valid_f32"}
-  v18:u64 = const() {"value":0}
-  v19:bool = compare.eq(v17,v18)
-  jump b2(v7,v8,v9,v10,v19)
-block b2(v12:mutbuf,v13:u64,v14:u64,v15:u64,v16:bool)
-  branch v16 b3(v12) b4(v12,v13,v14,v15)
-block b3(v20:mutbuf)
-  v28:u64 = const() {"value":0}
-  ret(v28)
-block b4(v24:mutbuf,v25:u64,v26:u64,v27:u64)
-  v29:u64 = const() {"value":1}
-  v30:bool = compare.lt(v25,v29)
-  v31:u64 = const() {"value":4}
-  v32:bool = compare.gt(v25,v31)
-  v33:bool = bool.or(v30,v32)
-  branch v33 b5(v24) b6(v24,v25,v26,v27)
-block b5(v34:mutbuf)
-  v42:u64 = const() {"value":4}
-  v43:u64 = call(v34,v42) {"function":"terror"}
-  ret(v43)
-block b6(v38:mutbuf,v39:u64,v40:u64,v41:u64)
-  v44:u64 = call(v38,v40,v41) {"function":"bshape"}
-  v45:u64 = call(v38,v40) {"function":"dptr"}
-  v46:u64 = const() {"value":32}
-  v47:u64 = int.add.wrap(v45,v46)
-  v48:u64 = call(v38,v47) {"function":"getw"}
-  v49:u64 = call(v38,v41) {"function":"dptr"}
-  v50:u64 = int.add.wrap(v49,v46)
-  v51:u64 = call(v38,v50) {"function":"getw"}
-  v52:u64 = bit.or(v48,v51)
-  v53:u64 = const() {"value":128}
-  v54:u64 = call(v38,v44,v53,v52) {"function":"tnew"}
-  v55:u64 = const() {"value":0}
-  v56:bool = compare.eq(v54,v55)
-  branch v56 b7(v38) b8(v38,v39,v40,v41,v54)
-block b7(v57:mutbuf)
-  v71:u64 = const() {"value":0}
-  ret(v71)
-block b8(v64:mutbuf,v65:u64,v66:u64,v67:u64,v70:u64)
-  v72:u64 = call(v64,v70,v66,v67) {"function":"pointwise_layout"}
-  v73:u64 = const() {"value":0}
-  v74:bool = compare.eq(v72,v73)
-  branch v74 b9(v64) b10(v64,v65,v66,v67,v70)
-block b9(v75:mutbuf)
-  v89:u64 = const() {"value":0}
-  ret(v89)
-block b10(v82:mutbuf,v83:u64,v84:u64,v85:u64,v88:u64)
-  v90:u64 = call(v82,v88) {"function":"dptr"}
-  v91:u64 = const() {"value":8}
-  v92:u64 = int.add.wrap(v90,v91)
-  v93:u64 = call(v82,v92) {"function":"getw"}
-  v94:u64 = call(v82,v88) {"function":"dptr"}
-  v95:u64 = const() {"value":16}
-  v96:u64 = int.add.wrap(v94,v95)
-  v97:u64 = call(v82,v96) {"function":"getw"}
-  v98:u64 = const() {"value":0}
-  jump b11(v82,v83,v84,v85,v88,v93,v98)
-block b11(v99:mutbuf,v100:u64,v101:u64,v102:u64,v105:u64,v106:u64,v108:u64)
-  v109:bool = compare.lt(v108,v106)
-  branch v109 b12(v99,v100,v101,v102,v105,v106,v108) b13(v99,v100,v101,v102,v105)
-block b12(v110:mutbuf,v111:u64,v112:u64,v113:u64,v116:u64,v117:u64,v119:u64)
-  v130:u64 = call(v110,v116,v112,v119) {"function":"bindex"}
-  v131:u64 = call(v110,v116,v113,v119) {"function":"bindex"}
-  v132:u64 = call(v110,v112,v130) {"function":"tget"}
-  v133:u64 = call(v110,v113,v131) {"function":"tget"}
-  v134:u64 = call(v110,v116,v119) {"function":"taddr"}
-  v135:u64 = call(v111,v132,v133) {"function":"scalar_binary"}
-  v136:u64 = call(v110,v134,v135) {"function":"put4"}
-  v137:u64 = const() {"value":1}
-  v138:u64 = int.add.wrap(v119,v137)
-  jump b11(v110,v111,v112,v113,v116,v117,v138)
-block b13(v120:mutbuf,v121:u64,v122:u64,v123:u64,v126:u64)
-  v139:u64 = call(v120,v126,v121,v122,v123) {"function":"record"}
-  ret(v139)
 end

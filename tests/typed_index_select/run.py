@@ -60,14 +60,14 @@ def profile(repository,build,build_sha,inputs):
     combined=module(repository/'tools/current_runtime/index_signbit_source_transition.py','typed_index_select_combined_source_proof',inputs.bind)
     source=inputs.bind(repository/'tools/current_runtime/source/runtime.hepta')
     parent,proof=combined.restore_source(source,inputs.bind)
-    require(proof['source_sha256']==built['source_sha256'] and proof['functions']==797
-        and proof['parent_functions']==775 and proof['unchanged_parent_functions']==760
-        and proof['changed_functions']==['entry', 'linear', 'reduce_axis', 'softmax', 'layernorm', 'batchnorm_eval', 'conv2d', 'pool2d', 'matmul', 'index_select', 'gather', 'tensor_join', 'indexed_add', 'predicate_bits', 'predicate_command']
-        and proof['appended_functions']==['typed_index_select_previous', 'typed_index_select', 'typed_index_select_offset', 'indexed_gather_forward_source', 'indexed_add_forward_inputs', 'indexed_add_forward_location', 'matmul_forward_index', 'matmul_forward_point', 'softmax_forward_group', 'axis_source_forward', 'conv_term_forward', 'conv_no_grad_forward', 'pool_point_forward', 'pool_no_grad_forward', 'matmul_output_version', 'concat_forward_target', 'concat_forward_part', 'concat_forward_copy', 'concat_forward_layout', 'concat_forward', 'linear_bias_output_version', 'normalization_output_layout']
+    require(proof['source_sha256']==built['source_sha256'] and proof['functions']==800
+        and proof['parent_functions']==775 and proof['unchanged_parent_functions']==755
+        and proof['changed_functions']==['entry', 'linear', 'reduce_axis', 'softmax', 'layernorm', 'batchnorm_eval', 'conv2d', 'pool2d', 'matmul', 'index_select', 'gather', 'tensor_join', 'indexed_add', 'bind_alias', 'so_tensor_live', 'to_command', 'to_strided_view', 'f64_dtype_audit', 'predicate_bits', 'predicate_command']
+        and proof['appended_functions']==['typed_index_select_previous', 'typed_index_select', 'typed_index_select_offset', 'indexed_gather_forward_source', 'indexed_add_forward_inputs', 'indexed_add_forward_location', 'matmul_forward_index', 'matmul_forward_point', 'softmax_forward_group', 'axis_source_forward', 'conv_term_forward', 'conv_no_grad_forward', 'pool_point_forward', 'pool_no_grad_forward', 'matmul_output_version', 'concat_forward_target', 'concat_forward_part', 'concat_forward_copy', 'concat_forward_layout', 'concat_forward', 'linear_bias_output_version', 'normalization_output_layout', 'public_f64_empty_strided_view', 'public_f64_empty_descriptor', 'so_f64_empty_offset_live']
         and proof['whole_source_inverse_exact'] is True and proof['whole_round_trip_exact'] is True
         and proof['original_f32_index_select_function_retained'] is True
         and proof['original_arithmetic_and_backward_functions_retained'] is True,
-        'complete797 source inverse and all original F32 AD bodies retained')
+        'complete799 source inverse and all original F32 AD bodies retained')
     return built
 
 

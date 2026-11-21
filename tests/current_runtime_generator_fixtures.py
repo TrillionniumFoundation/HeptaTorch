@@ -181,10 +181,10 @@ def restore_qualifier740(repository, destination, inputs=None):
     return destination
 
 
-CURRENT_SOURCE = 'c73a7cb474981056404ac96bc214979d57aaa9a86e6474b1c140c3d98eb05779'
-CURRENT_IMAGE = '1ea247df76ff96c307e293790aa38de4a0bf0ff94b8148a480653c924658679d'
-CURRENT_MANIFEST = '7c418ce968226835ae79188a51aa38af8d8746a62d72749e8fc76804ec730c25'
-CURRENT_BINDING = '65a7d99423b0872dede3214c845d70af715832df33c4d04b577373315a01c38b'
+CURRENT_SOURCE = 'aab2e736ff0ef4a282ff73fb1a69a95d2ceeea5260bbdada0af5b30cc16dcd3c'
+CURRENT_IMAGE = '083a92ad78977396f6d2cacff7b7f559cec4871dfcfb67624db48b6f8d64c3d5'
+CURRENT_MANIFEST = 'a5cf09f191db4887b4452001e0b72e75fffb2147f2476544cc3be49d8ffa2c85'
+CURRENT_BINDING = 'ca188c5c0a81ab086b658a4e2b86d15be38e8a89d41e81d940453f9ee994cece'
 
 
 def successor_qualifier(parent, inputs=None):
@@ -214,11 +214,11 @@ def successor_qualifier(parent, inputs=None):
         count = {'run.py': 7, 'admission.py': 8, 'processes.py': 0}[name]
         profile_chunks = re.split(r'([0-9a-f]{64})', current)
         require(current.count('740') == count
-                and sum(chunk.count('797') for chunk in profile_chunks[::2]) == 0,
+                and sum(chunk.count('800') for chunk in profile_chunks[::2]) == 0,
                 'exact original current-profile labels and count guards')
         if count:
-            current = current.replace('740', '797')
-            edits.append(dict(before='740', after='797', count=count))
+            current = current.replace('740', '800')
+            edits.append(dict(before='740', after='800', count=count))
         if name in ('run.py', 'processes.py'):
             require(current.count('current14') == 2 and 'current15' not in current,
                     'exact current object-custody field labels')
@@ -247,8 +247,8 @@ def successor_qualifier(parent, inputs=None):
                 ("receipt['units_planned']==14", "receipt['units_planned']==15"),
                 ("len(receipt['units'])==14", "len(receipt['units'])==15"),
                 ("struct.pack('<3Q',14,4,0)", "struct.pack('<3Q',15,4,0)"),
-                ("'core_functions':797,'units':14,'actual_cold_processes':15",
-                 "'core_functions':797,'units':15,'actual_cold_processes':16"),
+                ("'core_functions':800,'units':14,'actual_cold_processes':15",
+                 "'core_functions':800,'units':15,'actual_cold_processes':16"),
             ):
                 require(current.count(before) == 1 and after not in current,
                         'one exact current cold-build inventory guard: ' + before)
@@ -285,7 +285,7 @@ def successor_qualifier(parent, inputs=None):
     modes['package-manifest.json'] = stat.S_IMODE((parent / 'package-manifest.json').stat().st_mode)
     file_modes = {'parent740/' + name: mode for name, mode in modes.items()}
     file_modes.update({name: mode for name, mode in modes.items() if name != 'package-manifest.json'})
-    manifest = dict(schema='heptatorch.generator797-original-qualification-source.v1',
+    manifest = dict(schema='heptatorch.generator800-original-qualification-source.v1',
         parent740_manifest_sha256=QUALIFIER_MANIFEST,
         source_sha256=CURRENT_SOURCE, native_sha256=CURRENT_IMAGE,
         current_source_manifest_sha256=CURRENT_MANIFEST, current_binding_sha256=CURRENT_BINDING,
@@ -301,7 +301,7 @@ def verify_qualifier(package, inputs=None):
     raw = read(package / 'package-manifest.json', inputs=inputs)
     require(json.loads(raw) == manifest, 'exact derived778 manifest and full frozen740 inverse')
     actual = {str(path.relative_to(package)) for path in package.rglob('*') if path.is_file()}
-    require(actual == set(files) | {'package-manifest.json'}, 'complete current797 qualifier inventory')
+    require(actual == set(files) | {'package-manifest.json'}, 'complete current800 qualifier inventory')
     for name, expected in files.items():
         require(matches(package / name, manifest['files'][name], inputs) == expected,
                 'every generated qualifier file equals its exact profile-only derivation')
