@@ -376,7 +376,7 @@ jobs:
           PYTORCH_INSTALL
 
 
-      - name: Qualify all twenty-eight suites and the independent Generator probe images
+      - name: Qualify all twenty-nine suites and the independent Generator probe images
         id: current_qualification
         if: ${{ !cancelled() && steps.current_build.outcome == 'success' }}
         run: |
@@ -410,7 +410,7 @@ jobs:
           output = Path(os.environ['CURRENT_OUTPUT'])
           output.mkdir(parents=True, exist_ok=True)
           failures, qualification, binding = [], None, None
-          predicate_evidence = bf16_evidence = half_mul_evidence = half_neg_evidence = half_addsub_evidence = wide_neg_evidence = half_div_evidence = public_f64_arithmetic_evidence = same_f64_arithmetic_evidence = None
+          predicate_evidence = bf16_evidence = half_mul_evidence = half_neg_evidence = half_addsub_evidence = wide_neg_evidence = half_div_evidence = public_f64_arithmetic_evidence = same_f64_arithmetic_evidence = typed_relu_evidence = None
           for key in ('TOOLCHAIN_OUTCOME', 'ENTROPY_TOOL_OUTCOME', 'BUILD_OUTCOME', 'ORACLE_OUTCOME', 'QUALIFICATION_OUTCOME'):
               if os.environ.get(key) != 'success':
                   failures.append(key + '=' + os.environ.get(key, 'missing'))
@@ -420,16 +420,16 @@ jobs:
               binding = {'path': 'review/qualification.json', 'bytes': len(raw),
                          'sha256': hashlib.sha256(raw).hexdigest()}
               if qualification['status'] != 'PASS_CURRENT_RUNTIME_FOCUSED':
-                  failures.append('the mandatory twenty-eight-suite qualifier did not pass')
-              if (qualification['required_cases_total'] != 13075
-                      or qualification['executed_cases_total'] != 13075
+                  failures.append('the mandatory twenty-nine-suite qualifier did not pass')
+              if (qualification['required_cases_total'] != 13851
+                      or qualification['executed_cases_total'] != 13851
                       or qualification['required_suites'] != [
-                      'bool27', 'original76', 'integral24', 'sum_f32_17', 'current35', 'base270', 'sum32', 'live32', 'logical147', 'resource7', 'asstrided16', 'cat4', 'metadata10', 'generator131', 'public_f64_logical192', 'f64_48', 'half47', 'half_logical264', 'half_transactions12', 'numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div', 'public_f64_arithmetic', 'same_f64_arithmetic']):
+                      'bool27', 'original76', 'integral24', 'sum_f32_17', 'current35', 'base270', 'sum32', 'live32', 'logical147', 'resource7', 'asstrided16', 'cat4', 'metadata10', 'generator131', 'public_f64_logical192', 'f64_48', 'half47', 'half_logical264', 'half_transactions12', 'numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div', 'public_f64_arithmetic', 'same_f64_arithmetic', 'typed_relu']):
                   failures.append('the mandatory case denominator or suite order changed')
-              if (qualification['functions'] != 773 or qualification['units'] != 15
-                      or qualification['source_sha256'] != '846e592beaa7847383cee668bc33d25cd81e79052bd4612252e2f72a83d96d05'
-                      or qualification['native_sha256'] != '5cba6f11269f71efb319aa7368009055bb2e9b9571329daeae9bbc453287c3ad'):
-                  failures.append('the same complete current773 source and image were not qualified')
+              if (qualification['functions'] != 775 or qualification['units'] != 15
+                      or qualification['source_sha256'] != '0b000b51288af20490162efd8e525b86359a32cdd6d2521df97ecd9cddbd7b43'
+                      or qualification['native_sha256'] != 'ef82340209edc4dfb8d7ed0ecbc65e144fe26078cb29a0ba327798533476e86e'):
+                  failures.append('the same complete current775 source and image were not qualified')
               public_f64 = [row for row in qualification['suites'] if row['name'] == 'public_f64_logical192']
               if (len(public_f64) != 1 or public_f64[0]['status'] != 'PASS'
                       or public_f64[0]['qualified'] is not True or public_f64[0]['cases'] != 192
@@ -528,6 +528,8 @@ jobs:
                   Path.cwd().resolve(), output.resolve())
               same_f64_arithmetic_evidence, same_f64_arithmetic_inputs = custody_module.same_f64_arithmetic_custody(
                   Path.cwd().resolve(), output.resolve())
+              typed_relu_evidence, typed_relu_inputs = custody_module.typed_relu_custody(
+                  Path.cwd().resolve(), output.resolve())
               if (qualification['full_pytorch_rewrite_complete'] is not False
                       or qualification['schema_closure'] is not False
                       or qualification['full_project_status'] != 'HOLD'):
@@ -576,15 +578,16 @@ jobs:
                      'half_div_evidence': half_div_evidence,
                      'public_f64_arithmetic_evidence': public_f64_arithmetic_evidence,
                      'same_f64_arithmetic_evidence': same_f64_arithmetic_evidence,
+                     'typed_relu_evidence': typed_relu_evidence,
                      'failures': failures,
                      'full_pytorch_rewrite_complete': False, 'full_project_status': 'HOLD'}
           (output / 'qualification.json').write_text(json.dumps(summary, indent=2, sort_keys=True) + '\n')
           print(json.dumps(summary, indent=2, sort_keys=True))
           with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a') as stream:
               stream.write('## Current HIA runtime\n\n' + summary['status'] + '\n\n')
-              stream.write('The common local/CI gate requires one complete main cold build and all 13075 finite cases: '
+              stream.write('The common local/CI gate requires one complete main cold build and all 13851 finite cases: '
                            'Bool27, view/scalar76, Integral24, explicit-F32 Sum17, lifecycle35, '
-                           'base/NN270, original F32 Sum32, live Tensor/RNG/backward32, logical147, resource7, original AsStrided16, Cat4, cat metadata10, Generator131, public F64 logical192, original F64 48, Half47, Half logical264, Half transactions12, numeric predicates485, BF16 copy280, Half multiplication312, Half negation371, Half addition/subtraction1006, I64/F64 negation405, Half true division1196, mixed public F64 arithmetic2541 and same public F64 arithmetic5088. '
+                           'base/NN270, original F32 Sum32, live Tensor/RNG/backward32, logical147, resource7, original AsStrided16, Cat4, cat metadata10, Generator131, public F64 logical192, original F64 48, Half47, Half logical264, Half transactions12, numeric predicates485, BF16 copy280, Half multiplication312, Half negation371, Half addition/subtraction1006, I64/F64 negation405, Half true division1196, mixed public F64 arithmetic2541, same public F64 arithmetic5088 and typed ReLU776. '
                            'Every suite must execute and pass. Generator131 additionally links and executes separate '
                            'current-object ABI and reordered probe images; these are not the main executable.\n\n')
               stream.write('Current controls include seven dtype cases, four axis errors, ten entry checks, '
@@ -627,14 +630,14 @@ jobs:
                            'Half multiplication312 requires an explicit AVX2 single-thread pinned Torch reference, '
                            '1,313,608 bitwise elements, 9,696 physical frames, 37,314 assertions and 2,878 full owners; '
                            'four old arithmetic refusals use the same current1006 Torch reference, and two division controls use the shared1196 reference. '
-                           'Half negation371 requires272,444 bitwise elements,11,377 physical frames,37,744 assertions,2,717 full owners, '
+                           'Half negation371 requires272,448 bitwise elements,11,415 physical frames,37,920 assertions,2,729 full owners, '
                            '46 packet controls and two real allocation failures with identical-request recovery. '
                            'Half addition/subtraction1006 requires an independent AVX2 single-thread fixed-wheel reference, '
                            '31,532 physical frames,120,134 assertions,9,186 full owners, four actual allocation recoveries and70 protocol controls. '
                            'Forty original single-command results, two same-frame FE results, four actual Bool subtraction errors '
                            'and eight private-dtype protocol refusals are kept distinct. '
-                           'I64/F64 negation405 binds287,275 exact result elements,10,484 frames,37,314 assertions, '
-                           '2,959 full owners,46 protocol controls and2 actual allocation recoveries. '
+                           'I64/F64 negation405 binds287,279 exact result elements,10,522 frames,37,490 assertions, '
+                           '2,971 full owners,46 protocol controls and2 actual allocation recoveries. '
                            'The same actual405 reference also validates the original F64 negation request. '
                            'Half true division1196 binds2,250,592 exact result elements,38,348 frames,144,654 assertions, '
                            '10,816 full owners,32 protocol controls and2 actual allocation recoveries. The exact same newly executed1196 reference '
@@ -642,9 +645,14 @@ jobs:
                            'Mixed public F64 arithmetic2541 binds460,792 exact result elements,80,200 frames,304,449 assertions, '
                            '22,960 full owners,82 protocol controls and4 actual allocation recoveries. The same actual2541 reference '
                            'also validates22 original single commands and one original FE request; both Bool subtraction refusals remain. '
-                           'Same-F64 NaN payload parity is still open. '
+                           'Same-F645088 requires exact NaN payload and singleton stride/rank parity on this current image. '
                            'Historical reference argv/interpreter gaps remain explicit; the current CI interpreter '
                            'does not replace a historical reference producer.\n\n')
+              stream.write('Typed ReLU776 uses the same current main image and one actual fixed-AVX2 reference. '
+                           'It checks21,863 frames,75,060 assertions,5,672 full owners,559,719 element comparisons, '
+                           '90 protocol controls and4 real allocation failures with identical-request recovery. '
+                           'The two original Half-negation and two original wide-negation ReLU requests retain their input recipes '
+                           'and consume this exact same776 reference. All other old numerical, error, owner and resource checks remain.\n\n')
               stream.write('Numeric predicates485 observes isnan/isinf/isfinite/isposinf/isneginf with a newly '
                            'executed fixed Torch reference. All496 native sessions and11244 frames retain42645 '
                            'assertions,3615 complete owner snapshots and10 complete mapping snapshots. '

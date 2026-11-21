@@ -1,9 +1,11 @@
-"""Exact source773 path obligations for the unchanged seven resource recipes.
+"""Exact source775 path obligations for the unchanged seven resource recipes.
 
 This proves a conditional source relation on the original public0/1/2/private3
 domain. The unchanged complete owner and resource recipes must still execute.
 The original resource requests exclude unary opcode3; new I64/F64 negation
 requires separate successor execution and is not covered by these recipes.
+Typed ReLU operation5 also uses unary opcode3, explicitly absent from all seven
+original resource request streams; its new outcomes require actual execution.
 Half/BF16 division operation4 remains behind the dtype5/6 binary guard, outside
 the original resource owner domain; its new numerical outcomes require their
 own actual execution. Mixed public F64 arithmetic requires an operand dtype4
@@ -19,9 +21,9 @@ import re
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
-SOURCE = '846e592beaa7847383cee668bc33d25cd81e79052bd4612252e2f72a83d96d05'
-IMAGE = '5cba6f11269f71efb319aa7368009055bb2e9b9571329daeae9bbc453287c3ad'
-OUTER = '4fd43c1834a6a5332257d716bdbea967a20e5308e2637826cae19edded58b06d'
+SOURCE = '0b000b51288af20490162efd8e525b86359a32cdd6d2521df97ecd9cddbd7b43'
+IMAGE = 'ef82340209edc4dfb8d7ed0ecbc65e144fe26078cb29a0ba327798533476e86e'
+OUTER = '9c3e95d835c01fc64a19828e60574f47a09c30c106af54f87baa4b0abd4c574c'
 OBLIGATIONS = '4fa8028bec733a72ac2857dce326e25d6d378aafd1045c2504bb5828553cf2bb'
 OWNER = 'e54509ceba0ef3bf171f5fc1018665dc97e56eeccec0cba1e8c14f9a7ed81501'
 CHANGED = ('command_argument', 'dtype_audit', 'to_command', 'typed_command', 'typed_fill')
@@ -54,14 +56,14 @@ def calls(body):
 def prove(source, bind):
     """Purely inspect complete actual source; return no runtime PASS."""
     bind(Path(__file__).resolve())
-    require(sha(source) == SOURCE, 'exact source773 actual resource subject')
+    require(sha(source) == SOURCE, 'exact source775 actual resource subject')
     path = HERE / 'fusion_source_transition.py'
     bind(path, OUTER)
-    spec = importlib.util.spec_from_file_location('resource773_complete_outer_inverse', path)
+    spec = importlib.util.spec_from_file_location('resource775_complete_outer_inverse', path)
     outer = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(outer)
     historical, complete = outer.restore_source(source, bind)
-    actual, parent = outer.functions(source, 773), outer.functions(historical, 700)
+    actual, parent = outer.functions(source, 775), outer.functions(historical, 700)
     predicate_inverse = complete['predicate_source_inverse']
     guard = predicate_inverse['dispatcher_guard']
     delegation = predicate_inverse['old_path_delegation']
@@ -72,7 +74,19 @@ def prove(source, bind):
     div_inverse = complete['half_div_source_inverse']
     arithmetic_inverse = complete['public_f64_arithmetic_source_inverse']
     same_inverse = complete['same_f64_arithmetic_source_inverse']
-    require(same_inverse['source_sha256'] == SOURCE
+    relu_inverse = complete['typed_relu_source_inverse']
+    require(relu_inverse['source_sha256'] == SOURCE
+        and relu_inverse['functions'] == 775 and relu_inverse['parent_functions'] == 773
+        and relu_inverse['changed_functions'] == ['unary']
+        and relu_inverse['appended_functions'] == ['typed_relu_value','typed_relu_tensor']
+        and relu_inverse['unchanged_parent_functions'] == 772
+        and relu_inverse['new_branch_operation'] == 5
+        and relu_inverse['new_branch_dtypes'] == [2,4,5,6]
+        and relu_inverse['previous_unary_path_retained'] is True
+        and relu_inverse['previous_arguments_preserved'] is True
+        and relu_inverse['whole_source_inverse_exact'] is True
+        and relu_inverse['whole_round_trip_exact'] is True
+        and same_inverse['source_sha256'] == relu_inverse['parent_source_sha256']
         and same_inverse['functions'] == same_inverse['parent_functions'] == 773
         and same_inverse['changed_functions'] == ['half_mul_priority','public_f64_binary']
         and same_inverse['unchanged_parent_functions'] == 771
@@ -119,7 +133,7 @@ def prove(source, bind):
         and delegation['complete_parent_body_unchanged'] is True
         and delegation['parent_body_sha256'] == delegation['actual_body_sha256']
             == sha(actual['to_command']),
-        'physical773 entry delegates every original108..119 opcode through the exact six-argument original to_command body')
+        'physical775 entry delegates every original108..119 opcode through the exact six-argument original to_command body')
     predicate_route = dict(
         actual_entry_sha256=sha(actual['entry']),
         actual_predicate_command_sha256=sha(actual['predicate_command']),
@@ -222,7 +236,9 @@ def prove(source, bind):
             == neg_inverse['changed_bodies']['unary']['after_sha256']
         and sha(previous_unary.replace(b'fn half_neg_previous_unary(', b'fn unary(', 1))
             == neg_inverse['changed_bodies']['unary']['before_sha256']
-        and calls(unary) == [b'valid', b'tensor_dtype', b'wide_neg_tensor', b'wide_neg_previous_unary']
+        and sha(unary) == relu_inverse['actual_unary_sha256']
+        and calls(unary) == [b'valid', b'tensor_dtype', b'typed_relu_tensor',
+                             b'tensor_dtype', b'wide_neg_tensor', b'wide_neg_previous_unary']
         and b'  i64_dtype2:u64 = const() {"value":2}\n  f64_dtype2:u64 = const() {"value":4}\n' in unary
         and b'  is_i64_2:bool = compare.eq(dtype2,i64_dtype2)\n'
             b'  is_f64_2:bool = compare.eq(dtype2,f64_dtype2)\n'
@@ -235,13 +251,18 @@ def prove(source, bind):
             b'  reduced2:bool = bool.or(half2,bf2)\n' in wide_previous_unary
         and b'  branch reduced2 negative(s2,o2,x2) previous(s2,o2,x2)\n' in wide_previous_unary
         and b'  y4:u64 = call(s4,o4,x4) {"function":"half_neg_previous_unary"}\n  ret(y4)\n' in wide_previous_unary,
-        'complete wide and retained Half wrappers preserve the exact original unary body for dtype0/1/3')
+        'complete typed ReLU, wide and retained Half wrappers preserve the exact original unary body for dtype0/1/3')
     unary_route = dict(actual_unary_sha256=sha(unary),
+        typed_relu_source_inverse=relu_inverse,
+        new_relu_operation=5, new_relu_operand_dtypes=[2,4,5,6],
+        new_relu_branch_reachable_for_original_resource_requests=False,
+        new_relu_outcomes_require_separate_successor_evidence=True,
         retained_wide_previous_unary_sha256=sha(wide_previous_unary),
         retained_previous_unary_sha256=sha(previous_unary),
         predecessor_unary_sha256=neg_inverse['changed_bodies']['unary']['before_sha256'],
         declaration_name_inverse_exact=True, delegated_argument_order_unchanged=True,
-        extra_pre_route_calls=['valid(input)', 'tensor_dtype(input)', 'valid(input)', 'tensor_dtype(input)'],
+        extra_pre_route_calls=['valid(input)', 'tensor_dtype(input)', 'tensor_dtype(input)',
+                              'valid(input)', 'tensor_dtype(input)'],
         new_arithmetic_branch_requires_operand_dtype=[2,4,5,6],
         wide_branch_operand_dtype=[2,4], retained_half_branch_operand_dtype=[5,6],
         original_dtype_domain_live_operands_that_delegate=[0,1,3],
@@ -425,8 +446,8 @@ def prove(source, bind):
     body = ast.get_source_segment(owner.decode(), fn).encode()
     require(body.count(b'need(dtype in (0, 1, 2, 3), "dtype-code", node=i)') == 1,
             'unchanged full owner still rejects public4/5/6 in the original resource recipe domain')
-    return dict(schema='heptatorch.fusion773.resource7-source-paths.v1', source_sha256=SOURCE,
-        native_sha256=IMAGE, functions=773, units=15, outer_source_inverse=complete,
+    return dict(schema='heptatorch.fusion775.resource7-source-paths.v1', source_sha256=SOURCE,
+        native_sha256=IMAGE, functions=775, units=15, outer_source_inverse=complete,
         changed_R4_obligations=list(CHANGED), obligations={n:rows[n] for n in CHANGED},
         binary_original_domain_route=binary_route,
         unary_original_domain_route=unary_route,

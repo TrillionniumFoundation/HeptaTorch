@@ -52,10 +52,20 @@ class Successor:
         _,observer_proof=observer.restore_negation_helper(inputs.bind(helper),inputs.bind)
         require(Path(negation.prepare_entry.__code__.co_filename).resolve()==helper,
             'actual prior negation uses the exact interface-only refactor')
+        relu=module(self.repository/'tools/current_runtime/typed_relu_source_transition.py',
+            'f6448_typed_relu_whole_source_inverse',inputs)
+        same773,relu_source_proof=relu.restore_source(
+            inputs.bind(self.repository/'tools/current_runtime/source/runtime.hepta'),inputs.bind)
+        require(relu_source_proof['functions']==775 and relu_source_proof['parent_functions']==773
+            and relu_source_proof['changed_functions']==['unary']
+            and relu_source_proof['whole_source_inverse_exact'] is True
+            and relu_source_proof['whole_round_trip_exact'] is True,
+            'complete typed ReLU775 inverse before the frozen same-F64 source')
         same=module(self.repository/'tools/current_runtime/same_f64_arithmetic_source_transition.py',
             'f6448_same_f64_whole_source_inverse',inputs)
-        previous773,same_source_proof=same.restore_source(inputs.bind(self.repository/'tools/current_runtime/source/runtime.hepta'),inputs.bind)
-        require(same_source_proof['functions']==same_source_proof['parent_functions']==773
+        previous773,same_source_proof=same.restore_source(same773,inputs.bind)
+        require(same.SOURCE==relu.PARENT_SOURCE
+            and same_source_proof['functions']==same_source_proof['parent_functions']==773
             and same_source_proof['changed_functions']==['half_mul_priority','public_f64_binary']
             and same_source_proof['whole_source_inverse_exact'] is True
             and same_source_proof['whole_round_trip_exact'] is True,
@@ -111,7 +121,9 @@ class Successor:
             retained_refusals=63,accepted_successors=24,new_arithmetic_successors=23,
             retained_negation_successors=1,retained_bool_subtraction_refusals=2,
             labels=list(LABELS),retained_bool_labels=list(RETAINED_BOOL),single_command_successors=22,
-            original_FE_successors=1,source_inverse=same_source_proof,mixed_predecessor_source_inverse=source_proof,negation_observer_inverse=observer_proof,
+            original_FE_successors=1,source_inverse=relu_source_proof,
+            same_f64_predecessor_source_inverse=same_source_proof,
+            mixed_predecessor_source_inverse=source_proof,negation_observer_inverse=observer_proof,
             prior_negation_reference_sha256=negation.proof['reference_sha256'],
             original_frozen_recipe_modified=False,original87_entry_code_object_preserved=True,
             original_negation_numeric_predicates_unchanged=True,actual_Torch_reference_verified=True,

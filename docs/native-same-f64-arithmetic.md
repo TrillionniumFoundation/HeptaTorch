@@ -101,7 +101,7 @@ recovered by an exact observer inverse; only source admission and the now-false
 "legacy same-F64 route unchanged" marker change. No earlier numerical success is
 transferred to this image.
 
-The [qualification plan](../validation/current-runtime-same-f64/qualification-plan.json)
+The [qualification plan](../validation/current-runtime775/qualification-plan.json)
 and [actual execution review](../validation/current-runtime-same-f64/native-review.json)
 record the current scoped results and the requirement for complete new-tree CI,
 separately executed Generator images, all other head checks and complete original

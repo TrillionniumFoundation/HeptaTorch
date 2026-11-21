@@ -1,0 +1,205 @@
+{
+  "actual_allocation_controls": {
+    "half_neg": 2,
+    "wide_neg": 2
+  },
+  "files": {
+    "tests/half_neg/run.py": {
+      "edits": [
+        {
+          "after": "from numeric_predicates.run import Inputs\nimport current_runtime_typed_relu_controls as relu_controls\n",
+          "before": "from numeric_predicates.run import Inputs\n",
+          "occurrences": 1
+        },
+        {
+          "after": "def compare(n,row,typed_relu_reference):\n",
+          "before": "def compare(n,row):\n",
+          "occurrences": 1
+        },
+        {
+          "after": "    controls=0;typed_relu_successors=[]\n    if spec.get('controls'):\n",
+          "before": "    controls=0\n    if spec.get('controls'):\n",
+          "occurrences": 1
+        },
+        {
+          "after": "            if operation==5:\n                typed_relu_successors.append(relu_controls.compare(n,row,source,result,generator,typed_relu_reference,'half_neg'))\n            else:\n                refused,_,_,_=n.issue(n.wire.packet([(3,operation,source)]))\n                n.check('unimplemented Half unary remains an explicit refusal',refused,7)\n            controls+=1\n",
+          "before": "            refused,_,_,_=n.issue(n.wire.packet([(3,operation,source)]))\n            n.check('unimplemented Half unary remains an explicit refusal',refused,7);controls+=1\n",
+          "occurrences": 1
+        },
+        {
+          "after": "    allocation=None;elements=actual['numel']+sum(item['elements'] for item in typed_relu_successors)\n",
+          "before": "    allocation=None;elements=actual['numel']\n",
+          "occurrences": 1
+        },
+        {
+          "after": "        bitwise=True,controls=controls,allocation_control=allocation,typed_relu_successors=typed_relu_successors)\n",
+          "before": "        bitwise=True,controls=controls,allocation_control=allocation)\n",
+          "occurrences": 1
+        },
+        {
+          "after": "heptatorch.half-neg.native-observation.v2",
+          "before": "heptatorch.half-neg.native-observation.v1",
+          "occurrences": 2
+        },
+        {
+          "after": "    require(reference['report_sha256']==report['reference_sha256'],'exact independent original reference')\n    typed_relu_reference=relu_controls.read_reference(ROOT,\n        Path(report['typed_relu_reference_directory']).resolve(strict=True),\n        Path(report['typed_relu_reference_process_directory']).resolve(strict=True),inputs)\n    require(typed_relu_reference['report_sha256']==report['typed_relu_reference_sha256']\n        and typed_relu_reference['admission']['reference_process_sha256']==report['typed_relu_reference_process_sha256']\n        and typed_relu_reference['admission']==report['typed_relu_reference_admission']\n        and typed_relu_reference['report']['actual_process']['python']==reference['report']['actual_process']['python'],\n        'same complete actual776 reference, process, fixed interpreter and exact four original recipes')\n    typed_relu_successors=[]\n",
+          "before": "    require(reference['report_sha256']==report['reference_sha256'],'exact independent original reference')\n",
+          "occurrences": 1
+        },
+        {
+          "after": "observed=compare(n,row,typed_relu_reference);finish=session.finish()",
+          "before": "observed=compare(n,row);finish=session.finish()",
+          "occurrences": 1
+        },
+        {
+          "after": "        mappings+=finish['mapping_reads'];protocol_controls+=observed['controls']\n        typed_relu_successors.extend(observed['typed_relu_successors'])\n",
+          "before": "        mappings+=finish['mapping_reads'];protocol_controls+=observed['controls']\n",
+          "occurrences": 1
+        },
+        {
+          "after": "    require(allocation_refusals==2 and protocol_controls==46,'both actual allocation failures and all46 protocol controls')\n    typed_relu_proof=relu_controls.qualify_successors(typed_relu_reference,typed_relu_successors,'half_neg')\n",
+          "before": "    require(allocation_refusals==2 and protocol_controls==46,'both actual allocation failures and all46 protocol controls')\n",
+          "occurrences": 1
+        },
+        {
+          "after": "        Torch_executed_by_qualifier=False,reference_sha256=reference['report_sha256'],\n        typed_relu_reference_sha256=typed_relu_reference['report_sha256'],\n        typed_relu_reference_process_sha256=typed_relu_reference['admission']['reference_process_sha256'],\n        typed_relu_control_successors=typed_relu_proof,\n",
+          "before": "        Torch_executed_by_qualifier=False,reference_sha256=reference['report_sha256'],\n",
+          "occurrences": 1
+        },
+        {
+          "after": "    parser.add_argument('--reference-execution',type=Path)\n    parser.add_argument('--typed-relu-reference-directory',type=Path,required=True)\n    parser.add_argument('--typed-relu-reference-execution',type=Path,required=True)\n",
+          "before": "    parser.add_argument('--reference-execution',type=Path)\n",
+          "occurrences": 1
+        },
+        {
+          "after": "        reference=read_reference(reference_directory,execution,inputs)\n        typed_relu_reference=relu_controls.read_reference(ROOT,args.typed_relu_reference_directory,\n            args.typed_relu_reference_execution,inputs)\n        require(typed_relu_reference['report']['actual_process']['python']==reference['report']['actual_process']['python'],\n            'the shared ReLU and original negation observations used the identical fixed interpreter')\n        report.update(typed_relu_reference_directory=typed_relu_reference['admission']['reference_directory'],\n            typed_relu_reference_process_directory=typed_relu_reference['admission']['reference_process_directory'],\n            typed_relu_reference_sha256=typed_relu_reference['report_sha256'],\n            typed_relu_reference_process_sha256=typed_relu_reference['admission']['reference_process_sha256'],\n            typed_relu_reference_admission=typed_relu_reference['admission'])\n",
+          "before": "        reference=read_reference(reference_directory,execution,inputs)\n",
+          "occurrences": 1
+        },
+        {
+          "after": "saved['result']=compare(n,row,typed_relu_reference);saved['status']='PASS'",
+          "before": "saved['result']=compare(n,row);saved['status']='PASS'",
+          "occurrences": 1
+        }
+      ],
+      "parent_bytes": 20801,
+      "parent_sha256": "02f0ebfd4478179bf3e805ecde751fae087d76738385b9a2ec1cc6f8f28bc51d",
+      "source_bytes": 23496,
+      "source_sha256": "f36fe06d82b539d5f4d3324a91ce2d0d9ab6a9d2033892e274d8c1377c53bec2"
+    },
+    "tests/wide_neg/run.py": {
+      "edits": [
+        {
+          "after": "from numeric_predicates.run import Inputs\nimport current_runtime_typed_relu_controls as relu_controls\n",
+          "before": "from numeric_predicates.run import Inputs\n",
+          "occurrences": 1
+        },
+        {
+          "after": "def compare(n,row,typed_relu_reference):\n",
+          "before": "def compare(n,row):\n",
+          "occurrences": 1
+        },
+        {
+          "after": "    controls=0;typed_relu_successors=[]\n    if spec.get('controls'):\n",
+          "before": "    controls=0\n    if spec.get('controls'):\n",
+          "occurrences": 1
+        },
+        {
+          "after": "            if operation==5:\n                typed_relu_successors.append(relu_controls.compare(n,row,source,result,generator,typed_relu_reference,'wide_neg'))\n            else:\n                refused,_,_,_=n.issue(n.wire.packet([(3,operation,source)]))\n                n.check('unimplemented I64/F64 unary remains an explicit refusal',refused,7)\n            controls+=1\n",
+          "before": "            refused,_,_,_=n.issue(n.wire.packet([(3,operation,source)]))\n            n.check('unimplemented I64/F64 unary remains an explicit refusal',refused,7);controls+=1\n",
+          "occurrences": 1
+        },
+        {
+          "after": "    allocation=None;elements=actual['numel']+sum(item['elements'] for item in typed_relu_successors)\n",
+          "before": "    allocation=None;elements=actual['numel']\n",
+          "occurrences": 1
+        },
+        {
+          "after": "        bitwise=True,controls=controls,allocation_control=allocation,typed_relu_successors=typed_relu_successors)\n",
+          "before": "        bitwise=True,controls=controls,allocation_control=allocation)\n",
+          "occurrences": 1
+        },
+        {
+          "after": "heptatorch.wide-neg.native-observation.v2",
+          "before": "heptatorch.wide-neg.native-observation.v1",
+          "occurrences": 2
+        },
+        {
+          "after": "    require(reference['report_sha256']==report['reference_sha256'],'exact independent original reference')\n    typed_relu_reference=relu_controls.read_reference(ROOT,\n        Path(report['typed_relu_reference_directory']).resolve(strict=True),\n        Path(report['typed_relu_reference_process_directory']).resolve(strict=True),inputs)\n    require(typed_relu_reference['report_sha256']==report['typed_relu_reference_sha256']\n        and typed_relu_reference['admission']['reference_process_sha256']==report['typed_relu_reference_process_sha256']\n        and typed_relu_reference['admission']==report['typed_relu_reference_admission']\n        and typed_relu_reference['report']['actual_process']['python']==reference['report']['actual_process']['python'],\n        'same complete actual776 reference, process, fixed interpreter and exact four original recipes')\n    typed_relu_successors=[]\n",
+          "before": "    require(reference['report_sha256']==report['reference_sha256'],'exact independent original reference')\n",
+          "occurrences": 1
+        },
+        {
+          "after": "observed=compare(n,row,typed_relu_reference);finish=session.finish()",
+          "before": "observed=compare(n,row);finish=session.finish()",
+          "occurrences": 1
+        },
+        {
+          "after": "        mappings+=finish['mapping_reads'];protocol_controls+=observed['controls']\n        typed_relu_successors.extend(observed['typed_relu_successors'])\n",
+          "before": "        mappings+=finish['mapping_reads'];protocol_controls+=observed['controls']\n",
+          "occurrences": 1
+        },
+        {
+          "after": "    require(allocation_refusals==2 and protocol_controls==46,'both actual allocation failures and all46 protocol controls')\n    typed_relu_proof=relu_controls.qualify_successors(typed_relu_reference,typed_relu_successors,'wide_neg')\n",
+          "before": "    require(allocation_refusals==2 and protocol_controls==46,'both actual allocation failures and all46 protocol controls')\n",
+          "occurrences": 1
+        },
+        {
+          "after": "        Torch_executed_by_qualifier=False,reference_sha256=reference['report_sha256'],\n        typed_relu_reference_sha256=typed_relu_reference['report_sha256'],\n        typed_relu_reference_process_sha256=typed_relu_reference['admission']['reference_process_sha256'],\n        typed_relu_control_successors=typed_relu_proof,\n",
+          "before": "        Torch_executed_by_qualifier=False,reference_sha256=reference['report_sha256'],\n",
+          "occurrences": 1
+        },
+        {
+          "after": "    parser.add_argument('--reference-execution',type=Path)\n    parser.add_argument('--typed-relu-reference-directory',type=Path,required=True)\n    parser.add_argument('--typed-relu-reference-execution',type=Path,required=True)\n",
+          "before": "    parser.add_argument('--reference-execution',type=Path)\n",
+          "occurrences": 1
+        },
+        {
+          "after": "        reference=read_reference(reference_directory,execution,inputs)\n        typed_relu_reference=relu_controls.read_reference(ROOT,args.typed_relu_reference_directory,\n            args.typed_relu_reference_execution,inputs)\n        require(typed_relu_reference['report']['actual_process']['python']==reference['report']['actual_process']['python'],\n            'the shared ReLU and original negation observations used the identical fixed interpreter')\n        report.update(typed_relu_reference_directory=typed_relu_reference['admission']['reference_directory'],\n            typed_relu_reference_process_directory=typed_relu_reference['admission']['reference_process_directory'],\n            typed_relu_reference_sha256=typed_relu_reference['report_sha256'],\n            typed_relu_reference_process_sha256=typed_relu_reference['admission']['reference_process_sha256'],\n            typed_relu_reference_admission=typed_relu_reference['admission'])\n",
+          "before": "        reference=read_reference(reference_directory,execution,inputs)\n",
+          "occurrences": 1
+        },
+        {
+          "after": "saved['result']=compare(n,row,typed_relu_reference);saved['status']='PASS'",
+          "before": "saved['result']=compare(n,row);saved['status']='PASS'",
+          "occurrences": 1
+        }
+      ],
+      "parent_bytes": 21126,
+      "parent_sha256": "d78951f3a5e5e445943fa9b4dd303b8097472732db3d28ff3dedb95de3058822",
+      "source_bytes": 23821,
+      "source_sha256": "2ea0b003bdc371446da8efee479fb1b501808410fe9e48de8232babcbd4ad35f"
+    },
+    "tools/current_runtime/half_addsub_observer_transition.py": {
+      "edits": [
+        {
+          "after": "    root=Path(__file__).resolve().parents[2]\n    relu_path=Path(__file__).with_name('typed_relu_observer_transition.py');bind(relu_path)\n    relu_spec=importlib.util.spec_from_file_location('half_mul_negation_relu_observer_inverse',relu_path)\n    relu_inverse=importlib.util.module_from_spec(relu_spec);relu_spec.loader.exec_module(relu_inverse)\n    negation_relu_proof=None\n    for path,expected in NEGATION_INPUTS.items():\n        original=bind(root/path)\n        if path=='tests/half_neg/run.py':\n            original,negation_relu_proof=relu_inverse.restore_runner(original,path,bind)\n        require(sha(original)==expected,'unchanged complete371-case negation observer: '+path)\n",
+          "before": "    root=Path(__file__).resolve().parents[2]\n    for path,expected in NEGATION_INPUTS.items():\n        require(sha(bind(root/path))==expected,'unchanged complete371-case negation observer: '+path)\n",
+          "occurrences": 1
+        },
+        {
+          "after": "        native_division_observer_inverse=division_proof,\n        native_typed_relu_negation_observer_inverse=negation_relu_proof,\n",
+          "before": "        native_division_observer_inverse=division_proof,\n",
+          "occurrences": 1
+        }
+      ],
+      "parent_bytes": 3833,
+      "parent_sha256": "0aa60a3db378b5ee2c2a7532e565b18086e09d24d4b6bc8b959e961fdebedc1b",
+      "source_bytes": 4393,
+      "source_sha256": "6fd57a6a8ac2afc8965089eae04e26b4e392611a78f6ffa764e9496534367621"
+    }
+  },
+  "original_cases": {
+    "half_neg": 371,
+    "wide_neg": 405
+  },
+  "original_protocol_control_slots": {
+    "half_neg": 46,
+    "wide_neg": 46
+  },
+  "replaced_refusals": {
+    "half_neg": 2,
+    "wide_neg": 2
+  },
+  "schema": "heptatorch.typed-relu-four-negation-controls.observer-delta.v1"
+}

@@ -17,10 +17,10 @@ from pathlib import Path, PurePosixPath
 GROUPS = ('bool27', 'original76', 'integral24', 'sum_f32_17', 'current35',
           'base270', 'sum32', 'live32', 'logical147', 'resource7', 'asstrided16',
           'cat4', 'metadata10', 'generator131', 'public_f64_logical192',
-          'f64_48', 'half47', 'half_logical264', 'half_transactions12', 'numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div', 'public_f64_arithmetic', 'same_f64_arithmetic')
-SOURCE = '846e592beaa7847383cee668bc33d25cd81e79052bd4612252e2f72a83d96d05'
-IMAGE = '5cba6f11269f71efb319aa7368009055bb2e9b9571329daeae9bbc453287c3ad'
-SOURCE_MANIFEST = '62795753a0e782fe3f75b9086653d41aba743fda356673398c12432d576fac15'
+          'f64_48', 'half47', 'half_logical264', 'half_transactions12', 'numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div', 'public_f64_arithmetic', 'same_f64_arithmetic', 'typed_relu')
+SOURCE = '0b000b51288af20490162efd8e525b86359a32cdd6d2521df97ecd9cddbd7b43'
+IMAGE = 'ef82340209edc4dfb8d7ed0ecbc65e144fe26078cb29a0ba327798533476e86e'
+SOURCE_MANIFEST = '348ed8e949256f985cdca0d9c612dc646ae738beee6013c27ab405d2df3e67c8'
 NUMERIC_CASES = '272c9b4fbde339481c32f2ed071dd8c60c9c3b17732e71e2178d973914c79609'
 NUMERIC_PROOF = dict(cases=485, native_sessions=496, frames=11244, assertions=42645,
     owner_snapshots=3615, mapping_snapshots=10, additional_packet_controls=56,
@@ -76,21 +76,45 @@ HALF_MUL_PROOF = {'Torch_executed_by_qualifier': False,
  'requested_cpu_capability': 'avx2',
  'torch_threads': 1}
 HALF_NEG_CASES = 'cb177901644162f6f127fd4aa6e4dfe0665f7c708d91d5afdd593b52fcd2897c'
-HALF_NEG_PROOF = dict(cases=371, native_sessions=371, frames=11377, assertions=37744,
-    owner_snapshots=2717, bitwise_elements=272444, mapping_reads=4,
-    actual_allocation_refusals=2, identical_request_recoveries=2, protocol_controls=46,
-    physical_replay=True, native_executed_by_qualifier=False, Torch_executed_by_qualifier=False,
-    host_expected_values_computed=False, full_project_status='HOLD',
-    cpu_capability='AVX2', requested_cpu_capability='avx2', torch_threads=1,
-    original_refusal_successors=['unsupported-half5-neg', 'unsupported-half6-neg'])
+HALF_NEG_PROOF = {'Torch_executed_by_qualifier': False,
+ 'actual_allocation_refusals': 2,
+ 'assertions': 37920,
+ 'bitwise_elements': 272448,
+ 'cases': 371,
+ 'cpu_capability': 'AVX2',
+ 'frames': 11415,
+ 'full_project_status': 'HOLD',
+ 'host_expected_values_computed': False,
+ 'identical_request_recoveries': 2,
+ 'mapping_reads': 4,
+ 'native_executed_by_qualifier': False,
+ 'native_sessions': 371,
+ 'original_refusal_successors': ['unsupported-half5-neg', 'unsupported-half6-neg'],
+ 'owner_snapshots': 2729,
+ 'physical_replay': True,
+ 'protocol_controls': 46,
+ 'requested_cpu_capability': 'avx2',
+ 'torch_threads': 1}
 WIDE_NEG_CASES = '22063936e50a4e5da53be543fecc446a0fef529712da140a9afdb863b69da73a'
-WIDE_NEG_PROOF = dict(cases=405, native_sessions=405, frames=10484, assertions=37314,
-    owner_snapshots=2959, bitwise_elements=287275, mapping_reads=4,
-    actual_allocation_refusals=2, identical_request_recoveries=2, protocol_controls=46,
-    physical_replay=True, native_executed_by_qualifier=False, Torch_executed_by_qualifier=False,
-    host_expected_values_computed=False, full_project_status='HOLD',
-    cpu_capability='AVX2', requested_cpu_capability='avx2', torch_threads=1,
-    original_refusal_successors=['unsupported-F64-neg'])
+WIDE_NEG_PROOF = {'Torch_executed_by_qualifier': False,
+ 'actual_allocation_refusals': 2,
+ 'assertions': 37490,
+ 'bitwise_elements': 287279,
+ 'cases': 405,
+ 'cpu_capability': 'AVX2',
+ 'frames': 10522,
+ 'full_project_status': 'HOLD',
+ 'host_expected_values_computed': False,
+ 'identical_request_recoveries': 2,
+ 'mapping_reads': 4,
+ 'native_executed_by_qualifier': False,
+ 'native_sessions': 405,
+ 'original_refusal_successors': ['unsupported-F64-neg'],
+ 'owner_snapshots': 2971,
+ 'physical_replay': True,
+ 'protocol_controls': 46,
+ 'requested_cpu_capability': 'avx2',
+ 'torch_threads': 1}
 HALF_ADDSUB_CASES = '07fee181f5b4ea4eff68ccb98c15fbfaf1b81e4b39f0573b21489681443aeea8'
 HALF_ADDSUB_PROOF = {'Torch_executed_by_qualifier': False,
  'actual_allocation_refusals': 4,
@@ -375,7 +399,10 @@ REPOSITORY_PATHS = (
     'validation/public-f64-logical192-reference',
     'validation/current-f64-48-source', 'validation/current-f64-48-reference',
     'validation/current-half47-source', 'validation/current-half47-reference',
-    'validation/current-runtime-same-f64/qualification-plan.json',
+    'validation/current-runtime775/qualification-plan.json',
+    'validation/current-runtime775/native-review.json',
+    'validation/current-runtime775/source-review.json',
+    'docs/native-typed-relu.md',
     'validation/current-runtime-same-f64/native-review.json',
     'validation/current-runtime-same-f64/source-review.json',
     'validation/current-runtime-same-f64/legacy-source143-retirement.json',
@@ -384,6 +411,27 @@ REPOSITORY_PATHS = (
     'validation/current-runtime771/native-review.json',
     'validation/half-logical264-reference',
 )
+TYPED_RELU_CASES = '117a548388a0ca08715e5922abb2ea0bf4b1d3b346ee3212238316400378367f'
+TYPED_RELU_PROOF = {'Torch_executed_by_qualifier': False,
+ 'actual_allocation_refusals': 4,
+ 'assertions': 75060,
+ 'bitwise_elements': 559719,
+ 'cases': 776,
+ 'cpu_capability': 'AVX2',
+ 'frames': 21863,
+ 'full_project_status': 'HOLD',
+ 'host_expected_values_computed': False,
+ 'identical_request_recoveries': 4,
+ 'mapping_reads': 8,
+ 'native_executed_by_qualifier': False,
+ 'native_sessions': 776,
+ 'original_refusal_successors': [],
+ 'owner_snapshots': 5672,
+ 'physical_replay': True,
+ 'protocol_controls': 90,
+ 'requested_cpu_capability': 'avx2',
+ 'torch_threads': 1}
+
 REFERENCE_INTERPRETER_PACKAGES = (
     'validation/cat-metadata10-reference', 'validation/public-f64-logical192-reference',
 )
@@ -470,6 +518,16 @@ REQUIRED_OUTPUTS += ('review/same_f64_arithmetic/physical-qualification.json',
  'review/same_f64_arithmetic-execution/runner.json',
  'review/same_f64_arithmetic-execution/runner.stdout',
  'review/same_f64_arithmetic-execution/runner.stderr')
+REQUIRED_OUTPUTS += ('review/typed_relu/physical-qualification.json',
+ 'review/references/typed-relu776/report.json',
+ 'review/references/typed-relu776-execution/process.json',
+ 'review/references/typed-relu776-execution/runner.json',
+ 'review/references/typed-relu776-execution/runner.stdout',
+ 'review/references/typed-relu776-execution/runner.stderr',
+ 'review/typed_relu-execution/intent.json',
+ 'review/typed_relu-execution/runner.json',
+ 'review/typed_relu-execution/runner.stdout',
+ 'review/typed_relu-execution/runner.stderr')
 INPUT_REPORTS = ('build/build.json', 'review/qualification.json',) + tuple(
     'review/' + name + '/report.json' for name in GROUPS) + (
         'review/base270/current-adapter.json', 'review/base270/cold-build-admission.json',
@@ -534,6 +592,12 @@ INPUT_REPORTS += ('review/same_f64_arithmetic/physical-qualification.json',
  'review/references/same-f64-arithmetic5088-execution/runner.json',
  'review/same_f64_arithmetic-execution/intent.json',
  'review/same_f64_arithmetic-execution/runner.json')
+INPUT_REPORTS += ('review/typed_relu/physical-qualification.json',
+ 'review/references/typed-relu776/report.json',
+ 'review/references/typed-relu776-execution/process.json',
+ 'review/references/typed-relu776-execution/runner.json',
+ 'review/typed_relu-execution/intent.json',
+ 'review/typed_relu-execution/runner.json')
 INPUT_TABLES = ('checked_inputs', 'inputs', 'files', 'source_custody')
 
 
@@ -803,7 +867,7 @@ def live_reference_custody(repo, current, group):
     It performs no Tensor calculation, native execution or case admission.
     The reference digest comes from this run's physical report, never a prior run.
     """
-    if group not in ('numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div', 'public_f64_arithmetic', 'same_f64_arithmetic'):
+    if group not in ('numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div', 'public_f64_arithmetic', 'same_f64_arithmetic', 'typed_relu'):
         raise ValueError('unknown mandatory live-reference group')
     numeric = group == 'numeric_predicates'
     multiplication = group == 'half_mul'
@@ -812,29 +876,31 @@ def live_reference_custody(repo, current, group):
     division = group == 'half_div'
     mixed = group == 'public_f64_arithmetic'
     same = group == 'same_f64_arithmetic'
+    rectification = group == 'typed_relu'
     shared_reference = {'half_mul': 'half-mul312', 'half_neg': 'half-neg371',
                         'half_addsub': 'half-addsub1006', 'wide_neg': 'wide-neg405',
                         'half_div': 'half-div1196',
                         'public_f64_arithmetic': 'public-f64-arithmetic2541',
-                        'same_f64_arithmetic': 'same-f64-arithmetic5088'}.get(group)
+                        'same_f64_arithmetic': 'same-f64-arithmetic5088',
+                        'typed_relu': 'typed-relu776'}.get(group)
     namespace = {'numeric_predicates': 'numeric-predicates', 'bf16_copy': 'bf16-copy',
                  'half_mul': 'half-mul', 'half_neg': 'half-neg', 'half_addsub': 'half-addsub',
                  'wide_neg': 'wide-neg', 'half_div': 'half-div',
                  'public_f64_arithmetic': 'public-f64-arithmetic',
-                 'same_f64_arithmetic': 'same-f64-arithmetic'}[group]
+                 'same_f64_arithmetic': 'same-f64-arithmetic', 'typed_relu': 'typed-relu'}[group]
     reference_status = 'OBSERVED_' + group.upper()
     physical_status = 'PASS_PHYSICAL_' + group.upper()
     template = {'numeric_predicates': NUMERIC_PROOF, 'bf16_copy': BF16_PROOF,
                 'half_mul': HALF_MUL_PROOF, 'half_neg': HALF_NEG_PROOF, 'half_addsub': HALF_ADDSUB_PROOF,
                 'wide_neg': WIDE_NEG_PROOF, 'half_div': HALF_DIV_PROOF,
                 'public_f64_arithmetic': PUBLIC_F64_ARITHMETIC_PROOF,
-                'same_f64_arithmetic': SAME_F64_ARITHMETIC_PROOF}[group]
+                'same_f64_arithmetic': SAME_F64_ARITHMETIC_PROOF, 'typed_relu': TYPED_RELU_PROOF}[group]
     cases = template['cases']
     case_sha = {'numeric_predicates': NUMERIC_CASES, 'bf16_copy': BF16_CASES,
                 'half_mul': HALF_MUL_CASES, 'half_neg': HALF_NEG_CASES, 'half_addsub': HALF_ADDSUB_CASES,
                 'wide_neg': WIDE_NEG_CASES, 'half_div': HALF_DIV_CASES,
                 'public_f64_arithmetic': PUBLIC_F64_ARITHMETIC_CASES,
-                'same_f64_arithmetic': SAME_F64_ARITHMETIC_CASES}[group]
+                'same_f64_arithmetic': SAME_F64_ARITHMETIC_CASES, 'typed_relu': TYPED_RELU_CASES}[group]
     bindings = {}
 
     def need(condition, message):
@@ -862,13 +928,13 @@ def live_reference_custody(repo, current, group):
     qualification_path = current / 'review/qualification.json'
     qualification = document(qualification_path)
     check_fields(qualification, dict(schema='heptatorch.current-runtime.qualification.v1',
-        required_suites=list(GROUPS), required_cases_total=13075, functions=773, units=15,
-        source_sha256=SOURCE, native_sha256=IMAGE), 'exact current773 twenty-eight-suite inventory and image')
+        required_suites=list(GROUPS), required_cases_total=13851, functions=775, units=15,
+        source_sha256=SOURCE, native_sha256=IMAGE), 'exact current775 twenty-nine-suite inventory and image')
     manifest_raw = bind(repo / 'tools/current_runtime/source/manifest.json', SOURCE_MANIFEST)
     need(bind(current / 'build/manifest.json', SOURCE_MANIFEST) == manifest_raw,
          'the actual cold build used the final complete source manifest')
     manifest = json.loads(manifest_raw)
-    need(manifest['runtime']['sha256'] == SOURCE and manifest['runtime']['functions'] == 773
+    need(manifest['runtime']['sha256'] == SOURCE and manifest['runtime']['functions'] == 775
          and manifest['expected_native_sha256'] == IMAGE and len(manifest['units']) == 15,
          'final complete source and image pins')
     bind(current / 'build/runtime.hepta', SOURCE)
@@ -876,7 +942,7 @@ def live_reference_custody(repo, current, group):
     build_raw = bind(current / 'build/build.json')
     build_sha = digest(build_raw)
     check_fields(json.loads(build_raw), dict(status='PASS_NATIVE_BUILD_ONLY', source_sha256=SOURCE,
-        native_sha256=IMAGE, manifest_sha256=SOURCE_MANIFEST, functions=773, units_planned=15),
+        native_sha256=IMAGE, manifest_sha256=SOURCE_MANIFEST, functions=775, units_planned=15),
         'actual final cold build identity')
     need(qualification['actual_build_sha256'] == build_sha, 'qualifier binds this actual cold build')
     rows = [row for row in qualification['suites'] if row['name'] == group]
@@ -896,9 +962,9 @@ def live_reference_custody(repo, current, group):
         native_extras['mapping_reads'] = 4
     if addition:
         native_extras['mapping_reads'] = 12
-    if mixed or same:
+    if mixed or same or rectification:
         native_extras['mapping_reads'] = template['mapping_reads']
-    schema_version = 'v2' if multiplication or addition else 'v1'
+    schema_version = 'v2' if multiplication or addition or negation else 'v1'
     check_fields(native, dict(schema='heptatorch.' + namespace + '.native-observation.' + schema_version, status='PASS',
         group=group, cases=cases, expected_cases=cases, case_sha256=case_sha,
         source_sha256=SOURCE, native_sha256=IMAGE, actual_build_sha256=build_sha,
@@ -964,6 +1030,52 @@ def live_reference_custody(repo, current, group):
     successor_evidence = None
     division_bindings = {}
     division_evidence = None
+    relu_bindings = {}
+    relu_evidence = None
+    relu_observer_proof = None
+    relu_source_proof = None
+    if rectification:
+        transition_path = repo / 'tools/current_runtime/typed_relu_source_transition.py'
+        bind(transition_path, 'd06390c160833aa829c1a65cffa5ed8698d7aa23b72675c2942fca006f5350f9')
+        transition_spec = importlib.util.spec_from_file_location('sealed_typed_relu_source_inverse', transition_path)
+        transition = importlib.util.module_from_spec(transition_spec)
+        transition_spec.loader.exec_module(transition)
+        _, relu_source_proof = transition.restore_source(bind(current / 'build/runtime.hepta', SOURCE), bind)
+        need(qualification['cat_source_transition']['outer_source_inverse']['typed_relu_source_inverse']
+                 == relu_source_proof,
+             'the actual775 source and the complete original source chain have the same ReLU inverse')
+    if negation:
+        relu_evidence, relu_bindings = live_reference_custody(repo, current, 'typed_relu')
+        relu_reference = current / 'review/references/typed-relu776'
+        relu_execution = current / 'review/references/typed-relu776-execution'
+        relu_sha = relu_evidence['reference_sha256']
+        relu_process_sha = digest(bind(relu_execution / 'process.json'))
+        need(native['typed_relu_reference_directory'] == str(relu_reference)
+             and native['typed_relu_reference_process_directory'] == str(relu_execution)
+             and native['typed_relu_reference_sha256'] == suite['typed_relu_reference_sha256'] == relu_sha
+             and native['typed_relu_reference_process_sha256']
+                 == suite['typed_relu_reference_process_sha256'] == relu_process_sha,
+             'both original negation groups bind the actual776 reference and original process receipt')
+        control_path = repo / 'tests/current_runtime_typed_relu_controls.py'
+        bind(control_path)
+        control_spec = importlib.util.spec_from_file_location('sealed_original_relu_controls', control_path)
+        controls = importlib.util.module_from_spec(control_spec); control_spec.loader.exec_module(controls)
+        class BoundInputs:
+            pass
+        control_inputs = BoundInputs(); control_inputs.bind = bind
+        selected = controls.read_reference(repo, relu_reference, relu_execution, control_inputs)
+        need(selected['admission'] == native['typed_relu_reference_admission']
+             and selected['report_sha256'] == relu_sha,
+             'every literal original control input and the complete shared reference admission agree')
+        records = [record for row in native['results'] for record in row['result']['typed_relu_successors']]
+        relu_proof = controls.qualify_successors(selected, records, group)
+        need(proof['typed_relu_control_successors'] == suite['typed_relu_control_successors'] == relu_proof,
+             'both original ReLU control slots preserve their request bytes and actual numerical successors')
+        relu_observer_proof = selected['admission']['observer_transition']
+        need(qualification['typed_relu_observer_transition'] == relu_observer_proof,
+             'the complete old371 and405 observers are retained behind the exact four-request successor')
+        expected_proof.update(typed_relu_reference_sha256=relu_sha,
+            typed_relu_reference_process_sha256=relu_process_sha, typed_relu_control_successors=relu_proof)
     if multiplication:
         successor_evidence, successor_bindings = live_reference_custody(repo, current, 'half_addsub')
         successor_sha = successor_evidence['reference_sha256']
@@ -1036,6 +1148,10 @@ def live_reference_custody(repo, current, group):
                              for name in ('reference.py', 'cases.py', '__init__.py')}
     if multiplication:
         reference_inputs.add(str(repo / 'tests/half_mul/legacy_controls.py'))
+    if rectification:
+        reference_inputs |= {str(repo / 'tests' / name / filename)
+                             for name in ('wide_neg', 'half_neg') for filename in ('cases.py', '__init__.py')}
+        need(observed['bool_relu_refused'] is True, 'actual fixed-wheel Bool ReLU refusal retained')
     need(set(observed['inputs']) == reference_inputs, 'all original independent reference input entities')
     for spelling, metadata in observed['inputs'].items():
         bind(Path(spelling), metadata['sha256'])
@@ -1148,7 +1264,9 @@ def live_reference_custody(repo, current, group):
             'complete original48 physical cases retain exact controls, owner observations and all24 numerical successors')
         need(f64_proof['public_f64_arithmetic_successor'] == successor
              and dict(successor['source_inverse'],
-                      mixed_predecessor_source_inverse=successor['mixed_predecessor_source_inverse'])
+                      same_f64_predecessor_source_inverse=dict(
+                          successor['same_f64_predecessor_source_inverse'],
+                          mixed_predecessor_source_inverse=successor['mixed_predecessor_source_inverse']))
                  == native['source_inverse']
              and successor['prior_negation_reference_sha256']
                  == f64_proof['wide_neg_successor']['reference_sha256'],
@@ -1183,19 +1301,33 @@ def live_reference_custody(repo, current, group):
              and same_observer_proof['whole_observer_forward_round_trip_exact'] is True
              and qualification['same_f64_arithmetic_observer_transition'] == same_observer_proof,
              'the complete original2541 mixed observer and reference are preserved on the same-F64 successor')
-        if same:
-            transition_path = repo / 'tools/current_runtime/same_f64_arithmetic_source_transition.py'
-            bind(transition_path)
-            transition_spec = importlib.util.spec_from_file_location(
-                'sealed_same_f64_arithmetic_source_inverse', transition_path)
-            transition = importlib.util.module_from_spec(transition_spec)
-            transition_spec.loader.exec_module(transition)
-            _, source_proof = transition.restore_source(bind(current / 'build/runtime.hepta'), bind)
-            need(native['source_inverse'] == source_proof
-                 and source_proof['whole_source_inverse_exact'] is True
-                 and source_proof['whole_round_trip_exact'] is True
-                 and source_proof['all_arithmetic_value_kernel_bodies_unchanged'] is True,
-                 'the actual same-F64 execution preserves every original arithmetic value kernel')
+        relu_path = repo / 'tools/current_runtime/typed_relu_source_transition.py'
+        bind(relu_path, 'd06390c160833aa829c1a65cffa5ed8698d7aa23b72675c2942fca006f5350f9')
+        relu_spec = importlib.util.spec_from_file_location('sealed_arithmetic_typed_relu_inverse', relu_path)
+        relu = importlib.util.module_from_spec(relu_spec); relu_spec.loader.exec_module(relu)
+        same773, typed_source_proof = relu.restore_source(bind(current / 'build/runtime.hepta', SOURCE), bind)
+        transition_path = repo / 'tools/current_runtime/same_f64_arithmetic_source_transition.py'
+        bind(transition_path)
+        transition_spec = importlib.util.spec_from_file_location(
+            'sealed_same_f64_arithmetic_source_inverse', transition_path)
+        transition = importlib.util.module_from_spec(transition_spec)
+        transition_spec.loader.exec_module(transition)
+        mixed773, same_source_proof = transition.restore_source(same773, bind)
+        need(typed_source_proof['parent_source_sha256'] == same_source_proof['source_sha256']
+             and same_source_proof['whole_source_inverse_exact'] is True
+             and same_source_proof['whole_round_trip_exact'] is True
+             and same_source_proof['all_arithmetic_value_kernel_bodies_unchanged'] is True,
+             'actual775 preserves the complete same773 predecessor and its original arithmetic kernels')
+        if mixed:
+            mixed_path = repo / 'tools/current_runtime/public_f64_arithmetic_source_transition.py'
+            bind(mixed_path)
+            mixed_spec = importlib.util.spec_from_file_location('sealed_mixed_arithmetic_source_inverse', mixed_path)
+            mixed_transition = importlib.util.module_from_spec(mixed_spec); mixed_spec.loader.exec_module(mixed_transition)
+            _, mixed_source_proof = mixed_transition.restore_source(mixed773, bind)
+            same_source_proof = dict(same_source_proof, mixed_predecessor_source_inverse=mixed_source_proof)
+        source_proof = dict(typed_source_proof, same_f64_predecessor_source_inverse=same_source_proof)
+        need(native['source_inverse'] == source_proof,
+             'the complete actual775-to-same773-to-mixed773 source proof matches the original native report')
         for spelling, metadata in bindings.items():
             if spelling not in custody_outputs:
                 need(qualification['checked_inputs'].get(spelling) == metadata,
@@ -1300,6 +1432,17 @@ def live_reference_custody(repo, current, group):
         result.update(division_reference_sha256=division_evidence['reference_sha256'],
             division_physical_proof_sha256=division_evidence['physical_proof_sha256'],
             complete_shared_division_reference_custody_bound=True)
+    if relu_evidence is not None:
+        for spelling, metadata in relu_bindings.items():
+            need(spelling not in bindings or bindings[spelling] == metadata,
+                 'the shared ReLU evidence retains one original byte identity')
+            bindings[spelling] = metadata
+        result.update(typed_relu_reference_sha256=relu_evidence['reference_sha256'],
+            typed_relu_physical_proof_sha256=relu_evidence['physical_proof_sha256'],
+            complete_shared_typed_relu_reference_custody_bound=True,
+            typed_relu_observer_inverse=relu_observer_proof)
+    if relu_source_proof is not None:
+        result['typed_relu_source_inverse'] = relu_source_proof
     if mixed:
         result.update(complete_f6448_successors_share_this_reference=True,
             f64_original_requests=87, retained_f64_refusals=63,
@@ -1349,6 +1492,10 @@ def same_f64_arithmetic_custody(repo, current):
     return live_reference_custody(repo, current, 'same_f64_arithmetic')
 
 
+def typed_relu_custody(repo, current):
+    return live_reference_custody(repo, current, 'typed_relu')
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--repository', type=Path, required=True)
@@ -1378,11 +1525,11 @@ def main(argv=None):
         scope='File-byte and original POSIX-mode custody only; original numerical reports retain their statuses.',
         required_output_paths=list(REQUIRED_OUTPUTS), required_repository_paths=list(REPOSITORY_PATHS),
         required_toolchain_directories=list(TOOLCHAINS),
-        required_suites=list(GROUPS), required_cases_total=13075,
+        required_suites=list(GROUPS), required_cases_total=13851,
         reference_interpreters=[], execution_interpreter=None,
         reference_process_executables=[], numeric_predicates_evidence=None,
         bf16_copy_evidence=None, half_mul_evidence=None, half_neg_evidence=None, half_addsub_evidence=None,
-        wide_neg_evidence=None, half_div_evidence=None, public_f64_arithmetic_evidence=None, same_f64_arithmetic_evidence=None, missing=[], errors=[])
+        wide_neg_evidence=None, half_div_evidence=None, public_f64_arithmetic_evidence=None, same_f64_arithmetic_evidence=None, typed_relu_evidence=None, missing=[], errors=[])
     selected, declared, parsed_lists, input_declarations = {}, {}, {}, []
     report_declared_paths = set()
     roots = [(current, 'current-runtime'), (repo, 'repository')] + [
@@ -1465,7 +1612,7 @@ def main(argv=None):
                     table='reference_executable_custody', source_path=spelling, expected=metadata))
         except BaseException as error:
             problem('generator-reference-executable', current / 'review/generator131/report.json', error)
-        for group in ('numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div', 'public_f64_arithmetic', 'same_f64_arithmetic'):
+        for group in ('numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div', 'public_f64_arithmetic', 'same_f64_arithmetic', 'typed_relu'):
             try:
                 evidence, bindings = live_reference_custody(repo, current, group)
                 role = evidence['reference_interpreter']
@@ -1523,7 +1670,7 @@ def main(argv=None):
                 report['original_required_cases'] = document.get('required_cases_total')
                 if (document.get('schema') != 'heptatorch.current-runtime.qualification.v1'
                         or document.get('required_suites') != list(GROUPS)
-                        or document.get('required_cases_total') != 13075):
+                        or document.get('required_cases_total') != 13851):
                     problem('qualification-inventory', path,
                             ValueError('current twenty-eight-group qualification input inventory differs'))
             if relative == 'review/metadata10/report.json':
@@ -1589,6 +1736,7 @@ def main(argv=None):
             half_div_evidence=report['half_div_evidence'],
             public_f64_arithmetic_evidence=report['public_f64_arithmetic_evidence'],
             same_f64_arithmetic_evidence=report['same_f64_arithmetic_evidence'],
+            typed_relu_evidence=report['typed_relu_evidence'],
             external_path_mapping=[dict(original_root=str(root), prefix=alias) for root, alias in roots]
                 + [dict(original_file=str(path), member=name)
                    for path, name in sorted(external_executables.items(), key=lambda row: str(row[0]))])

@@ -6,6 +6,7 @@ and actual allocation predicates are retained. No execution PASS transfers.
 """
 import ast
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
 
@@ -33,9 +34,13 @@ def restore_observers(bind):
         and [row['path'] for row in delta['changes']]==list(PATHS)
         and [row['parent_sha256'] for row in delta['changes']]==list(PARENTS),
         'exact two frozen mixed773 predecessor observers')
+    admission_path=Path(__file__).with_name('typed_relu_admission_observer_transition.py');bind(admission_path)
+    spec=importlib.util.spec_from_file_location('typed_relu_arithmetic_admission_inverse',admission_path)
+    admission=importlib.util.module_from_spec(spec);spec.loader.exec_module(admission)
+    admission_parents,admission_proof=admission.restore_observers(bind)
     restored={};identities={}
     for record in delta['changes']:
-        path=record['path'];raw=bind(root/path);parent=raw
+        path=record['path'];raw=admission_parents[path] if path in admission_parents else bind(root/path);parent=raw
         require(sha(raw)==record['source_sha256'],'complete successor observer identity')
         for edit in reversed(record['replacements']):
             old,new=edit['original'].encode(),edit['current'].encode()
@@ -72,5 +77,6 @@ def restore_observers(bind):
         original_mixed_numerical_error_lifetime_and_allocation_predicates_retained=True,
         original_fixed_Torch_arithmetic_observation_code_unchanged=True,
         same_f64_predecessor_route_marker_now_false=True,
+        typed_relu_source_admission_observer_inverse=admission_proof,
         whole_observer_inverse_exact=True,whole_observer_forward_round_trip_exact=True,
         runtime_qualification_transferred=False)

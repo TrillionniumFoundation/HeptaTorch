@@ -63,11 +63,19 @@ def restore_observers(bind):
         and delta['parent_commit']=='3fe56570dca9b755f0cceeb6fa5df78ffa531581'
         and set(delta['files'])==set(PATHS),'exact three successor observer files')
     source = bind(root/'tools/current_runtime/source/runtime.hepta')
+    relu_path=Path(__file__).with_name('typed_relu_source_transition.py');bind(relu_path)
+    spec=importlib.util.spec_from_file_location('fe_typed_relu_source_inverse',relu_path)
+    relu=importlib.util.module_from_spec(spec);spec.loader.exec_module(relu)
+    same773,relu_proof=relu.restore_source(source,bind)
+    require(relu_proof['functions']==775 and relu_proof['parent_functions']==773
+        and relu_proof['changed_functions']==['unary']
+        and relu_proof['whole_source_inverse_exact'] is True and relu_proof['whole_round_trip_exact'] is True,
+        'complete typed ReLU775 inverse before the frozen same-F64 source')
     same_path=Path(__file__).with_name('same_f64_arithmetic_source_transition.py');bind(same_path)
     spec=importlib.util.spec_from_file_location('fe_same_f64_arithmetic_source_inverse',same_path)
     same=importlib.util.module_from_spec(spec);spec.loader.exec_module(same)
-    previous773,same_proof=same.restore_source(source,bind)
-    require(same_proof['functions']==same_proof['parent_functions']==773
+    previous773,same_proof=same.restore_source(same773,bind)
+    require(same.SOURCE==relu.PARENT_SOURCE and same_proof['functions']==same_proof['parent_functions']==773
         and same_proof['changed_functions']==['half_mul_priority','public_f64_binary']
         and same_proof['Half_routes_unchanged'] is True
         and same_proof['whole_source_inverse_exact'] is True and same_proof['whole_round_trip_exact'] is True,
@@ -95,8 +103,8 @@ def restore_observers(bind):
     manifest = bind(root/'tools/current_runtime/source/manifest.json')
     require(sha(parent)==SOURCE and wide.PARENT_SOURCE==SOURCE
         and same.PARENT_SOURCE==arithmetic.SOURCE and arithmetic.PARENT_SOURCE==division.SOURCE
-        and sha(manifest)=='62795753a0e782fe3f75b9086653d41aba743fda356673398c12432d576fac15',
-        'exact773 native source inverts through771 and767 to the complete765 FE predecessor')
+        and sha(manifest)=='348ed8e949256f985cdca0d9c612dc646ae738beee6013c27ab405d2df3e67c8',
+        'exact775 native source inverts through same773, mixed773,771 and767 to the complete765 FE predecessor')
     observer_path=Path(__file__).with_name('half_div_observer_transition.py');bind(observer_path)
     spec=importlib.util.spec_from_file_location('fe_half_div_observer_inverse',observer_path)
     observer=importlib.util.module_from_spec(spec);spec.loader.exec_module(observer)
@@ -112,10 +120,11 @@ def restore_observers(bind):
         all1004_original_numerical_error_resource_and_lifetime_predicates_retained=True,
         exact_original_two_command_FE_packets_checked=True,
         real_reference_bits_complete_owner_and_rollback_required=True,
-        source_sha256=same.SOURCE, parent_source_sha256=SOURCE, native_source_unchanged=False,
+        source_sha256=relu.SOURCE, parent_source_sha256=SOURCE, native_source_unchanged=False,
         native_wide_neg_inverse=wide_proof, original_FE_native_bodies_unchanged=True,
         native_division_source_inverse=division_proof,native_division_observer_inverse=observer_proof,
         native_public_f64_arithmetic_source_inverse=arithmetic_proof,
+        native_typed_relu_source_inverse=relu_proof,
         native_same_f64_arithmetic_source_inverse=same_proof,
         manifest_sha256=sha(manifest), parent_manifest_sha256=MANIFEST,
         whole_source_inverse_exact=True,whole_round_trip_exact=True,runtime_qualification_transferred=False)

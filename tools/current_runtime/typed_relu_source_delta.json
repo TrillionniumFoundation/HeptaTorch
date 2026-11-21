@@ -1,0 +1,32 @@
+{
+  "added_bodies": {
+    "typed_relu_tensor": {
+      "bytes": 3045,
+      "sha256": "5d210515de5ddef66c03da1992c40f032b94317493feea6b7e788d131db621a3"
+    },
+    "typed_relu_value": {
+      "bytes": 2514,
+      "sha256": "9bfa650019d924c003bf26984a2fbce960d8f54623279cfb0b46f282fc8adfdd"
+    }
+  },
+  "appended_functions": [
+    "typed_relu_value",
+    "typed_relu_tensor"
+  ],
+  "changed_functions": [
+    "unary"
+  ],
+  "current_route": "block route(sr:mutbuf,opr:u64,xr:u64)\n  dr:u64 = call(sr,xr) {\"function\":\"tensor_dtype\"}\n  two_r:u64 = const() {\"value\":2}\n  four_r:u64 = const() {\"value\":4}\n  five_r:u64 = const() {\"value\":5}\n  six_r:u64 = const() {\"value\":6}\n  i64_r:bool = compare.eq(dr,two_r)\n  f64_r:bool = compare.eq(dr,four_r)\n  f16_r:bool = compare.eq(dr,five_r)\n  bf16_r:bool = compare.eq(dr,six_r)\n  wide_r:bool = bool.or(i64_r,f64_r)\n  half_r:bool = bool.or(f16_r,bf16_r)\n  typed_r:bool = bool.or(wide_r,half_r)\n  relu_r:bool = compare.eq(opr,five_r)\n  admitted_r:bool = bool.and(typed_r,relu_r)\n  branch admitted_r native_relu(sr,opr,xr) previous_route(sr,opr,xr)\nblock native_relu(sn:mutbuf,opn:u64,xn:u64)\n  yn:u64 = call(sn,opn,xn) {\"function\":\"typed_relu_tensor\"}\n  ret(yn)\nblock previous_route(s2:mutbuf,o2:u64,x2:u64)\n",
+  "current_unary_sha256": "db4cb7045aab27e313c80d4ce9b328a11c2c43496e613cc2edbfee76f28647ed",
+  "functions": 775,
+  "helper_bytes": 5559,
+  "helper_sha256": "47cd53dbbee7e201c0a6961cbade7cf2c5ffd6ab6872a9dca72accc2968d56bc",
+  "original_route": "block route(s2:mutbuf,o2:u64,x2:u64)\n",
+  "original_unary": "fn unary(s:mutbuf,operation:u64,input:u64) -> (u64) effects(read,write,trap) entry(start)\nblock start(s:mutbuf,operation:u64,input:u64)\n  valid:u64 = call(s,input) {\"function\":\"valid\"}\n  zero:u64 = const() {\"value\":0}\n  failed:bool = compare.eq(valid,zero)\n  branch failed failure() route(s,operation,input)\nblock failure()\n  zero1:u64 = const() {\"value\":0}\n  ret(zero1)\nblock route(s2:mutbuf,o2:u64,x2:u64)\n  dtype2:u64 = call(s2,x2) {\"function\":\"tensor_dtype\"}\n  i64_dtype2:u64 = const() {\"value\":2}\n  f64_dtype2:u64 = const() {\"value\":4}\n  is_i64_2:bool = compare.eq(dtype2,i64_dtype2)\n  is_f64_2:bool = compare.eq(dtype2,f64_dtype2)\n  wide2:bool = bool.or(is_i64_2,is_f64_2)\n  branch wide2 negative(s2,o2,x2) previous(s2,o2,x2)\nblock negative(s3:mutbuf,o3:u64,x3:u64)\n  y3:u64 = call(s3,o3,x3) {\"function\":\"wide_neg_tensor\"}\n  ret(y3)\nblock previous(s4:mutbuf,o4:u64,x4:u64)\n  y4:u64 = call(s4,o4,x4) {\"function\":\"wide_neg_previous_unary\"}\n  ret(y4)\nend\n",
+  "original_unary_sha256": "6496bb217b97bae351c80c1a88d2738cde9d7c7e18fa3fa20bd7f039733d4eb1",
+  "parent_functions": 773,
+  "parent_source_sha256": "846e592beaa7847383cee668bc33d25cd81e79052bd4612252e2f72a83d96d05",
+  "schema": "heptatorch.typed-relu.source-delta.v1",
+  "source_sha256": "0b000b51288af20490162efd8e525b86359a32cdd6d2521df97ecd9cddbd7b43",
+  "unchanged_parent_functions": 772
+}

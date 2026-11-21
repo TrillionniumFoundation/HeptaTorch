@@ -42,6 +42,7 @@ from wide_neg.run import qualify as qualify_wide_neg, read_reference as read_wid
 from half_div.run import qualify as qualify_half_div, read_reference as read_half_div_reference
 from public_f64_arithmetic.run import qualify as qualify_public_f64_arithmetic, read_reference as read_public_f64_arithmetic_reference
 from same_f64_arithmetic.run import qualify as qualify_same_f64_arithmetic, read_reference as read_same_f64_arithmetic_reference
+from typed_relu.run import qualify as qualify_typed_relu, read_reference as read_typed_relu_reference
 from current_runtime_f64_readback import qualify_f64_48
 from current_runtime_generator131 import qualify_generator131
 from current_runtime_process import execute as execute_process
@@ -70,7 +71,7 @@ SOURCE, IMAGE = current_profile.SOURCE, current_profile.IMAGE
 FUNCTIONS, UNITS = current_profile.FUNCTIONS, current_profile.UNITS
 COMPILER = "b1c851a0896fa6071f800e1146c3c27d0c6cf85059e9a6281b46d42908a3f59f"
 LINKER = "761a941fd7a2d53eb9b45869fcfc20e970640e9dd11d60f7c61a89812b61d74e"
-FUSION_RESOURCE_SHA = '9dca07093562f2ff89aaa5f33d8f16a3ee08882e162b2bf183fc2b01a800e7e5'
+FUSION_RESOURCE_SHA = '45d772556c2e760edb5d26d74f9e9029669eb780d809d6e45578d54479056353'
 BOOL_REFERENCE = "21dd75aeb86414818f7aa381f8b866d78b16f9bb3f5738e9a60d27ac3d15dd28"
 BOOL_ARCHIVE = "353a8b2853773bc6678bb62fc9559d6f4244c571ba40c6b80f352b2649cd6edd"
 SUM32_REFERENCE = "c14e4b18f657429ad5dac5498c3abcae303b6a7e7550db7d15a3c9179bdcd728"
@@ -78,12 +79,12 @@ INTEGRAL_REFERENCE = "6c9df4b579664c89c200b9d796367dd6d41f93f8260e8ff012f17d5041
 SHARED_ARCHIVE = "validation/current-runtime-references/complete.tar.xz"
 SHARED_ARCHIVE_SHA = "3a29420768a1bf7808976f04cb3ce3e6091db55ff6ae7858879f1b7ff70b69ea"
 SHARED_MANIFEST_SHA = "666fa775586679cfd42606c95656ad261c8856332431931ed4b0fcfd8865057e"
-GROUPS = ("bool27", "original76", "integral24", "sum_f32_17", "current35", "base270", "sum32", "live32", "logical147", "resource7", "asstrided16", "cat4", "metadata10", "generator131", "public_f64_logical192", "f64_48", "half47", "half_logical264", "half_transactions12", "numeric_predicates", "bf16_copy", "half_mul", "half_neg", "half_addsub", "wide_neg", "half_div", "public_f64_arithmetic", "same_f64_arithmetic")
+GROUPS = ("bool27", "original76", "integral24", "sum_f32_17", "current35", "base270", "sum32", "live32", "logical147", "resource7", "asstrided16", "cat4", "metadata10", "generator131", "public_f64_logical192", "f64_48", "half47", "half_logical264", "half_transactions12", "numeric_predicates", "bf16_copy", "half_mul", "half_neg", "half_addsub", "wide_neg", "half_div", "public_f64_arithmetic", "same_f64_arithmetic", "typed_relu")
 SUITE_TIMEOUT_SECONDS = {"bool27": 600, "original76": 900, "integral24": 900,
                          "sum_f32_17": 900, "current35": 1800, "base270": 1800, "sum32": 3600,
                          "live32": 1800, "logical147": 1200, "resource7": 1200, "asstrided16": 1200, "cat4": 600, "metadata10": 1200, "generator131": 600, "public_f64_logical192": 1200,
                          "f64_48": 1200, "half47": 1200, "half_logical264": 1200, "half_transactions12": 600,
-                         "numeric_predicates": 1200, "bf16_copy": 1200, "half_mul": 1200, "half_neg": 1200, "half_addsub": 1800, "wide_neg": 1200, "half_div": 1800, "public_f64_arithmetic": 3600, "same_f64_arithmetic": 3600}
+                         "numeric_predicates": 1200, "bf16_copy": 1200, "half_mul": 1200, "half_neg": 1200, "half_addsub": 1800, "wide_neg": 1200, "half_div": 1800, "public_f64_arithmetic": 3600, "same_f64_arithmetic": 3600, "typed_relu": 1200}
 
 
 def require(condition, message):
@@ -138,10 +139,10 @@ def build_binding(directory, inputs):
 
 
 def cat_source_binding(directory, inputs):
-    """Admit exact773 and three reviewed cat bodies; transfer no old result."""
+    """Admit exact775 and three reviewed cat bodies; transfer no old result."""
     outer_path = ROOT / 'tools/current_runtime/fusion_source_transition.py'
-    inputs.bind(outer_path, '4fd43c1834a6a5332257d716bdbea967a20e5308e2637826cae19edded58b06d')
-    outer_spec = importlib.util.spec_from_file_location('current_runtime773_source_transition', outer_path)
+    inputs.bind(outer_path, '9c3e95d835c01fc64a19828e60574f47a09c30c106af54f87baa4b0abd4c574c')
+    outer_spec = importlib.util.spec_from_file_location('current_runtime775_source_transition', outer_path)
     outer = importlib.util.module_from_spec(outer_spec)
     outer_spec.loader.exec_module(outer)
     historical700, outer_proof = outer.restore_source(inputs.bind(directory / 'runtime.hepta', SOURCE), inputs.bind)
@@ -152,11 +153,11 @@ def cat_source_binding(directory, inputs):
     spec.loader.exec_module(module)
     restored, proof = module.restore_source(historical700, inputs.bind)
     require(module.SOURCE == outer.PARENT_SOURCE == sha(historical700)
-            and FUNCTIONS == 773 and UNITS == 15 and sha(restored) == module.PARENT_SOURCE,
-            'actual773 profile, exact historical700 and exact pre-cat source')
-    return dict(schema='heptatorch.current773-cat.complete-source-inverse.v1',
+            and FUNCTIONS == 775 and UNITS == 15 and sha(restored) == module.PARENT_SOURCE,
+            'actual775 profile, exact historical700 and exact pre-cat source')
+    return dict(schema='heptatorch.current775-cat.complete-source-inverse.v1',
         source_sha256=SOURCE, parent_source_sha256=module.PARENT_SOURCE,
-        functions=773, historical_functions=700, outer_source_inverse=outer_proof,
+        functions=775, historical_functions=700, outer_source_inverse=outer_proof,
         cat_transition=proof, runtime_qualification_transferred=False)
 
 
@@ -201,6 +202,18 @@ def half_mul_observer_binding(inputs):
             and proof['whole_source_inverse_exact'] is True
             and proof['every_original_multiplication_numerical_predicate_retained'] is True,
             'exact original312 multiplication observer and unchanged371 negation inputs')
+    return proof
+
+
+def typed_relu_observer_binding(inputs):
+    """Recover both complete old negation observers before four ReLU successors."""
+    path = ROOT / 'tools/current_runtime/typed_relu_observer_transition.py'
+    inputs.bind(path)
+    spec = importlib.util.spec_from_file_location('current_typed_relu_observer_inverse', path)
+    observer = importlib.util.module_from_spec(spec); spec.loader.exec_module(observer)
+    parents, proof = observer.restore_observers(inputs.bind)
+    require(set(parents) == {'tests/half_neg/run.py', 'tests/wide_neg/run.py'},
+            'both complete original negation observers remain byte constrained')
     return proof
 
 
@@ -522,6 +535,26 @@ class Fixtures:
         return self.cache["same_f64_arithmetic"]
 
 
+    def typed_relu(self):
+        """Share one actual776 reference across four old requests and the new group."""
+        if "typed_relu" not in self.cache:
+            reference = self.output / "references/typed-relu776"
+            execution = self.output / "references/typed-relu776-execution"
+            execution.mkdir(parents=True, exist_ok=False)
+            self.inputs.bind(self.torch_python.resolve(strict=True))
+            script = ROOT / "tests/typed_relu/reference.py"
+            self.inputs.bind(script)
+            process = execute_process([str(self.torch_python), "-B", str(script),
+                "--output", str(reference)], execution, 300, cwd=ROOT)
+            dump(execution / "process.json", process)
+            observed = read_typed_relu_reference(reference, execution, self.inputs)
+            require(Path(observed["report"]["actual_process"]["python"]["path"])
+                    == self.torch_python.resolve(strict=True),
+                    "shared ReLU reference used the selected physical Torch interpreter")
+            self.cache["typed_relu"] = {"root": reference, "execution": execution}
+        return self.cache["typed_relu"]
+
+
 def runner_command(name, build, build_sha, output, fixtures, inputs, torch_python):
     common = ["--build-directory", str(build), "--expected-build-sha256", build_sha]
     python = sys.executable
@@ -632,13 +665,13 @@ def runner_command(name, build, build_sha, output, fixtures, inputs, torch_pytho
             inputs.bind(path)
         source = fixtures.half_logical()
         args = common + ["--group", name, "--reference-directory", str(source["root"])]
-    elif name in ("numeric_predicates", "bf16_copy", "half_mul", "half_neg", "half_addsub", "wide_neg", "half_div", "public_f64_arithmetic", "same_f64_arithmetic"):
+    elif name in ("numeric_predicates", "bf16_copy", "half_mul", "half_neg", "half_addsub", "wide_neg", "half_div", "public_f64_arithmetic", "same_f64_arithmetic", "typed_relu"):
         script = ROOT / "tests" / name / "run.py"
         for path in sorted(script.parent.glob("*.py")):
             inputs.bind(path)
         inputs.bind(torch_python.resolve())
         args = common + ["--torch-python", str(torch_python.absolute())]
-        if name in ("half_mul", "half_neg", "half_addsub", "wide_neg", "half_div", "public_f64_arithmetic", "same_f64_arithmetic"):
+        if name in ("half_mul", "half_neg", "half_addsub", "wide_neg", "half_div", "public_f64_arithmetic", "same_f64_arithmetic", "typed_relu"):
             reference = getattr(fixtures, name)()
             args += ["--reference-directory", str(reference["root"]),
                      "--reference-execution", str(reference["execution"])]
@@ -650,6 +683,10 @@ def runner_command(name, build, build_sha, output, fixtures, inputs, torch_pytho
             division = fixtures.half_div()
             args += ["--half-div-reference-directory", str(division["root"]),
                      "--half-div-reference-execution", str(division["execution"]) ]
+        if name in ("half_neg", "wide_neg"):
+            rectification = fixtures.typed_relu()
+            args += ["--typed-relu-reference-directory", str(rectification["root"]),
+                     "--typed-relu-reference-execution", str(rectification["execution"])]
     else:
         raise ValueError("unknown mandatory suite")
     inputs.bind(script)
@@ -741,7 +778,7 @@ def qualify_resource7(report, build_sha, directory, inputs):
         'backward': ['backward_private_preserve_allocation_oom_recovery'],
         'r3': ['tail_release_reuse', 'preserve_capacity_oom_recovery', 'tail_then_saved_error_prefix'],
     }
-    require(report['schema'] == 'heptatorch.current773.resource7.v1'
+    require(report['schema'] == 'heptatorch.current775.resource7.v1'
             and report['status'] == 'PASS_CURRENT_RESOURCE7'
             and report['actual_build_sha256'] == build_sha
             and report['source_sha256'] == SOURCE and report['native_sha256'] == IMAGE
@@ -759,7 +796,7 @@ def qualify_resource7(report, build_sha, directory, inputs):
     require([row['suite'] for row in report['suites']] == list(expected), 'all three resource readers')
     helper_path = ROOT / 'tools/current_runtime/fusion_resource_transition.py'
     inputs.bind(helper_path, FUSION_RESOURCE_SHA)
-    helper_spec = importlib.util.spec_from_file_location('qualified773_resource_source_paths', helper_path)
+    helper_spec = importlib.util.spec_from_file_location('qualified775_resource_source_paths', helper_path)
     helper = importlib.util.module_from_spec(helper_spec)
     helper_spec.loader.exec_module(helper)
     expected_source_paths = helper.prove(inputs.bind(ROOT / 'tools/current_runtime/source/runtime.hepta', SOURCE), inputs.bind)
@@ -781,7 +818,7 @@ def qualify_resource7(report, build_sha, directory, inputs):
         actual = json.loads(inputs.bind(folder / 'actual/report.json', row['report_sha256']))
         proof = json.loads(inputs.bind(folder / 'adaptation/source-bindings.json'))
         require(proof['fusion_source_path_proof'] == expected_source_paths,
-                'outer independent actual773 resource path proof differs')
+                'outer independent actual775 resource path proof differs')
         require(actual['status'] == 'PASS' and actual['native_executed'] is True
                 and actual['source_sha256'] == SOURCE and actual['native_sha256'] == IMAGE
                 and actual['all_inputs_unchanged'] is True
@@ -915,12 +952,12 @@ def main(argv=None):
               "sum32": 32, "integral24": 24, "sum_f32_17": 17, "current35": 35, "base270": 270,
               "live32": 32, "logical147": 147, "resource7": 7, "asstrided16": 16, "cat4": 4, "metadata10": 10, "generator131": 131, "public_f64_logical192": 192,
               "f64_48": 48, "half47": 47, "half_logical264": 264, "half_transactions12": 12,
-              "numeric_predicates": 485, "bf16_copy": 280, "half_mul": 312, "half_neg": 371, "half_addsub": 1006, "wide_neg": 405, "half_div": 1196, "public_f64_arithmetic": 2541, "same_f64_arithmetic": 5088}, "required_cases_total": 13075,
+              "numeric_predicates": 485, "bf16_copy": 280, "half_mul": 312, "half_neg": 371, "half_addsub": 1006, "wide_neg": 405, "half_div": 1196, "public_f64_arithmetic": 2541, "same_f64_arithmetic": 5088, "typed_relu": 776}, "required_cases_total": 13851,
               "generator_subgroups": {"oracle24": 24, "native11": 11, "entry59": 59, "dispatch37": 37},
               "image_scope": "All thirteen inherited groups and Generator production cases bind the current main image; "
                   "Generator131 also requires separately linked current-object ABI and reordered probe images. "
                   "Public F64 logical192, F64 48, Half47, Half logical264, Half transactions12 and numeric predicates "
-                  "and BF16 copy280, Half multiplication312, Half negation371, Half addition/subtraction1006, I64/F64 negation405, Half true division1196 and mixed public F64 arithmetic2541 use the same current main image.",
+                  "and BF16 copy280, Half multiplication312, Half negation371, Half addition/subtraction1006, I64/F64 negation405, Half true division1196 and mixed public F64 arithmetic2541, same-F64 arithmetic5088 and typed ReLU776 use the same current main image.",
               "half_mul_scope": {"actual_reference_cases": 312, "opcode": 2,
                   "cpu_capability": "AVX2", "requested_cpu_capability": "avx2", "torch_threads": 1,
                   "exact_raw_bytes_required": True, "physical_replay_required": True,
@@ -992,6 +1029,18 @@ def main(argv=None):
                   "same_f64_legacy_route_unchanged": False,
                   "actual_allocation_recoveries": 4, "additional_packet_controls": 88,
                   "private_dtype3_and_AD_refusals_preserved": True},
+              "typed_relu_scope": {"actual_reference_cases": 776, "opcode": 3, "operation": 5,
+                  "source_dtype_codes": [2, 4, 5, 6], "maximum_rank": 4, "ordinary_no_grad_only": True,
+                  "cpu_capability": "AVX2", "requested_cpu_capability": "avx2", "torch_threads": 1,
+                  "exact_raw_bytes_required": True, "physical_replay_required": True,
+                  "fresh_pinned_Torch_reference_required": True,
+                  "same_actual_reference_required_for": ["half_neg", "wide_neg", "typed_relu"],
+                  "original_half_neg_requests_with_explicit_successor": 2,
+                  "original_wide_neg_requests_with_explicit_successor": 2,
+                  "original_half239_and_f64_87_request_partitions_unchanged": True,
+                  "additional_packet_controls": 90, "actual_allocation_recoveries": 4,
+                  "signed_zero_and_NaN_payload_bits_required": True,
+                  "vector_and_tail_NaN_conversion_checked": True},
               "bf16_copy_scope": {"actual_reference_cases": 280, "opcodes": [108, 109],
                   "memory_formats": [0, 1], "exact_raw_bytes_required": True,
                   "fresh_pinned_Torch_reference_required": True, "physical_replay_required": True,
@@ -1057,7 +1106,9 @@ def main(argv=None):
                   "predicate_failed_FE_transactions": 5, "predicate_allocation_recoveries": 5,
                   "half_div_packet_controls": 32, "half_div_allocation_recoveries": 2,
                   "public_f64_arithmetic_packet_controls": 82, "public_f64_arithmetic_allocation_recoveries": 4,
-                  "same_f64_arithmetic_packet_controls": 88, "same_f64_arithmetic_allocation_recoveries": 4},
+                  "same_f64_arithmetic_packet_controls": 88, "same_f64_arithmetic_allocation_recoveries": 4,
+                  "typed_relu_packet_controls": 90, "typed_relu_allocation_recoveries": 4,
+                  "old_half_neg_ReLU_successors": 2, "old_wide_neg_ReLU_successors": 2},
               "suite_timeout_seconds": SUITE_TIMEOUT_SECONDS,
               "suites": suites, "failures": failures, "full_pytorch_rewrite_complete": False,
               "schema_closure": False, "full_project_status": "HOLD", "Torch_executed": False}
@@ -1098,6 +1149,9 @@ def main(argv=None):
                      "current_runtime_f64_arithmetic_successor.py", "current_runtime_f64_arithmetic_fe_owner.py",
                      "same_f64_arithmetic/__init__.py", "same_f64_arithmetic/cases.py",
                      "same_f64_arithmetic/reference.py", "same_f64_arithmetic/run.py",
+                     "typed_relu/__init__.py", "typed_relu/cases.py",
+                     "typed_relu/reference.py", "typed_relu/run.py",
+                     "current_runtime_typed_relu_controls.py",
                      "pytorch_cpu_generator_oracle.py"):
             inputs.bind(ROOT / "tests" / name)
         for name in ("half_addsub_fe_owner_contract.json", "half_addsub_fe_tombstone_contract.json"):
@@ -1107,6 +1161,7 @@ def main(argv=None):
         result["cat_source_transition"] = cat_source_binding(build, inputs)
         result["public_f64_arithmetic_observer_transition"] = public_f64_arithmetic_observer_binding(inputs)
         result["same_f64_arithmetic_observer_transition"] = same_f64_arithmetic_observer_binding(inputs)
+        result["typed_relu_observer_transition"] = typed_relu_observer_binding(inputs)
         result["half_mul_observer_transition"] = half_mul_observer_binding(inputs)
         result["half_addsub_observer_transition"] = half_addsub_observer_binding(inputs)
         tool_raw = inputs.bind(tool_build / "build.json")
@@ -1126,7 +1181,7 @@ def main(argv=None):
                 directory = output / name
                 command = runner_command(name, build, build_sha, directory, fixtures, inputs, args.torch_python.absolute())
                 intent = None
-                if name in ("f64_48", "half47", "half_logical264", "half_transactions12", "numeric_predicates", "bf16_copy", "half_mul", "half_neg", "half_addsub", "wide_neg", "half_div", "public_f64_arithmetic", "same_f64_arithmetic"):
+                if name in ("f64_48", "half47", "half_logical264", "half_transactions12", "numeric_predicates", "bf16_copy", "half_mul", "half_neg", "half_addsub", "wide_neg", "half_div", "public_f64_arithmetic", "same_f64_arithmetic", "typed_relu"):
                     intent, row["execution_intent"] = observer_intent(command, execution, inputs)
                 receipt = execute(command, execution, SUITE_TIMEOUT_SECONDS[name])
                 row["runner"] = receipt
@@ -1141,7 +1196,7 @@ def main(argv=None):
                         result["Torch_executed"] = report.get("Torch_executed")
                     if name == "generator131" and result["Torch_executed"] is not True:
                         result["Torch_executed"] = report.get("Torch_executed")
-                    if name in ("numeric_predicates", "bf16_copy", "half_mul", "half_neg", "half_addsub", "wide_neg", "half_div", "public_f64_arithmetic", "same_f64_arithmetic") and result["Torch_executed"] is not True:
+                    if name in ("numeric_predicates", "bf16_copy", "half_mul", "half_neg", "half_addsub", "wide_neg", "half_div", "public_f64_arithmetic", "same_f64_arithmetic", "typed_relu") and result["Torch_executed"] is not True:
                         result["Torch_executed"] = report.get("Torch_executed")
                 require(receipt["started"] is True and receipt["exit_code"] == 0
                         and receipt["stdout_EOF"] is True and receipt["stderr_EOF"] is True
@@ -1273,6 +1328,16 @@ def main(argv=None):
                     require(json.loads(physical) == counts, "complete same public F64 byte and ownership readback agrees")
                     counts["physical_qualification"] = dict(path=name + "/physical-qualification.json",
                         bytes=len(physical), sha256=sha(physical), status="PASS_PHYSICAL_SAME_F64_ARITHMETIC")
+                elif name == "typed_relu":
+                    counts = qualify_typed_relu(report, ROOT, build, build_sha, directory, inputs)
+                    require(counts["cases"] == 776 and counts["physical_replay"] is True
+                            and counts["protocol_controls"] == 90
+                            and counts["actual_allocation_refusals"] == counts["identical_request_recoveries"] == 4,
+                            "all776 independent ReLU comparisons and four real allocation recoveries are mandatory")
+                    physical = inputs.bind(directory / "physical-qualification.json")
+                    require(json.loads(physical) == counts, "complete ReLU byte and ownership readback agrees")
+                    counts["physical_qualification"] = dict(path=name + "/physical-qualification.json",
+                        bytes=len(physical), sha256=sha(physical), status="PASS_PHYSICAL_TYPED_RELU")
                 else:
                     counts = qualify_metadata10(report, ROOT, build, build_sha, directory, inputs, execution)
                 row.update(status="PASS", qualified=True, **counts)

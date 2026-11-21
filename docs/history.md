@@ -105,4 +105,10 @@ The immutable `tests/differentiable_view_input4_review/README.md` remains byte-i
 
 773同时退休上述114个过程文件、771旧资格计划（2,158字节）及旧分区生成摘要（3,788字节）。累计过程退休543个文件、177,290,747字节、38个完整阶段目录；完整原件和固定Git身份见[本批退休清单](../validation/current-runtime773/retirement.json)。原13个 `logical_half_*.hepta` 单元由规范773分区替换，全部原函数由完整源码逆变换约束；这13份替换单独记账，不计为13项被移除功能或净源码能力退休。
 
-旧143源码仍跟踪，已进入独立来源恢复的第一阶段，须在全部旧Native/F64/RNG门完成后继续退休。原始参考、失败记录、许可证及仍有真实消费者的包继续保留。
+此处记录773第一阶段时旧143源码仍被跟踪；后续same-F64候选移除跟踪来源，按固定历史字节供旧消费者恢复，具体执行状态见下节。原始参考、失败记录、许可证及仍有真实消费者的包继续保留。
+
+## 当前775计划、分区与原失败结果
+
+当前树只保留775的活动资格计划。same-F64的原计划（3,964字节）保存在[固定PR53提交](https://github.com/TrillionniumFoundation/HeptaTorch/blob/83ed6b41ea67aa37182d23159ec0cb436e632dac/validation/current-runtime-same-f64/qualification-plan.json)；13份被替换的773核心分区也由该提交保存。完整SHA、Git blob和文件模式见[775退休清单](../validation/current-runtime775/retirement.json)。新15单元保留全部旧函数，仅增加ReLU实现所需的两函数和一条分流；分区替换不计为删除功能。
+
+PR52与PR53的完整Current门分别失败，原归档和结果不升级为通过。PR53失败原件14700680070已完整读回；25组／13,007例通过，另外3组／68例在原生案例前被来源校验阻止，资格后的源码缺失检查未执行。775需要重新完成全部29组／13,851例及原件复核。固定旧143源码已从跟踪树移除，但旧Native/F64/RNG及Make消费者仍实际恢复使用它；其完整语义迁移尚未完成。

@@ -1,5 +1,5 @@
-hia-asm.v1 hepta.hia.program.v8 runtime773_11
-exports(f64_copy_tensor,f64_cast_admit,to_f32_to_i64,to_convert_value,scalar_previous_to_copy_tensor,f64_previous_to_copy_tensor,half_previous_to_copy_tensor,to_copy_tensor,typed_copy_from_wire,to_from_raw_wire,scalar_previous_rng_strided_view,rng_strided_view,to_strided_view,to_suggest_channels_last,to_tensor,shape_previous_to_command,shape_clone_contiguous,shape_compute_strides,shape_infer_dimensions,shape_transform,scalar_previous_to_command,wrapped_scalar_mul,sd_previous_to_command,f64_previous_to_command,to_command,predicate_command,reply_error,rng_clone_object,rng_create_object,rng_drop_object,rng_interval,rng_uniform_tensor,rng_command,bool_logical_not_byte,bool_logical_not,history_detach_inplace,dtype_mask_retain,native_dropout_record,native_dropout_scale,native_dropout_write,view_previous_native_dropout,native_dropout,native_dropout_saved_mask,typed_fill,scalar_previous_typed_from_wire,typed_from_wire,view_previous_typed_command,scalar_previous_typed_command,typed_command,entry,state_header,so_state_init,init_state,so_rget,so_copy_range,so_state_migrate,clone_state,object_size)
+hia-asm.v1 hepta.hia.program.v8 runtime775_11
+exports(half_cast_admit,narrow64,f64_convert_value,f64_copy_tensor,f64_cast_admit,to_f32_to_i64,to_convert_value,scalar_previous_to_copy_tensor,f64_previous_to_copy_tensor,half_previous_to_copy_tensor,to_copy_tensor,typed_copy_from_wire,to_from_raw_wire,scalar_previous_rng_strided_view,rng_strided_view,to_strided_view,to_suggest_channels_last,to_tensor,shape_previous_to_command,shape_clone_contiguous,shape_compute_strides,shape_infer_dimensions,shape_transform,scalar_previous_to_command,wrapped_scalar_mul,sd_previous_to_command,f64_previous_to_command,to_command,predicate_command,reply_error,rng_clone_object,rng_create_object,rng_drop_object,rng_interval,rng_uniform_tensor,rng_command,bool_logical_not_byte,bool_logical_not,history_detach_inplace,dtype_mask_retain,native_dropout_record,native_dropout_scale,native_dropout_write,view_previous_native_dropout,native_dropout,native_dropout_saved_mask,typed_fill,scalar_previous_typed_from_wire,typed_from_wire,view_previous_typed_command,scalar_previous_typed_command,typed_command,entry,state_header,so_state_init,init_state,so_rget,so_copy_range)
 fn absf(v0:u64) -> (u64) effects(read,write,trap) external()
 fn alloc(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn binary_saved_command(v0:readbuf,v1:mutbuf,v2:mutbuf,v3:u64,v4:u64) -> (u64) effects(read,write,trap) external()
@@ -17,7 +17,6 @@ fn dist_probability_to32(v0:u64) -> (u64) effects(read,write,trap) external()
 fn dptr(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn dtype_mask_node(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn dtype_width(v0:u64) -> (u64) effects(read,write,trap) external()
-fn f64_convert_value(v0:u64,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn finish_command(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn fmaf(v0:u64,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn frame_valid(v0:readbuf) -> (u64) effects(read,write,trap) external()
@@ -26,7 +25,7 @@ fn getw(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn gradient_object_command(v0:readbuf,v1:mutbuf,v2:mutbuf,v3:u64,v4:u64) -> (u64) effects(read,write,trap) external()
 fn graph_collect_since(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn graph_saved_check(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
-fn half_cast_admit(v0:mutbuf,v1:u64,v2:u64,v3:u64) -> (u64) effects(read,write,trap) external()
+fn half_copy_tensor(v0:mutbuf,v1:u64,v2:u64,v3:u64) -> (u64) effects(read,write,trap) external()
 fn history_capture(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn hold_release(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn integer_as_f32(v0:u64,v1:u64) -> (u64) effects(read,write,trap) external()
@@ -44,6 +43,7 @@ fn native_dropout_fill_mask(v0:mutbuf,v1:mutbuf,v2:u64,v3:u64,v4:u64,v5:u64) -> 
 fn node_retain(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn object_address(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn owned_optimizer_command(v0:readbuf,v1:mutbuf,v2:mutbuf,v3:u64,v4:u64,v5:u64) -> (u64) effects(read,write,trap) external()
+fn packf(v0:u64,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn predicate_tensor(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn public_f32(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn public_node(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
@@ -68,9 +68,7 @@ fn sd_accumulator_command(v0:readbuf,v1:mutbuf,v2:mutbuf,v3:u64,v4:u64) -> (u64)
 fn sd_permute_command(v0:readbuf,v1:mutbuf,v2:mutbuf,v3:u64,v4:u64,v5:u64) -> (u64) effects(read,write,trap) external()
 fn shape_alias(v0:mutbuf,v1:u64,v2:u64,v3:u64,v4:u64,v5:u64) -> (u64) effects(read,write,trap) external()
 fn shape_command_finish(v0:mutbuf,v1:mutbuf,v2:u64,v3:u64,v4:u64,v5:u64) -> (u64) effects(read,write,trap) external()
-fn so_data_base(v0:u64) -> (u64) effects(read,write,trap) external()
-fn so_extent_release(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
-fn so_fill_range(v0:mutbuf,v1:u64,v2:u64,v3:u64) -> (u64) effects(read,write,trap) external()
+fn shrjam(v0:u64,v1:u64) -> (u64) effects(read,write,trap) external()
 fn so_slot_drop(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn so_slot_lookup(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn so_slot_new(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
@@ -95,8 +93,112 @@ fn typed_store(v0:mutbuf,v1:u64,v2:u64,v3:u64) -> (u64) effects(read,write,trap)
 fn valid(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn valid_f32(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn version_can_bump(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
+fn widen32(v0:u64) -> (u64) effects(read,write,trap) external()
 fn wrapped_f64_to_f32(v0:u64) -> (u64) effects(read,write,trap) external()
 fn wrapped_mul_f32(v0:u64,v1:u64) -> (u64) effects(read,write,trap) external()
+fn half_cast_admit(v0:mutbuf,v1:u64,v2:u64,v3:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(v0:mutbuf,v1:u64,v2:u64,v3:u64)
+  v14:u64 = call(v0,v1) {"function":"tensor_dtype"}
+  v15:u64 = const() {"value":0}
+  v16:bool = compare.eq(v14,v15)
+  v17:u64 = const() {"value":5}
+  v18:bool = compare.eq(v14,v17)
+  v19:u64 = const() {"value":6}
+  v20:bool = compare.eq(v14,v19)
+  v21:u64 = const() {"value":0}
+  v22:bool = compare.eq(v2,v21)
+  v23:u64 = const() {"value":5}
+  v24:bool = compare.eq(v2,v23)
+  v25:u64 = const() {"value":6}
+  v26:bool = compare.eq(v2,v25)
+  v27:bool = bool.or(v24,v26)
+  v28:bool = bool.and(v16,v27)
+  v29:bool = bool.or(v22,v24)
+  v30:bool = bool.and(v18,v29)
+  v31:bool = bool.or(v22,v26)
+  v32:bool = bool.and(v20,v31)
+  v33:bool = bool.or(v28,v30)
+  v34:bool = bool.or(v33,v32)
+  v35:u64 = const() {"value":1}
+  v36:bool = compare.le(v3,v35)
+  v37:bool = bool.and(v34,v36)
+  branch v37 b1(v0,v1,v2,v3) b3(v0)
+block b1(v4:mutbuf,v5:u64,v6:u64,v7:u64)
+  v38:u64 = call(v4,v5) {"function":"dptr"}
+  v39:u64 = const() {"value":32}
+  v40:u64 = int.add.wrap(v38,v39)
+  v41:u64 = call(v4,v40) {"function":"getw"}
+  v42:u64 = const() {"value":0}
+  v43:bool = compare.ne(v41,v42)
+  branch v43 b4(v4) b2(v4,v5,v6,v7)
+block b2(v8:mutbuf,v9:u64,v10:u64,v11:u64)
+  v44:u64 = call(v8,v9,v10,v11) {"function":"half_copy_tensor"}
+  ret(v44)
+block b3(v12:mutbuf)
+  v45:u64 = const() {"value":7}
+  v46:u64 = call(v12,v45) {"function":"terror"}
+  ret(v46)
+block b4(v13:mutbuf)
+  v47:u64 = const() {"value":5}
+  v48:u64 = call(v13,v47) {"function":"terror"}
+  ret(v48)
+end
+fn narrow64(v0:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(v0:u64)
+  v1:u64 = const() {"value":32}
+  v2:u64 = int.shr.checked(v0,v1)
+  v3:u64 = const() {"value":2147483648}
+  v4:u64 = bit.and(v2,v3)
+  v5:u64 = const() {"value":52}
+  v6:u64 = int.shr.checked(v0,v5)
+  v7:u64 = const() {"value":2047}
+  v8:u64 = bit.and(v6,v7)
+  v9:u64 = const() {"value":4503599627370495}
+  v10:u64 = bit.and(v0,v9)
+  v11:bool = compare.eq(v8,v7)
+  branch v11 b1(v4,v10) b2(v4,v8,v10)
+block b1(v13:u64,v15:u64)
+  v20:u64 = const() {"value":0}
+  v21:bool = compare.ne(v15,v20)
+  v22:u64 = const() {"value":2143289344}
+  v23:u64 = bit.or(v13,v22)
+  v24:u64 = const() {"value":2139095040}
+  v25:u64 = bit.or(v13,v24)
+  v26:u64 = select(v21,v23,v25)
+  ret(v26)
+block b2(v17:u64,v18:u64,v19:u64)
+  v27:u64 = const() {"value":873}
+  v28:bool = compare.lt(v18,v27)
+  branch v28 b3(v17) b4(v17,v18,v19)
+block b3(v30:u64)
+  ret(v30)
+block b4(v34:u64,v35:u64,v36:u64)
+  v37:u64 = const() {"value":4503599627370496}
+  v38:u64 = bit.or(v36,v37)
+  v39:u64 = const() {"value":1}
+  v40:u64 = int.add.wrap(v35,v39)
+  v41:u64 = const() {"value":26}
+  v42:u64 = call(v38,v41) {"function":"shrjam"}
+  v43:u64 = call(v34,v40,v42) {"function":"packf"}
+  ret(v43)
+end
+fn f64_convert_value(v0:u64,v1:u64,v2:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(v0:u64,v1:u64,v2:u64)
+  v8:bool = compare.eq(v1,v2)
+  branch v8 b1(v0) b2(v0,v1)
+block b1(v3:u64)
+  ret(v3)
+block b2(v4:u64,v5:u64)
+  v9:u64 = const() {"value":0}
+  v10:bool = compare.eq(v5,v9)
+  branch v10 b3(v4) b4(v4)
+block b3(v6:u64)
+  v11:u64 = call(v6) {"function":"widen32"}
+  ret(v11)
+block b4(v7:u64)
+  v12:u64 = call(v7) {"function":"narrow64"}
+  ret(v12)
+end
 fn f64_copy_tensor(v0:mutbuf,v1:u64,v2:u64,v3:u64) -> (u64) effects(read,write,trap) entry(b0)
 block b0(v0:mutbuf,v1:u64,v2:u64,v3:u64)
   v4:u64 = call(v0,v1) {"function":"valid"}
@@ -5492,108 +5594,4 @@ block b0(v0:mutbuf,v1:readbuf,v2:u64,v3:u64,v4:u64)
   _ = buffer.copy_range(v0,v1,v8,v9,v10)
   v11:u64 = const() {"value":0}
   ret(v11)
-end
-fn so_state_migrate(v0:readbuf,v1:mutbuf,v2:u64,v3:u64) -> (u64) effects(read,write,trap) entry(b0)
-block b0(v0:readbuf,v1:mutbuf,v2:u64,v3:u64)
-  v4:u64 = const() {"value":16}
-  v5:u64 = call(v0,v4) {"function":"so_rget"}
-  v6:u64 = const() {"value":24}
-  v7:u64 = call(v0,v6) {"function":"so_rget"}
-  v8:u64 = call(v1,v2,v3) {"function":"so_state_init"}
-  v9:u64 = const() {"value":128}
-  v10:u64 = const() {"value":512}
-  v11:u64 = int.mul.wrap(v2,v10)
-  v12:u64 = int.add.wrap(v9,v11)
-  v13:u64 = const() {"value":1}
-  v14:u64 = int.add.wrap(v2,v13)
-  v15:u64 = int.mul.wrap(v14,v4)
-  v16:u64 = const() {"value":0}
-  v17:u64 = call(v1,v12,v15,v16) {"function":"so_fill_range"}
-  v18:u64 = const() {"value":32}
-  v19:u64 = call(v0,v18) {"function":"so_rget"}
-  v20:u64 = call(v1,v18,v19) {"function":"so_uput"}
-  v21:u64 = const() {"value":40}
-  v22:u64 = call(v0,v21) {"function":"so_rget"}
-  v23:u64 = int.add.wrap(v22,v13)
-  v24:u64 = call(v1,v21,v23) {"function":"so_uput"}
-  jump b1(v0,v1,v2,v3,v5,v7,v16)
-block b1(v25:readbuf,v26:mutbuf,v27:u64,v28:u64,v29:u64,v30:u64,v31:u64)
-  v32:u64 = const() {"value":8}
-  v33:bool = compare.lt(v31,v32)
-  branch v33 b2(v25,v26,v27,v28,v29,v30,v31) b3(v25,v26,v27,v28,v29,v30)
-block b2(v34:readbuf,v35:mutbuf,v36:u64,v37:u64,v38:u64,v39:u64,v40:u64)
-  v48:u64 = const() {"value":128}
-  v49:u64 = int.mul.wrap(v40,v36)
-  v50:u64 = const() {"value":64}
-  v51:u64 = int.mul.wrap(v49,v50)
-  v52:u64 = int.add.wrap(v48,v51)
-  v53:u64 = int.mul.wrap(v40,v38)
-  v54:u64 = int.mul.wrap(v53,v50)
-  v55:u64 = int.add.wrap(v48,v54)
-  v56:u64 = int.mul.wrap(v38,v50)
-  v57:u64 = call(v35,v34,v52,v55,v56) {"function":"so_copy_range"}
-  v58:u64 = const() {"value":1}
-  v59:u64 = int.add.wrap(v40,v58)
-  jump b1(v34,v35,v36,v37,v38,v39,v59)
-block b3(v41:readbuf,v42:mutbuf,v43:u64,v44:u64,v45:u64,v46:u64)
-  v60:u64 = const() {"value":128}
-  v61:u64 = const() {"value":512}
-  v62:u64 = int.mul.wrap(v43,v61)
-  v63:u64 = int.add.wrap(v60,v62)
-  v64:u64 = int.mul.wrap(v45,v61)
-  v65:u64 = int.add.wrap(v60,v64)
-  v66:u64 = const() {"value":32}
-  v67:u64 = call(v41,v66) {"function":"so_rget"}
-  v68:u64 = const() {"value":16}
-  v69:u64 = int.mul.wrap(v67,v68)
-  v70:u64 = call(v42,v41,v63,v65,v69) {"function":"so_copy_range"}
-  v71:u64 = call(v43) {"function":"so_data_base"}
-  v72:u64 = call(v45) {"function":"so_data_base"}
-  v73:u64 = call(v42,v41,v71,v72,v46) {"function":"so_copy_range"}
-  v74:bool = compare.gt(v44,v46)
-  branch v74 b4(v41,v42,v44,v46) b5(v41,v42)
-block b4(v75:readbuf,v76:mutbuf,v78:u64,v80:u64)
-  v89:u64 = int.sub.wrap(v78,v80)
-  v90:u64 = call(v76,v80,v89) {"function":"so_extent_release"}
-  ret(v90)
-block b5(v82:readbuf,v83:mutbuf)
-  v91:u64 = const() {"value":0}
-  ret(v91)
-end
-fn clone_state(v0:readbuf,v1:mutbuf,v2:u64,v3:u64) -> (u64) effects(read,write,trap) entry(b0)
-block b0(v0:readbuf,v1:mutbuf,v2:u64,v3:u64)
-  v4:u64 = const() {"value":16}
-  v5:u64 = call(v0,v4) {"function":"so_rget"}
-  v6:bool = compare.eq(v5,v2)
-  branch v6 b1(v0,v1,v2,v3) b2(v0,v1,v2,v3,v6)
-block b1(v7:readbuf,v8:mutbuf,v9:u64,v10:u64)
-  v17:u64 = const() {"value":24}
-  v18:u64 = call(v7,v17) {"function":"so_rget"}
-  v19:bool = compare.eq(v18,v10)
-  jump b2(v7,v8,v9,v10,v19)
-block b2(v12:readbuf,v13:mutbuf,v14:u64,v15:u64,v16:bool)
-  branch v16 b3(v12,v13) b4(v12,v13,v14,v15)
-block b3(v20:readbuf,v21:mutbuf)
-  v28:u64 = const() {"value":0}
-  v29:usize = buffer.len(v20)
-  v30:u64 = int.cast(v29) {"mode":"wrap"}
-  v31:usize = int.cast(v28) {"mode":"wrap"}
-  v32:usize = int.cast(v30) {"mode":"wrap"}
-  _ = buffer.copy_range(v21,v20,v31,v31,v32)
-  ret(v28)
-block b4(v24:readbuf,v25:mutbuf,v26:u64,v27:u64)
-  v33:u64 = const() {"value":0}
-  v34:u64 = const() {"value":139264}
-  v35:usize = int.cast(v33) {"mode":"wrap"}
-  v36:usize = int.cast(v34) {"mode":"wrap"}
-  _ = buffer.copy_range(v25,v24,v35,v35,v36)
-  v37:u64 = call(v24,v25,v26,v27) {"function":"so_state_migrate"}
-  ret(v37)
-end
-fn object_size(v0:u64,v1:u64) -> (u64) effects(read,write,trap) entry(b0)
-block b0(v0:u64,v1:u64)
-  v2:u64 = const() {"value":139264}
-  v3:u64 = call(v0,v1) {"function":"so_state_size"}
-  v4:u64 = int.add.wrap(v2,v3)
-  ret(v4)
 end

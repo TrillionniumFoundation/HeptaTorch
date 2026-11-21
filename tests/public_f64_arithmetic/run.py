@@ -123,19 +123,25 @@ def read_reference(directory,execution,inputs):
 
 
 def source_inverse(built,inputs):
-    actual=inputs.bind(ROOT/'tools/current_runtime/source/runtime.hepta')
+    relu=module(ROOT/'tools/current_runtime/typed_relu_source_transition.py','typed_relu_before_arithmetic_inverse',inputs.bind)
+    same773,relu_proof=relu.restore_source(inputs.bind(ROOT/'tools/current_runtime/source/runtime.hepta'),inputs.bind)
+    require(relu_proof['source_sha256']==built['source_sha256'] and relu_proof['functions']==775
+        and relu_proof['parent_functions']==773 and relu_proof['changed_functions']==['unary']
+        and relu_proof['whole_source_inverse_exact'] is True and relu_proof['whole_round_trip_exact'] is True,
+        'complete actual typed ReLU775 inverse before the frozen same-F64 source')
     same=module(ROOT/'tools/current_runtime/same_f64_arithmetic_source_transition.py','same_f64_before_mixed_inverse',inputs.bind)
-    previous,same_proof=same.restore_source(actual,inputs.bind)
+    previous,same_proof=same.restore_source(same773,inputs.bind)
     transition=module(ROOT/'tools/current_runtime/public_f64_arithmetic_source_transition.py','public_f64_arithmetic_exact_inverse',inputs.bind)
     original,proof=transition.restore_source(previous,inputs.bind)
-    require(same_proof['source_sha256']==built['source_sha256'] and same_proof['functions']==773
+    require(same_proof['source_sha256']==relu_proof['parent_source_sha256'] and same_proof['functions']==773
         and same_proof['parent_functions']==773 and same_proof['whole_source_inverse_exact'] is True
         and same_proof['whole_round_trip_exact'] is True and same_proof['same_f64_op1_to4_route_changed'] is True
         and same_proof['same_f64_old_fallback_preserved'] is False
         and proof['source_sha256']==same_proof['parent_source_sha256'] and proof['parent_functions']==771
         and proof['whole_source_inverse_exact'] is True and proof['whole_round_trip_exact'] is True,
         'actual same-F64 successor and exact mixed773 then771 predecessor recovery')
-    return dict(same_proof,mixed_predecessor_source_inverse=proof)
+    return dict(relu_proof,same_f64_predecessor_source_inverse=
+        dict(same_proof,mixed_predecessor_source_inverse=proof))
 
 
 def legacy_alias_packet(n,left,right,invalid_suffix=False):

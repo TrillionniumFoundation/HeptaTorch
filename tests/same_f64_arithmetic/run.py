@@ -125,9 +125,15 @@ def read_reference(directory,execution,inputs):
 
 
 def source_inverse(built,inputs):
+    relu=module(ROOT/'tools/current_runtime/typed_relu_source_transition.py','typed_relu_before_arithmetic_inverse',inputs.bind)
+    same773,relu_proof=relu.restore_source(inputs.bind(ROOT/'tools/current_runtime/source/runtime.hepta'),inputs.bind)
+    require(relu_proof['source_sha256']==built['source_sha256'] and relu_proof['functions']==775
+        and relu_proof['parent_functions']==773 and relu_proof['changed_functions']==['unary']
+        and relu_proof['whole_source_inverse_exact'] is True and relu_proof['whole_round_trip_exact'] is True,
+        'complete actual typed ReLU775 inverse before the frozen same-F64 source')
     transition=module(ROOT/'tools/current_runtime/same_f64_arithmetic_source_transition.py','same_f64_arithmetic_exact_inverse',inputs.bind)
-    previous,proof=transition.restore_source(inputs.bind(ROOT/'tools/current_runtime/source/runtime.hepta'),inputs.bind)
-    require(proof['source_sha256']==built['source_sha256'] and proof['functions']==773
+    previous,proof=transition.restore_source(same773,inputs.bind)
+    require(proof['source_sha256']==relu_proof['parent_source_sha256'] and proof['functions']==773
         and proof['parent_functions']==773 and proof['whole_source_inverse_exact'] is True
         and proof['whole_round_trip_exact'] is True and proof['same_f64_op1_to4_route_changed'] is True
         and proof['same_f64_old_fallback_preserved'] is False
@@ -139,7 +145,7 @@ def source_inverse(built,inputs):
         and proof['exact_failed_v1_source_recovered'] is True
         and proof['same_f64_unsupported_operations_original_fallback'] is True,
         'complete same F64 exact arithmetic guard successor and original mixed773 recovery')
-    return proof
+    return dict(relu_proof,same_f64_predecessor_source_inverse=proof)
 
 
 

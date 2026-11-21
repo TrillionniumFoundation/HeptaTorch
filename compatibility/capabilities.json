@@ -40,11 +40,11 @@
     "bounded_types": {
       "0": "IEEE binary32 Tensor: documented arithmetic, AD and conversion paths",
       "1": "Bool Tensor with one-byte elements: documented typed/logical/reduction paths",
-      "2": "signed int64 Tensor with eight-byte elements: documented typed/integer/mixed/reduction paths; native wrapping negation in admitted no-grad layouts",
+      "2": "signed int64 Tensor with eight-byte elements: documented typed/integer/mixed/reduction paths; native wrapping negation in admitted no-grad layouts Native no-grad ReLU is implemented for the admitted layouts.",
       "3": "internal rank-zero wrapped IEEE binary64 Scalar only; no general F64 Tensor service",
-      "4": "Public binary64 selected storage/conversion/logical paths, predicates, exact-bit negation and no-grad mixed F64 with F32/Bool/I64 add/sub/mul/true-div on admitted rank0..4 layouts. Direct I64-to-F64 uses nearest-even integer conversion without an intermediate F32. Direct requires_grad/as_strided, same-F64 NaN payload parity and general F64 Tensor parity remain open.",
-      "5": "Public F16 storage/copy/fill, selected F32 conversion, dense no-grad logical operations, numeric predicates and tested tensor addition/subtraction (alpha=1), multiplication, true division and negation. Arithmetic uses an explicit AVX2 fixed-wheel Torch oracle. Other arithmetic forms, architectures and Half AD remain open.",
-      "6": "Public BF16 storage/copy/fill, selected F32 conversions, dense no-grad logical operations, numeric predicates and tested tensor addition/subtraction (alpha=1), multiplication, true division and negation. Copy follows fixed AVX2/AVX512 layouts; arithmetic uses an explicit AVX2 fixed-wheel Torch oracle. DEFAULT, other architectures, other arithmetic forms and Half AD remain open."
+      "4": "Public binary64 selected storage/conversion/logical paths, predicates, exact-bit negation and no-grad mixed F64 with F32/Bool/I64 add/sub/mul/true-div on admitted rank0..4 layouts. Direct I64-to-F64 uses nearest-even integer conversion without an intermediate F32. Direct requires_grad/as_strided, general F64 Tensor parity and complete architecture support remain open. Same-F64 arithmetic and ReLU have finite exact-bit AVX2 gates, which must execute on this current image.",
+      "5": "Public F16 storage/copy/fill, selected F32 conversion, dense no-grad logical operations, numeric predicates and tested tensor addition/subtraction (alpha=1), multiplication, true division, negation and ReLU. Arithmetic uses an explicit AVX2 fixed-wheel Torch oracle. Other arithmetic forms, architectures and Half AD remain open.",
+      "6": "Public BF16 storage/copy/fill, selected F32 conversions, dense no-grad logical operations, numeric predicates and tested tensor addition/subtraction (alpha=1), multiplication, true division, negation and ReLU. Copy follows fixed AVX2/AVX512 layouts; arithmetic uses an explicit AVX2 fixed-wheel Torch oracle. DEFAULT, other architectures, other arithmetic forms and Half AD remain open."
     },
     "resource_bounds": {
       "rank_range": [
@@ -203,25 +203,29 @@
         "full_dtype_qualified": false
       },
       "3": {
-        "operation_selector": 6,
-        "name": "Half, I64 and public F64 tensor negation",
-        "scope": "Public F16/BF16/I64/F64 no-grad tensors in admitted layouts. Exact fresh fixed-wheel Torch bytes, NaN payloads, geometry, independent ownership and unchanged inputs are required. I64 uses wrapping zero-minus; F64 flips only the sign bit. Other typed unary operations and Half/F64 AD remain unsupported.",
+        "name": "Half, I64 and public F64 unary kernels",
+        "scope": "Public F16/BF16/I64/F64 no-grad tensors in admitted rank0..4 layouts. Both operations require exact fresh fixed-wheel Torch bytes, geometry, independent ownership and unchanged inputs. Negation preserves its wrapping/sign-bit semantics. ReLU preserves negative zero; F64 NaN payloads remain unchanged, while reduced-float32-element vector chunks reproduce fixed AVX2 quieting/canonicalization and scalar tails retain the observed payloads. Bool ReLU is refused. Other typed unary operations and Half/F64 AD remain open.",
         "required_current_image_suites": [
           "half47",
           "half_neg",
           "f64_48",
-          "wide_neg"
+          "wide_neg",
+          "typed_relu"
         ],
-        "full_dtype_qualified": false
+        "full_dtype_qualified": false,
+        "operation_selectors": {
+          "5": "ReLU",
+          "6": "negation"
+        }
       }
     },
     "current_image_qualification": {
-      "status": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+      "status": "PENDING_ACTUAL_29_GROUP_13851_RUN",
       "candidate_identity": {
-        "source_sha256": "846e592beaa7847383cee668bc33d25cd81e79052bd4612252e2f72a83d96d05",
-        "native_sha256": "5cba6f11269f71efb319aa7368009055bb2e9b9571329daeae9bbc453287c3ad",
-        "manifest_sha256": "62795753a0e782fe3f75b9086653d41aba743fda356673398c12432d576fac15",
-        "functions": 773,
+        "source_sha256": "0b000b51288af20490162efd8e525b86359a32cdd6d2521df97ecd9cddbd7b43",
+        "native_sha256": "ef82340209edc4dfb8d7ed0ecbc65e144fe26078cb29a0ba327798533476e86e",
+        "manifest_sha256": "348ed8e949256f985cdca0d9c612dc646ae738beee6013c27ab405d2df3e67c8",
+        "functions": 775,
         "units": 15
       },
       "source_manifest": "tools/current_runtime/source/manifest.json",
@@ -253,18 +257,19 @@
         "wide_neg": 405,
         "half_div": 1196,
         "public_f64_arithmetic": 2541,
-        "same_f64_arithmetic": 5088
+        "same_f64_arithmetic": 5088,
+        "typed_relu": 776
       },
-      "required_group_count": 28,
-      "required_cases_total": 13075,
-      "success_rule": "All28 groups must execute anew and pass on the current source, main image and actual cold build. Generator131 also executes separately linked current-object probes. Every original numerical predicate, tolerance, resource recovery, owner/transport readback, exit/EOF and unchanged-input requirement remains mandatory. The original239 Half entry requests partition into151 refusals,22 multiplication results,2 negations 42 add/sub results (40 single commands and2 same-frame FE transactions) and22 true-division results, all with explicit fresh actual-Torch successor evidence. Four former multiplication-observer arithmetic refusals bind the same1006-case reference. Original failure evidence remains unchanged. F6448 preserves all87 entry requests as63 refusals and24 numerical successors:one negation bound to the same actual405 reference as wide_neg,22 mixed single commands andone original FE transaction bound to the same actual2541 reference as public_f64_arithmetic. Both Bool subtraction errors and two original OOM controls remain. The same actual1196 division reference, process receipt and complete inputs bind Half47, multiplication312, addition/subtraction1006 and division1196. The two former division-refusal controls in multiplication312 and four in addition/subtraction1006 require exact observed numeric successors. Unrecovered native769 results are not transferred. Same-F64 adds5088 actual fixed-AVX2 cases, retaining the original3288 prefix and1800 additional singleton rank/stride cases. The original failed3288 run and failed5088 v2b run remain failures. The same actual new image must pass the unchanged2541 mixed comparisons and all original48 F64 cases; focused successes and source inverses do not substitute for the complete new tree run.",
+      "required_group_count": 29,
+      "required_cases_total": 13851,
+      "success_rule": "All29 groups must execute anew and pass on the current source, main image and actual cold build. Generator131 also executes separately linked current-object probes. Every original numerical predicate, tolerance, resource recovery, owner/transport readback, exit/EOF and unchanged-input requirement remains mandatory. The original239 Half entry requests partition into151 refusals,22 multiplication results,2 negations 42 add/sub results (40 single commands and2 same-frame FE transactions) and22 true-division results, all with explicit fresh actual-Torch successor evidence. Four former multiplication-observer arithmetic refusals bind the same1006-case reference. Original failure evidence remains unchanged. F6448 preserves all87 entry requests as63 refusals and24 numerical successors:one negation bound to the same actual405 reference as wide_neg,22 mixed single commands andone original FE transaction bound to the same actual2541 reference as public_f64_arithmetic. Both Bool subtraction errors and two original OOM controls remain. The same actual1196 division reference, process receipt and complete inputs bind Half47, multiplication312, addition/subtraction1006 and division1196. The two former division-refusal controls in multiplication312 and four in addition/subtraction1006 require exact observed numeric successors. Unrecovered native769 results are not transferred. Same-F64 adds5088 actual fixed-AVX2 cases, retaining the original3288 prefix and1800 additional singleton rank/stride cases. The original failed3288 run and failed5088 v2b run remain failures. The same actual new image must pass the unchanged2541 mixed comparisons and all original48 F64 cases; focused successes and source inverses do not substitute for the complete new tree run. The new ReLU776 gate shares its exact current fixed-wheel reference and process receipt with two original half_neg371 controls and two original wide_neg405 controls. Original Half239 and F6487 partitions remain unchanged. Every prior numerical, error, allocation, owner and transport predicate remains required; four now-supported ReLU requests have explicit numerical successors.",
       "current_execution_evidence": null,
       "observed_executions": [],
       "historical_qualification_transferred": false,
-      "qualification_plan": "validation/current-runtime-same-f64/qualification-plan.json",
+      "qualification_plan": "validation/current-runtime775/qualification-plan.json",
       "group_contracts": {
         "generator131": {
-          "status": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+          "status": "PENDING_ACTUAL_29_GROUP_13851_RUN",
           "subgroups": {
             "original24": 24,
             "native11": 11,
@@ -280,7 +285,7 @@
           "historical_probe_pass_transferred": false
         },
         "public_f64_logical192": {
-          "status": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+          "status": "PENDING_ACTUAL_29_GROUP_13851_RUN",
           "cases": 192,
           "reader": "tests/public_f64_logical/qualify.py",
           "pure_admission": "tests/current_runtime_public_f64_logical192.py",
@@ -296,7 +301,7 @@
           "original147_replaced": false
         },
         "f64_48": {
-          "status": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+          "status": "PENDING_ACTUAL_29_GROUP_13851_RUN",
           "cases": 48,
           "original_subgroups": {
             "numeric": 33,
@@ -332,7 +337,7 @@
           "arithmetic_reference_group": "public_f64_arithmetic"
         },
         "half47": {
-          "status": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+          "status": "PENDING_ACTUAL_29_GROUP_13851_RUN",
           "cases": 47,
           "original_subgroups": {
             "numeric": 26,
@@ -380,7 +385,7 @@
           "retained_private3_division_protocol_refusals": 4
         },
         "half_logical264": {
-          "status": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+          "status": "PENDING_ACTUAL_29_GROUP_13851_RUN",
           "cases": 264,
           "accepted_reference_cases": 222,
           "observed_reference_errors": 42,
@@ -394,7 +399,7 @@
           "historical_pass_transferred": false
         },
         "half_transactions12": {
-          "status": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+          "status": "PENDING_ACTUAL_29_GROUP_13851_RUN",
           "cases": 12,
           "direct_successes": 6,
           "failed_transactions_with_invalid_suffix": 6,
@@ -406,7 +411,7 @@
           "historical_Half47_and239_evidence_rewritten": false
         },
         "numeric_predicates": {
-          "status": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+          "status": "PENDING_ACTUAL_29_GROUP_13851_RUN",
           "cases": 485,
           "input_recipes": 97,
           "operations": [
@@ -440,7 +445,7 @@
           "historical_pass_transferred": false
         },
         "bf16_copy": {
-          "status": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+          "status": "PENDING_ACTUAL_29_GROUP_13851_RUN",
           "cases": 280,
           "source": "tests/bf16_copy/",
           "pure_admission": "tests/bf16_copy/run.py",
@@ -458,7 +463,7 @@
           "full_dtype_qualified": false
         },
         "half_mul": {
-          "status": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+          "status": "PENDING_ACTUAL_29_GROUP_13851_RUN",
           "cases": 312,
           "source": "tests/half_mul/",
           "pure_admission": "tests/half_mul/run.py",
@@ -484,7 +489,7 @@
           "division_observer_inverse": "tools/current_runtime/half_div_observer_transition.py"
         },
         "half_neg": {
-          "status": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+          "status": "PENDING_ACTUAL_29_GROUP_13851_RUN",
           "cases": 371,
           "source": "tests/half_neg/",
           "pure_admission": "tests/half_neg/run.py",
@@ -494,10 +499,10 @@
           "cpu_capability": "AVX2",
           "requested_cpu_capability": "avx2",
           "torch_threads": 1,
-          "required_frames": 11377,
-          "required_assertions": 37744,
-          "required_owner_snapshots": 2717,
-          "required_bitwise_elements": 272444,
+          "required_frames": 11415,
+          "required_assertions": 37920,
+          "required_owner_snapshots": 2729,
+          "required_bitwise_elements": 272448,
           "required_mapping_reads": 4,
           "required_packet_controls": 46,
           "required_actual_allocation_refusals": 2,
@@ -505,10 +510,12 @@
           "physical_replay_required": true,
           "original_refusal_successors": 2,
           "historical239_evidence_rewritten": false,
-          "full_dtype_qualified": false
+          "full_dtype_qualified": false,
+          "original_ReLU_requests_with_explicit_successor": 2,
+          "ReLU_reference_group": "typed_relu"
         },
         "half_addsub": {
-          "status": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+          "status": "PENDING_ACTUAL_29_GROUP_13851_RUN",
           "cases": 1006,
           "source": "tests/half_addsub/",
           "pure_admission": "tests/half_addsub/run.py",
@@ -543,7 +550,7 @@
           "division_observer_inverse": "tools/current_runtime/half_div_observer_transition.py"
         },
         "wide_neg": {
-          "status": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+          "status": "PENDING_ACTUAL_29_GROUP_13851_RUN",
           "cases": 405,
           "source": "tests/wide_neg/",
           "pure_admission": "tests/wide_neg/run.py",
@@ -553,10 +560,10 @@
           "cpu_capability": "AVX2",
           "requested_cpu_capability": "avx2",
           "torch_threads": 1,
-          "required_frames": 10484,
-          "required_assertions": 37314,
-          "required_owner_snapshots": 2959,
-          "required_bitwise_elements": 287275,
+          "required_frames": 10522,
+          "required_assertions": 37490,
+          "required_owner_snapshots": 2971,
+          "required_bitwise_elements": 287279,
           "required_mapping_reads": 4,
           "required_packet_controls": 46,
           "required_actual_allocation_refusals": 2,
@@ -564,10 +571,12 @@
           "physical_replay_required": true,
           "original_F64_refusal_successors": 1,
           "historical87_evidence_rewritten": false,
-          "full_dtype_qualified": false
+          "full_dtype_qualified": false,
+          "original_ReLU_requests_with_explicit_successor": 2,
+          "ReLU_reference_group": "typed_relu"
         },
         "half_div": {
-          "status": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+          "status": "PENDING_ACTUAL_29_GROUP_13851_RUN",
           "cases": 1196,
           "source": "tests/half_div/",
           "pure_admission": "tests/half_div/run.py",
@@ -613,7 +622,7 @@
           "full_dtype_qualified": false
         },
         "public_f64_arithmetic": {
-          "status": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+          "status": "PENDING_ACTUAL_29_GROUP_13851_RUN",
           "cases": 2541,
           "source": "tests/public_f64_arithmetic/",
           "pure_admission": "tests/public_f64_arithmetic/run.py",
@@ -664,7 +673,7 @@
           "complete_original_observer_inverse": "tools/current_runtime/same_f64_arithmetic_observer_transition.py"
         },
         "same_f64_arithmetic": {
-          "status": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+          "status": "PENDING_ACTUAL_29_GROUP_13851_RUN",
           "cases": 5088,
           "source": "tests/same_f64_arithmetic/",
           "pure_admission": "tests/same_f64_arithmetic/run.py",
@@ -712,12 +721,64 @@
           "required_packet_controls": 88,
           "required_actual_allocation_refusals": 4,
           "required_identical_request_recoveries": 4
+        },
+        "typed_relu": {
+          "status": "PENDING_ACTUAL_29_GROUP_13851_RUN",
+          "cases": 776,
+          "source": "tests/typed_relu/",
+          "pure_admission": "tests/typed_relu/run.py",
+          "case_sha256": "117a548388a0ca08715e5922abb2ea0bf4b1d3b346ee3212238316400378367f",
+          "source_dtype_codes": [
+            2,
+            4,
+            5,
+            6
+          ],
+          "opcode": 3,
+          "operation": 5,
+          "maximum_rank": 4,
+          "ordinary_no_grad_only": true,
+          "fresh_pinned_Torch_reference_required": true,
+          "cpu_capability": "AVX2",
+          "torch_threads": 1,
+          "exact_bits_and_metadata": true,
+          "physical_replay_required": true,
+          "source_inverse": "tools/current_runtime/typed_relu_source_transition.py",
+          "complete_original_observer_inverse": "tools/current_runtime/typed_relu_observer_transition.py",
+          "same_actual_reference_required_for": [
+            "half_neg",
+            "wide_neg",
+            "typed_relu"
+          ],
+          "required_frames": 21863,
+          "required_assertions": 75060,
+          "required_owner_snapshots": 5672,
+          "required_bitwise_elements": 559719,
+          "required_mapping_reads": 8,
+          "required_packet_controls": 90,
+          "required_actual_allocation_refusals": 4,
+          "required_identical_request_recoveries": 4,
+          "full_dtype_qualified": false,
+          "historical_pass_transferred": false
         }
       },
       "image_scope": "One main production image plus separately identified Generator ABI/reordered probe images.",
       "cold_build_scope": "PASS_NATIVE_BUILD_ONLY and source preparation do not establish runtime qualification.",
-      "previous_merged_execution": "validation/current-runtime765/ci-review.json",
-      "full_13075_executed": false
+      "previous_merged_execution": {
+        "artifact_id": 14698175373,
+        "artifact_sha256": "89456a06a3a8fa5c5289d7bfd621b10702f2a61b32fa7377de0ed652e2b96cee",
+        "cases": 5446,
+        "complete_original_artifact_readback": "PASS",
+        "groups": 26,
+        "merge_commit": "e1a2f67e894b3d9b823e9fbcc5dfc79e12275757",
+        "native_sha256": "db935c74bf0a2b359038c7be56f5a5721af8f0c2d757a2330527bd751861ae86",
+        "pull_request": 51,
+        "scope": "Historical merged finite CPU gate; not inherited by this candidate.",
+        "source_sha256": "f534c77069abc15ba15879d44492aacbc5f3709f6a861a0f0b9e0e365232fca1",
+        "tree": "512127e458e9778513bb1eb830304f82cbac25fc",
+        "workflow_run": 44877738258
+      },
+      "full_13851_executed": false
     },
     "controls_required": {
       "original35_positive": 4,
@@ -774,7 +835,11 @@
       "public_f64_arithmetic_packet_controls": 82,
       "public_f64_arithmetic_allocation_recoveries": 4,
       "same_f64_arithmetic_packet_controls": 88,
-      "same_f64_arithmetic_allocation_recoveries": 4
+      "same_f64_arithmetic_allocation_recoveries": 4,
+      "typed_relu_packet_controls": 90,
+      "typed_relu_allocation_recoveries": 4,
+      "old_half_neg_ReLU_successors": 2,
+      "old_wide_neg_ReLU_successors": 2
     },
     "reference_policy": "Fixed independently produced reference bytes or the exact pinned live Torch CPU interpreter; no native-result-derived expected values.",
     "torch_reference_lock": "compatibility/pytorch-oracle-lock.json",
@@ -784,8 +849,8 @@
     "pending_audit_findings": [
       {
         "id": "bf16-to-nan-payload",
-        "status": "PENDING_CURRENT_28_GROUP_REQUALIFICATION",
-        "scope": "The scoped F32-to-BF16 AVX2/AVX512 NaN copy repair has independent predecessor evidence. Its280 exact-bit cases must execute anew on current773; DEFAULT and other architecture paths remain outside the claim.",
+        "status": "PENDING_ACTUAL_29_GROUP_13851_RUN",
+        "scope": "The scoped F32-to-BF16 AVX2/AVX512 NaN copy repair has independent predecessor evidence. Its280 exact-bit cases must execute anew on current775; DEFAULT and other architecture paths remain outside the claim.",
         "full_dtype_closure_claimed": false,
         "historical_review": "validation/current-runtime742/bf16-review.json"
       }
@@ -800,7 +865,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_29_GROUP_13851_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -811,7 +876,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_29_GROUP_13851_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -825,7 +890,7 @@
         "sum_f32_17",
         "asstrided16"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_29_GROUP_13851_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -838,7 +903,7 @@
         "half_logical264",
         "half_transactions12"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_29_GROUP_13851_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -852,7 +917,7 @@
         "half_logical264",
         "half_transactions12"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_29_GROUP_13851_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -863,7 +928,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_29_GROUP_13851_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -876,7 +941,7 @@
         "current35",
         "asstrided16"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_29_GROUP_13851_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -888,7 +953,7 @@
         "current35",
         "live32"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_29_GROUP_13851_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -899,7 +964,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_29_GROUP_13851_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -910,7 +975,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_29_GROUP_13851_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -921,7 +986,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_29_GROUP_13851_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -932,7 +997,7 @@
         "base270",
         "current35"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_29_GROUP_13851_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -945,7 +1010,7 @@
         "cat4",
         "metadata10"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_29_GROUP_13851_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -958,7 +1023,7 @@
         "logical147",
         "resource7"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_29_GROUP_13851_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -970,7 +1035,7 @@
         "current35",
         "live32"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_29_GROUP_13851_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -983,7 +1048,7 @@
         "logical147",
         "generator131"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_29_GROUP_13851_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -994,7 +1059,7 @@
         "f64_48",
         "public_f64_logical192"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_29_GROUP_13851_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -1007,7 +1072,7 @@
         "half_transactions12",
         "bf16_copy"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_29_GROUP_13851_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -1017,7 +1082,7 @@
       "required_current_image_suites": [
         "numeric_predicates"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_29_GROUP_13851_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -1028,7 +1093,7 @@
         "half47",
         "half_mul"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_29_GROUP_13851_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -1039,7 +1104,7 @@
         "half47",
         "half_neg"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_29_GROUP_13851_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -1051,7 +1116,7 @@
         "half_mul",
         "half_addsub"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_29_GROUP_13851_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -1062,7 +1127,7 @@
         "wide_neg",
         "f64_48"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_29_GROUP_13851_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -1075,7 +1140,7 @@
         "half_addsub",
         "half_div"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_29_GROUP_13851_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -1086,7 +1151,7 @@
         "f64_48",
         "public_f64_arithmetic"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_29_GROUP_13851_RUN",
       "full_upstream_schema_qualified": false
     },
     {
@@ -1098,7 +1163,19 @@
         "public_f64_arithmetic",
         "f64_48"
       ],
-      "current_image_qualification": "PENDING_ACTUAL_28_GROUP_13075_RUN",
+      "current_image_qualification": "PENDING_ACTUAL_29_GROUP_13851_RUN",
+      "full_upstream_schema_qualified": false
+    },
+    {
+      "name": "typed-relu",
+      "implementation": "PRESENT_IN_CURRENT_HIA_SOURCE",
+      "scope": "Public F16/BF16/I64/F64 no-grad tensors in admitted rank0..4 layouts. Both operations require exact fresh fixed-wheel Torch bytes, geometry, independent ownership and unchanged inputs. Negation preserves its wrapping/sign-bit semantics. ReLU preserves negative zero; F64 NaN payloads remain unchanged, while reduced-float32-element vector chunks reproduce fixed AVX2 quieting/canonicalization and scalar tails retain the observed payloads. Bool ReLU is refused. Other typed unary operations and Half/F64 AD remain open.",
+      "required_current_image_suites": [
+        "half_neg",
+        "wide_neg",
+        "typed_relu"
+      ],
+      "current_image_qualification": "PENDING_ACTUAL_29_GROUP_13851_RUN",
       "full_upstream_schema_qualified": false
     }
   ],
@@ -1150,7 +1227,7 @@
     "additional_process_retirement": "validation/current-runtime767/retirement.json",
     "latest_process_history_commit": "87702d6b129198b28098c6c26d905a2e91117512",
     "active_consumer_inventory": "docs/runtime-dependencies.md",
-    "current_plan_retirement": "validation/current-runtime773/retirement.json",
+    "current_plan_retirement": "validation/current-runtime775/retirement.json",
     "latest_process_retirement": "validation/current-runtime773/retirement.json",
     "canonical_partition_replacements": 13,
     "canonical_partition_replacement_is_feature_retirement": false,
