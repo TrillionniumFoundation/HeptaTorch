@@ -1,5 +1,5 @@
 hia-asm.v1 hepta.hia.program.v8 logical_half_09
-exports(integer_scalar_binary,integer_binary_element,integer_inplace_overlap,integer_promote_operand,integer_result_dtype,integer_target_shape,integer_binary,integer_command,typed_iteration_address,native_dropout_fill_mask,integer_dropout_nonempty,integer_native_dropout,integer_dropout_command,integer_scalar_add,integer_scalar_command,optimizer_inventory,owned_adam_blob,private_tensor_retain,owned_adam_fill_group,optimizer_payload,owned_adam_word,owned_adam_group_payload,owned_adam_add_group,owned_adam_defaults,owned_adam_create,private_tensor_release,owned_adam_drop,owned_adam_group_at,owned_adam_group_inventory,owned_adam_key,owned_adam_occurrence,owned_adam_state_inventory,owned_adam_config,owned_adam_gradient,owned_optimizer_gradient_value,owned_adam_element,owned_adam_step_exponent,owned_adam_versions_ready,owned_adam_apply,owned_adam_new_moment,owned_adam_new_step,owned_adam_initialize,owned_adam_plan_group,owned_adam_step,history_member_zero_grad,history_member_zero_grad_none,owned_adam_zero,owned_adam_command,to_view_sync_requires,dtype_original_leaf_requires_grad,view_previous_leaf_requires_grad,leaf_requires_grad,optimizer_blob,optimizer_fill_group,optimizer_word,optimizer_group_payload,optimizer_add_group,optimizer_defaults,optimizer_create,optimizer_drop,optimizer_group_at,optimizer_group_inventory,optimizer_key,optimizer_occurrence,optimizer_state_inventory)
+exports(gradient_object_command,integer_scalar_binary,integer_binary_element,integer_inplace_overlap,integer_promote_operand,integer_result_dtype,integer_target_shape,integer_binary,integer_command,typed_iteration_address,native_dropout_fill_mask,integer_dropout_nonempty,integer_native_dropout,integer_dropout_command,integer_scalar_add,integer_scalar_command,optimizer_inventory,owned_adam_blob,private_tensor_retain,owned_adam_fill_group,optimizer_payload,owned_adam_word,owned_adam_group_payload,owned_adam_add_group,owned_adam_defaults,owned_adam_create,private_tensor_release,owned_adam_drop,owned_adam_group_at,owned_adam_group_inventory,owned_adam_key,owned_adam_occurrence,owned_adam_state_inventory,owned_adam_config,owned_adam_gradient,owned_optimizer_gradient_value,owned_adam_element,owned_adam_step_exponent,owned_adam_versions_ready,owned_adam_apply,owned_adam_new_moment,owned_adam_new_step,owned_adam_initialize,owned_adam_plan_group,owned_adam_step,history_member_zero_grad,history_member_zero_grad_none,owned_adam_zero,owned_adam_command,to_view_sync_requires,dtype_original_leaf_requires_grad,view_previous_leaf_requires_grad,leaf_requires_grad,optimizer_blob,optimizer_fill_group,optimizer_word,optimizer_group_payload,optimizer_add_group,optimizer_defaults,optimizer_create,optimizer_drop,optimizer_group_at,optimizer_group_inventory,optimizer_key,optimizer_occurrence)
 fn absf(v0:u64) -> (u64) effects(read,write,trap) external()
 fn adam_gradient(v0:mutbuf,v1:u64,v2:u64,v3:u64) -> (u64) effects(read,write,trap) external()
 fn adam_parameter(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
@@ -22,8 +22,10 @@ fn fmaf(v0:u64,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn get4(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn getr(v0:readbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn getw(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
+fn gradient_assign(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn gradient_binding(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn gradient_detach_inplace(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
+fn gradient_get_public(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn gradient_unbind(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn graph_collect(v0:mutbuf) -> (u64) effects(read,write,trap) external()
 fn hold_release(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
@@ -43,12 +45,15 @@ fn private_hold(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) exter
 fn private_tensor(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn public_f32(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn public_node(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
+fn public_optional(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn publish_tensor(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn put4(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn putw(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn record(v0:mutbuf,v1:u64,v2:u64,v3:u64,v4:u64) -> (u64) effects(read,write,trap) external()
 fn resolve_handle(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
+fn retained_enable(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn retained_parameter_blocker(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
+fn retained_query(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn rng_axis_order(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn rng_load_scratch(v0:mutbuf,v1:mutbuf,v2:u64) -> (u64) effects(read,write,trap) external()
 fn rng_next64(v0:mutbuf) -> (u64) effects(read,write,trap) external()
@@ -75,6 +80,129 @@ fn typed_store(v0:mutbuf,v1:u64,v2:u64,v3:u64) -> (u64) effects(read,write,trap)
 fn valid(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn valid_f32(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn version_can_bump(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
+fn gradient_object_command(v0:readbuf,v1:mutbuf,v2:mutbuf,v3:u64,v4:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(v0:readbuf,v1:mutbuf,v2:mutbuf,v3:u64,v4:u64)
+  v5:u64 = call(v0,v3) {"function":"getr"}
+  v6:u64 = const() {"value":8}
+  v7:u64 = int.add.wrap(v3,v6)
+  v8:u64 = call(v0,v7) {"function":"getr"}
+  v9:u64 = const() {"value":16}
+  v10:u64 = int.add.wrap(v3,v9)
+  v11:u64 = call(v0,v10) {"function":"getr"}
+  v12:u64 = call(v2,v6) {"function":"getw"}
+  v13:u64 = const() {"value":0}
+  v14:u64 = const() {"value":3}
+  jump b1(v0,v1,v2,v3,v4,v5,v8,v11,v12,v13,v14)
+block b1(v15:readbuf,v16:mutbuf,v17:mutbuf,v18:u64,v19:u64,v20:u64,v21:u64,v22:u64,v23:u64,v24:u64,v25:u64)
+  v26:u64 = const() {"value":8}
+  v27:bool = compare.lt(v25,v26)
+  branch v27 b2(v15,v16,v17,v18,v19,v20,v21,v22,v23,v24,v25) b3(v15,v16,v17,v19,v20,v21,v22,v23,v24)
+block b2(v28:readbuf,v29:mutbuf,v30:mutbuf,v31:u64,v32:u64,v33:u64,v34:u64,v35:u64,v36:u64,v37:u64,v38:u64)
+  v50:u64 = const() {"value":8}
+  v51:u64 = int.mul.wrap(v38,v50)
+  v52:u64 = int.add.wrap(v31,v51)
+  v53:u64 = call(v28,v52) {"function":"getr"}
+  v54:u64 = const() {"value":0}
+  v55:bool = compare.ne(v53,v54)
+  branch v55 b4(v28,v29,v30,v31,v32,v33,v34,v35,v36,v37,v38) b6(v28,v29,v30,v31,v32,v33,v34,v35,v36,v37,v38)
+block b3(v39:readbuf,v40:mutbuf,v41:mutbuf,v43:u64,v44:u64,v45:u64,v46:u64,v47:u64,v48:u64)
+  v93:u64 = const() {"value":92}
+  v94:bool = compare.ne(v44,v93)
+  v95:u64 = const() {"value":0}
+  v96:bool = compare.ne(v46,v95)
+  v97:bool = bool.and(v94,v96)
+  branch v97 b7(v39,v40,v41,v43,v44,v45,v46,v47,v48) b9(v39,v40,v41,v43,v44,v45,v46,v47,v48)
+block b4(v56:readbuf,v57:mutbuf,v58:mutbuf,v59:u64,v60:u64,v61:u64,v62:u64,v63:u64,v64:u64,v65:u64,v66:u64)
+  v78:u64 = const() {"value":7}
+  v79:u64 = call(v58,v78) {"function":"terror"}
+  jump b6(v56,v57,v58,v59,v60,v61,v62,v63,v64,v65,v66)
+block b6(v80:readbuf,v81:mutbuf,v82:mutbuf,v83:u64,v84:u64,v85:u64,v86:u64,v87:u64,v88:u64,v89:u64,v90:u64)
+  v91:u64 = const() {"value":1}
+  v92:u64 = int.add.wrap(v90,v91)
+  jump b1(v80,v81,v82,v83,v84,v85,v86,v87,v88,v89,v92)
+block b7(v98:readbuf,v99:mutbuf,v100:mutbuf,v102:u64,v103:u64,v104:u64,v105:u64,v106:u64,v107:u64)
+  v120:u64 = const() {"value":7}
+  v121:u64 = call(v100,v120) {"function":"terror"}
+  jump b9(v98,v99,v100,v102,v103,v104,v105,v106,v107)
+block b9(v122:readbuf,v123:mutbuf,v124:mutbuf,v126:u64,v127:u64,v128:u64,v129:u64,v130:u64,v131:u64)
+  v133:u64 = const() {"value":0}
+  v134:u64 = call(v124,v133) {"function":"getw"}
+  v135:bool = compare.eq(v134,v133)
+  branch v135 b10(v122,v123,v124,v126,v127,v128,v129,v130,v131) b29(v122,v123,v124,v126,v127,v130,v131)
+block b10(v136:readbuf,v137:mutbuf,v138:mutbuf,v140:u64,v141:u64,v142:u64,v143:u64,v144:u64,v145:u64)
+  v158:u64 = const() {"value":91}
+  v159:bool = compare.eq(v141,v158)
+  branch v159 b12(v136,v137,v138,v140,v141,v142,v144) b13(v136,v137,v138,v140,v141,v142,v143,v144,v145)
+block b12(v160:readbuf,v161:mutbuf,v162:mutbuf,v164:u64,v165:u64,v166:u64,v168:u64)
+  v182:u64 = call(v162,v166) {"function":"gradient_get_public"}
+  jump b29(v160,v161,v162,v164,v165,v168,v182)
+block b13(v171:readbuf,v172:mutbuf,v173:mutbuf,v175:u64,v176:u64,v177:u64,v178:u64,v179:u64,v180:u64)
+  v183:u64 = const() {"value":92}
+  v184:bool = compare.eq(v176,v183)
+  branch v184 b14(v171,v172,v173,v175,v176,v177,v178,v179,v180) b15(v171,v172,v173,v175,v176,v177,v179,v180)
+block b14(v185:readbuf,v186:mutbuf,v187:mutbuf,v189:u64,v190:u64,v191:u64,v192:u64,v193:u64,v194:u64)
+  v207:u64 = call(v187,v191) {"function":"public_node"}
+  v208:u64 = call(v187,v192) {"function":"public_optional"}
+  v209:u64 = const() {"value":0}
+  v210:bool = compare.ne(v207,v209)
+  branch v210 b16(v185,v186,v187,v189,v190,v193,v194,v207,v208) b17(v185,v186,v187,v189,v190,v193,v194,v207,v208,v210)
+block b15(v196:readbuf,v197:mutbuf,v198:mutbuf,v200:u64,v201:u64,v202:u64,v204:u64,v205:u64)
+  v282:u64 = const() {"value":93}
+  v283:bool = compare.eq(v201,v282)
+  branch v283 b21(v196,v197,v198,v200,v201,v202,v204) b22(v196,v197,v198,v200,v201,v202,v204,v205)
+block b16(v211:readbuf,v212:mutbuf,v213:mutbuf,v215:u64,v216:u64,v219:u64,v220:u64,v222:u64,v223:u64)
+  v239:u64 = const() {"value":0}
+  v240:u64 = call(v213,v239) {"function":"getw"}
+  v241:bool = compare.eq(v240,v239)
+  jump b17(v211,v212,v213,v215,v216,v219,v220,v222,v223,v241)
+block b17(v225:readbuf,v226:mutbuf,v227:mutbuf,v229:u64,v230:u64,v233:u64,v234:u64,v236:u64,v237:u64,v238:bool)
+  branch v238 b18(v225,v226,v227,v229,v230,v233,v236,v237) b29(v225,v226,v227,v229,v230,v233,v234)
+block b18(v242:readbuf,v243:mutbuf,v244:mutbuf,v246:u64,v247:u64,v250:u64,v253:u64,v254:u64)
+  v268:u64 = call(v244,v253,v254) {"function":"gradient_assign"}
+  jump b29(v242,v243,v244,v246,v247,v250,v268)
+block b21(v284:readbuf,v285:mutbuf,v286:mutbuf,v288:u64,v289:u64,v290:u64,v292:u64)
+  v306:u64 = call(v286,v290) {"function":"resolve_handle"}
+  v307:u64 = call(v286,v306) {"function":"retained_enable"}
+  jump b29(v284,v285,v286,v288,v289,v292,v307)
+block b22(v295:readbuf,v296:mutbuf,v297:mutbuf,v299:u64,v300:u64,v301:u64,v303:u64,v304:u64)
+  v308:u64 = const() {"value":94}
+  v309:bool = compare.eq(v300,v308)
+  branch v309 b23(v295,v296,v297,v299,v300,v301,v303) b24(v295,v296,v297,v299,v300,v303,v304)
+block b23(v310:readbuf,v311:mutbuf,v312:mutbuf,v314:u64,v315:u64,v316:u64,v318:u64)
+  v332:u64 = call(v312,v316) {"function":"resolve_handle"}
+  v333:u64 = call(v312,v332) {"function":"retained_query"}
+  jump b29(v310,v311,v312,v314,v315,v318,v333)
+block b24(v321:readbuf,v322:mutbuf,v323:mutbuf,v325:u64,v326:u64,v329:u64,v330:u64)
+  v334:u64 = const() {"value":4}
+  v335:u64 = call(v323,v334) {"function":"terror"}
+  jump b29(v321,v322,v323,v325,v326,v329,v330)
+block b29(v380:readbuf,v381:mutbuf,v382:mutbuf,v384:u64,v385:u64,v388:u64,v389:u64)
+  v391:u64 = const() {"value":0}
+  v392:u64 = call(v382,v391) {"function":"getw"}
+  v393:bool = compare.eq(v392,v391)
+  branch v393 b30(v380,v381,v382,v384,v385,v388,v389) b32(v380,v381,v382,v384,v385,v389)
+block b30(v394:readbuf,v395:mutbuf,v396:mutbuf,v398:u64,v399:u64,v402:u64,v403:u64)
+  v416:u64 = call(v396,v402) {"function":"finish_command"}
+  jump b32(v394,v395,v396,v398,v399,v403)
+block b32(v417:readbuf,v418:mutbuf,v419:mutbuf,v421:u64,v422:u64,v426:u64)
+  v428:u64 = const() {"value":0}
+  v429:u64 = call(v419,v428) {"function":"getw"}
+  v430:bool = compare.ne(v429,v428)
+  v431:u64 = select(v430,v428,v426)
+  v432:u64 = call(v418,v421,v422) {"function":"putw"}
+  v433:u64 = const() {"value":8}
+  v434:u64 = int.add.wrap(v421,v433)
+  v435:u64 = call(v418,v434,v429) {"function":"putw"}
+  v436:u64 = const() {"value":16}
+  v437:u64 = int.add.wrap(v421,v436)
+  v438:u64 = call(v418,v437,v431) {"function":"putw"}
+  v439:u64 = const() {"value":24}
+  v440:u64 = int.add.wrap(v421,v439)
+  v441:u64 = call(v418,v440,v428) {"function":"putw"}
+  v442:u64 = const() {"value":32}
+  v443:u64 = int.add.wrap(v421,v442)
+  ret(v443)
+end
 fn integer_scalar_binary(v0:u64,v1:u64,v2:u64,v3:u64) -> (u64) effects(read,write,trap) entry(b0)
 block b0(v0:u64,v1:u64,v2:u64,v3:u64)
   v4:u64 = const() {"value":0}
@@ -5166,59 +5294,4 @@ block b5(v46:mutbuf)
   ret(v59)
 block b6(v52:mutbuf,v57:u64)
   ret(v57)
-end
-fn optimizer_state_inventory(v0:mutbuf,v1:mutbuf,v2:u64,v3:u64) -> (u64) effects(read,write,trap) entry(b0)
-block b0(v0:mutbuf,v1:mutbuf,v2:u64,v3:u64)
-  v4:u64 = const() {"value":8}
-  v5:u64 = int.add.wrap(v3,v4)
-  v6:u64 = call(v0,v5) {"function":"getw"}
-  v7:u64 = call(v1,v2,v6) {"function":"putw"}
-  v8:u64 = int.add.wrap(v2,v4)
-  v9:u64 = const() {"value":24}
-  v10:u64 = int.add.wrap(v3,v9)
-  v11:u64 = call(v0,v10) {"function":"getw"}
-  v12:u64 = call(v1,v8,v11) {"function":"putw"}
-  v13:u64 = const() {"value":16}
-  v14:u64 = int.add.wrap(v2,v13)
-  v15:u64 = const() {"value":40}
-  v16:u64 = int.add.wrap(v3,v15)
-  v17:u64 = call(v0,v16) {"function":"getw"}
-  v18:u64 = call(v1,v14,v17) {"function":"putw"}
-  v19:u64 = const() {"value":0}
-  v20:u64 = call(v0,v10) {"function":"getw"}
-  v21:bool = compare.ne(v20,v19)
-  branch v21 b1(v0,v1,v2,v3,v19) b8(v0,v1,v2,v19)
-block b1(v22:mutbuf,v23:mutbuf,v24:u64,v25:u64,v26:u64)
-  v32:u64 = const() {"value":32}
-  v33:u64 = int.add.wrap(v25,v32)
-  v34:u64 = call(v22,v33) {"function":"getw"}
-  v35:u64 = const() {"value":40}
-  v36:u64 = int.add.wrap(v25,v35)
-  v37:u64 = call(v22,v36) {"function":"getw"}
-  v38:u64 = call(v22,v34,v37) {"function":"private_tensor"}
-  v39:u64 = const() {"value":0}
-  v40:bool = compare.eq(v38,v39)
-  branch v40 b3(v22,v23) b4(v22,v23,v24,v26,v38)
-block b3(v41:mutbuf,v42:mutbuf)
-  v53:u64 = const() {"value":9}
-  v54:u64 = call(v41,v53) {"function":"terror"}
-  ret(v54)
-block b4(v47:mutbuf,v48:mutbuf,v49:u64,v51:u64,v52:u64)
-  v55:u64 = const() {"value":200}
-  v56:u64 = int.add.wrap(v52,v55)
-  v57:u64 = call(v47,v56) {"function":"getw"}
-  v58:u64 = const() {"value":1}
-  v59:bool = compare.eq(v57,v58)
-  branch v59 b5(v47,v48,v49,v52) b8(v47,v48,v49,v51)
-block b5(v60:mutbuf,v61:mutbuf,v62:u64,v65:u64)
-  v72:u64 = const() {"value":192}
-  v73:u64 = int.add.wrap(v65,v72)
-  v74:u64 = call(v60,v73) {"function":"getw"}
-  jump b8(v60,v61,v62,v74)
-block b8(v81:mutbuf,v82:mutbuf,v83:u64,v85:u64)
-  v86:u64 = const() {"value":24}
-  v87:u64 = int.add.wrap(v83,v86)
-  v88:u64 = call(v82,v87,v85) {"function":"putw"}
-  v89:u64 = const() {"value":32}
-  ret(v89)
 end

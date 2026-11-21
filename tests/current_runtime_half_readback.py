@@ -16,8 +16,8 @@ import textwrap
 import types
 import zlib
 
-SOURCE = 'ab3ed0e0898d2006fbdf145357c79cafd599c2be344fcb3cb65fd6ad55efb231'
-IMAGE = '756de9418c05f4ecfc12319c7262cf1ff22e335e4ec32b140721b6c77ee226d7'
+SOURCE = 'b4b2996978dce56c9375ce97b2d2638472cbb154a4c0a7c5de822234e31a9c68'
+IMAGE = '62f74e9232ae30027a64ca61881bb581320b1787529c6ee9e96818a0f8447afe'
 BRIDGE = 'f3b19a8dcc1a004323e033f414e801a52f12b0f0d556e6cbc005169d26fdef9e'
 READER = '1f67d27b8a5af133955d8a8cdfdb3094415efe31d1d9ee7ab09437f683ecef06'
 REFERENCE = 'ae6079c8f0960db53d26e056cc67fbe0a8eee7de04aa0644f4475afc368a75fe'
@@ -141,6 +141,7 @@ def outer_execution(kind, report, repository, build, build_sha, directory,
         bound.read(wrapper)
         successor=report['entry_groups'][0]['details']['multiplication_successor']
         negation=report['entry_groups'][0]['details']['negation_successor']
+        addsub=report['entry_groups'][0]['details']['addsub_successor']
         expected += [str(wrapper),'--reader-directory',str(reader_directory),
             '--candidate',str(repository),'--build-directory',str(build),
             '--reference',str(reference_directory/'report.json'),'--expected-source-sha256',SOURCE,
@@ -150,6 +151,8 @@ def outer_execution(kind, report, repository, build, build_sha, directory,
             '--half-mul-reference-execution',successor['reference_execution'],
             '--half-neg-reference-directory',negation['reference_directory'],
             '--half-neg-reference-execution',negation['reference_execution'],
+            '--half-addsub-reference-directory',addsub['reference_directory'],
+            '--half-addsub-reference-execution',addsub['reference_execution'],
             '--output',str(directory)]
         bound.read(reader_directory/'run.py')
     else:
@@ -428,15 +431,18 @@ def admission(report, repository, build, build_sha, reader_directory, bound):
     bound.read(reader_directory/'bridge.py',BRIDGE)
     wrapper=repository/'tests/current_runtime_half_fixtures.py'
     current=module(bound.read(wrapper),'half_current_identity_adapter',wrapper)
-    half_mul=half_neg=None
+    half_mul=half_neg=half_addsub=None
     if report['status']=='PASS':
         successor=report['entry_groups'][0]['details']['multiplication_successor']
         half_mul=dict(root=Path(successor['reference_directory']),
                       execution=Path(successor['reference_execution']))
         negation=report['entry_groups'][0]['details']['negation_successor']
+        addsub=report['entry_groups'][0]['details']['addsub_successor']
         half_neg=dict(root=Path(negation['reference_directory']),
                       execution=Path(negation['reference_execution']))
-    bridge=current.current_bridge(repository,reader_directory,half_mul,half_neg)
+        half_addsub=dict(root=Path(addsub['reference_directory']),
+                         execution=Path(addsub['reference_execution']))
+    bridge=current.current_bridge(repository,reader_directory,half_mul,half_neg,half_addsub)
     require(bridge.SOURCE==SOURCE and bridge.IMAGE==IMAGE and bridge.REFERENCE==REFERENCE,
             'current-image wrapper around the complete unchanged original bridge')
     return bridge
@@ -544,11 +550,14 @@ def qualify_half47(report, repository, build, build_sha, directory, reader_direc
             elif category=='boundary_cases':
                 details=old_run.boundary_case(driver,spec,wanted)
             elif category=='entry_groups':
-                details=adapter.half_neg_successor.wrap_entry(controls['entry_controls'])(driver)
-                require(details['actual_refusals']==215 and details['actual_successful_multiplications']==22
-                    and details['actual_successful_negations']==2
+                details=adapter.half_addsub_successor.wrap_entry(controls['entry_controls'])(driver)
+                require(details['actual_refusals']==173 and details['actual_successful_multiplications']==22
+                    and details['actual_successful_negations']==2 and details['actual_successful_addsub']==42
+                    and details['actual_successful_single_command_addsub']==40
+                    and details['actual_successful_FE_addsub']==2
+                    and details['actual_successful_additions']==24 and details['actual_successful_subtractions']==18
                     and details['original_entry_requests']==len(driver.operations)==239,
-                    'all original239 requests:215 refusals,22 exact multiplication and2 exact negation successors')
+                    'all original239 requests:173 refusals and22/2/40/2 exact arithmetic successors')
             else:
                 details=controls['allocation_control'](driver,spec,wanted)
                 require(saved.limit_at==4 and details['actual_status_sequence']==[3,0], 'original resource failure and actual recovery sequence')
@@ -571,8 +580,12 @@ def qualify_half47(report, repository, build, build_sha, directory, reader_direc
         actual_build_sha256=build_sha,cases=47,original_counts=report['expected_counts'],
         frames=sum(x['frames'] for x in results),checks=sum(x['checks'] for x in results),
         original_input_values=908216,original_entry_requests=239,original_refusals=239,
-        retained_refusals=215,accepted_multiplication_successors=22,
-        accepted_negation_successors=2,original_OOM_controls=4,
+        retained_refusals=173,accepted_multiplication_successors=22,
+        accepted_negation_successors=2,accepted_addsub_successors=42,
+        accepted_single_command_addsub_successors=40,accepted_FE_addsub_successors=2,
+        accepted_addition_successors=24,accepted_subtraction_successors=18,
+        retained_actual_Bool_subtraction_errors=4,retained_private3_addsub_protocol_refusals=8,
+        original_OOM_controls=4,
         complete_snapshot_predicate_calls=sum(x['complete_snapshot_predicate_calls'] for x in results),
         tensor_public_storage_reconstructions=sum(x['tensor_public_storage_reconstructions'] for x in results),
         owner_blobs=sum(x['owner_blobs'] for x in results),native_child_EOFs=94,

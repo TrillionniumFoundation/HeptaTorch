@@ -26,8 +26,8 @@ REFERENCE = 'ae6079c8f0960db53d26e056cc67fbe0a8eee7de04aa0644f4475afc368a75fe'
 READER = '1f67d27b8a5af133955d8a8cdfdb3094415efe31d1d9ee7ab09437f683ecef06'
 SOURCE = '51820849f7becec549be15babace00f00687601ae7f53bcee0e636ca02f721f9'
 IMAGE = 'aa3cc8f0c8738a9505d31c9e8ba5a523b7e08b591b61fc7bfb8592295491618b'
-CURRENT_SOURCE = 'ab3ed0e0898d2006fbdf145357c79cafd599c2be344fcb3cb65fd6ad55efb231'
-CURRENT_IMAGE = '756de9418c05f4ecfc12319c7262cf1ff22e335e4ec32b140721b6c77ee226d7'
+CURRENT_SOURCE = 'b4b2996978dce56c9375ce97b2d2638472cbb154a4c0a7c5de822234e31a9c68'
+CURRENT_IMAGE = '62f74e9232ae30027a64ca61881bb581320b1787529c6ee9e96818a0f8447afe'
 PACKAGES = {
     'source': (SOURCE_PACKAGE, SOURCE_MANIFEST, SOURCE_ARCHIVE, 471936, 146, 11400278,
                'heptatorch.current736-half47.source-package.v1'),
@@ -157,7 +157,7 @@ def restore_reference(repository, directory, source_directory, inputs):
     return bind_reference(repository,directory,source_directory,inputs)
 
 
-def reader_cli(repository, build, build_sha, reference, half_mul, half_neg):
+def reader_cli(repository, build, build_sha, reference, half_mul, half_neg, half_addsub):
     return ['--reader-directory',str(reference['source']),
             '--candidate',str(repository),'--build-directory',str(build),
             '--reference',str(reference['report']),'--expected-source-sha256',CURRENT_SOURCE,
@@ -166,7 +166,9 @@ def reader_cli(repository, build, build_sha, reference, half_mul, half_neg):
             '--half-mul-reference-directory',str(half_mul['root']),
             '--half-mul-reference-execution',str(half_mul['execution']),
             '--half-neg-reference-directory',str(half_neg['root']),
-            '--half-neg-reference-execution',str(half_neg['execution'])]
+            '--half-neg-reference-execution',str(half_neg['execution']),
+            '--half-addsub-reference-directory',str(half_addsub['root']),
+            '--half-addsub-reference-execution',str(half_addsub['execution'])]
 
 
 def refusal_cli(repository, build, build_sha, source):
@@ -174,7 +176,7 @@ def refusal_cli(repository, build, build_sha, source):
             '--build-directory',str(build),'--expected-build-sha256',build_sha]
 
 
-def current_bridge(repository, reader_directory, half_mul=None, half_neg=None):
+def current_bridge(repository, reader_directory, half_mul=None, half_neg=None, half_addsub=None):
     """Wrap the frozen bridge with the exact three-function source inverse."""
     repository = Path(repository).resolve(strict=True)
     helper_path = repository / 'tests/current_runtime_f64_fixtures.py'
@@ -201,16 +203,25 @@ def current_bridge(repository, reader_directory, half_mul=None, half_neg=None):
         successor = helper.load_module(successor_path.read_bytes(), successor_path,
                                        'current_half47_mul22_successor')
         if half_neg is None:
+            require(half_addsub is None, 'add/sub admission requires both unchanged predecessor helpers')
             adapted.Adapter = successor.adapter_type(adapted.Adapter, repository,
                                                       directory, half_mul)
         else:
             neg_path = repository / 'tests/current_runtime_half_neg_successor.py'
             neg = helper.load_module(neg_path.read_bytes(), neg_path,
                                      'current_half47_neg2_successor')
-            adapted.Adapter = neg.adapter_type(adapted.Adapter, successor, repository,
-                                                directory, half_mul, half_neg)
+            if half_addsub is None:
+                adapted.Adapter = neg.adapter_type(adapted.Adapter, successor, repository,
+                                                    directory, half_mul, half_neg)
+            else:
+                addsub_path = repository / 'tests/current_runtime_half_addsub_successor.py'
+                addsub = helper.load_module(addsub_path.read_bytes(), addsub_path,
+                                           'current_half47_addsub40_successor')
+                adapted.Adapter = addsub.adapter_type(adapted.Adapter, successor, neg, repository,
+                                                       directory, half_mul, half_neg, half_addsub)
     else:
-        require(half_neg is None, 'negation admission requires the unchanged22 multiplication adapter')
+        require(half_neg is None and half_addsub is None,
+                'new arithmetic admission requires the unchanged22 multiplication adapter')
     return adapted
 
 
@@ -224,14 +235,18 @@ def main():
     parser.add_argument('--half-mul-reference-execution', type=Path, required=True)
     parser.add_argument('--half-neg-reference-directory', type=Path, required=True)
     parser.add_argument('--half-neg-reference-execution', type=Path, required=True)
+    parser.add_argument('--half-addsub-reference-directory', type=Path, required=True)
+    parser.add_argument('--half-addsub-reference-execution', type=Path, required=True)
     args, _ = parser.parse_known_args()
     require(args.expected_reference_sha256 == REFERENCE, 'exact original actual Half reference')
     bridge = current_bridge(args.candidate, args.reader_directory,
         dict(root=args.half_mul_reference_directory, execution=args.half_mul_reference_execution),
-        dict(root=args.half_neg_reference_directory, execution=args.half_neg_reference_execution))
+        dict(root=args.half_neg_reference_directory, execution=args.half_neg_reference_execution),
+        dict(root=args.half_addsub_reference_directory, execution=args.half_addsub_reference_execution))
     original_argv = list(sys.argv)
     for flag in ('--reader-directory', '--half-mul-reference-directory', '--half-mul-reference-execution',
-                 '--half-neg-reference-directory', '--half-neg-reference-execution'):
+                 '--half-neg-reference-directory', '--half-neg-reference-execution',
+                 '--half-addsub-reference-directory', '--half-addsub-reference-execution'):
         at = sys.argv.index(flag)
         sys.argv = sys.argv[:at] + sys.argv[at + 2:]
     try:

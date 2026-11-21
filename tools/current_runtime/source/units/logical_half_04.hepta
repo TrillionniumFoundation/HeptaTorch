@@ -1,5 +1,6 @@
 hia-asm.v1 hepta.hia.program.v8 logical_half_04
-exports(saved_release,release_backward_saved_body,dtype_original_release_backward_saved,release_backward_saved,gradient_reference_release,gradient_unbind,history_original_release_backward_scratch,history_release_reservations,release_backward_scratch,gradient_cycle_push,gradient_cycle_check,gradient_shape_matches,gradient_assign,history_retained_target,retained_enabled,history_retained_enabled,retained_release_one,pointwise_channels_last,pointwise_write_order,retained_incoming_channels_last,retained_sum_layout,retained_apply,graph_release_edge,to_view_base_release,retained_row_release_original,dtype_original_tensor_row_release,mixed_original_tensor_row_release,view_previous_tensor_row_release,tensor_row_release,dtype_original_graph_node_release,history_accumulator_release,graph_node_release,graph_collect_since,retained_release_reservations,retained_reserve_one,retained_reserve,dtype_original_backward_execute,history_backward_root,dtype_original_partial_admit,partial_admit,sd_previous_partial_check_node,partial_check_node,history_key_less,partial_push,partial_parent,partial_edges,partial_pop,history_atomic_execute,history_has_rebased_node,backward_execute,backward_seed,backward,bshape,pack64,add64,div64,multiply_high,mul64,sub64,f64_scalar_binary,f64_valid,dist_probability_stride,integer_pointwise_compare_axes,integer_pointwise_axis_order,integer_pointwise_layout)
+exports(saved_release,release_backward_saved_body,dtype_original_release_backward_saved,release_backward_saved,gradient_reference_release,gradient_unbind,history_original_release_backward_scratch,history_release_reservations,release_backward_scratch,gradient_cycle_push,gradient_cycle_check,gradient_shape_matches,gradient_assign,history_retained_target,retained_enabled,history_retained_enabled,retained_release_one,pointwise_channels_last,pointwise_write_order,retained_incoming_channels_last,retained_sum_layout,retained_apply,graph_release_edge,to_view_base_release,retained_row_release_original,dtype_original_tensor_row_release,mixed_original_tensor_row_release,view_previous_tensor_row_release,tensor_row_release,dtype_original_graph_node_release,history_accumulator_release,graph_node_release,graph_collect_since,retained_release_reservations,retained_reserve_one,retained_reserve,dtype_original_backward_execute,history_backward_root,dtype_original_partial_admit,partial_admit,sd_previous_partial_check_node,partial_check_node,history_key_less,partial_push,partial_parent,partial_edges,partial_pop,history_atomic_execute,history_has_rebased_node,backward_execute,backward_seed,backward,bshape,half_addsub_f32,pack64,add64,half_addsub_f64,half_widen_bf16,widen_f16,half_mul_to_f32,half_narrow_bf16,widen32,half_mul_cast,half_mul_nan_word,typed_store)
+fn addf(v0:u64,v1:u64) -> (u64) effects(read,write,trap) external()
 fn alloc(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn backward_getw(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn descriptor(v0:mutbuf,v1:u64,v2:u64,v3:u64,v4:u64) -> (u64) effects(read,write,trap) external()
@@ -30,8 +31,8 @@ fn incoming_address(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) e
 fn incoming_clear(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn incoming_contiguous(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn incoming_dense(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
-fn incoming_same_shape(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn incoming_seed(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
+fn integer_as_f32(v0:u64,v1:u64) -> (u64) effects(read,write,trap) external()
 fn is_contiguous(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn is_dense(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn live_id(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
@@ -39,6 +40,7 @@ fn mark_graph(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) externa
 fn memory_fill(v0:mutbuf,v1:u64,v2:u64,v3:u64) -> (u64) effects(read,write,trap) external()
 fn node_release(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn node_retain(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
+fn object_address(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn partial_mark(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn private_tensor(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn put4(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
@@ -46,6 +48,8 @@ fn putw(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn retained_axis_order(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn retained_row(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn retained_temporary_root(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
+fn round_bf16(v0:u64) -> (u64) effects(read,write,trap) external()
+fn round_f16(x:u64) -> (u64) effects(read,write,trap) external()
 fn scalar_add_preserving_bits(v0:u64,v1:u64) -> (u64) effects(read,write,trap) external()
 fn sd_permute_validate_metadata(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn sd_validate_metadata(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
@@ -62,6 +66,7 @@ fn tensor_dtype(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn terror(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn tget(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn valid(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
+fn wrapped_f64_to_f32(v0:u64) -> (u64) effects(read,write,trap) external()
 fn saved_release(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) entry(b0)
 block b0(v0:mutbuf,v1:u64)
   v2:u64 = const() {"value":0}
@@ -3570,6 +3575,42 @@ block b17(v216:mutbuf,v219:u64,v220:u64,v221:u64,v222:u64,v223:u64,v224:u64,v227
   v234:u64 = int.add.wrap(v224,v233)
   jump b1(v216,v219,v220,v221,v222,v223,v234)
 end
+fn half_addsub_f32(a:u64,b:u64,operation:u64,right_first:u64) -> (u64) effects(read,write,trap) entry(start)
+block start(a:u64,b:u64,operation:u64,right_first:u64)
+  zero:u64 = const() {"value":0}
+  prefer_right:bool = compare.ne(right_first,zero)
+  first:u64 = select(prefer_right,b,a)
+  second:u64 = select(prefer_right,a,b)
+  mask:u64 = const() {"value":2147483647}
+  magnitude:u64 = bit.and(first,mask)
+  inf:u64 = const() {"value":2139095040}
+  first_nan:bool = compare.gt(magnitude,inf)
+  branch first_nan nan(first) other(a,b,operation,second)
+block nan(x1:u64)
+  quiet1:u64 = const() {"value":4194304}
+  value1:u64 = bit.or(x1,quiet1)
+  ret(value1)
+block other(a2:u64,b2:u64,o2:u64,x2:u64)
+  mask2:u64 = const() {"value":2147483647}
+  magnitude2:u64 = bit.and(x2,mask2)
+  inf2:u64 = const() {"value":2139095040}
+  second_nan2:bool = compare.gt(magnitude2,inf2)
+  branch second_nan2 nan(x2) finite(a2,b2,o2)
+block finite(a3:u64,b3:u64,o3:u64)
+  two3:u64 = const() {"value":2}
+  subtract3:bool = compare.eq(o3,two3)
+  sign3:u64 = const() {"value":2147483648}
+  negative3:u64 = bit.xor(b3,sign3)
+  other3:u64 = select(subtract3,negative3,b3)
+  value3:u64 = call(a3,other3) {"function":"addf"}
+  mask3:u64 = const() {"value":2147483647}
+  magnitude3:u64 = bit.and(value3,mask3)
+  inf3:u64 = const() {"value":2139095040}
+  invalid3:bool = compare.gt(magnitude3,inf3)
+  indefinite3:u64 = const() {"value":4290772992}
+  result3:u64 = select(invalid3,indefinite3,value3)
+  ret(result3)
+end
 fn pack64(v0:u64,v1:u64,v2:u64) -> (u64) effects(read,write,trap) entry(b0)
 block b0(v0:u64,v1:u64,v2:u64)
   v3:u64 = const() {"value":0}
@@ -3775,673 +3816,295 @@ block b26(v238:u64,v240:u64,v244:u64)
   v247:u64 = call(v238,v246,v244) {"function":"pack64"}
   ret(v247)
 end
-fn div64(v0:u64,v1:u64) -> (u64) effects(read,write,trap) entry(b0)
-block b0(v0:u64,v1:u64)
-  v2:u64 = bit.xor(v0,v1)
-  v3:u64 = const() {"value":9223372036854775808}
-  v4:u64 = bit.and(v2,v3)
-  v5:u64 = const() {"value":9223372036854775807}
-  v6:u64 = bit.and(v0,v5)
-  v7:u64 = bit.and(v1,v5)
-  v8:u64 = const() {"value":9218868437227405312}
-  v9:bool = compare.gt(v6,v8)
-  v10:bool = compare.gt(v7,v8)
-  v11:bool = bool.or(v9,v10)
-  branch v11 b1() b2(v0,v1,v4,v6,v7)
-block b1()
-  v22:u64 = const() {"value":9221120237041090560}
-  ret(v22)
-block b2(v17:u64,v18:u64,v19:u64,v20:u64,v21:u64)
-  v23:u64 = const() {"value":9218868437227405312}
-  v24:bool = compare.eq(v20,v23)
-  branch v24 b3(v19,v21) b4(v17,v18,v19,v20,v21)
-block b3(v27:u64,v29:u64)
-  v35:u64 = const() {"value":9218868437227405312}
-  v36:bool = compare.eq(v29,v35)
-  v37:u64 = const() {"value":9221120237041090560}
-  v38:u64 = bit.or(v27,v35)
-  v39:u64 = select(v36,v37,v38)
-  ret(v39)
-block b4(v30:u64,v31:u64,v32:u64,v33:u64,v34:u64)
-  v40:u64 = const() {"value":9218868437227405312}
-  v41:bool = compare.eq(v34,v40)
-  branch v41 b5(v32) b6(v30,v31,v32,v33,v34)
-block b5(v44:u64)
-  ret(v44)
-block b6(v47:u64,v48:u64,v49:u64,v50:u64,v51:u64)
-  v52:u64 = const() {"value":0}
-  v53:bool = compare.eq(v51,v52)
-  branch v53 b7(v49,v50) b8(v47,v48,v49,v50)
-block b7(v56:u64,v57:u64)
-  v64:u64 = const() {"value":0}
-  v65:bool = compare.eq(v57,v64)
-  v66:u64 = const() {"value":9221120237041090560}
-  v67:u64 = const() {"value":9218868437227405312}
-  v68:u64 = bit.or(v56,v67)
-  v69:u64 = select(v65,v66,v68)
-  ret(v69)
-block b8(v59:u64,v60:u64,v61:u64,v62:u64)
-  v70:u64 = const() {"value":0}
-  v71:bool = compare.eq(v62,v70)
-  branch v71 b9(v61) b10(v59,v60,v61)
-block b9(v74:u64)
-  ret(v74)
-block b10(v77:u64,v78:u64,v79:u64)
-  v82:u64 = const() {"value":52}
-  v83:u64 = int.shr.checked(v77,v82)
-  v84:u64 = const() {"value":2047}
-  v85:u64 = bit.and(v83,v84)
-  v86:u64 = int.shr.checked(v78,v82)
-  v87:u64 = bit.and(v86,v84)
-  v88:u64 = const() {"value":4503599627370495}
-  v89:u64 = bit.and(v77,v88)
-  v90:u64 = bit.and(v78,v88)
-  v91:u64 = const() {"value":0}
-  v92:bool = compare.ne(v85,v91)
-  branch v92 b11(v79,v85,v87,v89,v90) b12(v79,v87,v89,v90)
-block b11(v95:u64,v98:u64,v99:u64,v100:u64,v101:u64)
-  v111:u64 = const() {"value":4503599627370496}
-  v112:u64 = bit.or(v100,v111)
-  jump b13(v95,v98,v99,v112,v101)
-block b12(v104:u64,v108:u64,v109:u64,v110:u64)
-  v113:u64 = const() {"value":1}
-  jump b13(v104,v113,v108,v109,v110)
-block b13(v116:u64,v119:u64,v120:u64,v121:u64,v122:u64)
-  v123:u64 = const() {"value":0}
-  v124:bool = compare.ne(v120,v123)
-  branch v124 b14(v116,v119,v120,v121,v122) b15(v116,v119,v121,v122)
-block b14(v127:u64,v130:u64,v131:u64,v132:u64,v133:u64)
-  v143:u64 = const() {"value":4503599627370496}
-  v144:u64 = bit.or(v133,v143)
-  jump b16(v127,v130,v131,v132,v144)
-block b15(v136:u64,v139:u64,v141:u64,v142:u64)
-  v145:u64 = const() {"value":1}
-  jump b16(v136,v139,v145,v141,v142)
-block b16(v148:u64,v151:u64,v152:u64,v153:u64,v154:u64)
-  v155:u64 = const() {"value":3073}
-  v156:u64 = int.add.wrap(v151,v155)
-  v157:u64 = int.add.wrap(v152,v155)
-  jump b17(v148,v156,v157,v153,v154)
-block b17(v160:u64,v163:u64,v164:u64,v165:u64,v166:u64)
-  v167:u64 = const() {"value":4503599627370496}
-  v168:bool = compare.lt(v165,v167)
-  branch v168 b18(v160,v163,v164,v165,v166) b20(v160,v163,v164,v165,v166)
-block b18(v171:u64,v174:u64,v175:u64,v176:u64,v177:u64)
-  v187:u64 = const() {"value":1}
-  v188:u64 = int.shl.checked(v176,v187)
-  v189:u64 = int.sub.wrap(v174,v187)
-  jump b17(v171,v189,v175,v188,v177)
-block b20(v192:u64,v195:u64,v196:u64,v197:u64,v198:u64)
-  v199:u64 = const() {"value":4503599627370496}
-  v200:bool = compare.lt(v198,v199)
-  branch v200 b21(v192,v195,v196,v197,v198) b22(v192,v195,v196,v197,v198)
-block b21(v203:u64,v206:u64,v207:u64,v208:u64,v209:u64)
-  v219:u64 = const() {"value":1}
-  v220:u64 = int.shl.checked(v209,v219)
-  v221:u64 = int.sub.wrap(v207,v219)
-  jump b20(v203,v206,v221,v208,v220)
-block b22(v212:u64,v215:u64,v216:u64,v217:u64,v218:u64)
-  v222:u64 = const() {"value":0}
-  v223:bool = compare.ge(v217,v218)
-  branch v223 b23(v212,v215,v216,v218,v217) b25(v212,v215,v216,v218,v222,v217)
-block b23(v226:u64,v229:u64,v230:u64,v232:u64,v234:u64)
-  v246:u64 = const() {"value":1}
-  v247:u64 = int.sub.wrap(v234,v232)
-  jump b25(v226,v229,v230,v232,v246,v247)
-block b25(v250:u64,v253:u64,v254:u64,v256:u64,v257:u64,v258:u64)
-  v259:u64 = const() {"value":0}
-  jump b26(v250,v253,v254,v256,v257,v258,v259)
-block b26(v262:u64,v265:u64,v266:u64,v268:u64,v269:u64,v270:u64,v271:u64)
-  v272:u64 = const() {"value":56}
-  v273:bool = compare.lt(v271,v272)
-  branch v273 b27(v262,v265,v266,v268,v269,v270,v271) b28(v262,v265,v266,v269,v270)
-block b27(v276:u64,v279:u64,v280:u64,v282:u64,v283:u64,v284:u64,v285:u64)
-  v298:u64 = const() {"value":1}
-  v299:u64 = int.shl.checked(v284,v298)
-  v300:u64 = int.shl.checked(v283,v298)
-  v301:bool = compare.ge(v299,v282)
-  branch v301 b29(v276,v279,v280,v282,v300,v299,v285) b31(v276,v279,v280,v282,v300,v299,v285)
-block b28(v288:u64,v291:u64,v292:u64,v295:u64,v296:u64)
-  v343:u64 = const() {"value":0}
-  v344:bool = compare.ne(v296,v343)
-  v345:u64 = const() {"value":1}
-  v346:u64 = bit.or(v295,v345)
-  v347:u64 = select(v344,v346,v295)
-  v348:u64 = const() {"value":4095}
-  v349:u64 = int.add.wrap(v291,v348)
-  v350:u64 = int.sub.wrap(v349,v292)
-  v351:u64 = call(v288,v350,v347) {"function":"pack64"}
-  ret(v351)
-block b29(v304:u64,v307:u64,v308:u64,v310:u64,v311:u64,v312:u64,v313:u64)
-  v326:u64 = int.sub.wrap(v312,v310)
-  v327:u64 = const() {"value":1}
-  v328:u64 = bit.or(v311,v327)
-  jump b31(v304,v307,v308,v310,v328,v326,v313)
-block b31(v331:u64,v334:u64,v335:u64,v337:u64,v338:u64,v339:u64,v340:u64)
-  v341:u64 = const() {"value":1}
-  v342:u64 = int.add.wrap(v340,v341)
-  jump b26(v331,v334,v335,v337,v338,v339,v342)
+fn half_addsub_f64(a:u64,b:u64,operation:u64,right_first:u64) -> (u64) effects(read,write,trap) entry(start)
+block start(a:u64,b:u64,operation:u64,right_first:u64)
+  zero:u64 = const() {"value":0}
+  prefer_right:bool = compare.ne(right_first,zero)
+  first:u64 = select(prefer_right,b,a)
+  second:u64 = select(prefer_right,a,b)
+  mask:u64 = const() {"value":9223372036854775807}
+  magnitude:u64 = bit.and(first,mask)
+  inf:u64 = const() {"value":9218868437227405312}
+  first_nan:bool = compare.gt(magnitude,inf)
+  branch first_nan nan(first) other(a,b,operation,second)
+block nan(x1:u64)
+  quiet1:u64 = const() {"value":2251799813685248}
+  value1:u64 = bit.or(x1,quiet1)
+  ret(value1)
+block other(a2:u64,b2:u64,o2:u64,x2:u64)
+  mask2:u64 = const() {"value":9223372036854775807}
+  magnitude2:u64 = bit.and(x2,mask2)
+  inf2:u64 = const() {"value":9218868437227405312}
+  second_nan2:bool = compare.gt(magnitude2,inf2)
+  branch second_nan2 nan(x2) finite(a2,b2,o2)
+block finite(a3:u64,b3:u64,o3:u64)
+  two3:u64 = const() {"value":2}
+  subtract3:bool = compare.eq(o3,two3)
+  sign3:u64 = const() {"value":9223372036854775808}
+  negative3:u64 = bit.xor(b3,sign3)
+  other3:u64 = select(subtract3,negative3,b3)
+  value3:u64 = call(a3,other3) {"function":"add64"}
+  mask3:u64 = const() {"value":9223372036854775807}
+  magnitude3:u64 = bit.and(value3,mask3)
+  inf3:u64 = const() {"value":9218868437227405312}
+  invalid3:bool = compare.gt(magnitude3,inf3)
+  indefinite3:u64 = const() {"value":18444492273895866368}
+  result3:u64 = select(invalid3,indefinite3,value3)
+  ret(result3)
 end
-fn multiply_high(v0:u64,v1:u64) -> (u64) effects(read,write,trap) entry(b0)
-block b0(v0:u64,v1:u64)
-  v2:u64 = const() {"value":4294967295}
-  v3:u64 = bit.and(v0,v2)
-  v4:u64 = const() {"value":32}
-  v5:u64 = int.shr.checked(v0,v4)
-  v6:u64 = bit.and(v1,v2)
-  v7:u64 = int.shr.checked(v1,v4)
-  v8:u64 = int.mul.wrap(v3,v6)
-  v9:u64 = int.mul.wrap(v3,v7)
-  v10:u64 = int.mul.wrap(v5,v6)
-  v11:u64 = int.shr.checked(v8,v4)
-  v12:u64 = bit.and(v9,v2)
-  v13:u64 = int.add.wrap(v11,v12)
-  v14:u64 = bit.and(v10,v2)
-  v15:u64 = int.add.wrap(v13,v14)
-  v16:u64 = int.mul.wrap(v5,v7)
-  v17:u64 = int.shr.checked(v9,v4)
-  v18:u64 = int.add.wrap(v16,v17)
-  v19:u64 = int.shr.checked(v10,v4)
-  v20:u64 = int.add.wrap(v18,v19)
-  v21:u64 = int.shr.checked(v15,v4)
-  v22:u64 = int.add.wrap(v20,v21)
-  ret(v22)
+fn half_widen_bf16(v0:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(v0:u64)
+  v1:u64 = const() {"value":16}
+  v2:u64 = int.shl.checked(v0,v1)
+  ret(v2)
 end
-fn mul64(v0:u64,v1:u64) -> (u64) effects(read,write,trap) entry(b0)
-block b0(v0:u64,v1:u64)
-  v2:u64 = bit.xor(v0,v1)
-  v3:u64 = const() {"value":9223372036854775808}
-  v4:u64 = bit.and(v2,v3)
-  v5:u64 = const() {"value":9223372036854775807}
-  v6:u64 = bit.and(v0,v5)
-  v7:u64 = bit.and(v1,v5)
-  v8:u64 = const() {"value":9218868437227405312}
-  v9:bool = compare.gt(v6,v8)
-  v10:bool = compare.gt(v7,v8)
-  v11:bool = bool.or(v9,v10)
-  branch v11 b1() b2(v0,v1,v4,v6,v7)
-block b1()
-  v22:u64 = const() {"value":9221120237041090560}
-  ret(v22)
-block b2(v17:u64,v18:u64,v19:u64,v20:u64,v21:u64)
-  v23:u64 = const() {"value":9218868437227405312}
-  v24:bool = compare.eq(v20,v23)
-  v25:bool = compare.eq(v21,v23)
-  v26:bool = bool.or(v24,v25)
-  branch v26 b3(v19,v20,v21) b4(v17,v18,v19,v20,v21)
-block b3(v29:u64,v30:u64,v31:u64)
-  v37:u64 = const() {"value":0}
-  v38:bool = compare.eq(v30,v37)
-  v39:bool = compare.eq(v31,v37)
-  v40:bool = bool.or(v38,v39)
-  v41:u64 = const() {"value":9221120237041090560}
-  v42:u64 = const() {"value":9218868437227405312}
-  v43:u64 = bit.or(v29,v42)
-  v44:u64 = select(v40,v41,v43)
-  ret(v44)
-block b4(v32:u64,v33:u64,v34:u64,v35:u64,v36:u64)
-  v45:u64 = const() {"value":0}
-  v46:bool = compare.eq(v35,v45)
-  v47:bool = compare.eq(v36,v45)
-  v48:bool = bool.or(v46,v47)
-  branch v48 b5(v34) b6(v32,v33,v34)
-block b5(v51:u64)
-  ret(v51)
-block b6(v54:u64,v55:u64,v56:u64)
-  v59:u64 = const() {"value":52}
-  v60:u64 = int.shr.checked(v54,v59)
-  v61:u64 = const() {"value":2047}
-  v62:u64 = bit.and(v60,v61)
-  v63:u64 = int.shr.checked(v55,v59)
-  v64:u64 = bit.and(v63,v61)
-  v65:u64 = const() {"value":4503599627370495}
-  v66:u64 = bit.and(v54,v65)
-  v67:u64 = bit.and(v55,v65)
-  v68:u64 = const() {"value":0}
-  v69:bool = compare.ne(v62,v68)
-  branch v69 b7(v56,v62,v64,v66,v67) b8(v56,v64,v66,v67)
-block b7(v72:u64,v75:u64,v76:u64,v77:u64,v78:u64)
-  v88:u64 = const() {"value":4503599627370496}
-  v89:u64 = bit.or(v77,v88)
-  jump b9(v72,v75,v76,v89,v78)
-block b8(v81:u64,v85:u64,v86:u64,v87:u64)
-  v90:u64 = const() {"value":1}
-  jump b9(v81,v90,v85,v86,v87)
-block b9(v93:u64,v96:u64,v97:u64,v98:u64,v99:u64)
-  v100:u64 = const() {"value":0}
-  v101:bool = compare.ne(v97,v100)
-  branch v101 b10(v93,v96,v97,v98,v99) b11(v93,v96,v98,v99)
-block b10(v104:u64,v107:u64,v108:u64,v109:u64,v110:u64)
-  v120:u64 = const() {"value":4503599627370496}
-  v121:u64 = bit.or(v110,v120)
-  jump b12(v104,v107,v108,v109,v121)
-block b11(v113:u64,v116:u64,v118:u64,v119:u64)
-  v122:u64 = const() {"value":1}
-  jump b12(v113,v116,v122,v118,v119)
-block b12(v125:u64,v128:u64,v129:u64,v130:u64,v131:u64)
-  v132:u64 = const() {"value":3073}
-  v133:u64 = int.add.wrap(v128,v132)
-  v134:u64 = int.add.wrap(v129,v132)
-  jump b13(v125,v133,v134,v130,v131)
-block b13(v137:u64,v140:u64,v141:u64,v142:u64,v143:u64)
-  v144:u64 = const() {"value":4503599627370496}
-  v145:bool = compare.lt(v142,v144)
-  branch v145 b14(v137,v140,v141,v142,v143) b16(v137,v140,v141,v142,v143)
-block b14(v148:u64,v151:u64,v152:u64,v153:u64,v154:u64)
-  v164:u64 = const() {"value":1}
-  v165:u64 = int.shl.checked(v153,v164)
-  v166:u64 = int.sub.wrap(v151,v164)
-  jump b13(v148,v166,v152,v165,v154)
-block b16(v169:u64,v172:u64,v173:u64,v174:u64,v175:u64)
-  v176:u64 = const() {"value":4503599627370496}
-  v177:bool = compare.lt(v175,v176)
-  branch v177 b17(v169,v172,v173,v174,v175) b18(v169,v172,v173,v174,v175)
-block b17(v180:u64,v183:u64,v184:u64,v185:u64,v186:u64)
-  v196:u64 = const() {"value":1}
-  v197:u64 = int.shl.checked(v186,v196)
-  v198:u64 = int.sub.wrap(v184,v196)
-  jump b16(v180,v183,v198,v185,v197)
-block b18(v189:u64,v192:u64,v193:u64,v194:u64,v195:u64)
-  v199:u64 = call(v194,v195) {"function":"multiply_high"}
-  v200:u64 = int.mul.wrap(v194,v195)
-  v201:u64 = const() {"value":15}
-  v202:u64 = int.shl.checked(v199,v201)
-  v203:u64 = const() {"value":49}
-  v204:u64 = int.shr.checked(v200,v203)
-  v205:u64 = bit.or(v202,v204)
-  v206:u64 = const() {"value":562949953421311}
-  v207:u64 = bit.and(v200,v206)
-  v208:u64 = const() {"value":0}
-  v209:bool = compare.ne(v207,v208)
-  v210:u64 = const() {"value":1}
-  v211:u64 = bit.or(v205,v210)
-  v212:u64 = select(v209,v211,v205)
-  v213:u64 = int.add.wrap(v192,v193)
-  v214:u64 = const() {"value":4096}
-  v215:u64 = int.sub.wrap(v213,v214)
-  v216:u64 = call(v189,v215,v212) {"function":"pack64"}
-  ret(v216)
+fn widen_f16(x:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(x:u64)
+  sign_mask:u64 = const() {"value":32768}
+  sign16:u64 = bit.and(x,sign_mask)
+  shift16:u64 = const() {"value":16}
+  sign:u64 = int.shl.checked(sign16,shift16)
+  shift10:u64 = const() {"value":10}
+  exponent_bits:u64 = int.shr.checked(x,shift10)
+  exponent_mask:u64 = const() {"value":31}
+  exponent:u64 = bit.and(exponent_bits,exponent_mask)
+  fraction_mask:u64 = const() {"value":1023}
+  fraction:u64 = bit.and(x,fraction_mask)
+  zero:u64 = const() {"value":0}
+  sub:bool = compare.eq(exponent,zero)
+  branch sub denormal(sign,fraction) nonzero(sign,exponent,fraction)
+block denormal(s1:u64,f1:u64)
+  zero1:u64 = const() {"value":0}
+  empty1:bool = compare.eq(f1,zero1)
+  start1:u64 = const() {"value":113}
+  branch empty1 signed_zero(s1) normalize(s1,start1,f1)
+block signed_zero(s2:u64)
+  ret(s2)
+block normalize(s3:u64,e3:u64,f3:u64)
+  hidden3:u64 = const() {"value":1024}
+  normalized3:bool = compare.ge(f3,hidden3)
+  branch normalized3 assemble(s3,e3,f3) shift(s3,e3,f3)
+block shift(s4:u64,e4:u64,f4:u64)
+  one4:u64 = const() {"value":1}
+  exponent4:u64 = int.sub.wrap(e4,one4)
+  fraction4:u64 = int.shl.checked(f4,one4)
+  jump normalize(s4,exponent4,fraction4)
+block nonzero(s5:u64,e5:u64,f5:u64)
+  max5:u64 = const() {"value":31}
+  special5:bool = compare.eq(e5,max5)
+  branch special5 special(s5,f5) normal(s5,e5,f5)
+block special(s6:u64,f6:u64)
+  inf6:u64 = const() {"value":2139095040}
+  shift6:u64 = const() {"value":13}
+  payload6:u64 = int.shl.checked(f6,shift6)
+  zero6:u64 = const() {"value":0}
+  quiet6:u64 = const() {"value":4194304}
+  nan6:bool = compare.ne(f6,zero6)
+  quiet_bit6:u64 = select(nan6,quiet6,zero6)
+  base6:u64 = bit.or(inf6,payload6)
+  magnitude6:u64 = bit.or(base6,quiet_bit6)
+  result6:u64 = bit.or(s6,magnitude6)
+  ret(result6)
+block normal(s7:u64,e7:u64,f7:u64)
+  bias7:u64 = const() {"value":112}
+  exponent7:u64 = int.add.wrap(e7,bias7)
+  jump assemble(s7,exponent7,f7)
+block assemble(s8:u64,e8:u64,f8:u64)
+  mask8:u64 = const() {"value":1023}
+  fraction8:u64 = bit.and(f8,mask8)
+  shift_fraction8:u64 = const() {"value":13}
+  payload8:u64 = int.shl.checked(fraction8,shift_fraction8)
+  shift_exponent8:u64 = const() {"value":23}
+  exponent8:u64 = int.shl.checked(e8,shift_exponent8)
+  magnitude8:u64 = bit.or(exponent8,payload8)
+  result8:u64 = bit.or(s8,magnitude8)
+  ret(result8)
 end
-fn sub64(v0:u64,v1:u64) -> (u64) effects(read,write,trap) entry(b0)
-block b0(v0:u64,v1:u64)
-  v2:u64 = const() {"value":9223372036854775808}
-  v3:u64 = bit.xor(v1,v2)
-  v4:u64 = call(v0,v3) {"function":"add64"}
-  ret(v4)
+fn half_mul_to_f32(x:u64,dtype:u64) -> (u64) effects(read,write,trap) entry(start)
+block start(x:u64,dtype:u64)
+  half:u64 = const() {"value":5}
+  ishalf:bool = compare.eq(dtype,half)
+  branch ishalf half_value(x) not_half(x,dtype)
+block half_value(x1:u64)
+  y1:u64 = call(x1) {"function":"widen_f16"}
+  ret(y1)
+block not_half(x2:u64,d2:u64)
+  bf:u64 = const() {"value":6}
+  isbf:bool = compare.eq(d2,bf)
+  branch isbf bf_value(x2) not_bf(x2,d2)
+block bf_value(x3:u64)
+  y3:u64 = call(x3) {"function":"half_widen_bf16"}
+  ret(y3)
+block not_bf(x4:u64,d4:u64)
+  double:u64 = const() {"value":4}
+  isdouble:bool = compare.eq(d4,double)
+  branch isdouble double_value(x4) ordinary_value(x4,d4)
+block double_value(x5:u64)
+  y5:u64 = call(x5) {"function":"wrapped_f64_to_f32"}
+  ret(y5)
+block ordinary_value(x6:u64,d6:u64)
+  y6:u64 = call(x6,d6) {"function":"integer_as_f32"}
+  ret(y6)
 end
-fn f64_scalar_binary(v0:u64,v1:u64,v2:u64) -> (u64) effects(read,write,trap) entry(b0)
-block b0(v0:u64,v1:u64,v2:u64)
-  v3:u64 = const() {"value":1}
-  v4:bool = compare.eq(v0,v3)
-  branch v4 b1(v1,v2) b2(v0,v1,v2)
-block b1(v6:u64,v7:u64)
-  v11:u64 = call(v6,v7) {"function":"add64"}
-  ret(v11)
-block b2(v8:u64,v9:u64,v10:u64)
-  v12:u64 = const() {"value":2}
-  v13:bool = compare.eq(v8,v12)
-  branch v13 b3(v9,v10) b4(v8,v9,v10)
-block b3(v15:u64,v16:u64)
-  v20:u64 = call(v15,v16) {"function":"sub64"}
-  ret(v20)
-block b4(v17:u64,v18:u64,v19:u64)
-  v21:u64 = const() {"value":3}
-  v22:bool = compare.eq(v17,v21)
-  branch v22 b5(v18,v19) b6(v18,v19)
-block b5(v24:u64,v25:u64)
-  v29:u64 = call(v24,v25) {"function":"mul64"}
-  ret(v29)
-block b6(v27:u64,v28:u64)
-  v30:u64 = call(v27,v28) {"function":"div64"}
-  ret(v30)
+fn half_narrow_bf16(value0:u64,nan_word0:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(value0:u64,nan_word0:u64)
+  exponent_mask0:u64 = const() {"value":2139095040}
+  exponent0:u64 = bit.and(value0,exponent_mask0)
+  special0:bool = compare.eq(exponent0,exponent_mask0)
+  fraction_mask0:u64 = const() {"value":8388607}
+  fraction0:u64 = bit.and(value0,fraction_mask0)
+  zero0:u64 = const() {"value":0}
+  payload0:bool = compare.ne(fraction0,zero0)
+  nan0:bool = bool.and(special0,payload0)
+  branch nan0 nan_result(nan_word0) finite_result(value0)
+block nan_result(nan_word1:u64)
+  ret(nan_word1)
+block finite_result(value2:u64)
+  result2:u64 = call(value2) {"function":"round_bf16"}
+  ret(result2)
 end
-fn f64_valid(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) entry(b0)
-block b0(v0:mutbuf,v1:u64)
-  v8:u64 = call(v0,v1) {"function":"valid"}
-  v9:u64 = const() {"value":0}
-  v10:bool = compare.eq(v8,v9)
-  branch v10 b1() b2(v0,v1)
-block b1()
-  v11:u64 = const() {"value":0}
-  ret(v11)
-block b2(v2:mutbuf,v3:u64)
-  v12:u64 = call(v2,v3) {"function":"tensor_dtype"}
-  v13:u64 = const() {"value":4}
-  v14:bool = compare.ne(v12,v13)
-  branch v14 b5(v2) b3(v2,v3)
-block b3(v4:mutbuf,v5:u64)
-  v15:u64 = call(v4,v5) {"function":"dptr"}
-  v16:u64 = const() {"value":32}
-  v17:u64 = int.add.wrap(v15,v16)
-  v18:u64 = call(v4,v17) {"function":"getw"}
-  v19:u64 = const() {"value":0}
-  v20:bool = compare.ne(v18,v19)
-  branch v20 b6(v4) b4()
-block b4()
-  v21:u64 = const() {"value":1}
-  ret(v21)
-block b5(v6:mutbuf)
-  v22:u64 = const() {"value":7}
-  v23:u64 = call(v6,v22) {"function":"terror"}
-  ret(v23)
-block b6(v7:mutbuf)
-  v24:u64 = const() {"value":5}
-  v25:u64 = call(v7,v24) {"function":"terror"}
-  ret(v25)
-end
-fn dist_probability_stride(v0:mutbuf,v1:u64,v2:u64,v3:u64) -> (u64) effects(read,write,trap) entry(b0)
-block b0(v0:mutbuf,v1:u64,v2:u64,v3:u64)
-  v4:u64 = call(v0,v1) {"function":"getw"}
-  v5:u64 = call(v0,v2) {"function":"getw"}
-  v6:u64 = int.add.wrap(v3,v5)
-  v7:bool = compare.lt(v6,v4)
-  branch v7 b1(v0) b2(v0,v1,v2,v3,v4,v5)
-block b1(v8:mutbuf)
+fn widen32(v0:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(v0:u64)
+  v1:u64 = const() {"value":2147483648}
+  v2:u64 = bit.and(v0,v1)
+  v3:u64 = const() {"value":32}
+  v4:u64 = int.shl.checked(v2,v3)
+  v5:u64 = const() {"value":23}
+  v6:u64 = int.shr.checked(v0,v5)
+  v7:u64 = const() {"value":255}
+  v8:u64 = bit.and(v6,v7)
+  v9:u64 = const() {"value":8388607}
+  v10:u64 = bit.and(v0,v9)
+  v11:bool = compare.eq(v8,v7)
+  branch v11 b1(v4,v10) b2(v4,v8,v10)
+block b1(v13:u64,v15:u64)
   v20:u64 = const() {"value":0}
-  ret(v20)
-block b2(v14:mutbuf,v15:u64,v16:u64,v17:u64,v18:u64,v19:u64)
-  v21:u64 = int.add.wrap(v17,v19)
-  v22:u64 = int.sub.wrap(v21,v18)
-  v23:u64 = const() {"value":96}
-  v24:u64 = int.add.wrap(v16,v23)
-  v25:u64 = const() {"value":8}
-  v26:u64 = int.mul.wrap(v22,v25)
-  v27:u64 = int.add.wrap(v24,v26)
-  v28:u64 = call(v14,v27) {"function":"getw"}
-  v29:u64 = const() {"value":1}
-  v30:bool = compare.eq(v28,v29)
-  branch v30 b3(v14,v15,v16,v17,v22) b4(v14,v16,v22,v30)
-block b3(v31:mutbuf,v32:u64,v33:u64,v34:u64,v37:u64)
-  v47:u64 = const() {"value":96}
-  v48:u64 = int.add.wrap(v32,v47)
-  v49:u64 = const() {"value":8}
-  v50:u64 = int.mul.wrap(v34,v49)
-  v51:u64 = int.add.wrap(v48,v50)
-  v52:u64 = call(v31,v51) {"function":"getw"}
-  v53:u64 = const() {"value":1}
-  v54:bool = compare.ne(v52,v53)
-  jump b4(v31,v33,v37,v54)
-block b4(v39:mutbuf,v41:u64,v45:u64,v46:bool)
-  branch v46 b5(v39) b6(v39,v41,v45)
-block b5(v55:mutbuf)
-  v69:u64 = const() {"value":0}
-  ret(v69)
-block b6(v62:mutbuf,v64:u64,v68:u64)
-  v70:u64 = const() {"value":128}
-  v71:u64 = int.add.wrap(v64,v70)
-  v72:u64 = const() {"value":8}
-  v73:u64 = int.mul.wrap(v68,v72)
-  v74:u64 = int.add.wrap(v71,v73)
-  v75:u64 = call(v62,v74) {"function":"getw"}
-  ret(v75)
+  v21:bool = compare.ne(v15,v20)
+  branch v21 b3(v13,v15) b4(v13)
+block b2(v17:u64,v18:u64,v19:u64)
+  v37:u64 = const() {"value":0}
+  v38:bool = compare.ne(v18,v37)
+  branch v38 b5(v17,v18,v19) b6(v17,v19)
+block b3(v23:u64,v25:u64)
+  v30:u64 = const() {"value":9221120237041090560}
+  v31:u64 = bit.or(v23,v30)
+  v32:u64 = const() {"value":29}
+  v33:u64 = int.shl.checked(v25,v32)
+  v34:u64 = bit.or(v31,v33)
+  ret(v34)
+block b4(v27:u64)
+  v35:u64 = const() {"value":9218868437227405312}
+  v36:u64 = bit.or(v27,v35)
+  ret(v36)
+block b5(v40:u64,v41:u64,v42:u64)
+  v47:u64 = const() {"value":896}
+  v48:u64 = int.add.wrap(v41,v47)
+  v49:u64 = const() {"value":52}
+  v50:u64 = int.shl.checked(v48,v49)
+  v51:u64 = bit.or(v40,v50)
+  v52:u64 = const() {"value":29}
+  v53:u64 = int.shl.checked(v42,v52)
+  v54:u64 = bit.or(v51,v53)
+  ret(v54)
+block b6(v44:u64,v46:u64)
+  v55:u64 = const() {"value":0}
+  v56:bool = compare.eq(v46,v55)
+  branch v56 b7(v44) b8(v44,v46)
+block b7(v58:u64)
+  ret(v58)
+block b8(v62:u64,v64:u64)
+  v65:u64 = const() {"value":897}
+  jump b9(v62,v65,v64)
+block b9(v67:u64,v68:u64,v69:u64)
+  v70:u64 = const() {"value":8388608}
+  v71:bool = compare.lt(v69,v70)
+  branch v71 b10(v67,v68,v69) b11(v67,v68,v69)
+block b10(v73:u64,v74:u64,v75:u64)
+  v80:u64 = const() {"value":1}
+  v81:u64 = int.shl.checked(v75,v80)
+  v82:u64 = int.sub.wrap(v74,v80)
+  jump b9(v73,v82,v81)
+block b11(v77:u64,v78:u64,v79:u64)
+  v83:u64 = const() {"value":52}
+  v84:u64 = int.shl.checked(v78,v83)
+  v85:u64 = bit.or(v77,v84)
+  v86:u64 = const() {"value":8388607}
+  v87:u64 = bit.and(v79,v86)
+  v88:u64 = const() {"value":29}
+  v89:u64 = int.shl.checked(v87,v88)
+  v90:u64 = bit.or(v85,v89)
+  ret(v90)
 end
-fn integer_pointwise_compare_axes(v0:mutbuf,v1:u64,v2:u64,v3:u64,v4:u64,v5:u64) -> (u64) effects(read,write,trap) entry(b0)
-block b0(v0:mutbuf,v1:u64,v2:u64,v3:u64,v4:u64,v5:u64)
-  v6:u64 = const() {"value":0}
-  jump b1(v0,v1,v2,v3,v4,v5,v6)
-block b1(v7:mutbuf,v8:u64,v9:u64,v10:u64,v11:u64,v12:u64,v13:u64)
-  v14:u64 = const() {"value":2}
-  v15:bool = compare.lt(v13,v14)
-  branch v15 b2(v7,v8,v9,v10,v11,v12,v13) b3(v7)
-block b2(v16:mutbuf,v17:u64,v18:u64,v19:u64,v20:u64,v21:u64,v22:u64)
-  v30:u64 = const() {"value":1}
-  v31:bool = compare.eq(v22,v30)
-  v32:u64 = select(v31,v19,v18)
-  v33:u64 = const() {"value":576}
-  v34:u64 = int.add.wrap(v32,v33)
-  v35:u64 = call(v16,v34) {"function":"getw"}
-  v36:u64 = call(v35) {"function":"dtype_width"}
-  v37:u64 = call(v16,v17,v32,v20) {"function":"dist_probability_stride"}
-  v38:u64 = int.mul.wrap(v37,v36)
-  v39:u64 = call(v16,v17,v32,v21) {"function":"dist_probability_stride"}
-  v40:u64 = int.mul.wrap(v39,v36)
-  v41:u64 = const() {"value":0}
-  v42:bool = compare.ne(v38,v41)
-  v43:bool = compare.ne(v40,v41)
-  v44:bool = bool.and(v42,v43)
-  branch v44 b4(v16,v17,v18,v19,v20,v21,v22,v38,v40) b12(v16,v17,v18,v19,v20,v21,v22)
-block b3(v23:mutbuf)
-  v176:u64 = const() {"value":0}
-  ret(v176)
-block b4(v45:mutbuf,v46:u64,v47:u64,v48:u64,v49:u64,v50:u64,v51:u64,v54:u64,v55:u64)
-  v67:u64 = const() {"value":9223372036854775808}
-  v68:u64 = bit.xor(v54,v67)
-  v69:u64 = bit.xor(v55,v67)
-  v70:bool = compare.lt(v68,v69)
-  branch v70 b6(v45) b7(v45,v46,v47,v48,v49,v50,v51,v68,v69)
-block b6(v71:mutbuf)
-  v97:u64 = const() {"value":1}
-  ret(v97)
-block b7(v84:mutbuf,v85:u64,v86:u64,v87:u64,v88:u64,v89:u64,v90:u64,v95:u64,v96:u64)
-  v98:bool = compare.gt(v95,v96)
-  branch v98 b8(v84) b9(v84,v85,v86,v87,v88,v89,v90)
-block b8(v99:mutbuf)
-  v125:u64 = const() {"value":2}
-  ret(v125)
-block b9(v112:mutbuf,v113:u64,v114:u64,v115:u64,v116:u64,v117:u64,v118:u64)
-  v126:u64 = const() {"value":96}
-  v127:u64 = int.add.wrap(v113,v126)
-  v128:u64 = const() {"value":8}
-  v129:u64 = int.mul.wrap(v116,v128)
-  v130:u64 = int.add.wrap(v127,v129)
-  v131:u64 = call(v112,v130) {"function":"getw"}
-  v132:u64 = int.mul.wrap(v117,v128)
-  v133:u64 = int.add.wrap(v127,v132)
-  v134:u64 = call(v112,v133) {"function":"getw"}
-  v135:bool = compare.gt(v131,v134)
-  branch v135 b10(v112) b12(v112,v113,v114,v115,v116,v117,v118)
-block b10(v136:mutbuf)
-  v162:u64 = const() {"value":2}
-  ret(v162)
-block b12(v163:mutbuf,v164:u64,v165:u64,v166:u64,v167:u64,v168:u64,v169:u64)
-  v174:u64 = const() {"value":1}
-  v175:u64 = int.add.wrap(v169,v174)
-  jump b1(v163,v164,v165,v166,v167,v168,v175)
+fn half_mul_cast(x:u64,source:u64,target:u64,nan_word:u64) -> (u64) effects(read,write,trap) entry(start)
+block start(x:u64,source:u64,target:u64,nan_word:u64)
+  same:bool = compare.eq(source,target)
+  branch same unchanged(x) convert(x,source,target,nan_word)
+block unchanged(x1:u64)
+  ret(x1)
+block convert(x2:u64,s2:u64,t2:u64,n2:u64)
+  f2:u64 = call(x2,s2) {"function":"half_mul_to_f32"}
+  half2:u64 = const() {"value":5}
+  ishalf2:bool = compare.eq(t2,half2)
+  branch ishalf2 to_half(f2) not_half(f2,t2,n2)
+block to_half(x3:u64)
+  y3:u64 = call(x3) {"function":"round_f16"}
+  ret(y3)
+block not_half(x4:u64,t4:u64,n4:u64)
+  bf4:u64 = const() {"value":6}
+  isbf4:bool = compare.eq(t4,bf4)
+  branch isbf4 to_bf(x4,n4) not_bf(x4,t4)
+block to_bf(x5:u64,n5:u64)
+  y5:u64 = call(x5,n5) {"function":"half_narrow_bf16"}
+  ret(y5)
+block not_bf(x6:u64,t6:u64)
+  double6:u64 = const() {"value":4}
+  isdouble6:bool = compare.eq(t6,double6)
+  branch isdouble6 to_double(x6) unchanged(x6)
+block to_double(x7:u64)
+  y7:u64 = call(x7) {"function":"widen32"}
+  ret(y7)
 end
-fn integer_pointwise_axis_order(v0:mutbuf,v1:u64,v2:u64,v3:u64) -> (u64) effects(read,write,trap) entry(b0)
+fn half_mul_nan_word(s:mutbuf,result:u64,index:u64,inner:u64) -> (u64) effects(read,write,trap) entry(start)
+block start(s:mutbuf,result:u64,index:u64,inner:u64)
+  address:u64 = call(s,result,index) {"function":"taddr"}
+  descriptor:u64 = call(s,result) {"function":"dptr"}
+  offset:u64 = const() {"value":16}
+  base_at:u64 = int.add.wrap(descriptor,offset)
+  base:u64 = call(s,base_at) {"function":"getw"}
+  bytes:u64 = int.sub.wrap(address,base)
+  dtype:u64 = call(s,result) {"function":"tensor_dtype"}
+  width:u64 = call(dtype) {"function":"dtype_width"}
+  position:u64 = int.div.checked(bytes,width)
+  lane:u64 = int.rem.checked(position,inner)
+  vector_size:u64 = const() {"value":32}
+  vectors:u64 = int.div.checked(inner,vector_size)
+  extent:u64 = int.mul.wrap(vectors,vector_size)
+  vector:bool = compare.lt(lane,extent)
+  vector_nan:u64 = const() {"value":65535}
+  scalar_nan:u64 = const() {"value":32704}
+  result_word:u64 = select(vector,vector_nan,scalar_nan)
+  ret(result_word)
+end
+fn typed_store(v0:mutbuf,v1:u64,v2:u64,v3:u64) -> (u64) effects(read,write,trap) entry(b0)
 block b0(v0:mutbuf,v1:u64,v2:u64,v3:u64)
-  v4:u64 = call(v0,v1) {"function":"getw"}
+  v4:u64 = call(v0,v1) {"function":"object_address"}
   v5:u64 = const() {"value":0}
-  jump b1(v0,v1,v2,v3,v4,v5,v5)
-block b1(v6:mutbuf,v7:u64,v8:u64,v9:u64,v10:u64,v11:u64,v12:u64)
-  v13:bool = compare.lt(v12,v10)
-  branch v13 b2(v6,v7,v8,v9,v10,v11,v12) b3(v6,v7,v8,v9,v10,v11)
-block b2(v14:mutbuf,v15:u64,v16:u64,v17:u64,v18:u64,v19:u64,v20:u64)
-  v28:u64 = int.sub.wrap(v18,v20)
-  v29:u64 = const() {"value":1}
-  v30:u64 = int.sub.wrap(v28,v29)
-  v31:u64 = const() {"value":8}
-  v32:u64 = int.mul.wrap(v20,v31)
-  v33:u64 = int.shl.checked(v30,v32)
-  v34:u64 = bit.or(v19,v33)
-  v35:u64 = int.add.wrap(v20,v29)
-  jump b1(v14,v15,v16,v17,v18,v34,v35)
-block b3(v21:mutbuf,v22:u64,v23:u64,v24:u64,v25:u64,v26:u64)
-  v36:u64 = const() {"value":1}
-  jump b4(v21,v22,v23,v24,v25,v26,v36)
-block b4(v37:mutbuf,v38:u64,v39:u64,v40:u64,v41:u64,v42:u64,v43:u64)
-  v44:bool = compare.lt(v43,v41)
-  branch v44 b5(v37,v38,v39,v40,v41,v42,v43) b6(v37,v42)
-block b5(v45:mutbuf,v46:u64,v47:u64,v48:u64,v49:u64,v50:u64,v51:u64)
-  v59:u64 = const() {"value":0}
-  jump b7(v45,v46,v47,v48,v49,v50,v51,v51,v51,v59)
-block b6(v52:mutbuf,v57:u64)
-  ret(v57)
-block b7(v60:mutbuf,v61:u64,v62:u64,v63:u64,v64:u64,v65:u64,v66:u64,v67:u64,v68:u64,v69:u64)
-  v70:u64 = const() {"value":0}
-  v71:bool = compare.gt(v68,v70)
-  v72:bool = compare.eq(v69,v70)
-  v73:bool = bool.and(v71,v72)
-  branch v73 b8(v60,v61,v62,v63,v64,v65,v66,v67,v68,v69) b9(v60,v61,v62,v63,v64,v65,v66)
-block b8(v74:mutbuf,v75:u64,v76:u64,v77:u64,v78:u64,v79:u64,v80:u64,v81:u64,v82:u64,v83:u64)
-  v94:u64 = const() {"value":1}
-  v95:u64 = int.sub.wrap(v82,v94)
-  v96:u64 = const() {"value":8}
-  v97:u64 = int.mul.wrap(v95,v96)
-  v98:u64 = int.shr.checked(v79,v97)
-  v99:u64 = const() {"value":255}
-  v100:u64 = bit.and(v98,v99)
-  v101:u64 = int.mul.wrap(v81,v96)
-  v102:u64 = int.shr.checked(v79,v101)
-  v103:u64 = bit.and(v102,v99)
-  v104:u64 = call(v74,v75,v76,v77,v100,v103) {"function":"integer_pointwise_compare_axes"}
-  v105:u64 = const() {"value":2}
-  v106:bool = compare.eq(v104,v105)
-  branch v106 b10(v74,v75,v76,v77,v78,v79,v80,v81,v95,v83,v100,v103,v104) b12(v74,v75,v76,v77,v78,v79,v80,v81,v95,v83,v104)
-block b9(v84:mutbuf,v85:u64,v86:u64,v87:u64,v88:u64,v89:u64,v90:u64)
-  v157:u64 = const() {"value":1}
-  v158:u64 = int.add.wrap(v90,v157)
-  jump b4(v84,v85,v86,v87,v88,v89,v158)
-block b10(v107:mutbuf,v108:u64,v109:u64,v110:u64,v111:u64,v112:u64,v113:u64,v114:u64,v115:u64,v116:u64,v117:u64,v118:u64,v119:u64)
-  v133:u64 = bit.xor(v117,v118)
-  v134:u64 = const() {"value":8}
-  v135:u64 = int.mul.wrap(v115,v134)
-  v136:u64 = int.shl.checked(v133,v135)
-  v137:u64 = bit.xor(v112,v136)
-  v138:u64 = int.mul.wrap(v114,v134)
-  v139:u64 = int.shl.checked(v133,v138)
-  v140:u64 = bit.xor(v137,v139)
-  jump b12(v107,v108,v109,v110,v111,v140,v113,v115,v115,v116,v119)
-block b12(v141:mutbuf,v142:u64,v143:u64,v144:u64,v145:u64,v146:u64,v147:u64,v148:u64,v149:u64,v150:u64,v153:u64)
-  v154:u64 = const() {"value":1}
-  v155:bool = compare.eq(v153,v154)
-  v156:u64 = select(v155,v154,v150)
-  jump b7(v141,v142,v143,v144,v145,v146,v147,v148,v149,v156)
-end
-fn integer_pointwise_layout(v0:mutbuf,v1:u64,v2:u64,v3:u64) -> (u64) effects(read,write,trap) entry(b0)
-block b0(v0:mutbuf,v1:u64,v2:u64,v3:u64)
-  v4:u64 = call(v0,v1) {"function":"dptr"}
-  v5:u64 = call(v0,v2) {"function":"dptr"}
-  v6:u64 = call(v0,v3) {"function":"dptr"}
-  v7:u64 = call(v0,v4) {"function":"getw"}
-  v8:u64 = call(v0,v2,v3) {"function":"incoming_same_shape"}
-  v9:u64 = const() {"value":0}
-  v10:bool = compare.ne(v8,v9)
-  branch v10 b1(v0,v2,v3,v4,v5,v6,v7) b24(v0,v4,v5,v6,v7)
-block b1(v11:mutbuf,v13:u64,v14:u64,v15:u64,v16:u64,v17:u64,v18:u64)
-  v27:u64 = call(v11,v13) {"function":"is_contiguous"}
-  v28:u64 = const() {"value":0}
-  v29:bool = compare.ne(v27,v28)
-  branch v29 b3(v11,v13,v14,v15,v16,v17,v18) b4(v11,v13,v14,v15,v16,v17,v18,v29)
-block b3(v30:mutbuf,v32:u64,v33:u64,v34:u64,v35:u64,v36:u64,v37:u64)
-  v48:u64 = call(v30,v33) {"function":"is_contiguous"}
-  v49:u64 = const() {"value":0}
-  v50:bool = compare.ne(v48,v49)
-  jump b4(v30,v32,v33,v34,v35,v36,v37,v50)
-block b4(v39:mutbuf,v41:u64,v42:u64,v43:u64,v44:u64,v45:u64,v46:u64,v47:bool)
-  branch v47 b5(v39) b6(v39,v41,v42,v43,v44,v45,v46)
-block b5(v51:mutbuf)
-  v67:u64 = const() {"value":1}
-  ret(v67)
-block b6(v59:mutbuf,v61:u64,v62:u64,v63:u64,v64:u64,v65:u64,v66:u64)
-  v68:u64 = call(v59,v61) {"function":"pointwise_channels_last"}
-  v69:u64 = const() {"value":0}
-  v70:bool = compare.ne(v68,v69)
-  branch v70 b7(v59,v61,v62,v63,v64,v65,v66) b8(v59,v61,v62,v63,v64,v65,v66,v70)
-block b7(v71:mutbuf,v73:u64,v74:u64,v75:u64,v76:u64,v77:u64,v78:u64)
-  v89:u64 = call(v71,v74) {"function":"pointwise_channels_last"}
-  v90:u64 = const() {"value":0}
-  v91:bool = compare.ne(v89,v90)
-  jump b8(v71,v73,v74,v75,v76,v77,v78,v91)
-block b8(v80:mutbuf,v82:u64,v83:u64,v84:u64,v85:u64,v86:u64,v87:u64,v88:bool)
-  branch v88 b9(v80,v84) b10(v80,v82,v83,v84,v85,v86,v87)
-block b9(v92:mutbuf,v96:u64)
-  v108:u64 = const() {"value":131841}
-  v109:u64 = const() {"value":0}
-  v110:u64 = call(v92,v96,v108,v109) {"function":"pointwise_write_order"}
-  ret(v110)
-block b10(v100:mutbuf,v102:u64,v103:u64,v104:u64,v105:u64,v106:u64,v107:u64)
-  v111:u64 = call(v100,v102) {"function":"is_dense"}
-  v112:u64 = const() {"value":0}
-  v113:bool = compare.ne(v111,v112)
-  branch v113 b11(v100,v103,v104,v105,v106,v107) b12(v100,v104,v105,v106,v107,v113)
-block b11(v114:mutbuf,v117:u64,v118:u64,v119:u64,v120:u64,v121:u64)
-  v132:u64 = call(v114,v117) {"function":"is_dense"}
-  v133:u64 = const() {"value":0}
-  v134:bool = compare.ne(v132,v133)
-  jump b12(v114,v118,v119,v120,v121,v134)
-block b12(v123:mutbuf,v127:u64,v128:u64,v129:u64,v130:u64,v131:bool)
-  branch v131 b13(v123,v127,v128,v129,v130) b24(v123,v127,v128,v129,v130)
-block b13(v135:mutbuf,v139:u64,v140:u64,v141:u64,v142:u64)
-  v151:u64 = const() {"value":1}
-  v152:u64 = const() {"value":0}
-  jump b15(v135,v139,v140,v141,v142,v151,v152)
-block b15(v153:mutbuf,v157:u64,v158:u64,v159:u64,v160:u64,v161:u64,v162:u64)
-  v163:bool = compare.lt(v162,v160)
-  branch v163 b16(v153,v157,v158,v159,v160,v161,v162) b17(v153,v157,v158,v159,v160,v161)
-block b16(v164:mutbuf,v168:u64,v169:u64,v170:u64,v171:u64,v172:u64,v173:u64)
-  v184:u64 = const() {"value":128}
-  v185:u64 = int.add.wrap(v169,v184)
-  v186:u64 = const() {"value":8}
-  v187:u64 = int.mul.wrap(v173,v186)
-  v188:u64 = int.add.wrap(v185,v187)
-  v189:u64 = call(v164,v188) {"function":"getw"}
-  v190:u64 = int.add.wrap(v170,v184)
-  v191:u64 = int.add.wrap(v190,v187)
-  v192:u64 = call(v164,v191) {"function":"getw"}
-  v193:bool = compare.ne(v189,v192)
-  v194:u64 = const() {"value":0}
-  v195:u64 = select(v193,v194,v172)
-  v196:u64 = const() {"value":1}
-  v197:u64 = int.add.wrap(v173,v196)
-  jump b15(v164,v168,v169,v170,v171,v195,v197)
-block b17(v174:mutbuf,v178:u64,v179:u64,v180:u64,v181:u64,v182:u64)
-  v198:u64 = const() {"value":0}
-  v199:bool = compare.ne(v182,v198)
-  branch v199 b18(v174,v178,v180,v181) b24(v174,v178,v179,v180,v181)
-block b18(v200:mutbuf,v204:u64,v206:u64,v207:u64)
-  v220:u64 = const() {"value":0}
-  jump b20(v200,v204,v206,v207,v220)
-block b20(v221:mutbuf,v225:u64,v227:u64,v228:u64,v230:u64)
-  v231:bool = compare.lt(v230,v228)
-  branch v231 b21(v221,v225,v227,v228,v230) b22(v221)
-block b21(v232:mutbuf,v236:u64,v238:u64,v239:u64,v241:u64)
-  v252:u64 = const() {"value":128}
-  v253:u64 = int.add.wrap(v236,v252)
-  v254:u64 = const() {"value":8}
-  v255:u64 = int.mul.wrap(v241,v254)
-  v256:u64 = int.add.wrap(v253,v255)
-  v257:u64 = int.add.wrap(v238,v252)
-  v258:u64 = int.add.wrap(v257,v255)
-  v259:u64 = call(v232,v258) {"function":"getw"}
-  v260:u64 = call(v232,v256,v259) {"function":"putw"}
-  v261:u64 = const() {"value":1}
-  v262:u64 = int.add.wrap(v241,v261)
-  jump b20(v232,v236,v238,v239,v262)
-block b22(v242:mutbuf)
-  v263:u64 = const() {"value":1}
-  ret(v263)
-block b24(v272:mutbuf,v276:u64,v277:u64,v278:u64,v279:u64)
-  v280:u64 = call(v272,v276,v277,v278) {"function":"integer_pointwise_axis_order"}
-  v281:u64 = const() {"value":1}
-  v282:u64 = const() {"value":0}
-  jump b25(v272,v276,v279,v280,v281,v282)
-block b25(v283:mutbuf,v287:u64,v290:u64,v291:u64,v292:u64,v293:u64)
-  v294:bool = compare.lt(v293,v290)
-  branch v294 b26(v283,v287,v290,v291,v292,v293) b27(v283,v287,v291,v292)
-block b26(v295:mutbuf,v299:u64,v302:u64,v303:u64,v304:u64,v305:u64)
-  v317:u64 = const() {"value":8}
-  v318:u64 = int.mul.wrap(v305,v317)
-  v319:u64 = int.shr.checked(v303,v318)
-  v320:u64 = const() {"value":255}
-  v321:u64 = bit.and(v319,v320)
-  v322:u64 = int.sub.wrap(v302,v305)
-  v323:u64 = const() {"value":1}
-  v324:u64 = int.sub.wrap(v322,v323)
-  v325:bool = compare.ne(v321,v324)
-  v326:u64 = const() {"value":0}
-  v327:u64 = select(v325,v326,v304)
-  v328:u64 = int.add.wrap(v305,v323)
-  jump b25(v295,v299,v302,v303,v327,v328)
-block b27(v306:mutbuf,v310:u64,v314:u64,v315:u64)
-  v329:u64 = const() {"value":0}
-  v330:bool = compare.ne(v315,v329)
-  branch v330 b28(v306) b29(v306,v310,v314)
-block b28(v331:mutbuf)
-  v353:u64 = const() {"value":1}
-  ret(v353)
-block b29(v342:mutbuf,v346:u64,v350:u64)
-  v354:u64 = const() {"value":1}
-  v355:u64 = call(v342,v346,v350,v354) {"function":"pointwise_write_order"}
-  ret(v355)
+  jump b1(v0,v4,v2,v3,v5)
+block b1(v6:mutbuf,v7:u64,v8:u64,v9:u64,v10:u64)
+  v11:bool = compare.lt(v10,v8)
+  branch v11 b2(v6,v7,v8,v9,v10) b3(v6)
+block b2(v12:mutbuf,v13:u64,v14:u64,v15:u64,v16:u64)
+  v22:u64 = int.add.wrap(v13,v16)
+  v23:u64 = const() {"value":8}
+  v24:u64 = int.mul.wrap(v16,v23)
+  v25:u64 = int.shr.checked(v15,v24)
+  v26:usize = int.cast(v22) {"mode":"wrap"}
+  v27:u8 = int.cast(v25) {"mode":"wrap"}
+  _ = buffer.store(v12,v26,v27)
+  v28:u64 = const() {"value":1}
+  v29:u64 = int.add.wrap(v16,v28)
+  jump b1(v12,v13,v14,v15,v29)
+block b3(v17:mutbuf)
+  v30:u64 = const() {"value":1}
+  ret(v30)
 end

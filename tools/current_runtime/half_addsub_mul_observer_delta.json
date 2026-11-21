@@ -1,0 +1,98 @@
+{
+  "edits": [
+    {
+      "after": "def read_addsub_reference(directory,execution,inputs):\n    reader=module(ROOT/'tests/half_addsub/run.py','half_mul_addsub_reference',inputs.bind)\n    reference=reader.read_reference(directory,execution,inputs)\n    rows=[row for row in reference['report']['rows'] if 'multiplication_refusal_label' in row['spec']]\n    expected={f'promotion-{dtype}-{dtype}-3:operation-{operation}' for dtype in (5,6) for operation in (1,2)}\n    require({row['spec']['multiplication_refusal_label'] for row in rows}==expected and len(rows)==4\n        and all(row['accepted'] is True for row in rows),'all four original multiplication-suite add/sub successors')\n    return reference\n\n\ndef addsub_control(n,row,operation,left,right,reference):\n    label=row['spec']['name']+':operation-'+str(operation)\n    candidates=[item for item in reference['report']['rows'] if item['spec'].get('multiplication_refusal_label')==label]\n    require(len(candidates)==1 and candidates[0]['accepted'] is True\n        and candidates[0]['spec']['operation']==operation,'one exact original refusal successor request')\n    successor=candidates[0]\n    def expected(value):\n        return {key:reference['blob'](item) if key in ('logical','storage') else item for key,item in value.items()}\n    original=[n.tensor(left)[0],n.tensor(right)[0]]\n    n.check('old multiplication control operands equal independently observed add/sub operands',original,\n        [expected(value) for value in successor['inputs']])\n    status,records,before,after=n.issue(n.wire.packet([(2,operation,left,right)]))\n    n.check('formerly refused Half add/sub now matches actual Torch success',status,0)\n    n.check('exact successor response',[item['opcode'] for item in records],[2])\n    left_node,right_node=Memory(before['bytes']).node(left),Memory(before['bytes']).node(right)\n    n.check('all84 left descriptor words preserved by successor',Memory(after['bytes']).node(left),left_node)\n    n.check('all84 right descriptor words preserved by successor',Memory(after['bytes']).node(right),right_node)\n    result=records[0]['value'];actual,node=n.tensor(result)\n    n.check('all successor result bytes and public metadata equal actual Torch',actual,expected(successor['result']))\n    n.check('successor owns fresh Tensor Storage Version identities',\n        [result not in (left,right),node[27] not in (left_node[27],right_node[27]),node[28] not in (left_node[28],right_node[28])],[True]*3)\n    no_edges=(32,40,48,56,72,80,88,176,184,248,280,288,296,312,360,384,392,400,408,584,592,600,608,616,624,640,648,656,664)\n    n.check('successor retains no AD Saved input or view edges',[node[offset//8] for offset in no_edges],[0]*len(no_edges))\n    n.one(41,result)\n    n.check('complete original operands survive successor release',[n.tensor(left)[0],n.tensor(right)[0]],original)\n\n\ndef compare(n,row,addsub_reference):",
+      "before": "def compare(n,row):",
+      "occurrences": 1
+    },
+    {
+      "after": "            for operation in (0,1,2,4,5):\n                if operation in (1,2):\n                    addsub_control(n,row,operation,left,right,addsub_reference)\n                else:\n                    refused,_,_,_=n.issue(n.wire.packet([(2,operation,left,right)]))\n                    n.check('unimplemented Half arithmetic remains an explicit refusal',refused,7)\n                controls+=1",
+      "before": "            for operation in (0,1,2,4,5):\n                refused,_,_,_=n.issue(n.wire.packet([(2,operation,left,right)]))\n                n.check('unimplemented Half arithmetic remains an explicit refusal',refused,7);controls+=1",
+      "occurrences": 1
+    },
+    {
+      "after": "heptatorch.half-mul.native-observation.v2",
+      "before": "heptatorch.half-mul.native-observation.v1",
+      "occurrences": 2
+    },
+    {
+      "after": "    addsub_reference=read_addsub_reference(Path(report['addsub_reference_directory']).resolve(strict=True),\n        Path(report['addsub_reference_process_directory']).resolve(strict=True),inputs)\n    require(addsub_reference['report_sha256']==report['addsub_reference_sha256'],\n        'exact original actual-Torch add/sub successor reference')\n    wire=load_wire(ROOT,inputs.bind);frames=checks=owners=elements=0",
+      "before": "    wire=load_wire(ROOT,inputs.bind);frames=checks=owners=elements=0",
+      "occurrences": 1
+    },
+    {
+      "after": "observed=compare(n,row,addsub_reference);finish=session.finish()",
+      "before": "observed=compare(n,row);finish=session.finish()",
+      "occurrences": 1
+    },
+    {
+      "after": "        addsub_reference_sha256=addsub_reference['report_sha256'],\n        replaced_arithmetic_refusals=[f'promotion-{dtype}-{dtype}-3:operation-{operation}'\n            for dtype in (5,6) for operation in (1,2)],\n        full_project_status='HOLD',host_expected_values_computed=False)",
+      "before": "        full_project_status='HOLD',host_expected_values_computed=False)",
+      "occurrences": 1
+    },
+    {
+      "after": "    parser.add_argument('--reference-execution',type=Path)\n    parser.add_argument('--addsub-reference-directory',type=Path)\n    parser.add_argument('--addsub-reference-execution',type=Path)",
+      "before": "    parser.add_argument('--reference-execution',type=Path)",
+      "occurrences": 1
+    },
+    {
+      "after": "        for directory in ('half_mul','half_addsub','numeric_predicates','half_logical'):",
+      "before": "        for directory in ('half_mul','numeric_predicates','half_logical'):",
+      "occurrences": 1
+    },
+    {
+      "after": "        require((args.addsub_reference_directory is None)==(args.addsub_reference_execution is None),\n            'paired actual add/sub reference and process paths')\n        if args.addsub_reference_directory is None:\n            supervisor=module(ROOT/'tests/current_runtime_process.py','half_mul_addsub_process',inputs.bind)\n            addsub_directory=output/'addsub-reference';addsub_execution=output/'addsub-reference-execution';addsub_execution.mkdir()\n            process=supervisor.execute([str(args.torch_python.absolute()),'-B',str(ROOT/'tests/half_addsub/reference.py'),\n                '--output',str(addsub_directory)],addsub_execution,300,cwd=ROOT)\n            dump(addsub_execution/'process.json',process)\n        else:\n            addsub_directory=args.addsub_reference_directory.resolve(strict=True)\n            addsub_execution=args.addsub_reference_execution.resolve(strict=True)\n        addsub_reference=read_addsub_reference(addsub_directory,addsub_execution,inputs)\n        require(Path(args.torch_python).resolve(strict=True)==Path(addsub_reference['report']['actual_process']['python']['path']),\n            'same pinned actual interpreter for old multiplication and new arithmetic controls')\n        report.update(addsub_reference_directory=str(addsub_directory),addsub_reference_process_directory=str(addsub_execution),\n            addsub_reference_sha256=addsub_reference['report_sha256'])\n        wire=load_wire(ROOT,inputs.bind)\n        for row in reference['report']['rows']:",
+      "before": "        wire=load_wire(ROOT,inputs.bind)\n        for row in reference['report']['rows']:",
+      "occurrences": 1
+    },
+    {
+      "after": "saved['result']=compare(n,row,addsub_reference);saved['status']='PASS'",
+      "before": "saved['result']=compare(n,row);saved['status']='PASS'",
+      "occurrences": 1
+    },
+    {
+      "after": "    n.check('complete original operands survive successor release',[n.tensor(left)[0],n.tensor(right)[0]],original)\n    return actual['numel']",
+      "before": "    n.check('complete original operands survive successor release',[n.tensor(left)[0],n.tensor(right)[0]],original)",
+      "occurrences": 1
+    },
+    {
+      "after": "    elements=0;controls=0;addsub_successors=[]",
+      "before": "    elements=0;controls=0",
+      "occurrences": 1
+    },
+    {
+      "after": "                    elements+=addsub_control(n,row,operation,left,right,addsub_reference)\n                    addsub_successors.append(spec['name']+':operation-'+str(operation))",
+      "before": "                    addsub_control(n,row,operation,left,right,addsub_reference)",
+      "occurrences": 1
+    },
+    {
+      "after": "return dict(index=row['index'],name=spec['name'],accepted=row['accepted'],elements=elements,bitwise=True,controls=controls,\n        addsub_successors=addsub_successors)",
+      "before": "return dict(index=row['index'],name=spec['name'],accepted=row['accepted'],elements=elements,bitwise=True,controls=controls)",
+      "occurrences": 1
+    },
+    {
+      "after": "    wire=load_wire(ROOT,inputs.bind);frames=checks=owners=elements=0;addsub_successors=[]",
+      "before": "    wire=load_wire(ROOT,inputs.bind);frames=checks=owners=elements=0",
+      "occurrences": 1
+    },
+    {
+      "after": "        frames+=finish['frames'];owners+=finish['owner_reads'];checks+=n.checks;elements+=observed['elements']\n        addsub_successors.extend(observed['addsub_successors'])",
+      "before": "        frames+=finish['frames'];owners+=finish['owner_reads'];checks+=n.checks;elements+=observed['elements']",
+      "occurrences": 1
+    },
+    {
+      "after": "    require(addsub_successors==[f'promotion-{dtype}-{dtype}-3:operation-{operation}'\n        for dtype in (5,6) for operation in (1,2)],'all four physically replayed arithmetic successors')\n    inputs.recheck()\n    return dict(cases=312",
+      "before": "    inputs.recheck()\n    return dict(cases=312",
+      "occurrences": 1
+    },
+    {
+      "after": "        replaced_arithmetic_refusals=addsub_successors,",
+      "before": "        replaced_arithmetic_refusals=[f'promotion-{dtype}-{dtype}-3:operation-{operation}'\n            for dtype in (5,6) for operation in (1,2)],",
+      "occurrences": 1
+    }
+  ],
+  "parent_sha256": "49a1d9c4f82ca4c2c44f17866013d670e62f2a0397273cd5977e8d36f8826cf5",
+  "path": "tests/half_mul/run.py",
+  "schema": "heptatorch.half-addsub-mul-observer-delta.v1",
+  "source_sha256": "051bf9fb08ac721079eecb339ac8462206b376fb5b634cfd9df3330750c0f4d1"
+}

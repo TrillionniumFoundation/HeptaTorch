@@ -1,6 +1,6 @@
 # Native F16/BF16 tensor multiplication
 
-The current source adds ordinary, no-grad `torch.mul.Tensor` to the HIA runtime
+The native implementation provides ordinary, no-grad `torch.mul.Tensor`
 when either public operand has dtype F16 or BF16. The public request is command
 `2`, operation `3`. HIA performs dtype selection, input conversion,
 broadcasting, output layout selection, multiplication, and publication. Torch
@@ -10,7 +10,12 @@ This is one concrete capability within the complete PyTorch rewrite. It does
 not close the full dtype gate, autograd gate, CPU backend gate, or the complete
 2,590-schema inventory.
 
-## Exact source and executable
+The identities below record the original758 multiplication increment. Its
+sixteen helpers remain byte-identical in current765, which also implements
+[negation](native-half-negation.md) and [addition/subtraction](native-half-addsub.md).
+Current combined requirements and actual results are in [the audit](current-audit.md).
+
+## Original758 source and executable
 
 | Item | Identity |
 | --- | --- |
@@ -82,7 +87,7 @@ require gradients keep the explicit Half AD boundary. A successful product
 followed by an invalid command in the same request is rolled back in full.
 
 Direct Half/F64 `as_strided`, Half view/reshape APIs, in-place multiplication,
-`out=`, Half autograd, other arithmetic operators, private dtype3 arithmetic,
+`out=`, Half autograd, division in the current765 candidate, private dtype3 arithmetic,
 and other devices remain open. Noncontiguous Half/F64 inputs in this suite are
 constructed through the already supported F32 view and preserve-format cast.
 The suite does not fabricate unsupported input descriptors.
@@ -156,19 +161,24 @@ or Torch process.
 The last 22 recipes are exact successors to 22 historical Half47 refusals.
 `tests/half_mul/legacy_controls.py` identifies every original label and literal
 operand recipe and binds the original control source and function body hashes.
-These requests now succeed and must match fresh actual Torch output. The other
-217 original refusals, the original numerical groups, boundary checks and four
-resource-failure controls remain required. Frozen reference packages and
-historical evidence are unchanged; a former refusal is never silently omitted
-or counted as a continuing refusal.
+These requests succeed and must match fresh actual Torch output. The initial758
+partition left217 refusals. Current765 also requires two negation and42 add/sub
+successors, leaving173 refusals in the same complete239-request recipe. All
+original numerical groups, boundaries and four resource-failure controls remain
+required. Frozen reference packages and historical evidence are unchanged; no
+former refusal is silently omitted or counted as a continuing refusal.
 
-A standalone run creates a new reference and executes the native suite:
+A current765 standalone run creates a new multiplication reference and consumes
+the actual1006 reference plus its recorded process, produced by the common
+coordinator. `make test` generates and shares these references automatically.
 
 ```sh
 python3 -B tests/half_mul/run.py \
   --build-directory /absolute/path/to/current-build \
   --expected-build-sha256 BUILD_RECEIPT_SHA256 \
   --torch-python /absolute/path/to/pinned-python \
+  --addsub-reference-directory /absolute/path/to/current-review/references/half-addsub1006 \
+  --addsub-reference-execution /absolute/path/to/current-review/references/half-addsub1006-execution \
   --output /absolute/path/to/new-half-mul-evidence
 ```
 
@@ -177,3 +187,8 @@ successor and share it with this suite by passing both
 `--reference-directory` and `--reference-execution`. The reader binds the
 original process and every reference byte again. It does not rerun Torch or
 rewrite any reference evidence.
+
+Four original op1/op2 refusal controls now require exact add/sub results from
+that shared1006 reference. The current765 run with these actual bindings passed
+9,664 frames,37,168 assertions,2,868 owner snapshots and1,313,606 exact elements;
+its original312 input corpus and multiplication reference producer are unchanged.

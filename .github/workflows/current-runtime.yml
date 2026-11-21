@@ -353,7 +353,7 @@ jobs:
           PYTORCH_INSTALL
 
 
-      - name: Qualify all twenty-three suites and the independent Generator probe images
+      - name: Qualify all twenty-four suites and the independent Generator probe images
         id: current_qualification
         if: ${{ !cancelled() && steps.current_build.outcome == 'success' }}
         run: |
@@ -383,7 +383,7 @@ jobs:
           output = Path(os.environ['CURRENT_OUTPUT'])
           output.mkdir(parents=True, exist_ok=True)
           failures, qualification, binding = [], None, None
-          predicate_evidence = bf16_evidence = half_mul_evidence = half_neg_evidence = None
+          predicate_evidence = bf16_evidence = half_mul_evidence = half_neg_evidence = half_addsub_evidence = None
           for key in ('TOOLCHAIN_OUTCOME', 'ENTROPY_TOOL_OUTCOME', 'BUILD_OUTCOME', 'ORACLE_OUTCOME', 'QUALIFICATION_OUTCOME'):
               if os.environ.get(key) != 'success':
                   failures.append(key + '=' + os.environ.get(key, 'missing'))
@@ -393,16 +393,16 @@ jobs:
               binding = {'path': 'review/qualification.json', 'bytes': len(raw),
                          'sha256': hashlib.sha256(raw).hexdigest()}
               if qualification['status'] != 'PASS_CURRENT_RUNTIME_FOCUSED':
-                  failures.append('the mandatory twenty-three-suite qualifier did not pass')
-              if (qualification['required_cases_total'] != 2839
-                      or qualification['executed_cases_total'] != 2839
+                  failures.append('the mandatory twenty-four-suite qualifier did not pass')
+              if (qualification['required_cases_total'] != 3845
+                      or qualification['executed_cases_total'] != 3845
                       or qualification['required_suites'] != [
-                      'bool27', 'original76', 'integral24', 'sum_f32_17', 'current35', 'base270', 'sum32', 'live32', 'logical147', 'resource7', 'asstrided16', 'cat4', 'metadata10', 'generator131', 'public_f64_logical192', 'f64_48', 'half47', 'half_logical264', 'half_transactions12', 'numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg']):
+                      'bool27', 'original76', 'integral24', 'sum_f32_17', 'current35', 'base270', 'sum32', 'live32', 'logical147', 'resource7', 'asstrided16', 'cat4', 'metadata10', 'generator131', 'public_f64_logical192', 'f64_48', 'half47', 'half_logical264', 'half_transactions12', 'numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub']):
                   failures.append('the mandatory case denominator or suite order changed')
-              if (qualification['functions'] != 761 or qualification['units'] != 15
-                      or qualification['source_sha256'] != 'ab3ed0e0898d2006fbdf145357c79cafd599c2be344fcb3cb65fd6ad55efb231'
-                      or qualification['native_sha256'] != '756de9418c05f4ecfc12319c7262cf1ff22e335e4ec32b140721b6c77ee226d7'):
-                  failures.append('the same complete current761 source and image were not qualified')
+              if (qualification['functions'] != 765 or qualification['units'] != 15
+                      or qualification['source_sha256'] != 'b4b2996978dce56c9375ce97b2d2638472cbb154a4c0a7c5de822234e31a9c68'
+                      or qualification['native_sha256'] != '62f74e9232ae30027a64ca61881bb581320b1787529c6ee9e96818a0f8447afe'):
+                  failures.append('the same complete current765 source and image were not qualified')
               public_f64 = [row for row in qualification['suites'] if row['name'] == 'public_f64_logical192']
               if (len(public_f64) != 1 or public_f64[0]['status'] != 'PASS'
                       or public_f64[0]['qualified'] is not True or public_f64[0]['cases'] != 192
@@ -435,10 +435,14 @@ jobs:
                       failures.append('f64_48: original complete frame/check census differs')
                   if name == 'half47':
                       expected_entry = dict(original_entry_requests=239, original_refusals=239,
-                                            retained_refusals=215, accepted_multiplication_successors=22,
-                                            accepted_negation_successors=2)
+                                            retained_refusals=173, accepted_multiplication_successors=22,
+                                            accepted_negation_successors=2, accepted_addsub_successors=42,
+                                            accepted_single_command_addsub_successors=40, accepted_FE_addsub_successors=2,
+                                            accepted_addition_successors=24, accepted_subtraction_successors=18,
+                                            retained_actual_Bool_subtraction_errors=4,
+                                            retained_private3_addsub_protocol_refusals=8)
                       physical_proof = json.loads(proof_raw)
-                      if (rows[0]['frames'] != 2797 or rows[0]['assertions'] != 13105
+                      if (rows[0]['frames'] != 3513 or rows[0]['assertions'] != 17713
                               or rows[0]['frames'] != physical_proof['frames']
                               or rows[0]['assertions'] != physical_proof['checks']
                               or any(rows[0].get(key) != value or physical_proof.get(key) != value
@@ -485,6 +489,8 @@ jobs:
                   Path.cwd().resolve(), output.resolve())
               half_neg_evidence, half_neg_inputs = custody_module.half_neg_custody(
                   Path.cwd().resolve(), output.resolve())
+              half_addsub_evidence, half_addsub_inputs = custody_module.half_addsub_custody(
+                  Path.cwd().resolve(), output.resolve())
               if (qualification['full_pytorch_rewrite_complete'] is not False
                       or qualification['schema_closure'] is not False
                       or qualification['full_project_status'] != 'HOLD'):
@@ -528,15 +534,16 @@ jobs:
                      'qualification': binding, 'entropy_tool_build': entropy_binding,
                      'numeric_predicates_evidence': predicate_evidence,
                      'bf16_copy_evidence': bf16_evidence, 'half_mul_evidence': half_mul_evidence,
-                     'half_neg_evidence': half_neg_evidence, 'failures': failures,
+                     'half_neg_evidence': half_neg_evidence, 'half_addsub_evidence': half_addsub_evidence,
+                     'failures': failures,
                      'full_pytorch_rewrite_complete': False, 'full_project_status': 'HOLD'}
           (output / 'qualification.json').write_text(json.dumps(summary, indent=2, sort_keys=True) + '\n')
           print(json.dumps(summary, indent=2, sort_keys=True))
           with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a') as stream:
               stream.write('## Current HIA runtime\n\n' + summary['status'] + '\n\n')
-              stream.write('The common local/CI gate requires one complete main cold build and all 2839 finite cases: '
+              stream.write('The common local/CI gate requires one complete main cold build and all 3845 finite cases: '
                            'Bool27, view/scalar76, Integral24, explicit-F32 Sum17, lifecycle35, '
-                           'base/NN270, original F32 Sum32, live Tensor/RNG/backward32, logical147, resource7, original AsStrided16, Cat4, cat metadata10, Generator131, public F64 logical192, original F64 48, Half47, Half logical264, Half transactions12, numeric predicates485, BF16 copy280, Half multiplication312 and Half negation371. '
+                           'base/NN270, original F32 Sum32, live Tensor/RNG/backward32, logical147, resource7, original AsStrided16, Cat4, cat metadata10, Generator131, public F64 logical192, original F64 48, Half47, Half logical264, Half transactions12, numeric predicates485, BF16 copy280, Half multiplication312, Half negation371 and Half addition/subtraction1006. '
                            'Every suite must execute and pass. Generator131 additionally links and executes separate '
                            'current-object ABI and reordered probe images; these are not the main executable.\n\n')
               stream.write('Current controls include seven dtype cases, four axis errors, ten entry checks, '
@@ -567,8 +574,8 @@ jobs:
               stream.write('Original F64 48 preserves 33 numeric, twelve boundary, one entry and two allocation '
                            'recipes, including all 87 original refusal controls. Half47 preserves 26 numeric recipes, '
                            'sixteen boundaries, all 239 original entry requests and four allocation rollback/retry recipes. '
-                           'Exactly22 original multiplication refusals and two original negations now require fresh actual Torch result bytes; '
-                           'the other215 remain refusals and historical239 evidence remains unchanged. '
+                           'Exactly22 original multiplications, two negations and42 additions/subtractions now require fresh actual Torch result bytes, '
+                           'including two same-frame FE operations; the other173 remain refusals and historical239 evidence remains unchanged. '
                            'Half logical264 retains 222 actual successes and 42 actual errors, all 65,536 encodings per dtype, '
                            '52 packet controls and six real allocation recoveries. Half transactions12 checks six direct '
                            'successes and six invalid-suffix rollback cases with full owner, RNG and mapping equality. '
@@ -577,9 +584,14 @@ jobs:
                            'BF16 copy280 compares 1,312,796 result elements bit for bit against a fresh fixed-wheel Torch process, '
                            'then replays 6,088 physical frames, 23,096 assertions and 1,960 complete owner snapshots. '
                            'Half multiplication312 requires an explicit AVX2 single-thread pinned Torch reference, '
-                           '1,313,602 bitwise elements, 9,600 physical frames, 36,876 assertions and 2,848 full owners. '
+                           '1,313,606 bitwise elements, 9,664 physical frames, 37,168 assertions and 2,868 full owners; '
+                           'four old arithmetic refusals use the same current1006 Torch reference as their explicit successors. '
                            'Half negation371 requires272,444 bitwise elements,11,377 physical frames,37,744 assertions,2,717 full owners, '
                            '46 packet controls and two real allocation failures with identical-request recovery. '
+                           'Half addition/subtraction1006 requires an independent AVX2 single-thread fixed-wheel reference, '
+                           'full physical replay, four actual allocation recoveries and70 protocol controls. '
+                           'Forty original single-command results, two same-frame FE results, four actual Bool subtraction errors '
+                           'and eight private-dtype protocol refusals are kept distinct. '
                            'Historical reference argv/interpreter gaps remain explicit; the current CI interpreter '
                            'does not replace a historical reference producer.\n\n')
               stream.write('Numeric predicates485 observes isnan/isinf/isfinite/isposinf/isneginf with a newly '

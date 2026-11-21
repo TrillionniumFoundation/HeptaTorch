@@ -1,0 +1,523 @@
+{
+  "conditional_argument_flow": [
+    "factory97 -> typed_from_wire admits dtype5/6 -> scalar_previous_typed_from_wire b48 calls typed_descriptor exactly once; b50 only copies the raw input",
+    "Both ranks equal1, so neither rank-zero priority branch in half_mul_result_dtype applies. right dtype0 makes normal/not_double choose common dtype0",
+    "half_addsub_tensor promote_left calls half_mul_promote with source dtype5/6 and target0. same is false: prepare calls typed_descriptor exactly once; layout/ready/loop contain no transitive descriptor constructors",
+    "half_addsub_tensor promote_right calls half_mul_promote with source dtype0 and target0. same is true: unchanged returns original right token before any descriptor allocation",
+    "half_addsub_tensor allocate then calls typed_descriptor exactly once for result dtype0; subsequent layout and element loop contain no transitive descriptor constructors",
+    "Each successful scalar_previous_typed_descriptor b37 increments header120 incarnation once and writes node320; b50 increments header8 next once",
+    "factory and result are published via retained_publish_original b15 setting descriptor200=1. promotion is never published and has no history/input/view edges",
+    "finish_command clears descriptor200=2 temporary roots to0 then graph_collect_since releases the sole unpublished promotion; factory and result public roots remain"
+  ],
+  "exact_descriptor_order": [
+    "factory-Half",
+    "promotion-F32-temporary",
+    "result-F32"
+  ],
+  "exact_input": {
+    "half_dtypes": [
+      5,
+      6
+    ],
+    "left_shape": [
+      2
+    ],
+    "left_words": [
+      1,
+      2
+    ],
+    "opcodes": [
+      97,
+      2
+    ],
+    "operation": 1,
+    "requires_grad": false,
+    "right_dtype": 0,
+    "right_shape": [
+      2
+    ],
+    "right_words": [
+      1065353216,
+      2147483648
+    ]
+  },
+  "function_identities": {
+    "finish_command": {
+      "bytes": 1052,
+      "calls": [
+        "getw",
+        "dptr",
+        "getw",
+        "graph_collect_since",
+        "putw"
+      ],
+      "sha256": "dcd20e76ed0473860d8e5c13b89ed071fc788666c29637fa0b9212a3e5d5ebe7"
+    },
+    "graph_collect_since": {
+      "bytes": 8152,
+      "calls": [
+        "getw",
+        "dptr",
+        "getw",
+        "getw",
+        "getw",
+        "gradient_gc_enqueue",
+        "getw",
+        "getw",
+        "getw",
+        "tensor_row_release",
+        "getw",
+        "getw",
+        "getw",
+        "terror",
+        "getw",
+        "dptr",
+        "getw",
+        "putw",
+        "getw",
+        "putw",
+        "putw",
+        "putw",
+        "getw",
+        "getw",
+        "getw",
+        "graph_node_release",
+        "getw",
+        "getw",
+        "getw",
+        "getw",
+        "getw",
+        "tensor_row_release"
+      ],
+      "sha256": "0ce7ac90003ece9dc86a1c3ac92fa14be860c3760740618281952fa66367acde"
+    },
+    "half_addsub_element": {
+      "bytes": 1968,
+      "calls": [
+        "bindex",
+        "bindex",
+        "tget",
+        "tget",
+        "tensor_dtype",
+        "half_mul_nan_word",
+        "half_addsub_f64",
+        "half_mul_to_f32",
+        "half_mul_to_f32",
+        "half_addsub_f32",
+        "half_mul_cast",
+        "dtype_width",
+        "taddr",
+        "typed_store"
+      ],
+      "sha256": "8cac16566fca0e1377eb3de015496306fca404f932f556447bebb5f78c641490"
+    },
+    "half_addsub_tensor": {
+      "bytes": 4138,
+      "calls": [
+        "terror",
+        "tensor_dtype",
+        "tensor_dtype",
+        "dptr",
+        "dptr",
+        "getw",
+        "getw",
+        "terror",
+        "bshape",
+        "getw",
+        "half_mul_result_dtype",
+        "half_mul_promote",
+        "half_mul_promote",
+        "bshape",
+        "typed_descriptor",
+        "integer_pointwise_layout",
+        "dptr",
+        "getw",
+        "half_mul_inner_extent",
+        "half_addsub_element"
+      ],
+      "sha256": "0ef75e11b3372a3720b37f8ae378249032c2e29d0297a984c409b0deabeedfbb"
+    },
+    "half_mul_promote": {
+      "bytes": 2244,
+      "calls": [
+        "tensor_dtype",
+        "dptr",
+        "getw",
+        "typed_descriptor",
+        "dist_dense_layout",
+        "dptr",
+        "half_bf16_nan_word",
+        "getw",
+        "dtype_width",
+        "half_mul_copy_value",
+        "taddr",
+        "typed_store"
+      ],
+      "sha256": "f0087b0bc17836842f08226fcb5888814c8d5c761c12c1dd67be301e53a97793"
+    },
+    "half_mul_result_dtype": {
+      "bytes": 1949,
+      "calls": [
+        "dptr",
+        "dptr",
+        "getw",
+        "getw",
+        "tensor_dtype",
+        "tensor_dtype"
+      ],
+      "sha256": "66ca3108af14546d52e2f74593aa4f7b8d868107e08ad3579648f9bdb63312d0"
+    },
+    "publish_tensor": {
+      "bytes": 1732,
+      "calls": [
+        "valid",
+        "retained_row",
+        "terror",
+        "so_uget",
+        "terror",
+        "retained_publish_original",
+        "retained_row",
+        "terror",
+        "so_uput"
+      ],
+      "sha256": "70d58608335c6ef51adb51cc3258dd35034ff9aafa036756c4b10297fd1dc227"
+    },
+    "retained_publish_original": {
+      "bytes": 4323,
+      "calls": [
+        "valid",
+        "dptr",
+        "getw",
+        "terror",
+        "getw",
+        "getw",
+        "so_slot_lookup",
+        "terror",
+        "so_uget",
+        "so_uget",
+        "so_uget",
+        "so_uget",
+        "so_slot_drop",
+        "terror",
+        "storage_capacity",
+        "so_slot_new",
+        "so_slot_lookup",
+        "terror",
+        "so_uput",
+        "so_uput",
+        "so_uput",
+        "so_uput",
+        "so_uput",
+        "putw",
+        "putw",
+        "getw"
+      ],
+      "sha256": "fea49eecc38d83a53fbdaec43ee128951709089caf221b7f58b8af6daf4d11f1"
+    },
+    "scalar_previous_typed_descriptor": {
+      "bytes": 14438,
+      "calls": [
+        "getw",
+        "dtype_width",
+        "terror",
+        "terror",
+        "terror",
+        "object_address",
+        "terror",
+        "getw",
+        "terror",
+        "getw",
+        "terror",
+        "getw",
+        "terror",
+        "getw",
+        "terror",
+        "descriptor_page",
+        "storage_capacity",
+        "storage_capacity",
+        "dptr",
+        "memory_fill",
+        "putw",
+        "putw",
+        "putw",
+        "putw",
+        "putw",
+        "putw",
+        "putw",
+        "getw",
+        "putw",
+        "getw",
+        "putw",
+        "getw",
+        "putw",
+        "putw",
+        "so_slot_new",
+        "so_slot_lookup",
+        "putw",
+        "putw",
+        "so_uput",
+        "alloc",
+        "getw",
+        "getw",
+        "so_slot_lookup",
+        "so_uget",
+        "so_slot_new",
+        "so_slot_lookup",
+        "so_uput",
+        "so_uput",
+        "so_uput",
+        "so_uput",
+        "putw",
+        "putw",
+        "putw",
+        "so_slot_drop",
+        "alloc",
+        "getw",
+        "putw",
+        "getw",
+        "putw",
+        "putw"
+      ],
+      "sha256": "41358513e833d2299683cdfe003221a15671f3562c65989a88059f74151710e8"
+    },
+    "scalar_previous_typed_from_wire": {
+      "bytes": 11172,
+      "calls": [
+        "dtype_width",
+        "terror",
+        "terror",
+        "getr",
+        "getr",
+        "terror",
+        "terror",
+        "getr",
+        "terror",
+        "terror",
+        "putw",
+        "getw",
+        "terror",
+        "getr",
+        "getr",
+        "terror",
+        "terror",
+        "typed_descriptor",
+        "dptr",
+        "getw",
+        "object_address",
+        "typed_copy_from_wire"
+      ],
+      "sha256": "a713223fa136131402938730d7f6caa0fb1b8396cf53984103d717c399957abe"
+    },
+    "typed_descriptor": {
+      "bytes": 697,
+      "calls": [
+        "terror",
+        "scalar_previous_typed_descriptor"
+      ],
+      "sha256": "04cfe7f40cf76c7370c5cbab816341b354bf955195affcd56bbebd517c1a25c5"
+    },
+    "typed_from_wire": {
+      "bytes": 823,
+      "calls": [
+        "terror",
+        "scalar_previous_typed_from_wire"
+      ],
+      "sha256": "f2344caab84babf81b6eeda0b348388116eab569937d4c31ee2e90345d822a3d"
+    }
+  },
+  "inference_from_fixed_source": true,
+  "live_new_tensors": 2,
+  "native_qualification_transferred": false,
+  "not_count_only_observation": true,
+  "pure_leaf_proof": "Both selected linked HIA leaves have scalar u64 arguments, no calls, and only the enumerated integer/bit/boolean/branch operations; all other missing function bodies are rejected.",
+  "pure_subtrees_without_descriptor_constructors": {
+    "bshape": [
+      "bshape",
+      "dptr",
+      "getw",
+      "object_address",
+      "putw",
+      "so_data_base",
+      "so_uget",
+      "terror"
+    ],
+    "dist_dense_layout": [
+      "dist_dense_layout",
+      "dptr",
+      "getw",
+      "is_dense",
+      "object_address",
+      "putw",
+      "rng_axis_order",
+      "so_data_base",
+      "so_uget"
+    ],
+    "half_addsub_element": [
+      "add64",
+      "addf",
+      "bindex",
+      "dptr",
+      "dtype_width",
+      "getw",
+      "half_addsub_element",
+      "half_addsub_f32",
+      "half_addsub_f64",
+      "half_mul_cast",
+      "half_mul_nan_word",
+      "half_mul_to_f32",
+      "half_narrow_bf16",
+      "half_widen_bf16",
+      "integer_as_f32",
+      "integer_i64_to_f32",
+      "object_address",
+      "pack64",
+      "packf",
+      "putw",
+      "round_bf16",
+      "round_f16",
+      "shrjam",
+      "so_data_base",
+      "so_slot_at",
+      "so_slot_lookup",
+      "so_storage_live",
+      "so_uget",
+      "taddr",
+      "tensor_dtype",
+      "terror",
+      "tget",
+      "typed_load",
+      "typed_store",
+      "valid",
+      "widen32",
+      "widen_f16",
+      "wrapped_f64_to_f32"
+    ],
+    "half_bf16_nan_word": [
+      "getw",
+      "half_bf16_nan_word",
+      "object_address",
+      "so_data_base",
+      "so_uget"
+    ],
+    "half_mul_copy_value": [
+      "dptr",
+      "dtype_width",
+      "getw",
+      "half_mul_cast",
+      "half_mul_copy_value",
+      "half_mul_to_f32",
+      "half_narrow_bf16",
+      "half_widen_bf16",
+      "integer_as_f32",
+      "integer_i64_to_f32",
+      "is_dense",
+      "object_address",
+      "putw",
+      "round_bf16",
+      "round_f16",
+      "so_data_base",
+      "so_slot_at",
+      "so_slot_lookup",
+      "so_storage_live",
+      "so_uget",
+      "taddr",
+      "terror",
+      "tget",
+      "typed_load",
+      "valid",
+      "widen32",
+      "widen_f16",
+      "wrapped_f64_to_f32"
+    ],
+    "half_mul_inner_extent": [
+      "dist_probability_stride",
+      "dptr",
+      "getw",
+      "half_mul_inner_extent",
+      "object_address",
+      "so_data_base",
+      "so_uget"
+    ],
+    "half_mul_result_dtype": [
+      "dptr",
+      "getw",
+      "half_mul_result_dtype",
+      "object_address",
+      "so_data_base",
+      "so_uget",
+      "tensor_dtype"
+    ],
+    "integer_pointwise_layout": [
+      "dist_probability_stride",
+      "dptr",
+      "dtype_width",
+      "getw",
+      "incoming_same_shape",
+      "integer_pointwise_axis_order",
+      "integer_pointwise_compare_axes",
+      "integer_pointwise_layout",
+      "is_contiguous",
+      "is_dense",
+      "object_address",
+      "pointwise_channels_last",
+      "pointwise_write_order",
+      "putw",
+      "so_data_base",
+      "so_uget"
+    ],
+    "typed_copy_from_wire": [
+      "typed_copy_from_wire"
+    ]
+  },
+  "schema": "heptatorch.half-addsub.exact-fe-allocation-path.v2",
+  "source_sha256": "b4b2996978dce56c9375ce97b2d2638472cbb154a4c0a7c5de822234e31a9c68",
+  "successful_descriptor_allocations": 3,
+  "support_function_identities": {
+    "round_bf16": {
+      "bytes": 781,
+      "calls": [],
+      "operations": [
+        "bit.and",
+        "bit.or",
+        "bool.and",
+        "compare.eq",
+        "compare.ne",
+        "const",
+        "int.add.wrap",
+        "int.shr.checked",
+        "select"
+      ],
+      "sha256": "de58e57a97f386750e823a7f0e90064fb01536919acc10cc713b232a75648129",
+      "signature": "fn round_bf16(v0:u64) -> (u64) effects(read,write,trap) entry(b0)"
+    },
+    "round_f16": {
+      "bytes": 3238,
+      "calls": [],
+      "operations": [
+        "bit.and",
+        "bit.or",
+        "bool.and",
+        "bool.or",
+        "compare.eq",
+        "compare.ge",
+        "compare.gt",
+        "compare.lt",
+        "compare.ne",
+        "const",
+        "int.add.wrap",
+        "int.shl.checked",
+        "int.shr.checked",
+        "int.sub.wrap",
+        "select"
+      ],
+      "sha256": "bfbc7cdfe038b6c70e8fbdf93b7b121c072a571764069391b23964909eec7821",
+      "signature": "fn round_f16(x:u64) -> (u64) effects(read,write,trap) entry(b0)"
+    }
+  },
+  "support_unit": {
+    "bytes": 23515,
+    "path": "tools/current_runtime/source/units/rng03.hepta",
+    "sha256": "7c32981c916bc277e16221cce1c3dd2381ce0018642e21b20836d861cf585865"
+  },
+  "unpublished_released_temporaries": 1
+}

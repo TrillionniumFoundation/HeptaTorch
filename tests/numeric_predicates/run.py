@@ -54,8 +54,12 @@ def profile(repository,build,build_sha,inputs):
     bf16=module(repository/'tools/current_runtime/bf16_source_transition.py','predicate_bf16_source_proof',inputs.bind)
     mul=module(repository/'tools/current_runtime/half_mul_source_transition.py','predicate_half_mul_source_proof',inputs.bind)
     neg=module(repository/'tools/current_runtime/half_neg_source_transition.py','predicate_half_neg_source_proof',inputs.bind)
-    previous,neg_extension=neg.restore_source(inputs.bind(repository/'tools/current_runtime/source/runtime.hepta'),inputs.bind)
-    require(neg_extension['source_sha256']==built['source_sha256'] and neg_extension['functions']==761
+    addsub=module(repository/'tools/current_runtime/half_addsub_source_transition.py','predicate_half_addsub_source_proof',inputs.bind)
+    previous,addsub_extension=addsub.restore_source(inputs.bind(repository/'tools/current_runtime/source/runtime.hepta'),inputs.bind)
+    require(addsub_extension['source_sha256']==built['source_sha256'] and addsub_extension['functions']==765
+        and addsub_extension['whole_source_inverse_exact'] is True,'exact Half add/sub source extension')
+    previous,neg_extension=neg.restore_source(previous,inputs.bind)
+    require(neg_extension['source_sha256']==addsub_extension['parent_source_sha256'] and neg_extension['functions']==761
         and neg_extension['whole_source_inverse_exact'] is True,'exact Half negation source extension')
     previous,mul_extension=mul.restore_source(previous,inputs.bind)
     require(mul_extension['source_sha256']==neg_extension['parent_source_sha256'] and mul_extension['functions']==758
