@@ -33,8 +33,8 @@ READER_FILES = {
 }
 
 WRAPPER_FILES = {
-    'derive736.py': 'a61cde61a7fa04cdf7ec01b8b7fb4f38b427e8a69d708fe64c9a44b6227708c5',
-    'run736.py': '6ec8b05a06de2115773b217d003a2397d7fa211b824f034ddac3178edc2a120d',
+    'derive736.py': 'a66e71be94a2746d112a1bda0500628377c8489db599380ec40dbc0cfa3d4ca4',
+    'run736.py': '27d2ffb438a01b40519ac1c83bebe5834a6057235494ab646e4749ddbbadb02a',
     'qualify736.py': '5b89e78607e070cc8475d468078fe00a3cbb1643fc756d70c8d97689cbccb7ee',
 }
 

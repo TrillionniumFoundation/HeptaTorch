@@ -16,9 +16,9 @@ gradient to grant a new identity epoch. The complete JSON inverse and all
 nonidentity fields remain unchanged. The global native reverse identity maps
 remain injective. This evidence does not add a new PyTorch Weak observation.
 
-The original strict 05 and 06 failures are preserved in
-validation/view-reshape-r4-scalar05-history and
-validation/view-reshape-r4-scalar06-history; a new run never replaces them.
+The original strict 05 and 06 failures remain unchanged in the fixed Git
+[scalar05 history](https://github.com/TrillionniumFoundation/HeptaTorch/tree/0e006aebddfc9de564d5d14879d7aca190817ce7/validation/view-reshape-r4-scalar05-history) and
+[scalar06 history](https://github.com/TrillionniumFoundation/HeptaTorch/tree/0e006aebddfc9de564d5d14879d7aca190817ce7/validation/view-reshape-r4-scalar06-history); a new run never replaces them.
 
 replay_wrapped_scalar32_r1.py compares the original eight-byte Saved scalar,
 physical and logical tensor bytes, geometry, Version, AD edges, retained and leaf

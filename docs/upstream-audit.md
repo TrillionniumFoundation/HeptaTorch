@@ -563,7 +563,7 @@ retained-hook repair.
 
 New actual input4 observations exposed R2's incorrect contiguous incoming
 description and lost NaN sign/payload. The complete R2 result remains
-1 PASS / 3 FAIL in the [failure history](../validation/differentiable-view-r2-input4-history/).
+1 PASS / 3 FAIL in the [failure history](https://github.com/TrillionniumFoundation/HeptaTorch/tree/0e006aebddfc9de564d5d14879d7aca190817ce7/validation/differentiable-view-r2-input4-history/).
 R3 materializes the real incoming geometry, shared offset and Storage extent,
 releases unused private-buffer tails, and lets the actual first-gradient
 layout contract clone non-dense incoming gradients. A scoped coverage-division

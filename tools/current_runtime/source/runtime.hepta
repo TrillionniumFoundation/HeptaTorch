@@ -3167,17 +3167,17 @@ block failure()
   ret(zero1)
 block route(s2:mutbuf,o2:u64,x2:u64)
   dtype2:u64 = call(s2,x2) {"function":"tensor_dtype"}
-  five2:u64 = const() {"value":5}
-  six2:u64 = const() {"value":6}
-  half2:bool = compare.eq(dtype2,five2)
-  bf2:bool = compare.eq(dtype2,six2)
-  reduced2:bool = bool.or(half2,bf2)
-  branch reduced2 negative(s2,o2,x2) previous(s2,o2,x2)
+  i64_dtype2:u64 = const() {"value":2}
+  f64_dtype2:u64 = const() {"value":4}
+  is_i64_2:bool = compare.eq(dtype2,i64_dtype2)
+  is_f64_2:bool = compare.eq(dtype2,f64_dtype2)
+  wide2:bool = bool.or(is_i64_2,is_f64_2)
+  branch wide2 negative(s2,o2,x2) previous(s2,o2,x2)
 block negative(s3:mutbuf,o3:u64,x3:u64)
-  y3:u64 = call(s3,o3,x3) {"function":"half_neg_tensor"}
+  y3:u64 = call(s3,o3,x3) {"function":"wide_neg_tensor"}
   ret(y3)
 block previous(s4:mutbuf,o4:u64,x4:u64)
-  y4:u64 = call(s4,o4,x4) {"function":"half_neg_previous_unary"}
+  y4:u64 = call(s4,o4,x4) {"function":"wide_neg_previous_unary"}
   ret(y4)
 end
 fn reduce(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) entry(b0)
@@ -12577,7 +12577,10 @@ block b7(v72:mutbuf,v73:u64,v76:u64)
   v129:bool = compare.ne(v73,v128)
   v130:bool = bool.and(v125,v127)
   v131:bool = bool.and(v130,v129)
-  v132:bool = bool.and(v123,v131)
+  wide_unary_opcode:u64 = const() {"value":3}
+  wide_not_unary:bool = compare.ne(v73,wide_unary_opcode)
+  wide_not_admitted:bool = bool.and(v131,wide_not_unary)
+  v132:bool = bool.and(v123,wide_not_admitted)
   v133:bool = compare.eq(v84,v85)
   v86:bool = bool.or(v133,v132)
   v134:u64 = const() {"value":5}
@@ -57472,4 +57475,94 @@ block element(s12:mutbuf,o12:u64,l12:u64,r12:u64,y12:u64,count12:u64,inner12:u64
   jump loop(s12,o12,l12,r12,y12,count12,inner12,next12)
 block done(y13:u64)
   ret(y13)
+end
+fn wide_neg_previous_unary(s:mutbuf,operation:u64,input:u64) -> (u64) effects(read,write,trap) entry(start)
+block start(s:mutbuf,operation:u64,input:u64)
+  valid:u64 = call(s,input) {"function":"valid"}
+  zero:u64 = const() {"value":0}
+  failed:bool = compare.eq(valid,zero)
+  branch failed failure() route(s,operation,input)
+block failure()
+  zero1:u64 = const() {"value":0}
+  ret(zero1)
+block route(s2:mutbuf,o2:u64,x2:u64)
+  dtype2:u64 = call(s2,x2) {"function":"tensor_dtype"}
+  five2:u64 = const() {"value":5}
+  six2:u64 = const() {"value":6}
+  half2:bool = compare.eq(dtype2,five2)
+  bf2:bool = compare.eq(dtype2,six2)
+  reduced2:bool = bool.or(half2,bf2)
+  branch reduced2 negative(s2,o2,x2) previous(s2,o2,x2)
+block negative(s3:mutbuf,o3:u64,x3:u64)
+  y3:u64 = call(s3,o3,x3) {"function":"half_neg_tensor"}
+  ret(y3)
+block previous(s4:mutbuf,o4:u64,x4:u64)
+  y4:u64 = call(s4,o4,x4) {"function":"half_neg_previous_unary"}
+  ret(y4)
+end
+fn wide_neg_tensor(s:mutbuf,operation:u64,input:u64) -> (u64) effects(read,write,trap) entry(start)
+block start(s:mutbuf,operation:u64,input:u64)
+  six:u64 = const() {"value":6}
+  negative:bool = compare.eq(operation,six)
+  branch negative admit(s,input) unsupported(s)
+block unsupported(s1:mutbuf)
+  code1:u64 = const() {"value":7}
+  error1:u64 = call(s1,code1) {"function":"terror"}
+  ret(error1)
+block admit(s2:mutbuf,x2:u64)
+  p2:u64 = call(s2,x2) {"function":"dptr"}
+  grad_offset2:u64 = const() {"value":32}
+  gradp2:u64 = int.add.wrap(p2,grad_offset2)
+  grad2:u64 = call(s2,gradp2) {"function":"getw"}
+  zero2:u64 = const() {"value":0}
+  requires_grad2:bool = compare.ne(grad2,zero2)
+  branch requires_grad2 no_ad(s2) allocate(s2,x2,p2)
+block no_ad(s3:mutbuf)
+  code3:u64 = const() {"value":5}
+  error3:u64 = call(s3,code3) {"function":"terror"}
+  ret(error3)
+block allocate(s4:mutbuf,x4:u64,p4:u64)
+  rank4:u64 = call(s4,p4) {"function":"getw"}
+  shape_offset4:u64 = const() {"value":96}
+  shape4:u64 = int.add.wrap(p4,shape_offset4)
+  zero4:u64 = const() {"value":0}
+  one4:u64 = const() {"value":1}
+  dtype4:u64 = call(s4,x4) {"function":"tensor_dtype"}
+  result4:u64 = call(s4,rank4,shape4,zero4,one4,dtype4) {"function":"typed_descriptor"}
+  failed4:bool = compare.eq(result4,zero4)
+  branch failed4 failure() layout(s4,x4,p4,dtype4,result4)
+block failure()
+  zero5:u64 = const() {"value":0}
+  ret(zero5)
+block layout(s6:mutbuf,x6:u64,p6:u64,d6:u64,y6:u64)
+  ready6:u64 = call(s6,y6,x6,x6) {"function":"integer_pointwise_layout"}
+  zero6:u64 = const() {"value":0}
+  failed6:bool = compare.eq(ready6,zero6)
+  branch failed6 failure() prepare(s6,x6,p6,d6,y6)
+block prepare(s7:mutbuf,x7:u64,p7:u64,d7:u64,y7:u64)
+  eight7:u64 = const() {"value":8}
+  countp7:u64 = int.add.wrap(p7,eight7)
+  count7:u64 = call(s7,countp7) {"function":"getw"}
+  zero7:u64 = const() {"value":0}
+  f64_dtype7:u64 = const() {"value":4}
+  floating7:bool = compare.eq(d7,f64_dtype7)
+  jump loop(s7,x7,y7,count7,floating7,zero7)
+block loop(s8:mutbuf,x8:u64,y8:u64,count8:u64,floating8:bool,index8:u64)
+  more8:bool = compare.lt(index8,count8)
+  branch more8 element(s8,x8,y8,count8,floating8,index8) done(y8)
+block element(s9:mutbuf,x9:u64,y9:u64,count9:u64,floating9:bool,index9:u64)
+  word9:u64 = call(s9,x9,index9) {"function":"tget"}
+  address9:u64 = call(s9,y9,index9) {"function":"taddr"}
+  zero9:u64 = const() {"value":0}
+  sign9:u64 = const() {"value":9223372036854775808}
+  integer9:u64 = int.sub.wrap(zero9,word9)
+  float9:u64 = bit.xor(word9,sign9)
+  value9:u64 = select(floating9,float9,integer9)
+  width9:u64 = const() {"value":8}
+  stored9:u64 = call(s9,address9,width9,value9) {"function":"typed_store"}
+  one9:u64 = const() {"value":1}
+  next9:u64 = int.add.wrap(index9,one9)
+  jump loop(s9,x9,y9,count9,floating9,next9)
+block done(y10:u64)
+  ret(y10)
 end

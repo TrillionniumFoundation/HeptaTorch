@@ -1,4 +1,4 @@
-"""Exact committed FE factory/promotion/result ownership for the pinned765 path.
+"""Exact committed FE factory/promotion/result ownership for the pinned767 path.
 
 Derived from scalar_previous_typed_descriptor (672-byte clear, field writes),
 half_mul_promote, half_addsub_tensor, descriptor_page, alloc/so_slot_new,
@@ -11,8 +11,8 @@ The two original239 FE fixtures have sufficient existing slot/pool capacity.
 That scope is checked explicitly; a growing owner needs its own reviewed rule.
 """
 
-SOURCE = 'b4b2996978dce56c9375ce97b2d2638472cbb154a4c0a7c5de822234e31a9c68'
-IMAGE = '62f74e9232ae30027a64ca61881bb581320b1787529c6ee9e96818a0f8447afe'
+SOURCE = 'e0c8e0a3c3ee16d11cad8af6be1b52bd56295581e74bdcc65131f71a57540025'
+IMAGE = '3ee1fae0e9d20d10dfd2645a3575d23357bcaca0dae03e5f0ff6bf1d4b4197a5'
 
 
 def require(ok, message):
@@ -23,7 +23,7 @@ def require(ok, message):
 def verify_fe_promotion_tombstone(owner, before, after, factory, result):
     """Check all84 words and all eight owner tables from source semantics."""
     require(owner.SOURCE == SOURCE and owner.IMAGE == IMAGE and owner.DESCRIPTOR == 672,
-            'exact reviewed765 source, native image and descriptor width')
+            'exact reviewed767 source, native image and descriptor width')
     require(before['header']['slots'] == after['header']['slots']
             and before['header']['pool'] == after['header']['pool'],
             'original FE endpoint capacity unchanged; no unproved owner growth')

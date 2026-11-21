@@ -38,6 +38,7 @@ from bf16_copy.run import qualify as qualify_bf16_copy
 from half_mul.run import qualify as qualify_half_mul, read_reference as read_half_mul_reference
 from half_neg.run import qualify as qualify_half_neg, read_reference as read_half_neg_reference
 from half_addsub.run import qualify as qualify_half_addsub, read_reference as read_half_addsub_reference
+from wide_neg.run import qualify as qualify_wide_neg, read_reference as read_wide_neg_reference
 from current_runtime_f64_readback import qualify_f64_48
 from current_runtime_generator131 import qualify_generator131
 from current_runtime_process import execute as execute_process
@@ -66,7 +67,7 @@ SOURCE, IMAGE = current_profile.SOURCE, current_profile.IMAGE
 FUNCTIONS, UNITS = current_profile.FUNCTIONS, current_profile.UNITS
 COMPILER = "b1c851a0896fa6071f800e1146c3c27d0c6cf85059e9a6281b46d42908a3f59f"
 LINKER = "761a941fd7a2d53eb9b45869fcfc20e970640e9dd11d60f7c61a89812b61d74e"
-FUSION_RESOURCE_SHA = '7f5994ba97bee0d29d6c818764e4cb4d600ff759917d9fdde2983775c409edf8'
+FUSION_RESOURCE_SHA = '2f4955f950cec1e7798639007d00936d882cd1982eaa282ff8eb4c5cd724c441'
 BOOL_REFERENCE = "21dd75aeb86414818f7aa381f8b866d78b16f9bb3f5738e9a60d27ac3d15dd28"
 BOOL_ARCHIVE = "353a8b2853773bc6678bb62fc9559d6f4244c571ba40c6b80f352b2649cd6edd"
 SUM32_REFERENCE = "c14e4b18f657429ad5dac5498c3abcae303b6a7e7550db7d15a3c9179bdcd728"
@@ -74,12 +75,12 @@ INTEGRAL_REFERENCE = "6c9df4b579664c89c200b9d796367dd6d41f93f8260e8ff012f17d5041
 SHARED_ARCHIVE = "validation/current-runtime-references/complete.tar.xz"
 SHARED_ARCHIVE_SHA = "3a29420768a1bf7808976f04cb3ce3e6091db55ff6ae7858879f1b7ff70b69ea"
 SHARED_MANIFEST_SHA = "666fa775586679cfd42606c95656ad261c8856332431931ed4b0fcfd8865057e"
-GROUPS = ("bool27", "original76", "integral24", "sum_f32_17", "current35", "base270", "sum32", "live32", "logical147", "resource7", "asstrided16", "cat4", "metadata10", "generator131", "public_f64_logical192", "f64_48", "half47", "half_logical264", "half_transactions12", "numeric_predicates", "bf16_copy", "half_mul", "half_neg", "half_addsub")
+GROUPS = ("bool27", "original76", "integral24", "sum_f32_17", "current35", "base270", "sum32", "live32", "logical147", "resource7", "asstrided16", "cat4", "metadata10", "generator131", "public_f64_logical192", "f64_48", "half47", "half_logical264", "half_transactions12", "numeric_predicates", "bf16_copy", "half_mul", "half_neg", "half_addsub", "wide_neg")
 SUITE_TIMEOUT_SECONDS = {"bool27": 600, "original76": 900, "integral24": 900,
                          "sum_f32_17": 900, "current35": 1800, "base270": 1800, "sum32": 3600,
                          "live32": 1800, "logical147": 1200, "resource7": 1200, "asstrided16": 1200, "cat4": 600, "metadata10": 1200, "generator131": 600, "public_f64_logical192": 1200,
                          "f64_48": 1200, "half47": 1200, "half_logical264": 1200, "half_transactions12": 600,
-                         "numeric_predicates": 1200, "bf16_copy": 1200, "half_mul": 1200, "half_neg": 1200, "half_addsub": 1800}
+                         "numeric_predicates": 1200, "bf16_copy": 1200, "half_mul": 1200, "half_neg": 1200, "half_addsub": 1800, "wide_neg": 1200}
 
 
 def require(condition, message):
@@ -134,10 +135,10 @@ def build_binding(directory, inputs):
 
 
 def cat_source_binding(directory, inputs):
-    """Admit exact765 and three reviewed cat bodies; transfer no old result."""
+    """Admit exact767 and three reviewed cat bodies; transfer no old result."""
     outer_path = ROOT / 'tools/current_runtime/fusion_source_transition.py'
-    inputs.bind(outer_path, 'e7e70d4ae6e1c8daa3af97ee1db8492c177d4618e25e1ee1dab1e6767f7d95c5')
-    outer_spec = importlib.util.spec_from_file_location('current_runtime765_source_transition', outer_path)
+    inputs.bind(outer_path, 'aaa9be2ae16b9ac40f6411bfb2848a16b9250c67c2ca41ca991df14cceba8e28')
+    outer_spec = importlib.util.spec_from_file_location('current_runtime767_source_transition', outer_path)
     outer = importlib.util.module_from_spec(outer_spec)
     outer_spec.loader.exec_module(outer)
     historical700, outer_proof = outer.restore_source(inputs.bind(directory / 'runtime.hepta', SOURCE), inputs.bind)
@@ -148,11 +149,11 @@ def cat_source_binding(directory, inputs):
     spec.loader.exec_module(module)
     restored, proof = module.restore_source(historical700, inputs.bind)
     require(module.SOURCE == outer.PARENT_SOURCE == sha(historical700)
-            and FUNCTIONS == 765 and UNITS == 15 and sha(restored) == module.PARENT_SOURCE,
-            'actual765 profile, exact historical700 and exact pre-cat source')
-    return dict(schema='heptatorch.current765-cat.complete-source-inverse.v1',
+            and FUNCTIONS == 767 and UNITS == 15 and sha(restored) == module.PARENT_SOURCE,
+            'actual767 profile, exact historical700 and exact pre-cat source')
+    return dict(schema='heptatorch.current767-cat.complete-source-inverse.v1',
         source_sha256=SOURCE, parent_source_sha256=module.PARENT_SOURCE,
-        functions=765, historical_functions=700, outer_source_inverse=outer_proof,
+        functions=767, historical_functions=700, outer_source_inverse=outer_proof,
         cat_transition=proof, runtime_qualification_transferred=False)
 
 
@@ -391,6 +392,25 @@ class Fixtures:
             self.cache["half_neg"] = {"root": reference, "execution": execution}
         return self.cache["half_neg"]
 
+    def wide_neg(self):
+        """Produce one fresh Torch observation shared by the exact F64 transition and405 suite."""
+        if "wide_neg" not in self.cache:
+            reference = self.output / "references/wide-neg405"
+            execution = self.output / "references/wide-neg405-execution"
+            execution.mkdir(parents=True, exist_ok=False)
+            self.inputs.bind(self.torch_python.resolve(strict=True))
+            script = ROOT / "tests/wide_neg/reference.py"
+            self.inputs.bind(script)
+            process = execute_process([str(self.torch_python), "-B", str(script),
+                "--output", str(reference)], execution, 300, cwd=ROOT)
+            dump(execution / "process.json", process)
+            observed = read_wide_neg_reference(reference, execution, self.inputs)
+            require(Path(observed["report"]["actual_process"]["python"]["path"])
+                    == self.torch_python.resolve(strict=True),
+                    "the shared I64/F64 negation reference used the selected physical Torch interpreter")
+            self.cache["wide_neg"] = {"root": reference, "execution": execution}
+        return self.cache["wide_neg"]
+
     def half_addsub(self):
         """Share one real1006-case Torch process across the original42, old312 and new1006 gates."""
         if "half_addsub" not in self.cache:
@@ -508,7 +528,7 @@ def runner_command(name, build, build_sha, output, fixtures, inputs, torch_pytho
     elif name == "f64_48":
         source = fixtures.f64_48()
         script = ROOT / "tests/current_runtime_f64_fixtures.py"
-        args = f64_fixtures.reader_cli(ROOT, build, build_sha, source)
+        args = f64_fixtures.reader_cli(ROOT, build, build_sha, source, fixtures.wide_neg())
     elif name == "half47":
         source = fixtures.half47()
         script = ROOT / "tests/current_runtime_half_fixtures.py"
@@ -520,13 +540,13 @@ def runner_command(name, build, build_sha, output, fixtures, inputs, torch_pytho
             inputs.bind(path)
         source = fixtures.half_logical()
         args = common + ["--group", name, "--reference-directory", str(source["root"])]
-    elif name in ("numeric_predicates", "bf16_copy", "half_mul", "half_neg", "half_addsub"):
+    elif name in ("numeric_predicates", "bf16_copy", "half_mul", "half_neg", "half_addsub", "wide_neg"):
         script = ROOT / "tests" / name / "run.py"
         for path in sorted(script.parent.glob("*.py")):
             inputs.bind(path)
         inputs.bind(torch_python.resolve())
         args = common + ["--torch-python", str(torch_python.absolute())]
-        if name in ("half_mul", "half_neg", "half_addsub"):
+        if name in ("half_mul", "half_neg", "half_addsub", "wide_neg"):
             reference = getattr(fixtures, name)()
             args += ["--reference-directory", str(reference["root"]),
                      "--reference-execution", str(reference["execution"])]
@@ -625,7 +645,7 @@ def qualify_resource7(report, build_sha, directory, inputs):
         'backward': ['backward_private_preserve_allocation_oom_recovery'],
         'r3': ['tail_release_reuse', 'preserve_capacity_oom_recovery', 'tail_then_saved_error_prefix'],
     }
-    require(report['schema'] == 'heptatorch.current765.resource7.v1'
+    require(report['schema'] == 'heptatorch.current767.resource7.v1'
             and report['status'] == 'PASS_CURRENT_RESOURCE7'
             and report['actual_build_sha256'] == build_sha
             and report['source_sha256'] == SOURCE and report['native_sha256'] == IMAGE
@@ -643,7 +663,7 @@ def qualify_resource7(report, build_sha, directory, inputs):
     require([row['suite'] for row in report['suites']] == list(expected), 'all three resource readers')
     helper_path = ROOT / 'tools/current_runtime/fusion_resource_transition.py'
     inputs.bind(helper_path, FUSION_RESOURCE_SHA)
-    helper_spec = importlib.util.spec_from_file_location('qualified765_resource_source_paths', helper_path)
+    helper_spec = importlib.util.spec_from_file_location('qualified767_resource_source_paths', helper_path)
     helper = importlib.util.module_from_spec(helper_spec)
     helper_spec.loader.exec_module(helper)
     expected_source_paths = helper.prove(inputs.bind(ROOT / 'tools/current_runtime/source/runtime.hepta', SOURCE), inputs.bind)
@@ -665,7 +685,7 @@ def qualify_resource7(report, build_sha, directory, inputs):
         actual = json.loads(inputs.bind(folder / 'actual/report.json', row['report_sha256']))
         proof = json.loads(inputs.bind(folder / 'adaptation/source-bindings.json'))
         require(proof['fusion_source_path_proof'] == expected_source_paths,
-                'outer independent actual765 resource path proof differs')
+                'outer independent actual767 resource path proof differs')
         require(actual['status'] == 'PASS' and actual['native_executed'] is True
                 and actual['source_sha256'] == SOURCE and actual['native_sha256'] == IMAGE
                 and actual['all_inputs_unchanged'] is True
@@ -797,7 +817,7 @@ def main(argv=None):
               "sum32": 32, "integral24": 24, "sum_f32_17": 17, "current35": 35, "base270": 270,
               "live32": 32, "logical147": 147, "resource7": 7, "asstrided16": 16, "cat4": 4, "metadata10": 10, "generator131": 131, "public_f64_logical192": 192,
               "f64_48": 48, "half47": 47, "half_logical264": 264, "half_transactions12": 12,
-              "numeric_predicates": 485, "bf16_copy": 280, "half_mul": 312, "half_neg": 371, "half_addsub": 1006}, "required_cases_total": 3845,
+              "numeric_predicates": 485, "bf16_copy": 280, "half_mul": 312, "half_neg": 371, "half_addsub": 1006, "wide_neg": 405}, "required_cases_total": 4250,
               "generator_subgroups": {"oracle24": 24, "native11": 11, "entry59": 59, "dispatch37": 37},
               "image_scope": "All thirteen inherited groups and Generator production cases bind the current main image; "
                   "Generator131 also requires separately linked current-object ABI and reordered probe images. "
@@ -828,6 +848,13 @@ def main(argv=None):
                   "original_half47_private_dtype3_refusals": 8,
                   "original_multiplication_refusals_with_explicit_successor": 4,
                   "original_half47_other_refusals": 173, "historical239_evidence_rewritten": False},
+              "wide_neg_scope": {"actual_reference_cases": 405, "opcode": 3, "operation": 6,
+                  "source_dtype_codes": [2, 4], "cpu_capability": "AVX2", "torch_threads": 1,
+                  "exact_raw_bytes_required": True, "physical_replay_required": True,
+                  "fresh_pinned_Torch_reference_required": True,
+                  "original_f64_48_refusals_with_explicit_successor": 1,
+                  "original_f64_48_retained_refusals": 86, "original_entry_requests_preserved": 87,
+                  "additional_packet_controls": 46, "actual_allocation_recoveries": 2},
               "bf16_copy_scope": {"actual_reference_cases": 280, "opcodes": [108, 109],
                   "memory_formats": [0, 1], "exact_raw_bytes_required": True,
                   "fresh_pinned_Torch_reference_required": True, "physical_replay_required": True,
@@ -836,9 +863,10 @@ def main(argv=None):
                   "outside_native_scope_torch_observations": 6,
                   "boundary_controls_counted_as_torch_compatibility": False, "original147_replaced": False},
               "f64_48_scope": {"numeric_groups": 33, "boundary_cases": 12, "entry_groups": 1,
-                  "allocation_controls": 2, "entry_refusals": 87,
+                  "allocation_controls": 2, "original_entry_control_count": 87, "entry_refusals": 86,
+                  "entry_negation_successors": 1, "successor_reference_group": "wide_neg",
                   "malformed_Half_factory_expected_statuses_changed": 2,
-                  "other85_expected_statuses_unchanged": True,
+                  "other85_expected_statuses_unchanged": False, "other84_expected_statuses_unchanged": True,
                   "malformed_controls_counted_as_successful_torch_compatibility": False},
               "half47_scope": {"numeric_groups": 26, "boundary_cases": 16, "entry_groups": 1,
                   "allocation_controls": 4, "input_values": 908216, "entry_refusals": 173,
@@ -869,7 +897,8 @@ def main(argv=None):
                   "inherited_resource_allocation_recoveries": 3, "cat_expanded_capacity": 1,
                   "public_f64_packet_controls": 18, "public_f64_allocation_stages": 2,
                   "public_f64_native_scope_controls": 2,
-                  "f64_48_entry_refusals": 87, "f64_48_allocation_recoveries": 2,
+                  "f64_48_entry_refusals": 86, "f64_48_original_entry_requests": 87,
+                  "f64_48_wide_neg_numeric_successors": 1, "f64_48_allocation_recoveries": 2,
                   "half47_entry_refusals": 173, "half47_entry_multiplication_successors": 22,
                   "half47_entry_negation_successors": 2,
                   "half47_entry_addsub_successors": 42,
@@ -905,7 +934,7 @@ def main(argv=None):
                      "current_runtime_half_refusals12.py", "current_runtime_half_mul_successor.py", "current_runtime_half_neg_successor.py",
                      "current_runtime_half_addsub_successor.py", "current_runtime_half_fe_owner.py",
                      "current_runtime_f64_fixtures.py",
-                     "current_runtime_f64_readback.py",
+                     "current_runtime_f64_readback.py", "current_runtime_f64_neg_successor.py",
                      "half_logical/__init__.py", "half_logical/reference.py", "half_logical/native.py", "half_logical/run.py",
                      "numeric_predicates/__init__.py", "numeric_predicates/cases.py", "numeric_predicates/reference.py",
                      "numeric_predicates/evidence.py", "numeric_predicates/native.py", "numeric_predicates/run.py",
@@ -914,6 +943,7 @@ def main(argv=None):
                      "half_mul/reference.py", "half_mul/run.py",
                      "half_neg/__init__.py", "half_neg/cases.py", "half_neg/reference.py", "half_neg/run.py",
                      "half_addsub/__init__.py", "half_addsub/cases.py", "half_addsub/reference.py", "half_addsub/run.py",
+                     "wide_neg/__init__.py", "wide_neg/cases.py", "wide_neg/reference.py", "wide_neg/run.py",
                      "pytorch_cpu_generator_oracle.py"):
             inputs.bind(ROOT / "tests" / name)
         for name in ("half_addsub_fe_owner_contract.json", "half_addsub_fe_tombstone_contract.json"):
@@ -940,7 +970,7 @@ def main(argv=None):
                 directory = output / name
                 command = runner_command(name, build, build_sha, directory, fixtures, inputs, args.torch_python.absolute())
                 intent = None
-                if name in ("f64_48", "half47", "half_logical264", "half_transactions12", "numeric_predicates", "bf16_copy", "half_mul", "half_neg", "half_addsub"):
+                if name in ("f64_48", "half47", "half_logical264", "half_transactions12", "numeric_predicates", "bf16_copy", "half_mul", "half_neg", "half_addsub", "wide_neg"):
                     intent, row["execution_intent"] = observer_intent(command, execution, inputs)
                 receipt = execute(command, execution, SUITE_TIMEOUT_SECONDS[name])
                 row["runner"] = receipt
@@ -955,7 +985,7 @@ def main(argv=None):
                         result["Torch_executed"] = report.get("Torch_executed")
                     if name == "generator131" and result["Torch_executed"] is not True:
                         result["Torch_executed"] = report.get("Torch_executed")
-                    if name in ("numeric_predicates", "bf16_copy", "half_mul", "half_neg", "half_addsub") and result["Torch_executed"] is not True:
+                    if name in ("numeric_predicates", "bf16_copy", "half_mul", "half_neg", "half_addsub", "wide_neg") and result["Torch_executed"] is not True:
                         result["Torch_executed"] = report.get("Torch_executed")
                 require(receipt["started"] is True and receipt["exit_code"] == 0
                         and receipt["stdout_EOF"] is True and receipt["stderr_EOF"] is True
@@ -1053,6 +1083,14 @@ def main(argv=None):
                     require(json.loads(physical) == counts, "complete Half addition/subtraction byte and ownership readback agrees")
                     counts["physical_qualification"] = dict(path=name + "/physical-qualification.json",
                         bytes=len(physical), sha256=sha(physical), status="PASS_PHYSICAL_HALF_ADDSUB")
+                elif name == "wide_neg":
+                    counts = qualify_wide_neg(report, ROOT, build, build_sha, directory, inputs)
+                    require(counts["cases"] == 405 and counts["physical_replay"] is True,
+                            "all independent I64/F64 negation comparisons and physical replay are mandatory")
+                    physical = inputs.bind(directory / "physical-qualification.json")
+                    require(json.loads(physical) == counts, "complete I64/F64 negation byte and ownership readback agrees")
+                    counts["physical_qualification"] = dict(path=name + "/physical-qualification.json",
+                        bytes=len(physical), sha256=sha(physical), status="PASS_PHYSICAL_WIDE_NEG")
                 else:
                     counts = qualify_metadata10(report, ROOT, build, build_sha, directory, inputs, execution)
                 row.update(status="PASS", qualified=True, **counts)

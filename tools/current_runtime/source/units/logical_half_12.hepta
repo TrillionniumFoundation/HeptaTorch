@@ -1,8 +1,7 @@
 hia-asm.v1 hepta.hia.program.v8 logical_half_12
-exports(cg_validate,cg_size,cg_reply,cg_read,cg_initialize,cg_apply)
+exports(cg_payload,cg_validate,cg_size,cg_reply,cg_read,cg_initialize,cg_apply)
 fn cg_find(v0:readbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn cg_mutates(v0:readbuf) -> (u64) effects(read,write,trap) external()
-fn cg_payload(v0:readbuf) -> (u64) effects(read,write,trap) external()
 fn cg_putw(raw0:mutbuf,at0:u64,value0:u64) -> (u64) effects(read,write,trap) external()
 fn cg_stat(v0:readbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn cg_state_valid(v0:readbuf) -> (u64) effects(read,write,trap) external()
@@ -15,6 +14,67 @@ fn rng_unit32(v0:u64) -> (u64) effects(read,write,trap) external()
 fn rng_unit64(v0:u64) -> (u64) effects(read,write,trap) external()
 fn round_bf16(v0:u64) -> (u64) effects(read,write,trap) external()
 fn round_f16(x:u64) -> (u64) effects(read,write,trap) external()
+fn cg_payload(v0:readbuf) -> (u64) effects(read,write,trap) entry(b0)
+block b0(v0:readbuf)
+  v1:u64 = const() {"value":8}
+  v2:u64 = call(v0,v1) {"function":"getr"}
+  v3:u64 = const() {"value":1}
+  v4:bool = compare.eq(v2,v3)
+  v5:u64 = const() {"value":7}
+  v6:bool = compare.eq(v2,v5)
+  v7:bool = bool.or(v4,v6)
+  v8:u64 = const() {"value":19}
+  v9:bool = compare.eq(v2,v8)
+  v10:bool = bool.or(v7,v9)
+  branch v10 b1(v0) b2(v0,v2)
+block b1(v11:readbuf)
+  v15:u64 = const() {"value":24}
+  v16:u64 = call(v11,v15) {"function":"getr"}
+  v17:u64 = const() {"value":8}
+  v18:u64 = int.mul.wrap(v16,v17)
+  ret(v18)
+block b2(v13:readbuf,v14:u64)
+  v19:u64 = const() {"value":3}
+  v20:bool = compare.eq(v14,v19)
+  v21:u64 = const() {"value":4}
+  v22:bool = compare.eq(v14,v21)
+  v23:bool = bool.or(v20,v22)
+  branch v23 b3(v13) b4(v13,v14)
+block b3(v24:readbuf)
+  v28:u64 = const() {"value":8}
+  ret(v28)
+block b4(v26:readbuf,v27:u64)
+  v29:u64 = const() {"value":5}
+  v30:bool = compare.eq(v27,v29)
+  branch v30 b5(v26) b6(v26,v27)
+block b5(v31:readbuf)
+  v35:u64 = const() {"value":5056}
+  ret(v35)
+block b6(v33:readbuf,v34:u64)
+  v36:u64 = const() {"value":9}
+  v37:bool = compare.ge(v34,v36)
+  v38:u64 = const() {"value":15}
+  v39:bool = compare.le(v34,v38)
+  v40:bool = bool.and(v37,v39)
+  branch v40 b7(v33) b8(v33,v34)
+block b7(v41:readbuf)
+  v45:u64 = const() {"value":24}
+  v46:u64 = call(v41,v45) {"function":"getr"}
+  v47:u64 = const() {"value":8}
+  v48:u64 = int.mul.wrap(v46,v47)
+  ret(v48)
+block b8(v43:readbuf,v44:u64)
+  v49:u64 = const() {"value":18}
+  v50:bool = compare.eq(v44,v49)
+  branch v50 b9(v43) b10(v43)
+block b9(v51:readbuf)
+  v55:u64 = const() {"value":24}
+  v56:u64 = call(v51,v55) {"function":"getr"}
+  ret(v56)
+block b10(v53:readbuf)
+  v57:u64 = const() {"value":0}
+  ret(v57)
+end
 fn cg_validate(v0:readbuf,v1:readbuf,v2:readbuf,v3:u64) -> (u64) effects(read,write,trap) entry(b0)
 block b0(v0:readbuf,v1:readbuf,v2:readbuf,v3:u64)
   v4:usize = buffer.len(v0)

@@ -30,3 +30,17 @@ git worktree add --detach /path/to/historical-heptatorch 9ea2ec5522685a8b1a0080e
 ```
 
 原始参考包、失败控制、工具链输入和许可证继续随仓库提供。原生源码、当前案例清单和完整 2,590 条算子／688 条导数／17 项系统验收目标不受此次整理影响。当前候选的数值结果由对应源码与映像的完整运行判定。
+
+## 后续整理：R2 与 R4 已结束的失败阶段
+
+下列三个阶段的运行记录已从当前工作树退休，全部原始文件仍由固定提交 `0e006aebddfc9de564d5d14879d7aca190817ce7` 保存。原来的失败、成功子集、输入输出及归档均保持原身份；它们不计入当前映像的验收结果。
+
+| 原目录 | 文件数 | 字节数 | 固定历史位置 |
+| --- | ---: | ---: | --- |
+| `validation/view-reshape-r4-scalar05-history` | 10 | 4,394,815 | [原目录](https://github.com/TrillionniumFoundation/HeptaTorch/tree/0e006aebddfc9de564d5d14879d7aca190817ce7/validation/view-reshape-r4-scalar05-history) |
+| `validation/view-reshape-r4-scalar06-history` | 8 | 9,426,991 | [原目录](https://github.com/TrillionniumFoundation/HeptaTorch/tree/0e006aebddfc9de564d5d14879d7aca190817ce7/validation/view-reshape-r4-scalar06-history) |
+| `validation/differentiable-view-r2-input4-history` | 7 | 4,257,121 | [原目录](https://github.com/TrillionniumFoundation/HeptaTorch/tree/0e006aebddfc9de564d5d14879d7aca190817ce7/validation/differentiable-view-r2-input4-history) |
+
+本次移除 25 个文件、18,078,927 字节。已核对构建、测试、CI、源码恢复代码及其固定清单，这些目录没有活跃读取依赖；清理不改动原生实现、案例、参考结果、许可证或工具链。
+
+`tests/differentiable_view_input4_review/README.md` 属于已固定 SHA 的原始测试包，因此保持原字节。它提到的 R2 历史路径按上表固定提交解释；测试包的原 manifest 和比较器继续完整保留。
