@@ -16,6 +16,17 @@ jobs:
   current-runtime:
     runs-on: ubuntu-24.04
     timeout-minutes: 180
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      evidence-artifact-id: ${{ steps.evidence_upload.outputs.artifact-id }}
+      evidence-artifact-digest: ${{ steps.evidence_upload.outputs.artifact-digest }}
+      evidence-artifact-bytes: ${{ steps.transport_plan.outputs.artifact-bytes }}
+      evidence-rest-head-sha: ${{ steps.transport_plan.outputs.rest-head-sha }}
+      evidence-run-attempt: ${{ steps.transport_plan.outputs.run-attempt }}
+      transport-helper-sha256: ${{ steps.transport_plan.outputs.helper-sha256 }}
+      transport-parts: ${{ steps.transport_plan.outputs.parts }}
     defaults:
       run:
         shell: bash
@@ -634,6 +645,7 @@ jobs:
           exit "$custody_exit_code"
 
       - name: Upload complete current runtime native evidence
+        id: evidence_upload
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
@@ -650,5 +662,83 @@ jobs:
           if-no-files-found: error
           # Compress JSON manifests and reports while retaining all archive bytes.
           compression-level: 9
+          retention-days: 30
+
+
+      - name: Plan lossless transfer of the official original artifact ZIP
+        id: transport_plan
+        if: ${{ always() && steps.evidence_upload.outcome == 'success' }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          ORIGINAL_ARTIFACT_ID: ${{ steps.evidence_upload.outputs.artifact-id }}
+          ORIGINAL_ARTIFACT_DIGEST: ${{ steps.evidence_upload.outputs.artifact-digest }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || '' }}
+        run: |
+          python3 -I -S -B tools/ci_artifact_transport.py plan \
+            --repository "$GITHUB_REPOSITORY" --run-id "$GITHUB_RUN_ID" \
+            --run-attempt "$GITHUB_RUN_ATTEMPT" --event-name "$GITHUB_EVENT_NAME" \
+            --checkout-sha "$GITHUB_SHA" --pull-request-head-sha "$PR_HEAD_SHA" \
+            --artifact-id "$ORIGINAL_ARTIFACT_ID" --artifact-digest "$ORIGINAL_ARTIFACT_DIGEST" \
+            --output-directory "$RUNNER_TEMP/current-evidence-transport-plan" \
+            --github-output "$GITHUB_OUTPUT"
+
+  original-evidence-zip-transport:
+    name: Original evidence ZIP part ${{ matrix.part }}
+    needs: current-runtime
+    if: ${{ always() && needs.current-runtime.outputs.transport-parts != '' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      actions: read
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        part: ${{ fromJSON(needs.current-runtime.outputs.transport-parts || '[]') }}
+    steps:
+      - name: Check out the exact original transport helper
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+          sparse-checkout-cone-mode: false
+          sparse-checkout: tools/ci_artifact_transport.py
+
+      - name: Verify the complete official ZIP and retain one exact interval
+        id: transport
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          ORIGINAL_ARTIFACT_ID: ${{ needs.current-runtime.outputs.evidence-artifact-id }}
+          ORIGINAL_ARTIFACT_DIGEST: ${{ needs.current-runtime.outputs.evidence-artifact-digest }}
+          ORIGINAL_ARTIFACT_BYTES: ${{ needs.current-runtime.outputs.evidence-artifact-bytes }}
+          ORIGINAL_REST_HEAD_SHA: ${{ needs.current-runtime.outputs.evidence-rest-head-sha }}
+          ORIGINAL_RUN_ATTEMPT: ${{ needs.current-runtime.outputs.evidence-run-attempt }}
+          ORIGINAL_HELPER_SHA256: ${{ needs.current-runtime.outputs.transport-helper-sha256 }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || '' }}
+          PART_INDEX: ${{ matrix.part }}
+        run: |
+          python3 -I -S -B tools/ci_artifact_transport.py chunk \
+            --repository "$GITHUB_REPOSITORY" --run-id "$GITHUB_RUN_ID" \
+            --run-attempt "$ORIGINAL_RUN_ATTEMPT" --transport-attempt "$GITHUB_RUN_ATTEMPT" \
+            --event-name "$GITHUB_EVENT_NAME" \
+            --checkout-sha "$GITHUB_SHA" --pull-request-head-sha "$PR_HEAD_SHA" \
+            --expected-run-head-sha "$ORIGINAL_REST_HEAD_SHA" --helper-sha256 "$ORIGINAL_HELPER_SHA256" \
+            --artifact-id "$ORIGINAL_ARTIFACT_ID" --artifact-digest "$ORIGINAL_ARTIFACT_DIGEST" \
+            --artifact-bytes "$ORIGINAL_ARTIFACT_BYTES" --index "$PART_INDEX" \
+            --output-directory "$RUNNER_TEMP/current-evidence-zip-part" \
+            --github-output "$GITHUB_OUTPUT"
+
+      - name: Upload the exact ZIP interval and complete inventory
+        if: ${{ always() && steps.transport.outcome == 'success' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ${{ steps.transport.outputs.artifact-name }}
+          path: |
+            ${{ runner.temp }}/current-evidence-zip-part/original.zip.part-*
+            ${{ runner.temp }}/current-evidence-zip-part/transport-manifest.json
+          if-no-files-found: error
+          compression-level: 0
           retention-days: 30
 

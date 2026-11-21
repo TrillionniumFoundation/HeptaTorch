@@ -109,6 +109,8 @@ TOOLCHAINS = ('hepta-compiler', 'hepta-profile-sources', 'hepta-expanded',
               'hepta-current-entropy')
 REPOSITORY_PATHS = (
     '.github/workflows/current-runtime.yml', 'Makefile', 'tools/seal_current_ci_evidence.py',
+    'tools/ci_artifact_transport.py',
+    'validation/current-runtime767/ci-review.json',
     'tools/current_runtime', 'tools/differentiable_view_recovered_r3/profile.json',
     'tools/stack_budget/inspect_stack.py',
     'validation/view-reshape-r4-native76/archive-location.json',
