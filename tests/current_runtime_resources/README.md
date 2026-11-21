@@ -1,7 +1,7 @@
 # Original resource7 on the current HIA runtime
 
 This entry preserves seven original allocation and ownership recipes on the
-canonical **767-function, 15-unit** HIA runtime. The complete qualification
+canonical **771-function, 15-unit** HIA runtime. The complete qualification
 requires an actual matching cold build and new native execution. Current combined
 execution status is recorded in the [current audit](../../docs/current-audit.md);
 historical passes and source preparation do not qualify a later image.
@@ -28,16 +28,16 @@ receipt SHA, and the original R4/backward driver receives the same identity.
 `--suite r4`, `--suite backward`, and `--suite r3` are diagnostic subsets with
 status `PASS_SELECTED_RESOURCES`. Only all seven recipes can report
 `PASS_CURRENT_RESOURCE7`; the report schema is
-`heptatorch.current767.resource7.v1`. A group PASS does not close an upstream
+`heptatorch.current771.resource7.v1`. A group PASS does not close an upstream
 schema or the whole project.
 
 ## Fixed current identity
 
 | Product | Identity |
 | --- | --- |
-| HIA aggregate | `e0c8e0a3c3ee16d11cad8af6be1b52bd56295581e74bdcc65131f71a57540025` |
-| Main ELF | `3ee1fae0e9d20d10dfd2645a3575d23357bcaca0dae03e5f0ff6bf1d4b4197a5` |
-| Products | 767 HIA functions, 15 units, 672-byte descriptors |
+| HIA aggregate | `f534c77069abc15ba15879d44492aacbc5f3709f6a861a0f0b9e0e365232fca1` |
+| Main ELF | `db935c74bf0a2b359038c7be56f5a5721af8f0c2d757a2330527bd751861ae86` |
+| Products | 771 HIA functions, 15 units, 672-byte descriptors |
 | Owner formats | `HTSINT02` / `HTOSIN02` |
 | Authoritative source | [Current manifest](../../tools/current_runtime/source/manifest.json) |
 
@@ -47,7 +47,7 @@ manifest, complete partitions, every object and tool identity, exact link
 request, stack budget, compiler/linker exits and both EOFs. Independent cold
 builds have different paths and timings, so their receipt SHA is an explicit
 input rather than a copied developer-local constant. Source, image and the
-767/15 denominator remain fixed throughout one qualification.
+771/15 denominator remain fixed throughout one qualification.
 
 ## Original seven recipes
 
@@ -61,7 +61,7 @@ input rather than a copied developer-local constant. Source, image and the
 | R3 preserve3 | `preserve_capacity_oom_recovery` |
 | R3 preserve3 | `tail_then_saved_error_prefix` |
 
-`sources.json` binds 184 repository inputs. Original package manifests, all
+`sources.json` binds 186 repository inputs. Original package manifests, all
 original source members, their byte counts and modes remain required. The R4
 and backward package validators retain their original whole-file inverse checks;
 R3 retains the exact outer manifest and its relation to the inner source manifest.
@@ -75,8 +75,16 @@ Reversing that substitution restores the complete original recipe.
 ## Actual source and allocation proofs
 
 [`fusion_resource_transition.py`](../../tools/current_runtime/fusion_resource_transition.py)
-composes the complete 767 → 765 → 761 → 758 → 742 → 740 → Half736 → storage736 → cat700 source inverse.
+composes the complete 771 → 767 → 765 → 761 → 758 → 742 → 740 → Half736 → storage736 → cat700 source inverse.
 Every original byte remains constrained by the corresponding full-source hash.
+The 771 layer checks the single changed `binary` body, four appended division
+helpers and all 766 unchanged parent bodies. The actual binary body retains the
+complete dtype5/6 guard and adds only an operation4 route within that guarded
+branch. Exact argument order and the complete preceding add/sub, multiplication
+and original-domain delegation remain checked. The original dtype0/1/2/3 resource
+domain cannot reach this new division branch; division outcomes require separate
+execution evidence.
+
 The 767 layer checks both changed bodies, both appended helpers, all 763
 unchanged parent bodies, and an exact whole-source round trip. Its I64/F64
 unary wrapper retains the complete previous Half wrapper. Only dtype0/1/3

@@ -1,9 +1,12 @@
-"""Exact source767 path obligations for the unchanged seven resource recipes.
+"""Exact source771 path obligations for the unchanged seven resource recipes.
 
 This proves a conditional source relation on the original public0/1/2/private3
 domain. The unchanged complete owner and resource recipes must still execute.
 The original resource requests exclude unary opcode3; new I64/F64 negation
 requires separate successor execution and is not covered by these recipes.
+Half/BF16 division operation4 remains behind the dtype5/6 binary guard, outside
+the original resource owner domain; its new numerical outcomes require their
+own actual execution.
 No reconstructed historical body is presented as actual executable code.
 """
 import ast
@@ -15,9 +18,9 @@ import re
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
-SOURCE = 'e0c8e0a3c3ee16d11cad8af6be1b52bd56295581e74bdcc65131f71a57540025'
-IMAGE = '3ee1fae0e9d20d10dfd2645a3575d23357bcaca0dae03e5f0ff6bf1d4b4197a5'
-OUTER = 'aaa9be2ae16b9ac40f6411bfb2848a16b9250c67c2ca41ca991df14cceba8e28'
+SOURCE = 'f534c77069abc15ba15879d44492aacbc5f3709f6a861a0f0b9e0e365232fca1'
+IMAGE = 'db935c74bf0a2b359038c7be56f5a5721af8f0c2d757a2330527bd751861ae86'
+OUTER = '366ad93630cfdd80e13e8591314e66f6bb6a09b3c269d6375385bd3a2d6550c6'
 OBLIGATIONS = '4fa8028bec733a72ac2857dce326e25d6d378aafd1045c2504bb5828553cf2bb'
 OWNER = 'e54509ceba0ef3bf171f5fc1018665dc97e56eeccec0cba1e8c14f9a7ed81501'
 CHANGED = ('command_argument', 'dtype_audit', 'to_command', 'typed_command', 'typed_fill')
@@ -50,14 +53,14 @@ def calls(body):
 def prove(source, bind):
     """Purely inspect complete actual source; return no runtime PASS."""
     bind(Path(__file__).resolve())
-    require(sha(source) == SOURCE, 'exact source767 actual resource subject')
+    require(sha(source) == SOURCE, 'exact source771 actual resource subject')
     path = HERE / 'fusion_source_transition.py'
     bind(path, OUTER)
-    spec = importlib.util.spec_from_file_location('resource767_complete_outer_inverse', path)
+    spec = importlib.util.spec_from_file_location('resource771_complete_outer_inverse', path)
     outer = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(outer)
     historical, complete = outer.restore_source(source, bind)
-    actual, parent = outer.functions(source, 767), outer.functions(historical, 700)
+    actual, parent = outer.functions(source, 771), outer.functions(historical, 700)
     predicate_inverse = complete['predicate_source_inverse']
     guard = predicate_inverse['dispatcher_guard']
     delegation = predicate_inverse['old_path_delegation']
@@ -65,7 +68,15 @@ def prove(source, bind):
     neg_inverse = complete['half_neg_source_inverse']
     addsub_inverse = complete['half_addsub_source_inverse']
     wide_inverse = complete['wide_neg_source_inverse']
-    require(wide_inverse['source_sha256'] == SOURCE
+    div_inverse = complete['half_div_source_inverse']
+    require(div_inverse['source_sha256'] == SOURCE
+        and div_inverse['functions'] == 771 and div_inverse['parent_functions'] == 767
+        and div_inverse['changed_functions'] == ['binary']
+        and div_inverse['unchanged_parent_functions'] == 766
+        and div_inverse['whole_source_inverse_exact'] is True
+        and div_inverse['whole_round_trip_exact'] is True
+        and div_inverse['only_new_half_binary_operation'] == 4
+        and wide_inverse['source_sha256'] == div_inverse['parent_source_sha256']
         and wide_inverse['parent_source_sha256'] == addsub_inverse['source_sha256']
         and neg_inverse['source_sha256'] == addsub_inverse['parent_source_sha256']
         and mul_inverse['source_sha256'] == neg_inverse['parent_source_sha256']
@@ -85,7 +96,7 @@ def prove(source, bind):
         and delegation['complete_parent_body_unchanged'] is True
         and delegation['parent_body_sha256'] == delegation['actual_body_sha256']
             == sha(actual['to_command']),
-        'physical767 entry delegates every original108..119 opcode through the exact six-argument original to_command body')
+        'physical771 entry delegates every original108..119 opcode through the exact six-argument original to_command body')
     predicate_route = dict(
         actual_entry_sha256=sha(actual['entry']),
         actual_predicate_command_sha256=sha(actual['predicate_command']),
@@ -102,18 +113,32 @@ def prove(source, bind):
         and mul_inverse['changed_functions'] == ['binary', 'command_argument']
         and mul_inverse['predecessor_binary_body_preserved_exactly'] is True
         and sha(previous_binary) == mul_inverse['added_bodies']['half_mul_previous_binary']['sha256']
-        and sha(binary) == addsub_inverse['changed_bodies']['binary']['after_sha256']
+        and sha(binary) == div_inverse['actual_binary_sha256']
+        and div_inverse['parent_binary_sha256'] == addsub_inverse['changed_bodies']['binary']['after_sha256']
+        and div_inverse['non_half_routes_unchanged'] is True
+        and div_inverse['non_division_routes_unchanged'] is True
         and addsub_inverse['changed_bodies']['binary']['before_sha256']
             == mul_inverse['changed_bodies']['binary']['after_sha256']
         and sha(previous_binary.replace(b'fn half_mul_previous_binary(', b'fn binary(', 1))
             == mul_inverse['changed_bodies']['binary']['before_sha256']
         and calls(binary) == [b'valid', b'valid', b'tensor_dtype', b'tensor_dtype',
-                              b'half_addsub_tensor', b'half_mul_tensor', b'half_mul_previous_binary']
+                              b'half_addsub_tensor', b'half_div_tensor', b'half_mul_tensor',
+                              b'half_mul_previous_binary']
         and b'  branch half3 arithmetic(s3,o3,l3,r3) previous(s3,o3,l3,r3)\n' in binary
         and b'  onea:u64 = const() {"value":1}\n  twoa:u64 = const() {"value":2}\n'
             b'  adda:bool = compare.eq(oa,onea)\n  suba:bool = compare.eq(oa,twoa)\n'
             b'  addsuba:bool = bool.or(adda,suba)\n'
             b'  branch addsuba addsub(sa,oa,la,ra) multiply(sa,oa,la,ra)\n' in binary
+        and b'block multiply(s4:mutbuf,o4:u64,l4:u64,r4:u64)\n'
+            b'  four4:u64 = const() {"value":4}\n'
+            b'  division4:bool = compare.eq(o4,four4)\n'
+            b'  branch division4 divide(s4,o4,l4,r4) retained_multiply(s4,o4,l4,r4)\n'
+            b'block divide(sd:mutbuf,od:u64,ld:u64,rd:u64)\n'
+            b'  quotientd:u64 = call(sd,od,ld,rd) {"function":"half_div_tensor"}\n'
+            b'  ret(quotientd)\n'
+            b'block retained_multiply(sm:mutbuf,om:u64,lm:u64,rm:u64)\n'
+            b'  productm:u64 = call(sm,om,lm,rm) {"function":"half_mul_tensor"}\n'
+            b'  ret(productm)\n' in binary
         and b'  result5:u64 = call(s5,o5,l5,r5) {"function":"half_mul_previous_binary"}\n  ret(result5)\n' in binary
         and b'  five3:u64 = const() {"value":5}\n  six3:u64 = const() {"value":6}\n' in binary
         and b'  lh3:bool = compare.eq(ld3,five3)\n  lb3:bool = compare.eq(ld3,six3)\n'
@@ -128,7 +153,10 @@ def prove(source, bind):
         extra_pre_route_calls=['valid(left)', 'valid(right)', 'tensor_dtype(left)', 'tensor_dtype(right)'],
         new_arithmetic_branch_requires_operand_dtype=[5,6],
         new_addsub_branch_operations=[1,2],
-        other_half_operations_preserve_predecessor_route=True,
+        new_division_branch_operations=[4],
+        new_division_branch_requires_operand_dtype=[5,6],
+        prior_half_operation_routes_preserved_except=[4],
+        new_division_outcomes_require_separate_successor_evidence=True,
         original_domain_live_operands_delegate=True,
         original_error_and_resource_recipes_must_execute=True,
         historical_body_substituted_for_actual_body=False)
@@ -349,8 +377,8 @@ def prove(source, bind):
     body = ast.get_source_segment(owner.decode(), fn).encode()
     require(body.count(b'need(dtype in (0, 1, 2, 3), "dtype-code", node=i)') == 1,
             'unchanged full owner still rejects public4/5/6 in the original resource recipe domain')
-    return dict(schema='heptatorch.fusion767.resource7-source-paths.v1', source_sha256=SOURCE,
-        native_sha256=IMAGE, functions=767, units=15, outer_source_inverse=complete,
+    return dict(schema='heptatorch.fusion771.resource7-source-paths.v1', source_sha256=SOURCE,
+        native_sha256=IMAGE, functions=771, units=15, outer_source_inverse=complete,
         changed_R4_obligations=list(CHANGED), obligations={n:rows[n] for n in CHANGED},
         binary_original_domain_route=binary_route,
         unary_original_domain_route=unary_route,

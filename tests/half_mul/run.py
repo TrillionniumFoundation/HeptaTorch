@@ -17,6 +17,7 @@ sys.path.insert(0,str(ROOT/'tests'))
 from half_mul.cases import CASES,CASE_SHA256,raw_input
 from numeric_predicates.native import Observer as BaseObserver,Live,Replay,Memory,load_wire,dump
 from numeric_predicates.run import Inputs
+import current_runtime_half_div_controls as division_controls
 
 sha=lambda raw:hashlib.sha256(raw).hexdigest()
 
@@ -150,7 +151,7 @@ def addsub_control(n,row,operation,left,right,reference):
     return actual['numel']
 
 
-def compare(n,row,addsub_reference):
+def compare(n,row,addsub_reference,division_reference):
     spec=row['spec'];generator,rng=n.begin()
     left,left_handles=n.setup(spec['left']);right,right_handles=n.setup(spec['right'])
     left_before,left_node=n.tensor(left);right_before,right_node=n.tensor(right)
@@ -163,7 +164,7 @@ def compare(n,row,addsub_reference):
     n.check('right descriptor remains byte identical',Memory(owner_before['bytes']).node(right),Memory(owner_after['bytes']).node(right))
     n.check('complete left unchanged',n.tensor(left)[0],left_before)
     n.check('complete right unchanged',n.tensor(right)[0],right_before)
-    elements=0;controls=0;addsub_successors=[]
+    elements=0;controls=0;addsub_successors=[];division_successors=[]
     if row['accepted']:
         n.check('exact multiplication response',[r['opcode'] for r in records],[2])
         result=records[0]['value'];actual,result_node=n.tensor(result)
@@ -182,6 +183,9 @@ def compare(n,row,addsub_reference):
                 if operation in (1,2):
                     elements+=addsub_control(n,row,operation,left,right,addsub_reference)
                     addsub_successors.append(spec['name']+':operation-'+str(operation))
+                elif operation==4:
+                    elements+=division_controls.compare(n,row,left,right,division_reference,'half_mul')
+                    division_successors.append(spec['name'])
                 else:
                     refused,_,_,_=n.issue(n.wire.packet([(2,operation,left,right)]))
                     n.check('unimplemented Half arithmetic remains an explicit refusal',refused,7)
@@ -200,7 +204,7 @@ def compare(n,row,addsub_reference):
         for token in left_handles+right_handles:n.one(41,token)
     n.end(generator,rng)
     return dict(index=row['index'],name=spec['name'],accepted=row['accepted'],elements=elements,bitwise=True,controls=controls,
-        addsub_successors=addsub_successors)
+        addsub_successors=addsub_successors,division_successors=division_successors)
 
 
 def qualify(report,repository,build,build_sha,output,inputs):
@@ -224,24 +228,32 @@ def qualify(report,repository,build,build_sha,output,inputs):
     reference=read_reference(Path(report['reference_directory']).resolve(strict=True),
         Path(report['reference_process_directory']).resolve(strict=True),inputs)
     require(reference['report_sha256']==report['reference_sha256'],'exact independent original reference')
+    division_reference=division_controls.read_reference(ROOT,
+        Path(report['division_reference_directory']).resolve(strict=True),
+        Path(report['division_reference_process_directory']).resolve(strict=True),inputs)
+    require(division_reference['report_sha256']==report['division_reference_sha256'],
+        'same complete actual1196 reference for original division controls')
     addsub_reference=read_addsub_reference(Path(report['addsub_reference_directory']).resolve(strict=True),
         Path(report['addsub_reference_process_directory']).resolve(strict=True),inputs)
     require(addsub_reference['report_sha256']==report['addsub_reference_sha256'],
         'exact original actual-Torch add/sub successor reference')
-    wire=load_wire(ROOT,inputs.bind);frames=checks=owners=elements=0;addsub_successors=[]
+    wire=load_wire(ROOT,inputs.bind);frames=checks=owners=elements=0;addsub_successors=[];division_successors=[]
     require(len(report['results'])==len(CASES),'all Half multiplication native child cases')
     for row,saved in zip(reference['report']['rows'],report['results']):
         require(saved==json.loads(inputs.bind(output/saved['name']/'observation.json'))
             and saved['status']=='PASS' and saved['name']=='case-%03d'%row['index'],'complete native per-case record')
         session=Replay(build/'heptatorch',wire,output/saved['name'],inputs.bind)
-        n=Observer(session,wire,reference);observed=compare(n,row,addsub_reference);finish=session.finish()
+        n=Observer(session,wire,reference);observed=compare(n,row,addsub_reference,division_reference);finish=session.finish()
         require(observed==saved['result'] and n.checks==saved['checks'] and finish==saved['finish'],
             'every original bitwise geometry lifetime predicate reapplied to raw physical evidence')
         frames+=finish['frames'];owners+=finish['owner_reads'];checks+=n.checks;elements+=observed['elements']
         addsub_successors.extend(observed['addsub_successors'])
+        division_successors.extend(observed['division_successors'])
     require((frames,owners,checks)==(report['frames'],report['owner_reads'],report['checks']),'complete physical replay census')
     require(addsub_successors==[f'promotion-{dtype}-{dtype}-3:operation-{operation}'
         for dtype in (5,6) for operation in (1,2)],'all four physically replayed arithmetic successors')
+    require(division_successors==list(division_controls.LABELS['half_mul']),
+        'all and only original division controls physically replayed against the shared reference')
     inputs.recheck()
     return dict(cases=312,frames=frames,assertions=checks,owner_snapshots=owners,native_sessions=312,
         bitwise_elements=elements,physical_replay=True,native_executed_by_qualifier=False,
@@ -251,6 +263,8 @@ def qualify(report,repository,build,build_sha,output,inputs):
             if 'legacy_refusal_label' in row['spec']],
         addsub_reference_sha256=addsub_reference['report_sha256'],
         replaced_arithmetic_refusals=addsub_successors,
+        division_reference_sha256=division_reference['report_sha256'],
+        replaced_division_refusals=division_successors,
         full_project_status='HOLD',host_expected_values_computed=False)
 
 
@@ -262,6 +276,8 @@ def main():
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--reference-directory',type=Path)
     parser.add_argument('--reference-execution',type=Path)
+    parser.add_argument('--half-div-reference-directory',type=Path,required=True)
+    parser.add_argument('--half-div-reference-execution',type=Path,required=True)
     parser.add_argument('--addsub-reference-directory',type=Path)
     parser.add_argument('--addsub-reference-execution',type=Path)
     args=parser.parse_args();build=args.build_directory.resolve();output=args.output.resolve()
@@ -311,12 +327,19 @@ def main():
             'same pinned actual interpreter for old multiplication and new arithmetic controls')
         report.update(addsub_reference_directory=str(addsub_directory),addsub_reference_process_directory=str(addsub_execution),
             addsub_reference_sha256=addsub_reference['report_sha256'])
+        division_directory=args.half_div_reference_directory.resolve(strict=True)
+        division_execution=args.half_div_reference_execution.resolve(strict=True)
+        division_reference=division_controls.read_reference(ROOT,division_directory,division_execution,inputs)
+        require(Path(args.torch_python).resolve(strict=True)==Path(division_reference['report']['actual_process']['python']['path']),
+            'same pinned actual interpreter for original arithmetic and division controls')
+        report.update(division_reference_directory=str(division_directory),division_reference_process_directory=str(division_execution),
+            division_reference_sha256=division_reference['report_sha256'])
         wire=load_wire(ROOT,inputs.bind)
         for row in reference['report']['rows']:
             name='case-%03d'%row['index'];saved=dict(name=name,status='FAIL');session=None;n=None
             try:
                 session=Live(build/'heptatorch',wire,output/name,inputs.bind);report['native_executed']=True
-                n=Observer(session,wire,reference);saved['result']=compare(n,row,addsub_reference);saved['status']='PASS'
+                n=Observer(session,wire,reference);saved['result']=compare(n,row,addsub_reference,division_reference);saved['status']='PASS'
             except BaseException as error:
                 saved['error']=dict(type=type(error).__name__,message=str(error),traceback=traceback.format_exc())
             finally:

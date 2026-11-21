@@ -3100,8 +3100,15 @@ block addsub(ss:mutbuf,os:u64,ls:u64,rs:u64)
   results:u64 = call(ss,os,ls,rs) {"function":"half_addsub_tensor"}
   ret(results)
 block multiply(s4:mutbuf,o4:u64,l4:u64,r4:u64)
-  result4:u64 = call(s4,o4,l4,r4) {"function":"half_mul_tensor"}
-  ret(result4)
+  four4:u64 = const() {"value":4}
+  division4:bool = compare.eq(o4,four4)
+  branch division4 divide(s4,o4,l4,r4) retained_multiply(s4,o4,l4,r4)
+block divide(sd:mutbuf,od:u64,ld:u64,rd:u64)
+  quotientd:u64 = call(sd,od,ld,rd) {"function":"half_div_tensor"}
+  ret(quotientd)
+block retained_multiply(sm:mutbuf,om:u64,lm:u64,rm:u64)
+  productm:u64 = call(sm,om,lm,rm) {"function":"half_mul_tensor"}
+  ret(productm)
 block previous(s5:mutbuf,o5:u64,l5:u64,r5:u64)
   result5:u64 = call(s5,o5,l5,r5) {"function":"half_mul_previous_binary"}
   ret(result5)
@@ -57565,4 +57572,175 @@ block element(s9:mutbuf,x9:u64,y9:u64,count9:u64,floating9:bool,index9:u64)
   jump loop(s9,x9,y9,count9,floating9,next9)
 block done(y10:u64)
   ret(y10)
+end
+fn half_div_f32(a:u64,b:u64) -> (u64) effects(read,write,trap) entry(start)
+block start(a:u64,b:u64)
+  mask:u64 = const() {"value":2147483647}
+  am:u64 = bit.and(a,mask)
+  bm:u64 = bit.and(b,mask)
+  inf:u64 = const() {"value":2139095040}
+  an:bool = compare.gt(am,inf)
+  branch an nan(a) second(a,b,bm)
+block nan(x1:u64)
+  quiet1:u64 = const() {"value":4194304}
+  y1:u64 = bit.or(x1,quiet1)
+  ret(y1)
+block second(a2:u64,b2:u64,bm2:u64)
+  inf2:u64 = const() {"value":2139095040}
+  bn2:bool = compare.gt(bm2,inf2)
+  branch bn2 nan(b2) finite(a2,b2)
+block finite(a3:u64,b3:u64)
+  quotient3:u64 = call(a3,b3) {"function":"divf"}
+  mask3:u64 = const() {"value":2147483647}
+  mag3:u64 = bit.and(quotient3,mask3)
+  inf3:u64 = const() {"value":2139095040}
+  invalid3:bool = compare.gt(mag3,inf3)
+  nan3:u64 = const() {"value":4290772992}
+  result3:u64 = select(invalid3,nan3,quotient3)
+  ret(result3)
+end
+fn half_div_f64(a:u64,b:u64) -> (u64) effects(read,write,trap) entry(start)
+block start(a:u64,b:u64)
+  mask:u64 = const() {"value":9223372036854775807}
+  am:u64 = bit.and(a,mask)
+  bm:u64 = bit.and(b,mask)
+  inf:u64 = const() {"value":9218868437227405312}
+  an:bool = compare.gt(am,inf)
+  branch an nan(a) second(a,b,bm)
+block nan(x1:u64)
+  quiet1:u64 = const() {"value":2251799813685248}
+  y1:u64 = bit.or(x1,quiet1)
+  ret(y1)
+block second(a2:u64,b2:u64,bm2:u64)
+  inf2:u64 = const() {"value":9218868437227405312}
+  bn2:bool = compare.gt(bm2,inf2)
+  branch bn2 nan(b2) finite(a2,b2)
+block finite(a3:u64,b3:u64)
+  quotient3:u64 = call(a3,b3) {"function":"div64"}
+  mask3:u64 = const() {"value":9223372036854775807}
+  mag3:u64 = bit.and(quotient3,mask3)
+  inf3:u64 = const() {"value":9218868437227405312}
+  invalid3:bool = compare.gt(mag3,inf3)
+  nan3:u64 = const() {"value":18444492273895866368}
+  result3:u64 = select(invalid3,nan3,quotient3)
+  ret(result3)
+end
+fn half_div_element(s:mutbuf,result:u64,left:u64,right:u64,original_right:u64,scalar_right:u64,index:u64,inner_extent:u64) -> (u64) effects(read,write,trap) entry(start)
+block start(s:mutbuf,result:u64,left:u64,right:u64,original_right:u64,scalar_right:u64,index:u64,inner_extent:u64)
+  li:u64 = call(s,result,left,index) {"function":"bindex"}
+  ri:u64 = call(s,result,right,index) {"function":"bindex"}
+  lv:u64 = call(s,left,li) {"function":"tget"}
+  rv:u64 = call(s,right,ri) {"function":"tget"}
+  actual_nan:u64 = call(s,result,index,inner_extent) {"function":"half_mul_nan_word"}
+  dtype:u64 = call(s,result) {"function":"tensor_dtype"}
+  four:u64 = const() {"value":4}
+  double:bool = compare.eq(dtype,four)
+  branch double divide_double(s,result,index,lv,rv) divide_float(s,result,index,lv,rv,dtype,original_right,scalar_right,actual_nan)
+block divide_double(s1:mutbuf,y1:u64,i1:u64,l1:u64,r1:u64)
+  value1:u64 = call(l1,r1) {"function":"half_div_f64"}
+  width1:u64 = const() {"value":8}
+  jump store(s1,y1,i1,value1,width1)
+block divide_float(s2:mutbuf,y2:u64,i2:u64,l2:u64,r2:u64,d2:u64,original2:u64,scalar2:u64,n2:u64)
+  lf2:u64 = call(l2,d2) {"function":"half_mul_to_f32"}
+  rf2:u64 = call(r2,d2) {"function":"half_mul_to_f32"}
+  zero2:u64 = const() {"value":0}
+  scalar_bool2:bool = compare.ne(scalar2,zero2)
+  branch scalar_bool2 scalar_value(s2,y2,i2,lf2,d2,original2,n2) divide(s2,y2,i2,lf2,rf2,d2,n2)
+block scalar_value(s3:mutbuf,y3:u64,i3:u64,l3:u64,d3:u64,original3:u64,n3:u64)
+  zero3:u64 = const() {"value":0}
+  raw3:u64 = call(s3,original3,zero3) {"function":"tget"}
+  dtype3:u64 = call(s3,original3) {"function":"tensor_dtype"}
+  value3:u64 = call(raw3,dtype3) {"function":"half_mul_to_f32"}
+  jump divide(s3,y3,i3,l3,value3,d3,n3)
+block divide(s4:mutbuf,y4:u64,i4:u64,l4:u64,r4:u64,d4:u64,n4:u64)
+  quotient4:u64 = call(l4,r4) {"function":"half_div_f32"}
+  zero4:u64 = const() {"value":0}
+  value4:u64 = call(quotient4,zero4,d4,n4) {"function":"half_mul_cast"}
+  width4:u64 = call(d4) {"function":"dtype_width"}
+  jump store(s4,y4,i4,value4,width4)
+block store(s5:mutbuf,y5:u64,i5:u64,value5:u64,width5:u64)
+  address5:u64 = call(s5,y5,i5) {"function":"taddr"}
+  stored5:u64 = call(s5,address5,width5,value5) {"function":"typed_store"}
+  ret(stored5)
+end
+fn half_div_tensor(s:mutbuf,operation:u64,left:u64,right:u64) -> (u64) effects(read,write,trap) entry(start)
+block start(s:mutbuf,operation:u64,left:u64,right:u64)
+  four:u64 = const() {"value":4}
+  divide:bool = compare.eq(operation,four)
+  branch divide admit(s,left,right) unsupported(s)
+block unsupported(s1:mutbuf)
+  code1:u64 = const() {"value":7}
+  error1:u64 = call(s1,code1) {"function":"terror"}
+  ret(error1)
+block admit(s2:mutbuf,l2:u64,r2:u64)
+  lp2:u64 = call(s2,l2) {"function":"dptr"}
+  rp2:u64 = call(s2,r2) {"function":"dptr"}
+  grad_offset2:u64 = const() {"value":32}
+  lgp2:u64 = int.add.wrap(lp2,grad_offset2)
+  rgp2:u64 = int.add.wrap(rp2,grad_offset2)
+  lg2:u64 = call(s2,lgp2) {"function":"getw"}
+  rg2:u64 = call(s2,rgp2) {"function":"getw"}
+  grad2:u64 = bit.or(lg2,rg2)
+  zero2:u64 = const() {"value":0}
+  needs_grad2:bool = compare.ne(grad2,zero2)
+  branch needs_grad2 no_ad(s2) shape(s2,l2,r2)
+block no_ad(s3:mutbuf)
+  code3:u64 = const() {"value":5}
+  error3:u64 = call(s3,code3) {"function":"terror"}
+  ret(error3)
+block shape(s4:mutbuf,l4:u64,r4:u64)
+  shape4:u64 = call(s4,l4,r4) {"function":"bshape"}
+  zero4:u64 = const() {"value":0}
+  error4:u64 = call(s4,zero4) {"function":"getw"}
+  failed4:bool = compare.ne(error4,zero4)
+  branch failed4 failure() promote_left(s4,l4,r4)
+block failure()
+  zero5:u64 = const() {"value":0}
+  ret(zero5)
+block promote_left(s6:mutbuf,l6:u64,r6:u64)
+  dtype6:u64 = call(s6,l6,r6) {"function":"half_mul_result_dtype"}
+  left6:u64 = call(s6,l6,dtype6) {"function":"half_mul_promote"}
+  zero6:u64 = const() {"value":0}
+  failed6:bool = compare.eq(left6,zero6)
+  branch failed6 failure() promote_right(s6,r6,dtype6,left6)
+block promote_right(s7:mutbuf,r7:u64,d7:u64,l7:u64)
+  right7:u64 = call(s7,r7,d7) {"function":"half_mul_promote"}
+  zero7:u64 = const() {"value":0}
+  failed7:bool = compare.eq(right7,zero7)
+  branch failed7 failure() allocate(s7,r7,d7,l7,right7)
+block allocate(s8:mutbuf,original8:u64,d8:u64,l8:u64,r8:u64)
+  rank8:u64 = call(s8,l8,r8) {"function":"bshape"}
+  shape8:u64 = const() {"value":128}
+  zero8:u64 = const() {"value":0}
+  one8:u64 = const() {"value":1}
+  result8:u64 = call(s8,rank8,shape8,zero8,one8,d8) {"function":"typed_descriptor"}
+  failed8:bool = compare.eq(result8,zero8)
+  branch failed8 failure() layout(s8,original8,d8,l8,r8,result8)
+block layout(s9:mutbuf,original9:u64,d9:u64,l9:u64,r9:u64,y9:u64)
+  layout9:u64 = call(s9,y9,l9,r9) {"function":"integer_pointwise_layout"}
+  zero9:u64 = const() {"value":0}
+  failed9:bool = compare.eq(layout9,zero9)
+  branch failed9 failure() ready(s9,original9,d9,l9,r9,y9)
+block ready(s10:mutbuf,original10:u64,d10:u64,l10:u64,r10:u64,y10:u64)
+  five10:u64 = const() {"value":5}
+  reduced10:bool = compare.ge(d10,five10)
+  scalar10:u64 = call(s10,r10) {"function":"half_mul_is_scalar"}
+  zero10:u64 = const() {"value":0}
+  actual_scalar10:u64 = select(reduced10,scalar10,zero10)
+  p10:u64 = call(s10,y10) {"function":"dptr"}
+  eight10:u64 = const() {"value":8}
+  cp10:u64 = int.add.wrap(p10,eight10)
+  count10:u64 = call(s10,cp10) {"function":"getw"}
+  inner10:u64 = call(s10,y10,l10,r10,actual_scalar10) {"function":"half_mul_inner_extent"}
+  jump loop(s10,original10,l10,r10,y10,actual_scalar10,count10,inner10,zero10)
+block loop(s11:mutbuf,original11:u64,l11:u64,r11:u64,y11:u64,scalar11:u64,count11:u64,inner11:u64,index11:u64)
+  more11:bool = compare.lt(index11,count11)
+  branch more11 element(s11,original11,l11,r11,y11,scalar11,count11,inner11,index11) done(y11)
+block element(s12:mutbuf,original12:u64,l12:u64,r12:u64,y12:u64,scalar12:u64,count12:u64,inner12:u64,index12:u64)
+  value12:u64 = call(s12,y12,l12,r12,original12,scalar12,index12,inner12) {"function":"half_div_element"}
+  one12:u64 = const() {"value":1}
+  next12:u64 = int.add.wrap(index12,one12)
+  jump loop(s12,original12,l12,r12,y12,scalar12,count12,inner12,next12)
+block done(y13:u64)
+  ret(y13)
 end

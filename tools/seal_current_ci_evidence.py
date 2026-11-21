@@ -17,10 +17,10 @@ from pathlib import Path, PurePosixPath
 GROUPS = ('bool27', 'original76', 'integral24', 'sum_f32_17', 'current35',
           'base270', 'sum32', 'live32', 'logical147', 'resource7', 'asstrided16',
           'cat4', 'metadata10', 'generator131', 'public_f64_logical192',
-          'f64_48', 'half47', 'half_logical264', 'half_transactions12', 'numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg')
-SOURCE = 'e0c8e0a3c3ee16d11cad8af6be1b52bd56295581e74bdcc65131f71a57540025'
-IMAGE = '3ee1fae0e9d20d10dfd2645a3575d23357bcaca0dae03e5f0ff6bf1d4b4197a5'
-SOURCE_MANIFEST = '32d826cfaaaaca910c7e2b209d977dd705a314f64267cfd0808f01f08d3865d1'
+          'f64_48', 'half47', 'half_logical264', 'half_transactions12', 'numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div')
+SOURCE = 'f534c77069abc15ba15879d44492aacbc5f3709f6a861a0f0b9e0e365232fca1'
+IMAGE = 'db935c74bf0a2b359038c7be56f5a5721af8f0c2d757a2330527bd751861ae86'
+SOURCE_MANIFEST = '15337cd10313c9cd485e0c1db70b6d6da46d2cd4afa21053db9eb7f86d57301e'
 NUMERIC_CASES = '272c9b4fbde339481c32f2ed071dd8c60c9c3b17732e71e2178d973914c79609'
 NUMERIC_PROOF = dict(cases=485, native_sessions=496, frames=11244, assertions=42645,
     owner_snapshots=3615, mapping_snapshots=10, additional_packet_controls=56,
@@ -34,24 +34,47 @@ BF16_PROOF = dict(cases=280, native_sessions=280, frames=6088, assertions=23096,
     native_executed_by_qualifier=False, Torch_executed_by_qualifier=False,
     host_expected_values_computed=False, full_project_status='HOLD')
 HALF_MUL_CASES = 'd93e12ad6d96b3c0ec77ceb63986711f0105fc2ff9c9b696572ae0a7bd7576a5'
-HALF_MUL_PROOF = dict(cases=312, native_sessions=312, frames=9664, assertions=37168,
-    owner_snapshots=2868, bitwise_elements=1313606, physical_replay=True,
-    native_executed_by_qualifier=False, Torch_executed_by_qualifier=False,
-    host_expected_values_computed=False, full_project_status='HOLD',
-    cpu_capability='AVX2', requested_cpu_capability='avx2', torch_threads=1,
-    original_refusal_successors=[
-        'half-binary-left-5-0-3', 'half-binary-right-5-0-3',
-        'half-binary-left-5-1-3', 'half-binary-right-5-1-3',
-        'half-binary-left-5-2-3', 'half-binary-right-5-2-3',
-        'half-binary-left-5-4-3', 'half-binary-right-5-4-3',
-        'half-binary-left-5-5-3', 'half-binary-left-5-6-3', 'half-binary-right-5-6-3',
-        'half-binary-left-6-0-3', 'half-binary-right-6-0-3',
-        'half-binary-left-6-1-3', 'half-binary-right-6-1-3',
-        'half-binary-left-6-2-3', 'half-binary-right-6-2-3',
-        'half-binary-left-6-4-3', 'half-binary-right-6-4-3',
-        'half-binary-left-6-5-3', 'half-binary-right-6-5-3', 'half-binary-left-6-6-3'],
-    replaced_arithmetic_refusals=['promotion-5-5-3:operation-1', 'promotion-5-5-3:operation-2',
-                                 'promotion-6-6-3:operation-1', 'promotion-6-6-3:operation-2'])
+HALF_MUL_PROOF = {'Torch_executed_by_qualifier': False,
+ 'assertions': 37314,
+ 'bitwise_elements': 1313608,
+ 'cases': 312,
+ 'cpu_capability': 'AVX2',
+ 'frames': 9696,
+ 'full_project_status': 'HOLD',
+ 'host_expected_values_computed': False,
+ 'native_executed_by_qualifier': False,
+ 'native_sessions': 312,
+ 'original_refusal_successors': ['half-binary-left-5-0-3',
+                                 'half-binary-right-5-0-3',
+                                 'half-binary-left-5-1-3',
+                                 'half-binary-right-5-1-3',
+                                 'half-binary-left-5-2-3',
+                                 'half-binary-right-5-2-3',
+                                 'half-binary-left-5-4-3',
+                                 'half-binary-right-5-4-3',
+                                 'half-binary-left-5-5-3',
+                                 'half-binary-left-5-6-3',
+                                 'half-binary-right-5-6-3',
+                                 'half-binary-left-6-0-3',
+                                 'half-binary-right-6-0-3',
+                                 'half-binary-left-6-1-3',
+                                 'half-binary-right-6-1-3',
+                                 'half-binary-left-6-2-3',
+                                 'half-binary-right-6-2-3',
+                                 'half-binary-left-6-4-3',
+                                 'half-binary-right-6-4-3',
+                                 'half-binary-left-6-5-3',
+                                 'half-binary-right-6-5-3',
+                                 'half-binary-left-6-6-3'],
+ 'owner_snapshots': 2878,
+ 'physical_replay': True,
+ 'replaced_arithmetic_refusals': ['promotion-5-5-3:operation-1',
+                                  'promotion-5-5-3:operation-2',
+                                  'promotion-6-6-3:operation-1',
+                                  'promotion-6-6-3:operation-2'],
+ 'replaced_division_refusals': ['promotion-5-5-3', 'promotion-6-6-3'],
+ 'requested_cpu_capability': 'avx2',
+ 'torch_threads': 1}
 HALF_NEG_CASES = 'cb177901644162f6f127fd4aa6e4dfe0665f7c708d91d5afdd593b52fcd2897c'
 HALF_NEG_PROOF = dict(cases=371, native_sessions=371, frames=11377, assertions=37744,
     owner_snapshots=2717, bitwise_elements=272444, mapping_reads=4,
@@ -69,40 +92,132 @@ WIDE_NEG_PROOF = dict(cases=405, native_sessions=405, frames=10484, assertions=3
     cpu_capability='AVX2', requested_cpu_capability='avx2', torch_threads=1,
     original_refusal_successors=['unsupported-F64-neg'])
 HALF_ADDSUB_CASES = '07fee181f5b4ea4eff68ccb98c15fbfaf1b81e4b39f0573b21489681443aeea8'
-HALF_ADDSUB_PROOF = dict(cases=1006, native_sessions=1006, frames=31468, assertions=119842,
-    owner_snapshots=9166, bitwise_elements=2899312, mapping_reads=12,
-    actual_allocation_refusals=4, identical_request_recoveries=4, protocol_controls=70,
-    physical_replay=True, native_executed_by_qualifier=False, Torch_executed_by_qualifier=False,
-    host_expected_values_computed=False, full_project_status='HOLD',
-    cpu_capability='AVX2', requested_cpu_capability='avx2', torch_threads=1,
-    original1004_case_sha256='553e1a15e63bc66a60faf1276e827410165c9ed8ff0b05d6fb013421930cc6d8',
-    original1004_cases_unchanged=True,
-    original_fe_successors=['same-frame-half-FE-binary-5', 'same-frame-half-FE-binary-6'],
-    original_refusal_successors=[
-        'half-binary-left-5-0-1', 'half-binary-right-5-0-1',
-        'half-binary-left-5-0-2', 'half-binary-right-5-0-2',
-        'half-binary-left-5-1-1', 'half-binary-right-5-1-1',
-        'half-binary-left-5-2-1', 'half-binary-right-5-2-1',
-        'half-binary-left-5-2-2', 'half-binary-right-5-2-2',
-        'half-binary-left-5-4-1', 'half-binary-right-5-4-1',
-        'half-binary-left-5-4-2', 'half-binary-right-5-4-2',
-        'half-binary-left-5-5-1', 'half-binary-left-5-5-2',
-        'half-binary-left-5-6-1', 'half-binary-right-5-6-1',
-        'half-binary-left-5-6-2', 'half-binary-right-5-6-2',
-        'half-binary-left-6-0-1', 'half-binary-right-6-0-1',
-        'half-binary-left-6-0-2', 'half-binary-right-6-0-2',
-        'half-binary-left-6-1-1', 'half-binary-right-6-1-1',
-        'half-binary-left-6-2-1', 'half-binary-right-6-2-1',
-        'half-binary-left-6-2-2', 'half-binary-right-6-2-2',
-        'half-binary-left-6-4-1', 'half-binary-right-6-4-1',
-        'half-binary-left-6-4-2', 'half-binary-right-6-4-2',
-        'half-binary-left-6-5-1', 'half-binary-right-6-5-1',
-        'half-binary-left-6-5-2', 'half-binary-right-6-5-2',
-        'half-binary-left-6-6-1', 'half-binary-left-6-6-2'],
-    original_bool_subtraction_refusals=['half-binary-left-5-1-2', 'half-binary-right-5-1-2',
-                                       'half-binary-left-6-1-2', 'half-binary-right-6-1-2'],
-    multiplication_refusal_successors=['promotion-5-5-3:operation-1', 'promotion-5-5-3:operation-2',
-                                     'promotion-6-6-3:operation-1', 'promotion-6-6-3:operation-2'])
+HALF_ADDSUB_PROOF = {'Torch_executed_by_qualifier': False,
+ 'actual_allocation_refusals': 4,
+ 'assertions': 120134,
+ 'bitwise_elements': 2899316,
+ 'cases': 1006,
+ 'cpu_capability': 'AVX2',
+ 'frames': 31532,
+ 'full_project_status': 'HOLD',
+ 'host_expected_values_computed': False,
+ 'identical_request_recoveries': 4,
+ 'mapping_reads': 12,
+ 'multiplication_refusal_successors': ['promotion-5-5-3:operation-1',
+                                       'promotion-5-5-3:operation-2',
+                                       'promotion-6-6-3:operation-1',
+                                       'promotion-6-6-3:operation-2'],
+ 'native_executed_by_qualifier': False,
+ 'native_sessions': 1006,
+ 'original1004_case_sha256': '553e1a15e63bc66a60faf1276e827410165c9ed8ff0b05d6fb013421930cc6d8',
+ 'original1004_cases_unchanged': True,
+ 'original_bool_subtraction_refusals': ['half-binary-left-5-1-2',
+                                        'half-binary-right-5-1-2',
+                                        'half-binary-left-6-1-2',
+                                        'half-binary-right-6-1-2'],
+ 'original_fe_successors': ['same-frame-half-FE-binary-5', 'same-frame-half-FE-binary-6'],
+ 'original_refusal_successors': ['half-binary-left-5-0-1',
+                                 'half-binary-right-5-0-1',
+                                 'half-binary-left-5-0-2',
+                                 'half-binary-right-5-0-2',
+                                 'half-binary-left-5-1-1',
+                                 'half-binary-right-5-1-1',
+                                 'half-binary-left-5-2-1',
+                                 'half-binary-right-5-2-1',
+                                 'half-binary-left-5-2-2',
+                                 'half-binary-right-5-2-2',
+                                 'half-binary-left-5-4-1',
+                                 'half-binary-right-5-4-1',
+                                 'half-binary-left-5-4-2',
+                                 'half-binary-right-5-4-2',
+                                 'half-binary-left-5-5-1',
+                                 'half-binary-left-5-5-2',
+                                 'half-binary-left-5-6-1',
+                                 'half-binary-right-5-6-1',
+                                 'half-binary-left-5-6-2',
+                                 'half-binary-right-5-6-2',
+                                 'half-binary-left-6-0-1',
+                                 'half-binary-right-6-0-1',
+                                 'half-binary-left-6-0-2',
+                                 'half-binary-right-6-0-2',
+                                 'half-binary-left-6-1-1',
+                                 'half-binary-right-6-1-1',
+                                 'half-binary-left-6-2-1',
+                                 'half-binary-right-6-2-1',
+                                 'half-binary-left-6-2-2',
+                                 'half-binary-right-6-2-2',
+                                 'half-binary-left-6-4-1',
+                                 'half-binary-right-6-4-1',
+                                 'half-binary-left-6-4-2',
+                                 'half-binary-right-6-4-2',
+                                 'half-binary-left-6-5-1',
+                                 'half-binary-right-6-5-1',
+                                 'half-binary-left-6-5-2',
+                                 'half-binary-right-6-5-2',
+                                 'half-binary-left-6-6-1',
+                                 'half-binary-left-6-6-2'],
+ 'owner_snapshots': 9186,
+ 'physical_replay': True,
+ 'protocol_controls': 70,
+ 'replaced_division_refusals': ['mul-control-promotion-5-5-3:operation-1',
+                                'mul-control-promotion-5-5-3:operation-2',
+                                'mul-control-promotion-6-6-3:operation-1',
+                                'mul-control-promotion-6-6-3:operation-2'],
+ 'requested_cpu_capability': 'avx2',
+ 'torch_threads': 1}
+HALF_DIV_CASES = 'f9499ec57933edbd5344fe462b588ec433beba831b827754f969d6a774eda959'
+HALF_DIV_PROOF = {'Torch_executed_by_qualifier': False,
+ 'actual_allocation_refusals': 2,
+ 'assertions': 144654,
+ 'bitwise_elements': 2250592,
+ 'cases': 1196,
+ 'cpu_capability': 'AVX2',
+ 'frames': 38348,
+ 'full_project_status': 'HOLD',
+ 'group_counts': {'all_words': 32,
+                  'broadcast_error': 24,
+                  'layout': 180,
+                  'legacy_division': 22,
+                  'paired_nan': 192,
+                  'promotion': 160,
+                  'raw_nan_layout': 8,
+                  'same_handle': 6,
+                  'scalar_precision': 144,
+                  'special': 144,
+                  'tail': 284},
+ 'host_expected_values_computed': False,
+ 'identical_request_recoveries': 2,
+ 'mapping_reads': 4,
+ 'native_executed_by_qualifier': False,
+ 'native_sessions': 1196,
+ 'original_refusal_successors': ['half-binary-left-5-0-4',
+                                 'half-binary-right-5-0-4',
+                                 'half-binary-left-5-1-4',
+                                 'half-binary-right-5-1-4',
+                                 'half-binary-left-5-2-4',
+                                 'half-binary-right-5-2-4',
+                                 'half-binary-left-5-4-4',
+                                 'half-binary-right-5-4-4',
+                                 'half-binary-left-5-5-4',
+                                 'half-binary-left-5-6-4',
+                                 'half-binary-right-5-6-4',
+                                 'half-binary-left-6-0-4',
+                                 'half-binary-right-6-0-4',
+                                 'half-binary-left-6-1-4',
+                                 'half-binary-right-6-1-4',
+                                 'half-binary-left-6-2-4',
+                                 'half-binary-right-6-2-4',
+                                 'half-binary-left-6-4-4',
+                                 'half-binary-right-6-4-4',
+                                 'half-binary-left-6-5-4',
+                                 'half-binary-right-6-5-4',
+                                 'half-binary-left-6-6-4'],
+ 'owner_snapshots': 10816,
+ 'physical_replay': True,
+ 'prior_unrecovered_native769_evidence_used': False,
+ 'protocol_controls': 32,
+ 'requested_cpu_capability': 'avx2',
+ 'torch_threads': 1}
 TOOLCHAINS = ('hepta-compiler', 'hepta-profile-sources', 'hepta-expanded',
               'hepta-capacity-review', 'hepta-modules-sources', 'hepta-modules-native',
               'hepta-owned-modules', 'hepta-owned-session-tools', 'hepta-stack-budget',
@@ -111,10 +226,12 @@ REPOSITORY_PATHS = (
     '.github/workflows/current-runtime.yml', 'Makefile', 'tools/seal_current_ci_evidence.py',
     'tools/ci_artifact_transport.py',
     'validation/current-runtime767/ci-review.json',
+    'validation/current-runtime771/admission-review.json',
+    'docs/native-half-division.md',
     'tools/current_runtime', 'tools/differentiable_view_recovered_r3/profile.json',
     'tools/stack_budget/inspect_stack.py',
     'validation/view-reshape-r4-native76/archive-location.json',
-    'build/pytorch-install.json', 'tests', 'tests/numeric_predicates', 'tests/bf16_copy', 'tests/half_mul', 'tests/half_neg', 'tests/half_addsub', 'tests/wide_neg', 'compatibility',
+    'build/pytorch-install.json', 'tests', 'tests/numeric_predicates', 'tests/bf16_copy', 'tests/half_mul', 'tests/half_neg', 'tests/half_addsub', 'tests/wide_neg', 'tests/half_div', 'compatibility',
     'continuation/20261117/evidence',
     'continuation/20261117/source-packages/sum-bool-source-01/hia',
     'validation/sum-bool27-reference', 'validation/current-runtime-references',
@@ -127,7 +244,9 @@ REPOSITORY_PATHS = (
     'validation/public-f64-logical192-reference',
     'validation/current-f64-48-source', 'validation/current-f64-48-reference',
     'validation/current-half47-source', 'validation/current-half47-reference',
-    'validation/current-runtime767/qualification-plan.json',
+    'validation/current-runtime771/qualification-plan.json',
+    'validation/current-runtime771/retirement.json',
+    'validation/current-runtime771/native-review.json',
     'validation/half-logical264-reference',
 )
 REFERENCE_INTERPRETER_PACKAGES = (
@@ -187,6 +306,13 @@ REQUIRED_OUTPUTS += (
     'review/half_addsub-execution/intent.json', 'review/half_addsub-execution/runner.json',
     'review/half_addsub-execution/runner.stdout', 'review/half_addsub-execution/runner.stderr',
 )
+REQUIRED_OUTPUTS += (
+    'review/half_div/physical-qualification.json', 'review/references/half-div1196/report.json',
+    'review/references/half-div1196-execution/process.json', 'review/references/half-div1196-execution/runner.json',
+    'review/references/half-div1196-execution/runner.stdout', 'review/references/half-div1196-execution/runner.stderr',
+    'review/half_div-execution/intent.json', 'review/half_div-execution/runner.json',
+    'review/half_div-execution/runner.stdout', 'review/half_div-execution/runner.stderr',
+)
 INPUT_REPORTS = ('build/build.json', 'review/qualification.json',) + tuple(
     'review/' + name + '/report.json' for name in GROUPS) + (
         'review/base270/current-adapter.json', 'review/base270/cold-build-admission.json',
@@ -231,6 +357,12 @@ INPUT_REPORTS += ('review/half_addsub/physical-qualification.json',
                  'review/references/half-addsub1006-execution/runner.json',
                  'review/half_addsub-execution/intent.json',
                  'review/half_addsub-execution/runner.json')
+INPUT_REPORTS += ('review/half_div/physical-qualification.json',
+                 'review/references/half-div1196/report.json',
+                 'review/references/half-div1196-execution/process.json',
+                 'review/references/half-div1196-execution/runner.json',
+                 'review/half_div-execution/intent.json',
+                 'review/half_div-execution/runner.json')
 INPUT_TABLES = ('checked_inputs', 'inputs', 'files', 'source_custody')
 
 
@@ -500,23 +632,28 @@ def live_reference_custody(repo, current, group):
     It performs no Tensor calculation, native execution or case admission.
     The reference digest comes from this run's physical report, never a prior run.
     """
-    if group not in ('numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg'):
+    if group not in ('numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div'):
         raise ValueError('unknown mandatory live-reference group')
     numeric = group == 'numeric_predicates'
     multiplication = group == 'half_mul'
     negation = group in ('half_neg', 'wide_neg')
     addition = group == 'half_addsub'
+    division = group == 'half_div'
     shared_reference = {'half_mul': 'half-mul312', 'half_neg': 'half-neg371',
-                        'half_addsub': 'half-addsub1006', 'wide_neg': 'wide-neg405'}.get(group)
+                        'half_addsub': 'half-addsub1006', 'wide_neg': 'wide-neg405',
+                        'half_div': 'half-div1196'}.get(group)
     namespace = {'numeric_predicates': 'numeric-predicates', 'bf16_copy': 'bf16-copy',
-                 'half_mul': 'half-mul', 'half_neg': 'half-neg', 'half_addsub': 'half-addsub', 'wide_neg': 'wide-neg'}[group]
+                 'half_mul': 'half-mul', 'half_neg': 'half-neg', 'half_addsub': 'half-addsub',
+                 'wide_neg': 'wide-neg', 'half_div': 'half-div'}[group]
     reference_status = 'OBSERVED_' + group.upper()
     physical_status = 'PASS_PHYSICAL_' + group.upper()
     template = {'numeric_predicates': NUMERIC_PROOF, 'bf16_copy': BF16_PROOF,
-                'half_mul': HALF_MUL_PROOF, 'half_neg': HALF_NEG_PROOF, 'half_addsub': HALF_ADDSUB_PROOF, 'wide_neg': WIDE_NEG_PROOF}[group]
+                'half_mul': HALF_MUL_PROOF, 'half_neg': HALF_NEG_PROOF, 'half_addsub': HALF_ADDSUB_PROOF,
+                'wide_neg': WIDE_NEG_PROOF, 'half_div': HALF_DIV_PROOF}[group]
     cases = template['cases']
     case_sha = {'numeric_predicates': NUMERIC_CASES, 'bf16_copy': BF16_CASES,
-                'half_mul': HALF_MUL_CASES, 'half_neg': HALF_NEG_CASES, 'half_addsub': HALF_ADDSUB_CASES, 'wide_neg': WIDE_NEG_CASES}[group]
+                'half_mul': HALF_MUL_CASES, 'half_neg': HALF_NEG_CASES, 'half_addsub': HALF_ADDSUB_CASES,
+                'wide_neg': WIDE_NEG_CASES, 'half_div': HALF_DIV_CASES}[group]
     bindings = {}
 
     def need(condition, message):
@@ -544,13 +681,13 @@ def live_reference_custody(repo, current, group):
     qualification_path = current / 'review/qualification.json'
     qualification = document(qualification_path)
     check_fields(qualification, dict(schema='heptatorch.current-runtime.qualification.v1',
-        required_suites=list(GROUPS), required_cases_total=4250, functions=767, units=15,
-        source_sha256=SOURCE, native_sha256=IMAGE), 'exact current767 twenty-five-suite inventory and image')
+        required_suites=list(GROUPS), required_cases_total=5446, functions=771, units=15,
+        source_sha256=SOURCE, native_sha256=IMAGE), 'exact current771 twenty-six-suite inventory and image')
     manifest_raw = bind(repo / 'tools/current_runtime/source/manifest.json', SOURCE_MANIFEST)
     need(bind(current / 'build/manifest.json', SOURCE_MANIFEST) == manifest_raw,
          'the actual cold build used the final complete source manifest')
     manifest = json.loads(manifest_raw)
-    need(manifest['runtime']['sha256'] == SOURCE and manifest['runtime']['functions'] == 767
+    need(manifest['runtime']['sha256'] == SOURCE and manifest['runtime']['functions'] == 771
          and manifest['expected_native_sha256'] == IMAGE and len(manifest['units']) == 15,
          'final complete source and image pins')
     bind(current / 'build/runtime.hepta', SOURCE)
@@ -558,7 +695,7 @@ def live_reference_custody(repo, current, group):
     build_raw = bind(current / 'build/build.json')
     build_sha = digest(build_raw)
     check_fields(json.loads(build_raw), dict(status='PASS_NATIVE_BUILD_ONLY', source_sha256=SOURCE,
-        native_sha256=IMAGE, manifest_sha256=SOURCE_MANIFEST, functions=767, units_planned=15),
+        native_sha256=IMAGE, manifest_sha256=SOURCE_MANIFEST, functions=771, units_planned=15),
         'actual final cold build identity')
     need(qualification['actual_build_sha256'] == build_sha, 'qualifier binds this actual cold build')
     rows = [row for row in qualification['suites'] if row['name'] == group]
@@ -574,7 +711,7 @@ def live_reference_custody(repo, current, group):
          bytes=len(native_raw), sha256=digest(native_raw)), 'unchanged original native report binding')
     native_extras = dict(compiler_executed=False, original_reference_modified=False,
                         mapping_reads=10) if numeric else dict(full_project_status='HOLD')
-    if negation:
+    if negation or division:
         native_extras['mapping_reads'] = 4
     if addition:
         native_extras['mapping_reads'] = 12
@@ -637,6 +774,8 @@ def live_reference_custody(repo, current, group):
              'all original1004 observer bytes and the two exact FE successor requests are retained')
     successor_bindings = {}
     successor_evidence = None
+    division_bindings = {}
+    division_evidence = None
     if multiplication:
         successor_evidence, successor_bindings = live_reference_custody(repo, current, 'half_addsub')
         successor_sha = successor_evidence['reference_sha256']
@@ -653,6 +792,14 @@ def live_reference_custody(repo, current, group):
         _, observer_proof = observer.restore_mul_runner(bind(repo / observer.PATH), bind)
         need(qualification['half_mul_observer_transition'] == observer_proof,
              'the complete original312 observer inverse and unchanged371 source proof are retained')
+    if multiplication or addition:
+        division_evidence, division_bindings = live_reference_custody(repo, current, 'half_div')
+        division_sha = division_evidence['reference_sha256']
+        need(native['division_reference_directory'] == str(current / 'review/references/half-div1196')
+             and native['division_reference_process_directory'] == str(current / 'review/references/half-div1196-execution')
+             and native['division_reference_sha256'] == suite['division_reference_sha256'] == division_sha,
+             'all six changed arithmetic controls bind the same actual1196 Torch reference')
+        expected_proof['division_reference_sha256'] = division_sha
     need(set(proof) == set(expected_proof), 'complete fixed predicate physical-proof fields')
     check_fields(proof, expected_proof, 'exact original physical predicate proof and current reference')
     need(suite['physical_qualification'] == dict(path=group + '/physical-qualification.json',
@@ -707,7 +854,7 @@ def live_reference_custody(repo, current, group):
         need(metadata == dict(path=spelling, **bindings[spelling]), 'reference input bytes and mode unchanged')
     need(len(observed['rows']) == cases, 'all original independent reference rows')
     for index, row in enumerate(observed['rows']):
-        if multiplication or addition:
+        if multiplication or addition or division:
             original_flags = (row.get('inputs_unchanged') is True and row.get('rng_unchanged') is True
                 and row.get('accepted') is (not row['spec'].get('expected_error', False))
                 and len(row.get('inputs', [])) == 2)
@@ -778,6 +925,76 @@ def live_reference_custody(repo, current, group):
         for path in (current / 'review/f64_48/report.json', current / 'review/f64_48/physical-qualification.json'):
             need(qualification['checked_inputs'].get(str(path)) == bindings[str(path)],
                  'both original F64 reports are physically bound by the current qualifier')
+    division_observer_proofs = None
+    if division:
+        half_path = current / 'review/half47/report.json'
+        half_raw = bind(half_path)
+        half_report = json.loads(half_raw)
+        half_proof = document(current / 'review/half47/physical-qualification.json')
+        entry_successors = [row['details']['division_successor'] for row in half_report['entry_groups']
+                            if 'division_successor' in row.get('details', {})]
+        need(len(entry_successors) == 1, 'one complete original239 Half entry division successor')
+        entry = entry_successors[0]
+        check_fields(entry, dict(schema='heptatorch.half47.div22-successor.v1',
+            reference_directory=str(reference), reference_execution=str(execution),
+            reference_sha256=reference_sha, reference_process_sha256=digest(bind(execution / 'process.json')),
+            case_sha256=HALF_DIV_CASES, reference_cases=1196,
+            original_request_count=239, predecessor_refusals=173, retained_refusals=151,
+            accepted_successors=22, existing_multiplication_successors=22,
+            existing_negation_successors=2, existing_addsub_successors=42,
+            labels=HALF_DIV_PROOF['original_refusal_successors'],
+            all_previous_reject_closures_reused_unchanged=True,
+            original_entry_code_object_preserved=True, actual_Torch_reference_verified=True,
+            host_expected_values_computed=False, original_frozen_recipe_modified=False,
+            every_original_snapshot_field_checked=True, input_all84words_unchanged_checked=True,
+            original_same_handle_relations_checked=True, prior_unrecovered_native769_evidence_used=False),
+            'all original239 Half requests retain the exact22 division successors and one actual1196 reference')
+        check_fields(half_proof, dict(status='PASS_PHYSICAL_HALF47', cases=47,
+            actual_report_sha256=digest(half_raw), source_sha256=SOURCE, native_sha256=IMAGE,
+            actual_build_sha256=build_sha, original_entry_requests=239, original_refusals=239,
+            retained_refusals=151, accepted_multiplication_successors=22,
+            accepted_negation_successors=2, accepted_addsub_successors=42,
+            accepted_division_successors=22, retained_private3_division_protocol_refusals=4,
+            original_OOM_controls=4, native_child_EOFs=94,
+            original_recipe_code_preserved=True, all_physical_inputs_unchanged=True,
+            native_executed_by_qualifier=False, Torch_executed_by_qualifier=False),
+            'all47 original Half physical cases retain their controls and exactly22 division successors')
+        physical_successors = [row['original_details']['division_successor'] for row in half_proof['children']
+                               if 'division_successor' in row.get('original_details', {})]
+        need(physical_successors == [entry],
+             'the complete original Half division successor was independently replayed from physical frames')
+        observer_path = repo / 'tools/current_runtime/half_div_observer_transition.py'
+        bind(observer_path)
+        observer_spec = importlib.util.spec_from_file_location('sealed_half_div_observer_inverse', observer_path)
+        observer = importlib.util.module_from_spec(observer_spec)
+        observer_spec.loader.exec_module(observer)
+        division_observer_proofs = {}
+        for arithmetic, expected, inverse_key in (
+                ('half_mul', HALF_MUL_PROOF, 'half_mul_observer_transition'),
+                ('half_addsub', HALF_ADDSUB_PROOF, 'half_addsub_observer_transition')):
+            arithmetic_native_path = current / 'review' / arithmetic / 'report.json'
+            arithmetic_native = document(arithmetic_native_path)
+            arithmetic_proof = document(current / 'review' / arithmetic / 'physical-qualification.json')
+            check_fields(arithmetic_native, dict(status='PASS', group=arithmetic,
+                cases=expected['cases'], source_sha256=SOURCE, native_sha256=IMAGE,
+                actual_build_sha256=build_sha, division_reference_directory=str(reference),
+                division_reference_process_directory=str(execution), division_reference_sha256=reference_sha,
+                native_executed=True, Torch_executed=True, all_inputs_unchanged=True),
+                'both original arithmetic observers consume this same actual1196 reference')
+            check_fields(arithmetic_proof, dict(division_reference_sha256=reference_sha,
+                replaced_division_refusals=expected['replaced_division_refusals'],
+                cases=expected['cases'], physical_replay=True,
+                native_executed_by_qualifier=False, Torch_executed_by_qualifier=False),
+                'all six original arithmetic division refusals have actual reference and physical successors')
+            relative_runner = 'tests/' + arithmetic + '/run.py'
+            _, observer_proof = observer.restore_runner(bind(repo / relative_runner), relative_runner, bind)
+            need(qualification[inverse_key]['native_division_observer_inverse'] == observer_proof,
+                 'the whole original arithmetic runner is retained behind the exact division observer inverse')
+            division_observer_proofs[arithmetic] = observer_proof
+        for spelling, metadata in bindings.items():
+            if spelling not in custody_outputs:
+                need(qualification['checked_inputs'].get(spelling) == metadata,
+                     'the qualifier bound every original shared1196 consumer and observer input: ' + spelling)
     role = dict(role='THIS_CI_' + group.upper() + '_TORCH_REFERENCE_INTERPRETER',
         requested_path=argv[0], original_path=str(python), **bindings[str(python)],
         report_member='current-runtime/' + (reference / 'report.json').relative_to(current).as_posix(),
@@ -800,6 +1017,17 @@ def live_reference_custody(repo, current, group):
             addsub_physical_proof_sha256=successor_evidence['physical_proof_sha256'],
             complete_shared_addsub_reference_custody_bound=True,
             multiplication_observer_inverse=observer_proof)
+    if division_evidence is not None:
+        for spelling, metadata in division_bindings.items():
+            need(spelling not in bindings or bindings[spelling] == metadata,
+                 'the shared division evidence retains one original byte identity')
+            bindings[spelling] = metadata
+        result.update(division_reference_sha256=division_evidence['reference_sha256'],
+            division_physical_proof_sha256=division_evidence['physical_proof_sha256'],
+            complete_shared_division_reference_custody_bound=True)
+    if division_observer_proofs is not None:
+        result.update(division_observer_inverses=division_observer_proofs,
+            complete_half47_and_arithmetic_successors_share_this_reference=True)
     return result, bindings
 
 
@@ -825,6 +1053,10 @@ def half_addsub_custody(repo, current):
 
 def wide_neg_custody(repo, current):
     return live_reference_custody(repo, current, 'wide_neg')
+
+
+def half_div_custody(repo, current):
+    return live_reference_custody(repo, current, 'half_div')
 
 
 def main(argv=None):
@@ -856,10 +1088,11 @@ def main(argv=None):
         scope='File-byte and original POSIX-mode custody only; original numerical reports retain their statuses.',
         required_output_paths=list(REQUIRED_OUTPUTS), required_repository_paths=list(REPOSITORY_PATHS),
         required_toolchain_directories=list(TOOLCHAINS),
-        required_suites=list(GROUPS), required_cases_total=4250,
+        required_suites=list(GROUPS), required_cases_total=5446,
         reference_interpreters=[], execution_interpreter=None,
         reference_process_executables=[], numeric_predicates_evidence=None,
-        bf16_copy_evidence=None, half_mul_evidence=None, half_neg_evidence=None, half_addsub_evidence=None, wide_neg_evidence=None, missing=[], errors=[])
+        bf16_copy_evidence=None, half_mul_evidence=None, half_neg_evidence=None, half_addsub_evidence=None,
+        wide_neg_evidence=None, half_div_evidence=None, missing=[], errors=[])
     selected, declared, parsed_lists, input_declarations = {}, {}, {}, []
     report_declared_paths = set()
     roots = [(current, 'current-runtime'), (repo, 'repository')] + [
@@ -942,7 +1175,7 @@ def main(argv=None):
                     table='reference_executable_custody', source_path=spelling, expected=metadata))
         except BaseException as error:
             problem('generator-reference-executable', current / 'review/generator131/report.json', error)
-        for group in ('numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg'):
+        for group in ('numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div'):
             try:
                 evidence, bindings = live_reference_custody(repo, current, group)
                 role = evidence['reference_interpreter']
@@ -1000,9 +1233,9 @@ def main(argv=None):
                 report['original_required_cases'] = document.get('required_cases_total')
                 if (document.get('schema') != 'heptatorch.current-runtime.qualification.v1'
                         or document.get('required_suites') != list(GROUPS)
-                        or document.get('required_cases_total') != 4250):
+                        or document.get('required_cases_total') != 5446):
                     problem('qualification-inventory', path,
-                            ValueError('current twenty-five-group qualification input inventory differs'))
+                            ValueError('current twenty-six-group qualification input inventory differs'))
             if relative == 'review/metadata10/report.json':
                 worker = document.get('worker_interpreter')
                 if worker is not None:
@@ -1063,6 +1296,7 @@ def main(argv=None):
             bf16_copy_evidence=report['bf16_copy_evidence'], half_mul_evidence=report['half_mul_evidence'],
             half_neg_evidence=report['half_neg_evidence'], half_addsub_evidence=report['half_addsub_evidence'],
             wide_neg_evidence=report['wide_neg_evidence'],
+            half_div_evidence=report['half_div_evidence'],
             external_path_mapping=[dict(original_root=str(root), prefix=alias) for root, alias in roots]
                 + [dict(original_file=str(path), member=name)
                    for path, name in sorted(external_executables.items(), key=lambda row: str(row[0]))])

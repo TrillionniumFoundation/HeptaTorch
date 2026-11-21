@@ -1,0 +1,149 @@
+{
+  "files": {
+    "tests/half_addsub/run.py": {
+      "edits": [
+        {
+          "after": "from numeric_predicates.run import Inputs\nimport current_runtime_half_div_controls as division_controls\n",
+          "before": "from numeric_predicates.run import Inputs\n",
+          "occurrences": 1
+        },
+        {
+          "after": "compare(n,row,division_reference)",
+          "before": "compare(n,row)",
+          "occurrences": 3
+        },
+        {
+          "after": "elements=controls=0;division_successors=[]",
+          "before": "elements=controls=0",
+          "occurrences": 1
+        },
+        {
+          "after": "            for operation in (0,4,5,(1<<64)-1):\n                if operation==4:\n                    elements+=division_controls.compare(n,row,left,right,division_reference,'half_addsub')\n                    division_successors.append(spec['name'])\n                else:\n                    refused,_,_,_=n.issue(n.wire.packet([(2,operation,left,right)]))\n                    n.check('remaining unimplemented Half arithmetic explicit refusal',refused,7)\n                controls+=1",
+          "before": "            for operation in (0,4,5,(1<<64)-1):\n                refused,_,_,_=n.issue(n.wire.packet([(2,operation,left,right)]))\n                n.check('remaining unimplemented Half arithmetic explicit refusal',refused,7);controls+=1",
+          "occurrences": 1
+        },
+        {
+          "after": "expected_error=spec.get('expected_error'),elements=elements,bitwise=True,controls=controls,allocation_control=allocation,\n        division_successors=division_successors)",
+          "before": "expected_error=spec.get('expected_error'),elements=elements,bitwise=True,controls=controls,allocation_control=allocation)",
+          "occurrences": 1
+        },
+        {
+          "after": "    fe_successors=[];division_successors=[]",
+          "before": "    fe_successors=[]",
+          "occurrences": 1
+        },
+        {
+          "after": "        mappings+=finish['mapping_reads'];protocol_controls+=observed['controls']\n        division_successors.extend(observed.get('division_successors',[]))",
+          "before": "        mappings+=finish['mapping_reads'];protocol_controls+=observed['controls']",
+          "occurrences": 1
+        },
+        {
+          "after": "    require(reference['report_sha256']==report['reference_sha256'],'exact independent original reference')\n    division_reference=division_controls.read_reference(ROOT,\n        Path(report['division_reference_directory']).resolve(strict=True),\n        Path(report['division_reference_process_directory']).resolve(strict=True),inputs)\n    require(division_reference['report_sha256']==report['division_reference_sha256'],\n        'same complete actual1196 reference for original division controls')",
+          "before": "    require(reference['report_sha256']==report['reference_sha256'],'exact independent original reference')",
+          "occurrences": 1
+        },
+        {
+          "after": "    require(division_successors==list(division_controls.LABELS['half_addsub']),\n        'all and only original division controls physically replayed against the shared reference')\n    inputs.recheck()\n    return dict(",
+          "before": "    inputs.recheck()\n    return dict(",
+          "occurrences": 1
+        },
+        {
+          "after": "        division_reference_sha256=division_reference['report_sha256'],\n        replaced_division_refusals=division_successors,\n        full_project_status='HOLD',host_expected_values_computed=False)",
+          "before": "        full_project_status='HOLD',host_expected_values_computed=False)",
+          "occurrences": 1
+        },
+        {
+          "after": "    parser.add_argument('--reference-execution',type=Path)\n    parser.add_argument('--half-div-reference-directory',type=Path,required=True)\n    parser.add_argument('--half-div-reference-execution',type=Path,required=True)",
+          "before": "    parser.add_argument('--reference-execution',type=Path)",
+          "occurrences": 1
+        },
+        {
+          "after": "        division_directory=args.half_div_reference_directory.resolve(strict=True)\n        division_execution=args.half_div_reference_execution.resolve(strict=True)\n        division_reference=division_controls.read_reference(ROOT,division_directory,division_execution,inputs)\n        require(Path(args.torch_python).resolve(strict=True)==Path(division_reference['report']['actual_process']['python']['path']),\n            'same pinned actual interpreter for original arithmetic and division controls')\n        report.update(division_reference_directory=str(division_directory),division_reference_process_directory=str(division_execution),\n            division_reference_sha256=division_reference['report_sha256'])\n        wire=load_wire(ROOT,inputs.bind)\n        for row in reference['report']['rows']:",
+          "before": "        wire=load_wire(ROOT,inputs.bind)\n        for row in reference['report']['rows']:",
+          "occurrences": 1
+        }
+      ],
+      "parent_bytes": 31136,
+      "parent_sha256": "cac61c1022008be413d626d0a7456a35ce47ea2ecd390c2ea0a6c82c19e5777a",
+      "source_bytes": 33246,
+      "source_sha256": "eeb053e4f9e3d9526693ecb80149b370000fc5ecd43ee808e5fbf2b916e9ce75"
+    },
+    "tests/half_mul/run.py": {
+      "edits": [
+        {
+          "after": "from numeric_predicates.run import Inputs\nimport current_runtime_half_div_controls as division_controls\n",
+          "before": "from numeric_predicates.run import Inputs\n",
+          "occurrences": 1
+        },
+        {
+          "after": "compare(n,row,addsub_reference,division_reference)",
+          "before": "compare(n,row,addsub_reference)",
+          "occurrences": 3
+        },
+        {
+          "after": "elements=0;controls=0;addsub_successors=[];division_successors=[]",
+          "before": "elements=0;controls=0;addsub_successors=[]",
+          "occurrences": 1
+        },
+        {
+          "after": "                    addsub_successors.append(spec['name']+':operation-'+str(operation))\n                elif operation==4:\n                    elements+=division_controls.compare(n,row,left,right,division_reference,'half_mul')\n                    division_successors.append(spec['name'])\n                else:",
+          "before": "                    addsub_successors.append(spec['name']+':operation-'+str(operation))\n                else:",
+          "occurrences": 1
+        },
+        {
+          "after": "addsub_successors=addsub_successors,division_successors=division_successors)",
+          "before": "addsub_successors=addsub_successors)",
+          "occurrences": 1
+        },
+        {
+          "after": "wire=load_wire(ROOT,inputs.bind);frames=checks=owners=elements=0;addsub_successors=[];division_successors=[]",
+          "before": "wire=load_wire(ROOT,inputs.bind);frames=checks=owners=elements=0;addsub_successors=[]",
+          "occurrences": 1
+        },
+        {
+          "after": "        addsub_successors.extend(observed['addsub_successors'])\n        division_successors.extend(observed['division_successors'])",
+          "before": "        addsub_successors.extend(observed['addsub_successors'])",
+          "occurrences": 1
+        },
+        {
+          "after": "    require(reference['report_sha256']==report['reference_sha256'],'exact independent original reference')\n    division_reference=division_controls.read_reference(ROOT,\n        Path(report['division_reference_directory']).resolve(strict=True),\n        Path(report['division_reference_process_directory']).resolve(strict=True),inputs)\n    require(division_reference['report_sha256']==report['division_reference_sha256'],\n        'same complete actual1196 reference for original division controls')",
+          "before": "    require(reference['report_sha256']==report['reference_sha256'],'exact independent original reference')",
+          "occurrences": 1
+        },
+        {
+          "after": "    require(division_successors==list(division_controls.LABELS['half_mul']),\n        'all and only original division controls physically replayed against the shared reference')\n    inputs.recheck()\n    return dict(",
+          "before": "    inputs.recheck()\n    return dict(",
+          "occurrences": 1
+        },
+        {
+          "after": "        division_reference_sha256=division_reference['report_sha256'],\n        replaced_division_refusals=division_successors,\n        full_project_status='HOLD',host_expected_values_computed=False)",
+          "before": "        full_project_status='HOLD',host_expected_values_computed=False)",
+          "occurrences": 1
+        },
+        {
+          "after": "    parser.add_argument('--reference-execution',type=Path)\n    parser.add_argument('--half-div-reference-directory',type=Path,required=True)\n    parser.add_argument('--half-div-reference-execution',type=Path,required=True)",
+          "before": "    parser.add_argument('--reference-execution',type=Path)",
+          "occurrences": 1
+        },
+        {
+          "after": "        division_directory=args.half_div_reference_directory.resolve(strict=True)\n        division_execution=args.half_div_reference_execution.resolve(strict=True)\n        division_reference=division_controls.read_reference(ROOT,division_directory,division_execution,inputs)\n        require(Path(args.torch_python).resolve(strict=True)==Path(division_reference['report']['actual_process']['python']['path']),\n            'same pinned actual interpreter for original arithmetic and division controls')\n        report.update(division_reference_directory=str(division_directory),division_reference_process_directory=str(division_execution),\n            division_reference_sha256=division_reference['report_sha256'])\n        wire=load_wire(ROOT,inputs.bind)\n        for row in reference['report']['rows']:",
+          "before": "        wire=load_wire(ROOT,inputs.bind)\n        for row in reference['report']['rows']:",
+          "occurrences": 1
+        }
+      ],
+      "parent_bytes": 24413,
+      "parent_sha256": "051bf9fb08ac721079eecb339ac8462206b376fb5b634cfd9df3330750c0f4d1",
+      "source_bytes": 26457,
+      "source_sha256": "57ddd2bb858ff062e6a35633ec265a44f72a03de64f091beccdf078c35d146df"
+    }
+  },
+  "original_cases": {
+    "half_addsub": 1006,
+    "half_mul": 312
+  },
+  "replaced_refusals": {
+    "half_addsub": 4,
+    "half_mul": 2
+  },
+  "schema": "heptatorch.half-div-six-arithmetic-controls.observer-delta.v1"
+}

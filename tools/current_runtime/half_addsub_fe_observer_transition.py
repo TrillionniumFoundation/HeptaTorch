@@ -63,16 +63,27 @@ def restore_observers(bind):
         and delta['parent_commit']=='3fe56570dca9b755f0cceeb6fa5df78ffa531581'
         and set(delta['files'])==set(PATHS),'exact three successor observer files')
     source = bind(root/'tools/current_runtime/source/runtime.hepta')
+    div_path=Path(__file__).with_name('half_div_source_transition.py');bind(div_path)
+    spec=importlib.util.spec_from_file_location('fe_half_div_source_inverse',div_path)
+    division=importlib.util.module_from_spec(spec);spec.loader.exec_module(division)
+    previous_source,division_proof=division.restore_source(source,bind)
     wide_path = Path(__file__).with_name('wide_neg_source_transition.py')
     bind(wide_path)
     spec = importlib.util.spec_from_file_location('fe_wide_neg_source_inverse', wide_path)
     wide = importlib.util.module_from_spec(spec); spec.loader.exec_module(wide)
-    parent, wide_proof = wide.restore_source(source, bind)
+    parent, wide_proof = wide.restore_source(previous_source, bind)
     manifest = bind(root/'tools/current_runtime/source/manifest.json')
     require(sha(parent)==SOURCE and wide.PARENT_SOURCE==SOURCE
-        and sha(manifest)=='32d826cfaaaaca910c7e2b209d977dd705a314f64267cfd0808f01f08d3865d1',
-        'exact767 native source inverts to the complete765 FE predecessor')
-    parents={path:restore_file(bind(root/path),delta['files'][path]) for path in PATHS}
+        and sha(manifest)=='15337cd10313c9cd485e0c1db70b6d6da46d2cd4afa21053db9eb7f86d57301e',
+        'exact771 native source inverts through767 to the complete765 FE predecessor')
+    observer_path=Path(__file__).with_name('half_div_observer_transition.py');bind(observer_path)
+    spec=importlib.util.spec_from_file_location('fe_half_div_observer_inverse',observer_path)
+    observer=importlib.util.module_from_spec(spec);spec.loader.exec_module(observer)
+    parents={};observer_proof=None
+    for path in PATHS:
+        raw=bind(root/path)
+        if path=='tests/half_addsub/run.py':raw,observer_proof=observer.restore_runner(raw,path,bind)
+        parents[path]=restore_file(raw,delta['files'][path])
     return parents,dict(schema='heptatorch.half-addsub-fe1006.observer-inverse.v1',
         delta_sha256=DELTA,files={path:{key:value for key,value in delta['files'][path].items() if key!='edits'} for path in PATHS},
         parent_cases=1004,cases=1006,parent_case_sha256=OLD_CASES,case_sha256=CASES,
@@ -80,7 +91,8 @@ def restore_observers(bind):
         all1004_original_numerical_error_resource_and_lifetime_predicates_retained=True,
         exact_original_two_command_FE_packets_checked=True,
         real_reference_bits_complete_owner_and_rollback_required=True,
-        source_sha256=wide.SOURCE, parent_source_sha256=SOURCE, native_source_unchanged=False,
+        source_sha256=division.SOURCE, parent_source_sha256=SOURCE, native_source_unchanged=False,
         native_wide_neg_inverse=wide_proof, original_FE_native_bodies_unchanged=True,
+        native_division_source_inverse=division_proof,native_division_observer_inverse=observer_proof,
         manifest_sha256=sha(manifest), parent_manifest_sha256=MANIFEST,
         whole_source_inverse_exact=True,whole_round_trip_exact=True,runtime_qualification_transferred=False)

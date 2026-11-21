@@ -20,9 +20,9 @@ import types
 
 MUL_HELPER = '47557e7730d00c374864d2e2948a511e86b47ae653034adaa0f776445fc556ad'
 NEG_HELPER = '1d5a464ad7ff3ac56656cd361de2024ca77db3ead2e9da6687a043039a3a5b41'
-FE_OWNER_CONTRACT = '0577c50b7e41531b1a2d0756aec47e661f216604a13fc22979db730e7fc7b045'
-FE_TOMBSTONE_CONTRACT = '7f5e6843f3187d3b73e0b5e37faf2f6e83ddb77e30e0b31114d41adc2ba29c6b'
-FE_OWNER_READER = '46e7c2d2ec56d98713d4021d0e63943fb87d38413ca87742acf2e0c9605837eb'
+FE_OWNER_CONTRACT = '62261026bb58bee9d4dda9208eb3589703703e4db1335e1920767066aeb72e11'
+FE_TOMBSTONE_CONTRACT = '5b704b874281d9f353c25ad4ef34a41be2df99cf79d8848c3f82a99f6f78475f'
+FE_OWNER_READER = '3398d5600a1980b29a59bd5cb3d5154c87862c7736f9508e62af214fa34a63a3'
 WORDS = {0: (0x3f800000, 0x80000000), 1: (1, 0), 2: (1, 0),
          4: (0x3ff0000000000000, 0x8000000000000000),
          5: (0x3c00, 0x8000), 6: (0x3f80, 0x8000)}
@@ -80,6 +80,14 @@ class Successor:
         contract = json.loads(inputs.bind(contract_path, FE_OWNER_CONTRACT))
         source = inputs.bind(self.repository / 'tools/current_runtime/source/runtime.hepta',
                              contract['source_sha256'])
+        inverse_path = self.repository / 'tools/current_runtime/half_div_source_transition.py'
+        inputs.bind(inverse_path)
+        inverse_spec = importlib.util.spec_from_file_location('half_FE_division_source_inverse', inverse_path)
+        inverse = importlib.util.module_from_spec(inverse_spec); inverse_spec.loader.exec_module(inverse)
+        predecessor_source, division_source_proof = inverse.restore_source(source, inputs.bind)
+        require(division_source_proof['non_division_routes_unchanged'] is True
+                and division_source_proof['whole_round_trip_exact'] is True,
+                'complete native767 inverse preserves the original operation1 FE allocation path')
         require(contract['schema'] == 'heptatorch.half-addsub.exact-fe-allocation-path.v2'
                 and contract['successful_descriptor_allocations'] == 3
                 and contract['live_new_tensors'] == 2
@@ -91,7 +99,7 @@ class Successor:
                 'three allocations derive from the fixed native source, not observed-count adjustment')
         matches = list(re.finditer(rb'^fn ([A-Za-z_][A-Za-z0-9_]*)\(.*?^end\n', source, re.M | re.S))
         functions = {item[1].decode('ascii'): item[0] for item in matches}
-        require(len(functions) == len(matches) == 767, 'complete actual767 function census')
+        require(len(functions) == len(matches) == 771, 'complete actual771 function census')
         calls = {name: [item.decode('ascii') for item in re.findall(
                     rb'call\([^\n]*\)\s+\{"function":"([^"]+)"\}', raw)]
                  for name, raw in functions.items()}
@@ -142,8 +150,8 @@ class Successor:
         tombstone = json.loads(inputs.bind(tombstone_path, FE_TOMBSTONE_CONTRACT))
         owner_path = tests / 'current_runtime_half_fe_owner.py'
         owner_raw = inputs.bind(owner_path, FE_OWNER_READER)
-        require(tombstone['schema'] == 'heptatorch.current767-half-FE-owner-source-contract.v1'
-                and tombstone['source'] == dict(functions=767,
+        require(tombstone['schema'] == 'heptatorch.current771-half-FE-owner-source-contract.v1'
+                and tombstone['source'] == dict(functions=771,
                     path='tools/current_runtime/source/runtime.hepta', sha256=sha(source))
                 and tombstone['functions_verified'] == len(tombstone['functions']) == 44
                 and tombstone['predicate'] == dict(bytes=len(owner_raw),
@@ -265,6 +273,7 @@ class Successor:
             FE_allocation_source_contract_sha256=FE_OWNER_CONTRACT,
             FE_tombstone_source_contract_sha256=FE_TOMBSTONE_CONTRACT,
             FE_complete_owner_reader_sha256=FE_OWNER_READER,
+            half_div_source_inverse=division_source_proof,
             FE_exact_source_functions_verified=len(contract['function_identities']),
             FE_exact_tombstone_source_functions_verified=len(tombstone['functions']),
             FE_exact_no_allocation_subtrees_verified=len(contract['pure_subtrees_without_descriptor_constructors']),

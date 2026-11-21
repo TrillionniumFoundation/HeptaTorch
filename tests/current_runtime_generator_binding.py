@@ -9,9 +9,9 @@ from pathlib import Path
 import re
 import types
 
-SOURCE = 'e0c8e0a3c3ee16d11cad8af6be1b52bd56295581e74bdcc65131f71a57540025'
-IMAGE = '3ee1fae0e9d20d10dfd2645a3575d23357bcaca0dae03e5f0ff6bf1d4b4197a5'
-MANIFEST = '32d826cfaaaaca910c7e2b209d977dd705a314f64267cfd0808f01f08d3865d1'
+SOURCE = 'f534c77069abc15ba15879d44492aacbc5f3709f6a861a0f0b9e0e365232fca1'
+IMAGE = 'db935c74bf0a2b359038c7be56f5a5721af8f0c2d757a2330527bd751861ae86'
+MANIFEST = '15337cd10313c9cd485e0c1db70b6d6da46d2cd4afa21053db9eb7f86d57301e'
 HALF_SOURCE = 'bf3641b1a9061c6f92b8cbeef75adfac89e82ee16d32a9f650cb938d9e918386'
 PREDICATE_INVERSE = '71244cd75fb41ce07876d7f5699b66ae43c73adc5dd5d09fb2da0dec9c8c7439'
 STORAGE_SOURCE = '51820849f7becec549be15babace00f00687601ae7f53bcee0e636ca02f721f9'
@@ -65,17 +65,17 @@ def current_source(repository, inputs):
     source = repository / 'tools/current_runtime/source'
     manifest_raw = read(source / 'manifest.json', inputs, MANIFEST)
     manifest = json.loads(manifest_raw)
-    need(manifest['runtime']['sha256'] == SOURCE and manifest['runtime']['functions'] == 767
+    need(manifest['runtime']['sha256'] == SOURCE and manifest['runtime']['functions'] == 771
          and manifest['expected_native_sha256'] == IMAGE
          and [row['name'] for row in manifest['units']] == NAMES,
-         'exact physical767/15 source and executable profile')
+         'exact physical771/15 source and executable profile')
     path = repository / 'tools/current_runtime/build.py'
     builder = loaded(path, read(path, inputs, BUILDER), 'generator131_actual736_builder')
     bind = (lambda path, expected=None: read(path, inputs, expected))
     runtime, units, summary = builder.check_sources(manifest, source, bind)
-    need(summary['source_sha256'] == SOURCE and summary['functions'] == 767
-         and summary['complete_core_bodies_matched'] == 767 and summary['units_planned'] == 15,
-         'every physical767 body and all fifteen source partitions')
+    need(summary['source_sha256'] == SOURCE and summary['functions'] == 771
+         and summary['complete_core_bodies_matched'] == 771 and summary['units_planned'] == 15,
+         'every physical771 body and all fifteen source partitions')
     return runtime, units, summary, manifest_raw
 
 
@@ -90,11 +90,22 @@ def parent_source_files(repository, inputs=None):
          and witness['unchanged_functions'] == 683,
          'exact independently bound source-only predecessor witness')
     runtime, units, summary, manifest_raw = current_source(repository, inputs)
+    div_path = Path(repository) / 'tools/current_runtime/half_div_source_transition.py'
+    division = loaded(div_path, read(div_path, inputs), 'generator131_half_div_source_inverse')
+    runtime, div_inverse = division.restore_source(
+        runtime, lambda path, expected=None: read(path, inputs, expected))
+    need(division.SOURCE == SOURCE and sha(runtime) == division.PARENT_SOURCE
+         and div_inverse['functions'] == 771 and div_inverse['parent_functions'] == 767
+         and div_inverse['changed_functions'] == ['binary']
+         and div_inverse['unchanged_parent_functions'] == 766
+         and div_inverse['whole_source_inverse_exact'] is True
+         and div_inverse['whole_round_trip_exact'] is True,
+         'exact Half771 division extension inverted before wide767')
     wide_path = Path(repository) / 'tools/current_runtime/wide_neg_source_transition.py'
     wide = loaded(wide_path, read(wide_path, inputs), 'generator131_wide_neg_source_inverse')
     runtime, wide_inverse = wide.restore_source(
         runtime, lambda path, expected=None: read(path, inputs, expected))
-    need(wide.SOURCE == SOURCE and sha(runtime) == wide.PARENT_SOURCE,
+    need(wide.SOURCE == division.PARENT_SOURCE and sha(runtime) == wide.PARENT_SOURCE,
          'exact wide767 negation extension inverted before Half765')
     addsub_path = Path(repository) / 'tools/current_runtime/half_addsub_source_transition.py'
     addsub = loaded(addsub_path, read(addsub_path, inputs), 'generator131_half_addsub_source_inverse')
@@ -200,7 +211,7 @@ def parent_source_files(repository, inputs=None):
     need(len(originals) == 17 and set(originals) == set(witness['source_members']),
          'only the original aggregate/manifest/fifteen source units reconstructed')
     return originals, dict(
-        schema='heptatorch.generator131.physical767-parent712-inverse.v1',
+        schema='heptatorch.generator131.physical771-parent712-inverse.v1',
         physical_source_sha256=SOURCE, physical_native_sha256=IMAGE,
         half_logical_source_inverse=half_inverse,
         predicate_source_inverse=predicate_inverse,
@@ -209,7 +220,8 @@ def parent_source_files(repository, inputs=None):
         half_neg_source_inverse=neg_inverse,
         half_addsub_source_inverse=addsub_inverse,
         wide_neg_source_inverse=wide_inverse,
-        physical_functions=767, physical_units=15, parent_source_sha256=PARENT_SOURCE,
+        half_div_source_inverse=div_inverse,
+        physical_functions=771, physical_units=15, parent_source_sha256=PARENT_SOURCE,
         parent_functions=712, parent_units=15, unchanged_parent_bodies=683,
         changed_parent_bodies=changed, removed_parent_bodies=removed, added_physical_bodies=added,
         all11_generator_bodies_byte_exact=True, owners_and_rng_support_byte_exact=True,
@@ -229,7 +241,7 @@ def bind_current(repository, candidate, build, build_sha, inputs):
     path = repository / 'tools/current_runtime/qualification.py'
     qualification = loaded(path, read(path, inputs, QUALIFICATION), 'generator131_current736_qualification')
     need((qualification.SOURCE, qualification.IMAGE, qualification.FUNCTIONS, qualification.UNITS)
-         == (SOURCE, IMAGE, 767, 15), 'shared admission has the exact physical767 profile')
+         == (SOURCE, IMAGE, 771, 15), 'shared admission has the exact physical771 profile')
     built = qualification.admit_build(build, inputs.bind, expected=build_sha)
     runtime, units, summary, manifest_raw = current_source(repository, inputs)
     return runtime, units, summary, manifest_raw, built, proof
