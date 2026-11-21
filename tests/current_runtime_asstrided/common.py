@@ -1,6 +1,7 @@
 """Exact identity admission for the four unchanged original AsStrided readers."""
 import ast
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
 import re
@@ -10,9 +11,9 @@ import sys
 import types
 
 HERE = Path(__file__).resolve().parent
-SOURCE = '0b000b51288af20490162efd8e525b86359a32cdd6d2521df97ecd9cddbd7b43'
-IMAGE = 'ef82340209edc4dfb8d7ed0ecbc65e144fe26078cb29a0ba327798533476e86e'
-SOURCES_SHA = '11309731a7ed3ce4e9d482985c8aca413915867efa764e86b36d8922fe31914b'
+SOURCE = 'c73a7cb474981056404ac96bc214979d57aaa9a86e6474b1c140c3d98eb05779'
+IMAGE = '1ea247df76ff96c307e293790aa38de4a0bf0ff94b8148a480653c924658679d'
+SOURCES_SHA = '72a24f04071e48a75b71bce3be1d6352ad27b2b34e71db25729649a03a44ff7a'
 SUITES = ('copy4', 'reduction4', 'lanes2', 'branches6')
 COUNTS = dict(copy4=4, reduction4=4, lanes2=2, branches6=6)
 CHECKS = {'python_matches', 'platform_matches', 'version_backend_matches',
@@ -109,7 +110,7 @@ def admit(repository, build, expected_build_sha, reference_root, suite, inputs):
             'explicit actual cold-build receipt SHA required')
     pins = json.loads(inputs.bind(HERE/'sources.json', SOURCES_SHA))
     require(pins['suites']==list(SUITES) and pins['cases']==COUNTS, 'original16 denominator changed')
-    require(pins['target']==dict(source_sha256=SOURCE,native_sha256=IMAGE,functions=775,units=15),
+    require(pins['target']==dict(source_sha256=SOURCE,native_sha256=IMAGE,functions=797,units=15),
             'current source profile changed')
     for relative, row in pins['repository_files'].items():
         path = repository/relative
@@ -138,13 +139,13 @@ def admit(repository, build, expected_build_sha, reference_root, suite, inputs):
                 'fixed original recovery custody differs: '+name)
     current = module(repository/'tools/current_runtime/qualification.py',
                      'asstrided16_current_admission', inputs)
-    require((current.SOURCE,current.IMAGE,current.FUNCTIONS,current.UNITS)==(SOURCE,IMAGE,775,15),
+    require((current.SOURCE,current.IMAGE,current.FUNCTIONS,current.UNITS)==(SOURCE,IMAGE,797,15),
             'canonical current manifest changed')
     built = current.admit_build(build, inputs.bind, expected_build_sha)
     raw = inputs.bind(build/'runtime.hepta', SOURCE)
     found = list(re.finditer(rb'^fn ([A-Za-z_][A-Za-z0-9_]*)\(.*?^end\n',raw,re.M|re.S))
     functions = {m[1].decode():m[0] for m in found}
-    require(len(found)==len(functions)==775, 'complete current function denominator changed')
+    require(len(found)==len(functions)==797, 'complete current function denominator changed')
     predicate = module(repository/'tools/current_runtime/predicate_source_transition.py',
                        'asstrided16_predicate_source_inverse', inputs)
     bf16 = module(repository/'tools/current_runtime/bf16_source_transition.py',
@@ -161,6 +162,15 @@ def admit(repository, build, expected_build_sha, reference_root, suite, inputs):
                       'asstrided16_half_div_source_inverse', inputs)
     arithmetic = module(repository/'tools/current_runtime/public_f64_arithmetic_source_transition.py',
                         'asstrided16_public_f64_arithmetic_source_inverse', inputs)
+    index_path = repository / 'tools/current_runtime/index_signbit_source_transition.py'
+    inputs.bind(index_path)
+    index_spec = importlib.util.spec_from_file_location('index_signbit_current_source', index_path)
+    indexing = importlib.util.module_from_spec(index_spec); index_spec.loader.exec_module(indexing)
+    raw, index_inverse = indexing.restore_source(raw, inputs.bind)
+    require(index_inverse['functions'] == 797 and index_inverse['parent_functions'] == 775
+            and index_inverse['whole_source_inverse_exact'] is True
+            and index_inverse['whole_round_trip_exact'] is True,
+            'complete797 source restores every original775 byte before earlier source proofs')
     relu = module(repository/'tools/current_runtime/typed_relu_source_transition.py',
                   'asstrided16_typed_relu_source_inverse', inputs)
     same773, relu_inverse = relu.restore_source(raw, inputs.bind)
@@ -177,7 +187,7 @@ def admit(repository, build, expected_build_sha, reference_root, suite, inputs):
     predecessor, predicate_inverse = predicate.restore_source(old740, inputs.bind)
     guard = predicate_inverse['dispatcher_guard']
     delegation = predicate_inverse['old_path_delegation']
-    require(relu.SOURCE == SOURCE and same.SOURCE == relu.PARENT_SOURCE
+    require(relu.SOURCE == indexing.PARENT_SOURCE and same.SOURCE == relu.PARENT_SOURCE
         and relu_inverse['functions'] == 775 and relu_inverse['parent_functions'] == 773
         and relu_inverse['changed_functions'] == ['unary']
         and relu_inverse['whole_source_inverse_exact'] is True and relu_inverse['whole_round_trip_exact'] is True
@@ -249,7 +259,7 @@ def admit(repository, build, expected_build_sha, reference_root, suite, inputs):
     require(provenance['lock_sha256']==pins['repository_files']['compatibility/pytorch-oracle-lock.json']['sha256'],
             'the original reference must use the canonical fixed Torch lock')
     proof = dict(source_sha256=SOURCE,native_sha256=IMAGE,actual_build_sha256=expected_build_sha,
-        functions=775,units=15,original_layout_functions=layout,current_tag_functions=tags,
+        functions=797,units=15,original_layout_functions=layout,current_tag_functions=tags,
         predicate_source_inverse=predicate_inverse,
         bf16_source_inverse=bf16_inverse,
         half_mul_source_inverse=mul_inverse,
@@ -259,6 +269,7 @@ def admit(repository, build, expected_build_sha, reference_root, suite, inputs):
         half_div_source_inverse=div_inverse,
         public_f64_arithmetic_source_inverse=arithmetic_inverse,
         typed_relu_source_inverse=relu_inverse,
+        index_signbit_source_inverse=index_inverse,
         same_f64_arithmetic_source_inverse=same_inverse,
         original_source=pins['original_source'],reference_sha256=reference_pin['reference_sha256'],
         probe_sha256=reference_pin['probe_sha256'],reference_provenance=provenance['checks'],

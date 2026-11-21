@@ -21,9 +21,9 @@ import re
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
-SOURCE = '0b000b51288af20490162efd8e525b86359a32cdd6d2521df97ecd9cddbd7b43'
-IMAGE = 'ef82340209edc4dfb8d7ed0ecbc65e144fe26078cb29a0ba327798533476e86e'
-OUTER = '9c3e95d835c01fc64a19828e60574f47a09c30c106af54f87baa4b0abd4c574c'
+SOURCE = 'c73a7cb474981056404ac96bc214979d57aaa9a86e6474b1c140c3d98eb05779'
+IMAGE = '1ea247df76ff96c307e293790aa38de4a0bf0ff94b8148a480653c924658679d'
+OUTER = '0d3d073c5f90712821da991038fd1b09d5db4d836a12991de7b08c6c74c971d8'
 OBLIGATIONS = '4fa8028bec733a72ac2857dce326e25d6d378aafd1045c2504bb5828553cf2bb'
 OWNER = 'e54509ceba0ef3bf171f5fc1018665dc97e56eeccec0cba1e8c14f9a7ed81501'
 CHANGED = ('command_argument', 'dtype_audit', 'to_command', 'typed_command', 'typed_fill')
@@ -63,7 +63,7 @@ def prove(source, bind):
     outer = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(outer)
     historical, complete = outer.restore_source(source, bind)
-    actual, parent = outer.functions(source, 775), outer.functions(historical, 700)
+    actual, parent = outer.functions(source, 797), outer.functions(historical, 700)
     predicate_inverse = complete['predicate_source_inverse']
     guard = predicate_inverse['dispatcher_guard']
     delegation = predicate_inverse['old_path_delegation']
@@ -75,7 +75,12 @@ def prove(source, bind):
     arithmetic_inverse = complete['public_f64_arithmetic_source_inverse']
     same_inverse = complete['same_f64_arithmetic_source_inverse']
     relu_inverse = complete['typed_relu_source_inverse']
-    require(relu_inverse['source_sha256'] == SOURCE
+    index_inverse = complete['index_signbit_source_inverse']
+    require(index_inverse['source_sha256'] == SOURCE and index_inverse['functions'] == 797
+        and index_inverse['parent_functions'] == 775
+        and index_inverse['whole_source_inverse_exact'] is True
+        and index_inverse['whole_round_trip_exact'] is True
+        and relu_inverse['source_sha256'] == index_inverse['parent_source_sha256']
         and relu_inverse['functions'] == 775 and relu_inverse['parent_functions'] == 773
         and relu_inverse['changed_functions'] == ['unary']
         and relu_inverse['appended_functions'] == ['typed_relu_value','typed_relu_tensor']
@@ -138,7 +143,8 @@ def prove(source, bind):
         actual_entry_sha256=sha(actual['entry']),
         actual_predicate_command_sha256=sha(actual['predicate_command']),
         actual_to_command_sha256=sha(actual['to_command']),
-        entry_only_upper_bound_and_dispatch_target_changed=True,
+        historical740_entry_only_upper_bound_and_dispatch_target_changed=True,
+        current_signbit_opcode=126, current_source_extension=index_inverse,
         entry_original_delegation_opcodes=list(range(108, 120)),
         dispatcher_guard=guard, old_path_delegation=delegation,
         new_predicate_branch_reachable_for_original_opcodes=False,
@@ -446,8 +452,8 @@ def prove(source, bind):
     body = ast.get_source_segment(owner.decode(), fn).encode()
     require(body.count(b'need(dtype in (0, 1, 2, 3), "dtype-code", node=i)') == 1,
             'unchanged full owner still rejects public4/5/6 in the original resource recipe domain')
-    return dict(schema='heptatorch.fusion775.resource7-source-paths.v1', source_sha256=SOURCE,
-        native_sha256=IMAGE, functions=775, units=15, outer_source_inverse=complete,
+    return dict(schema='heptatorch.fusion778.resource7-source-paths.v1', source_sha256=SOURCE,
+        native_sha256=IMAGE, functions=797, units=15, outer_source_inverse=complete,
         changed_R4_obligations=list(CHANGED), obligations={n:rows[n] for n in CHANGED},
         binary_original_domain_route=binary_route,
         unary_original_domain_route=unary_route,

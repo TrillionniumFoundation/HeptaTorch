@@ -1,0 +1,194 @@
+#!/usr/bin/env python3
+"""Qualify HIA signbit using a fresh fixed Torch reference and raw replay."""
+
+import argparse
+import importlib.util
+import json
+from pathlib import Path
+import stat
+import sys
+import time
+import traceback
+
+ROOT=Path(__file__).resolve().parents[2]
+sys.path.insert(0,str(ROOT/'tests'))
+from signbit import evidence,native
+from signbit.cases import CASES,CASE_SHA256
+
+require,sha=evidence.require,evidence.sha
+
+
+class Inputs:
+    def __init__(self):
+        self.records={}
+
+    def bind(self,path,expected=None):
+        path=Path(path).absolute();before=path.lstat()
+        require(stat.S_ISREG(before.st_mode) and not path.is_symlink(),'ordinary physical input: '+str(path))
+        raw=path.read_bytes();after=path.stat()
+        fields=lambda row:(row.st_dev,row.st_ino,row.st_mode,row.st_size,row.st_mtime_ns,row.st_ctime_ns)
+        require(fields(before)==fields(after),'physical input changed while reading')
+        row=evidence.identity(raw,stat.S_IMODE(after.st_mode))
+        require(expected is None or sha(raw)==expected,'fixed input SHA: '+str(path))
+        require(str(path) not in self.records or self.records[str(path)]==row,'previous physical input changed')
+        self.records[str(path)]=row
+        return raw
+
+    def recheck(self):
+        for path,row in list(self.records.items()):self.bind(path,row['sha256'])
+
+
+def module(path,name,bind):
+    bind(path);spec=importlib.util.spec_from_file_location(name,path)
+    result=importlib.util.module_from_spec(spec);spec.loader.exec_module(result)
+    return result
+
+
+def profile(repository,build,build_sha,inputs):
+    custody=module(repository/'tests/pinned_reference_custody.py','signbit_custody_profile',inputs.bind)
+    for path in custody.source_files(repository):inputs.bind(path)
+    qualification=module(repository/'tools/current_runtime/qualification.py','signbit_current_profile',inputs.bind)
+    built=qualification.admit_build(build,inputs.bind,build_sha)
+    for suite in ('signbit','numeric_predicates','half_logical'):
+        for file in sorted((repository/'tests'/suite).glob('*.py')):
+            inputs.bind(file)
+    combined=module(repository/'tools/current_runtime/index_signbit_source_transition.py','signbit_combined_source_proof',inputs.bind)
+    source=inputs.bind(repository/'tools/current_runtime/source/runtime.hepta')
+    parent,combined_proof=combined.restore_source(source,inputs.bind)
+    require(combined_proof['source_sha256']==built['source_sha256'] and combined_proof['functions']==797
+        and combined_proof['parent_functions']==775 and combined_proof['unchanged_parent_functions']==760
+        and combined_proof['changed_functions']==['entry', 'linear', 'reduce_axis', 'softmax', 'layernorm', 'batchnorm_eval', 'conv2d', 'pool2d', 'matmul', 'index_select', 'gather', 'tensor_join', 'indexed_add', 'predicate_bits', 'predicate_command']
+        and combined_proof['appended_functions']==['typed_index_select_previous', 'typed_index_select', 'typed_index_select_offset', 'indexed_gather_forward_source', 'indexed_add_forward_inputs', 'indexed_add_forward_location', 'matmul_forward_index', 'matmul_forward_point', 'softmax_forward_group', 'axis_source_forward', 'conv_term_forward', 'conv_no_grad_forward', 'pool_point_forward', 'pool_no_grad_forward', 'matmul_output_version', 'concat_forward_target', 'concat_forward_part', 'concat_forward_copy', 'concat_forward_layout', 'concat_forward', 'linear_bias_output_version', 'normalization_output_layout']
+        and combined_proof['whole_source_inverse_exact'] is True
+        and combined_proof['whole_round_trip_exact'] is True
+        and combined_proof['admitted_new_opcode']==126 and combined_proof['opcode125_remains_rejected'] is True,
+        'complete797 source inverse precedes every unchanged775 predecessor predicate')
+    return built
+
+
+def qualify(report,repository,build,build_sha,output,inputs,local_observed=False):
+    """Reapply all comparisons to every original physical frame and full owner."""
+    built=profile(repository,build,build_sha,inputs)
+    require(report==json.loads(inputs.bind(output/'report.json')),'unchanged actual native observer report')
+    require(report['schema']=='heptatorch.signbit.native-observation.v1'
+        and report['status']=='PASS' and report['group']=='signbit'
+        and report['cases']==report['expected_cases']==len(CASES)==97 and report['case_sha256']==CASE_SHA256
+        and report['source_sha256']==built['source_sha256'] and report['native_sha256']==built['native_sha256']
+        and report['actual_build_sha256']==build_sha and report['native_executed'] is True
+        and report['Torch_executed'] is True and report['compiler_executed'] is False
+        and report['host_expected_values_computed'] is False and report['original_reference_modified'] is False
+        and report['all_inputs_unchanged'] is True and not report['failures']
+        and report['local_observed_oracle'] is local_observed
+        and report['full_installation_provenance_verified'] is (not local_observed),'complete actual native observation identity and scope')
+    for path,row in report['inputs'].items():
+        raw=inputs.bind(path,row['sha256'])
+        require(row==evidence.identity(raw,stat.S_IMODE(Path(path).stat().st_mode)),
+                'all recorded original observer inputs retained unchanged')
+    fixed=evidence.read(repository,Path(report['reference_directory']),Path(report['reference_process_directory']),inputs.bind,local_observed)
+    require(report['reference_custody']==fixed['custody'],'complete raw fixed-wheel and actual process custody retained')
+    require(fixed['report_sha256']==report['reference_sha256'],'exact independent actual reference report retained')
+    wire=native.load_wire(repository,inputs.bind);recipes=native.recipes(fixed)
+    require(len(report['results'])==len(recipes),'all cases and additional controls completed')
+    frames=checks=owner_reads=mapping_reads=0
+    for saved,(name,recipe,parameters) in zip(report['results'],recipes):
+        directory=output/name
+        require(saved==json.loads(inputs.bind(directory/'observation.json'))
+            and saved['name']==name and saved['status']=='PASS','complete original per-recipe observation')
+        session=native.Replay(build/'heptatorch',wire,directory,inputs.bind)
+        observer=native.Observer(session,wire,fixed);result=recipe(observer,*parameters);finish=session.finish()
+        require(result==saved['result'] and observer.checks==saved['checks'] and finish==saved['finish'],
+                'every original numerical metadata ownership and resource predicate reapplied')
+        frames+=finish['frames'];checks+=observer.checks;owner_reads+=finish['owner_reads'];mapping_reads+=finish['mapping_reads']
+    require(frames==report['frames'] and checks==report['checks'] and owner_reads==report['owner_reads']
+        and mapping_reads==report['mapping_reads']==12,'complete original physical evidence census')
+    inputs.recheck()
+    return dict(cases=97,frames=frames,assertions=checks,native_sessions=len(recipes),owner_snapshots=owner_reads,
+        mapping_snapshots=mapping_reads,physical_replay=True,
+        full_installation_provenance_verified=not local_observed,
+        complete_ci_admission=not local_observed,native_executed_by_qualifier=False,
+        Torch_executed_by_qualifier=False,reference_sha256=fixed['report_sha256'],
+        additional_packet_controls=13,additional_successful_FE_transactions=6,
+        additional_failed_FE_transactions=6,additional_allocation_recoveries=2,
+        host_expected_values_computed=False,old_dispatcher_preserved=True,
+        original_eleven_checks_recomputed_from_raw_inputs=True,
+        raw_reference_entities=fixed['custody']['raw_reference_entities'],
+        original_installation_checks=11,
+        original_installation_checks_passed=sum(fixed['custody']['original_checks'].values()),
+        actual_supervisor_intent_verified=True,actual_environment_transition_verified=True,
+        original_reference_script_bytes_verified=True,portable_reference_custody_replayed=True,
+        **{key:fixed['custody'][key] for key in ('official_wheel_sha256', 'official_member_anchor_sha256', 'independent_official_wheel_member_anchor_verified', 'complete_official_wheel_archive_verified', 'installed_wheel_members_verified', 'installed_wheel_bytes_verified', 'torch_shared_libraries_verified', 'actual_mapped_torch_cpu_code_verified', 'all_actual_installed_inputs_unchanged', 'complete_installed_raw_snapshot_verified')})
+
+
+def main():
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--build-directory',type=Path,required=True)
+    parser.add_argument('--expected-build-sha256',required=True)
+    parser.add_argument('--torch-python',type=Path,required=True)
+    parser.add_argument('--output',type=Path,required=True)
+    parser.add_argument('--local-observed-oracle',action='store_true')
+    args=parser.parse_args();require(not sys.flags.optimize,'independent predicates enabled')
+    build,output=args.build_directory.resolve(),args.output.resolve();output.mkdir(parents=True,exist_ok=False)
+    inputs=Inputs();started=time.monotonic()
+    report=dict(schema='heptatorch.signbit.native-observation.v1',status='FAIL',group='signbit',
+        cases=len(CASES),expected_cases=len(CASES),case_sha256=CASE_SHA256,results=[],failures=[],
+        native_executed=False,Torch_executed=False,compiler_executed=False,host_expected_values_computed=False,
+        original_reference_modified=False,runtime_qualification_transferred=False,full_project_status='HOLD',
+        frames=0,checks=0,owner_reads=0,mapping_reads=0,actual_build_sha256=args.expected_build_sha256,
+        local_observed_oracle=args.local_observed_oracle,
+        full_installation_provenance_verified=False)
+    try:
+        inputs.bind(Path(sys.executable).resolve())
+        built=profile(ROOT,build,args.expected_build_sha256,inputs)
+        report.update(source_sha256=built['source_sha256'],native_sha256=built['native_sha256'])
+        supervisor=module(ROOT/'tests/current_runtime_process.py','predicate_reference_supervisor',inputs.bind)
+        execution=output/'reference-execution';execution.mkdir()
+        argv=[str(args.torch_python.absolute()),'-B',str(ROOT/'tests/signbit/reference.py'),
+              '--repository',str(ROOT),'--output',str(output/'reference')]
+        if args.local_observed_oracle:argv.append('--local-observed-oracle')
+        custody=module(ROOT/'tests/pinned_reference_custody.py','signbit_custody_supervisor',inputs.bind)
+        process=custody.supervise(supervisor,argv,execution,300,ROOT,inputs.bind)
+        native.dump(execution/'process.json',process)
+        fixed=evidence.read(ROOT,output/'reference',execution,inputs.bind,args.local_observed_oracle)
+        report.update(Torch_executed=True,reference_directory=str(fixed['root']),
+            reference_process_directory=str(execution),reference_sha256=fixed['report_sha256'],reference_custody=fixed['custody'],
+            full_installation_provenance_verified=fixed['report']['full_installation_provenance_verified'])
+        wire=native.load_wire(ROOT,inputs.bind);recipes=native.recipes(fixed)
+        for ordinal,(name,recipe,parameters) in enumerate(recipes):
+            row=dict(name=name,status='FAIL');session=observer=None
+            try:
+                session=native.Live(build/'heptatorch',wire,output/name,inputs.bind);report['native_executed']=True
+                observer=native.Observer(session,wire,fixed);row['result']=recipe(observer,*parameters);row['status']='PASS'
+            except BaseException as error:
+                row['error']=dict(type=type(error).__name__,message=str(error),traceback=traceback.format_exc())
+            finally:
+                if session is not None:
+                    try:row['finish']=session.finish()
+                    except BaseException as error:
+                        row['status']='FAIL';row['finish_error']=dict(type=type(error).__name__,message=str(error))
+                row['checks']=observer.checks if observer is not None else 0
+                if (output/name).exists():native.dump(output/name/'observation.json',row)
+            report['results'].append(row)
+            for key in ('frames','owner_reads','mapping_reads'):report[key]+=row.get('finish',{}).get(key,0)
+            report['checks']+=row['checks']
+            if row['status']!='PASS':report['failures'].append(name)
+            if ordinal%32==0 or row['status']!='PASS':
+                print(json.dumps(dict(group='signbit',recipe=name,status=row['status'],error=row.get('error'))),flush=True)
+        inputs.recheck();report['all_inputs_unchanged']=True
+        report['status']='PASS' if not report['failures'] and len(report['results'])==len(recipes) else 'FAIL'
+    except BaseException as error:
+        report['error']=dict(type=type(error).__name__,message=str(error),traceback=traceback.format_exc())
+    report['inputs']=inputs.records;report['elapsed_seconds']=time.monotonic()-started
+    native.dump(output/'report.json',report)
+    if report['status']=='PASS':
+        try:
+            proof=qualify(report,ROOT,build,args.expected_build_sha256,output,Inputs(),args.local_observed_oracle)
+            native.dump(output/'physical-qualification.json',proof)
+        except BaseException as error:
+            native.dump(output/'physical-qualification.json',dict(status='FAIL',error=str(error),traceback=traceback.format_exc()))
+            print(json.dumps(dict(status='FAIL_PHYSICAL_REPLAY',error=str(error))),flush=True)
+            return 1
+    print(json.dumps({key:report.get(key) for key in ('group','status','cases','frames','checks','failures','error')}),flush=True)
+    return 0 if report['status']=='PASS' else 1
+
+
+if __name__=='__main__':raise SystemExit(main())
