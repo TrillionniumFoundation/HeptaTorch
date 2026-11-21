@@ -103,13 +103,13 @@ def _logical_source_inverse(source, inputs, support):
 
 
 def source_inverse(source, inputs, support):
-    """Add exact775 and cat inverses before the original historical proofs."""
+    """Add exact778 and cat inverses before the original historical proofs."""
     profile = current_profile()
-    require(sha(source) == profile.SOURCE and profile.FUNCTIONS == 775 and profile.UNITS == 15,
-            'actual complete current775 profile before historical source proofs')
+    require(sha(source) == profile.SOURCE and profile.FUNCTIONS == 778 and profile.UNITS == 15,
+            'actual complete current778 profile before historical source proofs')
     outer_path = ROOT / 'tools/current_runtime/fusion_source_transition.py'
-    inputs.bind(outer_path, '9c3e95d835c01fc64a19828e60574f47a09c30c106af54f87baa4b0abd4c574c')
-    outer = load(outer_path, 'fusion_current775_source_transition')
+    inputs.bind(outer_path, '469412cf8989f32b4479dd08d9f846ef3a9056637eef1c92f54d774d27297fcb')
+    outer = load(outer_path, 'fusion_current778_source_transition')
     historical700, outer_proof = outer.restore_source(source, inputs.bind)
     path = ROOT / 'tools/current_runtime/cat_source_transition.py'
     inputs.bind(path)
@@ -121,11 +121,11 @@ def source_inverse(source, inputs, support):
     require(previous['source_sha256'] == cat.PARENT_SOURCE
             and previous['whole_inverse_exact'] is True,
             'the complete original logical/PR38/AVX2 proof must execute')
-    return dict(schema='heptatorch.current775-cat.source-proof.v1',
+    return dict(schema='heptatorch.current778-cat.source-proof.v1',
         source_sha256=sha(source), parent_source_sha256=cat.PARENT_SOURCE,
         whole_inverse_exact=True, outer_source_inverse=outer_proof,
         cat_transition=proof, logical_fusion=previous,
-        actual_functions=775, historical_functions=700, historical_count_binding_separated=True,
+        actual_functions=778, historical_functions=700, historical_count_binding_separated=True,
         original_source_proofs_modified=False, runtime_qualification_transferred=False)
 
 def adapted_parent(repository, filename, inputs, *, owner=False):

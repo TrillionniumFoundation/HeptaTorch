@@ -109,6 +109,10 @@ The immutable `tests/differentiable_view_input4_review/README.md` remains byte-i
 
 ## 当前775计划、分区与原失败结果
 
-当前树只保留775的活动资格计划。same-F64的原计划（3,964字节）保存在[固定PR53提交](https://github.com/TrillionniumFoundation/HeptaTorch/blob/83ed6b41ea67aa37182d23159ec0cb436e632dac/validation/current-runtime-same-f64/qualification-plan.json)；13份被替换的773核心分区也由该提交保存。完整SHA、Git blob和文件模式见[775退休清单](../validation/current-runtime775/retirement.json)。新15单元保留全部旧函数，仅增加ReLU实现所需的两函数和一条分流；分区替换不计为删除功能。
+775前身树当时只保留775的活动资格计划。same-F64的原计划（3,964字节）保存在[固定PR53提交](https://github.com/TrillionniumFoundation/HeptaTorch/blob/83ed6b41ea67aa37182d23159ec0cb436e632dac/validation/current-runtime-same-f64/qualification-plan.json)；13份被替换的773核心分区也由该提交保存。完整SHA、Git blob和文件模式见[775退休清单](../validation/current-runtime775/retirement.json)。新15单元保留全部旧函数，仅增加ReLU实现所需的两函数和一条分流；分区替换不计为删除功能。
 
 PR52与PR53的完整Current门分别失败，原归档和结果不升级为通过。PR53失败原件14700680070已完整读回；25组／13,007例通过，另外3组／68例在原生案例前被来源校验阻止，资格后的源码缺失检查未执行。775需要重新完成全部29组／13,851例及原件复核。固定旧143源码已从跟踪树移除，但旧Native/F64/RNG及Make消费者仍实际恢复使用它；其完整语义迁移尚未完成。
+
+## 当前778计划与分区
+
+当前树只保留778活动计划及15个活动单元。13份被替换的775分区和775计划保存在固定PR55提交 `6378ae1b469e9e98a75547fa2670f7cc9e9badf6`，完整路径、Git blob、字节数与模式见[778退休记录](../validation/current-runtime778/retirement.json)。新增两原生契约需要完整31组／14,814例重新执行；历史成功与失败均保留各自身份。

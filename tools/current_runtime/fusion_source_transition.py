@@ -12,7 +12,7 @@ import re
 HERE = Path(__file__).resolve().parent
 SOURCE = '51820849f7becec549be15babace00f00687601ae7f53bcee0e636ca02f721f9'
 HALF_SOURCE = 'bf3641b1a9061c6f92b8cbeef75adfac89e82ee16d32a9f650cb938d9e918386'
-CURRENT_SOURCE = '0b000b51288af20490162efd8e525b86359a32cdd6d2521df97ecd9cddbd7b43'
+CURRENT_SOURCE = 'db88eaad9fb69010ae4f6925f4e8c54edce815b9f46507bc0c7c2536a4cb2c0b'
 PREDICATE_INVERSE = '71244cd75fb41ce07876d7f5699b66ae43c73adc5dd5d09fb2da0dec9c8c7439'
 PARENT_SOURCE = 'ba96abc05717643eaf4f2056325089d9a51f5a2e9838f89473e9a4e76e46fd99'
 DELTA_SHA = '1d47ee1f02e33cc29b4277afa0019dc55c7519a39b23022b0e5e97217bc9de53'
@@ -130,12 +130,21 @@ def predicate_parent(source, bind):
     """Check the new opcode routing and recover the exact Half parent bytes."""
     bind(Path(__file__).resolve())
     require(sha(source) == CURRENT_SOURCE, 'only the exact admitted predicate source')
+    index_path = HERE.parents[1] / 'tools/current_runtime/index_signbit_source_transition.py'
+    bind(index_path)
+    index_spec = importlib.util.spec_from_file_location('index_signbit_current_source', index_path)
+    indexing = importlib.util.module_from_spec(index_spec); index_spec.loader.exec_module(indexing)
+    source, index_inverse = indexing.restore_source(source, bind)
+    require(index_inverse['functions'] == 778 and index_inverse['parent_functions'] == 775
+            and index_inverse['whole_source_inverse_exact'] is True
+            and index_inverse['whole_round_trip_exact'] is True,
+            'complete778 source restores every original775 byte before earlier source proofs')
     relu_path = HERE / 'typed_relu_source_transition.py'
     bind(relu_path, 'd06390c160833aa829c1a65cffa5ed8698d7aa23b72675c2942fca006f5350f9')
     relu_spec = importlib.util.spec_from_file_location('typed_relu_complete_outer_inverse', relu_path)
     relu = importlib.util.module_from_spec(relu_spec); relu_spec.loader.exec_module(relu)
     source, relu_inverse = relu.restore_source(source, bind)
-    require(relu.SOURCE == CURRENT_SOURCE and sha(source) == relu.PARENT_SOURCE
+    require(relu.SOURCE == indexing.PARENT_SOURCE and sha(source) == relu.PARENT_SOURCE
             and relu_inverse['functions'] == 775 and relu_inverse['parent_functions'] == 773
             and relu_inverse['changed_functions'] == ['unary']
             and relu_inverse['appended_functions'] == ['typed_relu_value', 'typed_relu_tensor']
@@ -224,17 +233,17 @@ def predicate_parent(source, bind):
     require(extension.SOURCE == bf16.PARENT_SOURCE and extension.PARENT_SOURCE == HALF_SOURCE
             and sha(previous) == HALF_SOURCE,
             'complete predicate-to-Half source relation')
-    return previous, proof, bf16_inverse, mul_inverse, neg_inverse, addsub_inverse, wide_inverse, div_inverse, arithmetic_inverse, same_inverse, relu_inverse
+    return previous, proof, bf16_inverse, mul_inverse, neg_inverse, addsub_inverse, wide_inverse, div_inverse, arithmetic_inverse, same_inverse, relu_inverse, index_inverse
 
 
 def restore_source(source, bind):
     """Compose all exact source inverses; preserve the actual current runtime."""
-    previous, predicate_inverse, bf16_inverse, mul_inverse, neg_inverse, addsub_inverse, wide_inverse, div_inverse, arithmetic_inverse, same_inverse, relu_inverse = predicate_parent(source, bind)
+    previous, predicate_inverse, bf16_inverse, mul_inverse, neg_inverse, addsub_inverse, wide_inverse, div_inverse, arithmetic_inverse, same_inverse, relu_inverse, index_inverse = predicate_parent(source, bind)
     restored, half_inverse = restore_half_source(previous, bind)
     return restored, dict(
-        schema='heptatorch.current775-to-cat700.complete-source-inverse.v1',
+        schema='heptatorch.current778-to-cat700.complete-source-inverse.v1',
         source_sha256=CURRENT_SOURCE, intermediate_source_sha256=HALF_SOURCE,
-        parent_source_sha256=PARENT_SOURCE, functions=775, parent_functions=700,
+        parent_source_sha256=PARENT_SOURCE, functions=778, parent_functions=700,
         predicate_source_inverse=predicate_inverse,
         bf16_source_inverse=bf16_inverse,
         half_mul_source_inverse=mul_inverse,
@@ -245,6 +254,7 @@ def restore_source(source, bind):
         public_f64_arithmetic_source_inverse=arithmetic_inverse,
         same_f64_arithmetic_source_inverse=same_inverse,
         typed_relu_source_inverse=relu_inverse,
+        index_signbit_source_inverse=index_inverse,
         half_and_storage_source_inverse=half_inverse,
         whole_source_inverse_exact=True, whole_round_trip_exact=True,
         every_other_byte_constrained_by_complete_parent_sha256=True,

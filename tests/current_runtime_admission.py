@@ -253,21 +253,21 @@ def qualify_f32(report, repository, build, build_sha, directory, inputs):
     cat = importlib.util.module_from_spec(cat_spec)
     cat_spec.loader.exec_module(cat)
     outer_path = Path(repository) / 'tools/current_runtime/fusion_source_transition.py'
-    inputs.bind(outer_path, '9c3e95d835c01fc64a19828e60574f47a09c30c106af54f87baa4b0abd4c574c')
-    outer_spec = importlib.util.spec_from_file_location('qualified_current775_source_transition', outer_path)
+    inputs.bind(outer_path, '469412cf8989f32b4479dd08d9f846ef3a9056637eef1c92f54d774d27297fcb')
+    outer_spec = importlib.util.spec_from_file_location('qualified_current778_source_transition', outer_path)
     outer = importlib.util.module_from_spec(outer_spec)
     outer_spec.loader.exec_module(outer)
     historical700, outer_proof = outer.restore_source(inputs.bind(Path(build) / 'runtime.hepta', SOURCE), inputs.bind)
-    require(FUNCTIONS == 775 and UNITS == 15 and sha(historical700) == cat.SOURCE == outer.PARENT_SOURCE,
-            'actual775 profile and exact historical700 source subject')
+    require(FUNCTIONS == 778 and UNITS == 15 and sha(historical700) == cat.SOURCE == outer.PARENT_SOURCE,
+            'actual778 profile and exact historical700 source subject')
     restored, cat_proof = cat.restore_source(historical700, inputs.bind)
-    require(cat_transition['schema'] == 'heptatorch.current775-cat.source-proof.v1'
+    require(cat_transition['schema'] == 'heptatorch.current778-cat.source-proof.v1'
             and cat_transition['source_sha256'] == SOURCE
             and cat_transition['parent_source_sha256'] == cat.PARENT_SOURCE == sha(restored)
             and cat_transition['whole_inverse_exact'] is True
             and cat_transition['cat_transition'] == cat_proof
             and cat_transition['outer_source_inverse'] == outer_proof
-            and cat_transition['actual_functions'] == 775 and cat_transition['historical_functions'] == 700
+            and cat_transition['actual_functions'] == 778 and cat_transition['historical_functions'] == 700
             and cat_transition['historical_count_binding_separated'] is True
             and cat_transition['original_source_proofs_modified'] is False
             and cat_transition['runtime_qualification_transferred'] is False,

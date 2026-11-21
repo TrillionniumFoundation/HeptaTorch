@@ -7,6 +7,7 @@ does not execute a native image or transfer any previous qualification.
 """
 import ast
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
 
@@ -37,6 +38,12 @@ def definitions(raw):
 
 def restore_runner(raw, path, bind):
     bind(Path(__file__).resolve())
+    current_raw = raw
+    extension_path = Path(__file__).with_name('index_signbit_admission_transition.py')
+    bind(extension_path)
+    spec = importlib.util.spec_from_file_location('index_signbit_observer_admission_inverse', extension_path)
+    extension = importlib.util.module_from_spec(spec); spec.loader.exec_module(extension)
+    raw, extension_proof = extension.restore_runner(raw, path, bind)
     delta_raw = bind(Path(__file__).with_name('typed_relu_admission_observer_delta.json'))
     require(sha(delta_raw) == DELTA, 'immutable complete typed ReLU admission delta')
     delta = json.loads(delta_raw)
@@ -62,8 +69,9 @@ def restore_runner(raw, path, bind):
             and before['source_inverse'] == original and after['source_inverse'] == current,
             'only source admission changes; all numerical and physical predicates retained')
     return parent, dict(schema='heptatorch.typed-relu775.admission-observer-inverse.v1',
-        path=path, source_sha256=sha(raw), parent_sha256=sha(parent),
-        source_bytes=len(raw), parent_bytes=len(parent), delta_sha256=DELTA,
+        path=path, source_sha256=sha(current_raw), parent_sha256=sha(parent),
+        source_bytes=len(current_raw), parent_bytes=len(parent), delta_sha256=DELTA,
+        index_signbit_source_admission_inverse=extension_proof,
         changed_definitions=['source_inverse'],
         all_original_numerical_error_lifetime_and_allocation_predicates_retained=True,
         original_reference_and_process_readback_predicates_retained=True,

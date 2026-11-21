@@ -123,9 +123,19 @@ def read_reference(directory,execution,inputs):
 
 
 def source_inverse(built,inputs):
+    combined=module(ROOT/'tools/current_runtime/index_signbit_source_transition.py','arithmetic_index_signbit_inverse',inputs.bind)
+    current,combined_proof=combined.restore_source(inputs.bind(ROOT/'tools/current_runtime/source/runtime.hepta'),inputs.bind)
+    require(combined_proof['source_sha256']==built['source_sha256'] and combined_proof['functions']==778
+        and combined_proof['parent_functions']==775 and combined_proof['unchanged_parent_functions']==771
+        and combined_proof['changed_functions']==['entry','index_select','predicate_bits','predicate_command']
+        and combined_proof['appended_functions']==['typed_index_select_previous','typed_index_select','typed_index_select_offset']
+        and combined_proof['whole_source_inverse_exact'] is True
+        and combined_proof['whole_round_trip_exact'] is True
+        and combined_proof['admitted_new_opcode']==126 and combined_proof['opcode125_remains_rejected'] is True,
+        'complete778 source inverse precedes every unchanged775 predecessor predicate')
     relu=module(ROOT/'tools/current_runtime/typed_relu_source_transition.py','typed_relu_before_arithmetic_inverse',inputs.bind)
-    same773,relu_proof=relu.restore_source(inputs.bind(ROOT/'tools/current_runtime/source/runtime.hepta'),inputs.bind)
-    require(relu_proof['source_sha256']==built['source_sha256'] and relu_proof['functions']==775
+    same773,relu_proof=relu.restore_source(current,inputs.bind)
+    require(relu_proof['source_sha256']==combined_proof['parent_source_sha256'] and relu_proof['functions']==775
         and relu_proof['parent_functions']==773 and relu_proof['changed_functions']==['unary']
         and relu_proof['whole_source_inverse_exact'] is True and relu_proof['whole_round_trip_exact'] is True,
         'complete actual typed ReLU775 inverse before the frozen same-F64 source')
@@ -140,8 +150,9 @@ def source_inverse(built,inputs):
         and proof['source_sha256']==same_proof['parent_source_sha256'] and proof['parent_functions']==771
         and proof['whole_source_inverse_exact'] is True and proof['whole_round_trip_exact'] is True,
         'actual same-F64 successor and exact mixed773 then771 predecessor recovery')
-    return dict(relu_proof,same_f64_predecessor_source_inverse=
-        dict(same_proof,mixed_predecessor_source_inverse=proof))
+    return dict(combined_proof,typed_relu_predecessor_source_inverse=
+        dict(relu_proof,same_f64_predecessor_source_inverse=
+            dict(same_proof,mixed_predecessor_source_inverse=proof)))
 
 
 def legacy_alias_packet(n,left,right,invalid_suffix=False):

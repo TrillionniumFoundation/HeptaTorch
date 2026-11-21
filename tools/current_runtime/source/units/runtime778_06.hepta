@@ -1,5 +1,5 @@
-hia-asm.v1 hepta.hia.program.v8 runtime775_06
-exports(half_mul_previous_binary,public_f64_binary,binary,view,channel_view,tensor_initialize,constant_tensor,typed_relu_value,typed_relu_tensor,logf,sigmoidf,isqrt64,sqrtf,expm1smallf,tanhf,unary_value,half_neg_previous_unary,half_neg_value,half_neg_tensor,wide_neg_previous_unary,wide_neg_tensor,unary,vector_shape,batchnorm_eval,dtype_original_clone,typed_clone,clone,public_optional,scalar_previous_command_argument,command_argument,concat_channels_last,concat_layout,concat_dimension,wire_node,concat_extent,concat_shape,tensor_join,cat,stack,concat_command,spatial_extent,spatial_pair,conv2d,reduce,reduce_axis,softmax_group,softmax,cross_entropy_probs,detach,finish_command,full_tensor,gather,gather_command,graph_collect,graph_reset,index_select,index_select_command,fmaf,indexed_add_forward,indexed_add_validate,indexed_add,indexed_add_command,to_view_public,retained_parameter_blocker,tgrad)
+hia-asm.v1 hepta.hia.program.v8 runtime778_06
+exports(half_mul_previous_binary,public_f64_binary,binary,view,channel_view,tensor_initialize,constant_tensor,typed_relu_value,typed_relu_tensor,logf,sigmoidf,isqrt64,sqrtf,expm1smallf,tanhf,unary_value,half_neg_previous_unary,half_neg_value,half_neg_tensor,wide_neg_previous_unary,wide_neg_tensor,unary,vector_shape,batchnorm_eval,dtype_original_clone,typed_clone,clone,public_optional,scalar_previous_command_argument,command_argument,concat_channels_last,concat_layout,concat_dimension,wire_node,concat_extent,concat_shape,tensor_join,cat,stack,concat_command,spatial_extent,spatial_pair,conv2d,reduce,reduce_axis,softmax_group,softmax,cross_entropy_probs,detach,finish_command,full_tensor,gather,gather_command,graph_collect,graph_reset,typed_index_select_offset,typed_index_select,typed_index_select_previous,index_select,index_select_command,fmaf,indexed_add_forward,indexed_add_validate,indexed_add,indexed_add_command)
 fn absf(v0:u64) -> (u64) effects(read,write,trap) external()
 fn addf(v0:u64,v1:u64) -> (u64) effects(read,write,trap) external()
 fn alloc(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
@@ -20,7 +20,6 @@ fn gather_source(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) exte
 fn get4(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn getr(v0:readbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn getw(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
-fn gradient_binding(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn graph_collect_since(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn half_addsub_tensor(s:mutbuf,operation:u64,left:u64,right:u64) -> (u64) effects(read,write,trap) external()
 fn half_div_tensor(s:mutbuf,operation:u64,left:u64,right:u64) -> (u64) effects(read,write,trap) external()
@@ -42,7 +41,6 @@ fn public_node(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn put4(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn putw(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn record(v0:mutbuf,v1:u64,v2:u64,v3:u64,v4:u64) -> (u64) effects(read,write,trap) external()
-fn retained_enabled(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn shrjam(v0:u64,v1:u64) -> (u64) effects(read,write,trap) external()
 fn soft_index(v0:mutbuf,v1:u64,v2:u64,v3:u64,v4:u64) -> (u64) effects(read,write,trap) external()
 fn subf(v0:u64,v1:u64) -> (u64) effects(read,write,trap) external()
@@ -51,7 +49,6 @@ fn tensor_dtype(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn terror(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn tget(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) external()
 fn tnew(v0:mutbuf,v1:u64,v2:u64,v3:u64) -> (u64) effects(read,write,trap) external()
-fn to_view_refresh(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn tversion(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) external()
 fn typed_descriptor(v0:mutbuf,v1:u64,v2:u64,v3:u64,v4:u64,v5:u64) -> (u64) effects(read,write,trap) external()
 fn typed_store(v0:mutbuf,v1:u64,v2:u64,v3:u64) -> (u64) effects(read,write,trap) external()
@@ -3961,7 +3958,197 @@ block b35(v243:mutbuf,v244:u64,v247:u64)
   v271:u64 = call(v243,v268,v270) {"function":"putw"}
   ret(v263)
 end
-fn index_select(v0:readbuf,v1:mutbuf,v2:u64,v3:u64,v4:u64,v5:u64,v6:u64) -> (u64) effects(read,write,trap) entry(b0)
+fn typed_index_select_offset(b0_r:readbuf,b0_s:mutbuf,b0_x:u64,b0_y:u64,b0_axis:u64,b0_offset:u64,b0_index:u64) -> (u64) effects(read,write,trap) entry(start)
+block start(b0_r:readbuf,b0_s:mutbuf,b0_x:u64,b0_y:u64,b0_axis:u64,b0_offset:u64,b0_index:u64)
+  b0_xp:u64 = call(b0_s,b0_x) {"function":"dptr"}
+  b0_yp:u64 = call(b0_s,b0_y) {"function":"dptr"}
+  b0_rank:u64 = call(b0_s,b0_yp) {"function":"getw"}
+  b0_zero:u64 = const() {"value":0}
+  b0_one:u64 = const() {"value":1}
+  jump axis_loop(b0_r,b0_s,b0_xp,b0_yp,b0_axis,b0_offset,b0_index,b0_rank,b0_zero,b0_one)
+block axis_loop(b1_ra:readbuf,b1_sa:mutbuf,b1_xa:u64,b1_ya:u64,b1_aa:u64,b1_oa:u64,b1_ia:u64,b1_ka:u64,b1_result_a:u64,b1_stride_a:u64)
+  b1_zero_a:u64 = const() {"value":0}
+  b1_more_a:bool = compare.gt(b1_ka,b1_zero_a)
+  branch b1_more_a axis_coordinate(b1_ra,b1_sa,b1_xa,b1_ya,b1_aa,b1_oa,b1_ia,b1_ka,b1_result_a,b1_stride_a) done(b1_result_a)
+block axis_coordinate(b2_rb:readbuf,b2_sb:mutbuf,b2_xb:u64,b2_yb:u64,b2_ab:u64,b2_ob:u64,b2_ib:u64,b2_kb:u64,b2_result_b:u64,b2_stride_b:u64)
+  b2_one_b:u64 = const() {"value":1}
+  b2_current_b:u64 = int.sub.wrap(b2_kb,b2_one_b)
+  b2_eight_b:u64 = const() {"value":8}
+  b2_dimension_offset_b:u64 = int.mul.wrap(b2_current_b,b2_eight_b)
+  b2_shape_offset_b:u64 = const() {"value":96}
+  b2_delta_b:u64 = int.add.wrap(b2_shape_offset_b,b2_dimension_offset_b)
+  b2_output_pointer_b:u64 = int.add.wrap(b2_yb,b2_delta_b)
+  b2_dimension_b:u64 = call(b2_sb,b2_output_pointer_b) {"function":"getw"}
+  b2_coordinate_b:u64 = int.rem.checked(b2_ib,b2_dimension_b)
+  b2_remainder_b:u64 = int.div.checked(b2_ib,b2_dimension_b)
+  b2_input_pointer_b:u64 = int.add.wrap(b2_xb,b2_delta_b)
+  b2_input_dimension_b:u64 = call(b2_sb,b2_input_pointer_b) {"function":"getw"}
+  b2_next_stride_b:u64 = int.mul.wrap(b2_stride_b,b2_input_dimension_b)
+  b2_selected_b:bool = compare.eq(b2_current_b,b2_ab)
+  branch b2_selected_b selected_coordinate(b2_rb,b2_sb,b2_xb,b2_yb,b2_ab,b2_ob,b2_remainder_b,b2_current_b,b2_result_b,b2_stride_b,b2_next_stride_b,b2_coordinate_b) accumulated(b2_rb,b2_sb,b2_xb,b2_yb,b2_ab,b2_ob,b2_remainder_b,b2_current_b,b2_result_b,b2_stride_b,b2_next_stride_b,b2_coordinate_b)
+block selected_coordinate(b3_rc:readbuf,b3_sc:mutbuf,b3_xc:u64,b3_yc:u64,b3_ac:u64,b3_oc:u64,b3_ic:u64,b3_kc:u64,b3_result_c:u64,b3_stride_c:u64,b3_next_stride_c:u64,b3_coordinate_c:u64)
+  b3_eight_c:u64 = const() {"value":8}
+  b3_delta_c:u64 = int.mul.wrap(b3_coordinate_c,b3_eight_c)
+  b3_address_c:u64 = int.add.wrap(b3_oc,b3_delta_c)
+  b3_selected_c:u64 = call(b3_rc,b3_address_c) {"function":"getr"}
+  jump accumulated(b3_rc,b3_sc,b3_xc,b3_yc,b3_ac,b3_oc,b3_ic,b3_kc,b3_result_c,b3_stride_c,b3_next_stride_c,b3_selected_c)
+block accumulated(b4_rd:readbuf,b4_sd:mutbuf,b4_xd:u64,b4_yd:u64,b4_ad:u64,b4_od:u64,b4_id:u64,b4_kd:u64,b4_result_d:u64,b4_stride_d:u64,b4_next_stride_d:u64,b4_coordinate_d:u64)
+  b4_contribution_d:u64 = int.mul.wrap(b4_stride_d,b4_coordinate_d)
+  b4_next_result_d:u64 = int.add.wrap(b4_result_d,b4_contribution_d)
+  jump axis_loop(b4_rd,b4_sd,b4_xd,b4_yd,b4_ad,b4_od,b4_id,b4_kd,b4_next_result_d,b4_next_stride_d)
+block done(b5_value:u64)
+  ret(b5_value)
+end
+fn typed_index_select(b0_r:readbuf,b0_s:mutbuf,b0_x:u64,b0_axis:u64,b0_count:u64,b0_offset:u64,b0_end_records:u64) -> (u64) effects(read,write,trap) entry(start)
+block start(b0_r:readbuf,b0_s:mutbuf,b0_x:u64,b0_axis:u64,b0_count:u64,b0_offset:u64,b0_end_records:u64)
+  b0_dtype:u64 = call(b0_s,b0_x) {"function":"tensor_dtype"}
+  b0_six:u64 = const() {"value":6}
+  b0_three:u64 = const() {"value":3}
+  b0_high:bool = compare.gt(b0_dtype,b0_six)
+  b0_wrapped:bool = compare.eq(b0_dtype,b0_three)
+  b0_invalid_type:bool = bool.or(b0_high,b0_wrapped)
+  branch b0_invalid_type unsupported(b0_s) geometry(b0_r,b0_s,b0_x,b0_axis,b0_count,b0_offset,b0_end_records,b0_dtype)
+block unsupported(b1_su:mutbuf)
+  b1_code_u:u64 = const() {"value":7}
+  b1_result_u:u64 = call(b1_su,b1_code_u) {"function":"terror"}
+  ret(b1_result_u)
+block shape_error(b2_ss:mutbuf)
+  b2_code_s:u64 = const() {"value":2}
+  b2_result_s:u64 = call(b2_ss,b2_code_s) {"function":"terror"}
+  ret(b2_result_s)
+block payload_error(b3_sp:mutbuf)
+  b3_code_p:u64 = const() {"value":100}
+  b3_result_p:u64 = call(b3_sp,b3_code_p) {"function":"terror"}
+  ret(b3_result_p)
+block capacity_error(b4_sc:mutbuf)
+  b4_code_c:u64 = const() {"value":3}
+  b4_result_c:u64 = call(b4_sc,b4_code_c) {"function":"terror"}
+  ret(b4_result_c)
+block geometry(b5_rg:readbuf,b5_sg:mutbuf,b5_xg:u64,b5_ag:u64,b5_cg:u64,b5_og:u64,b5_eg:u64,b5_dg:u64)
+  b5_descriptor_g:u64 = call(b5_sg,b5_xg) {"function":"dptr"}
+  b5_rank_g:u64 = call(b5_sg,b5_descriptor_g) {"function":"getw"}
+  b5_zero_g:u64 = const() {"value":0}
+  b5_one_g:u64 = const() {"value":1}
+  b5_scalar_g:bool = compare.eq(b5_rank_g,b5_zero_g)
+  b5_dimensions_g:u64 = select(b5_scalar_g,b5_one_g,b5_rank_g)
+  b5_sign_g:u64 = const() {"value":9223372036854775808}
+  b5_negative_g:bool = compare.ge(b5_ag,b5_sign_g)
+  b5_normalized_g:u64 = int.add.wrap(b5_ag,b5_dimensions_g)
+  b5_selected_g:u64 = select(b5_negative_g,b5_normalized_g,b5_ag)
+  b5_axis_error_g:bool = compare.ge(b5_selected_g,b5_dimensions_g)
+  b5_bad_scalar_g:bool = compare.ne(b5_cg,b5_one_g)
+  b5_scalar_count_error_g:bool = bool.and(b5_scalar_g,b5_bad_scalar_g)
+  b5_shape_error_g:bool = bool.or(b5_axis_error_g,b5_scalar_count_error_g)
+  branch b5_shape_error_g shape_error(b5_sg) bounds(b5_rg,b5_sg,b5_xg,b5_selected_g,b5_cg,b5_og,b5_eg,b5_dg,b5_descriptor_g,b5_rank_g)
+block bounds(b6_rb:readbuf,b6_sb:mutbuf,b6_xb:u64,b6_ab:u64,b6_cb:u64,b6_ob:u64,b6_eb:u64,b6_db:u64,b6_pb:u64,b6_kb:u64)
+  b6_max_b:u64 = const() {"value":262144}
+  b6_count_error_b:bool = compare.gt(b6_cb,b6_max_b)
+  branch b6_count_error_b capacity_error(b6_sb) payload(b6_rb,b6_sb,b6_xb,b6_ab,b6_cb,b6_ob,b6_eb,b6_db,b6_pb,b6_kb)
+block payload(b7_rv:readbuf,b7_sv:mutbuf,b7_xv:u64,b7_av:u64,b7_cv:u64,b7_ov:u64,b7_ev:u64,b7_dv:u64,b7_pv:u64,b7_kv:u64)
+  b7_size_v:usize = buffer.len(b7_rv)
+  b7_total_v:u64 = int.cast(b7_size_v) {"mode":"wrap"}
+  b7_before_v:bool = compare.lt(b7_ov,b7_ev)
+  b7_after_v:bool = compare.gt(b7_ov,b7_total_v)
+  b7_bad_position_v:bool = bool.or(b7_before_v,b7_after_v)
+  b7_eight_v:u64 = const() {"value":8}
+  b7_zero_v:u64 = const() {"value":0}
+  b7_remainder_v:u64 = int.rem.checked(b7_ov,b7_eight_v)
+  b7_bad_alignment_v:bool = compare.ne(b7_remainder_v,b7_zero_v)
+  b7_bad_payload_v:bool = bool.or(b7_bad_position_v,b7_bad_alignment_v)
+  branch b7_bad_payload_v payload_error(b7_sv) payload_size(b7_rv,b7_sv,b7_xv,b7_av,b7_cv,b7_ov,b7_dv,b7_pv,b7_kv,b7_total_v)
+block payload_size(b8_rz:readbuf,b8_sz:mutbuf,b8_xz:u64,b8_az:u64,b8_cz:u64,b8_oz:u64,b8_dz:u64,b8_pz:u64,b8_kz:u64,b8_tz:u64)
+  b8_remaining_z:u64 = int.sub.wrap(b8_tz,b8_oz)
+  b8_eight_z:u64 = const() {"value":8}
+  b8_available_z:u64 = int.div.checked(b8_remaining_z,b8_eight_z)
+  b8_too_many_z:bool = compare.gt(b8_cz,b8_available_z)
+  branch b8_too_many_z payload_error(b8_sz) axis_extent(b8_rz,b8_sz,b8_xz,b8_az,b8_cz,b8_oz,b8_dz,b8_pz,b8_kz)
+block axis_extent(b9_ra:readbuf,b9_sa:mutbuf,b9_xa:u64,b9_aa:u64,b9_ca:u64,b9_oa:u64,b9_da:u64,b9_pa:u64,b9_ka:u64)
+  b9_extent_a:u64 = call(b9_sa,b9_pa,b9_aa) {"function":"indexed_dim"}
+  b9_zero_a:u64 = const() {"value":0}
+  jump validate_indices(b9_ra,b9_sa,b9_xa,b9_aa,b9_ca,b9_oa,b9_da,b9_pa,b9_ka,b9_extent_a,b9_zero_a)
+block validate_indices(b10_ri:readbuf,b10_si:mutbuf,b10_xi:u64,b10_ai:u64,b10_ci:u64,b10_oi:u64,b10_di:u64,b10_pi:u64,b10_ki:u64,b10_extent_i:u64,b10_position_i:u64)
+  b10_more_i:bool = compare.lt(b10_position_i,b10_ci)
+  branch b10_more_i validate_one(b10_ri,b10_si,b10_xi,b10_ai,b10_ci,b10_oi,b10_di,b10_pi,b10_ki,b10_extent_i,b10_position_i) choose_result(b10_ri,b10_si,b10_xi,b10_ai,b10_ci,b10_oi,b10_di,b10_pi,b10_ki)
+block validate_one(b11_rj:readbuf,b11_sj:mutbuf,b11_xj:u64,b11_aj:u64,b11_cj:u64,b11_oj:u64,b11_dj:u64,b11_pj:u64,b11_kj:u64,b11_extent_j:u64,b11_position_j:u64)
+  b11_eight_j:u64 = const() {"value":8}
+  b11_stride_j:u64 = int.mul.wrap(b11_position_j,b11_eight_j)
+  b11_address_j:u64 = int.add.wrap(b11_oj,b11_stride_j)
+  b11_index_j:u64 = call(b11_rj,b11_address_j) {"function":"getr"}
+  b11_invalid_j:bool = compare.ge(b11_index_j,b11_extent_j)
+  b11_one_j:u64 = const() {"value":1}
+  b11_next_j:u64 = int.add.wrap(b11_position_j,b11_one_j)
+  branch b11_invalid_j unsupported(b11_sj) validate_indices(b11_rj,b11_sj,b11_xj,b11_aj,b11_cj,b11_oj,b11_dj,b11_pj,b11_kj,b11_extent_j,b11_next_j)
+block choose_result(b12_rr:readbuf,b12_sr:mutbuf,b12_xr:u64,b12_ar:u64,b12_cr:u64,b12_or:u64,b12_dr:u64,b12_pr:u64,b12_kr:u64)
+  b12_zero_r:u64 = const() {"value":0}
+  b12_f32_r:bool = compare.eq(b12_dr,b12_zero_r)
+  b12_scalar_r:bool = compare.eq(b12_kr,b12_zero_r)
+  b12_clone_r:bool = bool.and(b12_f32_r,b12_scalar_r)
+  branch b12_clone_r scalar_clone(b12_sr,b12_xr) gradient_check(b12_rr,b12_sr,b12_xr,b12_ar,b12_cr,b12_or,b12_dr,b12_pr,b12_kr)
+block scalar_clone(b13_sk:mutbuf,b13_xk:u64)
+  b13_result_k:u64 = call(b13_sk,b13_xk) {"function":"clone"}
+  ret(b13_result_k)
+block gradient_check(b14_rh:readbuf,b14_sh:mutbuf,b14_xh:u64,b14_ah:u64,b14_ch:u64,b14_oh:u64,b14_dh:u64,b14_ph:u64,b14_kh:u64)
+  b14_grad_offset_h:u64 = const() {"value":32}
+  b14_grad_address_h:u64 = int.add.wrap(b14_ph,b14_grad_offset_h)
+  b14_gradient_h:u64 = call(b14_sh,b14_grad_address_h) {"function":"getw"}
+  b14_zero_h:u64 = const() {"value":0}
+  b14_tracked_h:bool = compare.ne(b14_gradient_h,b14_zero_h)
+  branch b14_tracked_h no_gradient(b14_sh) prepare_shape(b14_rh,b14_sh,b14_xh,b14_ah,b14_ch,b14_oh,b14_dh,b14_ph,b14_kh,b14_zero_h)
+block no_gradient(b15_sn:mutbuf)
+  b15_code_n:u64 = const() {"value":5}
+  b15_result_n:u64 = call(b15_sn,b15_code_n) {"function":"terror"}
+  ret(b15_result_n)
+block prepare_shape(b16_rq:readbuf,b16_sq:mutbuf,b16_xq:u64,b16_aq:u64,b16_cq:u64,b16_oq:u64,b16_dq:u64,b16_pq:u64,b16_kq:u64,b16_iq:u64)
+  b16_more_q:bool = compare.lt(b16_iq,b16_kq)
+  branch b16_more_q shape_dimension(b16_rq,b16_sq,b16_xq,b16_aq,b16_cq,b16_oq,b16_dq,b16_pq,b16_kq,b16_iq) allocate(b16_rq,b16_sq,b16_xq,b16_aq,b16_oq,b16_dq,b16_kq)
+block shape_dimension(b17_rd:readbuf,b17_sd:mutbuf,b17_xd:u64,b17_ad:u64,b17_cd:u64,b17_od:u64,b17_dd:u64,b17_pd:u64,b17_kd:u64,b17_id:u64)
+  b17_eight_d:u64 = const() {"value":8}
+  b17_stride_d:u64 = int.mul.wrap(b17_id,b17_eight_d)
+  b17_shape_offset_d:u64 = const() {"value":96}
+  b17_shape_base_d:u64 = int.add.wrap(b17_pd,b17_shape_offset_d)
+  b17_dimension_address_d:u64 = int.add.wrap(b17_shape_base_d,b17_stride_d)
+  b17_dimension_d:u64 = call(b17_sd,b17_dimension_address_d) {"function":"getw"}
+  b17_selected_d:bool = compare.eq(b17_id,b17_ad)
+  b17_new_dimension_d:u64 = select(b17_selected_d,b17_cd,b17_dimension_d)
+  b17_scratch_d:u64 = const() {"value":2048}
+  b17_target_d:u64 = int.add.wrap(b17_scratch_d,b17_stride_d)
+  b17_written_d:u64 = call(b17_sd,b17_target_d,b17_new_dimension_d) {"function":"putw"}
+  b17_one_d:u64 = const() {"value":1}
+  b17_next_d:u64 = int.add.wrap(b17_id,b17_one_d)
+  jump prepare_shape(b17_rd,b17_sd,b17_xd,b17_ad,b17_cd,b17_od,b17_dd,b17_pd,b17_kd,b17_next_d)
+block allocate(b18_rl:readbuf,b18_sl:mutbuf,b18_xl:u64,b18_al:u64,b18_ol:u64,b18_dl:u64,b18_kl:u64)
+  b18_scratch_l:u64 = const() {"value":2048}
+  b18_zero_l:u64 = const() {"value":0}
+  b18_one_l:u64 = const() {"value":1}
+  b18_result_l:u64 = call(b18_sl,b18_kl,b18_scratch_l,b18_zero_l,b18_one_l,b18_dl) {"function":"typed_descriptor"}
+  b18_failed_l:bool = compare.eq(b18_result_l,b18_zero_l)
+  branch b18_failed_l failure() start_copy(b18_rl,b18_sl,b18_xl,b18_al,b18_ol,b18_dl,b18_result_l)
+block failure()
+  b19_zero_f:u64 = const() {"value":0}
+  ret(b19_zero_f)
+block start_copy(b20_rc:readbuf,b20_sc:mutbuf,b20_xc:u64,b20_ac:u64,b20_oc:u64,b20_dc:u64,b20_yc:u64)
+  b20_descriptor_c:u64 = call(b20_sc,b20_yc) {"function":"dptr"}
+  b20_eight_c:u64 = const() {"value":8}
+  b20_count_address_c:u64 = int.add.wrap(b20_descriptor_c,b20_eight_c)
+  b20_count_c:u64 = call(b20_sc,b20_count_address_c) {"function":"getw"}
+  b20_width_c:u64 = call(b20_dc) {"function":"dtype_width"}
+  b20_zero_c:u64 = const() {"value":0}
+  jump copy_loop(b20_rc,b20_sc,b20_xc,b20_ac,b20_oc,b20_yc,b20_width_c,b20_count_c,b20_zero_c)
+block copy_loop(b21_ru:readbuf,b21_su:mutbuf,b21_xu:u64,b21_au:u64,b21_ou:u64,b21_yu:u64,b21_wu:u64,b21_nu:u64,b21_iu:u64)
+  b21_more_u:bool = compare.lt(b21_iu,b21_nu)
+  branch b21_more_u copy_element(b21_ru,b21_su,b21_xu,b21_au,b21_ou,b21_yu,b21_wu,b21_nu,b21_iu) complete(b21_yu)
+block copy_element(b22_rv:readbuf,b22_sv:mutbuf,b22_xv:u64,b22_av:u64,b22_ov:u64,b22_yv:u64,b22_wv:u64,b22_nv:u64,b22_iv:u64)
+  b22_source_v:u64 = call(b22_rv,b22_sv,b22_xv,b22_yv,b22_av,b22_ov,b22_iv) {"function":"typed_index_select_offset"}
+  b22_value_v:u64 = call(b22_sv,b22_xv,b22_source_v) {"function":"tget"}
+  b22_target_v:u64 = call(b22_sv,b22_yv,b22_iv) {"function":"taddr"}
+  b22_written_v:u64 = call(b22_sv,b22_target_v,b22_wv,b22_value_v) {"function":"typed_store"}
+  b22_one_v:u64 = const() {"value":1}
+  b22_next_v:u64 = int.add.wrap(b22_iv,b22_one_v)
+  jump copy_loop(b22_rv,b22_sv,b22_xv,b22_av,b22_ov,b22_yv,b22_wv,b22_nv,b22_next_v)
+block complete(b23_yf:u64)
+  ret(b23_yf)
+end
+fn typed_index_select_previous(v0:readbuf,v1:mutbuf,v2:u64,v3:u64,v4:u64,v5:u64,v6:u64) -> (u64) effects(read,write,trap) entry(b0)
 block b0(v0:readbuf,v1:mutbuf,v2:u64,v3:u64,v4:u64,v5:u64,v6:u64)
   v7:u64 = const() {"value":0}
   v8:u64 = call(v1,v2) {"function":"valid_f32"}
@@ -4158,6 +4345,36 @@ block b33(v489:readbuf,v490:mutbuf,v491:u64,v500:u64,v502:u64,v503:u64)
   jump b32(v489,v490,v491,v529,v502,v503)
 block b34(v504:readbuf,v505:mutbuf,v517:u64)
   ret(v517)
+end
+fn index_select(b0_r:readbuf,b0_s:mutbuf,b0_x:u64,b0_axis:u64,b0_count:u64,b0_offset:u64,b0_end_records:u64) -> (u64) effects(read,write,trap) entry(start)
+block start(b0_r:readbuf,b0_s:mutbuf,b0_x:u64,b0_axis:u64,b0_count:u64,b0_offset:u64,b0_end_records:u64)
+  b0_valid_input:u64 = call(b0_s,b0_x) {"function":"valid"}
+  b0_zero:u64 = const() {"value":0}
+  b0_failed:bool = compare.eq(b0_valid_input,b0_zero)
+  branch b0_failed failure() route(b0_r,b0_s,b0_x,b0_axis,b0_count,b0_offset,b0_end_records)
+block failure()
+  b1_zero_f:u64 = const() {"value":0}
+  ret(b1_zero_f)
+block route(b2_rr:readbuf,b2_sr:mutbuf,b2_xr:u64,b2_ar:u64,b2_cr:u64,b2_or:u64,b2_er:u64)
+  b2_dtype_r:u64 = call(b2_sr,b2_xr) {"function":"tensor_dtype"}
+  b2_descriptor_r:u64 = call(b2_sr,b2_xr) {"function":"dptr"}
+  b2_rank_r:u64 = call(b2_sr,b2_descriptor_r) {"function":"getw"}
+  b2_zero_r:u64 = const() {"value":0}
+  b2_f32_r:bool = compare.eq(b2_dtype_r,b2_zero_r)
+  b2_nonscalar_r:bool = compare.gt(b2_rank_r,b2_zero_r)
+  b2_grad_offset_r:u64 = const() {"value":32}
+  b2_grad_address_r:u64 = int.add.wrap(b2_descriptor_r,b2_grad_offset_r)
+  b2_requires_grad_r:u64 = call(b2_sr,b2_grad_address_r) {"function":"getw"}
+  b2_tracked_r:bool = compare.ne(b2_requires_grad_r,b2_zero_r)
+  b2_old_shape_r:bool = bool.and(b2_f32_r,b2_nonscalar_r)
+  b2_retained_r:bool = bool.and(b2_old_shape_r,b2_tracked_r)
+  branch b2_retained_r previous(b2_rr,b2_sr,b2_xr,b2_ar,b2_cr,b2_or,b2_er) extension(b2_rr,b2_sr,b2_xr,b2_ar,b2_cr,b2_or,b2_er)
+block previous(b3_rp:readbuf,b3_sp:mutbuf,b3_xp:u64,b3_ap:u64,b3_cp:u64,b3_op:u64,b3_ep:u64)
+  b3_value_p:u64 = call(b3_rp,b3_sp,b3_xp,b3_ap,b3_cp,b3_op,b3_ep) {"function":"typed_index_select_previous"}
+  ret(b3_value_p)
+block extension(b4_re:readbuf,b4_se:mutbuf,b4_xe:u64,b4_ae:u64,b4_ce:u64,b4_oe:u64,b4_ee:u64)
+  b4_value_e:u64 = call(b4_re,b4_se,b4_xe,b4_ae,b4_ce,b4_oe,b4_ee) {"function":"typed_index_select"}
+  ret(b4_value_e)
 end
 fn index_select_command(v0:readbuf,v1:mutbuf,v2:u64,v3:u64) -> (u64) effects(read,write,trap) entry(b0)
 block b0(v0:readbuf,v1:mutbuf,v2:u64,v3:u64)
@@ -5047,91 +5264,4 @@ block b3(v24:readbuf,v25:mutbuf,v26:u64,v27:u64,v28:u64,v29:u64)
   v41:u64 = call(v24,v40) {"function":"getr"}
   v42:u64 = call(v24,v25,v32,v35,v38,v41,v29,v28,v27) {"function":"indexed_add"}
   ret(v42)
-end
-fn to_view_public(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) entry(b0)
-block b0(v0:mutbuf,v1:u64)
-  v2:u64 = call(v0,v1) {"function":"public_node"}
-  v3:u64 = const() {"value":0}
-  v4:bool = compare.eq(v2,v3)
-  branch v4 b1(v0) b2(v0,v2)
-block b1(v5:mutbuf)
-  v11:u64 = const() {"value":0}
-  ret(v11)
-block b2(v8:mutbuf,v10:u64)
-  v12:u64 = call(v8,v10) {"function":"to_view_refresh"}
-  v13:u64 = const() {"value":0}
-  v14:bool = compare.eq(v12,v13)
-  v15:u64 = select(v14,v13,v10)
-  ret(v15)
-end
-fn retained_parameter_blocker(v0:mutbuf,v1:u64) -> (u64) effects(read,write,trap) entry(b0)
-block b0(v0:mutbuf,v1:u64)
-  v2:u64 = call(v0,v1) {"function":"dptr"}
-  v3:u64 = const() {"value":40}
-  v4:u64 = int.add.wrap(v2,v3)
-  v5:u64 = call(v0,v4) {"function":"getw"}
-  v6:u64 = const() {"value":0}
-  v7:bool = compare.eq(v5,v6)
-  branch v7 b1(v0) b2(v0,v1)
-block b1(v8:mutbuf)
-  v12:u64 = const() {"value":0}
-  ret(v12)
-block b2(v10:mutbuf,v11:u64)
-  v13:u64 = call(v10,v11) {"function":"retained_enabled"}
-  v14:u64 = const() {"value":0}
-  v15:bool = compare.ne(v13,v14)
-  v16:u64 = const() {"value":1}
-  v17:u64 = select(v15,v14,v16)
-  ret(v17)
-end
-fn tgrad(v0:mutbuf,v1:u64,v2:u64) -> (u64) effects(read,write,trap) entry(b0)
-block b0(v0:mutbuf,v1:u64,v2:u64)
-  v3:u64 = call(v0,v1) {"function":"valid_f32"}
-  v4:u64 = const() {"value":0}
-  v5:bool = compare.eq(v3,v4)
-  branch v5 b1(v0) b2(v0,v1,v2)
-block b1(v6:mutbuf)
-  v12:u64 = const() {"value":0}
-  ret(v12)
-block b2(v9:mutbuf,v10:u64,v11:u64)
-  v13:u64 = call(v9,v10) {"function":"dptr"}
-  v14:u64 = call(v9,v10) {"function":"retained_parameter_blocker"}
-  v15:u64 = const() {"value":0}
-  v16:bool = compare.ne(v14,v15)
-  branch v16 b3(v9) b4(v9,v10,v11,v13)
-block b3(v17:mutbuf)
-  v25:u64 = const() {"value":5}
-  v26:u64 = call(v17,v25) {"function":"terror"}
-  ret(v26)
-block b4(v21:mutbuf,v22:u64,v23:u64,v24:u64)
-  v27:u64 = const() {"value":8}
-  v28:u64 = int.add.wrap(v24,v27)
-  v29:u64 = call(v21,v28) {"function":"getw"}
-  v30:bool = compare.ge(v23,v29)
-  branch v30 b5(v21) b6(v21,v22,v23,v24)
-block b5(v31:mutbuf)
-  v39:u64 = const() {"value":7}
-  v40:u64 = call(v31,v39) {"function":"terror"}
-  ret(v40)
-block b6(v35:mutbuf,v36:u64,v37:u64,v38:u64)
-  v41:u64 = const() {"value":360}
-  v42:u64 = int.add.wrap(v38,v41)
-  v43:u64 = call(v35,v42) {"function":"getw"}
-  v44:u64 = const() {"value":0}
-  v45:bool = compare.eq(v43,v44)
-  branch v45 b7(v35) b8(v35,v36,v37)
-block b7(v46:mutbuf)
-  v54:u64 = const() {"value":0}
-  ret(v54)
-block b8(v50:mutbuf,v51:u64,v52:u64)
-  v55:u64 = call(v50,v51) {"function":"gradient_binding"}
-  v56:u64 = const() {"value":0}
-  v57:bool = compare.eq(v55,v56)
-  branch v57 b9(v50) b10(v50,v52,v55)
-block b9(v58:mutbuf)
-  v68:u64 = const() {"value":0}
-  ret(v68)
-block b10(v63:mutbuf,v65:u64,v67:u64)
-  v69:u64 = call(v63,v67,v65) {"function":"tget"}
-  ret(v69)
 end

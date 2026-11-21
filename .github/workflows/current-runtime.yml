@@ -376,7 +376,7 @@ jobs:
           PYTORCH_INSTALL
 
 
-      - name: Qualify all twenty-nine suites and the independent Generator probe images
+      - name: Qualify all thirty-one suites and the independent Generator probe images
         id: current_qualification
         if: ${{ !cancelled() && steps.current_build.outcome == 'success' }}
         run: |
@@ -410,7 +410,7 @@ jobs:
           output = Path(os.environ['CURRENT_OUTPUT'])
           output.mkdir(parents=True, exist_ok=True)
           failures, qualification, binding = [], None, None
-          predicate_evidence = bf16_evidence = half_mul_evidence = half_neg_evidence = half_addsub_evidence = wide_neg_evidence = half_div_evidence = public_f64_arithmetic_evidence = same_f64_arithmetic_evidence = typed_relu_evidence = None
+          predicate_evidence = bf16_evidence = half_mul_evidence = half_neg_evidence = half_addsub_evidence = wide_neg_evidence = half_div_evidence = public_f64_arithmetic_evidence = same_f64_arithmetic_evidence = typed_relu_evidence = signbit_evidence = typed_index_select_evidence = None
           for key in ('TOOLCHAIN_OUTCOME', 'ENTROPY_TOOL_OUTCOME', 'BUILD_OUTCOME', 'ORACLE_OUTCOME', 'QUALIFICATION_OUTCOME'):
               if os.environ.get(key) != 'success':
                   failures.append(key + '=' + os.environ.get(key, 'missing'))
@@ -420,16 +420,16 @@ jobs:
               binding = {'path': 'review/qualification.json', 'bytes': len(raw),
                          'sha256': hashlib.sha256(raw).hexdigest()}
               if qualification['status'] != 'PASS_CURRENT_RUNTIME_FOCUSED':
-                  failures.append('the mandatory twenty-nine-suite qualifier did not pass')
-              if (qualification['required_cases_total'] != 13851
-                      or qualification['executed_cases_total'] != 13851
+                  failures.append('the mandatory thirty-one-suite qualifier did not pass')
+              if (qualification['required_cases_total'] != 14814
+                      or qualification['executed_cases_total'] != 14814
                       or qualification['required_suites'] != [
-                      'bool27', 'original76', 'integral24', 'sum_f32_17', 'current35', 'base270', 'sum32', 'live32', 'logical147', 'resource7', 'asstrided16', 'cat4', 'metadata10', 'generator131', 'public_f64_logical192', 'f64_48', 'half47', 'half_logical264', 'half_transactions12', 'numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div', 'public_f64_arithmetic', 'same_f64_arithmetic', 'typed_relu']):
+                      'bool27', 'original76', 'integral24', 'sum_f32_17', 'current35', 'base270', 'sum32', 'live32', 'logical147', 'resource7', 'asstrided16', 'cat4', 'metadata10', 'generator131', 'public_f64_logical192', 'f64_48', 'half47', 'half_logical264', 'half_transactions12', 'numeric_predicates', 'bf16_copy', 'half_mul', 'half_neg', 'half_addsub', 'wide_neg', 'half_div', 'public_f64_arithmetic', 'same_f64_arithmetic', 'typed_relu', 'signbit', 'typed_index_select']):
                   failures.append('the mandatory case denominator or suite order changed')
-              if (qualification['functions'] != 775 or qualification['units'] != 15
-                      or qualification['source_sha256'] != '0b000b51288af20490162efd8e525b86359a32cdd6d2521df97ecd9cddbd7b43'
-                      or qualification['native_sha256'] != 'ef82340209edc4dfb8d7ed0ecbc65e144fe26078cb29a0ba327798533476e86e'):
-                  failures.append('the same complete current775 source and image were not qualified')
+              if (qualification['functions'] != 778 or qualification['units'] != 15
+                      or qualification['source_sha256'] != 'db88eaad9fb69010ae4f6925f4e8c54edce815b9f46507bc0c7c2536a4cb2c0b'
+                      or qualification['native_sha256'] != '929529e7c86ea3ce12e522f9b01b1a7c4180feb00bde812bc26268091d5032e4'):
+                  failures.append('the same complete current778 source and image were not qualified')
               public_f64 = [row for row in qualification['suites'] if row['name'] == 'public_f64_logical192']
               if (len(public_f64) != 1 or public_f64[0]['status'] != 'PASS'
                       or public_f64[0]['qualified'] is not True or public_f64[0]['cases'] != 192
@@ -530,6 +530,10 @@ jobs:
                   Path.cwd().resolve(), output.resolve())
               typed_relu_evidence, typed_relu_inputs = custody_module.typed_relu_custody(
                   Path.cwd().resolve(), output.resolve())
+              signbit_evidence, signbit_inputs = custody_module.signbit_custody(
+                  Path.cwd().resolve(), output.resolve())
+              typed_index_select_evidence, typed_index_select_inputs = custody_module.typed_index_select_custody(
+                  Path.cwd().resolve(), output.resolve())
               if (qualification['full_pytorch_rewrite_complete'] is not False
                       or qualification['schema_closure'] is not False
                       or qualification['full_project_status'] != 'HOLD'):
@@ -579,17 +583,25 @@ jobs:
                      'public_f64_arithmetic_evidence': public_f64_arithmetic_evidence,
                      'same_f64_arithmetic_evidence': same_f64_arithmetic_evidence,
                      'typed_relu_evidence': typed_relu_evidence,
+                     'signbit_evidence': signbit_evidence,
+                     'typed_index_select_evidence': typed_index_select_evidence,
                      'failures': failures,
                      'full_pytorch_rewrite_complete': False, 'full_project_status': 'HOLD'}
           (output / 'qualification.json').write_text(json.dumps(summary, indent=2, sort_keys=True) + '\n')
           print(json.dumps(summary, indent=2, sort_keys=True))
           with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a') as stream:
               stream.write('## Current HIA runtime\n\n' + summary['status'] + '\n\n')
-              stream.write('The common local/CI gate requires one complete main cold build and all 13851 finite cases: '
+              stream.write('The common local/CI gate requires one complete main cold build and all 14814 finite cases: '
                            'Bool27, view/scalar76, Integral24, explicit-F32 Sum17, lifecycle35, '
-                           'base/NN270, original F32 Sum32, live Tensor/RNG/backward32, logical147, resource7, original AsStrided16, Cat4, cat metadata10, Generator131, public F64 logical192, original F64 48, Half47, Half logical264, Half transactions12, numeric predicates485, BF16 copy280, Half multiplication312, Half negation371, Half addition/subtraction1006, I64/F64 negation405, Half true division1196, mixed public F64 arithmetic2541, same public F64 arithmetic5088 and typed ReLU776. '
+                           'base/NN270, original F32 Sum32, live Tensor/RNG/backward32, logical147, resource7, original AsStrided16, Cat4, cat metadata10, Generator131, public F64 logical192, original F64 48, Half47, Half logical264, Half transactions12, numeric predicates485, BF16 copy280, Half multiplication312, Half negation371, Half addition/subtraction1006, I64/F64 negation405, Half true division1196, mixed public F64 arithmetic2541, same public F64 arithmetic5088, typed ReLU776, signbit97 and typed index_select866. '
                            'Every suite must execute and pass. Generator131 additionally links and executes separate '
                            'current-object ABI and reordered probe images; these are not the main executable.\n\n')
+              stream.write('Signbit97 adds opcode126 across seven dtypes, exhaustive F16/BF16 encodings, thirteen packet controls, '
+                           'six successful and six rolled-back FE transactions, and two real allocation recoveries. '
+                           'Typed index_select866 checks six dtypes, scalars and noncontiguous storage, the corrected F32 no-gradient '
+                           'row-selection path, five actual autograd comparisons, 78 protocol controls, two real allocation recoveries, '
+                           'and the original three-command Bool packet as an explicit numerical successor. Both groups require '
+                           'all eleven original Torch installation provenance checks and replay complete native frames and owners.\n\n')
               stream.write('Current controls include seven dtype cases, four axis errors, ten entry checks, '
                            'both F32 allocation stages, the original Bool allocation case, '
                            'four positive and nineteen negative owner controls, and fourteen real '

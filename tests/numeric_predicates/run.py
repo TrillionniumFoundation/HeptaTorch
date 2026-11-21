@@ -56,11 +56,21 @@ def profile(repository,build,build_sha,inputs):
     neg=module(repository/'tools/current_runtime/half_neg_source_transition.py','predicate_half_neg_source_proof',inputs.bind)
     addsub=module(repository/'tools/current_runtime/half_addsub_source_transition.py','predicate_half_addsub_source_proof',inputs.bind)
     current=inputs.bind(repository/'tools/current_runtime/source/runtime.hepta')
+    combined=module(repository/'tools/current_runtime/index_signbit_source_transition.py','numeric_predicates_index_signbit_inverse',inputs.bind)
+    current,combined_proof=combined.restore_source(current,inputs.bind)
+    require(combined_proof['source_sha256']==built['source_sha256'] and combined_proof['functions']==778
+        and combined_proof['parent_functions']==775 and combined_proof['unchanged_parent_functions']==771
+        and combined_proof['changed_functions']==['entry','index_select','predicate_bits','predicate_command']
+        and combined_proof['appended_functions']==['typed_index_select_previous','typed_index_select','typed_index_select_offset']
+        and combined_proof['whole_source_inverse_exact'] is True
+        and combined_proof['whole_round_trip_exact'] is True
+        and combined_proof['admitted_new_opcode']==126 and combined_proof['opcode125_remains_rejected'] is True,
+        'complete778 source inverse precedes every unchanged775 predecessor predicate')
     relu_path=repository/'tools/current_runtime/typed_relu_source_transition.py'
     inputs.bind(relu_path,'d06390c160833aa829c1a65cffa5ed8698d7aa23b72675c2942fca006f5350f9')
     relu=module(relu_path,'predicate_typed_relu_source_proof',inputs.bind)
     current,relu_extension=relu.restore_source(current,inputs.bind)
-    require(relu_extension['source_sha256']==built['source_sha256'] and relu_extension['functions']==775
+    require(relu_extension['source_sha256']==combined_proof['parent_source_sha256'] and relu_extension['functions']==775
         and relu_extension['parent_functions']==773 and relu_extension['unchanged_parent_functions']==772
         and relu_extension['changed_functions']==['unary']
         and relu_extension['appended_functions']==['typed_relu_value','typed_relu_tensor']
