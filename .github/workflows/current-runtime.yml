@@ -377,6 +377,8 @@ jobs:
           python3 -m pip install --disable-pip-version-check --force-reinstall \
             --report build/pytorch-reference-support-install.json \
             -r compatibility/pytorch-reference-requirements.txt
+          python3 -B tests/prepare_independent_reference_wheel.py \
+            --repository "$GITHUB_WORKSPACE"
           python3 -B tests/pinned_reference_custody.py \
             --prepare-installed --repository "$GITHUB_WORKSPACE"
 
