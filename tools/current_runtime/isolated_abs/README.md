@@ -39,8 +39,8 @@ CPU PyTorch differential using the locked version (2.15.0+cpu), CPython 3.12,
 AVX2, and single-thread execution. The caller must obtain and verify the
 [locked official wheel](../../../compatibility/pytorch-oracle-lock.json)
 before invoking it; this optional comparator does not audit installation
-provenance. The included dot run had no PyTorch reference interpreter and
-records `NOT_RUN` for this differential, not a PyTorch pass.
+provenance. The original build receipt remains unchanged and records `NOT_RUN` for its own
+run. The subsequent pinned-wheel differential has a separate receipt below.
 
 ## Recorded dot run
 
@@ -51,3 +51,30 @@ There were 5,048 in-session frames in total. See [receipt](native-receipt.json)
 for exact identities. The next integration must separately implement Tensor
 dispatch, metadata/layout, resource-failure and same-build differential
 qualification; none are claimed here.
+
+## Strict pinned-wheel differential
+
+Run the qualifier with the pinned environment's CPython and the exact ELF
+emitted by the reproduction above. The original source and oracle are unchanged.
+
+```sh
+/path/to/pinned-env/bin/python -I -B qualify_pinned_torch.py \
+  --binary /path/to/repro/build-a/abs-word \
+  --wheel /path/to/original-official-wheel.whl \
+  --oracle-lock ../../../compatibility/pytorch-oracle-lock.json \
+  --install-report /path/to/pip-install-report.json \
+  --output /path/to/new-strict-receipt.json
+```
+
+Supply the wheel under the exact filename from the lock and the pip report from
+the original URL-based installation. The qualifier compares the immutable
+installed Torch member bytes with the official archive; pip's rewritten
+`RECORD` is excluded. It constrains the actual oracle to CPython 3.12 on Linux
+x86-64, the locked CPU-only Torch build, AVX2 and a single thread.
+
+The [strict receipt](strict-torch-receipt.json) records 4,516 bitwise matches on
+the exact standalone ELF, including 168 signed quiet/signaling NaN inputs. NaN
+results are compared as full words, so neither sign changes beyond the expected
+sign clear nor payload or quiet/signaling differences are tolerated. The corpus
+includes the original 4,256 inputs and additional vector-position and tail
+cases. This is not public Tensor, autograd, layout, or full-runtime parity.
