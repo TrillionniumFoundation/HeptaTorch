@@ -58,8 +58,51 @@ for 65,536 F16 values. Checks included Boolean contents, shape, transpose
 strides, distinct Storage/Version and unchanged input. All three native
 sessions exited with zero status and complete streams.
 
-The experiment used the independent numerical oracle, not a strict Torch
-environment. Its source and pinned packet helper are separate from the
-production main image. The full qualification gate, the original mandatory
-groups, additional dtype/layout/AD surfaces and public opcode adoption
-remain open. No complete-contract status is changed.
+The initial 849-frame campaign used an independent numerical oracle. The
+separate strict Torch replay below verifies numerical and output metadata
+parity on the **same** candidate ELF; it does not replace the transaction,
+OOM or pre-existing opcode evidence.
+
+## Strict fixed-wheel Torch replay on this candidate
+
+With the exact candidate ELF already built, use a clean CPython 3.12 Linux
+x86-64 environment and the repository's existing pinned wheel install
+procedure. Run from the checkout of these tools (not from the historical
+owner checkout). Supply absolute paths for `BASE`, `TOOLS`, and `OUT`.
+
+```sh
+python3.12 -m venv "$OUT/torch-env"
+PY="$OUT/torch-env/bin/python"
+mkdir -p "$OUT/torch-provenance"
+wheel=$("$PY" -c 'import json; w=json.load(open("compatibility/pytorch-oracle-lock.json"))["oracle"]["wheel"]; print(w["url"]+"#sha256="+w["sha256"])')
+"$PY" -m pip install --disable-pip-version-check --force-reinstall \
+  --index-url https://download.pytorch.org/whl/cpu \
+  --report "$OUT/torch-provenance/install.json" \
+  -r compatibility/pytorch-reference-requirements.txt "$wheel"
+"$PY" -s -E -B -W error "$TOOLS/qualify_runtime_torch.py" \
+  --protocol "$BASE/tests/differentiable_view_native_review/protocol.py" \
+  --binary "$OUT/candidate-build/heptatorch" \
+  --oracle-lock compatibility/pytorch-oracle-lock.json \
+  --install-report "$OUT/torch-provenance/install.json"
+```
+
+The replay refuses any other native image or oracle lock and checks PEP 610,
+the pip install report, the distribution metadata digest, and the loaded
+Torch version/build/backend before numerical comparisons. It uses an actual
+native wire session and actual `torch.logical_not`, not a Python model of
+the HIA operation.
+
+The [recorded local replay](strict-torch-runtime-evidence.json) has 28
+cases and 144,027 elementwise comparisons in 373 native frames. It covers
+F32, Bool, I64, F64, F16 and BF16 in dense, scalar and empty forms, every F16
+and BF16 raw word, and transposed, offset, stride-with-holes and zero-stride
+F64 views via the existing F64 view opcode. Output Boolean bytes and
+shape/strides/offset/grad flag match Torch; native output has distinct
+Storage/Version and input is unchanged. The baseline image, altered lock,
+and install-record hash substitutions were separately refused.
+
+This only qualifies the scoped experimental opcode. Green hosted main
+checks used the main ELF, not this candidate. Neither this replay nor the
+849-frame campaign enables a production opcode, qualifies every layout
+or the full runtime, or changes the original mandatory tests or any
+complete-contract status.
