@@ -28,6 +28,12 @@ IMAGE = 'aa3cc8f0c8738a9505d31c9e8ba5a523b7e08b591b61fc7bfb8592295491618b'
 CURRENT_SOURCE = 'aab2e736ff0ef4a282ff73fb1a69a95d2ceeea5260bbdada0af5b30cc16dcd3c'
 CURRENT_IMAGE = '083a92ad78977396f6d2cacff7b7f559cec4871dfcfb67624db48b6f8d64c3d5'
 CURRENT_PARTITION = 'a5cf09f191db4887b4452001e0b72e75fffb2147f2476544cc3be49d8ffa2c85'
+FROZEN_SHARED_ADMISSION = '9a45cee45a289dae0a35b0a256f66f6a1ea2d3c8becd30bb2174da1ffb51e9bb'
+CURRENT_SHARED_ADMISSION = 'f4be6d41c29659c3132f1f64014ad9d8ebcf612db3a9cb556ee5ddd178a540b6'
+_ADMITTED_OLD_LOAD = b'    spec.loader.exec_module(builder)\n'
+_ADMITTED_CURRENT_LOAD = (
+    b"    exec(compile(builder_raw, str(builder_path), 'exec', dont_inherit=True, optimize=0), builder.__dict__)\n"
+)
 HALF_SOURCE = 'bf3641b1a9061c6f92b8cbeef75adfac89e82ee16d32a9f650cb938d9e918386'
 PREDICATE_INVERSE = '71244cd75fb41ce07876d7f5699b66ae43c73adc5dd5d09fb2da0dec9c8c7439'
 HALF_LOGICAL_INVERSE = 'e0a2eac589ddfe8b09794fb55c569a73d7d7802888130646f59d33adca266f66'
@@ -48,6 +54,23 @@ def require(condition, message):
 def sha(raw):
     return hashlib.sha256(raw).hexdigest()
 
+
+
+def bind_shared_admission(repository, inputs, predecessor):
+    require(predecessor == FROZEN_SHARED_ADMISSION,
+            'original bridge must name the exact frozen qualification helper')
+    path = repository / 'tools/current_runtime/qualification.py'
+    raw = inputs.bind(path, CURRENT_SHARED_ADMISSION)
+    require(sha(raw) == CURRENT_SHARED_ADMISSION and raw.count(_ADMITTED_CURRENT_LOAD) == 1
+            and _ADMITTED_OLD_LOAD not in raw,
+            'exact current shared admission uses the checked builder source bytes')
+    restored = raw.replace(_ADMITTED_CURRENT_LOAD, _ADMITTED_OLD_LOAD, 1)
+    require(sha(restored) == predecessor
+            and restored.count(_ADMITTED_OLD_LOAD) == 1
+            and restored.replace(_ADMITTED_OLD_LOAD, _ADMITTED_CURRENT_LOAD, 1) == raw,
+            'one exact loader inverse, no admission predicate or other source change')
+    return path, raw, dict(frozen_sha256=predecessor, executed_sha256=CURRENT_SHARED_ADMISSION,
+                           exact_round_trip=True, altered_only_builder_loading=True)
 
 
 def safe_name(name):
@@ -370,9 +393,9 @@ def current_adapter_type(original_type, bridge, repository, extension_files, kin
             require(restored == inputs.bind(candidate / 'candidate/runtime.hepta', bridge.PRODUCER_SOURCE),
                     'complete original producer source reconstructed through both inverses')
             original_admission = self.old['common'].candidate_admission(candidate, inputs)
-            qpath = repository / 'tools/current_runtime/qualification.py'
-            profile = load_module(inputs.bind(qpath, bridge.QUALIFICATION), qpath,
-                                  kind + '_current_unchanged_shared_admission')
+            qpath, qualification_raw, qualification_proof = bind_shared_admission(
+                repository, inputs, bridge.QUALIFICATION)
+            profile = load_module(qualification_raw, qpath, kind + '_current_shared_admission')
             require(profile.ROOT == repository and profile.PROFILE_BYTES == manifest_raw
                     and profile.SOURCE == CURRENT_SOURCE and profile.IMAGE == CURRENT_IMAGE
                     and profile.FUNCTIONS == 800 and profile.UNITS == 15,
@@ -394,7 +417,8 @@ def current_adapter_type(original_type, bridge, repository, extension_files, kin
                 half_logical_to_original736_inverse=extension_proof,
                 original736_source_sha256=frozen_source,
                 current_source_manifest_sha256=CURRENT_PARTITION,
-                strict_shared_admission_sha256=bridge.QUALIFICATION,
+                strict_shared_admission_sha256=CURRENT_SHARED_ADMISSION,
+                strict_shared_admission_loader_inverse=qualification_proof,
                 owner_identity_binding=dict(name='F64_SOURCE_SHA256', original=frozen_source,
                     current=CURRENT_SOURCE, original_owner_source_sha256=bridge.OWNER,
                     original_function_bodies_changed=['bind_profile'],
@@ -463,7 +487,7 @@ def current_adapter_type(original_type, bridge, repository, extension_files, kin
                 status='PASS_BUILD_ADMISSION_ONLY', source_sha256=CURRENT_SOURCE, native_sha256=CURRENT_IMAGE,
                 build_sha256=report_sha, functions=800, units=15, physical_inputs=73, files=physical,
                 compiler_processes=15, linker_processes=1,
-                shared_admission_sha256=bridge.QUALIFICATION, builder_sha256=bridge.BUILDER,
+                shared_admission_sha256=CURRENT_SHARED_ADMISSION, builder_sha256=bridge.BUILDER,
                 manifest_sha256=CURRENT_PARTITION, original_shared_predicates_unchanged=True,
                 actual_original_build_inputs_rechecked=kind == 'half', link_request_magic='HIACGS01',
                 four_argument_linker=True, historical_fixed_build_receipt_used=False,
