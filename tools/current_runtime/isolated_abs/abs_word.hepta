@@ -1,0 +1,113 @@
+hia-asm.v1 hepta.hia.program.v8 heptatorch_abs_word
+exports(step,close)
+fn abs_i64(word:u64) -> (u64) effects() entry(start)
+block start(word:u64)
+  sign:u64 = const() {"value":9223372036854775808}
+  negative:bool = compare.ge(word,sign)
+  zero:u64 = const() {"value":0}
+  negated:u64 = int.sub.wrap(zero,word)
+  magnitude:u64 = select(negative,negated,word)
+  ret(magnitude)
+end
+fn abs_f64(word64:u64) -> (u64) effects() entry(start)
+block start(word64:u64)
+  magnitude_mask:u64 = const() {"value":9223372036854775807}
+  magnitude_bits:u64 = bit.and(word64,magnitude_mask)
+  ret(magnitude_bits)
+end
+fn input_word(request:readbuf) -> (u64) effects(read,trap) entry(start)
+block start(request:readbuf)
+  zero:u64 = const() {"value":0}
+  jump loop(request,zero,zero)
+block loop(req:readbuf,idx:u64,acc:u64)
+  eight:u64 = const() {"value":8}
+  more:bool = compare.lt(idx,eight)
+  branch more octet(req,idx,acc) done(acc)
+block octet(req_o:readbuf,idx_o:u64,acc_o:u64)
+  one_o:u64 = const() {"value":1}
+  eight_o:u64 = const() {"value":8}
+  next_o:u64 = int.add.wrap(idx_o,one_o)
+  off_o:usize = int.cast(next_o) {"mode":"wrap"}
+  byte_o:u8 = buffer.load(req_o,off_o)
+  value_o:u64 = int.cast(byte_o) {"mode":"wrap"}
+  shift_o:u64 = int.mul.wrap(idx_o,eight_o)
+  shifted_o:u64 = int.shl.checked(value_o,shift_o)
+  acc_n:u64 = bit.or(acc_o,shifted_o)
+  jump loop(req_o,next_o,acc_n)
+block done(result:u64)
+  ret(result)
+end
+fn output_word(out:mutbuf,word:u64) -> (u32) effects(write,trap) entry(start)
+block start(out:mutbuf,word:u64)
+  zero:u64 = const() {"value":0}
+  offset:usize = const() {"value":0}
+  size:usize = const() {"value":32}
+  status:u8 = const() {"value":0}
+  _ = buffer.fill_range(out,offset,size,status)
+  jump loop(out,word,zero)
+block loop(dst:mutbuf,word_l:u64,idx:u64)
+  eight_l:u64 = const() {"value":8}
+  more:bool = compare.lt(idx,eight_l)
+  branch more octet(dst,word_l,idx,eight_l) done()
+block octet(dst_o:mutbuf,word_o:u64,idx_o:u64,eight_o:u64)
+  one_o:u64 = const() {"value":1}
+  next_o:u64 = int.add.wrap(idx_o,one_o)
+  off_o:usize = int.cast(next_o) {"mode":"wrap"}
+  shift_o:u64 = int.mul.wrap(idx_o,eight_o)
+  shifted_o:u64 = int.shr.checked(word_o,shift_o)
+  byte_o:u8 = int.cast(shifted_o) {"mode":"wrap"}
+  _ = buffer.store(dst_o,off_o,byte_o)
+  jump loop(dst_o,word_o,next_o)
+block done()
+  count:u32 = const() {"value":32}
+  ret(count)
+end
+fn step(request:readbuf,out:mutbuf,state:buffer,entropy:readbuf) -> (buffer,u32) effects(alloc,read,write,trap) entry(start)
+block start(request:readbuf,out:mutbuf,state:buffer,entropy:readbuf)
+  req_len:usize = buffer.len(request)
+  out_len:usize = buffer.len(out)
+  nine:usize = const() {"value":9}
+  min_response:usize = const() {"value":32}
+  out_ok:bool = compare.ge(out_len,min_response)
+  branch out_ok envelope(request,out,state,req_len,nine) no_output(state)
+block envelope(req:readbuf,dst:mutbuf,owner:buffer,req_n:usize,nine_e:usize)
+  req_ok:bool = compare.eq(req_n,nine_e)
+  branch req_ok tag(req,dst,owner) invalid(dst,owner)
+block tag(req_t:readbuf,dst_t:mutbuf,owner_t:buffer)
+  offset_t:usize = const() {"value":0}
+  dtype_t:u8 = buffer.load(req_t,offset_t)
+  i64_t:u8 = const() {"value":2}
+  f64_t:u8 = const() {"value":4}
+  is_i64_t:bool = compare.eq(dtype_t,i64_t)
+  is_f64_t:bool = compare.eq(dtype_t,f64_t)
+  supported:bool = bool.or(is_i64_t,is_f64_t)
+  branch supported apply(req_t,dst_t,owner_t,is_i64_t) invalid(dst_t,owner_t)
+block apply(req_a:readbuf,dst_a:mutbuf,owner_a:buffer,is_i64_a:bool)
+  word_a:u64 = call(req_a) {"function":"input_word"}
+  branch is_i64_a i64(dst_a,owner_a,word_a) f64(dst_a,owner_a,word_a)
+block i64(dst_i:mutbuf,owner_i:buffer,word_i:u64)
+  abs_i:u64 = call(word_i) {"function":"abs_i64"}
+  size_i:u32 = call(dst_i,abs_i) {"function":"output_word"}
+  ret(owner_i,size_i)
+block f64(dst_f:mutbuf,owner_f:buffer,word_f:u64)
+  abs_f:u64 = call(word_f) {"function":"abs_f64"}
+  size_f:u32 = call(dst_f,abs_f) {"function":"output_word"}
+  ret(owner_f,size_f)
+block invalid(dst_b:mutbuf,owner_b:buffer)
+  offset_b:usize = const() {"value":0}
+  size_b_w:usize = const() {"value":32}
+  clear_b:u8 = const() {"value":0}
+  status_b:u8 = const() {"value":1}
+  _ = buffer.fill_range(dst_b,offset_b,size_b_w,clear_b)
+  _ = buffer.store(dst_b,offset_b,status_b)
+  size_b:u32 = const() {"value":32}
+  ret(owner_b,size_b)
+block no_output(owner_z:buffer)
+  zero_z:u32 = const() {"value":0}
+  ret(owner_z,zero_z)
+end
+fn close(state:buffer) -> () effects(alloc,trap) entry(start)
+block start(state:buffer)
+  _ = owner.drop(state)
+  ret()
+end
