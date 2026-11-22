@@ -12,6 +12,32 @@ from current_runtime_process import execute
 from current_runtime_admission import SOURCE, IMAGE, require, sha, complete_runner, current35_live_runner, qualify_current35
 
 
+def stage_failure_details(output):
+    """Read only bounded phase error messages; never use them for admission."""
+    details = {}
+    for phase in ('native', 'strict', 'controls'):
+        path = output / (phase + '-stage.json')
+        try:
+            if path.is_symlink() or not path.is_file():
+                continue
+            with path.open('rb') as stream:
+                raw = stream.read(1024 * 1024 + 1)
+            if len(raw) > 1024 * 1024:
+                continue
+            stage = json.loads(raw)
+            if not isinstance(stage, dict) or stage.get('phase') != phase or stage.get('status') != 'FAIL':
+                continue
+            error = stage.get('error')
+            if not isinstance(error, dict):
+                continue
+            kind, message = error.get('type'), error.get('message')
+            if isinstance(kind, str) and isinstance(message, str):
+                details[phase] = dict(type=kind[:80], message=message[:240])
+        except (OSError, ValueError, RecursionError):
+            continue
+    return details
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--build-directory', type=Path, required=True)
@@ -110,7 +136,10 @@ def main(argv=None):
         report.update(all_inputs_unchanged=not errors, input_recheck_errors=errors, checked_inputs=inputs.records,
                       status='PASS' if not failures and report.get('status') == 'PASS' else 'FAIL')
         (output / 'report.json').write_text(json.dumps(report, indent=2, sort_keys=True) + '\n')
-    print(json.dumps({key: report.get(key) for key in ('status', 'cases', 'frames', 'failures')}), flush=True)
+    summary = {key: report.get(key) for key in ('status', 'cases', 'frames', 'failures')}
+    if report['status'] == 'FAIL':
+        summary['stage_failure_details'] = stage_failure_details(output)
+    print(json.dumps(summary), flush=True)
     return 0 if report['status'] == 'PASS' else 1
 
 
