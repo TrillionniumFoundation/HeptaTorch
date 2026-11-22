@@ -49,6 +49,19 @@ class Edits:
 def public_run(raw):
     edit = Edits(raw)
     edit.one("sys.path.insert(0, str(HERE))\n", "sys.path.insert(0, str(HERE))\nsys.path.insert(1, str(ROOT / 'tests'))\n", 'explicit shared view package import path')
+    old_admission = "    inputs.bind(ROOT / 'tools/current_runtime/qualification.py', ADMISSION_SHA)\n"
+    checked_admission = """    admission = inputs.bind(ROOT / 'tools/current_runtime/qualification.py',
+                            'f4be6d41c29659c3132f1f64014ad9d8ebcf612db3a9cb556ee5ddd178a540b6')
+    current_load = b"    exec(compile(builder_raw, str(builder_path), 'exec', dont_inherit=True, optimize=0), builder.__dict__)\\n"
+    original_load = b'    spec.loader.exec_module(builder)\\n'
+    require(admission.count(current_load) == 1 and original_load not in admission,
+            'exact public F64 builder loader transition is required')
+    restored = admission.replace(current_load, original_load, 1)
+    require(sha(restored) == ADMISSION_SHA and restored.count(original_load) == 1
+            and restored.replace(original_load, current_load, 1) == admission,
+            'the public F64 admission change must invert to the complete original helper')
+"""
+    edit.one(old_admission, checked_admission, 'exact shared qualification loader inverse only')
     original = bodies(raw)['scope_controls']
     replacement = b"def scope_controls(args, wire, folder):\n    from f64_view.legacy_successors import scope_controls as actual_scope\n    return actual_scope(args, wire, folder, native, args.f64_view_successor)\n"
     edit.one(original, replacement, 'one original view control gets the separately observed success contract')

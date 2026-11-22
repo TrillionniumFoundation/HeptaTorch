@@ -13,6 +13,7 @@ import re
 import sys
 
 from binding import ROOT, require, sha
+from constructor_transition import checked_transition
 
 
 PARENT = ROOT / "tests/tensor_to_frozen35_accounting/owner_accounting_to.py"
@@ -142,11 +143,8 @@ def configure(build, bodies, directory, inputs, module=None):
     for path in original_dependencies.values():
         inputs.bind(path)
     config = json.loads(inputs.bind(module.PROFILE_FILE))
-    constructor_pins = {}
-    for name in CONSTRUCTORS:
-        expected = config["function_pins"][name]
-        require(name in bodies and sha(bodies[name]) == expected, "constructor or layout contract changed: " + name)
-        constructor_pins[name] = expected
+    constructor_pins, constructor_transition = checked_transition(
+        build, bodies, config["function_pins"], CONSTRUCTORS)
     viewinfo_pins = {}
     for name in VIEWINFO_ROOT_FUNCTIONS:
         expected = config["function_pins"][name]
@@ -201,6 +199,7 @@ def configure(build, bodies, directory, inputs, module=None):
     def dependency_paths():
         return {**original_dependency_paths(), "current_identity_adapter": Path(__file__).resolve(),
                 "current_build_binding": Path(__file__).with_name("binding.py").resolve(),
+                "current_constructor_transition": Path(__file__).with_name("constructor_transition.py").resolve(),
                 "current_actual_build": directory / "build.json"}
 
     module.pin_profile = pin_profile
@@ -223,6 +222,8 @@ def configure(build, bodies, directory, inputs, module=None):
         general_snapshot_and_transition_predicates_unchanged=True, full_84_word_snapshots=True,
         reference_or_numeric_assertions_changed=False, old_pass_transferred=False,
     )
+    if constructor_transition is not None:
+        adaptation["owner800_constructor_transition"] = constructor_transition
     # Hold originals for explicit restoration at the process boundary.
     module._current_identity_adaptation = adaptation
     module._current_original_pin_profile = original_pin_profile

@@ -13,6 +13,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from binding import ROOT, Inputs, bind_build, dump, require, sha
 import observer as adapter
+from constructor_transition import observe_frozen_domain
 
 
 def invoke(function, argv, output):
@@ -189,6 +190,9 @@ def main():
             else:
                 require(inner["status"] == "PASS" and inner["cases"] == 35,
                         "all original35 cases must execute successfully")
+                if "owner800_constructor_transition" in adaptation:
+                    report["owner800_constructor_workload"] = observe_frozen_domain(
+                        inner["rows"], out / "observer/owners", inputs)
         elif args.phase == "strict":
             inputs.bind(original)
             wrapper = json.loads(inputs.bind(wrapped))

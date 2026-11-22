@@ -190,7 +190,16 @@ def admit(args, inputs):
     for name, expected in SOURCE_FILES.items():
         inputs.bind(HERE / name, expected)
     inputs.bind(ROOT / 'tools/current_runtime/build.py', BUILDER_SHA)
-    inputs.bind(ROOT / 'tools/current_runtime/qualification.py', ADMISSION_SHA)
+    admission = inputs.bind(ROOT / 'tools/current_runtime/qualification.py',
+                            'f4be6d41c29659c3132f1f64014ad9d8ebcf612db3a9cb556ee5ddd178a540b6')
+    current_load = b"    exec(compile(builder_raw, str(builder_path), 'exec', dont_inherit=True, optimize=0), builder.__dict__)\n"
+    original_load = b'    spec.loader.exec_module(builder)\n'
+    require(admission.count(current_load) == 1 and original_load not in admission,
+            'exact public F64 builder loader transition is required')
+    restored = admission.replace(current_load, original_load, 1)
+    require(sha(restored) == ADMISSION_SHA and restored.count(original_load) == 1
+            and restored.replace(original_load, current_load, 1) == admission,
+            'the public F64 admission change must invert to the complete original helper')
     inputs.bind(ROOT / 'tests/differentiable_view_native_review/protocol.py', native.PROTOCOL_SHA)
     inputs.bind(ROOT / 'tests/differentiable_view_native_review/owner_client.py',
                 'dee3e4cb25ee1e5e06513e2f33478fbe274d9510ce2aaab9525815c72312946b')

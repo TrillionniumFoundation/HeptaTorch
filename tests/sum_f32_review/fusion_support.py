@@ -54,7 +54,6 @@ def bind_frozen_reader(reader, inputs):
 
 def _logical_source_inverse(source, inputs, support):
     """Reconstruct the complete PR38 source using the observed current bodies."""
-    profile = current_profile()
     require(sha(source) == '0c1c0dd3acf0285a887a2766c1308dfd992acf3fe51849dcd98749bb64a00f3b', 'current source pin before fusion inverse')
     delta = json.loads(inputs.bind(HERE / 'fusion-source.json', DELTA_SHA))
     require(delta['parent_source_sha256'] == PR38_SOURCE and delta['current_functions'] == 700,
@@ -103,13 +102,13 @@ def _logical_source_inverse(source, inputs, support):
 
 
 def source_inverse(source, inputs, support):
-    """Add exact797 and cat inverses before the original historical proofs."""
+    """Add exact800 and cat inverses before the unchanged historical proofs."""
     profile = current_profile()
-    require(sha(source) == profile.SOURCE and profile.FUNCTIONS == 797 and profile.UNITS == 15,
-            'actual complete current797 profile before historical source proofs')
+    require(sha(source) == profile.SOURCE and profile.FUNCTIONS == 800 and profile.UNITS == 15,
+            'actual complete current800 profile before historical source proofs')
     outer_path = ROOT / 'tools/current_runtime/fusion_source_transition.py'
-    inputs.bind(outer_path, '96c070fc44d86567896e309affe74b70e3924b0a5ffcdc2fe47f91b8381a89c5')
-    outer = load(outer_path, 'fusion_current797_source_transition')
+    inputs.bind(outer_path, 'f6367a2fba18703e9d807f250e18d503c717969454369754166ee510640c7a40')
+    outer = load(outer_path, 'fusion_current800_source_transition')
     historical700, outer_proof = outer.restore_source(source, inputs.bind)
     path = ROOT / 'tools/current_runtime/cat_source_transition.py'
     inputs.bind(path)
@@ -121,11 +120,11 @@ def source_inverse(source, inputs, support):
     require(previous['source_sha256'] == cat.PARENT_SOURCE
             and previous['whole_inverse_exact'] is True,
             'the complete original logical/PR38/AVX2 proof must execute')
-    return dict(schema='heptatorch.current797-cat.source-proof.v1',
+    return dict(schema='heptatorch.current800-cat.source-proof.v1',
         source_sha256=sha(source), parent_source_sha256=cat.PARENT_SOURCE,
         whole_inverse_exact=True, outer_source_inverse=outer_proof,
         cat_transition=proof, logical_fusion=previous,
-        actual_functions=797, historical_functions=700, historical_count_binding_separated=True,
+        actual_functions=800, historical_functions=700, historical_count_binding_separated=True,
         original_source_proofs_modified=False, runtime_qualification_transferred=False)
 
 def adapted_parent(repository, filename, inputs, *, owner=False):
