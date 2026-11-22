@@ -598,15 +598,24 @@ def load_view_adapter(repository):
     """Resolve the bound sibling package even when Python was started with -I."""
     tests = Path(repository).resolve(strict=True) / 'tests'
     finder = _F64ViewSourceFinder(tests)
-    for name, existing in tuple(sys.modules.items()):
+    def family(name):
+        return name == 'f64_view' or name.startswith('f64_view.')
+
+    cached = {name: existing for name, existing in tuple(sys.modules.items()) if family(name)}
+    for name, existing in cached.items():
         expected = finder.source(name)
-        if expected is not None:
-            source = getattr(existing, '__file__', None)
-            require(source is not None and Path(source).resolve() == expected
-                    and isinstance(getattr(existing, '__loader__', None), _F64ViewSourceLoader),
-                    'cached F64 view module was not source-loaded from the bound repository: ' + name)
+        source = getattr(existing, '__file__', None)
+        require(source is not None and Path(source).resolve() == expected,
+                'cached F64 view module was not source-loaded from the bound repository: ' + name)
+
+    # The coordinator may already have imported the correct checkout through
+    # Python's normal loader. A path match permits suspension, not reuse.
+    # Reload the entire package family so old parent attributes cannot expose
+    # cached children, and restore the caller's original module objects.
     saved_path = sys.path[:]
     try:
+        for name in cached:
+            del sys.modules[name]
         sys.path.insert(0, str(tests))
         sys.meta_path.insert(0, finder)
         from f64_view import legacy_binding
@@ -617,6 +626,10 @@ def load_view_adapter(repository):
     finally:
         if finder in sys.meta_path:
             sys.meta_path.remove(finder)
+        for name in tuple(sys.modules):
+            if family(name):
+                del sys.modules[name]
+        sys.modules.update(cached)
         sys.path[:] = saved_path
 
 
