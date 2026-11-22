@@ -6,6 +6,7 @@ entity were not retained. Current native observer identities do not fill that ga
 This module performs byte transport and source/provenance reading only.
 """
 import hashlib
+import importlib.machinery
 import importlib.util
 import ast
 import contextlib
@@ -539,6 +540,62 @@ def current_adapter_type(original_type, bridge, repository, extension_files, kin
     return CurrentAdapter
 
 
+class _F64ViewSourceLoader(importlib.machinery.SourceFileLoader):
+    """Execute actual repository source, regardless of timestamp/hash pyc caches."""
+    def get_code(self, fullname):
+        path = self.get_filename(fullname)
+        return self.source_to_code(self.get_data(path), path)
+
+
+class _F64ViewSourceFinder:
+    def __init__(self, tests):
+        self.tests = tests
+
+    def source(self, fullname):
+        parts = fullname.split('.')
+        if parts[0] != 'f64_view':
+            return None
+        base = self.tests.joinpath(*parts)
+        expected = base / '__init__.py' if base.is_dir() else base.with_suffix('.py')
+        require(expected.is_file() and expected.resolve() == expected,
+                'local F64 view source must exist at the bound repository path: ' + fullname)
+        return expected
+
+    def find_spec(self, fullname, path=None, target=None):
+        expected = self.source(fullname)
+        if expected is None:
+            return None
+        loader = _F64ViewSourceLoader(fullname, str(expected))
+        return importlib.util.spec_from_file_location(fullname, expected, loader=loader)
+
+
+@contextlib.contextmanager
+def load_view_adapter(repository):
+    """Resolve the bound sibling package even when Python was started with -I."""
+    tests = Path(repository).resolve(strict=True) / 'tests'
+    finder = _F64ViewSourceFinder(tests)
+    for name, existing in tuple(sys.modules.items()):
+        expected = finder.source(name)
+        if expected is not None:
+            source = getattr(existing, '__file__', None)
+            require(source is not None and Path(source).resolve() == expected
+                    and isinstance(getattr(existing, '__loader__', None), _F64ViewSourceLoader),
+                    'cached F64 view module was not source-loaded from the bound repository: ' + name)
+    saved_path = sys.path[:]
+    try:
+        sys.path.insert(0, str(tests))
+        sys.meta_path.insert(0, finder)
+        from f64_view import legacy_binding
+        require(Path(legacy_binding.__file__).resolve() == finder.source('f64_view.legacy_binding'),
+                'F64 view adapter loaded from the bound repository')
+        # strict_successor imports its evidence and custody readers lazily.
+        yield legacy_binding.adapter_type
+    finally:
+        if finder in sys.meta_path:
+            sys.meta_path.remove(finder)
+        sys.path[:] = saved_path
+
+
 @contextlib.contextmanager
 def current_reader(repository, reader_directory, wide_neg=None, public_f64_arithmetic=None, public_f64_view=None):
     directory = Path(reader_directory).resolve(strict=True)
@@ -562,10 +619,10 @@ def current_reader(repository, reader_directory, wide_neg=None, public_f64_arith
     arithmetic = load_module(arithmetic_path.read_bytes(), arithmetic_path, 'current_f64_arithmetic23_successor')
     adapter = arithmetic.adapter_type(adapter, repository, directory, public_f64_arithmetic)
     require(public_f64_view is not None, 'the two original views require their shared strict188 reference and actual build')
-    from f64_view.legacy_binding import adapter_type as view_adapter_type
-    adapter = view_adapter_type(adapter, repository, directory, public_f64_view)
-    with bridge.original_modules() as (originals, old_run, startup):
-        yield adapter(originals, old_run, startup)
+    with load_view_adapter(repository) as view_adapter_type:
+        adapter = view_adapter_type(adapter, repository, directory, public_f64_view)
+        with bridge.original_modules() as (originals, old_run, startup):
+            yield adapter(originals, old_run, startup)
 
 
 def main():
@@ -601,6 +658,3 @@ def main():
 
 if __name__ == '__main__':
     raise SystemExit(main())
-
-
-
