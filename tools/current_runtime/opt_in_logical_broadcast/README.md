@@ -1,0 +1,7 @@
+# CPU logical family: bounded same-dtype broadcasting
+
+This opt-in candidate adds right-aligned nonempty broadcasting to the existing canonical ordinary CPU logical family (AND 131, OR 133, XOR 134). Inputs retain the same public dtype, rank 0–4, valid ordinary ownership, and nonempty canonical layout. True rank-zero operands map to element 0. Result is fresh canonical Bool with at most 262,144 elements. Equal-shape operation, entry/response cursor and unsupported operation 132 remain unchanged.
+
+Locked CPU PyTorch and independent native owner-and-wire readback agree on 396 new ordinary executions plus nine measured historical operands (8,310 Bool bytes), output metadata and physical row-major order. The exact predecessor refused each such invocation. Three full 262,144-element outputs match raw references; three 262,656-element joins are rejected at the native cap despite both inputs being small. Replay of 7,765 unchanged prior frames verified 567 exact owner rollbacks, preserved three incompatible archived cases and unsupported operation 132; only the nine individually verified and now supported historic wires were omitted from the retained replay.
+
+The native run also checks three same-frame result references, late error rollback and an actual process-local address-space limit, restoration of nonzero allocator scratch and exact recovery after removing the limit. Empty outputs, noncanonical/view/grad inputs, mixed dtype, in-place/out, non-CPU, and default activation are outside this candidate.

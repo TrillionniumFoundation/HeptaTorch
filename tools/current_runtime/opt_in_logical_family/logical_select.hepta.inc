@@ -1,0 +1,9 @@
+  lst_and_bits:u64 = bit.and(lst_l,lst_r)
+  lst_or_bits:u64 = bit.or(lst_l,lst_r)
+  lst_xor_bits:u64 = bit.xor(lst_l,lst_r)
+  lst_or_code:u64 = const() {"value":133}
+  lst_xor_code:u64 = const() {"value":134}
+  lst_is_or:bool = compare.eq(lst_op,lst_or_code)
+  lst_is_xor:bool = compare.eq(lst_op,lst_xor_code)
+  lst_and_or:u64 = select(lst_is_or,lst_or_bits,lst_and_bits)
+  lst_bits:u64 = select(lst_is_xor,lst_xor_bits,lst_and_or)
