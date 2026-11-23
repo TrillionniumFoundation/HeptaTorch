@@ -60,6 +60,12 @@ def validate(data):
             and (u["bytes"], u["sha256"]) ==
             (103458, "0ea8a3a22f7d4c2541590f18f98b3631d51603c70aa79ef8330714bc676172a9"),
             "wrong outer receipt identities")
+    inner = c["inner_receipts"]
+    require([(x["path"], x["bytes"], x["sha256"]) for x in inner] == [
+        ("current-runtime/build/build.json", 22757, "c1b4cb1c483705d935b453f3b9ab1f82b20b59ea658048bc5750cc33bf9b0d33"),
+        ("current-runtime/build/manifest.json", 4416, "348ed8e949256f985cdca0d9c612dc646ae738beee6013c27ab405d2df3e67c8"),
+        ("current-runtime/review/generator131/report.json", 12970068, "5ce818551600d18b45ab1af1e1c8b625844c251020238603bc9d3e24cf6e0c36"),
+    ], "wrong inner receipt identities")
     for op, spec in data["operators"].items():
         require(spec["route"] == ROUTES[op] and spec["full_declaration_qualified"] is False, "wrong route/credit")
         require(set(spec["evidence"]) == {int(pr) for pr, ops in EVIDENCE.items() if op in ops},
@@ -84,18 +90,21 @@ def validate(data):
     require(r["last_positive"] == {"chains":50, "combined_outputs":171,
                                   "isolated_outputs":171, "values":1362}, "keep coexistence distinct")
     require(re.fullmatch(r"[0-9a-f]{40}", r["tree"]) and
-            len(apps) == 2 and [x["id"] for x in apps] ==
-            ["two_layer_inference", "one_scalar_loss_sgd_step"], "wrong app scopes")
-    infer, sgd = apps
+            len(apps) == 4 and [x["id"] for x in apps] ==
+            ["two_layer_inference", "one_scalar_loss_sgd_step", "fixed_manual_demo", "two_layer_sgd_step"], "wrong app scopes")
+    infer, sgd, demo, train = apps
     require(tuple(infer[k] for k in ("cases","stages","raw_f32_words")) == (3,15,80),
             "wrong two-layer scope")
     require(tuple(sgd[k] for k in ("cases","raw_f32_words","backward_calls","sgd_calls",
                                    "loss_before","loss_after","version_delta")) == (1,26,1,1,"8","2.25",1)
-            and sgd["commit"] == r["head"], "wrong scalar-loss scope")
+            and sgd["commit"] == "72be4108b176fa92873a726c50d2ddf5aea6ba46", "wrong scalar-loss scope")
+    require(demo["includes_two_layer_sgd"] is False, "manual demo scope expands")
+    require(tuple(train[k] for k in ("cases", "raw_f32_words", "frames", "loss_before", "loss_after"))
+            == (1,54,265,"8","12625/4096") and train["commit"] == r["head"], "wrong two-layer SGD scope")
     for app in apps:
         require(re.fullmatch(r"[0-9a-f]{40}", app["commit"]) and
                 re.fullmatch(r"tools/current_runtime/opt_in_[a-z0-9_]+", app["root"]) and
-                re.fullmatch(r"[a-z0-9-]+\.json", app["receipt"]), "invalid app pin")
+                re.fullmatch(r"(?:[a-z0-9-]+\.json|README\.md)", app["receipt"]), "invalid app pin")
     return data
 
 
@@ -138,6 +147,8 @@ def render(d):
            f"byte/mode custody `{c['outer_evidence']['custody']['sha256']}`. "
            "They report 29 groups / 13,851 cases including Generator131; the custody reader "
            "records zero independent case admissions. Canonical execution evidence remains null in this crosswalk.", "",
+           "Bounded inner receipt readback (no new case admissions): " +
+           "; ".join(f"`{x['path']}` `{x['sha256']}` ({x['scope']})" for x in c["inner_receipts"]) + ".", "",
            f"[Full acceptance]({main}/{a['catalog']}) stays **{a['overall']}**: "
            f"0/{a['native_total']:,} complete native declarations, "
            f"0/{a['derivative_total']} derivative declarations and "
@@ -163,14 +174,17 @@ def render(d):
     apps = d["evidence"]["71"]["separate_cpu_app_evidence"]
     out += ["## Separate #71 CPU application evidence", "",
             "These are separate exact-image experiments, not additional operator-coexistence counts.", ""]
-    a, b = apps
+    a, b, demo, train = apps
     href = lambda x: f"{ROOT}/blob/{x['commit']}/{x['root']}/{x['receipt']}"
     out += [f"- **Two-layer F32 inference:** {a['cases']} cases, {a['stages']} stages, "
             f"{a['raw_f32_words']} exact words. {a['scope']} [Receipt]({href(a)}).",
             f"- **One owned scalar-loss SGD step:** {b['raw_f32_words']} exact words, "
             f"loss {b['loss_before']} → {b['loss_after']}, weight Version +{b['version_delta']}. "
-            f"{b['scope']} [Receipt]({href(b)}).", "",
-            "Neither experiment qualifies any full forward or gradient contract, default path, "
+            f"{b['scope']} [Receipt]({href(b)}).",
+            f"- **Manual demo:** {demo['scope']} [Instructions]({href(demo)}) · [Live receipt]({ROOT}/blob/{demo['commit']}/{demo['root']}/{demo['live_receipt']}).",
+            f"- **One two-layer F32 SGD fixture:** {train['raw_f32_words']} exact words, {train['frames']} frames, "
+            f"loss {train['loss_before']} → {train['loss_after']}. {train['scope']} [Receipt]({href(train)}).", "",
+            "No application evidence here qualifies any full forward or gradient contract, default path, "
             "speed advantage or canonical acceptance.", "",
             "## Pins and exclusions", "",
             f"#70 and #71 pin earlier #69 `{d['older_combined_nonzero_pin'][:7]}`; "

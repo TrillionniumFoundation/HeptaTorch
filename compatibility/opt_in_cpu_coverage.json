@@ -17,6 +17,26 @@
     "canonical_execution_evidence": null,
     "commit": "e9444902df9878060ab389a70ee957c1b7f4a887",
     "elf_sha256": "ef82340209edc4dfb8d7ed0ecbc65e144fe26078cb29a0ba327798533476e86e",
+    "inner_receipts": [
+      {
+        "bytes": 22757,
+        "path": "current-runtime/build/build.json",
+        "scope": "PASS_NATIVE_BUILD_ONLY; runtime_qualified=false; source and manifest hashes match",
+        "sha256": "c1b4cb1c483705d935b453f3b9ab1f82b20b59ea658048bc5750cc33bf9b0d33"
+      },
+      {
+        "bytes": 4416,
+        "path": "current-runtime/build/manifest.json",
+        "scope": "exact source manifest hash match",
+        "sha256": "348ed8e949256f985cdca0d9c612dc646ae738beee6013c27ab405d2df3e67c8"
+      },
+      {
+        "bytes": 12970068,
+        "path": "current-runtime/review/generator131/report.json",
+        "scope": "hash only; contents and cases not independently admitted",
+        "sha256": "5ce818551600d18b45ab1af1e1c8b625844c251020238603bc9d3e24cf6e0c36"
+      }
+    ],
     "manifest": "tools/current_runtime/source/manifest.json",
     "metadata_only_hosted_conclusion": "success; original evidence not independently admitted by this crosswalk",
     "metadata_only_hosted_run": 44912529511,
@@ -161,7 +181,7 @@
       "controls": "Ordinary only; 768 prior live owner checks. Offline verifier does not rerun native/Torch, does not measure unsupported paths and does not add coverage.",
       "detail": "Exact #66 plus #70 additive pins and unchanged current800 owner liveness. #70\u2019s earlier #69 scope retained; no later #69 rank2 numeric/rank3. Adds 14 where-to-selection/nonzero chains to #70\u2019s 36 ordinary chains.",
       "elf_sha256": "5c8dfb2d329e211e7871438d64754b0f8912cc687c1d9ae3fc432f20e95d165d",
-      "head": "72be4108b176fa92873a726c50d2ddf5aea6ba46",
+      "head": "cf23e9250234c788eb58b1a9de48d9c38fa655f8",
       "last_positive": {
         "chains": 50,
         "combined_outputs": 171,
@@ -205,10 +225,32 @@
           "scope": "One owned F32 scalar-loss toy, with one backward and SGD at 1/8, same weight Tensor/Storage/Version owners, fresh recomputed loss and unchanged input/target.",
           "sgd_calls": 1,
           "version_delta": 1
+        },
+        {
+          "commit": "ead53ace4f56f4b27054a61e6cf308774a4806dd",
+          "id": "fixed_manual_demo",
+          "includes_two_layer_sgd": false,
+          "live_receipt": "live/receipt.json",
+          "receipt": "README.md",
+          "root": "tools/current_runtime/opt_in_current800_fixed_demo",
+          "scope": "Standalone, manual CPU caller for the three inference fixtures and scalar-loss SGD only; requires the exact prebuilt ELF and does not include the two-layer training fixture.",
+          "tree": "4bb3dc3464310c83ec09df126fbfaf785f9fb1b9"
+        },
+        {
+          "cases": 1,
+          "commit": "cf23e9250234c788eb58b1a9de48d9c38fa655f8",
+          "frames": 265,
+          "id": "two_layer_sgd_step",
+          "loss_after": "12625/4096",
+          "loss_before": "8",
+          "raw_f32_words": 54,
+          "receipt": "pure.json",
+          "root": "tools/current_runtime/opt_in_current800_two_layer_train",
+          "scope": "One backward, one SGD per leaf at 1/32, and fresh recomputed loss on one owned two-layer F32 fixture; both weight Version counters increment once."
         }
       ],
       "source_sha256": "f8f924a82763a28d8ad12adbd371f25458ed86d1fbdee2406bb93912847afb4b",
-      "tree": "de103b3d0b969fc37ff0045330fcabe4676d5483"
+      "tree": "4fc4f7f42a61efb615a4ec4d24c98babcbd79a91"
     }
   },
   "older_combined_nonzero_pin": "2b5b2fcd8b7937d5441317da1becf9cbef360a1b",

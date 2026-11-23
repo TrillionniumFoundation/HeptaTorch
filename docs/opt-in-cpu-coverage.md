@@ -6,6 +6,8 @@ Canonical [e944490](https://github.com/TrillionniumFoundation/HeptaTorch/tree/e9
 
 Published-format outer receipts from artifact `14713706649`: qualification `a92cf94efaa4745168d4ab82239b1af60b4819942e6f89c82a794777004a9902`, byte/mode custody `0ea8a3a22f7d4c2541590f18f98b3631d51603c70aa79ef8330714bc676172a9`. They report 29 groups / 13,851 cases including Generator131; the custody reader records zero independent case admissions. Canonical execution evidence remains null in this crosswalk.
 
+Bounded inner receipt readback (no new case admissions): `current-runtime/build/build.json` `c1b4cb1c483705d935b453f3b9ab1f82b20b59ea658048bc5750cc33bf9b0d33` (PASS_NATIVE_BUILD_ONLY; runtime_qualified=false; source and manifest hashes match); `current-runtime/build/manifest.json` `348ed8e949256f985cdca0d9c612dc646ae738beee6013c27ab405d2df3e67c8` (exact source manifest hash match); `current-runtime/review/generator131/report.json` `5ce818551600d18b45ab1af1e1c8b625844c251020238603bc9d3e24cf6e0c36` (hash only; contents and cases not independently admitted).
+
 [Full acceptance](https://github.com/TrillionniumFoundation/HeptaTorch/tree/e9444902df9878060ab389a70ee957c1b7f4a887/compatibility/full-acceptance.json) stays **HOLD**: 0/2,590 complete native declarations, 0/688 derivative declarations and 0/17 complete subsystem contracts.
 
 | Route | Frozen declaration | Evidence PRs | Out-of-scope overloads or derivative |
@@ -61,11 +63,11 @@ Ranks1–3, six public input types; ordinary owned contiguous no-grad CPU, zero 
 
 **Control boundary:** Existing published ordinary conformance, not pressure/fault/unsupported coverage.
 
-### #71 (72be410): separate current800 coexistence
+### #71 (cf23e92): separate current800 coexistence
 
 Exact #66 plus #70 additive pins and unchanged current800 owner liveness. #70’s earlier #69 scope retained; no later #69 rank2 numeric/rank3. Adds 14 where-to-selection/nonzero chains to #70’s 36 ordinary chains.
 
-**Measured:** 50 chains, 171 combined outputs, 171 isolated outputs, 1,362 values; ordinary operator coexistence; offline verifier only rereads its sealed raw archive. [Manifest](https://github.com/TrillionniumFoundation/HeptaTorch/blob/72be4108b176fa92873a726c50d2ddf5aea6ba46/tools/current_runtime/opt_in_current800_operator_coexistence/pinned-manifest.json) · [Receipt](https://github.com/TrillionniumFoundation/HeptaTorch/blob/72be4108b176fa92873a726c50d2ddf5aea6ba46/tools/current_runtime/opt_in_current800_operator_coexistence/ordinary-readback.json).
+**Measured:** 50 chains, 171 combined outputs, 171 isolated outputs, 1,362 values; ordinary operator coexistence; offline verifier only rereads its sealed raw archive. [Manifest](https://github.com/TrillionniumFoundation/HeptaTorch/blob/cf23e9250234c788eb58b1a9de48d9c38fa655f8/tools/current_runtime/opt_in_current800_operator_coexistence/pinned-manifest.json) · [Receipt](https://github.com/TrillionniumFoundation/HeptaTorch/blob/cf23e9250234c788eb58b1a9de48d9c38fa655f8/tools/current_runtime/opt_in_current800_operator_coexistence/ordinary-readback.json).
 
 **Control boundary:** Ordinary only; 768 prior live owner checks. Offline verifier does not rerun native/Torch, does not measure unsupported paths and does not add coverage.
 
@@ -75,8 +77,10 @@ These are separate exact-image experiments, not additional operator-coexistence 
 
 - **Two-layer F32 inference:** 3 cases, 15 stages, 80 exact words. One owned CPU no-grad session per fixture: matmul, bias, ReLU, matmul, bias. A fourth signed-zero-mismatch fixture was retained as Torch-only, not run in HIA. [Receipt](https://github.com/TrillionniumFoundation/HeptaTorch/blob/e7e02a54618bdd111982e447189f810d9164731c/tools/current_runtime/opt_in_current800_two_layer/pure-v2.json).
 - **One owned scalar-loss SGD step:** 26 exact words, loss 8 → 2.25, weight Version +1. One owned F32 scalar-loss toy, with one backward and SGD at 1/8, same weight Tensor/Storage/Version owners, fresh recomputed loss and unchanged input/target. [Receipt](https://github.com/TrillionniumFoundation/HeptaTorch/blob/72be4108b176fa92873a726c50d2ddf5aea6ba46/tools/current_runtime/opt_in_current800_one_step_sgd/pure.json).
+- **Manual demo:** Standalone, manual CPU caller for the three inference fixtures and scalar-loss SGD only; requires the exact prebuilt ELF and does not include the two-layer training fixture. [Instructions](https://github.com/TrillionniumFoundation/HeptaTorch/blob/ead53ace4f56f4b27054a61e6cf308774a4806dd/tools/current_runtime/opt_in_current800_fixed_demo/README.md) · [Live receipt](https://github.com/TrillionniumFoundation/HeptaTorch/blob/ead53ace4f56f4b27054a61e6cf308774a4806dd/tools/current_runtime/opt_in_current800_fixed_demo/live/receipt.json).
+- **One two-layer F32 SGD fixture:** 54 exact words, 265 frames, loss 8 → 12625/4096. One backward, one SGD per leaf at 1/32, and fresh recomputed loss on one owned two-layer F32 fixture; both weight Version counters increment once. [Receipt](https://github.com/TrillionniumFoundation/HeptaTorch/blob/cf23e9250234c788eb58b1a9de48d9c38fa655f8/tools/current_runtime/opt_in_current800_two_layer_train/pure.json).
 
-Neither experiment qualifies any full forward or gradient contract, default path, speed advantage or canonical acceptance.
+No application evidence here qualifies any full forward or gradient contract, default path, speed advantage or canonical acceptance.
 
 ## Pins and exclusions
 
