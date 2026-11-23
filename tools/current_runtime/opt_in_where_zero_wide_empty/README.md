@@ -1,0 +1,7 @@
+# CPU where.self with canonical empty rank-zero/F64 result
+
+Opt-in ordinary rank-positive public F64 plus one ordinary true rank-zero F32/I64/F16/BF16 Tensor, either placement, Bool condition, compatible empty broadcast, exact canonical input descriptors, and unchanged reverse TensorIterator permutation. Only this empty branch is new. No explicit output strides, stride writes, generalized view support, out=, scalar-number overload, reverse rank role or default runtime activation.
+
+Separate locked PyTorch and pure metadata receipts establish 112 canonical positives (104 new and eight historical), 32 explicit-layout exclusions and 48 incompatible shapes. Native matched all admitted metadata, zero payload, owner lifetime and rollback. Four actual op111 retained aliases survived release of the fresh result handle, preserving storage/version. Op98 out-of-bounds returned 2, op12 out-of-bounds returned 7; both left owner bytes unchanged. Existing op112/113 F64 empty status7 is preserved, independently measured on real constructor and ordinary same-dtype where roots in both images, and is not claimed supported.
+
+Only eight raw matched old canonical empty status7 invocations were retired from comparisons. Eight original noncanonical empty refusals (including [0,1,4]) remained actual status7 and unchanged, as did the old admitted 168 nonempty scalar cases and all other comparable frames. Original allocation-pressure replay retained its exact request digest, lead/recovery, and absolute address-space cap.

@@ -1,0 +1,5 @@
+# HIA CPU Tensor where.self: I64 + F32
+
+This opt-in source projection adds only the unordered rank-positive public I64/F32 Tensor pair. Ordinary Bool condition and ordinary zero-offset contiguous value routes are required. Construction/broadcast/owning transaction contracts remain unchanged. Direct I64→F32 uses round-to-nearest-even; selected F32 words retain all bits. No scalar overload, mixed rank-0 or half/integer, layout/view, or default whole-runtime claim.
+
+The locked Torch oracle and independent integer/Cartesian reconstruction are separate from the no-Torch native process. Six preregistered cases and 19 reconstructed predecessor witnesses were physically qualified. Each witness is matched by exact request/reply and historical owner, and replay omits only that old rejected invocation. The recorded allocation pressure was replayed at the original absolute address-space cap. Native buffers, pre/post state, and historical streams remain in the bounded local synthetic archive; compact digest receipts identify each stream.
