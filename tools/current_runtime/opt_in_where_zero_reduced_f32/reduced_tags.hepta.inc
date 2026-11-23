@@ -1,0 +1,12 @@
+  zr_f16:u64 = const() {"value":5}
+  zr_bf16:u64 = const() {"value":6}
+  zr_x_f16:bool = compare.eq(zfxt,zr_f16)
+  zr_y_f16:bool = compare.eq(zfyt,zr_f16)
+  zr_x_bf16:bool = compare.eq(zfxt,zr_bf16)
+  zr_y_bf16:bool = compare.eq(zfyt,zr_bf16)
+  zr_x_reduced:bool = bool.or(zr_x_f16,zr_x_bf16)
+  zr_y_reduced:bool = bool.or(zr_y_f16,zr_y_bf16)
+  zr_x_scalar_type:bool = bool.or(zf_xi,zr_x_reduced)
+  zr_y_scalar_type:bool = bool.or(zf_yi,zr_y_reduced)
+  zf_x_scalar:bool = bool.and(zf_x0,zr_x_scalar_type)
+  zf_y_scalar:bool = bool.and(zf_y0,zr_y_scalar_type)
