@@ -1,0 +1,123 @@
+--- a/runtime.hepta
++++ b/runtime.hepta
+@@ -56585,7 +56585,11 @@
+   a136:u64 = const() {"value":136}
+   lim:u64 = const() {"value":262144}
+   dt:u64 = call(s,x) {"function":"tensor_dtype"}
+-  tp:bool = compare.eq(dt,one)
++  priv:u64 = const() {"value":3}
++  wid:u64 = call(dt) {"function":"dtype_width"}
++  pub:bool = compare.ne(dt,priv)
++  width_known:bool = compare.ne(wid,z)
++  tp:bool = bool.and(pub,width_known)
+   na:u64 = int.add.wrap(d,a8)
+   na0:u64 = int.add.wrap(d,a96)
+   na1:u64 = int.add.wrap(d,a104)
+@@ -56606,65 +56610,66 @@
+   sok:bool = bool.and(aok,bok)
+   g0:bool = bool.and(sok,axes)
+   g1:bool = bool.and(g0,tp)
+-  branch g1 geom(s,x,n,n0,n1,lim,one) invalid(s)
+-block geom(gs:mutbuf,gx:u64,gn:u64,gr:u64,gc:u64,gl:u64,gw:u64)
++  branch g1 geom(s,x,n,n0,n1,lim,wid,dt) invalid(s)
++block geom(gs:mutbuf,gx:u64,gn:u64,gr:u64,gc:u64,gl:u64,gw:u64,gt:u64)
+   product:u64 = int.mul.wrap(gr,gc)
+   exact:bool = compare.eq(gn,product)
+-  branch exact limit(gs,gx,gn,gc,gl,gw) invalid(gs)
+-block limit(ls:mutbuf,lx:u64,ln:u64,lc:u64,ll:u64,lw:u64)
++  branch exact limit(gs,gx,gn,gc,gl,gw,gt) invalid(gs)
++block limit(ls:mutbuf,lx:u64,ln:u64,lc:u64,ll:u64,lw:u64,ltag:u64)
+   within:bool = compare.le(ln,ll)
+-  branch within owned(ls,lx,ln,lc,lw) capacity(ls)
+-block owned(ws:mutbuf,wx:u64,wn:u64,wc:u64,ww:u64)
++  branch within owned(ls,lx,ln,lc,lw,ltag) capacity(ls)
++block owned(ws:mutbuf,wx:u64,wn:u64,wc:u64,ww:u64,wtag:u64)
+   ow:u64 = call(ws,wx,ww) {"function":"nz_ordinary"}
+   wz:u64 = const() {"value":0}
+   good:bool = compare.ne(ow,wz)
+-  branch good cnt(ws,wx,wn,wc,wz,wz,ww) invalid(ws)
+-block cnt(cs:mutbuf,cx:u64,cn:u64,cc:u64,ci:u64,ck:u64,cw:u64)
++  branch good cnt(ws,wx,wn,wc,wz,wz,wtag) invalid(ws)
++block cnt(cs:mutbuf,cx:u64,cn:u64,cc:u64,ci:u64,ck:u64,ct:u64)
+   more:bool = compare.lt(ci,cn)
+-  branch more scan(cs,cx,cn,cc,ci,ck,cw) allocate(cs,cx,cn,cc,ck)
+-block scan(bs:mutbuf,bx:u64,bn:u64,bc:u64,bi:u64,bk:u64,bw:u64)
+-  bv:u64 = call(bs,bx,bi,bw) {"function":"nz_truth"}
+-  canon:bool = compare.le(bv,bw)
+-  nexti:u64 = int.add.wrap(bi,bw)
++  branch more scan(cs,cx,cn,cc,ci,ck,ct) allocate(cs,cx,cn,cc,ck,ct)
++block scan(bs:mutbuf,bx:u64,bn:u64,bc:u64,bi:u64,bk:u64,bt:u64)
++  bv:u64 = call(bs,bx,bi,bt) {"function":"nz_truth"}
++  b1:u64 = const() {"value":1}
++  canon:bool = compare.le(bv,b1)
++  nexti:u64 = int.add.wrap(bi,b1)
+   nextk:u64 = int.add.wrap(bk,bv)
+-  branch canon cnt(bs,bx,bn,bc,nexti,nextk,bw) invalid(bs)
+-block allocate(als:mutbuf,alx:u64,aln:u64,alc:u64,alk:u64)
++  branch canon cnt(bs,bx,bn,bc,nexti,nextk,bt) invalid(bs)
++block allocate(als:mutbuf,alx:u64,aln:u64,alc:u64,alk:u64,alt:u64)
+   maxk:u64 = const() {"value":131072}
+   fit:bool = compare.le(alk,maxk)
+-  branch fit fresh(als,alx,aln,alc,alk) capacity(als)
+-block fresh(fs:mutbuf,fx:u64,fnn:u64,fc:u64,fk:u64)
++  branch fit fresh(als,alx,aln,alc,alk,alt) capacity(als)
++block fresh(fs:mutbuf,fx:u64,fnn:u64,fc:u64,fk:u64,ft:u64)
+   fo:u64 = call(fs,fk) {"function":"nz_r2_alloc"}
+   fz:u64 = const() {"value":0}
+   live:bool = compare.ne(fo,fz)
+-  branch live verify(fs,fx,fnn,fc,fk,fo) capacity(fs)
+-block verify(vs:mutbuf,vx:u64,vn:u64,vc:u64,vk:u64,vo:u64)
++  branch live verify(fs,fx,fnn,fc,fk,fo,ft) capacity(fs)
++block verify(vs:mutbuf,vx:u64,vn:u64,vc:u64,vk:u64,vo:u64,vtag:u64)
+   goodo:u64 = call(vs,vx,vo,vk) {"function":"nz_r2_own_out"}
+   vz:u64 = const() {"value":0}
+   empty:bool = compare.eq(vk,vz)
+   proof:bool = compare.ne(goodo,vz)
+-  branch proof ready(vs,vx,vn,vc,vk,vo,vz,empty) invalid(vs)
+-block ready(ts:mutbuf,tx:u64,tn:u64,tc:u64,tk:u64,to:u64,tz:u64,te:bool)
+-  branch te layout(ts,to,tk) loop(ts,tx,tn,tc,tk,to,tz,tz)
+-block loop(ys:mutbuf,yx:u64,yn:u64,yc:u64,yk:u64,yo:u64,yi:u64,yj:u64)
++  branch proof ready(vs,vx,vn,vc,vk,vo,vz,empty,vtag) invalid(vs)
++block ready(ts:mutbuf,tx:u64,tn:u64,tc:u64,tk:u64,to:u64,tz:u64,te:bool,tt:u64)
++  branch te layout(ts,to,tk) loop(ts,tx,tn,tc,tk,to,tz,tz,tt)
++block loop(ys:mutbuf,yx:u64,yn:u64,yc:u64,yk:u64,yo:u64,yi:u64,yj:u64,yt:u64)
+   more2:bool = compare.lt(yi,yn)
+-  branch more2 take(ys,yx,yn,yc,yk,yo,yi,yj) finish(ys,yo,yk,yj)
+-block take(ps:mutbuf,px:u64,pn:u64,pc:u64,pk:u64,po:u64,pi:u64,pj:u64)
++  branch more2 take(ys,yx,yn,yc,yk,yo,yi,yj,yt) finish(ys,yo,yk,yj)
++block take(ps:mutbuf,px:u64,pn:u64,pc:u64,pk:u64,po:u64,pi:u64,pj:u64,pt:u64)
+   p1:u64 = const() {"value":1}
+   p0:u64 = const() {"value":0}
+-  bv2:u64 = call(ps,px,pi,p1) {"function":"nz_truth"}
++  bv2:u64 = call(ps,px,pi,pt) {"function":"nz_truth"}
+   fine:bool = compare.le(bv2,p1)
+   skip:bool = compare.eq(bv2,p0)
+   step:u64 = int.add.wrap(pi,p1)
+-  branch fine write_if(ps,px,pn,pc,pk,po,pi,pj,step,skip) invalid(ps)
+-block write_if(us:mutbuf,ux:u64,un:u64,uc:u64,uk:u64,uo:u64,ui:u64,uj:u64,ui2:u64,uski:bool)
+-  branch uski loop(us,ux,un,uc,uk,uo,ui2,uj) room(us,ux,un,uc,uk,uo,ui,uj,ui2)
+-block room(ms:mutbuf,mx:u64,mn:u64,mc:u64,mk:u64,mo:u64,mi:u64,mj:u64,mi2:u64)
++  branch fine write_if(ps,px,pn,pc,pk,po,pi,pj,step,skip,pt) invalid(ps)
++block write_if(us:mutbuf,ux:u64,un:u64,uc:u64,uk:u64,uo:u64,ui:u64,uj:u64,ui2:u64,uski:bool,ut:u64)
++  branch uski loop(us,ux,un,uc,uk,uo,ui2,uj,ut) room(us,ux,un,uc,uk,uo,ui,uj,ui2,ut)
++block room(ms:mutbuf,mx:u64,mn:u64,mc:u64,mk:u64,mo:u64,mi:u64,mj:u64,mi2:u64,mtt:u64)
+   zero:u64 = const() {"value":0}
+   col_nonzero:bool = compare.ne(mc,zero)
+   jfits:bool = compare.lt(mj,mk)
+   go:bool = bool.and(col_nonzero,jfits)
+-  branch go spill(ms,mx,mn,mc,mk,mo,mi,mj,mi2) invalid(ms)
+-block spill(ss:mutbuf,sx:u64,sn:u64,sc:u64,sk:u64,so:u64,si:u64,sj:u64,si2:u64)
++  branch go spill(ms,mx,mn,mc,mk,mo,mi,mj,mi2,mtt) invalid(ms)
++block spill(ss:mutbuf,sx:u64,sn:u64,sc:u64,sk:u64,so:u64,si:u64,sj:u64,si2:u64,stag:u64)
+   row:u64 = int.div.checked(si,sc)
+   col:u64 = int.rem.checked(si,sc)
+   stridej:u64 = int.add.wrap(sj,sk)
+@@ -56675,7 +56680,7 @@
+   ack0:u64 = call(ss,addr0,sw,row) {"function":"typed_store"}
+   ack1:u64 = call(ss,addr1,sw,col) {"function":"typed_store"}
+   sj2:u64 = int.add.wrap(sj,sone)
+-  jump loop(ss,sx,sn,sc,sk,so,si2,sj2)
++  jump loop(ss,sx,sn,sc,sk,so,si2,sj2,stag)
+ block finish(qs:mutbuf,qo:u64,qk:u64,qj:u64)
+   complete:bool = compare.eq(qk,qj)
+   branch complete layout(qs,qo,qk) invalid(qs)
