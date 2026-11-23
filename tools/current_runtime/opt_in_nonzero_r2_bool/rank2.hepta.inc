@@ -1,0 +1,262 @@
+fn nz_rank_route(s:mutbuf,x:u64) -> (u64) effects(read,write,trap) entry(start)
+block start(s:mutbuf,x:u64)
+  d:u64 = call(s,x) {"function":"dptr"}
+  r:u64 = call(s,d) {"function":"getw"}
+  two:u64 = const() {"value":2}
+  second:bool = compare.eq(r,two)
+  branch second r2(s,x,d) r1(s,x)
+block r2(rs:mutbuf,rx:u64,rd:u64)
+  o2:u64 = call(rs,rx,rd) {"function":"nz_rank2"}
+  ret(o2)
+block r1(os:mutbuf,ox:u64)
+  o1:u64 = call(os,ox) {"function":"nz_tensor"}
+  ret(o1)
+end
+fn nz_rank2(s:mutbuf,x:u64,d:u64) -> (u64) effects(read,write,trap) entry(start)
+block start(s:mutbuf,x:u64,d:u64)
+  z:u64 = const() {"value":0}
+  one:u64 = const() {"value":1}
+  a8:u64 = const() {"value":8}
+  a96:u64 = const() {"value":96}
+  a104:u64 = const() {"value":104}
+  a128:u64 = const() {"value":128}
+  a136:u64 = const() {"value":136}
+  lim:u64 = const() {"value":262144}
+  dt:u64 = call(s,x) {"function":"tensor_dtype"}
+  tp:bool = compare.eq(dt,one)
+  na:u64 = int.add.wrap(d,a8)
+  na0:u64 = int.add.wrap(d,a96)
+  na1:u64 = int.add.wrap(d,a104)
+  sa0:u64 = int.add.wrap(d,a128)
+  sa1:u64 = int.add.wrap(d,a136)
+  n:u64 = call(s,na) {"function":"getw"}
+  n0:u64 = call(s,na0) {"function":"getw"}
+  n1:u64 = call(s,na1) {"function":"getw"}
+  s0:u64 = call(s,sa0) {"function":"getw"}
+  s1:u64 = call(s,sa1) {"function":"getw"}
+  l0:bool = compare.le(n0,lim)
+  l1:bool = compare.le(n1,lim)
+  axes:bool = bool.and(l0,l1)
+  eb:bool = compare.eq(n1,z)
+  stride:u64 = select(eb,one,n1)
+  aok:bool = compare.eq(s0,stride)
+  bok:bool = compare.eq(s1,one)
+  sok:bool = bool.and(aok,bok)
+  g0:bool = bool.and(sok,axes)
+  g1:bool = bool.and(g0,tp)
+  branch g1 geom(s,x,n,n0,n1,lim,one) invalid(s)
+block geom(gs:mutbuf,gx:u64,gn:u64,gr:u64,gc:u64,gl:u64,gw:u64)
+  product:u64 = int.mul.wrap(gr,gc)
+  exact:bool = compare.eq(gn,product)
+  branch exact limit(gs,gx,gn,gc,gl,gw) invalid(gs)
+block limit(ls:mutbuf,lx:u64,ln:u64,lc:u64,ll:u64,lw:u64)
+  within:bool = compare.le(ln,ll)
+  branch within owned(ls,lx,ln,lc,lw) capacity(ls)
+block owned(ws:mutbuf,wx:u64,wn:u64,wc:u64,ww:u64)
+  ow:u64 = call(ws,wx,ww) {"function":"nz_ordinary"}
+  wz:u64 = const() {"value":0}
+  good:bool = compare.ne(ow,wz)
+  branch good cnt(ws,wx,wn,wc,wz,wz,ww) invalid(ws)
+block cnt(cs:mutbuf,cx:u64,cn:u64,cc:u64,ci:u64,ck:u64,cw:u64)
+  more:bool = compare.lt(ci,cn)
+  branch more scan(cs,cx,cn,cc,ci,ck,cw) allocate(cs,cx,cn,cc,ck)
+block scan(bs:mutbuf,bx:u64,bn:u64,bc:u64,bi:u64,bk:u64,bw:u64)
+  bv:u64 = call(bs,bx,bi,bw) {"function":"nz_truth"}
+  canon:bool = compare.le(bv,bw)
+  nexti:u64 = int.add.wrap(bi,bw)
+  nextk:u64 = int.add.wrap(bk,bv)
+  branch canon cnt(bs,bx,bn,bc,nexti,nextk,bw) invalid(bs)
+block allocate(als:mutbuf,alx:u64,aln:u64,alc:u64,alk:u64)
+  maxk:u64 = const() {"value":131072}
+  fit:bool = compare.le(alk,maxk)
+  branch fit fresh(als,alx,aln,alc,alk) capacity(als)
+block fresh(fs:mutbuf,fx:u64,fnn:u64,fc:u64,fk:u64)
+  fo:u64 = call(fs,fk) {"function":"nz_r2_alloc"}
+  fz:u64 = const() {"value":0}
+  live:bool = compare.ne(fo,fz)
+  branch live verify(fs,fx,fnn,fc,fk,fo) capacity(fs)
+block verify(vs:mutbuf,vx:u64,vn:u64,vc:u64,vk:u64,vo:u64)
+  goodo:u64 = call(vs,vx,vo,vk) {"function":"nz_r2_own_out"}
+  vz:u64 = const() {"value":0}
+  empty:bool = compare.eq(vk,vz)
+  proof:bool = compare.ne(goodo,vz)
+  branch proof ready(vs,vx,vn,vc,vk,vo,vz,empty) invalid(vs)
+block ready(ts:mutbuf,tx:u64,tn:u64,tc:u64,tk:u64,to:u64,tz:u64,te:bool)
+  branch te layout(ts,to,tk) loop(ts,tx,tn,tc,tk,to,tz,tz)
+block loop(ys:mutbuf,yx:u64,yn:u64,yc:u64,yk:u64,yo:u64,yi:u64,yj:u64)
+  more2:bool = compare.lt(yi,yn)
+  branch more2 take(ys,yx,yn,yc,yk,yo,yi,yj) finish(ys,yo,yk,yj)
+block take(ps:mutbuf,px:u64,pn:u64,pc:u64,pk:u64,po:u64,pi:u64,pj:u64)
+  p1:u64 = const() {"value":1}
+  p0:u64 = const() {"value":0}
+  bv2:u64 = call(ps,px,pi,p1) {"function":"nz_truth"}
+  fine:bool = compare.le(bv2,p1)
+  skip:bool = compare.eq(bv2,p0)
+  step:u64 = int.add.wrap(pi,p1)
+  branch fine write_if(ps,px,pn,pc,pk,po,pi,pj,step,skip) invalid(ps)
+block write_if(us:mutbuf,ux:u64,un:u64,uc:u64,uk:u64,uo:u64,ui:u64,uj:u64,ui2:u64,uski:bool)
+  branch uski loop(us,ux,un,uc,uk,uo,ui2,uj) room(us,ux,un,uc,uk,uo,ui,uj,ui2)
+block room(ms:mutbuf,mx:u64,mn:u64,mc:u64,mk:u64,mo:u64,mi:u64,mj:u64,mi2:u64)
+  zero:u64 = const() {"value":0}
+  col_nonzero:bool = compare.ne(mc,zero)
+  jfits:bool = compare.lt(mj,mk)
+  go:bool = bool.and(col_nonzero,jfits)
+  branch go spill(ms,mx,mn,mc,mk,mo,mi,mj,mi2) invalid(ms)
+block spill(ss:mutbuf,sx:u64,sn:u64,sc:u64,sk:u64,so:u64,si:u64,sj:u64,si2:u64)
+  row:u64 = int.div.checked(si,sc)
+  col:u64 = int.rem.checked(si,sc)
+  stridej:u64 = int.add.wrap(sj,sk)
+  addr0:u64 = call(ss,so,sj) {"function":"taddr"}
+  addr1:u64 = call(ss,so,stridej) {"function":"taddr"}
+  sw:u64 = const() {"value":8}
+  sone:u64 = const() {"value":1}
+  ack0:u64 = call(ss,addr0,sw,row) {"function":"typed_store"}
+  ack1:u64 = call(ss,addr1,sw,col) {"function":"typed_store"}
+  sj2:u64 = int.add.wrap(sj,sone)
+  jump loop(ss,sx,sn,sc,sk,so,si2,sj2)
+block finish(qs:mutbuf,qo:u64,qk:u64,qj:u64)
+  complete:bool = compare.eq(qk,qj)
+  branch complete layout(qs,qo,qk) invalid(qs)
+block layout(ys2:mutbuf,yo2:u64,yk2:u64)
+  done:u64 = call(ys2,yo2,yk2) {"function":"nz_r2_commit"}
+  zz:u64 = const() {"value":0}
+  valid_out:bool = compare.ne(done,zz)
+  branch valid_out success(done) invalid(ys2)
+block success(res:u64)
+  ret(res)
+block invalid(bs2:mutbuf)
+  seven:u64 = const() {"value":7}
+  fail:u64 = call(bs2,seven) {"function":"nz_error"}
+  ret(fail)
+block capacity(ks:mutbuf)
+  three:u64 = const() {"value":3}
+  lack:u64 = call(ks,three) {"function":"nz_error"}
+  ret(lack)
+end
+fn nz_r2_alloc(s:mutbuf,k:u64) -> (u64) effects(read,write,trap) entry(start)
+block start(s:mutbuf,k:u64)
+  z:u64 = const() {"value":0}
+  one:u64 = const() {"value":1}
+  two:u64 = const() {"value":2}
+  p0:u64 = const() {"value":128}
+  p1:u64 = const() {"value":136}
+  p2:u64 = const() {"value":144}
+  p3:u64 = const() {"value":152}
+  keep0:u64 = call(s,p0) {"function":"getw"}
+  keep1:u64 = call(s,p1) {"function":"getw"}
+  keep2:u64 = call(s,p2) {"function":"getw"}
+  keep3:u64 = call(s,p3) {"function":"getw"}
+  set0:u64 = call(s,p0,k) {"function":"putw"}
+  set1:u64 = call(s,p1,two) {"function":"putw"}
+  set2:u64 = call(s,p2,z) {"function":"putw"}
+  set3:u64 = call(s,p3,z) {"function":"putw"}
+  t:u64 = call(s,two,p0,z,one,two) {"function":"typed_descriptor"}
+  res0:u64 = call(s,p0,keep0) {"function":"putw"}
+  res1:u64 = call(s,p1,keep1) {"function":"putw"}
+  res2:u64 = call(s,p2,keep2) {"function":"putw"}
+  res3:u64 = call(s,p3,keep3) {"function":"putw"}
+  err:u64 = call(s,z) {"function":"getw"}
+  fine:bool = compare.eq(err,z)
+  ans:u64 = select(fine,t,z)
+  ret(ans)
+end
+fn nz_r2_own_out(s:mutbuf,x:u64,o:u64,k:u64) -> (u64) effects(read,write,trap) entry(start)
+block start(s:mutbuf,x:u64,o:u64,k:u64)
+  z:u64 = const() {"value":0}
+  w:u64 = const() {"value":8}
+  layout:u64 = call(s,o,w) {"function":"nz_ordinary"}
+  safe:bool = compare.ne(layout,z)
+  branch safe shape(s,x,o,k,w) bad()
+block shape(ss:mutbuf,sx:u64,so:u64,sk:u64,sw:u64)
+  z0:u64 = const() {"value":0}
+  one:u64 = const() {"value":1}
+  two:u64 = const() {"value":2}
+  a96:u64 = const() {"value":96}
+  a104:u64 = const() {"value":104}
+  a128:u64 = const() {"value":128}
+  a136:u64 = const() {"value":136}
+  od:u64 = call(ss,so) {"function":"dptr"}
+  dtype:u64 = call(ss,so) {"function":"tensor_dtype"}
+  rk:u64 = call(ss,od) {"function":"getw"}
+  np:u64 = int.add.wrap(od,sw)
+  ep0:u64 = int.add.wrap(od,a96)
+  ep1:u64 = int.add.wrap(od,a104)
+  sp0:u64 = int.add.wrap(od,a128)
+  sp1:u64 = int.add.wrap(od,a136)
+  actualn:u64 = call(ss,np) {"function":"getw"}
+  e0:u64 = call(ss,ep0) {"function":"getw"}
+  e1:u64 = call(ss,ep1) {"function":"getw"}
+  sg0:u64 = call(ss,sp0) {"function":"getw"}
+  sg1:u64 = call(ss,sp1) {"function":"getw"}
+  count:u64 = int.mul.wrap(sk,two)
+  aa:bool = compare.eq(dtype,two)
+  ab:bool = compare.eq(rk,two)
+  ac:bool = compare.eq(e0,sk)
+  ad:bool = compare.eq(e1,two)
+  ae:bool = compare.eq(actualn,count)
+  af:bool = compare.eq(sg0,two)
+  ag:bool = compare.eq(sg1,one)
+  ah:bool = compare.ne(sx,so)
+  a0:bool = bool.and(aa,ab)
+  a1:bool = bool.and(ac,ad)
+  a2:bool = bool.and(ae,af)
+  a3:bool = bool.and(ag,ah)
+  a4:bool = bool.and(a0,a1)
+  a5:bool = bool.and(a2,a3)
+  ok:bool = bool.and(a4,a5)
+  branch ok ids(ss,sx,od,count,sw,z0) bad()
+block ids(is1:mutbuf,ix:u64,idst:u64,ic:u64,iw:u64,iz:u64)
+  a216:u64 = const() {"value":216}
+  a224:u64 = const() {"value":224}
+  a16:u64 = const() {"value":16}
+  a24:u64 = const() {"value":24}
+  xd:u64 = call(is1,ix) {"function":"dptr"}
+  xsp:u64 = int.add.wrap(xd,a216)
+  xvp:u64 = int.add.wrap(xd,a224)
+  ysp:u64 = int.add.wrap(idst,a216)
+  yvp:u64 = int.add.wrap(idst,a224)
+  xs:u64 = call(is1,xsp) {"function":"getw"}
+  xv:u64 = call(is1,xvp) {"function":"getw"}
+  ys:u64 = call(is1,ysp) {"function":"getw"}
+  yv:u64 = call(is1,yvp) {"function":"getw"}
+  ls:u64 = call(is1,ys) {"function":"so_storage_live"}
+  lv:u64 = call(is1,yv) {"function":"so_version_live"}
+  sb:u64 = int.add.wrap(ls,a24)
+  vc:u64 = int.add.wrap(lv,a16)
+  actual:u64 = call(is1,sb) {"function":"so_uget"}
+  version:u64 = call(is1,vc) {"function":"so_uget"}
+  need:u64 = int.mul.wrap(ic,iw)
+  r0:bool = compare.ne(xs,ys)
+  r1:bool = compare.ne(xv,yv)
+  r2:bool = compare.eq(actual,need)
+  r3:bool = compare.eq(version,iz)
+  r4:bool = bool.and(r0,r1)
+  r5:bool = bool.and(r2,r3)
+  pass:bool = bool.and(r4,r5)
+  branch pass valid() bad()
+block valid()
+  yes:u64 = const() {"value":1}
+  ret(yes)
+block bad()
+  no:u64 = const() {"value":0}
+  ret(no)
+end
+fn nz_r2_commit(s:mutbuf,o:u64,k:u64) -> (u64) effects(read,write,trap) entry(start)
+block start(s:mutbuf,o:u64,k:u64)
+  a128:u64 = const() {"value":128}
+  a136:u64 = const() {"value":136}
+  one:u64 = const() {"value":1}
+  z:u64 = const() {"value":0}
+  d:u64 = call(s,o) {"function":"dptr"}
+  sa0:u64 = int.add.wrap(d,a128)
+  sa1:u64 = int.add.wrap(d,a136)
+  ack0:u64 = call(s,sa0,one) {"function":"putw"}
+  ack1:u64 = call(s,sa1,k) {"function":"putw"}
+  s0:u64 = call(s,sa0) {"function":"getw"}
+  s1:u64 = call(s,sa1) {"function":"getw"}
+  ck0:bool = compare.eq(s0,one)
+  ck1:bool = compare.eq(s1,k)
+  okay:bool = bool.and(ck0,ck1)
+  ans:u64 = select(okay,o,z)
+  ret(ans)
+end
