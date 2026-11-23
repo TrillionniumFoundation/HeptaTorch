@@ -1,0 +1,2021 @@
+{
+  "cpu_capability": "AVX512",
+  "fixture_sha256": "6fdb5598642cc07dfa53571d4324b37e5b7ca27a400f4dacadd10dd419195c74",
+  "fresh_vs_out": "Only aten.masked_select.default executed. Tensor._version observed as an integer counter. Exact out semantics and aliases are not inferred or measured. No storage pointer used as public identity.",
+  "guards": [
+    {
+      "hypothesized_hia_status": 3,
+      "label": "input-count-overcap-even-if-output-two",
+      "raw_sha256": "ea776f4c99261f9349e21554014bc912af43f32403ec259a8c2918d7503cd6d9",
+      "result": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 2,
+        "requires_grad": false,
+        "shape": [
+          2
+        ],
+        "storage_bytes": 8,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "torch": "ACCEPT"
+    },
+    {
+      "hypothesized_hia_status": 3,
+      "label": "input-count-overcap-even-if-output-zero",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 0,
+        "requires_grad": false,
+        "shape": [
+          0
+        ],
+        "storage_bytes": 0,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "torch": "ACCEPT"
+    },
+    {
+      "error": "The size of tensor a (2) must match the size of tensor b (3) at non-singleton dimension 1",
+      "hypothesized_hia_status": 7,
+      "label": "same-count-shape-mismatch",
+      "torch": "REJECT_RUNTIME_ERROR"
+    },
+    {
+      "hypothesized_hia_status": 7,
+      "label": "valid-pytorch-broadcast-outside-slice",
+      "raw_sha256": "48816732acde15776d9b3f1cc2a7198064c5703c8582af271b5921d3e12e271f",
+      "result": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 4,
+        "requires_grad": false,
+        "shape": [
+          4
+        ],
+        "storage_bytes": 16,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "torch": "ACCEPT"
+    },
+    {
+      "hypothesized_hia_status": 7,
+      "label": "zero-rank-outside-slice",
+      "raw_sha256": "d99e58435243d9fef9c88273b8d553b4fba4d0baf8009d29eae74fa99e0d9f57",
+      "result": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 1,
+        "requires_grad": false,
+        "shape": [
+          1
+        ],
+        "storage_bytes": 4,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "torch": "ACCEPT"
+    },
+    {
+      "error": "masked_select: expected BoolTensor for mask",
+      "hypothesized_hia_status": 7,
+      "label": "wrong-public-mask-dtype",
+      "torch": "REJECT_RUNTIME_ERROR"
+    },
+    {
+      "hypothesized_hia_status": 7,
+      "label": "valid-ordinary-plus-positive-offset-view",
+      "raw_sha256": "aaa53d83e3bc350e8f26827a3cc837fc2331da9f05c395a69c9148a9b70e2eb2",
+      "result": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 2,
+        "requires_grad": false,
+        "shape": [
+          2
+        ],
+        "storage_bytes": 8,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "torch": "ACCEPT"
+    },
+    {
+      "hypothesized_hia_status": 7,
+      "label": "actual-f32-requires-grad-input",
+      "raw_sha256": "8ca08a0c9ceb0b86ebc5e55afd6ba7c95d130d30d122ccc82d4bf6e70f24e49f",
+      "result": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 2,
+        "requires_grad": true,
+        "shape": [
+          2
+        ],
+        "storage_bytes": 8,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "torch": "ACCEPT"
+    },
+    {
+      "hypothesized_hia_status": 1,
+      "label": "stale-input-or-mask-resolved-before-access",
+      "torch": "NO_ANALOGOUS_WIRE_API"
+    },
+    {
+      "hypothesized_hia_status": 7,
+      "label": "reserved-word-nonzero",
+      "torch": "NO_ANALOGOUS_WIRE_API"
+    },
+    {
+      "hypothesized_hia_status": 4,
+      "label": "good-compaction-followed-by-unknown-command",
+      "torch": "NO_ANALOGOUS_WIRE_API"
+    }
+  ],
+  "mismatches": [],
+  "oracle": {
+    "oracle_lock_sha256": "ca2e54ce65083bbe0ab3d47b6878971271765ab35a9dd70725fa345fceed3944",
+    "platform": {
+      "machine": "x86_64",
+      "sys_platform": "linux"
+    },
+    "python_version": [
+      3,
+      12
+    ],
+    "torch_git_commit": "d0f2af8b66b20da4baa50644c0cd3f887a2eae2e",
+    "torch_version": "2.15.0+cpu",
+    "wheel_metadata_sha256": "8bbf94c86c3be6cf586385861d476b78cb66d19b67fef49ece4f7d68ca428cc3",
+    "wheel_sha256": "0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3"
+  },
+  "rows": [
+    {
+      "input_meta_unchanged": true,
+      "input_metadata": [
+        {
+          "device": "cpu",
+          "dtype": "float32",
+          "is_view": false,
+          "numel": 0,
+          "requires_grad": false,
+          "shape": [
+            0
+          ],
+          "storage_bytes": 0,
+          "storage_offset_elements": 0,
+          "strides": [
+            1
+          ],
+          "version": 0
+        },
+        {
+          "device": "cpu",
+          "dtype": "bool",
+          "is_view": false,
+          "numel": 0,
+          "requires_grad": false,
+          "shape": [
+            0
+          ],
+          "storage_bytes": 0,
+          "storage_offset_elements": 0,
+          "strides": [
+            1
+          ],
+          "version": 0
+        }
+      ],
+      "input_raw_sha256": [
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      ],
+      "label": "empty-r1",
+      "meta": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 0,
+        "requires_grad": false,
+        "shape": [
+          0
+        ],
+        "storage_bytes": 0,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "raw_byte_count": 0,
+      "raw_offset": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_meta_unchanged": true,
+      "input_metadata": [
+        {
+          "device": "cpu",
+          "dtype": "float32",
+          "is_view": false,
+          "numel": 0,
+          "requires_grad": false,
+          "shape": [
+            4,
+            0
+          ],
+          "storage_bytes": 0,
+          "storage_offset_elements": 0,
+          "strides": [
+            1,
+            1
+          ],
+          "version": 0
+        },
+        {
+          "device": "cpu",
+          "dtype": "bool",
+          "is_view": false,
+          "numel": 0,
+          "requires_grad": false,
+          "shape": [
+            4,
+            0
+          ],
+          "storage_bytes": 0,
+          "storage_offset_elements": 0,
+          "strides": [
+            1,
+            1
+          ],
+          "version": 0
+        }
+      ],
+      "input_raw_sha256": [
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      ],
+      "label": "empty-r2",
+      "meta": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 0,
+        "requires_grad": false,
+        "shape": [
+          0
+        ],
+        "storage_bytes": 0,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "raw_byte_count": 0,
+      "raw_offset": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_meta_unchanged": true,
+      "input_metadata": [
+        {
+          "device": "cpu",
+          "dtype": "float32",
+          "is_view": false,
+          "numel": 0,
+          "requires_grad": false,
+          "shape": [
+            2,
+            0,
+            3
+          ],
+          "storage_bytes": 0,
+          "storage_offset_elements": 0,
+          "strides": [
+            3,
+            3,
+            1
+          ],
+          "version": 0
+        },
+        {
+          "device": "cpu",
+          "dtype": "bool",
+          "is_view": false,
+          "numel": 0,
+          "requires_grad": false,
+          "shape": [
+            2,
+            0,
+            3
+          ],
+          "storage_bytes": 0,
+          "storage_offset_elements": 0,
+          "strides": [
+            3,
+            3,
+            1
+          ],
+          "version": 0
+        }
+      ],
+      "input_raw_sha256": [
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      ],
+      "label": "empty-r3",
+      "meta": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 0,
+        "requires_grad": false,
+        "shape": [
+          0
+        ],
+        "storage_bytes": 0,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "raw_byte_count": 0,
+      "raw_offset": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_meta_unchanged": true,
+      "input_metadata": [
+        {
+          "device": "cpu",
+          "dtype": "float32",
+          "is_view": false,
+          "numel": 0,
+          "requires_grad": false,
+          "shape": [
+            1,
+            2,
+            0,
+            4
+          ],
+          "storage_bytes": 0,
+          "storage_offset_elements": 0,
+          "strides": [
+            8,
+            4,
+            4,
+            1
+          ],
+          "version": 0
+        },
+        {
+          "device": "cpu",
+          "dtype": "bool",
+          "is_view": false,
+          "numel": 0,
+          "requires_grad": false,
+          "shape": [
+            1,
+            2,
+            0,
+            4
+          ],
+          "storage_bytes": 0,
+          "storage_offset_elements": 0,
+          "strides": [
+            8,
+            4,
+            4,
+            1
+          ],
+          "version": 0
+        }
+      ],
+      "input_raw_sha256": [
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      ],
+      "label": "empty-r4",
+      "meta": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 0,
+        "requires_grad": false,
+        "shape": [
+          0
+        ],
+        "storage_bytes": 0,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "raw_byte_count": 0,
+      "raw_offset": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_meta_unchanged": true,
+      "input_metadata": [
+        {
+          "device": "cpu",
+          "dtype": "float32",
+          "is_view": false,
+          "numel": 1,
+          "requires_grad": false,
+          "shape": [
+            1
+          ],
+          "storage_bytes": 4,
+          "storage_offset_elements": 0,
+          "strides": [
+            1
+          ],
+          "version": 0
+        },
+        {
+          "device": "cpu",
+          "dtype": "bool",
+          "is_view": false,
+          "numel": 1,
+          "requires_grad": false,
+          "shape": [
+            1
+          ],
+          "storage_bytes": 1,
+          "storage_offset_elements": 0,
+          "strides": [
+            1
+          ],
+          "version": 0
+        }
+      ],
+      "input_raw_sha256": [
+        "f0719ff82cddcf65532f157a47f8c9850dce7c81e6b58698b24adfc2866157db",
+        "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d"
+      ],
+      "label": "one-false",
+      "meta": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 0,
+        "requires_grad": false,
+        "shape": [
+          0
+        ],
+        "storage_bytes": 0,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "raw_byte_count": 0,
+      "raw_offset": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_meta_unchanged": true,
+      "input_metadata": [
+        {
+          "device": "cpu",
+          "dtype": "float32",
+          "is_view": false,
+          "numel": 1,
+          "requires_grad": false,
+          "shape": [
+            1
+          ],
+          "storage_bytes": 4,
+          "storage_offset_elements": 0,
+          "strides": [
+            1
+          ],
+          "version": 0
+        },
+        {
+          "device": "cpu",
+          "dtype": "bool",
+          "is_view": false,
+          "numel": 1,
+          "requires_grad": false,
+          "shape": [
+            1
+          ],
+          "storage_bytes": 1,
+          "storage_offset_elements": 0,
+          "strides": [
+            1
+          ],
+          "version": 0
+        }
+      ],
+      "input_raw_sha256": [
+        "e1164df4a7f1f52df0b9c18ebbe5ea82c636a46e0b64c1c0d3f93ae8f13440bd",
+        "4bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a"
+      ],
+      "label": "one-true",
+      "meta": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 1,
+        "requires_grad": false,
+        "shape": [
+          1
+        ],
+        "storage_bytes": 4,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "raw_byte_count": 4,
+      "raw_offset": 0,
+      "raw_sha256": "e1164df4a7f1f52df0b9c18ebbe5ea82c636a46e0b64c1c0d3f93ae8f13440bd"
+    },
+    {
+      "input_meta_unchanged": true,
+      "input_metadata": [
+        {
+          "device": "cpu",
+          "dtype": "float32",
+          "is_view": false,
+          "numel": 18,
+          "requires_grad": false,
+          "shape": [
+            18
+          ],
+          "storage_bytes": 72,
+          "storage_offset_elements": 0,
+          "strides": [
+            1
+          ],
+          "version": 0
+        },
+        {
+          "device": "cpu",
+          "dtype": "bool",
+          "is_view": false,
+          "numel": 18,
+          "requires_grad": false,
+          "shape": [
+            18
+          ],
+          "storage_bytes": 18,
+          "storage_offset_elements": 0,
+          "strides": [
+            1
+          ],
+          "version": 0
+        }
+      ],
+      "input_raw_sha256": [
+        "96d2b4e06207a8800f21813fec5651ffa2a3e24cbaf8a6c013331bda444ec4fa",
+        "48341d92e2c078cb4203d231be6402df6794f7114ff465e51174b293caba2438"
+      ],
+      "label": "all-specials-r1",
+      "meta": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 18,
+        "requires_grad": false,
+        "shape": [
+          18
+        ],
+        "storage_bytes": 72,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "raw_byte_count": 72,
+      "raw_offset": 4,
+      "raw_sha256": "96d2b4e06207a8800f21813fec5651ffa2a3e24cbaf8a6c013331bda444ec4fa"
+    },
+    {
+      "input_meta_unchanged": true,
+      "input_metadata": [
+        {
+          "device": "cpu",
+          "dtype": "float32",
+          "is_view": false,
+          "numel": 18,
+          "requires_grad": false,
+          "shape": [
+            3,
+            6
+          ],
+          "storage_bytes": 72,
+          "storage_offset_elements": 0,
+          "strides": [
+            6,
+            1
+          ],
+          "version": 0
+        },
+        {
+          "device": "cpu",
+          "dtype": "bool",
+          "is_view": false,
+          "numel": 18,
+          "requires_grad": false,
+          "shape": [
+            3,
+            6
+          ],
+          "storage_bytes": 18,
+          "storage_offset_elements": 0,
+          "strides": [
+            6,
+            1
+          ],
+          "version": 0
+        }
+      ],
+      "input_raw_sha256": [
+        "09e3803bec1522b04e81d6227acfb89def2510a6215691b9fd9dea9b02a0f3fd",
+        "48341d92e2c078cb4203d231be6402df6794f7114ff465e51174b293caba2438"
+      ],
+      "label": "all-specials-r2",
+      "meta": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 18,
+        "requires_grad": false,
+        "shape": [
+          18
+        ],
+        "storage_bytes": 72,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "raw_byte_count": 72,
+      "raw_offset": 76,
+      "raw_sha256": "09e3803bec1522b04e81d6227acfb89def2510a6215691b9fd9dea9b02a0f3fd"
+    },
+    {
+      "input_meta_unchanged": true,
+      "input_metadata": [
+        {
+          "device": "cpu",
+          "dtype": "float32",
+          "is_view": false,
+          "numel": 24,
+          "requires_grad": false,
+          "shape": [
+            2,
+            3,
+            4
+          ],
+          "storage_bytes": 96,
+          "storage_offset_elements": 0,
+          "strides": [
+            12,
+            4,
+            1
+          ],
+          "version": 0
+        },
+        {
+          "device": "cpu",
+          "dtype": "bool",
+          "is_view": false,
+          "numel": 24,
+          "requires_grad": false,
+          "shape": [
+            2,
+            3,
+            4
+          ],
+          "storage_bytes": 24,
+          "storage_offset_elements": 0,
+          "strides": [
+            12,
+            4,
+            1
+          ],
+          "version": 0
+        }
+      ],
+      "input_raw_sha256": [
+        "a61ea19912c428c05bbe66d9e78bd01b1bb490b44829624839b27e285a4f86ec",
+        "9d908ecfb6b256def8b49a7c504e6c889c4b0e41fe6ce3e01863dd7b61a20aa0"
+      ],
+      "label": "none-nonempty-r3",
+      "meta": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 0,
+        "requires_grad": false,
+        "shape": [
+          0
+        ],
+        "storage_bytes": 0,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "raw_byte_count": 0,
+      "raw_offset": 148,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "input_meta_unchanged": true,
+      "input_metadata": [
+        {
+          "device": "cpu",
+          "dtype": "float32",
+          "is_view": false,
+          "numel": 18,
+          "requires_grad": false,
+          "shape": [
+            3,
+            6
+          ],
+          "storage_bytes": 72,
+          "storage_offset_elements": 0,
+          "strides": [
+            6,
+            1
+          ],
+          "version": 0
+        },
+        {
+          "device": "cpu",
+          "dtype": "bool",
+          "is_view": false,
+          "numel": 18,
+          "requires_grad": false,
+          "shape": [
+            3,
+            6
+          ],
+          "storage_bytes": 18,
+          "storage_offset_elements": 0,
+          "strides": [
+            6,
+            1
+          ],
+          "version": 0
+        }
+      ],
+      "input_raw_sha256": [
+        "c5951af6d537fa8fa831b42e35e6b7e12f9f53c97775e01282fa1390ff272a5d",
+        "e866995b7e8c0d8086ffb5fb0a32312d93b0296777f817214c04af7271af9c42"
+      ],
+      "label": "even-special-r2",
+      "meta": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 9,
+        "requires_grad": false,
+        "shape": [
+          9
+        ],
+        "storage_bytes": 36,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "raw_byte_count": 36,
+      "raw_offset": 148,
+      "raw_sha256": "21fcc2d98a92dabffae25a31f3a645bb6c22f8d7279ab7daea845c0d4448425d"
+    },
+    {
+      "input_meta_unchanged": true,
+      "input_metadata": [
+        {
+          "device": "cpu",
+          "dtype": "float32",
+          "is_view": false,
+          "numel": 18,
+          "requires_grad": false,
+          "shape": [
+            3,
+            6
+          ],
+          "storage_bytes": 72,
+          "storage_offset_elements": 0,
+          "strides": [
+            6,
+            1
+          ],
+          "version": 0
+        },
+        {
+          "device": "cpu",
+          "dtype": "bool",
+          "is_view": false,
+          "numel": 18,
+          "requires_grad": false,
+          "shape": [
+            3,
+            6
+          ],
+          "storage_bytes": 18,
+          "storage_offset_elements": 0,
+          "strides": [
+            6,
+            1
+          ],
+          "version": 0
+        }
+      ],
+      "input_raw_sha256": [
+        "84773e0ba15cd16fcdd19b06d6b20aea8d015c5299f0bdaf1263e91384c1f7e5",
+        "8b50f8d92a3bc5fa6a77ca9a6341bf0cf9e66b182e5cc9e3c5d98db9e3e66488"
+      ],
+      "label": "odd-special-r2",
+      "meta": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 9,
+        "requires_grad": false,
+        "shape": [
+          9
+        ],
+        "storage_bytes": 36,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "raw_byte_count": 36,
+      "raw_offset": 184,
+      "raw_sha256": "d3241261d70cd19f73bc9924e52964ed827248b05b857422c808bc71774c4c1a"
+    },
+    {
+      "input_meta_unchanged": true,
+      "input_metadata": [
+        {
+          "device": "cpu",
+          "dtype": "float32",
+          "is_view": false,
+          "numel": 21,
+          "requires_grad": false,
+          "shape": [
+            3,
+            7
+          ],
+          "storage_bytes": 84,
+          "storage_offset_elements": 0,
+          "strides": [
+            7,
+            1
+          ],
+          "version": 0
+        },
+        {
+          "device": "cpu",
+          "dtype": "bool",
+          "is_view": false,
+          "numel": 21,
+          "requires_grad": false,
+          "shape": [
+            3,
+            7
+          ],
+          "storage_bytes": 21,
+          "storage_offset_elements": 0,
+          "strides": [
+            7,
+            1
+          ],
+          "version": 0
+        }
+      ],
+      "input_raw_sha256": [
+        "b75ff21ab7a220aed3035bfdea67cd11176128429962574ee5de9f4ce2a96b76",
+        "fc7b42cd0d5c28e34a97a05893656405e9b6c219957ef05ce2e44b26a18a46db"
+      ],
+      "label": "row-order-r2",
+      "meta": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 10,
+        "requires_grad": false,
+        "shape": [
+          10
+        ],
+        "storage_bytes": 40,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "raw_byte_count": 40,
+      "raw_offset": 220,
+      "raw_sha256": "702d8a170250f0a00be762015487c70ef417a31d6022ac65963a2aa4f5a44530"
+    },
+    {
+      "input_meta_unchanged": true,
+      "input_metadata": [
+        {
+          "device": "cpu",
+          "dtype": "float32",
+          "is_view": false,
+          "numel": 30,
+          "requires_grad": false,
+          "shape": [
+            2,
+            3,
+            5
+          ],
+          "storage_bytes": 120,
+          "storage_offset_elements": 0,
+          "strides": [
+            15,
+            5,
+            1
+          ],
+          "version": 0
+        },
+        {
+          "device": "cpu",
+          "dtype": "bool",
+          "is_view": false,
+          "numel": 30,
+          "requires_grad": false,
+          "shape": [
+            2,
+            3,
+            5
+          ],
+          "storage_bytes": 30,
+          "storage_offset_elements": 0,
+          "strides": [
+            15,
+            5,
+            1
+          ],
+          "version": 0
+        }
+      ],
+      "input_raw_sha256": [
+        "d82367ea1620b9ba1d66a0ab0c66198c9588c45211ee46decba57151154c7865",
+        "972acddff9b059da371293f4390e00d2facc90a17e2c5a8a39831cb1ac350264"
+      ],
+      "label": "row-order-r3",
+      "meta": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 15,
+        "requires_grad": false,
+        "shape": [
+          15
+        ],
+        "storage_bytes": 60,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "raw_byte_count": 60,
+      "raw_offset": 260,
+      "raw_sha256": "2a48cf71fbbe5157860036a0a1d4e034ee969a310dae0ece0a87c370045fbbbd"
+    },
+    {
+      "input_meta_unchanged": true,
+      "input_metadata": [
+        {
+          "device": "cpu",
+          "dtype": "float32",
+          "is_view": false,
+          "numel": 60,
+          "requires_grad": false,
+          "shape": [
+            2,
+            2,
+            3,
+            5
+          ],
+          "storage_bytes": 240,
+          "storage_offset_elements": 0,
+          "strides": [
+            30,
+            15,
+            5,
+            1
+          ],
+          "version": 0
+        },
+        {
+          "device": "cpu",
+          "dtype": "bool",
+          "is_view": false,
+          "numel": 60,
+          "requires_grad": false,
+          "shape": [
+            2,
+            2,
+            3,
+            5
+          ],
+          "storage_bytes": 60,
+          "storage_offset_elements": 0,
+          "strides": [
+            30,
+            15,
+            5,
+            1
+          ],
+          "version": 0
+        }
+      ],
+      "input_raw_sha256": [
+        "fd0bfd93f3185eaf02d5c41cb37f6f8cb6f842caa8c0a5141b796d30c867883c",
+        "1b49f11f2404103bd70ce5f595a68a6aa984f591c4ea7500ec4062135777e3c9"
+      ],
+      "label": "row-order-r4",
+      "meta": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 30,
+        "requires_grad": false,
+        "shape": [
+          30
+        ],
+        "storage_bytes": 120,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "raw_byte_count": 120,
+      "raw_offset": 320,
+      "raw_sha256": "4b82bb30d0eb1075c4cf200c7b7b4e331278adcbaa9d7761eb16a44f6618324a"
+    },
+    {
+      "input_meta_unchanged": true,
+      "input_metadata": [
+        {
+          "device": "cpu",
+          "dtype": "float32",
+          "is_view": false,
+          "numel": 24,
+          "requires_grad": false,
+          "shape": [
+            2,
+            1,
+            3,
+            4
+          ],
+          "storage_bytes": 96,
+          "storage_offset_elements": 0,
+          "strides": [
+            12,
+            12,
+            4,
+            1
+          ],
+          "version": 0
+        },
+        {
+          "device": "cpu",
+          "dtype": "bool",
+          "is_view": false,
+          "numel": 24,
+          "requires_grad": false,
+          "shape": [
+            2,
+            1,
+            3,
+            4
+          ],
+          "storage_bytes": 24,
+          "storage_offset_elements": 0,
+          "strides": [
+            12,
+            12,
+            4,
+            1
+          ],
+          "version": 0
+        }
+      ],
+      "input_raw_sha256": [
+        "23fe60d36b47bbe07bd7c1969102cea982c9c862dfdff61f24e3a5584f310333",
+        "4699135f9e604d386e71a70cce8b79bcb854175d75d316f5220753c8662ad02c"
+      ],
+      "label": "singleton-r4",
+      "meta": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 12,
+        "requires_grad": false,
+        "shape": [
+          12
+        ],
+        "storage_bytes": 48,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "raw_byte_count": 48,
+      "raw_offset": 440,
+      "raw_sha256": "0283ad8cecd25d51467412d681d6c73258678ce891457dc746a4c9436cff4ac9"
+    },
+    {
+      "input_meta_unchanged": true,
+      "input_metadata": [
+        {
+          "device": "cpu",
+          "dtype": "float32",
+          "is_view": false,
+          "numel": 105,
+          "requires_grad": false,
+          "shape": [
+            3,
+            5,
+            7
+          ],
+          "storage_bytes": 420,
+          "storage_offset_elements": 0,
+          "strides": [
+            35,
+            7,
+            1
+          ],
+          "version": 0
+        },
+        {
+          "device": "cpu",
+          "dtype": "bool",
+          "is_view": false,
+          "numel": 105,
+          "requires_grad": false,
+          "shape": [
+            3,
+            5,
+            7
+          ],
+          "storage_bytes": 105,
+          "storage_offset_elements": 0,
+          "strides": [
+            35,
+            7,
+            1
+          ],
+          "version": 0
+        }
+      ],
+      "input_raw_sha256": [
+        "a29a97ed2814ab269491899427d91b4aeac822c7f6e3da1e0ddeb6e7c5c8a43a",
+        "2682c1a30b89ea3c178f7d7a63225380a0821193fd35275b9ba385bccfe9622f"
+      ],
+      "label": "edge-r3",
+      "meta": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 2,
+        "requires_grad": false,
+        "shape": [
+          2
+        ],
+        "storage_bytes": 8,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "raw_byte_count": 8,
+      "raw_offset": 488,
+      "raw_sha256": "04ccf651b01295cc75c7e0a5478031bc2a68a9dcb24211b39db33b9d995400d4"
+    },
+    {
+      "input_meta_unchanged": true,
+      "input_metadata": [
+        {
+          "device": "cpu",
+          "dtype": "float32",
+          "is_view": false,
+          "numel": 16,
+          "requires_grad": false,
+          "shape": [
+            2,
+            2,
+            2,
+            2
+          ],
+          "storage_bytes": 64,
+          "storage_offset_elements": 0,
+          "strides": [
+            8,
+            4,
+            2,
+            1
+          ],
+          "version": 0
+        },
+        {
+          "device": "cpu",
+          "dtype": "bool",
+          "is_view": false,
+          "numel": 16,
+          "requires_grad": false,
+          "shape": [
+            2,
+            2,
+            2,
+            2
+          ],
+          "storage_bytes": 16,
+          "storage_offset_elements": 0,
+          "strides": [
+            8,
+            4,
+            2,
+            1
+          ],
+          "version": 0
+        }
+      ],
+      "input_raw_sha256": [
+        "b4d2db28a57f51b963bdb476277a8dc4152bf858440f8eb654b117fa82d075cb",
+        "7c3ccd10bb7ec37b46d37926ae6274267f007a34aeaf15c882a715a7f3300529"
+      ],
+      "label": "last-r4",
+      "meta": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 1,
+        "requires_grad": false,
+        "shape": [
+          1
+        ],
+        "storage_bytes": 4,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "raw_byte_count": 4,
+      "raw_offset": 496,
+      "raw_sha256": "c4075df0cc5f8385410ea207f89f3c75908271ddce70c5af3d76dcd7ebece8a7"
+    },
+    {
+      "input_meta_unchanged": true,
+      "input_metadata": [
+        {
+          "device": "cpu",
+          "dtype": "float32",
+          "is_view": false,
+          "numel": 255,
+          "requires_grad": false,
+          "shape": [
+            255
+          ],
+          "storage_bytes": 1020,
+          "storage_offset_elements": 0,
+          "strides": [
+            1
+          ],
+          "version": 0
+        },
+        {
+          "device": "cpu",
+          "dtype": "bool",
+          "is_view": false,
+          "numel": 255,
+          "requires_grad": false,
+          "shape": [
+            255
+          ],
+          "storage_bytes": 255,
+          "storage_offset_elements": 0,
+          "strides": [
+            1
+          ],
+          "version": 0
+        }
+      ],
+      "input_raw_sha256": [
+        "e112c52657faf3f3d85ad000028f9f3373b7ddac2857dd799d298d03933a9643",
+        "175be60de5d178d0daff538a3217e713c065abd8bdfa2c286d5d2d1ed21089af"
+      ],
+      "label": "chunk-255",
+      "meta": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 255,
+        "requires_grad": false,
+        "shape": [
+          255
+        ],
+        "storage_bytes": 1020,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "raw_byte_count": 1020,
+      "raw_offset": 500,
+      "raw_sha256": "e112c52657faf3f3d85ad000028f9f3373b7ddac2857dd799d298d03933a9643"
+    },
+    {
+      "input_meta_unchanged": true,
+      "input_metadata": [
+        {
+          "device": "cpu",
+          "dtype": "float32",
+          "is_view": false,
+          "numel": 256,
+          "requires_grad": false,
+          "shape": [
+            256
+          ],
+          "storage_bytes": 1024,
+          "storage_offset_elements": 0,
+          "strides": [
+            1
+          ],
+          "version": 0
+        },
+        {
+          "device": "cpu",
+          "dtype": "bool",
+          "is_view": false,
+          "numel": 256,
+          "requires_grad": false,
+          "shape": [
+            256
+          ],
+          "storage_bytes": 256,
+          "storage_offset_elements": 0,
+          "strides": [
+            1
+          ],
+          "version": 0
+        }
+      ],
+      "input_raw_sha256": [
+        "a924e0ff257b7a04ca303b01ed3c0a86644e0d6f4b0e6781a46777dbde240e42",
+        "2661920f2409dd6c8adeb0c44972959f232b6429afa913845d0fd95e7e768234"
+      ],
+      "label": "chunk-256",
+      "meta": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 256,
+        "requires_grad": false,
+        "shape": [
+          256
+        ],
+        "storage_bytes": 1024,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "raw_byte_count": 1024,
+      "raw_offset": 1520,
+      "raw_sha256": "a924e0ff257b7a04ca303b01ed3c0a86644e0d6f4b0e6781a46777dbde240e42"
+    },
+    {
+      "input_meta_unchanged": true,
+      "input_metadata": [
+        {
+          "device": "cpu",
+          "dtype": "float32",
+          "is_view": false,
+          "numel": 257,
+          "requires_grad": false,
+          "shape": [
+            257
+          ],
+          "storage_bytes": 1028,
+          "storage_offset_elements": 0,
+          "strides": [
+            1
+          ],
+          "version": 0
+        },
+        {
+          "device": "cpu",
+          "dtype": "bool",
+          "is_view": false,
+          "numel": 257,
+          "requires_grad": false,
+          "shape": [
+            257
+          ],
+          "storage_bytes": 257,
+          "storage_offset_elements": 0,
+          "strides": [
+            1
+          ],
+          "version": 0
+        }
+      ],
+      "input_raw_sha256": [
+        "ef6a931fffe98717430be74f92ab88c1f3d42117d153d9f4d4ce5b9fe453e187",
+        "a72ae2671720d9d1a18980b8037351a2cb990db9e55075fe1055575d61b400f8"
+      ],
+      "label": "chunk-257",
+      "meta": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 257,
+        "requires_grad": false,
+        "shape": [
+          257
+        ],
+        "storage_bytes": 1028,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "raw_byte_count": 1028,
+      "raw_offset": 2544,
+      "raw_sha256": "ef6a931fffe98717430be74f92ab88c1f3d42117d153d9f4d4ce5b9fe453e187"
+    },
+    {
+      "input_meta_unchanged": true,
+      "input_metadata": [
+        {
+          "device": "cpu",
+          "dtype": "float32",
+          "is_view": false,
+          "numel": 1023,
+          "requires_grad": false,
+          "shape": [
+            1023
+          ],
+          "storage_bytes": 4092,
+          "storage_offset_elements": 0,
+          "strides": [
+            1
+          ],
+          "version": 0
+        },
+        {
+          "device": "cpu",
+          "dtype": "bool",
+          "is_view": false,
+          "numel": 1023,
+          "requires_grad": false,
+          "shape": [
+            1023
+          ],
+          "storage_bytes": 1023,
+          "storage_offset_elements": 0,
+          "strides": [
+            1
+          ],
+          "version": 0
+        }
+      ],
+      "input_raw_sha256": [
+        "d636b3d5e3395ee73d73151c9afd173f7db9f266167303f2d38980416c60ea4e",
+        "16e5c480df37b346e72622b8b159fd7f9d67e3184c9d52284e49eb128243019f"
+      ],
+      "label": "chunk-1023",
+      "meta": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 1023,
+        "requires_grad": false,
+        "shape": [
+          1023
+        ],
+        "storage_bytes": 4092,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "raw_byte_count": 4092,
+      "raw_offset": 3572,
+      "raw_sha256": "d636b3d5e3395ee73d73151c9afd173f7db9f266167303f2d38980416c60ea4e"
+    },
+    {
+      "input_meta_unchanged": true,
+      "input_metadata": [
+        {
+          "device": "cpu",
+          "dtype": "float32",
+          "is_view": false,
+          "numel": 1024,
+          "requires_grad": false,
+          "shape": [
+            1024
+          ],
+          "storage_bytes": 4096,
+          "storage_offset_elements": 0,
+          "strides": [
+            1
+          ],
+          "version": 0
+        },
+        {
+          "device": "cpu",
+          "dtype": "bool",
+          "is_view": false,
+          "numel": 1024,
+          "requires_grad": false,
+          "shape": [
+            1024
+          ],
+          "storage_bytes": 1024,
+          "storage_offset_elements": 0,
+          "strides": [
+            1
+          ],
+          "version": 0
+        }
+      ],
+      "input_raw_sha256": [
+        "20e19a7f95dcaeb9d4b7ec2a290d3a3c0add0b2b0b5d3149597e2aa39f34e3cb",
+        "5a648d8015900d89664e00e125df179636301a2d8fa191c1aa2bd9358ea53a69"
+      ],
+      "label": "chunk-1024",
+      "meta": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 1024,
+        "requires_grad": false,
+        "shape": [
+          1024
+        ],
+        "storage_bytes": 4096,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "raw_byte_count": 4096,
+      "raw_offset": 7664,
+      "raw_sha256": "20e19a7f95dcaeb9d4b7ec2a290d3a3c0add0b2b0b5d3149597e2aa39f34e3cb"
+    },
+    {
+      "input_meta_unchanged": true,
+      "input_metadata": [
+        {
+          "device": "cpu",
+          "dtype": "float32",
+          "is_view": false,
+          "numel": 1025,
+          "requires_grad": false,
+          "shape": [
+            1025
+          ],
+          "storage_bytes": 4100,
+          "storage_offset_elements": 0,
+          "strides": [
+            1
+          ],
+          "version": 0
+        },
+        {
+          "device": "cpu",
+          "dtype": "bool",
+          "is_view": false,
+          "numel": 1025,
+          "requires_grad": false,
+          "shape": [
+            1025
+          ],
+          "storage_bytes": 1025,
+          "storage_offset_elements": 0,
+          "strides": [
+            1
+          ],
+          "version": 0
+        }
+      ],
+      "input_raw_sha256": [
+        "c7d7471481d5ab76f5768d739fa34748c2c9c0ed60b9292ba96587647ae6dba7",
+        "dac90dfc2ed7a188456dd23a7b89f16056a5c02eb64cf1301640065c74e38ed3"
+      ],
+      "label": "chunk-1025",
+      "meta": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 1025,
+        "requires_grad": false,
+        "shape": [
+          1025
+        ],
+        "storage_bytes": 4100,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "raw_byte_count": 4100,
+      "raw_offset": 11760,
+      "raw_sha256": "c7d7471481d5ab76f5768d739fa34748c2c9c0ed60b9292ba96587647ae6dba7"
+    },
+    {
+      "input_meta_unchanged": true,
+      "input_metadata": [
+        {
+          "device": "cpu",
+          "dtype": "float32",
+          "is_view": false,
+          "numel": 32767,
+          "requires_grad": false,
+          "shape": [
+            32767
+          ],
+          "storage_bytes": 131068,
+          "storage_offset_elements": 0,
+          "strides": [
+            1
+          ],
+          "version": 0
+        },
+        {
+          "device": "cpu",
+          "dtype": "bool",
+          "is_view": false,
+          "numel": 32767,
+          "requires_grad": false,
+          "shape": [
+            32767
+          ],
+          "storage_bytes": 32767,
+          "storage_offset_elements": 0,
+          "strides": [
+            1
+          ],
+          "version": 0
+        }
+      ],
+      "input_raw_sha256": [
+        "da42440bc0d510fe5d09359d38e08132eaec3680908e6841df15d9e021dcd9b7",
+        "d56efbe8c989f6ee8c98d10ac310a2126abfba0cfcdf3023c090faa03052f375"
+      ],
+      "label": "chunk-32767",
+      "meta": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 32767,
+        "requires_grad": false,
+        "shape": [
+          32767
+        ],
+        "storage_bytes": 131068,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "raw_byte_count": 131068,
+      "raw_offset": 15860,
+      "raw_sha256": "da42440bc0d510fe5d09359d38e08132eaec3680908e6841df15d9e021dcd9b7"
+    },
+    {
+      "input_meta_unchanged": true,
+      "input_metadata": [
+        {
+          "device": "cpu",
+          "dtype": "float32",
+          "is_view": false,
+          "numel": 32768,
+          "requires_grad": false,
+          "shape": [
+            32768
+          ],
+          "storage_bytes": 131072,
+          "storage_offset_elements": 0,
+          "strides": [
+            1
+          ],
+          "version": 0
+        },
+        {
+          "device": "cpu",
+          "dtype": "bool",
+          "is_view": false,
+          "numel": 32768,
+          "requires_grad": false,
+          "shape": [
+            32768
+          ],
+          "storage_bytes": 32768,
+          "storage_offset_elements": 0,
+          "strides": [
+            1
+          ],
+          "version": 0
+        }
+      ],
+      "input_raw_sha256": [
+        "12eb8a771ece7ea9bb20a5b1619b59cbc56c5e912f824c64e48dd46b3411a5af",
+        "bfa5a24faa8ddf576edcc46f4f05e2459ee4a383b8dc14ff7dba0056b9c59ed0"
+      ],
+      "label": "chunk-32768",
+      "meta": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 32768,
+        "requires_grad": false,
+        "shape": [
+          32768
+        ],
+        "storage_bytes": 131072,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "raw_byte_count": 131072,
+      "raw_offset": 146928,
+      "raw_sha256": "12eb8a771ece7ea9bb20a5b1619b59cbc56c5e912f824c64e48dd46b3411a5af"
+    },
+    {
+      "input_meta_unchanged": true,
+      "input_metadata": [
+        {
+          "device": "cpu",
+          "dtype": "float32",
+          "is_view": false,
+          "numel": 32769,
+          "requires_grad": false,
+          "shape": [
+            32769
+          ],
+          "storage_bytes": 131076,
+          "storage_offset_elements": 0,
+          "strides": [
+            1
+          ],
+          "version": 0
+        },
+        {
+          "device": "cpu",
+          "dtype": "bool",
+          "is_view": false,
+          "numel": 32769,
+          "requires_grad": false,
+          "shape": [
+            32769
+          ],
+          "storage_bytes": 32769,
+          "storage_offset_elements": 0,
+          "strides": [
+            1
+          ],
+          "version": 0
+        }
+      ],
+      "input_raw_sha256": [
+        "130dc8ca22d18f916863b839f57f11a7ac92b5546d7f763a9995f04bb6100245",
+        "8e5f164add0537c38ffa93214216a4fca84f169e6994411dab743bc15718818d"
+      ],
+      "label": "chunk-32769",
+      "meta": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 32769,
+        "requires_grad": false,
+        "shape": [
+          32769
+        ],
+        "storage_bytes": 131076,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "raw_byte_count": 131076,
+      "raw_offset": 278000,
+      "raw_sha256": "130dc8ca22d18f916863b839f57f11a7ac92b5546d7f763a9995f04bb6100245"
+    },
+    {
+      "input_meta_unchanged": true,
+      "input_metadata": [
+        {
+          "device": "cpu",
+          "dtype": "float32",
+          "is_view": false,
+          "numel": 262144,
+          "requires_grad": false,
+          "shape": [
+            512,
+            512
+          ],
+          "storage_bytes": 1048576,
+          "storage_offset_elements": 0,
+          "strides": [
+            512,
+            1
+          ],
+          "version": 0
+        },
+        {
+          "device": "cpu",
+          "dtype": "bool",
+          "is_view": false,
+          "numel": 262144,
+          "requires_grad": false,
+          "shape": [
+            512,
+            512
+          ],
+          "storage_bytes": 262144,
+          "storage_offset_elements": 0,
+          "strides": [
+            512,
+            1
+          ],
+          "version": 0
+        }
+      ],
+      "input_raw_sha256": [
+        "45c651d3731961498576fd43dee66e001dd442ead58cc281095a9413ee662457",
+        "8975d43026676d7d3ef1db49295dc723b55e23760d7000bdfd089cc4ece6d909"
+      ],
+      "label": "exact-cap-sparse",
+      "meta": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 2,
+        "requires_grad": false,
+        "shape": [
+          2
+        ],
+        "storage_bytes": 8,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "raw_byte_count": 8,
+      "raw_offset": 409076,
+      "raw_sha256": "58526de97ca4e6ceff49725bc680a16063505cd5c6809ca769220a6b2dd2cbde"
+    },
+    {
+      "input_meta_unchanged": true,
+      "input_metadata": [
+        {
+          "device": "cpu",
+          "dtype": "float32",
+          "is_view": false,
+          "numel": 262144,
+          "requires_grad": false,
+          "shape": [
+            512,
+            512
+          ],
+          "storage_bytes": 1048576,
+          "storage_offset_elements": 0,
+          "strides": [
+            512,
+            1
+          ],
+          "version": 0
+        },
+        {
+          "device": "cpu",
+          "dtype": "bool",
+          "is_view": false,
+          "numel": 262144,
+          "requires_grad": false,
+          "shape": [
+            512,
+            512
+          ],
+          "storage_bytes": 262144,
+          "storage_offset_elements": 0,
+          "strides": [
+            512,
+            1
+          ],
+          "version": 0
+        }
+      ],
+      "input_raw_sha256": [
+        "2009c9f138fb5af6a8e8c676bdf786450518f7544c0a4d111f9218a3abca2808",
+        "f317dd9d6ba01c465d82e4c4d55d01d270dda69db4a01a64c587a5593ac6084d"
+      ],
+      "label": "exact-cap-all",
+      "meta": {
+        "device": "cpu",
+        "dtype": "float32",
+        "is_view": false,
+        "numel": 262144,
+        "requires_grad": false,
+        "shape": [
+          262144
+        ],
+        "storage_bytes": 1048576,
+        "storage_offset_elements": 0,
+        "strides": [
+          1
+        ],
+        "version": 0
+      },
+      "raw_byte_count": 1048576,
+      "raw_offset": 409084,
+      "raw_sha256": "2009c9f138fb5af6a8e8c676bdf786450518f7544c0a4d111f9218a3abca2808"
+    }
+  ],
+  "status": "MATCH",
+  "summary": {
+    "guard_counts": {
+      "ACCEPT": 6,
+      "NO_ANALOGOUS_WIRE_API": 3,
+      "REJECT_RUNTIME_ERROR": 2
+    },
+    "input_words": 626786,
+    "offsets_elements": [
+      0
+    ],
+    "raw_bytes": 1457660,
+    "raw_sha256": "b879c03d455f7362128c78950858a3f7c220d8dbe51265b48745fe32463812cf",
+    "rows": 28,
+    "selected_words": 364415,
+    "versions": [
+      0
+    ],
+    "zero_output_rows": 6
+  },
+  "threads": 1
+}
