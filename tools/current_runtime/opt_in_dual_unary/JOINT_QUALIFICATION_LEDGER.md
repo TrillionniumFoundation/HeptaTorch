@@ -71,8 +71,9 @@ passing the original, unchanged aggregate current-runtime gate.
   reordered images.
 
 These scoped results have not been executed as one hosted aggregate run.
-Some complete raw outputs, including F64_48 and Generator131, are only
-on Dot temporary storage; the repository contains their compact evidence
-and hashes, not those archives. The unchanged canonical acceptance gate
+The complete successful raw archives for F64_48, Half47, and Generator131
+were verified by byte and mode, then retained in Dot's persistent
+workspace; the repository contains compact evidence and hashes, not the
+archives. The unchanged canonical acceptance gate
 has not been relaxed. The joint image remains opt-in and the full PyTorch
 rewrite remains open.
