@@ -1,6 +1,6 @@
-# Strict historical Bool27 and Integral24 on the joint opt-in image
+# Strict historical Sum17, Bool27 and Integral24 on the joint opt-in image
 
-These runs qualify the same bounded Bool27 and Integral24 scopes that
+These runs qualify the same bounded Sum17, Bool27 and Integral24 scopes that
 the original current800 gate qualifies, but on the physically executed
 joint ELF. They do not transfer the canonical outcome. The older raw
 observers preserve their intentional exact legacy refusal failures:
@@ -38,7 +38,7 @@ checkout, so the unmodified input files can be linked without duplicates.
 
 ```sh
 PKG="$REPO/tools/current_runtime/opt_in_dual_unary"
-for suite in bool27 integral24; do
+for suite in sum_f32_17 bool27 integral24; do
   python3 -I -B "$PKG/replay_historical_sum.py" --suite "$suite" \
     --repository "$REPO" --pins "$PKG/historical-sum-pins.json" \
     --baseline-build "$BASE_BUILD" --dual-build "$DUAL_BUILD" \
@@ -49,9 +49,7 @@ for suite in bool27 integral24; do
 done
 ```
 
-Only these two suites are covered by the recorded evidence. The same
-wrapper exposes an unverified Sum F32 entry for a later separate physical
-run; it is not claimed as passed here. Historical reference data are
+Only these three suites are covered by the recorded evidence. Historical reference data are
 replayed, not newly generated. Raw output reports and exact wire/stability
 records stay in the fresh output directories. Digests that bind those
 reports can vary with physical process identity, local paths and timing.
@@ -62,3 +60,14 @@ native children and 14,504 frames. Both preserved the old classifier
 failures given above, with all paired native raw frames, owner boundaries
 and both EOFs actually verified. See
 [compact evidence](historical-sum-evidence.json).
+
+The Sum17 replay passed across 33 native children and 8,194 frames.
+The unchanged outer observer checked all 31 original native sessions and
+two independently observed Bool dtype successes on the exact joint image.
+The original report remains FAIL, solely for historic dtype-refusal
+assertions at indices 5 and 6; its raw frames and the two new accepted
+cases were independently checked. The first attempt did not reach native
+execution because the frozen Bool reference archive was missing from the
+scratch inventory. The corrected inventory adds only two files already
+present on #63: that frozen archive and the extension report's exact
+reference source. Earlier raw failure digests are retained separately.
