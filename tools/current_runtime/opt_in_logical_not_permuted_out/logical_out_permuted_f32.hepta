@@ -1,0 +1,123 @@
+fn logical_out_permuted_f32(p_s:mutbuf,p_node:u64,p_desc:u64,p_store:u64,p_version:u64,p_dtype:u64) -> (u64) effects(read,write,trap) entry(start)
+block start(p_s:mutbuf,p_node:u64,p_desc:u64,p_store:u64,p_version:u64,p_dtype:u64)
+  p_z:u64 = const() {"value":0}
+  p_one:u64 = const() {"value":1}
+  p_two:u64 = const() {"value":2}
+  p_four:u64 = const() {"value":4}
+  p_max:u64 = const() {"value":262144}
+  p_c_off:u64 = const() {"value":8}
+  p_g_off:u64 = const() {"value":32}
+  p_e_off:u64 = const() {"value":40}
+  p_o_off:u64 = const() {"value":232}
+  p_f_off:u64 = const() {"value":664}
+  p_c_at:u64 = int.add.wrap(p_desc,p_c_off)
+  p_g_at:u64 = int.add.wrap(p_desc,p_g_off)
+  p_e_at:u64 = int.add.wrap(p_desc,p_e_off)
+  p_o_at:u64 = int.add.wrap(p_desc,p_o_off)
+  p_f_at:u64 = int.add.wrap(p_desc,p_f_off)
+  p_rank:u64 = call(p_s,p_desc) {"function":"getw"}
+  p_count:u64 = call(p_s,p_c_at) {"function":"getw"}
+  p_grad:u64 = call(p_s,p_g_at) {"function":"getw"}
+  p_edge:u64 = call(p_s,p_e_at) {"function":"getw"}
+  p_offset:u64 = call(p_s,p_o_at) {"function":"getw"}
+  p_flag:u64 = call(p_s,p_f_at) {"function":"getw"}
+  p_kill0:u64 = bit.or(p_dtype,p_grad)
+  p_kill1:u64 = bit.or(p_edge,p_offset)
+  p_kill2:u64 = bit.or(p_kill0,p_kill1)
+  p_clean:bool = compare.eq(p_kill2,p_z)
+  p_is_view:bool = compare.eq(p_flag,p_one)
+  p_rank_low:bool = compare.ge(p_rank,p_two)
+  p_rank_high:bool = compare.le(p_rank,p_four)
+  p_count_low:bool = compare.ne(p_count,p_z)
+  p_count_high:bool = compare.le(p_count,p_max)
+  p_guard0:bool = bool.and(p_clean,p_is_view)
+  p_guard1:bool = bool.and(p_rank_low,p_rank_high)
+  p_guard2:bool = bool.and(p_count_low,p_count_high)
+  p_guard3:bool = bool.and(p_guard0,p_guard1)
+  p_guard4:bool = bool.and(p_guard2,p_guard3)
+  branch p_guard4 root(p_s,p_node,p_desc,p_store,p_version,p_rank,p_count,p_z,p_one,p_four) bad(p_z)
+block root(r_s:mutbuf,r_node:u64,r_desc:u64,r_store:u64,r_version:u64,r_rank:u64,r_count:u64,r_z:u64,r_one:u64,r_four:u64)
+  r_base:u64 = call(r_s,r_node) {"function":"to_view_base_node"}
+  r_valid:bool = compare.ne(r_base,r_z)
+  branch r_valid root_layout(r_s,r_node,r_desc,r_store,r_version,r_rank,r_count,r_z,r_one,r_four,r_base) bad(r_z)
+block root_layout(v_s:mutbuf,v_node:u64,v_desc:u64,v_store:u64,v_version:u64,v_rank:u64,v_count:u64,v_z:u64,v_one:u64,v_four:u64,v_base:u64)
+  v_base_desc:u64 = call(v_s,v_base) {"function":"dptr"}
+  v_layout:u64 = call(v_s,v_base_desc,v_base,v_store,v_version,v_four) {"function":"logical_out_layout"}
+  v_count_off:u64 = const() {"value":8}
+  v_count_at:u64 = int.add.wrap(v_base_desc,v_count_off)
+  v_root_count:u64 = call(v_s,v_count_at) {"function":"getw"}
+  v_whole:bool = compare.eq(v_root_count,v_count)
+  v_root_layout_ok:bool = compare.ne(v_layout,v_z)
+  v_ok:bool = bool.and(v_root_layout_ok,v_whole)
+  branch v_ok dimensions(v_s,v_node,v_desc,v_store,v_rank,v_count,v_z,v_z,v_one) bad(v_z)
+block dimensions(d_s:mutbuf,d_node:u64,d_desc:u64,d_store:u64,d_rank:u64,d_count:u64,d_z:u64,d_axis:u64,d_product:u64)
+  d_more:bool = compare.lt(d_axis,d_rank)
+  branch d_more axis(d_s,d_node,d_desc,d_store,d_rank,d_count,d_z,d_axis,d_product) density(d_s,d_node,d_desc,d_store,d_count,d_z,d_product)
+block axis(a_s:mutbuf,a_node:u64,a_desc:u64,a_store:u64,a_rank:u64,a_count:u64,a_z:u64,a_axis:u64,a_product:u64)
+  a_word:u64 = const() {"value":8}
+  a_shape_off:u64 = const() {"value":96}
+  a_stride_off:u64 = const() {"value":128}
+  a_index:u64 = int.mul.wrap(a_axis,a_word)
+  a_desc_index:u64 = int.add.wrap(a_desc,a_index)
+  a_shape_at:u64 = int.add.wrap(a_desc_index,a_shape_off)
+  a_stride_at:u64 = int.add.wrap(a_desc_index,a_stride_off)
+  a_shape:u64 = call(a_s,a_shape_at) {"function":"getw"}
+  a_stride:u64 = call(a_s,a_stride_at) {"function":"getw"}
+  a_shape_positive:bool = compare.ne(a_shape,a_z)
+  a_stride_positive:bool = compare.ne(a_stride,a_z)
+  a_stride_bounded:bool = compare.le(a_stride,a_count)
+  a_guard0:bool = bool.and(a_shape_positive,a_stride_positive)
+  a_guard1:bool = bool.and(a_guard0,a_stride_bounded)
+  branch a_guard1 product(a_s,a_node,a_desc,a_store,a_rank,a_count,a_z,a_axis,a_product,a_shape) bad(a_z)
+block product(m_s:mutbuf,m_node:u64,m_desc:u64,m_store:u64,m_rank:u64,m_count:u64,m_z:u64,m_axis:u64,m_product:u64,m_shape:u64)
+  m_ceiling:u64 = int.div.checked(m_count,m_shape)
+  m_bounded:bool = compare.le(m_product,m_ceiling)
+  branch m_bounded next(m_s,m_node,m_desc,m_store,m_rank,m_count,m_z,m_axis,m_product,m_shape) bad(m_z)
+block next(n_s:mutbuf,n_node:u64,n_desc:u64,n_store:u64,n_rank:u64,n_count:u64,n_z:u64,n_axis:u64,n_product:u64,n_shape:u64)
+  n_one:u64 = const() {"value":1}
+  n_next_axis:u64 = int.add.wrap(n_axis,n_one)
+  n_next_product:u64 = int.mul.wrap(n_product,n_shape)
+  jump dimensions(n_s,n_node,n_desc,n_store,n_rank,n_count,n_z,n_next_axis,n_next_product)
+block density(y_s:mutbuf,y_node:u64,y_desc:u64,y_store:u64,y_count:u64,y_z:u64,y_product:u64)
+  y_exact:bool = compare.eq(y_count,y_product)
+  branch y_exact check_density(y_s,y_node,y_desc,y_store,y_count,y_z) bad(y_z)
+block check_density(h_s:mutbuf,h_node:u64,h_desc:u64,h_store:u64,h_count:u64,h_z:u64)
+  h_dense:u64 = call(h_s,h_node) {"function":"is_dense"}
+  h_contiguous:u64 = call(h_s,h_node) {"function":"is_contiguous"}
+  h_dense_ok:bool = compare.ne(h_dense,h_z)
+  h_permuted:bool = compare.eq(h_contiguous,h_z)
+  h_ok:bool = bool.and(h_dense_ok,h_permuted)
+  branch h_ok storage(h_s,h_desc,h_store,h_count,h_z) bad(h_z)
+block storage(s_s:mutbuf,s_desc:u64,s_store:u64,s_count:u64,s_z:u64)
+  s_live:u64 = call(s_s,s_store) {"function":"so_storage_live"}
+  s_valid:bool = compare.ne(s_live,s_z)
+  branch s_valid extent(s_s,s_desc,s_live,s_count,s_z) bad(s_z)
+block extent(e_s:mutbuf,e_desc:u64,e_live:u64,e_count:u64,e_z:u64)
+  e_base_off:u64 = const() {"value":16}
+  e_size_off:u64 = const() {"value":24}
+  e_four:u64 = const() {"value":4}
+  e_tag:u64 = const() {"value":9223372036854775808}
+  e_base_at:u64 = int.add.wrap(e_live,e_base_off)
+  e_size_at:u64 = int.add.wrap(e_live,e_size_off)
+  e_start_at:u64 = int.add.wrap(e_desc,e_base_off)
+  e_base:u64 = call(e_s,e_base_at) {"function":"so_uget"}
+  e_size:u64 = call(e_s,e_size_at) {"function":"so_uget"}
+  e_start:u64 = call(e_s,e_start_at) {"function":"getw"}
+  e_base_ok:bool = compare.lt(e_base,e_tag)
+  branch e_base_ok bounded(e_base,e_size,e_start,e_count,e_z,e_four,e_tag) bad(e_z)
+block bounded(b_base:u64,b_size:u64,b_start:u64,b_count:u64,b_z:u64,b_four:u64,b_tag:u64)
+  b_room:u64 = int.sub.wrap(b_tag,b_base)
+  b_bytes:u64 = int.mul.wrap(b_count,b_four)
+  b_expected:u64 = int.add.wrap(b_tag,b_base)
+  b_origin:bool = compare.eq(b_start,b_expected)
+  b_tag_room:bool = compare.le(b_bytes,b_room)
+  b_capacity:bool = compare.le(b_bytes,b_size)
+  b_both:bool = bool.and(b_origin,b_tag_room)
+  b_ok:bool = bool.and(b_both,b_capacity)
+  branch b_ok good() bad(b_z)
+block good()
+  g_one:u64 = const() {"value":1}
+  ret(g_one)
+block bad(f_z:u64)
+  ret(f_z)
+end
