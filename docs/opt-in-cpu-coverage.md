@@ -47,17 +47,17 @@ Same-dtype six public types, rank0–4, ordinary canonical no-grad CPU roots, no
 
 **Control boundary:** 7,765 prior wire exchanges and 567 full rollback checks, nine specifically verified archival scope changes. Only this exact published same-dtype head is included; mixed-dtype candidate held.
 
-### #69 (e11598e): standalone main775 overlay
+### #69 (b47f38e): standalone main775 overlay
 
-Ranks1–3, six public input types; ordinary owned contiguous no-grad CPU, zero offset. Fresh I64 [K,rank] and physical column stride [1,K]. The inherited rank3 bound is N≤262,144 and K≤87,381; new numeric rank3 evidence is from the cited ordinary slice, not a full-cap grade.
+Ranks 1–4 across six public input dtypes, for the bounded opt-in owned contiguous no-grad CPU path with zero offset. Output is fresh I64 [K,rank]; rank-four physical column stride is [1,K]. This latest numeric measurement uses small ordinary inputs (N≤360); it does not extend the prior Bool-only capacity evidence to the added dtypes.
 
-**Measured:** 63 cases, 3,222 values; latest rank3 numeric slice (60 newly scoped and three Bool controls), values counted per array order. [Manifest](https://github.com/TrillionniumFoundation/HeptaTorch/blob/e11598e93472bbed0e4d1c8e72ae63e800db19df/tools/current_runtime/opt_in_nonzero_r3_dtypes/pinned-manifest.json) · [Receipt](https://github.com/TrillionniumFoundation/HeptaTorch/blob/e11598e93472bbed0e4d1c8e72ae63e800db19df/tools/current_runtime/opt_in_nonzero_r3_dtypes/pure.json).
+**Measured:** 68 cases, 5,776 values; latest small rank-four numeric slice (65 newly scoped and three Bool controls); I64 coordinate words counted per order with all four physical columns checked. [Manifest](https://github.com/TrillionniumFoundation/HeptaTorch/blob/b47f38e09db92d425d08f865b67278ce5d3b9964/tools/current_runtime/opt_in_nonzero_r4_dtypes/pinned-manifest.json) · [Receipt](https://github.com/TrillionniumFoundation/HeptaTorch/blob/b47f38e09db92d425d08f865b67278ce5d3b9964/tools/current_runtime/opt_in_nonzero_r4_dtypes/pure.json).
 
-**Control boundary:** 2,555 prior successful ordinary exchanges remain byte-exact. No new full-cap, unsupported, or resource qualification.
+**Control boundary:** 3,660 prior successful ordinary exchanges remain byte-exact. Actual earlier image kept the three Bool positives and cleanly declined all 65 ordinary numeric cases without owner mutation. No new numeric capacity or broader qualification.
 
 ### #70 (b1e1fd2): separate main775 coexistence
 
-39 exact operator bodies; #67/#68 exact and earlier #69 2b5b2fc: numeric rank1 and Bool rank2 only. Does not contain #66 where or later #69 rank2 numeric/rank3.
+39 exact operator bodies; #67/#68 exact and earlier #69 2b5b2fc: numeric rank1 and Bool rank2 only. Does not contain #66 where or later #69 rank-two numeric or rank-three/rank-four scope.
 
 **Measured:** 36 chains, 129 combined outputs, 129 isolated outputs, 925 values; ordinary operator coexistence matrix only. [Manifest](https://github.com/TrillionniumFoundation/HeptaTorch/blob/b1e1fd20de94fa12068ce1e33da2bc7c6f1f8026/tools/current_runtime/opt_in_cpu_operator_coexistence/pinned-manifest.json) · [Receipt](https://github.com/TrillionniumFoundation/HeptaTorch/blob/b1e1fd20de94fa12068ce1e33da2bc7c6f1f8026/tools/current_runtime/opt_in_cpu_operator_coexistence/ordinary-readback.json).
 
@@ -65,7 +65,7 @@ Ranks1–3, six public input types; ordinary owned contiguous no-grad CPU, zero 
 
 ### #71 (cf23e92): separate current800 coexistence
 
-Exact #66 plus #70 additive pins and unchanged current800 owner liveness. #70’s earlier #69 scope retained; no later #69 rank2 numeric/rank3. Adds 14 where-to-selection/nonzero chains to #70’s 36 ordinary chains.
+Exact #66 plus #70 additive pins and unchanged current800 owner liveness. #70’s earlier #69 scope retained; no later #69 rank-two numeric or rank-three/rank-four scope. Adds 14 where-to-selection/nonzero chains to #70’s 36 ordinary chains.
 
 **Measured:** 50 chains, 171 combined outputs, 171 isolated outputs, 1,362 values; ordinary operator coexistence; offline verifier only rereads its sealed raw archive. [Manifest](https://github.com/TrillionniumFoundation/HeptaTorch/blob/cf23e9250234c788eb58b1a9de48d9c38fa655f8/tools/current_runtime/opt_in_current800_operator_coexistence/pinned-manifest.json) · [Receipt](https://github.com/TrillionniumFoundation/HeptaTorch/blob/cf23e9250234c788eb58b1a9de48d9c38fa655f8/tools/current_runtime/opt_in_current800_operator_coexistence/ordinary-readback.json).
 
@@ -84,5 +84,5 @@ No application evidence here qualifies any full forward or gradient contract, de
 
 ## Pins and exclusions
 
-#70 and #71 pin earlier #69 `2b5b2fc`; newer #69 rank-two numeric and rank-three evidence does not roll forward into them.
+#70 and #71 pin earlier #69 `2b5b2fc`; newer #69 rank-two numeric, rank-three, and rank-four evidence does not roll forward into them.
 Held mixed logical and held Cat work are not credited. No crosswalk entry affects default routing, existing hosted CI, independent registered verifiers, or the complete-project gate.

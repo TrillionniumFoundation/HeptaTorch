@@ -188,7 +188,7 @@ def render(d):
             "speed advantage or canonical acceptance.", "",
             "## Pins and exclusions", "",
             f"#70 and #71 pin earlier #69 `{d['older_combined_nonzero_pin'][:7]}`; "
-            "newer #69 rank-two numeric and rank-three evidence does not roll forward into them.",
+            "newer #69 rank-two numeric, rank-three, and rank-four evidence does not roll forward into them.",
             "Held mixed logical and held Cat work are not credited. No crosswalk entry affects default "
             "routing, existing hosted CI, independent registered verifiers, or the complete-project gate.", ""]
     return "\n".join(out)
