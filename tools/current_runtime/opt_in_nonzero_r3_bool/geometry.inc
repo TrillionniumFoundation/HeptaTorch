@@ -1,0 +1,51 @@
+block g3(gs3:mutbuf,gx3:u64,gd3:u64)
+  gdtype:u64 = call(gs3,gx3) {"function":"tensor_dtype"}
+  gthree:u64 = const() {"value":3}
+  g1v:u64 = const() {"value":1}
+  gz:u64 = const() {"value":0}
+  glimit:u64 = const() {"value":262144}
+  ca8:u64 = const() {"value":8}
+  ca96:u64 = const() {"value":96}
+  ca104:u64 = const() {"value":104}
+  ca112:u64 = const() {"value":112}
+  ca128:u64 = const() {"value":128}
+  ca136:u64 = const() {"value":136}
+  ca144:u64 = const() {"value":144}
+  cnptr:u64 = int.add.wrap(gd3,ca8)
+  a0ptr:u64 = int.add.wrap(gd3,ca96)
+  a1ptr:u64 = int.add.wrap(gd3,ca104)
+  a2ptr:u64 = int.add.wrap(gd3,ca112)
+  s0ptr:u64 = int.add.wrap(gd3,ca128)
+  s1ptr:u64 = int.add.wrap(gd3,ca136)
+  s2ptr:u64 = int.add.wrap(gd3,ca144)
+  cnval:u64 = call(gs3,cnptr) {"function":"getw"}
+  ga0:u64 = call(gs3,a0ptr) {"function":"getw"}
+  ga1:u64 = call(gs3,a1ptr) {"function":"getw"}
+  ga2:u64 = call(gs3,a2ptr) {"function":"getw"}
+  gs0:u64 = call(gs3,s0ptr) {"function":"getw"}
+  gs1:u64 = call(gs3,s1ptr) {"function":"getw"}
+  gs2:u64 = call(gs3,s2ptr) {"function":"getw"}
+  ax0:bool = compare.le(ga0,glimit)
+  ax1:bool = compare.le(ga1,glimit)
+  ax2:bool = compare.le(ga2,glimit)
+  bt3:bool = compare.eq(gdtype,g1v)
+  ag01:bool = bool.and(ax0,ax1)
+  ag2:bool = bool.and(ax2,bt3)
+  geogood:bool = bool.and(ag01,ag2)
+  branch geogood g3shape(gs3,gx3,cnval,ga0,ga1,ga2,gs0,gs1,gs2,glimit,g1v,gz,gthree) invalid(gs3)
+block g3shape(hs3:mutbuf,hx3:u64,hn3:u64,ha0:u64,ha1:u64,ha2:u64,hst0:u64,hst1:u64,hst2:u64,hlim:u64,hone:u64,hz:u64,hthree:u64)
+  plane:u64 = int.mul.wrap(ha1,ha2)
+  total:u64 = int.mul.wrap(ha0,plane)
+  zero1:bool = compare.eq(ha1,hz)
+  zero2:bool = compare.eq(ha2,hz)
+  m1:u64 = select(zero1,hone,ha1)
+  m2:u64 = select(zero2,hone,ha2)
+  hstride:u64 = int.mul.wrap(m1,m2)
+  hck0:bool = compare.eq(hst0,hstride)
+  hck1:bool = compare.eq(hst1,m2)
+  hck2:bool = compare.eq(hst2,hone)
+  hckn:bool = compare.eq(total,hn3)
+  hck01:bool = bool.and(hck0,hck1)
+  hck2n:bool = bool.and(hck2,hckn)
+  hall:bool = bool.and(hck01,hck2n)
+  branch hall limit(hs3,hx3,hn3,ha2,hlim,hone,hone,hthree,plane) invalid(hs3)
