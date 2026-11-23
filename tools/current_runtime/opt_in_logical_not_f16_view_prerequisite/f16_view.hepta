@@ -1,0 +1,128 @@
+fn public_f16_whole_dense_view(a_req:readbuf,a_s:mutbuf,a_handle:u64,a_cfg:u64,a_min:u64,a_root:u64,a_desc:u64) -> (u64) effects(read,write,trap) entry(root)
+block root(a_req:readbuf,a_s:mutbuf,a_handle:u64,a_cfg:u64,a_min:u64,a_root:u64,a_desc:u64)
+  z:u64 = const() {"value":0}
+  two:u64 = const() {"value":2}
+  f16:u64 = const() {"value":5}
+  tag:u64 = const() {"value":9223372036854775808}
+  limit:u64 = const() {"value":262144}
+  o8:u64 = const() {"value":8}
+  o16:u64 = const() {"value":16}
+  o32:u64 = const() {"value":32}
+  o40:u64 = const() {"value":40}
+  o216:u64 = const() {"value":216}
+  o224:u64 = const() {"value":224}
+  o232:u64 = const() {"value":232}
+  o408:u64 = const() {"value":408}
+  o664:u64 = const() {"value":664}
+  count_at:u64 = int.add.wrap(a_desc,o8)
+  addr_at:u64 = int.add.wrap(a_desc,o16)
+  grad_at:u64 = int.add.wrap(a_desc,o32)
+  edge_at:u64 = int.add.wrap(a_desc,o40)
+  store_at:u64 = int.add.wrap(a_desc,o216)
+  version_at:u64 = int.add.wrap(a_desc,o224)
+  offset_at:u64 = int.add.wrap(a_desc,o232)
+  parent_at:u64 = int.add.wrap(a_desc,o408)
+  flag_at:u64 = int.add.wrap(a_desc,o664)
+  n:u64 = call(a_s,count_at) {"function":"getw"}
+  addr:u64 = call(a_s,addr_at) {"function":"getw"}
+  grad:u64 = call(a_s,grad_at) {"function":"getw"}
+  edge:u64 = call(a_s,edge_at) {"function":"getw"}
+  store:u64 = call(a_s,store_at) {"function":"getw"}
+  version:u64 = call(a_s,version_at) {"function":"getw"}
+  offset:u64 = call(a_s,offset_at) {"function":"getw"}
+  parent:u64 = call(a_s,parent_at) {"function":"getw"}
+  flag:u64 = call(a_s,flag_at) {"function":"getw"}
+  dt:u64 = call(a_s,a_root) {"function":"tensor_dtype"}
+  w:u64 = call(dt) {"function":"dtype_width"}
+  is_f16:bool = compare.eq(dt,f16)
+  is_two:bool = compare.eq(w,two)
+  dt_ok:bool = bool.and(is_f16,is_two)
+  state0:u64 = bit.or(grad,edge)
+  state1:u64 = bit.or(state0,offset)
+  state2:u64 = bit.or(parent,flag)
+  state3:u64 = bit.or(state1,state2)
+  clean:bool = compare.eq(state3,z)
+  n_nonzero:bool = compare.ne(n,z)
+  n_limited:bool = compare.le(n,limit)
+  n_ok:bool = bool.and(n_nonzero,n_limited)
+  cont:u64 = call(a_s,a_root) {"function":"is_contiguous"}
+  cont_ok:bool = compare.ne(cont,z)
+  r0:bool = bool.and(clean,dt_ok)
+  r1:bool = bool.and(n_ok,cont_ok)
+  r2:bool = bool.and(r0,r1)
+  branch r2 owners(a_req,a_s,a_handle,a_cfg,a_min,n,addr,store,version,z,two,tag) bad(a_s)
+block owners(b_req:readbuf,b_s:mutbuf,b_handle:u64,b_cfg:u64,b_min:u64,b_n:u64,b_addr:u64,b_store:u64,b_version:u64,b_z:u64,b_two:u64,b_tag:u64)
+  live:u64 = call(b_s,b_store) {"function":"so_storage_live"}
+  v_live:u64 = call(b_s,b_version) {"function":"so_version_live"}
+  has_store:bool = compare.ne(live,b_z)
+  has_version:bool = compare.ne(v_live,b_z)
+  have_owners:bool = bool.and(has_store,has_version)
+  branch have_owners extent(b_req,b_s,b_handle,b_cfg,b_min,b_n,b_addr,live,b_z,b_two,b_tag) bad(b_s)
+block extent(c_req:readbuf,c_s:mutbuf,c_handle:u64,c_cfg:u64,c_min:u64,c_n:u64,c_addr:u64,c_live:u64,c_z:u64,c_two:u64,c_tag:u64)
+  s_base_off:u64 = const() {"value":16}
+  s_size_off:u64 = const() {"value":24}
+  s_base_at:u64 = int.add.wrap(c_live,s_base_off)
+  s_size_at:u64 = int.add.wrap(c_live,s_size_off)
+  s_base:u64 = call(c_s,s_base_at) {"function":"so_uget"}
+  s_size:u64 = call(c_s,s_size_at) {"function":"so_uget"}
+  s_base_ok:bool = compare.lt(s_base,c_tag)
+  branch s_base_ok bounded(c_req,c_s,c_handle,c_cfg,c_min,c_n,c_addr,s_base,s_size,c_z,c_two,c_tag) bad(c_s)
+block bounded(d_req:readbuf,d_s:mutbuf,d_handle:u64,d_cfg:u64,d_min:u64,d_n:u64,d_addr:u64,d_base:u64,d_size:u64,d_z:u64,d_two:u64,d_tag:u64)
+  need:u64 = int.mul.wrap(d_n,d_two)
+  room:u64 = int.sub.wrap(d_tag,d_base)
+  base_tagged:u64 = int.add.wrap(d_tag,d_base)
+  stor_exact:bool = compare.eq(need,d_size)
+  room_ok:bool = compare.le(need,room)
+  addr_ok:bool = compare.eq(d_addr,base_tagged)
+  bounds_ok:bool = bool.and(stor_exact,room_ok)
+  full_ok:bool = bool.and(bounds_ok,addr_ok)
+  branch full_ok make(d_req,d_s,d_handle,d_cfg,d_min,d_n,d_z,d_two) bad(d_s)
+block make(e_req:readbuf,e_s:mutbuf,e_handle:u64,e_cfg:u64,e_min:u64,e_n:u64,e_z:u64,e_two:u64)
+  child:u64 = call(e_req,e_s,e_handle,e_cfg,e_min) {"function":"scalar_previous_rng_strided_view"}
+  made:bool = compare.ne(child,e_z)
+  branch made check(e_s,child,e_n,e_z,e_two) failed(e_z)
+block check(f_s:mutbuf,f_child:u64,f_n:u64,f_z:u64,f_two:u64)
+  desc:u64 = call(f_s,f_child) {"function":"dptr"}
+  count_off:u64 = const() {"value":8}
+  offset_off:u64 = const() {"value":232}
+  rank:u64 = call(f_s,desc) {"function":"getw"}
+  count_a:u64 = int.add.wrap(desc,count_off)
+  offset_a:u64 = int.add.wrap(desc,offset_off)
+  count:u64 = call(f_s,count_a) {"function":"getw"}
+  off:u64 = call(f_s,offset_a) {"function":"getw"}
+  three:u64 = const() {"value":3}
+  rank_lo:bool = compare.ge(rank,f_two)
+  rank_hi:bool = compare.le(rank,three)
+  rank_ok:bool = bool.and(rank_lo,rank_hi)
+  full:bool = compare.eq(count,f_n)
+  zero:bool = compare.eq(off,f_z)
+  full_zero:bool = bool.and(full,zero)
+  guarded:bool = bool.and(rank_ok,full_zero)
+  branch guarded axes(f_s,f_child,desc,rank,f_z,f_z) bad(f_s)
+block axes(g_s:mutbuf,g_child:u64,g_desc:u64,g_rank:u64,g_axis:u64,g_z:u64)
+  more:bool = compare.lt(g_axis,g_rank)
+  branch more axis(g_s,g_child,g_desc,g_rank,g_axis,g_z) dense(g_s,g_child,g_z)
+block axis(h_s:mutbuf,h_child:u64,h_desc:u64,h_rank:u64,h_axis:u64,h_z:u64)
+  one:u64 = const() {"value":1}
+  eight:u64 = const() {"value":8}
+  stride_off:u64 = const() {"value":128}
+  stride_base:u64 = int.add.wrap(h_desc,stride_off)
+  stride_delta:u64 = int.mul.wrap(h_axis,eight)
+  stride_at:u64 = int.add.wrap(stride_base,stride_delta)
+  stride:u64 = call(h_s,stride_at) {"function":"getw"}
+  next:u64 = int.add.wrap(h_axis,one)
+  positive:bool = compare.ne(stride,h_z)
+  branch positive axes(h_s,h_child,h_desc,h_rank,next,h_z) bad(h_s)
+block dense(i_s:mutbuf,i_child:u64,i_z:u64)
+  d_ok:u64 = call(i_s,i_child) {"function":"is_dense"}
+  is_d:bool = compare.ne(d_ok,i_z)
+  branch is_d good(i_child) bad(i_s)
+block good(j_child:u64)
+  ret(j_child)
+block bad(k_s:mutbuf)
+  status:u64 = const() {"value":7}
+  no:u64 = call(k_s,status) {"function":"terror"}
+  ret(no)
+block failed(l_z:u64)
+  ret(l_z)
+end
