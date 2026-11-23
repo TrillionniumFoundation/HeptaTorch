@@ -79,6 +79,23 @@ def validate(data):
     require(data["older_combined_nonzero_pin"] == "2b5b2fcd8b7937d5441317da1becf9cbef360a1b"
             and data["evidence"]["69"]["head"] != data["older_combined_nonzero_pin"],
             "must distinguish latest and frozen older #69")
+    r = data["evidence"]["71"]
+    apps = r["separate_cpu_app_evidence"]
+    require(r["last_positive"] == {"chains":50, "combined_outputs":171,
+                                  "isolated_outputs":171, "values":1362}, "keep coexistence distinct")
+    require(re.fullmatch(r"[0-9a-f]{40}", r["tree"]) and
+            len(apps) == 2 and [x["id"] for x in apps] ==
+            ["two_layer_inference", "one_scalar_loss_sgd_step"], "wrong app scopes")
+    infer, sgd = apps
+    require(tuple(infer[k] for k in ("cases","stages","raw_f32_words")) == (3,15,80),
+            "wrong two-layer scope")
+    require(tuple(sgd[k] for k in ("cases","raw_f32_words","backward_calls","sgd_calls",
+                                   "loss_before","loss_after","version_delta")) == (1,26,1,1,"8","2.25",1)
+            and sgd["commit"] == r["head"], "wrong scalar-loss scope")
+    for app in apps:
+        require(re.fullmatch(r"[0-9a-f]{40}", app["commit"]) and
+                re.fullmatch(r"tools/current_runtime/opt_in_[a-z0-9_]+", app["root"]) and
+                re.fullmatch(r"[a-z0-9-]+\.json", app["receipt"]), "invalid app pin")
     return data
 
 
@@ -143,7 +160,19 @@ def render(d):
                 f"**Measured:** {nums}; {s['last_positive_scope']}. "
                 f"[Manifest]({b}/{s['manifest']}) · [Receipt]({b}/{s['receipt']}).", "",
                 f"**Control boundary:** {s['controls']}", ""]
-    out += ["## Pins and exclusions", "",
+    apps = d["evidence"]["71"]["separate_cpu_app_evidence"]
+    out += ["## Separate #71 CPU application evidence", "",
+            "These are separate exact-image experiments, not additional operator-coexistence counts.", ""]
+    a, b = apps
+    href = lambda x: f"{ROOT}/blob/{x['commit']}/{x['root']}/{x['receipt']}"
+    out += [f"- **Two-layer F32 inference:** {a['cases']} cases, {a['stages']} stages, "
+            f"{a['raw_f32_words']} exact words. {a['scope']} [Receipt]({href(a)}).",
+            f"- **One owned scalar-loss SGD step:** {b['raw_f32_words']} exact words, "
+            f"loss {b['loss_before']} → {b['loss_after']}, weight Version +{b['version_delta']}. "
+            f"{b['scope']} [Receipt]({href(b)}).", "",
+            "Neither experiment qualifies any full forward or gradient contract, default path, "
+            "speed advantage or canonical acceptance.", "",
+            "## Pins and exclusions", "",
             f"#70 and #71 pin earlier #69 `{d['older_combined_nonzero_pin'][:7]}`; "
             "newer #69 rank-two numeric and rank-three evidence does not roll forward into them.",
             "Held mixed logical and held Cat work are not credited. No crosswalk entry affects default "
