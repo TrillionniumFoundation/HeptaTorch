@@ -1,0 +1,31 @@
+--- a/runtime.hepta
++++ b/runtime.hepta
+@@ -56654,12 +56654,16 @@
+   ax0:bool = compare.le(ga0,glimit)
+   ax1:bool = compare.le(ga1,glimit)
+   ax2:bool = compare.le(ga2,glimit)
+-  bt3:bool = compare.eq(gdtype,g1v)
++  priv3:u64 = const() {"value":3}
++  gwidth:u64 = call(gdtype) {"function":"dtype_width"}
++  valid_width:bool = compare.ne(gwidth,gz)
++  public3:bool = compare.ne(gdtype,priv3)
++  bt3:bool = bool.and(valid_width,public3)
+   ag01:bool = bool.and(ax0,ax1)
+   ag2:bool = bool.and(ax2,bt3)
+   geogood:bool = bool.and(ag01,ag2)
+-  branch geogood g3shape(gs3,gx3,cnval,ga0,ga1,ga2,gs0,gs1,gs2,glimit,g1v,gz,gthree) invalid(gs3)
+-block g3shape(hs3:mutbuf,hx3:u64,hn3:u64,ha0:u64,ha1:u64,ha2:u64,hst0:u64,hst1:u64,hst2:u64,hlim:u64,hone:u64,hz:u64,hthree:u64)
++  branch geogood g3shape(gs3,gx3,cnval,ga0,ga1,ga2,gs0,gs1,gs2,glimit,g1v,gz,gthree,gwidth,gdtype) invalid(gs3)
++block g3shape(hs3:mutbuf,hx3:u64,hn3:u64,ha0:u64,ha1:u64,ha2:u64,hst0:u64,hst1:u64,hst2:u64,hlim:u64,hone:u64,hz:u64,hthree:u64,hwidth:u64,htag:u64)
+   plane:u64 = int.mul.wrap(ha1,ha2)
+   total:u64 = int.mul.wrap(ha0,plane)
+   zero1:bool = compare.eq(ha1,hz)
+@@ -56674,7 +56678,7 @@
+   hck01:bool = bool.and(hck0,hck1)
+   hck2n:bool = bool.and(hck2,hckn)
+   hall:bool = bool.and(hck01,hck2n)
+-  branch hall limit(hs3,hx3,hn3,ha2,hlim,hone,hone,hthree,plane) invalid(hs3)
++  branch hall limit(hs3,hx3,hn3,ha2,hlim,hwidth,htag,hthree,plane) invalid(hs3)
+ block limit(ls:mutbuf,lx:u64,ln:u64,lc:u64,ll:u64,lw:u64,ltag:u64,lcols:u64,lplane:u64)
+   within:bool = compare.le(ln,ll)
+   branch within owned(ls,lx,ln,lc,lw,ltag,lcols,lplane) capacity(ls)
