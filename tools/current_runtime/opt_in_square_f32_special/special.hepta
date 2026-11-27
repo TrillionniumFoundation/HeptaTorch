@@ -1,0 +1,35 @@
+fn opt_in_square_f32_gradient_word(g:u64,x:u64) -> (u64) effects(read,write,trap) entry(classify)
+block classify(g:u64,x:u64)
+  mask:u64 = const() {"value":2147483647}
+  inf:u64 = const() {"value":2139095040}
+  quiet:u64 = const() {"value":4194304}
+  mx:u64 = bit.and(x,mask)
+  mg:u64 = bit.and(g,mask)
+  xn:bool = compare.gt(mx,inf)
+  gn:bool = compare.gt(mg,inf)
+  either:bool = bool.or(xn,gn)
+  branch either propagate(g,x,xn,quiet) ordered(g,x,mg,mask,inf)
+block propagate(gnp:u64,xnp:u64,x_is_nan:bool,q:u64)
+  chosen:u64 = select(x_is_nan,xnp,gnp)
+  value:u64 = bit.or(chosen,q)
+  ret(value)
+block ordered(go:u64,xo:u64,mgo:u64,mo:u64,io:u64)
+  two:u64 = const() {"value":1073741824}
+  tx:u64 = call(two,xo) {"function":"mulf"}
+  mtx:u64 = bit.and(tx,mo)
+  zero:u64 = const() {"value":0}
+  gz:bool = compare.eq(mgo,zero)
+  txz:bool = compare.eq(mtx,zero)
+  gi:bool = compare.eq(mgo,io)
+  txi:bool = compare.eq(mtx,io)
+  invalid1:bool = bool.and(gz,txi)
+  invalid2:bool = bool.and(txz,gi)
+  invalid:bool = bool.or(invalid1,invalid2)
+  branch invalid indefinite() multiply(go,tx)
+block indefinite()
+  word:u64 = const() {"value":4290772992}
+  ret(word)
+block multiply(gm:u64,tm:u64)
+  product:u64 = call(gm,tm) {"function":"mulf"}
+  ret(product)
+end
