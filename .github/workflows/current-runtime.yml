@@ -8,6 +8,12 @@ on:
   # Limit push to main so a feature push and its PR do not duplicate this gate.
   pull_request:
   workflow_dispatch:
+    inputs:
+      opt_in_conv2d_replay:
+        description: Run the separately pinned F32 conv2d differential replay
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -669,6 +675,55 @@ jobs:
                   stream.write('\n- ' + failure + '\n')
           sys.exit(1 if failures else 0)
           SUMMARY
+
+      - name: Replay the pinned opt-in F32 conv2d qualification
+        id: opt_in_conv2d
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.opt_in_conv2d_replay }}
+        run: |
+          python3 -I -B - <<'CONV2D_REPLAY'
+          from pathlib import Path, PurePosixPath
+          import json
+          import os
+          import subprocess
+          import sys
+          from urllib.parse import unquote, urlsplit
+
+          root = Path(os.environ["RUNNER_TEMP"])
+          inputs = root / "heptatorch-opt-in-conv2d"
+          inputs.mkdir(mode=0o700)
+          lock = json.loads(Path("compatibility/pytorch-oracle-lock.json").read_text())["oracle"]
+          reference = lock["wheel"]
+          url = reference["url"]
+          # pip decodes percent-encoded basenames in wheel URLs.
+          wheel = inputs / unquote(PurePosixPath(urlsplit(url).path).name)
+          subprocess.run(
+              [sys.executable, "-m", "pip", "download", "--disable-pip-version-check",
+               "--no-deps", "--dest", str(inputs), url + "#sha256=" + reference["sha256"]],
+              check=True, timeout=180,
+          )
+          subprocess.run(
+              [sys.executable, "-I", "-B", "tools/current_runtime/opt_in_conv2d/replay_gate.py",
+               "--compiler", str(root / "hepta-stack-budget/native/stack-module-compiler"),
+               "--linker", str(root / "hepta-current-entropy/generator-session-linker"),
+               "--torch-python", sys.executable,
+               "--wheel", str(wheel), "--install", lock["install_report"],
+               "--output", str(inputs / "replay")],
+              check=True, timeout=900,
+          )
+          CONV2D_REPLAY
+
+      - name: Upload the separate opt-in conv2d replay receipt
+        if: ${{ !cancelled() && github.event_name == 'workflow_dispatch' && inputs.opt_in_conv2d_replay && steps.opt_in_conv2d.outcome != 'skipped' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: opt-in-conv2d-replay
+          path: |
+            ${{ runner.temp }}/heptatorch-opt-in-conv2d/replay/gate.json
+            ${{ runner.temp }}/heptatorch-opt-in-conv2d/replay/*.stdout
+            ${{ runner.temp }}/heptatorch-opt-in-conv2d/replay/*.stderr
+            ${{ runner.temp }}/heptatorch-opt-in-conv2d/replay/*-build/build.json
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Preserve complete original evidence and file modes after success or failure
         if: ${{ always() }}
