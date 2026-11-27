@@ -1,0 +1,38 @@
+fn opt_in_square_f32_backward(s:mutbuf,y:u64) -> (u64) effects(read,write,trap) entry(start)
+block start(s:mutbuf,y:u64)
+  d:u64 = call(s,y) {"function":"dptr"}
+  countoff:u64 = const() {"value":8}
+  countp:u64 = int.add.wrap(d,countoff)
+  count:u64 = call(s,countp) {"function":"getw"}
+  parentoff:u64 = const() {"value":48}
+  parentp:u64 = int.add.wrap(d,parentoff)
+  parent:u64 = call(s,parentp) {"function":"getw"}
+  slot:u64 = const() {"value":160}
+  slotp:u64 = int.add.wrap(d,slot)
+  grads:u64 = call(s,slotp) {"function":"getw"}
+  zero:u64 = const() {"value":0}
+  jump loop(s,parent,grads,count,zero)
+block loop(sl:mutbuf,xl:u64,gl:u64,nl:u64,il:u64)
+  more:bool = compare.lt(il,nl)
+  branch more element(sl,xl,gl,nl,il) finish(sl)
+block element(se:mutbuf,xe:u64,ge:u64,ne:u64,ie:u64)
+  four:u64 = const() {"value":4}
+  offset:u64 = int.mul.wrap(ie,four)
+  addr:u64 = int.add.wrap(ge,offset)
+  g:u64 = call(se,addr) {"function":"get4"}
+  x:u64 = call(se,xe,ie) {"function":"tget"}
+  two:u64 = const() {"value":1073741824}
+  twice:u64 = call(two,x) {"function":"mulf"}
+  contribution:u64 = call(g,twice) {"function":"mulf"}
+  updated:u64 = call(se,xe,ie,contribution) {"function":"gadd"}
+  one:u64 = const() {"value":1}
+  next:u64 = int.add.wrap(ie,one)
+  jump loop(se,xe,ge,ne,next)
+block finish(sf:mutbuf)
+  zf:u64 = const() {"value":0}
+  err:u64 = call(sf,zf) {"function":"getw"}
+  ok:bool = compare.eq(err,zf)
+  of:u64 = const() {"value":1}
+  result:u64 = select(ok,of,zf)
+  ret(result)
+end
