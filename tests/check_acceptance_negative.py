@@ -19,7 +19,7 @@ def derivative_source(document):
                 if row["path"] == "tools/autograd/derivatives.yaml")
 
 
-def reject_case(name, mutations):
+def check_with_mutations(mutations):
     with tempfile.TemporaryDirectory(prefix="heptatorch-acceptance-") as temporary:
         root = Path(temporary)
         for path in ("compatibility/upstream-schemas.json", "compatibility/upstream-derivatives.json",
@@ -33,12 +33,17 @@ def reject_case(name, mutations):
             document = json.loads(target.read_text())
             mutate(document)
             target.write_text(json.dumps(document))
-        report = acceptance.check(root)
-        rejected = report["accounting_status"] == "FAIL"
-        if not rejected:
-            raise SystemExit("Unsafe target alteration was accepted: " + name)
-        return {"case": name, "rejected": rejected,
-                "failed_checks": [key for key, passed in report["checks"].items() if not passed]}
+        return acceptance.check(root)
+
+
+def reject_case(name, mutations, expected_check=None):
+    report = check_with_mutations(mutations)
+    failed_checks = [key for key, passed in report["checks"].items() if not passed]
+    if report["accounting_status"] != "FAIL":
+        raise SystemExit("Unsafe target alteration was accepted: " + name)
+    if expected_check is not None and failed_checks != [expected_check]:
+        raise SystemExit(f"{name} did not fail the expected check alone: {failed_checks}")
+    return {"case": name, "rejected": True, "failed_checks": failed_checks}
 
 
 def main():
@@ -76,6 +81,28 @@ def main():
         ("duplicated-derivative-lock-record", "compatibility/upstream-lock.json", lambda d: d["source_files"].append(derivative_source(d).copy())),
     )
     rows = [reject_case(name, ((filename, mutate),)) for name, filename, mutate in controls]
+    ledger_path = "compatibility/full-acceptance.json"
+
+    def swap_requirements(document):
+        first, second = document["gates"][:2]
+        first["required"], second["required"] = second["required"], first["required"]
+
+    rows.extend((
+        reject_case("changed-subsystem-requirement", ((ledger_path, lambda d: d["gates"][0].update(
+            required="Independent native compilation")),), "exact_subsystem_requirements"),
+        reject_case("swapped-subsystem-requirements", ((ledger_path, swap_requirements),),
+                    "exact_subsystem_requirements"),
+    ))
+
+    def update_progress(document):
+        document["gates"].reverse()
+        document["gates"][0]["remaining"] += " Review this progress note."
+
+    progressed = check_with_mutations(((ledger_path, update_progress),))
+    if (progressed["accounting_status"] != "PASS"
+            or progressed["whole_project_status"] != "HOLD"
+            or progressed["subsystem_requirements_sha256"] != baseline["subsystem_requirements_sha256"]):
+        raise SystemExit("Progress text or row ordering must not redefine the subsystem contracts")
     # Reproduce the observed defect: both existing count records said zero,
     # yet the previous native-schema-only validator still returned PASS.
     rows.append(reject_case("erased-both-original-derivative-counts", (
