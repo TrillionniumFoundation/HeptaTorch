@@ -1,0 +1,109 @@
+fn conv_bias_forward(a:mutbuf,xpub:u64,wpub:u64,bpub:u64,st:u64,pad:u64,dil:u64,groups:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(a:mutbuf,xpub:u64,wpub:u64,bpub:u64,st:u64,pad:u64,dil:u64,groups:u64)
+  x:u64 = call(a,xpub) {"function":"public_f32"}
+  w:u64 = call(a,wpub) {"function":"public_f32"}
+  b:u64 = call(a,bpub) {"function":"public_f32"}
+  any_zero:u64 = const() {"value":0}
+  ax:bool = compare.eq(x,any_zero)
+  aw:bool = compare.eq(w,any_zero)
+  ab:bool = compare.eq(b,any_zero)
+  axw:bool = bool.or(ax,aw)
+  invalid:bool = bool.or(axw,ab)
+  branch invalid b1() b2(a,x,w,b,st,pad,dil,groups)
+block b1()
+  failed:u64 = const() {"value":0}
+  ret(failed)
+block b2(ar:mutbuf,ix:u64,iw:u64,ib:u64,s:u64,p:u64,d:u64,g:u64)
+  dx:u64 = call(ar,ix) {"function":"dptr"}
+  dw:u64 = call(ar,iw) {"function":"dptr"}
+  db:u64 = call(ar,ib) {"function":"dptr"}
+  c0:u64 = const() {"value":0}
+  c1:u64 = const() {"value":1}
+  c4:u64 = const() {"value":4}
+  ad:u64 = const() {"value":32}
+  dim:u64 = const() {"value":96}
+  lx:u64 = call(ar,ix) {"function":"is_contiguous"}
+  lw:u64 = call(ar,iw) {"function":"is_contiguous"}
+  lb:u64 = call(ar,ib) {"function":"is_contiguous"}
+  lxy:u64 = bit.and(lx,lw)
+  lall:u64 = bit.and(lxy,lb)
+  layout_bad:bool = compare.ne(lall,c1)
+  rx:u64 = call(ar,dx) {"function":"getw"}
+  rw:u64 = call(ar,dw) {"function":"getw"}
+  rb:u64 = call(ar,db) {"function":"getw"}
+  rx_bad:bool = compare.ne(rx,c4)
+  rw_bad:bool = compare.ne(rw,c4)
+  rb_bad:bool = compare.ne(rb,c1)
+  rxy_bad:bool = bool.or(rx_bad,rw_bad)
+  rank_bad:bool = bool.or(rxy_bad,rb_bad)
+  wd:u64 = int.add.wrap(dw,dim)
+  bd:u64 = int.add.wrap(db,dim)
+  channels:u64 = call(ar,wd) {"function":"getw"}
+  length:u64 = call(ar,bd) {"function":"getw"}
+  bad_length:bool = compare.ne(channels,length)
+  bad_shape:bool = bool.or(rank_bad,bad_length)
+  bad_structure:bool = bool.or(bad_shape,layout_bad)
+  gx_p:u64 = int.add.wrap(dx,ad)
+  gw_p:u64 = int.add.wrap(dw,ad)
+  gb_p:u64 = int.add.wrap(db,ad)
+  gx:u64 = call(ar,gx_p) {"function":"getw"}
+  gw:u64 = call(ar,gw_p) {"function":"getw"}
+  gb:u64 = call(ar,gb_p) {"function":"getw"}
+  gxw:u64 = bit.or(gx,gw)
+  allgrad:u64 = bit.or(gxw,gb)
+  grad:bool = compare.ne(allgrad,c0)
+  branch bad_structure b3(ar) b4(ar,ix,iw,ib,s,p,d,g,grad)
+block b3(sa:mutbuf)
+  badshape:u64 = const() {"value":2}
+  errshape:u64 = call(sa,badshape) {"function":"terror"}
+  ret(errshape)
+block b4(ga:mutbuf,gx2:u64,gw2:u64,gb2:u64,gs:u64,gp:u64,gd:u64,gg:u64,needgrad:bool)
+  branch needgrad b5(ga) b6(ga,gx2,gw2,gb2,gs,gp,gd,gg)
+block b5(ea:mutbuf)
+  badgrad:u64 = const() {"value":7}
+  errgrad:u64 = call(ea,badgrad) {"function":"terror"}
+  ret(errgrad)
+block b6(ca:mutbuf,cx:u64,cw:u64,cb:u64,cs:u64,cp:u64,cd:u64,cg:u64)
+  out:u64 = call(ca,cx,cw,cs,cp,cd,cg) {"function":"conv2d"}
+  zero_out:u64 = const() {"value":0}
+  no_output:bool = compare.eq(out,zero_out)
+  branch no_output b1() b7(ca,out,cb)
+block b7(oa:mutbuf,oh:u64,ob:u64)
+  desc:u64 = call(oa,oh) {"function":"dptr"}
+  eight:u64 = const() {"value":8}
+  sixteen:u64 = const() {"value":16}
+  cntp:u64 = int.add.wrap(desc,eight)
+  basep:u64 = int.add.wrap(desc,sixteen)
+  n:u64 = call(oa,cntp) {"function":"getw"}
+  base:u64 = call(oa,basep) {"function":"getw"}
+  o104:u64 = const() {"value":104}
+  o112:u64 = const() {"value":112}
+  o120:u64 = const() {"value":120}
+  chp:u64 = int.add.wrap(desc,o104)
+  htp:u64 = int.add.wrap(desc,o112)
+  wtp:u64 = int.add.wrap(desc,o120)
+  nch:u64 = call(oa,chp) {"function":"getw"}
+  ht:u64 = call(oa,htp) {"function":"getw"}
+  wd2:u64 = call(oa,wtp) {"function":"getw"}
+  plane:u64 = int.mul.wrap(ht,wd2)
+  first:u64 = const() {"value":0}
+  jump b8(oa,oh,ob,n,base,nch,plane,first)
+block b8(la:mutbuf,lh:u64,lb2:u64,ln:u64,lbase:u64,lch:u64,lplane:u64,idx:u64)
+  within:bool = compare.lt(idx,ln)
+  branch within b9(la,lh,lb2,ln,lbase,lch,lplane,idx) b10(lh)
+block b9(pa:mutbuf,ph:u64,pb:u64,pn:u64,pbase:u64,pch:u64,pplane:u64,pi:u64)
+  chbatch:u64 = int.div.checked(pi,pplane)
+  ch:u64 = int.rem.checked(chbatch,pch)
+  raw_bias:u64 = call(pa,pb,ch) {"function":"tget"}
+  four:u64 = const() {"value":4}
+  delta:u64 = int.mul.wrap(pi,four)
+  cell:u64 = int.add.wrap(pbase,delta)
+  raw_sum:u64 = call(pa,ph,pi) {"function":"tget"}
+  raw_out:u64 = call(raw_sum,raw_bias) {"function":"addf"}
+  saved:u64 = call(pa,cell,raw_out) {"function":"put4"}
+  increment:u64 = const() {"value":1}
+  next:u64 = int.add.wrap(pi,increment)
+  jump b8(pa,ph,pb,pn,pbase,pch,pplane,next)
+block b10(success:u64)
+  ret(success)
+end
