@@ -1,0 +1,165 @@
+fn opt_in_unsqueeze_command(request:readbuf,response:mutbuf,state:mutbuf,start:u64,cursor:u64,op:u64) -> (u64) effects(read,write,trap) entry(start_block)
+block start_block(request:readbuf,response:mutbuf,state:mutbuf,start:u64,cursor:u64,op:u64)
+  eight:u64 = const() {"value":8}
+  sixteen:u64 = const() {"value":16}
+  twentyfour:u64 = const() {"value":24}
+  thirtytwo:u64 = const() {"value":32}
+  forty:u64 = const() {"value":40}
+  fortyeight:u64 = const() {"value":48}
+  fiftysix:u64 = const() {"value":56}
+  z:u64 = const() {"value":0}
+  ordinal:u64 = call(state,eight) {"function":"getw"}
+  token_at:u64 = int.add.wrap(start,eight)
+  dim_at:u64 = int.add.wrap(start,sixteen)
+  token:u64 = call(request,token_at) {"function":"getr"}
+  dim:u64 = call(request,dim_at) {"function":"getr"}
+  at3:u64 = int.add.wrap(start,twentyfour)
+  at4:u64 = int.add.wrap(start,thirtytwo)
+  at5:u64 = int.add.wrap(start,forty)
+  at6:u64 = int.add.wrap(start,fortyeight)
+  at7:u64 = int.add.wrap(start,fiftysix)
+  w3:u64 = call(request,at3) {"function":"getr"}
+  w4:u64 = call(request,at4) {"function":"getr"}
+  w5:u64 = call(request,at5) {"function":"getr"}
+  w6:u64 = call(request,at6) {"function":"getr"}
+  w7:u64 = call(request,at7) {"function":"getr"}
+  tail34:u64 = bit.or(w3,w4)
+  tail56:u64 = bit.or(w5,w6)
+  tail3456:u64 = bit.or(tail34,tail56)
+  tail:u64 = bit.or(tail3456,w7)
+  valid:bool = compare.eq(tail,z)
+  branch valid create(response,state,cursor,op,ordinal,token,dim) invalid(response,state,cursor,op,ordinal)
+block create(r:mutbuf,s:mutbuf,c:u64,o:u64,n:u64,t:u64,d:u64)
+  y:u64 = call(s,t,d) {"function":"opt_in_unsqueeze"}
+  hit:u64 = call(s,r,c,o,n,y) {"function":"shape_command_finish"}
+  ret(hit)
+block invalid(ri:mutbuf,si:mutbuf,ci:u64,oi:u64,ni:u64)
+  seven:u64 = const() {"value":7}
+  zi:u64 = const() {"value":0}
+  ei:u64 = call(si,seven) {"function":"terror"}
+  bad:u64 = call(si,ri,ci,oi,ni,zi) {"function":"shape_command_finish"}
+  ret(bad)
+end
+fn opt_in_unsqueeze(state:mutbuf,token:u64,dim:u64) -> (u64) effects(read,write,trap) entry(start)
+block start(state:mutbuf,token:u64,dim:u64)
+  z:u64 = const() {"value":0}
+  node:u64 = call(state,token) {"function":"to_view_public"}
+  missing:bool = compare.eq(node,z)
+  branch missing no_node() dtype_check(state,node,dim)
+block no_node()
+  empty:u64 = const() {"value":0}
+  ret(empty)
+block dtype_check(sd:mutbuf,nd:u64,dd:u64)
+  typ:u64 = call(sd,nd) {"function":"tensor_dtype"}
+  zero:u64 = const() {"value":0}
+  ordinary:bool = compare.eq(typ,zero)
+  branch ordinary descriptor(sd,nd,dd) scope_error(sd)
+block scope_error(sx:mutbuf)
+  scope:u64 = const() {"value":7}
+  out_scope:u64 = call(sx,scope) {"function":"terror"}
+  ret(out_scope)
+block descriptor(ss:mutbuf,ns:u64,ds:u64)
+  p:u64 = call(ss,ns) {"function":"dptr"}
+  r:u64 = call(ss,p) {"function":"getw"}
+  four:u64 = const() {"value":4}
+  maxrank:bool = compare.lt(r,four)
+  branch maxrank grad_check(ss,ns,ds,p,r) scope_error(ss)
+block grad_check(sg:mutbuf,ng:u64,dg:u64,pg:u64,rg:u64)
+  off:u64 = const() {"value":32}
+  ga:u64 = int.add.wrap(pg,off)
+  gr:u64 = call(sg,ga) {"function":"getw"}
+  gzero:u64 = const() {"value":0}
+  graph_free:bool = compare.eq(gr,gzero)
+  branch graph_free wrap(sg,ng,dg,pg,rg) grad_error(sg)
+block grad_error(sge:mutbuf)
+  five:u64 = const() {"value":5}
+  eg:u64 = call(sge,five) {"function":"terror"}
+  ret(eg)
+block wrap(sw:mutbuf,nw:u64,dw:u64,pw:u64,rw:u64)
+  sign:u64 = const() {"value":9223372036854775808}
+  one:u64 = const() {"value":1}
+  nr:u64 = int.add.wrap(rw,one)
+  negative:bool = compare.ge(dw,sign)
+  wrapped:u64 = int.add.wrap(dw,nr)
+  axis:u64 = select(negative,wrapped,dw)
+  good:bool = compare.lt(axis,nr)
+  branch good setup(sw,nw,pw,rw,nr,axis) dim_error(sw)
+block dim_error(se:mutbuf)
+  two:u64 = const() {"value":2}
+  ed:u64 = call(se,two) {"function":"terror"}
+  ret(ed)
+block setup(st:mutbuf,nt:u64,pt:u64,rt:u64,rr:u64,at:u64)
+  dims:u64 = const() {"value":2048}
+  strides:u64 = const() {"value":2080}
+  width:u64 = const() {"value":64}
+  begin:u64 = const() {"value":0}
+  cleared:u64 = call(st,dims,width,begin) {"function":"memory_fill"}
+  jump loop(st,nt,pt,rt,rr,at,begin,begin)
+block loop(sl:mutbuf,nl:u64,pl:u64,rl:u64,rrl:u64,al:u64,ol:u64,il:u64)
+  more:bool = compare.lt(ol,rrl)
+  branch more where(sl,nl,pl,rl,rrl,al,ol,il) finish(sl,nl,rrl)
+block where(su:mutbuf,nu:u64,pu:u64,ru:u64,rru:u64,au:u64,ou:u64,iu:u64)
+  inserted:bool = compare.eq(ou,au)
+  branch inserted insert(su,nu,pu,ru,rru,au,ou,iu) copy(su,nu,pu,ru,rru,au,ou,iu)
+block insert(sj:mutbuf,nj:u64,pj:u64,rj:u64,rrj:u64,aj:u64,oj:u64,ij:u64)
+  append:bool = compare.eq(aj,rj)
+  branch append append_axis(sj,nj,pj,rj,rrj,aj,oj,ij) scale_axis(sj,nj,pj,rj,rrj,aj,oj,ij)
+block append_axis(sa:mutbuf,na:u64,pa:u64,ra:u64,rra:u64,aa:u64,oa:u64,ia:u64)
+  unit:u64 = const() {"value":1}
+  jump set_axis(sa,na,pa,ra,rra,aa,oa,ia,unit,unit)
+block scale_axis(sm:mutbuf,nm:u64,pm:u64,rm:u64,rrm:u64,am:u64,om:u64,im:u64)
+  dim_field_m:u64 = const() {"value":96}
+  stride_field_m:u64 = const() {"value":128}
+  sz:u64 = call(sm,pm,im,dim_field_m) {"function":"opt_in_unsqueeze_geometry"}
+  step:u64 = call(sm,pm,im,stride_field_m) {"function":"opt_in_unsqueeze_geometry"}
+  one_m:u64 = const() {"value":1}
+  zero_m:u64 = const() {"value":0}
+  max_m:u64 = const() {"value":9223372036854775807}
+  stride_zero:bool = compare.eq(step,zero_m)
+  divisor:u64 = select(stride_zero,one_m,step)
+  cap:u64 = int.div.checked(max_m,divisor)
+  exceed:bool = compare.gt(sz,cap)
+  branch exceed scope_error(sm) scaled(sm,nm,pm,rm,rrm,am,om,im,sz,step)
+block scaled(sk:mutbuf,nk:u64,pk:u64,rk:u64,rrk:u64,ak:u64,ok:u64,ik:u64,zk:u64,tk:u64)
+  single:u64 = const() {"value":1}
+  stride:u64 = int.mul.wrap(zk,tk)
+  jump set_axis(sk,nk,pk,rk,rrk,ak,ok,ik,single,stride)
+block copy(sc:mutbuf,nc:u64,pc:u64,rc:u64,rrc:u64,ac:u64,oc:u64,ic:u64)
+  dim_field_c:u64 = const() {"value":96}
+  stride_field_c:u64 = const() {"value":128}
+  size_c:u64 = call(sc,pc,ic,dim_field_c) {"function":"opt_in_unsqueeze_geometry"}
+  stride_c:u64 = call(sc,pc,ic,stride_field_c) {"function":"opt_in_unsqueeze_geometry"}
+  one_c:u64 = const() {"value":1}
+  next_i:u64 = int.add.wrap(ic,one_c)
+  jump set_axis(sc,nc,pc,rc,rrc,ac,oc,next_i,size_c,stride_c)
+block set_axis(sf:mutbuf,nf:u64,pf:u64,rf:u64,rrf:u64,af:u64,of:u64,inf:u64,zf:u64,tf:u64)
+  e:u64 = const() {"value":8}
+  dim_base:u64 = const() {"value":2048}
+  stride_base:u64 = const() {"value":2080}
+  output_index:u64 = int.mul.wrap(of,e)
+  size_at:u64 = int.add.wrap(output_index,dim_base)
+  stride_at:u64 = int.add.wrap(output_index,stride_base)
+  size_put:u64 = call(sf,size_at,zf) {"function":"putw"}
+  stride_put:u64 = call(sf,stride_at,tf) {"function":"putw"}
+  one_f:u64 = const() {"value":1}
+  next_o:u64 = int.add.wrap(of,one_f)
+  jump loop(sf,nf,pf,rf,rrf,af,next_o,inf)
+block finish(sfin:mutbuf,nfin:u64,nrank:u64)
+  df:u64 = const() {"value":2048}
+  stf:u64 = const() {"value":2080}
+  alias_mode:u64 = const() {"value":45}
+  alias:u64 = call(sfin,nfin,nrank,df,stf,alias_mode) {"function":"shape_alias"}
+  zero_f:u64 = const() {"value":0}
+  clear_width:u64 = const() {"value":64}
+  scrub:u64 = call(sfin,df,clear_width,zero_f) {"function":"memory_fill"}
+  ret(alias)
+end
+fn opt_in_unsqueeze_geometry(s:mutbuf,p:u64,i:u64,field:u64) -> (u64) effects(read,write,trap) entry(start)
+block start(s:mutbuf,p:u64,i:u64,field:u64)
+  eight:u64 = const() {"value":8}
+  step:u64 = int.mul.wrap(i,eight)
+  local:u64 = int.add.wrap(p,step)
+  at:u64 = int.add.wrap(local,field)
+  value:u64 = call(s,at) {"function":"getw"}
+  ret(value)
+end
