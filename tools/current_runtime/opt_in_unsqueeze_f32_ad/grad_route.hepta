@@ -1,0 +1,24 @@
+  branch graph_free wrap(sg,ng,dg,pg,rg) grad_scope(sg,ng,dg,pg,rg)
+block grad_scope(sad:mutbuf,nad:u64,dad:u64,pad:u64,rad:u64)
+  cnt_off:u64 = const() {"value":8}
+  op_off:u64 = const() {"value":40}
+  storage_off:u64 = const() {"value":232}
+  view_off:u64 = const() {"value":408}
+  cnt_at:u64 = int.add.wrap(pad,cnt_off)
+  op_at:u64 = int.add.wrap(pad,op_off)
+  storage_at:u64 = int.add.wrap(pad,storage_off)
+  view_at:u64 = int.add.wrap(pad,view_off)
+  cnt:u64 = call(sad,cnt_at) {"function":"getw"}
+  kind:u64 = call(sad,op_at) {"function":"getw"}
+  storage_offset:u64 = call(sad,storage_at) {"function":"getw"}
+  view_kind:u64 = call(sad,view_at) {"function":"getw"}
+  contiguous:u64 = call(sad,nad) {"function":"is_contiguous"}
+  g0:u64 = const() {"value":0}
+  scope_flags:u64 = bit.or(kind,storage_offset)
+  scope_full:u64 = bit.or(scope_flags,view_kind)
+  ordinary_leaf:bool = compare.eq(scope_full,g0)
+  is_dense:bool = compare.ne(contiguous,g0)
+  has_data:bool = compare.ne(cnt,g0)
+  allowed_a:bool = bool.and(ordinary_leaf,is_dense)
+  allowed:bool = bool.and(allowed_a,has_data)
+  branch allowed wrap(sad,nad,dad,pad,rad) grad_error(sad)
