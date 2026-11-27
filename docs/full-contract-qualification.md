@@ -47,7 +47,10 @@ source/evidence paths are reread after verification to reject concurrent changes
 
 A qualified native or derivative record retains its exact declaration and has
 `status: "qualified"`. A closed subsystem has `status: "CLOSED"`, its original
-required contract, and an empty `remaining` field. Each has one `qualification`
+required contract, and an empty `remaining` field. The accounting checker pins
+all 17 exact ID-to-required-text pairs using SHA-256 over compact, sorted-key
+UTF-8 JSON. Gate ordering and edits to progress in `remaining` do not change
+that digest. Each qualified record has one `qualification`
 object containing the repository-relative `path`, integer `bytes` and `sha256`
 of its evidence envelope. Open records carry no full qualification claim.
 

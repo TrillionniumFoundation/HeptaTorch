@@ -25,6 +25,8 @@ DERIVATIVE_BLOB = "d0ee6fb1e7b5261eb1e02eaf07cf08deff09a95f"
 DERIVATIVE_SOURCE_SHA256 = "4a4d1ae1ddea605f57594de991da2c92e89ae11d6aa6edf348107589b548082c"
 DERIVATIVE_SOURCE_BYTES = 188779
 DERIVATIVES_SHA256 = "5e32bf19142454911112779474e2c52eab08a6789229b46b96a92246c578bac8"
+# Pin the original subsystem obligations independently of the editable ledger.
+GATE_REQUIREMENTS_SHA256 = "5e8c99421b69070f0197e19d9e9c03cdca1572726d070c6eff74d759712c584b"
 GATES = frozenset((
     "module-abi", "storage-lifetime", "dtype-layout", "native-schemas",
     "views-mutation", "autodiff-transforms", "frontend-dispatch",
@@ -111,6 +113,12 @@ def check(root):
     gates = ledger["gates"]
     ids = [row["id"] for row in gates]
     checks["all_subsystems_retained"] = len(ids) == len(GATES) and set(ids) == GATES
+    gate_requirements = {row["id"]: row.get("required") for row in gates}
+    requirements_bytes = json.dumps(gate_requirements, sort_keys=True,
+                                    ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    requirements_digest = hashlib.sha256(requirements_bytes).hexdigest()
+    checks["exact_subsystem_requirements"] = (
+        checks["all_subsystems_retained"] and requirements_digest == GATE_REQUIREMENTS_SHA256)
     checks["continuation_plan_exists"] = (
         ledger["plan"] == "docs/continuation-plan.md"
         and (root / ledger["plan"]).is_file())
@@ -166,6 +174,7 @@ def check(root):
         "derivative_declaration_lines_sha256": derivative_digest,
         "full_derivative_declaration_parity_count": len(derivative),
         "open_full_subsystem_gates": len(GATES - set(subsystem)),
+        "subsystem_requirements_sha256": requirements_digest,
         "registered_full_contract_verifiers": len(registry),
         "acceptance_source_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         "admission_engine_sha256": hashlib.sha256(Path(contracts.__file__).read_bytes()).hexdigest(),
