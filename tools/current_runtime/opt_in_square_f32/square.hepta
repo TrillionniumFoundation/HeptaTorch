@@ -1,0 +1,66 @@
+fn opt_in_square_f32(s:mutbuf,x:u64) -> (u64) effects(read,write,trap) entry(admit)
+block admit(s:mutbuf,x:u64)
+  p:u64 = call(s,x) {"function":"dptr"}
+  grad_at:u64 = const() {"value":32}
+  grad_ptr:u64 = int.add.wrap(p,grad_at)
+  grad:u64 = call(s,grad_ptr) {"function":"getw"}
+  zero:u64 = const() {"value":0}
+  grad_ok:bool = compare.eq(grad,zero)
+  branch grad_ok geometry(s,x,p) no_ad(s)
+block no_ad(sg:mutbuf)
+  codeg:u64 = const() {"value":5}
+  errg:u64 = call(sg,codeg) {"function":"terror"}
+  ret(errg)
+block geometry(st:mutbuf,xt:u64,pt:u64)
+  offset_at:u64 = const() {"value":232}
+  offset_ptr:u64 = int.add.wrap(pt,offset_at)
+  offset:u64 = call(st,offset_ptr) {"function":"getw"}
+  stride_ok:u64 = call(st,xt) {"function":"is_contiguous"}
+  zerot:u64 = const() {"value":0}
+  onet:u64 = const() {"value":1}
+  offset_ok:bool = compare.eq(offset,zerot)
+  contiguous:bool = compare.eq(stride_ok,onet)
+  admitted:bool = bool.and(offset_ok,contiguous)
+  branch admitted allocate(st,xt,pt) unsupported(st)
+block unsupported(su:mutbuf)
+  codeu:u64 = const() {"value":7}
+  erru:u64 = call(su,codeu) {"function":"terror"}
+  ret(erru)
+block allocate(sa:mutbuf,xa:u64,pa:u64)
+  rank:u64 = call(sa,pa) {"function":"getw"}
+  shape_at:u64 = const() {"value":96}
+  shape:u64 = int.add.wrap(pa,shape_at)
+  zeroa:u64 = const() {"value":0}
+  y:u64 = call(sa,rank,shape,zeroa) {"function":"tnew"}
+  failed:bool = compare.eq(y,zeroa)
+  branch failed failure() start(sa,xa,pa,y)
+block failure()
+  zerof:u64 = const() {"value":0}
+  ret(zerof)
+block start(ss:mutbuf,xs:u64,ps:u64,ys:u64)
+  count_at:u64 = const() {"value":8}
+  count_ptr:u64 = int.add.wrap(ps,count_at)
+  count:u64 = call(ss,count_ptr) {"function":"getw"}
+  zeros:u64 = const() {"value":0}
+  jump loop(ss,xs,ys,count,zeros)
+block loop(sl:mutbuf,xl:u64,yl:u64,nl:u64,il:u64)
+  more:bool = compare.lt(il,nl)
+  branch more element(sl,xl,yl,nl,il) done(yl)
+block element(se:mutbuf,xe:u64,ye:u64,ne:u64,ie:u64)
+  w:u64 = call(se,xe,ie) {"function":"tget"}
+  magnitude_mask:u64 = const() {"value":2147483647}
+  magnitude:u64 = bit.and(w,magnitude_mask)
+  inf:u64 = const() {"value":2139095040}
+  nan:bool = compare.gt(magnitude,inf)
+  quiet_bit:u64 = const() {"value":4194304}
+  quieted:u64 = bit.or(w,quiet_bit)
+  squared:u64 = call(w,w) {"function":"mulf"}
+  value:u64 = select(nan,quieted,squared)
+  address:u64 = call(se,ye,ie) {"function":"taddr"}
+  stored:u64 = call(se,address,value) {"function":"put4"}
+  onee:u64 = const() {"value":1}
+  next:u64 = int.add.wrap(ie,onee)
+  jump loop(se,xe,ye,ne,next)
+block done(yd:u64)
+  ret(yd)
+end
