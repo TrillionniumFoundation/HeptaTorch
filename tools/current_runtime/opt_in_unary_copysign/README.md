@@ -10,6 +10,10 @@ runtime or acceptance change.
 
 ## Reproduce
 
+Use the [one-command cold replay](REPLAY.md) to rebuild both parents and the
+combined candidate and verify both independent differential receipts. The
+manual reproduction below allows inspecting each part separately.
+
 Reproduce the exact source projections using the original PR instructions,
 on pinned canonical main `e9444902df9878060ab389a70ee957c1b7f4a887`:
 
