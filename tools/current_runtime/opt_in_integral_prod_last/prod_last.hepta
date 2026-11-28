@@ -1,0 +1,70 @@
+fn opt_in_integral_prod_last(s:mutbuf,x:u64) -> (u64) effects(read,write,trap) entry(start)
+block start(s:mutbuf,x:u64)
+  desc:u64 = call(s,x) {"function":"dptr"}
+  rank:u64 = call(s,desc) {"function":"getw"}
+  zero:u64 = const() {"value":0}
+  scalar:bool = compare.eq(rank,zero)
+  branch scalar scalar_prod(s,x) shape(s,x,desc,rank)
+block scalar_prod(ss:mutbuf,xs:u64)
+  output:u64 = call(ss,xs) {"function":"opt_in_integral_prod"}
+  ret(output)
+block shape(sh:mutbuf,xh:u64,dh:u64,rh:u64)
+  one_h:u64 = const() {"value":1}
+  eight_h:u64 = const() {"value":8}
+  dims_off:u64 = const() {"value":96}
+  dims:u64 = int.add.wrap(dh,dims_off)
+  reduced_rank:u64 = int.sub.wrap(rh,one_h)
+  last_dim_off:u64 = int.mul.wrap(reduced_rank,eight_h)
+  last_dim:u64 = int.add.wrap(dims,last_dim_off)
+  width:u64 = call(sh,last_dim) {"function":"getw"}
+  zero_h:u64 = const() {"value":0}
+  two_h:u64 = const() {"value":2}
+  y:u64 = call(sh,reduced_rank,dims,zero_h,one_h,two_h) {"function":"typed_descriptor"}
+  failed:bool = compare.eq(y,zero_h)
+  branch failed fail() init(sh,xh,y,width)
+block init(si:mutbuf,xi:u64,yi:u64,wi:u64)
+  dd:u64 = call(si,yi) {"function":"dptr"}
+  eight_i:u64 = const() {"value":8}
+  addr_i:u64 = int.add.wrap(dd,eight_i)
+  count:u64 = call(si,addr_i) {"function":"getw"}
+  zero_i:u64 = const() {"value":0}
+  jump rows(si,xi,yi,wi,count,zero_i)
+block rows(sr:mutbuf,xr:u64,yr:u64,wr:u64,cr:u64,ir:u64)
+  more:bool = compare.lt(ir,cr)
+  branch more row(sr,xr,yr,wr,cr,ir) success(yr)
+block row(sb:mutbuf,xb:u64,yb:u64,wb:u64,cb:u64,ib:u64)
+  start_i:u64 = int.mul.wrap(ib,wb)
+  end_i:u64 = int.add.wrap(start_i,wb)
+  identity:u64 = const() {"value":1}
+  jump product(sb,xb,yb,wb,cb,ib,end_i,start_i,identity)
+block product(sp:mutbuf,xp:u64,yp:u64,wp:u64,cp:u64,ip:u64,ep:u64,jp:u64,ap:u64)
+  continue_p:bool = compare.lt(jp,ep)
+  branch continue_p element(sp,xp,yp,wp,cp,ip,ep,jp,ap) store(sp,xp,yp,wp,cp,ip,ap)
+block element(sk:mutbuf,xk:u64,yk:u64,wk:u64,ck:u64,ik:u64,ek:u64,jk:u64,ak:u64)
+  value:u64 = call(sk,xk,jk) {"function":"tget"}
+  zero_k:u64 = const() {"value":0}
+  err:u64 = call(sk,zero_k) {"function":"getw"}
+  bad_k:bool = compare.ne(err,zero_k)
+  branch bad_k fail() multiply(sk,xk,yk,wk,ck,ik,ek,jk,ak,value)
+block multiply(sm:mutbuf,xm:u64,ym:u64,wm:u64,cm:u64,im:u64,em:u64,jm:u64,am:u64,vm:u64)
+  result:u64 = int.mul.wrap(am,vm)
+  one_m:u64 = const() {"value":1}
+  next_m:u64 = int.add.wrap(jm,one_m)
+  jump product(sm,xm,ym,wm,cm,im,em,next_m,result)
+block store(st:mutbuf,xt:u64,yt:u64,wt:u64,ct:u64,it:u64,at:u64)
+  address:u64 = call(st,yt,it) {"function":"taddr"}
+  eight_t:u64 = const() {"value":8}
+  ok:u64 = call(st,address,eight_t,at) {"function":"typed_store"}
+  zt:u64 = const() {"value":0}
+  bad_t:bool = compare.eq(ok,zt)
+  branch bad_t fail() next_row(st,xt,yt,wt,ct,it)
+block next_row(sn:mutbuf,xn:u64,yn:u64,wn:u64,cn:u64,in_:u64)
+  one_n:u64 = const() {"value":1}
+  next_n:u64 = int.add.wrap(in_,one_n)
+  jump rows(sn,xn,yn,wn,cn,next_n)
+block success(so:u64)
+  ret(so)
+block fail()
+  z:u64 = const() {"value":0}
+  ret(z)
+end
