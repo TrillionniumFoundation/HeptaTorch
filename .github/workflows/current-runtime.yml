@@ -8,6 +8,12 @@ on:
   # Limit push to main so a feature push and its PR do not duplicate this gate.
   pull_request:
   workflow_dispatch:
+    inputs:
+      opt_in_unary_copysign_replay:
+        description: Cold replay the exact #93 unary/copysign matrix in addition to the canonical gate
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -669,6 +675,117 @@ jobs:
                   stream.write('\n- ' + failure + '\n')
           sys.exit(1 if failures else 0)
           SUMMARY
+
+      - name: Check out the exact #74 predecessor files for opt-in replay
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.opt_in_unary_copysign_replay }}
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: 82184e4401eebe1d69ed8742485a9f603fd49146
+          path: .opt-in-unary-inputs/pr-74
+          persist-credentials: false
+          fetch-depth: 1
+          sparse-checkout: tools/current_runtime/opt_in_square_f32
+
+      - name: Check out the exact #79 predecessor files for opt-in replay
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.opt_in_unary_copysign_replay }}
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: 3919e25bc0d9c9094e56a6daed87d3ac1eff1565
+          path: .opt-in-unary-inputs/pr-79
+          persist-credentials: false
+          fetch-depth: 1
+          sparse-checkout: tools/current_runtime/opt_in_reciprocal_f32
+
+      - name: Check out the exact #81 predecessor files for opt-in replay
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.opt_in_unary_copysign_replay }}
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: 394bc096114298e23b8cdf2c795bf5271b8b17a8
+          path: .opt-in-unary-inputs/pr-81
+          persist-credentials: false
+          fetch-depth: 1
+          sparse-checkout: tools/current_runtime/opt_in_sign_f32
+
+      - name: Check out the exact #84 predecessor files for opt-in replay
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.opt_in_unary_copysign_replay }}
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: fff517aec3e270025df7885f272cf446dfac047b
+          path: .opt-in-unary-inputs/pr-84
+          persist-credentials: false
+          fetch-depth: 1
+          sparse-checkout: tools/current_runtime/opt_in_copysign_f32
+
+      - name: Check out the exact #85 predecessor files for opt-in replay
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.opt_in_unary_copysign_replay }}
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: c4d0aeaa4cd14c94e3e962f720b9096a7319bd82
+          path: .opt-in-unary-inputs/pr-85
+          persist-credentials: false
+          fetch-depth: 1
+          sparse-checkout: tools/current_runtime/opt_in_three_unary_f32
+
+      - name: Check out the exact #90 predecessor files for opt-in replay
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.opt_in_unary_copysign_replay }}
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: 69d711dfb53dfab14ca944724ec5293e3938c0fb
+          path: .opt-in-unary-inputs/pr-90
+          persist-credentials: false
+          fetch-depth: 1
+          sparse-checkout: tools/current_runtime/opt_in_copysign_f64
+
+      - name: Cold-replay the separately pinned unary and copysign matrix
+        id: opt_in_unary_copysign
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.opt_in_unary_copysign_replay }}
+        run: |
+          set -euo pipefail
+          python3 -I -B - <<'STAGE_INPUTS'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          import subprocess
+
+          directory = Path(os.environ['RUNNER_TEMP']) / 'heptatorch-opt-in-unary-inputs'
+          directory.mkdir(mode=0o700)
+          lock = Path('tools/current_runtime/opt_in_unary_copysign/replay-inputs.json').read_bytes()
+          if hashlib.sha256(lock).hexdigest() != '783e7e8028d88211939e704bcc4dbd16e4793d59d72115adbde98ef7cdbdd35a':
+              raise ValueError('unexpected predecessor inventory')
+          for entry in json.loads(lock)['files']:
+              checkout = Path('.opt-in-unary-inputs') / f"pr-{entry['pr']}"
+              head = subprocess.check_output(['git', '-C', str(checkout), 'rev-parse', 'HEAD'],
+                                             text=True, timeout=20).strip()
+              if head != entry['commit']:
+                  raise ValueError(f"unexpected predecessor checkout: {entry['pr']}")
+              content = (checkout / entry['path']).read_bytes()
+              if hashlib.sha256(content).hexdigest() != entry['sha256']:
+                  raise ValueError(f"unexpected predecessor bytes: {entry['file']}")
+              destination = directory / entry['file']
+              destination.parent.mkdir(parents=True, exist_ok=True)
+              destination.write_bytes(content)
+          STAGE_INPUTS
+          python3 -I -B tools/current_runtime/opt_in_unary_copysign/replay.py \
+            --repository "$PWD" --inputs "$RUNNER_TEMP/heptatorch-opt-in-unary-inputs" \
+            --compiler "$RUNNER_TEMP/hepta-stack-budget/native/stack-module-compiler" \
+            --linker "$RUNNER_TEMP/hepta-current-entropy/generator-session-linker" \
+            --torch-python "$(command -v python3)" --install-report build/pytorch-install.json \
+            --output "$RUNNER_TEMP/heptatorch-opt-in-unary"
+
+      - name: Upload the separate opt-in unary and copysign replay receipt
+        if: ${{ !cancelled() && github.event_name == 'workflow_dispatch' && inputs.opt_in_unary_copysign_replay && steps.opt_in_unary_copysign.outcome != 'skipped' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: opt-in-unary-copysign-replay
+          path: |
+            ${{ runner.temp }}/heptatorch-opt-in-unary/gate.json
+            ${{ runner.temp }}/heptatorch-opt-in-unary/*.stdout
+            ${{ runner.temp }}/heptatorch-opt-in-unary/*.stderr
+            ${{ runner.temp }}/heptatorch-opt-in-unary/*build*/build.json
+            ${{ runner.temp }}/heptatorch-opt-in-unary/qualification-*/qualification.json
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Preserve complete original evidence and file modes after success or failure
         if: ${{ always() }}
