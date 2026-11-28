@@ -1,0 +1,50 @@
+fn opt_in_round_or_frac_f64_word(w:u64,op:u64) -> (u64) effects(read,write,trap) entry(route)
+block route(w:u64,op:u64)
+  code:u64 = const() {"value":22}
+  frac:bool = compare.eq(op,code)
+  branch frac fraction(w) rounding(w,op)
+block rounding(wr:u64,orr:u64)
+  prior:u64 = call(wr,orr) {"function":"opt_in_round_f64_word"}
+  ret(prior)
+block fraction(wf:u64)
+  magmask:u64 = const() {"value":9223372036854775807}
+  mag:u64 = bit.and(wf,magmask)
+  inf:u64 = const() {"value":9218868437227405312}
+  nn:bool = compare.gt(mag,inf)
+  branch nn quiet(wf) classify(wf,mag)
+block quiet(wq:u64)
+  quiet:u64 = const() {"value":2251799813685248}
+  q:u64 = bit.or(wq,quiet)
+  ret(q)
+block classify(wc:u64,mc:u64)
+  limit:u64 = const() {"value":9218868437227405312}
+  infc:bool = compare.eq(mc,limit)
+  branch infc invalid() finite(wc,mc)
+block invalid()
+  fixed:u64 = const() {"value":18444492273895866368}
+  ret(fixed)
+block finite(wn:u64,mn:u64)
+  zero:u64 = const() {"value":0}
+  is_zero:bool = compare.eq(mn,zero)
+  int_limit:u64 = const() {"value":4841369599423283200}
+  integral:bool = compare.ge(mn,int_limit)
+  immediate_zero:bool = bool.or(is_zero,integral)
+  branch immediate_zero pluszero() residual(wn,mn)
+block pluszero()
+  plus:u64 = const() {"value":0}
+  ret(plus)
+block residual(we:u64,me:u64)
+  one:u64 = const() {"value":4607182418800017408}
+  small:bool = compare.lt(me,one)
+  branch small same(we) subtract(we)
+block same(ws:u64)
+  ret(ws)
+block subtract(wb:u64)
+  trunc_code:u64 = const() {"value":19}
+  t:u64 = call(wb,trunc_code) {"function":"opt_in_round_f64_word"}
+  is_integer:bool = compare.eq(t,wb)
+  branch is_integer pluszero() difference(wb,t)
+block difference(wd:u64,td:u64)
+  out:u64 = call(wd,td) {"function":"sub64"}
+  ret(out)
+end
