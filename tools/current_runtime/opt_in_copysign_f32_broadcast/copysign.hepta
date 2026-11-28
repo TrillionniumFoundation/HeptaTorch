@@ -1,0 +1,99 @@
+fn opt_in_copysign_f32(s:mutbuf,x:u64,z:u64) -> (u64) effects(read,write,trap) entry(admit)
+block admit(s:mutbuf,x:u64,z:u64)
+  dx:u64 = call(s,x) {"function":"tensor_dtype"}
+  dz:u64 = call(s,z) {"function":"tensor_dtype"}
+  f32:u64 = const() {"value":0}
+  dx_ok:bool = compare.eq(dx,f32)
+  dz_ok:bool = compare.eq(dz,f32)
+  d_ok:bool = bool.and(dx_ok,dz_ok)
+  branch d_ok grads(s,x,z) type_error(s)
+block type_error(sdtype:mutbuf)
+  codee:u64 = const() {"value":4}
+  erre:u64 = call(sdtype,codee) {"function":"terror"}
+  ret(erre)
+block grads(sg:mutbuf,xg:u64,zg:u64)
+  pg:u64 = call(sg,xg) {"function":"dptr"}
+  qg:u64 = call(sg,zg) {"function":"dptr"}
+  grad_at:u64 = const() {"value":32}
+  gp:u64 = int.add.wrap(pg,grad_at)
+  gq:u64 = int.add.wrap(qg,grad_at)
+  xp:u64 = call(sg,gp) {"function":"getw"}
+  zp:u64 = call(sg,gq) {"function":"getw"}
+  any_grad:u64 = bit.or(xp,zp)
+  zerog:u64 = const() {"value":0}
+  grad_ok:bool = compare.eq(any_grad,zerog)
+  branch grad_ok geometry(sg,xg,zg,pg,qg) no_ad(sg)
+block no_ad(sf:mutbuf)
+  codef:u64 = const() {"value":5}
+  errf:u64 = call(sf,codef) {"function":"terror"}
+  ret(errf)
+block geometry(st:mutbuf,xt:u64,zt:u64,pt:u64,qt:u64)
+  offset_at:u64 = const() {"value":232}
+  op:u64 = int.add.wrap(pt,offset_at)
+  oq:u64 = int.add.wrap(qt,offset_at)
+  ox:u64 = call(st,op) {"function":"getw"}
+  oz:u64 = call(st,oq) {"function":"getw"}
+  offsets:u64 = bit.or(ox,oz)
+  cx:u64 = call(st,xt) {"function":"is_contiguous"}
+  cz:u64 = call(st,zt) {"function":"is_contiguous"}
+  rankt:u64 = call(st,pt) {"function":"getw"}
+  rankzt:u64 = call(st,qt) {"function":"getw"}
+  zerot:u64 = const() {"value":0}
+  onet:u64 = const() {"value":1}
+  fourt:u64 = const() {"value":4}
+  offset_ok:bool = compare.eq(offsets,zerot)
+  rankx_ok:bool = compare.le(rankt,fourt)
+  rankz_ok:bool = compare.le(rankzt,fourt)
+  rank_ok:bool = bool.and(rankx_ok,rankz_ok)
+  contig:u64 = bit.and(cx,cz)
+  layout_ok:bool = compare.eq(contig,onet)
+  geom_ok:bool = bool.and(offset_ok,layout_ok)
+  admitted:bool = bool.and(rank_ok,geom_ok)
+  branch admitted shape(st,xt,zt) unsupported(st)
+block unsupported(su:mutbuf)
+  codeu:u64 = const() {"value":7}
+  erru:u64 = call(su,codeu) {"function":"terror"}
+  ret(erru)
+block shape(sb:mutbuf,xb:u64,zb:u64)
+  rankb:u64 = call(sb,xb,zb) {"function":"bshape"}
+  zerob:u64 = const() {"value":0}
+  errorb:u64 = call(sb,zerob) {"function":"getw"}
+  badb:bool = compare.ne(errorb,zerob)
+  branch badb failure() allocate(sb,xb,zb,rankb)
+block allocate(sa:mutbuf,xa:u64,za:u64,ranka:u64)
+  shape:u64 = const() {"value":128}
+  zeroa:u64 = const() {"value":0}
+  y:u64 = call(sa,ranka,shape,zeroa) {"function":"tnew"}
+  failed:bool = compare.eq(y,zeroa)
+  branch failed failure() start(sa,xa,za,y)
+block failure()
+  zerof:u64 = const() {"value":0}
+  ret(zerof)
+block start(ss:mutbuf,xs:u64,zs:u64,ys:u64)
+  ps:u64 = call(ss,ys) {"function":"dptr"}
+  count_at:u64 = const() {"value":8}
+  count_ptr:u64 = int.add.wrap(ps,count_at)
+  count:u64 = call(ss,count_ptr) {"function":"getw"}
+  zeros:u64 = const() {"value":0}
+  jump loop(ss,xs,zs,ys,count,zeros)
+block loop(sl:mutbuf,xl:u64,zl:u64,yl:u64,nl:u64,il:u64)
+  more:bool = compare.lt(il,nl)
+  branch more element(sl,xl,zl,yl,nl,il) done(yl)
+block element(se:mutbuf,xe:u64,ze:u64,ye:u64,ne:u64,ie:u64)
+  xi:u64 = call(se,ye,xe,ie) {"function":"bindex"}
+  zi:u64 = call(se,ye,ze,ie) {"function":"bindex"}
+  xword:u64 = call(se,xe,xi) {"function":"tget"}
+  zword:u64 = call(se,ze,zi) {"function":"tget"}
+  magnitude_mask:u64 = const() {"value":2147483647}
+  sign_mask:u64 = const() {"value":2147483648}
+  magnitude:u64 = bit.and(xword,magnitude_mask)
+  sign:u64 = bit.and(zword,sign_mask)
+  value:u64 = bit.or(magnitude,sign)
+  address:u64 = call(se,ye,ie) {"function":"taddr"}
+  stored:u64 = call(se,address,value) {"function":"put4"}
+  onee:u64 = const() {"value":1}
+  next:u64 = int.add.wrap(ie,onee)
+  jump loop(se,xe,ze,ye,ne,next)
+block done(yd:u64)
+  ret(yd)
+end
