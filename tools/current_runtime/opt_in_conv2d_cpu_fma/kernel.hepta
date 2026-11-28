@@ -1,0 +1,205 @@
+fn conv_fma_gate_words(a:mutbuf,t:u64,n:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(a:mutbuf,t:u64,n:u64)
+  z:u64 = const() {"value":0}
+  jump b1(a,t,n,z)
+block b1(la:mutbuf,lt:u64,ln:u64,li:u64)
+  more:bool = compare.lt(li,ln)
+  branch more b2(la,lt,ln,li) b4()
+block b2(ra:mutbuf,rt:u64,rn:u64,ri:u64)
+  bits:u64 = call(ra,rt,ri) {"function":"tget"}
+  mag_mask:u64 = const() {"value":2147483647}
+  mag:u64 = bit.and(bits,mag_mask)
+  lower:u64 = const() {"value":864026624}
+  upper:u64 = const() {"value":1090519040}
+  min_ok:bool = compare.ge(mag,lower)
+  max_ok:bool = compare.le(mag,upper)
+  normal:bool = bool.and(min_ok,max_ok)
+  zero_word:u64 = const() {"value":0}
+  is_zero:bool = compare.eq(mag,zero_word)
+  ok:bool = bool.or(is_zero,normal)
+  step:u64 = const() {"value":1}
+  next:u64 = int.add.wrap(ri,step)
+  branch ok b1(ra,rt,rn,next) b3()
+block b3()
+  invalid:u64 = const() {"value":0}
+  ret(invalid)
+block b4()
+  valid:u64 = const() {"value":1}
+  ret(valid)
+end
+fn conv_fma_point(a:mutbuf,x:u64,w:u64,i:u64,seed:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(a:mutbuf,x:u64,w:u64,i:u64,seed:u64)
+  c2:u64 = const() {"value":2}
+  c4:u64 = const() {"value":4}
+  c8:u64 = const() {"value":8}
+  c18:u64 = const() {"value":18}
+  c32:u64 = const() {"value":32}
+  n:u64 = int.div.checked(i,c8)
+  nc:u64 = int.div.checked(i,c4)
+  oc:u64 = int.rem.checked(nc,c2)
+  row:u64 = int.div.checked(i,c2)
+  oh:u64 = int.rem.checked(row,c2)
+  ow:u64 = int.rem.checked(i,c2)
+  nb:u64 = int.mul.wrap(n,c32)
+  hr:u64 = int.mul.wrap(oh,c4)
+  nbhr:u64 = int.add.wrap(nb,hr)
+  xbase:u64 = int.add.wrap(nbhr,ow)
+  wbase:u64 = int.mul.wrap(oc,c18)
+  z:u64 = const() {"value":0}
+  jump b1(a,x,w,xbase,wbase,z,seed)
+block b1(la:mutbuf,lx:u64,lw:u64,lb:u64,lc:u64,li:u64,lacc:u64)
+  count:u64 = const() {"value":18}
+  more:bool = compare.lt(li,count)
+  branch more b2(la,lx,lw,lb,lc,li,lacc) b3(lacc)
+block b2(ra:mutbuf,rx:u64,rw:u64,rb:u64,rc:u64,ri:u64,racc:u64)
+  two:u64 = const() {"value":2}
+  three:u64 = const() {"value":3}
+  four:u64 = const() {"value":4}
+  nine:u64 = const() {"value":9}
+  sixteen:u64 = const() {"value":16}
+  channel:u64 = int.rem.checked(ri,two)
+  tap:u64 = int.div.checked(ri,two)
+  kh:u64 = int.div.checked(tap,three)
+  kw:u64 = int.rem.checked(tap,three)
+  chx:u64 = int.mul.wrap(channel,sixteen)
+  chw:u64 = int.mul.wrap(channel,nine)
+  rowx:u64 = int.mul.wrap(kh,four)
+  bx:u64 = int.add.wrap(rb,chx)
+  brow:u64 = int.add.wrap(bx,rowx)
+  xi:u64 = int.add.wrap(brow,kw)
+  bw:u64 = int.add.wrap(rc,chw)
+  wi:u64 = int.add.wrap(bw,tap)
+  xv:u64 = call(ra,rx,xi) {"function":"tget"}
+  wv:u64 = call(ra,rw,wi) {"function":"tget"}
+  agg:u64 = call(xv,wv,racc) {"function":"fmaf"}
+  one:u64 = const() {"value":1}
+  next:u64 = int.add.wrap(ri,one)
+  jump b1(ra,rx,rw,rb,rc,next,agg)
+block b3(out:u64)
+  ret(out)
+end
+fn conv_fma_fill(a:mutbuf,out:u64,x:u64,w:u64,b:u64,n:u64,mode:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(a:mutbuf,out:u64,x:u64,w:u64,b:u64,n:u64,mode:u64)
+  eight:u64 = const() {"value":8}
+  count:u64 = int.mul.wrap(n,eight)
+  z:u64 = const() {"value":0}
+  jump b1(a,out,x,w,b,count,z,mode)
+block b1(la:mutbuf,lo:u64,lx:u64,lw:u64,lb:u64,ln:u64,li:u64,lm:u64)
+  more:bool = compare.lt(li,ln)
+  branch more b2(la,lo,lx,lw,lb,ln,li,lm) b3(lo)
+block b2(ra:mutbuf,ro:u64,rx:u64,rw:u64,rb:u64,rn:u64,ri:u64,rm:u64)
+  two:u64 = const() {"value":2}
+  four:u64 = const() {"value":4}
+  oc_full:u64 = int.div.checked(ri,four)
+  oc:u64 = int.rem.checked(oc_full,two)
+  bias:u64 = call(ra,rb,oc) {"function":"tget"}
+  one:u64 = const() {"value":1}
+  zero:u64 = const() {"value":0}
+  pre:bool = compare.eq(rm,one)
+  seed:u64 = select(pre,bias,zero)
+  acc:u64 = call(ra,rx,rw,ri,seed) {"function":"conv_fma_point"}
+  post:u64 = call(acc,bias) {"function":"addf"}
+  value:u64 = select(pre,acc,post)
+  addr:u64 = call(ra,ro,ri) {"function":"taddr"}
+  stored:u64 = call(ra,addr,value) {"function":"put4"}
+  next:u64 = int.add.wrap(ri,one)
+  jump b1(ra,ro,rx,rw,rb,rn,next,rm)
+block b3(final_out:u64)
+  ret(final_out)
+end
+fn conv_fma_explicit(a:mutbuf,xpub:u64,wpub:u64,bpub:u64,st:u64,pad:u64,dil:u64,mode:u64) -> (u64) effects(read,write,trap) entry(b0)
+block b0(a:mutbuf,xpub:u64,wpub:u64,bpub:u64,st:u64,pad:u64,dil:u64,mode:u64)
+  one_pair:u64 = const() {"value":4294967297}
+  z:u64 = const() {"value":0}
+  one:u64 = const() {"value":1}
+  st_ok:bool = compare.eq(st,one_pair)
+  pp_ok:bool = compare.eq(pad,z)
+  dil_ok:bool = compare.eq(dil,one_pair)
+  mode_ok:bool = compare.le(mode,one)
+  sd:bool = bool.and(st_ok,dil_ok)
+  sp:bool = bool.and(pp_ok,mode_ok)
+  config:bool = bool.and(sd,sp)
+  branch config b1(a,xpub,wpub,bpub,mode) b2(a)
+block b1(va:mutbuf,vi:u64,vw:u64,vb:u64,vm:u64)
+  x:u64 = call(va,vi) {"function":"public_f32"}
+  w:u64 = call(va,vw) {"function":"public_f32"}
+  b:u64 = call(va,vb) {"function":"public_f32"}
+  z1:u64 = const() {"value":0}
+  x_ok:bool = compare.ne(x,z1)
+  w_ok:bool = compare.ne(w,z1)
+  b_ok:bool = compare.ne(b,z1)
+  xw_ok:bool = bool.and(x_ok,w_ok)
+  handles:bool = bool.and(xw_ok,b_ok)
+  branch handles b3(va,x,w,b,vm) b4()
+block b2(ea:mutbuf)
+  unsupported:u64 = const() {"value":10}
+  refused:u64 = call(ea,unsupported) {"function":"terror"}
+  ret(refused)
+block b3(ga:mutbuf,gx:u64,gw:u64,gb:u64,gm:u64)
+  batch:u64 = call(ga,gx,gw,gb) {"function":"conv_cpu_route_shape"}
+  two:u64 = const() {"value":2}
+  enough:bool = compare.ge(batch,two)
+  branch enough b5(ga,gx,gw,gb,batch,gm) b2(ga)
+block b4()
+  bad_h:u64 = const() {"value":0}
+  ret(bad_h)
+block b5(la:mutbuf,lx:u64,lw:u64,lb:u64,ln:u64,lm:u64)
+  cx:u64 = call(la,lx) {"function":"is_contiguous"}
+  cw:u64 = call(la,lw) {"function":"is_contiguous"}
+  cb:u64 = call(la,lb) {"function":"is_contiguous"}
+  c1:u64 = const() {"value":1}
+  c0:u64 = const() {"value":0}
+  l_1:u64 = bit.and(cx,cw)
+  l_2:u64 = bit.and(l_1,cb)
+  contiguous:bool = compare.eq(l_2,c1)
+  dx:u64 = call(la,lx) {"function":"dptr"}
+  dw:u64 = call(la,lw) {"function":"dptr"}
+  db:u64 = call(la,lb) {"function":"dptr"}
+  grad_off:u64 = const() {"value":32}
+  gx_addr:u64 = int.add.wrap(dx,grad_off)
+  gw_addr:u64 = int.add.wrap(dw,grad_off)
+  gb_addr:u64 = int.add.wrap(db,grad_off)
+  gx_bit:u64 = call(la,gx_addr) {"function":"getw"}
+  gw_bit:u64 = call(la,gw_addr) {"function":"getw"}
+  gb_bit:u64 = call(la,gb_addr) {"function":"getw"}
+  xw_grad:u64 = bit.or(gx_bit,gw_bit)
+  all_grad:u64 = bit.or(xw_grad,gb_bit)
+  forward:bool = compare.eq(all_grad,c0)
+  metadata:bool = bool.and(contiguous,forward)
+  branch metadata b6(la,lx,lw,lb,ln,lm) b7(la)
+block b6(ma:mutbuf,mx:u64,mw:u64,mb:u64,mn:u64,mm:u64)
+  plane:u64 = const() {"value":32}
+  weight_count:u64 = const() {"value":36}
+  bias_count:u64 = const() {"value":2}
+  input_count:u64 = int.mul.wrap(mn,plane)
+  x_domain:u64 = call(ma,mx,input_count) {"function":"conv_fma_gate_words"}
+  w_domain:u64 = call(ma,mw,weight_count) {"function":"conv_fma_gate_words"}
+  b_domain:u64 = call(ma,mb,bias_count) {"function":"conv_fma_gate_words"}
+  domain1:u64 = bit.and(x_domain,w_domain)
+  domain2:u64 = bit.and(domain1,b_domain)
+  wanted:u64 = const() {"value":1}
+  domain:bool = compare.eq(domain2,wanted)
+  branch domain b8(ma,mx,mw,mb,mn,mm) b2(ma)
+block b7(na:mutbuf)
+  err:u64 = const() {"value":7}
+  domain_err:u64 = call(na,err) {"function":"terror"}
+  ret(domain_err)
+block b8(wa:mutbuf,wx:u64,ww:u64,wb:u64,wn:u64,wm:u64)
+  d0:u64 = const() {"value":128}
+  d1:u64 = const() {"value":136}
+  d2:u64 = const() {"value":144}
+  d3:u64 = const() {"value":152}
+  size:u64 = const() {"value":2}
+  rank:u64 = const() {"value":4}
+  zero:u64 = const() {"value":0}
+  p0:u64 = call(wa,d0,wn) {"function":"putw"}
+  p1:u64 = call(wa,d1,size) {"function":"putw"}
+  p2:u64 = call(wa,d2,size) {"function":"putw"}
+  p3:u64 = call(wa,d3,size) {"function":"putw"}
+  out:u64 = call(wa,rank,d0,zero) {"function":"tnew"}
+  allocated:bool = compare.ne(out,zero)
+  branch allocated b9(wa,wx,ww,wb,wn,wm,out) b4()
+block b9(fa:mutbuf,fx:u64,fw:u64,fb:u64,fn_:u64,fm:u64,fo:u64)
+  result:u64 = call(fa,fo,fx,fw,fb,fn_,fm) {"function":"conv_fma_fill"}
+  ret(result)
+end
