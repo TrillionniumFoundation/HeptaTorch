@@ -1,0 +1,67 @@
+fn opt_in_integral_extremum(s:mutbuf,x:u64,d:u64,which:u64) -> (u64) effects(read,write,trap) entry(start)
+block start(s:mutbuf,x:u64,d:u64,which:u64)
+  desc:u64 = call(s,x) {"function":"dptr"}
+  eight:u64 = const() {"value":8}
+  count_addr:u64 = int.add.wrap(desc,eight)
+  limit:u64 = call(s,count_addr) {"function":"getw"}
+  zero:u64 = const() {"value":0}
+  empty:bool = compare.eq(limit,zero)
+  branch empty invalid(s) first(s,x,d,which,limit)
+block invalid(se:mutbuf)
+  seven:u64 = const() {"value":7}
+  err:u64 = call(se,seven) {"function":"terror"}
+  ret(err)
+block first(sf:mutbuf,xf:u64,df:u64,wf:u64,nf:u64)
+  zf:u64 = const() {"value":0}
+  f:u64 = call(sf,xf,zf) {"function":"tget"}
+  badf:u64 = call(sf,zf) {"function":"getw"}
+  failf:bool = compare.ne(badf,zf)
+  branch failf fail() initialize(sf,xf,df,wf,nf,f)
+block initialize(si:mutbuf,xi:u64,di:u64,wi:u64,ni:u64,fi:u64)
+  one:u64 = const() {"value":1}
+  two:u64 = const() {"value":2}
+  maxop:u64 = const() {"value":24}
+  i64:bool = compare.eq(di,two)
+  max:bool = compare.eq(wi,maxop)
+  sign:u64 = const() {"value":9223372036854775808}
+  zero_i:u64 = const() {"value":0}
+  bias:u64 = select(i64,sign,zero_i)
+  jump loop(si,xi,di,ni,one,fi,bias,max)
+block loop(sl:mutbuf,xl:u64,dl:u64,nl:u64,jl:u64,vl:u64,bl:u64,ml:bool)
+  more:bool = compare.lt(jl,nl)
+  branch more step(sl,xl,dl,nl,jl,vl,bl,ml) create(sl,dl,vl)
+block step(ss:mutbuf,xs:u64,ds:u64,ns:u64,js:u64,vs:u64,bs:u64,ms:bool)
+  value:u64 = call(ss,xs,js) {"function":"tget"}
+  zs:u64 = const() {"value":0}
+  error:u64 = call(ss,zs) {"function":"getw"}
+  failed:bool = compare.ne(error,zs)
+  branch failed fail() compare_next(ss,xs,ds,ns,js,vs,bs,ms,value)
+block compare_next(sn:mutbuf,xn:u64,dn:u64,nn:u64,jn:u64,vn:u64,bn:u64,mn:bool,yn:u64)
+  nv:u64 = bit.xor(yn,bn)
+  cv:u64 = bit.xor(vn,bn)
+  small:bool = compare.lt(nv,cv)
+  large:bool = compare.gt(nv,cv)
+  pick:bool = select(mn,large,small)
+  winner:u64 = select(pick,yn,vn)
+  on:u64 = const() {"value":1}
+  next:u64 = int.add.wrap(jn,on)
+  jump loop(sn,xn,dn,nn,next,winner,bn,mn)
+block create(sc:mutbuf,dc:u64,vc:u64)
+  zero_c:u64 = const() {"value":0}
+  one_c:u64 = const() {"value":1}
+  out:u64 = call(sc,zero_c,zero_c,zero_c,one_c,dc) {"function":"typed_descriptor"}
+  bad:bool = compare.eq(out,zero_c)
+  branch bad fail() store(sc,out,dc,vc)
+block store(st:mutbuf,ot:u64,dt:u64,vt:u64)
+  zero_t:u64 = const() {"value":0}
+  width:u64 = call(dt) {"function":"dtype_width"}
+  addr:u64 = call(st,ot,zero_t) {"function":"taddr"}
+  ok:u64 = call(st,addr,width,vt) {"function":"typed_store"}
+  bad_t:bool = compare.eq(ok,zero_t)
+  branch bad_t fail() done(ot)
+block done(od:u64)
+  ret(od)
+block fail()
+  z:u64 = const() {"value":0}
+  ret(z)
+end
