@@ -1,0 +1,62 @@
+block grad_kind(ns0_sad:mutbuf,ns0_nad:u64,ns0_dad:u64,ns0_pad:u64,ns0_rad:u64,ns0_kind:u64,ns0_view_kind:u64)
+  ns0_g0:u64 = const() {"value":0}
+  ns0_scope_full:u64 = bit.or(ns0_kind,ns0_view_kind)
+  ns0_ordinary_leaf:bool = compare.eq(ns0_scope_full,ns0_g0)
+  branch ns0_ordinary_leaf wrap(ns0_sad,ns0_nad,ns0_dad,ns0_pad,ns0_rad) prior_kind(ns0_sad,ns0_nad,ns0_dad,ns0_pad,ns0_rad,ns0_kind,ns0_view_kind)
+block prior_kind(ns1_sp:mutbuf,ns1_np:u64,ns1_dp:u64,ns1_pp:u64,ns1_rp:u64,ns1_kp:u64,ns1_vp:u64)
+  ns1_s45:u64 = const() {"value":45}
+  ns1_s1:u64 = const() {"value":1}
+  ns1_reshape_edge:bool = compare.eq(ns1_kp,ns1_s45)
+  ns1_ordinary_view:bool = compare.eq(ns1_vp,ns1_s1)
+  ns1_one_prior:bool = bool.and(ns1_reshape_edge,ns1_ordinary_view)
+  branch ns1_one_prior prior_leaf(ns1_sp,ns1_np,ns1_dp,ns1_pp,ns1_rp) grad_error(ns1_sp)
+block prior_leaf(ns2_sl2:mutbuf,ns2_nl2:u64,ns2_dl2:u64,ns2_pl2:u64,ns2_rl2:u64)
+  ns2_n0:u64 = const() {"value":0}
+  ns2_base:u64 = call(ns2_sl2,ns2_nl2,ns2_n0) {"function":"graph_parent_at"}
+  ns2_valid:bool = compare.ne(ns2_base,ns2_n0)
+  branch ns2_valid differentiable_leaf(ns2_sl2,ns2_nl2,ns2_dl2,ns2_pl2,ns2_rl2,ns2_base) grad_error(ns2_sl2)
+block differentiable_leaf(ns3_sb:mutbuf,ns3_nb:u64,ns3_db:u64,ns3_pb:u64,ns3_rb:u64,ns3_bb:u64)
+  ns3_base_desc:u64 = call(ns3_sb,ns3_bb) {"function":"dptr"}
+  ns3_base_rank:u64 = call(ns3_sb,ns3_base_desc) {"function":"getw"}
+  ns3_one_b:u64 = const() {"value":1}
+  ns3_lifted_rank:u64 = int.add.wrap(ns3_base_rank,ns3_one_b)
+  ns3_rank_ok:bool = compare.eq(ns3_lifted_rank,ns3_rb)
+  ns3_eight_b:u64 = const() {"value":8}
+  ns3_bc_at:u64 = int.add.wrap(ns3_base_desc,ns3_eight_b)
+  ns3_nc_at:u64 = int.add.wrap(ns3_pb,ns3_eight_b)
+  ns3_bc:u64 = call(ns3_sb,ns3_bc_at) {"function":"getw"}
+  ns3_nc:u64 = call(ns3_sb,ns3_nc_at) {"function":"getw"}
+  ns3_count_ok:bool = compare.eq(ns3_bc,ns3_nc)
+  ns3_forty_b:u64 = const() {"value":40}
+  ns3_bk_at:u64 = int.add.wrap(ns3_base_desc,ns3_forty_b)
+  ns3_bk:u64 = call(ns3_sb,ns3_bk_at) {"function":"getw"}
+  ns3_view_b:u64 = const() {"value":408}
+  ns3_bv_at:u64 = int.add.wrap(ns3_base_desc,ns3_view_b)
+  ns3_bv:u64 = call(ns3_sb,ns3_bv_at) {"function":"getw"}
+  ns3_off_b:u64 = const() {"value":232}
+  ns3_bo_at:u64 = int.add.wrap(ns3_base_desc,ns3_off_b)
+  ns3_bo:u64 = call(ns3_sb,ns3_bo_at) {"function":"getw"}
+  ns3_bcont:u64 = call(ns3_sb,ns3_bb) {"function":"is_contiguous"}
+  ns3_b0:u64 = const() {"value":0}
+  ns3_bflags_a:u64 = bit.or(ns3_bk,ns3_bv)
+  ns3_bflags_b:u64 = bit.or(ns3_bflags_a,ns3_bo)
+  ns3_base_leaf:bool = compare.eq(ns3_bflags_b,ns3_b0)
+  ns3_base_dense:bool = compare.eq(ns3_bcont,ns3_one_b)
+  ns3_storage_b:u64 = const() {"value":216}
+  ns3_version_b:u64 = const() {"value":224}
+  ns3_bs_at:u64 = int.add.wrap(ns3_base_desc,ns3_storage_b)
+  ns3_ns_at:u64 = int.add.wrap(ns3_pb,ns3_storage_b)
+  ns3_bs:u64 = call(ns3_sb,ns3_bs_at) {"function":"getw"}
+  ns3_ns:u64 = call(ns3_sb,ns3_ns_at) {"function":"getw"}
+  ns3_bver_at:u64 = int.add.wrap(ns3_base_desc,ns3_version_b)
+  ns3_nver_at:u64 = int.add.wrap(ns3_pb,ns3_version_b)
+  ns3_bver:u64 = call(ns3_sb,ns3_bver_at) {"function":"getw"}
+  ns3_nver:u64 = call(ns3_sb,ns3_nver_at) {"function":"getw"}
+  ns3_storage_ok:bool = compare.eq(ns3_bs,ns3_ns)
+  ns3_version_ok:bool = compare.eq(ns3_bver,ns3_nver)
+  ns3_ids_ok:bool = bool.and(ns3_storage_ok,ns3_version_ok)
+  ns3_geom_ok:bool = bool.and(ns3_rank_ok,ns3_count_ok)
+  ns3_base_ok:bool = bool.and(ns3_base_leaf,ns3_base_dense)
+  ns3_pass_a:bool = bool.and(ns3_geom_ok,ns3_base_ok)
+  ns3_pass_b:bool = bool.and(ns3_pass_a,ns3_ids_ok)
+  branch ns3_pass_b wrap(ns3_sb,ns3_nb,ns3_db,ns3_pb,ns3_rb) grad_error(ns3_sb)
