@@ -1,0 +1,115 @@
+fn opt_in_round_f32(s:mutbuf,x:u64,op:u64) -> (u64) effects(read,write,trap) entry(admit)
+block admit(s:mutbuf,x:u64,op:u64)
+  p:u64 = call(s,x) {"function":"dptr"}
+  grad_at:u64 = const() {"value":32}
+  grad_ptr:u64 = int.add.wrap(p,grad_at)
+  grad:u64 = call(s,grad_ptr) {"function":"getw"}
+  zero:u64 = const() {"value":0}
+  grad_ok:bool = compare.eq(grad,zero)
+  branch grad_ok geometry(s,x,p,op) no_ad(s)
+block no_ad(sg:mutbuf)
+  codeg:u64 = const() {"value":5}
+  errg:u64 = call(sg,codeg) {"function":"terror"}
+  ret(errg)
+block geometry(st:mutbuf,xt:u64,pt:u64,ot:u64)
+  offset_at:u64 = const() {"value":232}
+  offset_ptr:u64 = int.add.wrap(pt,offset_at)
+  offset:u64 = call(st,offset_ptr) {"function":"getw"}
+  stride_ok:u64 = call(st,xt) {"function":"is_contiguous"}
+  zerot:u64 = const() {"value":0}
+  onet:u64 = const() {"value":1}
+  offset_ok:bool = compare.eq(offset,zerot)
+  contiguous:bool = compare.eq(stride_ok,onet)
+  admitted:bool = bool.and(offset_ok,contiguous)
+  branch admitted allocate(st,xt,pt,ot) unsupported(st)
+block unsupported(su:mutbuf)
+  codeu:u64 = const() {"value":7}
+  erru:u64 = call(su,codeu) {"function":"terror"}
+  ret(erru)
+block allocate(sa:mutbuf,xa:u64,pa:u64,oa:u64)
+  rank:u64 = call(sa,pa) {"function":"getw"}
+  shape_at:u64 = const() {"value":96}
+  shape:u64 = int.add.wrap(pa,shape_at)
+  zeroa:u64 = const() {"value":0}
+  y:u64 = call(sa,rank,shape,zeroa) {"function":"tnew"}
+  failed:bool = compare.eq(y,zeroa)
+  branch failed failure() start(sa,xa,pa,y,oa)
+block failure()
+  zerof:u64 = const() {"value":0}
+  ret(zerof)
+block start(ss:mutbuf,xs:u64,ps:u64,ys:u64,os:u64)
+  count_at:u64 = const() {"value":8}
+  count_ptr:u64 = int.add.wrap(ps,count_at)
+  count:u64 = call(ss,count_ptr) {"function":"getw"}
+  zeros:u64 = const() {"value":0}
+  jump loop(ss,xs,ys,count,zeros,os)
+block loop(sl:mutbuf,xl:u64,yl:u64,nl:u64,il:u64,ol:u64)
+  more:bool = compare.lt(il,nl)
+  branch more element(sl,xl,yl,nl,il,ol) done(yl)
+block element(se:mutbuf,xe:u64,ye:u64,ne:u64,ie:u64,oe:u64)
+  w:u64 = call(se,xe,ie) {"function":"tget"}
+  value:u64 = call(w,oe) {"function":"opt_in_round_f32_word"}
+  address:u64 = call(se,ye,ie) {"function":"taddr"}
+  stored:u64 = call(se,address,value) {"function":"put4"}
+  onee:u64 = const() {"value":1}
+  next:u64 = int.add.wrap(ie,onee)
+  jump loop(se,xe,ye,ne,next,oe)
+block done(yd:u64)
+  ret(yd)
+end
+fn opt_in_round_f32_word(word:u64,operation:u64) -> (u64) effects(read,write,trap) entry(inspect)
+block inspect(word:u64,operation:u64)
+  magnitude_mask:u64 = const() {"value":2147483647}
+  mag:u64 = bit.and(word,magnitude_mask)
+  inf:u64 = const() {"value":2139095040}
+  nan:bool = compare.gt(mag,inf)
+  branch nan quiet(word) finite_or_inf(word,operation,mag)
+block quiet(wq:u64)
+  quiet_mask:u64 = const() {"value":4194304}
+  q:u64 = bit.or(wq,quiet_mask)
+  ret(q)
+block finite_or_inf(wf:u64,of:u64,mf:u64)
+  all_integral_at:u64 = const() {"value":1258291200}
+  integral:bool = compare.ge(mf,all_integral_at)
+  branch integral unchanged(wf) small(wf,of,mf)
+block unchanged(wu:u64)
+  ret(wu)
+block small(ws:u64,os:u64,ms:u64)
+  one:u64 = const() {"value":1065353216}
+  below_one:bool = compare.lt(ms,one)
+  branch below_one below(ws,os) mask(ws,os,ms)
+block below(wb:u64,ob:u64)
+  signmask:u64 = const() {"value":2147483648}
+  signedzero:u64 = bit.and(wb,signmask)
+  jump adjust(wb,ob,signedzero)
+block mask(wm:u64,om:u64,mm:u64)
+  frac_bits:u64 = const() {"value":23}
+  exponent:u64 = int.shr.checked(mm,frac_bits)
+  boundary:u64 = const() {"value":150}
+  fractional:u64 = int.sub.wrap(boundary,exponent)
+  all_ones:u64 = const() {"value":4294967295}
+  keep:u64 = int.shl.checked(all_ones,fractional)
+  chopped:u64 = bit.and(wm,keep)
+  jump adjust(wm,om,chopped)
+block adjust(wa:u64,oa:u64,ta:u64)
+  one_word:u64 = const() {"value":1065353216}
+  floor_op:u64 = const() {"value":20}
+  ceil_op:u64 = const() {"value":21}
+  sign_at:u64 = const() {"value":2147483648}
+  za:u64 = const() {"value":0}
+  sign:u64 = bit.and(wa,sign_at)
+  neg:bool = compare.ne(sign,za)
+  pos:bool = compare.eq(sign,za)
+  floor:bool = compare.eq(oa,floor_op)
+  ceil:bool = compare.eq(oa,ceil_op)
+  down:bool = bool.and(neg,floor)
+  up:bool = bool.and(pos,ceil)
+  directional:bool = bool.or(up,down)
+  discarded:bool = compare.ne(wa,ta)
+  step:bool = bool.and(directional,discarded)
+  signed_one:u64 = bit.or(sign,one_word)
+  branch step advance(ta,signed_one) unchanged(ta)
+block advance(tn:u64,dn:u64)
+  result:u64 = call(tn,dn) {"function":"addf"}
+  ret(result)
+end
