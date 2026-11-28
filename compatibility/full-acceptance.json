@@ -25,7 +25,7 @@
       "id": "dtype-layout",
       "status": "IN_PROGRESS",
       "required": "All upstream dtypes, conversion, promotion, numerical modes, dense/sparse/compressed/nested/quantized/complex layouts and invariants",
-      "remaining": "Complete dtype promotion, all conversion/rounding modes, ranks, layouts and devices. The scoped BF16 AVX2/AVX512 NaN copy repair is implemented; DEFAULT dispatch and other architectures remain. The new29-group/13851-case combined candidate requires its own actual run, including the same-F64 NaN repair."
+      "remaining": "Complete dtype promotion, all conversion/rounding modes, ranks, layouts and devices. The scoped BF16 AVX2/AVX512 NaN copy repair is implemented; DEFAULT dispatch and other architectures remain. The exact main passed its bounded 29-group/13,851-case run, including the scoped same-F64 NaN repair."
     },
     {
       "id": "native-schemas",
@@ -109,7 +109,7 @@
       "id": "final-integration",
       "status": "OPEN",
       "required": "Full original test and application acceptance, independent final review, performance/resource/error qualifications and retirement of replaced implementation paths",
-      "remaining": "Run full original upstream/application/performance/resource/error acceptance and independent review of every gate. Complete the current 29-group/13851-case focused run and migrate all remaining active predecessor consumers before final retirement."
+      "remaining": "Run full original upstream/application/performance/resource/error acceptance and independent review of every gate. Retain the exact-main focused qualification and migrate all remaining active predecessor consumers before final retirement."
     }
   ],
   "current_runtime_integration": {
@@ -124,7 +124,7 @@
     },
     "audit": "docs/current-audit.md",
     "qualification_coordinator": "tests/qualify_current_runtime.py",
-    "current_candidate_status": "PENDING_ACTUAL_29_GROUP_13851_RUN",
+    "current_candidate_status": "PASS_ACTUAL_29_GROUP_13851_RUN_EXACT_MAIN_CURRENT_RUNTIME_ONLY",
     "required_current_image_cases": 13851,
     "required_current_image_groups": 29,
     "required_suites": [
@@ -190,7 +190,12 @@
       "typed_relu": 776
     },
     "qualification_plan": "validation/current-runtime775/qualification-plan.json",
-    "current_execution_evidence": null,
+    "current_execution_evidence": {
+      "path": "validation/current-runtime775/exact-main-ci.json",
+      "source_commit": "e9444902df9878060ab389a70ee957c1b7f4a887",
+      "workflow_run": 44912529511,
+      "scope": "Current HIA Runtime focused suites only"
+    },
     "scope": "One775-function/15-unit HIA candidate. All28 predecessor groups/13075 cases remain mandatory; typed ReLU adds776 fixed AVX2 no-grad cases for I64/F64/F16/BF16. Four old ReLU control requests have explicit numerical successors using the same actual776 reference. Half239 and F6487 request partitions are unchanged. All29 groups/13851 cases must pass one actual cold-built main image; Generator131 also executes separately linked current-object probes. Whole-PyTorch qualification is not implied.",
     "main_plus_independent_generator_probe_images": true,
     "historical_qualification_transferred": false,
@@ -206,7 +211,7 @@
     "numeric_predicate_coordinator": "tests/numeric_predicates/run.py",
     "protocol_controls_counted_as_successful_torch_compatibility": false,
     "original_logical147_and_Half47_retained": true,
-    "pending_dtype_audit": "All29 groups require complete requalification on this source/image. ReLU775 has one actual shared1552-case Half-negation371, wide-negation405 and ReLU776 run with original physical replay and complete report readback; source inverses do not qualify the complete image. Previous PR53 current-runtime44883329985 failed its full28 gate and remains a failure. The independent old F64 strict sqrt report remains4/55 failed groups: PR52 observed1984 differences under AVX512, PR53 observed4008 under AVX2. Hardware capability alone is not an established cause. The auxiliary sqrt64 is not an admitted canonical775 unary operation. General dtype/layout/device/architecture semantics and typed AD remain open.",
+    "pending_dtype_audit": "All 29 focused groups passed on the recorded exact main source/image; new candidates require their own execution. ReLU775 has one actual shared1552-case Half-negation371, wide-negation405 and ReLU776 run with original physical replay and complete report readback; source inverses do not qualify the complete image. Previous PR53 current-runtime44883329985 failed its full28 gate and remains a failure. The independent old F64 strict sqrt report remains4/55 failed groups: PR52 observed1984 differences under AVX512, PR53 observed4008 under AVX2. Hardware capability alone is not an established cause. The auxiliary sqrt64 is not an admitted canonical775 unary operation. General dtype/layout/device/architecture semantics and typed AD remain open.",
     "bf16_copy_coordinator": "tests/bf16_copy/run.py",
     "half_mul_coordinator": "tests/half_mul/run.py",
     "half47_mul_successor": "tests/current_runtime_half_mul_successor.py",
@@ -245,7 +250,7 @@
     "same_f64_arithmetic_coordinator": "tests/same_f64_arithmetic/run.py",
     "same_f64_arithmetic_complete_source_inverse": "tools/current_runtime/same_f64_arithmetic_source_transition.py",
     "same_f64_arithmetic_observer_inverse": "tools/current_runtime/same_f64_arithmetic_observer_transition.py",
-    "full_13851_executed": false,
+    "full_13851_executed": true,
     "typed_relu_coordinator": "tests/typed_relu/run.py",
     "typed_relu_complete_source_inverse": "tools/current_runtime/typed_relu_source_transition.py",
     "typed_relu_original_controls_successor": "tests/current_runtime_typed_relu_controls.py",
