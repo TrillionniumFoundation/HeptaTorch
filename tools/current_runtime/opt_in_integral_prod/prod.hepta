@@ -1,0 +1,45 @@
+fn opt_in_integral_prod(si:mutbuf,xi:u64) -> (u64) effects(read,write,trap) entry(start)
+block start(si:mutbuf,xi:u64)
+  desc:u64 = call(si,xi) {"function":"dptr"}
+  count_off:u64 = const() {"value":8}
+  count_addr:u64 = int.add.wrap(desc,count_off)
+  limit:u64 = call(si,count_addr) {"function":"getw"}
+  zero:u64 = const() {"value":0}
+  identity:u64 = const() {"value":1}
+  jump loop(si,xi,limit,zero,identity)
+block loop(sl:mutbuf,xl:u64,limit_l:u64,i:u64,acc:u64)
+  more:bool = compare.lt(i,limit_l)
+  branch more step(sl,xl,limit_l,i,acc) create(sl,acc)
+block step(ss:mutbuf,xs:u64,limit_s:u64,is:u64,as:u64)
+  value:u64 = call(ss,xs,is) {"function":"tget"}
+  zero_s:u64 = const() {"value":0}
+  state:u64 = call(ss,zero_s) {"function":"getw"}
+  failed:bool = compare.ne(state,zero_s)
+  jump finish_step(ss,xs,limit_s,is,as,value,failed)
+block finish_step(sf:mutbuf,xf:u64,limit_f:u64,if_:u64,af:u64,vf:u64,failed_f:bool)
+  branch failed_f fail() advance(sf,xf,limit_f,if_,af,vf)
+block advance(sa:mutbuf,xa:u64,limit_a:u64,ia:u64,aa:u64,va:u64)
+  product:u64 = int.mul.wrap(aa,va)
+  one_a:u64 = const() {"value":1}
+  next_i:u64 = int.add.wrap(ia,one_a)
+  jump loop(sa,xa,limit_a,next_i,product)
+block create(sc:mutbuf,ac:u64)
+  zero_c:u64 = const() {"value":0}
+  one_c:u64 = const() {"value":1}
+  two_c:u64 = const() {"value":2}
+  out:u64 = call(sc,zero_c,zero_c,zero_c,one_c,two_c) {"function":"typed_descriptor"}
+  bad:bool = compare.eq(out,zero_c)
+  branch bad fail() store(sc,out,ac)
+block store(st:mutbuf,ot:u64,at:u64)
+  zero_t:u64 = const() {"value":0}
+  eight:u64 = const() {"value":8}
+  addr:u64 = call(st,ot,zero_t) {"function":"taddr"}
+  ok:u64 = call(st,addr,eight,at) {"function":"typed_store"}
+  bad_t:bool = compare.eq(ok,zero_t)
+  branch bad_t fail() done(ot)
+block done(od:u64)
+  ret(od)
+block fail()
+  z:u64 = const() {"value":0}
+  ret(z)
+end
